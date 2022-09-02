@@ -19,6 +19,7 @@ from cros.factory.utils import process_utils
 from cros.factory.external.py_lib import cv2 as cv
 
 
+
 # sysfs camera paths.
 GLOB_CAMERA_PATH = '/sys/bus/usb/drivers/uvcvideo/*/video4linux/video*'
 RE_CAMERA_INDEX = r'/sys/bus/usb/drivers/uvcvideo/.*/video4linux/video(\d+)'
@@ -154,6 +155,22 @@ def FilterNonVideoCapture(uvc_vid_dirs, dut):
       raise
   return result
 
+
+def GetCameraIndexByDevicePort(dut, device_port):
+  """Gets the camera index by device port.
+
+  Args:
+    dut: a cros.factory.utils.sys_interface.SystemInterface object
+    device_port: The device port of the camera, e.g. '1-1:1.0'
+
+  Returns:
+    The camera index if found, otherwise None.
+  """
+  camera_paths = GetValidCameraPaths(dut)
+  for path, index in camera_paths:
+    if device_port in path:
+      return index
+  return None
 
 # TODO(yllin): Support device interface for Readers.
 class ICameraReader(abc.ABC):
