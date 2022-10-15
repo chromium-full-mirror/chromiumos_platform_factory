@@ -6,6 +6,7 @@ import logging
 import os
 import re
 
+from cros.factory.gooftool.common import Util
 from cros.factory.gooftool import vpd_data
 from cros.factory.test.l10n import regions
 from cros.factory.test.rules import phase
@@ -44,6 +45,7 @@ class VPDError(Error):
 class VPDUtils:
 
   def __init__(self, project):
+    self._util = Util()
     self._project = project
     self._vpd = vpd.VPDTool()
     self._cros_config = cros_config.CrosConfig()
@@ -241,6 +243,14 @@ class VPDUtils:
     required_vpd_ro_data = vpd_data.REQUIRED_RO_DATA.copy()
     audio_vpd_ro_data = self._GetAudioVPDROData()
     required_vpd_ro_data.update(audio_vpd_ro_data)
+
+    # Update PVS required field
+    # ARM-based platforms are not suppprted by PVS yet, therefore should be
+    # ruled out.
+    arch = self._util.shell('crossystem arch').stdout.strip()
+    if phase.GetPhase() <= phase.DVT and self._util.shell(
+        'crossystem arch').stdout.strip() != 'arm':
+      required_vpd_ro_data.update(vpd_data.PVS_REQUIRED_RO_DATA.copy())
 
     # Check required data
     ro_vpd = self._vpd.GetAllData(partition=vpd.VPD_READONLY_PARTITION_NAME)

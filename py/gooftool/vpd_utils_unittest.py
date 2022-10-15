@@ -4,9 +4,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from collections import namedtuple
 import unittest
 from unittest import mock
 
+from cros.factory.gooftool.common import Shell
+from cros.factory.gooftool import core
 from cros.factory.gooftool import vpd_data
 from cros.factory.gooftool import vpd_utils
 from cros.factory.test.rules import phase
@@ -16,6 +19,8 @@ from cros.factory.utils import file_utils
 from cros.factory.external.chromeos_cli import cros_config
 from cros.factory.external.chromeos_cli import vpd
 
+# A stub for stdout
+StubStdout = namedtuple('StubStdout', ['stdout'])
 
 VPDUTILS = 'cros.factory.gooftool.vpd_utils.VPDUtils'
 CROS_CONFIG = 'cros.factory.external.chromeos_cli.cros_config.CrosConfig'
@@ -24,6 +29,12 @@ PHASE = 'cros.factory.test.rules.phase.GetPhase'
 
 class VPDUtilsTest(unittest.TestCase):
   _SIMPLE_VALID_RO_VPD_DATA = {
+      'serial_number': 'A1234',
+      'region': 'us',
+      'dlm_sku_id': '1234',
+  }
+
+  _SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS = {
       'serial_number': 'A1234',
       'region': 'us',
   }
@@ -41,6 +52,9 @@ class VPDUtilsTest(unittest.TestCase):
     self._project = 'chromebook'
     self.vpd_utils = vpd_utils.VPDUtils(self._project)
     self.vpd_utils._vpd = mock.Mock(self.vpd_utils._vpd)
+    self.vpd_utils._util = mock.Mock(core.Util)
+    self.vpd_utils._util.shell = mock.Mock(Shell)
+
     self.get_amp_info = mock.patch(
         'cros.factory.test.utils.smart_amp_utils.GetSmartAmpInfo')
     self.get_amp_info.start().return_value = [None, None, None]
@@ -431,6 +445,41 @@ class VPDUtilsTest(unittest.TestCase):
         '=CjAKIP______TESTING_______-rhGkyZUn_'
         'zbTOX_9OQI_3EAAaCmNocm9tZWJvb2sQouDUgwQ=')
     self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA, rw=rw_vpd_value)
+    self.vpd_utils.VerifyVPD()
+
+  # TODO (b/212216855)
+  @label_utils.Informational
+  @mock.patch(PHASE)
+  def testVerifyVPD_MissingPVSPrePVT(self, get_phase_mock):
+    get_phase_mock.return_value = phase.DVT
+    rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
+    self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
+                        rw=rw_vpd_value)
+    self.assertRaisesRegex(vpd_utils.VPDError, 'Missing required RO VPD values: dlm_sku_id',
+                           self.vpd_utils.VerifyVPD)
+
+  # TODO (b/212216855)
+  @label_utils.Informational
+  @mock.patch(PHASE)
+  def testVerifyVPD_MissingPVSPrePVTArm(self, get_phase_mock):
+    """Without PVS related VPD field should work fine on ARM platforms."""
+    get_phase_mock.return_value = phase.DVT
+    self.vpd_utils._util.shell.return_value = StubStdout('arm')
+    rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
+    self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
+                        rw=rw_vpd_value)
+    self.vpd_utils.VerifyVPD()
+
+  # TODO (b/212216855)
+  @label_utils.Informational
+  @mock.patch(PHASE)
+  def testVerifyVPD_MissingPVSPVTx86(self, get_phase_mock):
+    """Without PVS related VPD field should work fine on x86 platforms."""
+    get_phase_mock.return_value = phase.PVT
+    self.vpd_utils._util.shell.return_value = StubStdout('x86')
+    rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
+    self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
+                        rw=rw_vpd_value)
     self.vpd_utils.VerifyVPD()
 
   def testVerifyVPD_UnexpectedValues(self):
