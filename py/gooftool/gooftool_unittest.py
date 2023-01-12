@@ -435,7 +435,7 @@ class GooftoolTest(unittest.TestCase):
     self.assertRaises(Error, self._gooftool.VerifyManagementEngineLocked)
 
   def testClearGBBFlags(self):
-    command = '/usr/share/vboot/bin/set_gbb_flags.sh 0 2>&1'
+    command = 'futility gbb --set --flash --flags=0 2>&1'
 
     self._gooftool._util.shell.return_value = Obj(success=True)
     self._gooftool.ClearGBBFlags()

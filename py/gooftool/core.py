@@ -899,7 +899,7 @@ class Gooftool:
       raise Error('\n'.join(error))
 
   def GetGBBFlags(self):
-    result = self._util.shell('/usr/share/vboot/bin/get_gbb_flags.sh')
+    result = self._util.shell('futility gbb --get --flash --flags')
     if result.success:
       for line in result.stdout.split('\n'):
         match = re.match(r'.*GBB set flags: (\S*)', line)
@@ -910,7 +910,7 @@ class Gooftool:
 
   def SetGBBFlags(self, flags):
     result = self._util.shell(
-        f'/usr/share/vboot/bin/set_gbb_flags.sh {flags} 2>&1')
+        f'futility gbb --set --flash --flags={flags} 2>&1')
     if not result.success:
       raise Error('Failed setting GBB flags %s' % result.stdout)
 
