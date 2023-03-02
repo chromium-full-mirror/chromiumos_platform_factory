@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-15 07:57+UTC\n"
+"PO-Revision-Date: 2024-05-22 12:00+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3961,22 +3961,6 @@ msgstr "GRT（Google必須テスト）"
 msgid "Generic Chromebook"
 msgstr "汎用Chromebook"
 
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB End"
-msgstr ""
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB GRT (Google Required Tests)"
-msgstr "GRT（Google必須テスト）"
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB SMT"
-msgstr ""
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Generic Replacement MLB SMT"
-msgstr ""
-
 #: ../py/test/test_lists/generic_rf_station.test_list.json
 msgid "Generic RF Station"
 msgstr "汎用RFステーション"
@@ -4129,6 +4113,9 @@ msgstr "合格するにはEnterキーを押してください。"
 #: ../py/test/test_ui.py
 msgid "Press ESC to fail."
 msgstr "失敗するにはESCキーを押してください。"
+
+msgid "Replacement MLB GRT (Google Required Tests)"
+msgstr "MLB GRT（Google必須テスト）の代替"
 
 msgid "Bcic"
 msgstr "BCIC"

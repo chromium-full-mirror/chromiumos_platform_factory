@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-15 07:57+UTC\n"
+"PO-Revision-Date: 2024-05-22 12:00+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3895,22 +3895,6 @@ msgstr "GRT (การทดสอบที่กําหนดโดย Google
 msgid "Generic Chromebook"
 msgstr "ทั่วไป Chromebook"
 
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB End"
-msgstr ""
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB GRT (Google Required Tests)"
-msgstr "GRT (การทดสอบที่กําหนดโดย Google)"
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Replacement MLB SMT"
-msgstr ""
-
-#: ../py/test/test_lists/generic_replacement_mlb.test_list.json
-msgid "Generic Replacement MLB SMT"
-msgstr ""
-
 #: ../py/test/test_lists/generic_rf_station.test_list.json
 msgid "Generic RF Station"
 msgstr "สถานี RF ทั่วไป"
@@ -4063,6 +4047,9 @@ msgstr "กด Enter เพื่อผ่าน"
 #: ../py/test/test_ui.py
 msgid "Press ESC to fail."
 msgstr "กด ESC เพื่อยกเลิก"
+
+msgid "Replacement MLB GRT (Google Required Tests)"
+msgstr "การทดสอบ GRT แทน (Google กำหนด)"
 
 msgid "Branded Chassis"
 msgstr "แชสซีที่มีตราสินค้า"
