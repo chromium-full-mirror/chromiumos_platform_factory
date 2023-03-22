@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-22 12:00+UTC\n"
+"PO-Revision-Date: 2024-05-22 13:27+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -166,6 +166,10 @@ msgstr "Kiểm tra phiên bản secdata"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Serial Number"
 msgstr "kiểm tra số serial VPD serial number"
+
+#: ../build/pytests_label_generated.json
+msgid "Check Test List"
+msgstr "Kiểm tra danh sách kiểm tra"
 
 #: ../build/pytests_label_generated.json
 msgid "Clear Inactive GSC Slot"
@@ -513,6 +517,10 @@ msgstr "Dừng/ Khôi phục"
 #: ../build/pytests_label_generated.json
 msgid "Suspend Stress"
 msgstr "Đình chỉ căng thẳng"
+
+#: ../build/pytests_label_generated.json
+msgid "Switch Test List"
+msgstr "Chuyển danh sách kiểm tra"
 
 #: ../build/pytests_label_generated.json
 msgid "Sync Factory Server"
@@ -3603,6 +3611,10 @@ msgid "Fingerprint Sensor test"
 msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Finalize MLB"
+msgstr "Trình tự cuối cùng MLB"
+
+#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_fat.test_list.json
 #: ../py/test/test_lists/generic_fft.test_list.json
 #: ../py/test/test_lists/generic_grt.test_list.json
@@ -3723,10 +3735,6 @@ msgstr ""
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "SD Performance"
 msgstr "Hiệu suất SD"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "SMT Finalize"
-msgstr "SMT Trình tự cuối cùng"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Screen Rotation"
@@ -4013,6 +4021,10 @@ msgid "Stress Group With Rear Camera"
 msgstr "Camera phía sau Thử áp lực tập trung"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Check RMA test list"
+msgstr "Kiểm tra danh sách kiểm tra: RMA"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
 msgid "SMT (SA Test)"
 msgstr "SMT (SA Test)"
 
@@ -4047,6 +4059,10 @@ msgstr "IDID trạm quét"
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Stress Test"
 msgstr "Thử áp lực"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Switch to RMA test list"
+msgstr "Chuyển danh sách kiểm tra: RMA"
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"

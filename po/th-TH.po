@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-22 12:00+UTC\n"
+"PO-Revision-Date: 2024-05-22 13:27+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -166,6 +166,10 @@ msgstr "ตรวจสอบเวอร์ชัน Secdata"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Serial Number"
 msgstr "ตรวจสอบหมายเลขซีเรียล"
+
+#: ../build/pytests_label_generated.json
+msgid "Check Test List"
+msgstr "ตรวจสอบรายการทดสอบ"
 
 #: ../build/pytests_label_generated.json
 msgid "Clear Inactive GSC Slot"
@@ -513,6 +517,10 @@ msgstr "ระงับประวัติการทำงาน"
 #: ../build/pytests_label_generated.json
 msgid "Suspend Stress"
 msgstr "ระงับความเครียด"
+
+#: ../build/pytests_label_generated.json
+msgid "Switch Test List"
+msgstr "รายการทดสอบสวิตช์"
 
 #: ../build/pytests_label_generated.json
 msgid "Sync Factory Server"
@@ -3539,6 +3547,10 @@ msgid "Fingerprint Sensor test"
 msgstr "การทดสอบเซ็นเซอร์ลายนิ้วมือ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Finalize MLB"
+msgstr "สิ้นสุด MLB"
+
+#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_fat.test_list.json
 #: ../py/test/test_lists/generic_fft.test_list.json
 #: ../py/test/test_lists/generic_grt.test_list.json
@@ -3659,10 +3671,6 @@ msgstr "กลุ่มปุ่มกู้คืน"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "SD Performance"
 msgstr "ประสิทธิภาพ SD"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "SMT Finalize"
-msgstr "เสร็จสิ้น"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Screen Rotation"
@@ -3949,6 +3957,10 @@ msgid "Stress Group With Rear Camera"
 msgstr "กลุ่มทดสอบความเครียดด้วยกล้องหลัง"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Check RMA test list"
+msgstr "ตรวจสอบรายการทดสอบ RMA"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
 msgid "SMT (SA Test)"
 msgstr "SMT (SA ทดสอบ)"
 
@@ -3983,6 +3995,10 @@ msgstr "สแกนรหัสสถานี"
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Stress Test"
 msgstr "การทดสอบความเครียด"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Switch to RMA test list"
+msgstr "สลับไปใช้รายการทดสอบ RMA"
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"
@@ -4054,9 +4070,6 @@ msgstr "การทดสอบ GRT แทน (Google กำหนด)"
 msgid "Branded Chassis"
 msgstr "แชสซีที่มีตราสินค้า"
 
-msgid "Check Test List"
-msgstr "ตรวจสอบรายการทดสอบ"
-
 msgid "Feature Compliance Version"
 msgstr "เวอร์ชันการปฏิบัติตามคุณลักษณะ"
 
@@ -4074,9 +4087,6 @@ msgstr "บันทึกตัวอย่างรายการ CSV"
 
 msgid "Setup PSR Feature"
 msgstr "ตั้งค่าคุณลักษณะ PSR"
-
-msgid "Switch Test List"
-msgstr "รายการทดสอบสวิตช์"
 
 msgid "TPM State"
 msgstr "สถานะ TPM"
@@ -4161,9 +4171,6 @@ msgstr "ตรวจสอบการประกอบกล้องหน้
 msgid "Clear Unknown RW VPD"
 msgstr "ล้าง VPD RW ที่ไม่รู้จัก"
 
-msgid "Finalize MLB"
-msgstr "สิ้นสุด MLB"
-
 msgid "Shopfloor Service (GetDeviceInfo)"
 msgstr "บริการ Shopfloor (GetDeviceInfo)"
 
@@ -4181,12 +4188,6 @@ msgstr "เว็บจีแอล ตู้ปลา 1000"
 
 msgid "Webgl Aquarium 50"
 msgstr "เว็บจีแอล ตู้ปลา 50"
-
-msgid "Check RMA test list"
-msgstr "ตรวจสอบรายการทดสอบ RMA"
-
-msgid "Switch to RMA test list"
-msgstr "สลับไปใช้รายการทดสอบ RMA"
 
 msgid "Wireless Antenna (radiotap only)"
 msgstr "เสาอากาศไร้สาย (radiotap only)"

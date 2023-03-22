@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-22 12:00+UTC\n"
+"PO-Revision-Date: 2024-05-22 13:27+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -166,6 +166,10 @@ msgstr "Secdataバージョンの確認"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Serial Number"
 msgstr "シリアルナンバーの確認"
+
+#: ../build/pytests_label_generated.json
+msgid "Check Test List"
+msgstr "テストリストの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Clear Inactive GSC Slot"
@@ -513,6 +517,10 @@ msgstr "サスペンド/レジューム"
 #: ../build/pytests_label_generated.json
 msgid "Suspend Stress"
 msgstr "サスペンドストレス"
+
+#: ../build/pytests_label_generated.json
+msgid "Switch Test List"
+msgstr "テストリストの切り替え"
 
 #: ../build/pytests_label_generated.json
 msgid "Sync Factory Server"
@@ -3605,6 +3613,10 @@ msgid "Fingerprint Sensor test"
 msgstr "指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Finalize MLB"
+msgstr "MLB のファイナライズ"
+
+#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_fat.test_list.json
 #: ../py/test/test_lists/generic_fft.test_list.json
 #: ../py/test/test_lists/generic_grt.test_list.json
@@ -3725,10 +3737,6 @@ msgstr "リカバリーボタン グループ"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "SD Performance"
 msgstr "SD パフォーマンス"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "SMT Finalize"
-msgstr "ファイナライズ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Screen Rotation"
@@ -4015,6 +4023,10 @@ msgid "Stress Group With Rear Camera"
 msgstr "リアカメラを使用したストレステストグループ"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Check RMA test list"
+msgstr "RMAテストリストの確認"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
 msgid "SMT (SA Test)"
 msgstr "SMT（SAテスト）"
 
@@ -4049,6 +4061,10 @@ msgstr "ステーションIDのスキャン"
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Stress Test"
 msgstr "ストレステスト"
+
+#: ../py/test/test_lists/generic_smt.test_list.json
+msgid "Switch to RMA test list"
+msgstr "RMAテストリストに切り替え"
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"
@@ -4123,9 +4139,6 @@ msgstr "BCIC"
 msgid "Branded Chassis"
 msgstr "ブランドシャーシ"
 
-msgid "Check Test List"
-msgstr "テストリストの確認"
-
 msgid "Feature Compliance Version"
 msgstr "機能準拠バージョン"
 
@@ -4146,9 +4159,6 @@ msgstr "CSVエントリの記録例"
 
 msgid "Setup PSR Feature"
 msgstr "PSR機能の設定"
-
-msgid "Switch Test List"
-msgstr "テストリストの切り替え"
 
 msgid "TPM State"
 msgstr "TPM状態"
@@ -4371,9 +4381,6 @@ msgstr "汎用カメラ工場テスト"
 msgid "Clear Unknown RW VPD"
 msgstr "不明な RW VPD のクリア"
 
-msgid "Finalize MLB"
-msgstr "MLB のファイナライズ"
-
 msgid "Shopfloor Service (GetDeviceInfo)"
 msgstr "ショップフロアサービス (GetDeviceInfo)"
 
@@ -4538,12 +4545,6 @@ msgstr "Webgl Aquarium 1000"
 
 msgid "Webgl Aquarium 50"
 msgstr "Webgl Aquarium 50"
-
-msgid "Check RMA test list"
-msgstr "RMAテストリストの確認"
-
-msgid "Switch to RMA test list"
-msgstr "RMAテストリストに切り替え"
 
 msgid "Probe Storage"
 msgstr "ストレージのプローブ"
