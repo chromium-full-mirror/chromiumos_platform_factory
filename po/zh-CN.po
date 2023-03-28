@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-08-09 13:36+CST\n"
+"PO-Revision-Date: 2024-08-29 17:33+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -2930,6 +2930,7 @@ msgid "Upload Reg Codes"
 msgstr "上传注册码"
 
 #: ../py/test/pytests/sync_factory_server.py
+#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Upload Serial Number for auditing"
 msgstr "上传序号以供审核"
 
