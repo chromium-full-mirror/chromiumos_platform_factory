@@ -198,7 +198,7 @@ def _InvokeGerritAPI(
 def _InvokeGerritAPIJSON(method: str, url: str,
                          params: Optional[Sequence[Tuple[str, str]]] = None,
                          auth_cookie: str = '', json_body: Optional[Any] = None,
-                         response_schema: Optional[schema.BaseType] = None):
+                         response_schema: Optional[schema.AbstractType] = None):
   """Invokes a Gerrit API endpoint and returns the response payload in JSON.
 
   Args:
@@ -918,7 +918,7 @@ def GetCLInfo(
       max_attempt_count=DEFAULT_RETRY_COUNT, interval_sec=DEFAULT_DELAY_SEC,
       exceptions_to_catch=[GitUtilException], reraise=True)
   def _GetChangeInfo(scope: str, params: Sequence[Tuple[str, str]],
-                     response_schema: schema.BaseType):
+                     response_schema: schema.AbstractType):
     resp = _InvokeGerritAPIJSON('GET', f'{base_url}{scope}', params,
                                 auth_cookie=auth_cookie,
                                 response_schema=response_schema)

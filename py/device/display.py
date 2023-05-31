@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
+
 from cros.factory.device import device_types
 
 
@@ -33,11 +35,12 @@ class PortInfo:
     self.top = top
 
 
-class LinuxDisplay(device_types.DeviceComponent):
+class AbstractLinuxDisplay(device_types.DeviceComponent, abc.ABC):
 
   # syspath for backlight control
   BACKLIGHT_SYSPATH_PATTERN = '/sys/class/backlight/*'
 
+  @abc.abstractmethod
   def GetPortInfo(self):
     """Gets the port info of all the display ports.
 
@@ -46,6 +49,7 @@ class LinuxDisplay(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CaptureFramebuffer(self, port, box=None, downscale=False):
     """Captures a RGB image of the framebuffer on the given display port.
 
@@ -84,6 +88,7 @@ class LinuxDisplay(device_types.DeviceComponent):
       self._device.WriteFile(
           self._device.path.join(i, 'brightness'), str(new_value))
 
+  @abc.abstractmethod
   def DisplayImage(self, image_path):
     """Display image file on the screen.
 

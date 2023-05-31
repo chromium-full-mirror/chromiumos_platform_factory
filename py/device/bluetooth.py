@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 
 from cros.factory.device import device_types
 
@@ -10,13 +11,14 @@ class BluetoothManagerException(Exception):
   pass
 
 
-class BluetoothManager(device_types.DeviceComponent):
+class AbstractBluetoothManager(device_types.DeviceComponent, abc.ABC):
   """The class to handle bluetooth adapter and device.
 
   Raises:
     Raises BluetoothManagerException
   """
 
+  @abc.abstractmethod
   def SetDeviceConnected(self, adapter, device_address, connect):
     """Switches the device connection.
 
@@ -34,6 +36,7 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def RemovePairedDevice(self, adapter, device_address):
     """Removes the paired device.
 
@@ -52,6 +55,7 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def DisconnectAndUnpairDevice(self, adapter, device_address):
     """Disconnects and unpairs from the device, even if not currently paired.
 
@@ -65,6 +69,7 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CreatePairedDevice(self, adapter, device_address,
                          display_passkey_callback=None,
                          cancel_callback=None):
@@ -109,6 +114,7 @@ class BluetoothManager(device_types.DeviceComponent):
       return adapters[0]
     raise BluetoothManagerException('Fail to find any adapter.')
 
+  @abc.abstractmethod
   def GetAdapters(self, max_retry_times=10, interval=2, mac_addr=None):
     """Gets a list of available bluetooth adapters.
 
@@ -123,6 +129,7 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def RemoveDevices(self, adapter, paths):
     """Lets adapter to remove devices in paths.
 
@@ -132,10 +139,12 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetAllDevicePaths(self, adapter):
     """Gets all device paths under the adapter"""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetAllDevices(self, adapter):
     """Gets all device properties of scanned devices under the adapter
 
@@ -152,6 +161,7 @@ class BluetoothManager(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def ScanDevices(self, adapter, timeout_secs=10, match_address=None,
                   remove_before_scan=True):
     """Scans device around using adapter for timeout_secs.

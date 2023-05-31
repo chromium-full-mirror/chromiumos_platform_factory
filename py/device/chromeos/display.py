@@ -37,7 +37,7 @@ class ChromeOSPortInfo(display.PortInfo):
   drm_fb = None
 
 
-class ChromeOSDisplay(display.LinuxDisplay):
+class ChromeOSDisplay(display.AbstractLinuxDisplay):
 
   def GetPortInfo(self):
     """Gets the port info of all the display ports.

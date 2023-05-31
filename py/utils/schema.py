@@ -47,6 +47,7 @@ For example:
     )
 """
 
+import abc
 import copy
 
 from .type_utils import MakeList
@@ -81,7 +82,7 @@ class SchemaInvalidException(SchemaException):
     return f'{self.__class__.__name__}({self})'
 
 
-class BaseType:
+class AbstractType(abc.ABC):
   """Base type class for schema classes.
   """
 
@@ -89,13 +90,14 @@ class BaseType:
     self.label = label
 
   def __repr__(self):
-    return f'BaseType({self.label!r})'
+    return f'AbstractType({self.label!r})'
 
+  @abc.abstractmethod
   def Validate(self, data):
     raise NotImplementedError
 
 
-class Scalar(BaseType):
+class Scalar(AbstractType):
   """Scalar schema class.
 
   Attributes:
@@ -183,7 +185,7 @@ class RegexpStr(Scalar):
                             f"{self.regexp.pattern}")
 
 
-class Dict(BaseType):
+class Dict(AbstractType):
   """Dict schema class.
 
   This schema class is used to verify simple dict. Only the key type and value
@@ -210,7 +212,7 @@ class Dict(BaseType):
       raise SchemaException(
           f'key_type {key_type!r} of Dict {self.label!r} is not Scalar')
     self.key_type = key_type
-    if not isinstance(value_type, BaseType):
+    if not isinstance(value_type, AbstractType):
       raise SchemaException(
           f'value_type {value_type!r} of Dict {self.label!r} is not Schema '
           'object')
@@ -255,7 +257,7 @@ class Dict(BaseType):
       self.value_type.Validate(v)
 
 
-class FixedDict(BaseType):
+class FixedDict(AbstractType):
   """FixedDict schema class.
 
   FixedDict is a Dict with predefined allowed keys. And each key corresponds to
@@ -339,7 +341,7 @@ class FixedDict(BaseType):
           f'Keys {data_key_list!r} are undefined in FixedDict {self.label!r}')
 
 
-class JSONSchemaDict(BaseType):
+class JSONSchemaDict(AbstractType):
   """JSON schema class.
 
   This schema class allows mixing JSON schema with other schema types.
@@ -387,7 +389,7 @@ class JSONSchemaDict(BaseType):
                           ]})
 
 
-class List(BaseType):
+class List(AbstractType):
   """List schema class.
 
   Attributes:
@@ -403,7 +405,7 @@ class List(BaseType):
 
   def __init__(self, label, element_type=None, min_length=0, max_length=None):
     super().__init__(label)
-    if element_type and not isinstance(element_type, BaseType):
+    if element_type and not isinstance(element_type, AbstractType):
       raise SchemaException(
           f'element_type {element_type!r} of List {self.label!r} is not a '
           'Schema object')
@@ -446,7 +448,7 @@ class List(BaseType):
         self.element_type.Validate(data_value)
 
 
-class Tuple(BaseType):
+class Tuple(AbstractType):
   """Tuple schema class.
 
   Comparing to List, the Tuple schema makes sure that every element exactly
@@ -464,7 +466,7 @@ class Tuple(BaseType):
   def __init__(self, label, element_types=None):
     super().__init__(label)
     if (element_types and (not isinstance(element_types, (tuple, list))) or
-        (not all([isinstance(x, BaseType)] for x in element_types))):
+        (not all([isinstance(x, AbstractType)] for x in element_types))):
       raise SchemaException(
           f'element_types {element_types!r} of Tuple {self.label!r} is not a '
           'tuple or list')
@@ -494,7 +496,7 @@ class Tuple(BaseType):
       element_type.Validate(content)
 
 
-class AnyOf(BaseType):
+class AnyOf(AbstractType):
   """A Schema class which accepts any one of the given Schemas.
 
   Attributes:
@@ -505,7 +507,7 @@ class AnyOf(BaseType):
   def __init__(self, types, label=None):
     super().__init__(label)
     if (not isinstance(types, list) or
-        not all(isinstance(x, BaseType) for x in types)):
+        not all(isinstance(x, AbstractType) for x in types)):
       raise SchemaException(
           f'types in AnyOf(types={types!r}'
           f"{'' if label is None else ', label='f'{label}'}) should be a list "

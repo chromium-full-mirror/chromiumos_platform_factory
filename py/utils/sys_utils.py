@@ -4,6 +4,7 @@
 
 """A collective of system-related functions."""
 
+import abc
 from contextlib import contextmanager
 import logging
 import os
@@ -299,21 +300,25 @@ def GetPartitions():
   return results
 
 
-class _GPTTool:
+class _AbstractGPTTool(abc.ABC):
   """Abstraction for tool to manipulate GUID Partition Table."""
 
+  @abc.abstractmethod
   def GetPartitionOffsetInSector(self, index):
     """Returns the partition offset in sectors."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetPartitionSizeInSector(self, index):
     """Returns the partition size in sectors."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetSectorSize(self):
     """Returns logical sector size in bytes."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetTypeGUID(self, index):
     """Returns the type GUID string."""
     raise NotImplementedError
@@ -326,6 +331,7 @@ class _GPTTool:
     """Check if the partition is a Chrome OS rootfs partition."""
     return self.GetTypeGUID(index) == '3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC'
 
+  @abc.abstractmethod
   def GetAttribute(self, index):
     """Returns the Attribute value."""
     raise NotImplementedError
@@ -347,7 +353,7 @@ class _GPTTool:
     return self.ExtractBits(self.GetAttribute(index), 48, 0xf)
 
 
-class PartitionManager(_GPTTool):
+class PartitionManager(_AbstractGPTTool):
   """Provides disk partition information.
 
   Implemented as a wrapper for commands (pygpt, cgpt, partx) to access disk
@@ -379,7 +385,7 @@ class PartitionManager(_GPTTool):
     """Returns the Attribute value."""
     return self._runner.GetAttribute(index)
 
-  class _PyGPT(_GPTTool):
+  class _PyGPT(_AbstractGPTTool):
     """Manipulate GPT using cros.factory.utils.pygpt."""
 
     def __init__(self, image_path):
@@ -410,7 +416,7 @@ class PartitionManager(_GPTTool):
       """Returns the Attribute value."""
       return self._gpt.GetPartition(index).Attributes.raw
 
-  class _CGPT(_GPTTool):
+  class _CGPT(_AbstractGPTTool):
     """Wrapper for cgpt."""
 
     def __init__(self, cgpt, check_output, path):
@@ -449,7 +455,7 @@ class PartitionManager(_GPTTool):
       v = v << 48  # The returned value is only the bits 48-63
       return v
 
-  class _PartX(_GPTTool):
+  class _PartX(_AbstractGPTTool):
     """Wrapper for partx."""
 
     def __init__(self, partx, check_output, path):

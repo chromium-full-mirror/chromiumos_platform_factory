@@ -2,14 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import collections.abc
 
 from cros.factory.utils import shelve_utils
 
+
 _DEFAULT_NOT_SET = object()
 
 
-class ISelector:
+class ISelector(abc.ABC):
   """A wrapper to unify access style of different objects.
 
   A selector wraps an object and make it a recursive-dictionary-like object,
@@ -63,9 +65,11 @@ class ISelector:
   def __getattr__(self, attr):
     return self[attr]
 
+  @abc.abstractmethod
   def __getitem__(self, key):
     raise NotImplementedError
 
+  @abc.abstractmethod
   def Get(self, default=_DEFAULT_NOT_SET):
     raise NotImplementedError
 

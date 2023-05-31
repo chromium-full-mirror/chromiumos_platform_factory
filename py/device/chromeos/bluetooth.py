@@ -13,7 +13,7 @@ import uuid
 
 import yaml
 
-from cros.factory.device.bluetooth import BluetoothManager
+from cros.factory.device.bluetooth import AbstractBluetoothManager
 from cros.factory.device.bluetooth import BluetoothManagerException
 from cros.factory.test.utils import bluetooth_utils
 from cros.factory.utils.sync_utils import PollForCondition
@@ -86,7 +86,7 @@ class AuthenticationAgent(service.Object):
 
 
 # TODO(cychiang) Add unittest for this class.
-class ChromeOSBluetoothManager(BluetoothManager):
+class ChromeOSBluetoothManager(AbstractBluetoothManager):
   """The class to handle bluetooth adapter and device through dbus interface.
 
   Properties:
@@ -342,7 +342,7 @@ class ChromeOSBluetoothManager(BluetoothManager):
 
     adapters = retry_wrapper(self._GetAdapters)(mac_addr=mac_addr)
     if adapters is None:
-      logging.error('BluetoothManager: Fail to get any adapter.')
+      logging.error('AbstractBluetoothManager: Fail to get any adapter.')
       return None
     logging.info('GetAdapters (mac_addr=%s): %s', mac_addr, adapters)
     return adapters

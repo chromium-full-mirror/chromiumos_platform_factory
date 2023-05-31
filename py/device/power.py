@@ -85,6 +85,7 @@ class PowerBase(device_types.DeviceComponent):
 class IPowerControlMixin(abc.ABC):
   """Base class for power control mixin."""
 
+  @abc.abstractmethod
   def SetChargeState(self, state):
     """Sets the charge state."""
     raise NotImplementedError
@@ -115,7 +116,7 @@ class ECToolPowerControlMixin(IPowerControlMixin):
       raise self.Error(f'Unable to set charge state: {e}')
 
 
-class PowerInfoMixinBase:
+class AbstractPowerInfoMixin(abc.ABC):
   """Base class for power info mixin."""
 
   _CHARGE_STATE_MAP = {
@@ -126,18 +127,22 @@ class PowerInfoMixinBase:
       'Not charging': PowerBase.ChargeState.NOT_CHARGING.name
   }
 
+  @abc.abstractmethod
   def CheckACPresent(self):
     """Check if AC power is present."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetACType(self):
     """Get AC power type."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CheckBatteryPresent(self):
     """Check if battery is present."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetCharge(self):
     """Get current charge level in mAh."""
     raise NotImplementedError
@@ -152,10 +157,12 @@ class PowerInfoMixinBase:
       time.sleep(0.1)
     return statistics.median(charge_nows)
 
+  @abc.abstractmethod
   def GetChargeFull(self):
     """Get full charge level in mAh."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetChargePct(self, get_float=False):
     """Get current charge level in percentage.
 
@@ -167,10 +174,12 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetWearPct(self):
     """Get current battery wear in percentage of new capacity."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetChargeState(self):
     """Returns the charge state.
 
@@ -179,6 +188,7 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetChargerCurrent(self):
     """Gets the amount of current we ask from charger.
 
@@ -187,6 +197,7 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryCurrent(self):
     """Gets the amount of current battery is charging/discharging at.
 
@@ -195,6 +206,7 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryDesignCapacity(self):
     """Gets battery's design capacity.
 
@@ -206,6 +218,7 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryVoltage(self):
     """Gets battery's current voltage.
 
@@ -214,14 +227,17 @@ class PowerInfoMixinBase:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryCycleCount(self):
     """Gets battery's cycle count."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryManufacturer(self):
     """Gets battery's manufacturer."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetBatteryDeviceName(self):
     """Gets battery's device name."""
     raise NotImplementedError
@@ -251,7 +267,7 @@ class PowerInfoMixinBase:
     return result
 
 
-class SysfsPowerInfoMixin(PowerInfoMixinBase):
+class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
   """Power info mixin that uses sysfs files."""
 
   _sys = '/sys'
@@ -320,7 +336,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     raise PowerException(f'Cannot find {power_source}')
 
   def CheckACPresent(self):
-    """See PowerInfoMixinBase.CheckACPresent"""
+    """See AbstractPowerInfoMixin.CheckACPresent"""
     try:
       p = self.FindPowerPath(self.PowerSource.AC)
       return self.ReadOneLine(self._device.path.join(p, 'online')) == '1'
@@ -328,7 +344,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
       return False
 
   def GetACType(self):
-    """See PowerInfoMixinBase.GetACType"""
+    """See AbstractPowerInfoMixin.GetACType"""
     try:
       p = self.FindPowerPath(self.PowerSource.AC)
       return self.ReadOneLine(self._device.path.join(p, 'type'))
@@ -350,7 +366,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
       return None
 
   def CheckBatteryPresent(self):
-    """See PowerInfoMixinBase.CheckBatteryPresent"""
+    """See AbstractPowerInfoMixin.CheckBatteryPresent"""
     return bool(self._battery_path)
 
   def GetBatteryAttribute(self, attribute_name):
@@ -370,21 +386,21 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
       return None
 
   def GetCharge(self):
-    """See PowerInfoMixinBase.GetCharge"""
+    """See AbstractPowerInfoMixin.GetCharge"""
     charge_now = self.GetBatteryAttribute('charge_now')
     if charge_now:
       return int(charge_now) // 1000
     return None
 
   def GetChargeFull(self):
-    """See PowerInfoMixinBase.GetChargeFull"""
+    """See AbstractPowerInfoMixin.GetChargeFull"""
     charge_full = self.GetBatteryAttribute('charge_full')
     if charge_full:
       return int(charge_full) // 1000
     return None
 
   def GetChargePct(self, get_float=False):
-    """See PowerInfoMixinBase.GetChargePct"""
+    """See AbstractPowerInfoMixin.GetChargePct"""
     now = self.GetBatteryAttribute('charge_now')
     full = self.GetBatteryAttribute('charge_full')
     if now is None or full is None:
@@ -401,7 +417,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     return round(charge_pct)
 
   def GetWearPct(self):
-    """See PowerInfoMixinBase.GetWearPct"""
+    """See AbstractPowerInfoMixin.GetWearPct"""
     capacity = self.GetBatteryAttribute('charge_full')
     design_capacity = self.GetBatteryAttribute('charge_full_design')
 
@@ -418,11 +434,11 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     return 100 - (round(capacity * 100 / float(design_capacity)))
 
   def GetChargeState(self):
-    """See PowerInfoMixinBase.GetChargeState"""
+    """See AbstractPowerInfoMixin.GetChargeState"""
     return self._CHARGE_STATE_MAP[self.GetBatteryAttribute('status')]
 
   def GetChargerCurrent(self):
-    """See PowerInfoMixinBase.GetChargerCurrent
+    """See AbstractPowerInfoMixin.GetChargerCurrent
 
     TODO(chenghan): Currently cros-usb-pd-charger does not provide 'current_now'
                     file in sysfs (crbug/807753), so we use ectool to get this
@@ -436,7 +452,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     raise self.Error('Cannot find current in ectool chargestate show')
 
   def GetBatteryCurrent(self):
-    """See PowerInfoMixinBase.GetBatteryCurrent"""
+    """See AbstractPowerInfoMixin.GetBatteryCurrent"""
     charging = (self.GetBatteryAttribute('status') == 'Charging')
     current = self.GetBatteryAttribute('current_now')
     if current is None:
@@ -445,7 +461,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     return current_ma if charging else -current_ma
 
   def GetBatteryDesignCapacity(self):
-    """See PowerInfoMixinBase.GetBatteryDesignCapacity"""
+    """See AbstractPowerInfoMixin.GetBatteryDesignCapacity"""
     design_capacity = self.GetBatteryAttribute('charge_full_design')
     if design_capacity is None:
       raise self.Error('Design capacity not found.')
@@ -455,17 +471,17 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
       raise self.Error(f'Unable to get battery design capacity: {e}')
 
   def GetBatteryVoltage(self):
-    """See PowerInfoMixinBase.GetBatteryVoltage"""
+    """See AbstractPowerInfoMixin.GetBatteryVoltage"""
     voltage = self.GetBatteryAttribute('voltage_now')
     return int(voltage) // 1000 if voltage else None
 
   def GetBatteryCycleCount(self):
-    """See PowerInfoMixinBase.GetBatteryCycleCount"""
+    """See AbstractPowerInfoMixin.GetBatteryCycleCount"""
     cycle_count = self.GetBatteryAttribute('cycle_count')
     return int(cycle_count) if cycle_count else None
 
   def GetBatteryManufacturer(self):
-    """See PowerInfoMixinBase.GetBatteryManufacturer"""
+    """See AbstractPowerInfoMixin.GetBatteryManufacturer"""
     return self.GetBatteryAttribute('manufacturer')
 
   def GetBatteryDeviceName(self):
@@ -473,7 +489,7 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     return self.GetBatteryAttribute('device_name')
 
 
-class ECToolPowerInfoMixin(PowerInfoMixinBase):
+class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
   """Power info mixin that uses ectool."""
 
   # Regular expression for parsing output.
@@ -498,37 +514,37 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
     raise self.Error(f'Cannot find key "{key_name}" in ectool battery')
 
   def CheckACPresent(self):
-    """See PowerInfoMixinBase.CheckACPresent"""
+    """See AbstractPowerInfoMixin.CheckACPresent"""
     return 'AC_PRESENT' in self._GetECToolBatteryFlags()
 
   def GetACType(self):
-    """See PowerInfoMixinBase.GetACType.
+    """See AbstractPowerInfoMixin.GetACType.
 
     There is no ectool command to get AC type, so just return 'Unknown'.
     """
     return 'Unknown'
 
   def CheckBatteryPresent(self):
-    """See PowerInfoMixinBase.CheckBatteryPresent"""
+    """See AbstractPowerInfoMixin.CheckBatteryPresent"""
     return 'BATT_PRESENT' in self._GetECToolBatteryFlags()
 
   def GetCharge(self):
-    """See PowerInfoMixinBase.GetCharge"""
+    """See AbstractPowerInfoMixin.GetCharge"""
     return self._GetECToolBatteryAttribute('Remaining capacity', int)
 
   def GetChargeFull(self):
-    """See PowerInfoMixinBase.GetChargeFull"""
+    """See AbstractPowerInfoMixin.GetChargeFull"""
     return self._GetECToolBatteryAttribute('Last full charge:', int)
 
   def GetChargePct(self, get_float=False):
-    """See PowerInfoMixinBase.GetChargePct"""
+    """See AbstractPowerInfoMixin.GetChargePct"""
     charge_pct = self.GetCharge() * 100 / self.GetChargeFull()
     if get_float:
       return charge_pct
     return round(charge_pct)
 
   def GetWearPct(self):
-    """See PowerInfoMixinBase.GetWearPct"""
+    """See AbstractPowerInfoMixin.GetWearPct"""
     capacity = self.GetChargeFull()
     design_capacity = self.GetBatteryDesignCapacity()
     if design_capacity <= 0:
@@ -536,23 +552,23 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
     return 100 - round(capacity * 100 / design_capacity)
 
   def GetChargeState(self):
-    """See PowerInfoMixinBase.GetWearPct"""
+    """See AbstractPowerInfoMixin.GetWearPct"""
     if 'CHARGING' in self._GetECToolBatteryFlags():
       return self.ChargeState.CHARGE.name
     return self.ChargeState.DISCHARGE.name
 
   def GetBatteryCurrent(self):
-    """See PowerInfoMixinBase.GetBatteryCurrent"""
+    """See AbstractPowerInfoMixin.GetBatteryCurrent"""
     charging = 'CHARGING' in self._GetECToolBatteryFlags()
     current = self._GetECToolBatteryAttribute('Present current', int)
     return current if charging else -current
 
   def GetBatteryDesignCapacity(self):
-    """See PowerInfoMixinBase.GetBatteryDesignCapacity"""
+    """See AbstractPowerInfoMixin.GetBatteryDesignCapacity"""
     return self._GetECToolBatteryAttribute('Design capacity:', int)
 
   def GetChargerCurrent(self):
-    """See PowerInfoMixinBase.GetChargerCurrent"""
+    """See AbstractPowerInfoMixin.GetChargerCurrent"""
     re_object = self.EC_CHARGER_CURRENT_RE.findall(
         self._device.CheckOutput(['ectool', 'chargestate', 'show']))
     if re_object:
@@ -560,15 +576,15 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
     raise self.Error('Cannot find current in ectool chargestate show')
 
   def GetBatteryVoltage(self):
-    """See PowerInfoMixinBase.GetBatteryVoltage"""
+    """See AbstractPowerInfoMixin.GetBatteryVoltage"""
     return self._GetECToolBatteryAttribute('Present voltage', int)
 
   def GetBatteryCycleCount(self):
-    """See PowerInfoMixinBase.GetBatteryCycleCount"""
+    """See AbstractPowerInfoMixin.GetBatteryCycleCount"""
     return self._GetECToolBatteryAttribute('Cycle count', int)
 
   def GetBatteryManufacturer(self):
-    """See PowerInfoMixinBase.GetBatteryManufacturer
+    """See AbstractPowerInfoMixin.GetBatteryManufacturer
 
     This function first attempts to use the 'Manufacturer:' key in the EC tool's
     battery information. If this key is unavailable, it falls back to the older
@@ -581,7 +597,7 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
       return self._GetECToolBatteryAttribute('OEM name:')
 
   def GetBatteryDeviceName(self):
-    """See PowerInfoMixinBase.GetBatteryDeviceName
+    """See AbstractPowerInfoMixin.GetBatteryDeviceName
 
     This function first attempts to use the 'Device name:' key in the EC tool's
     battery information. If this key is unavailable, it falls back to the older
@@ -655,7 +671,7 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
     return ports
 
 
-class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
+class PowerDaemonPowerInfoMixin(AbstractPowerInfoMixin):
   """Power info mixin that uses powerd."""
 
   def _GetDumpPowerStatus(self):
@@ -670,34 +686,34 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
     raise self.Error(f'Cannot find key "{key_name}" in dump_power_status')
 
   def CheckACPresent(self):
-    """See PowerInfoMixinBase.CheckACPresent"""
+    """See AbstractPowerInfoMixin.CheckACPresent"""
     return self._GetPowerAttribute('line_power_connected', int) == 1
 
   def GetACType(self):
-    """See PowerInfoMixinBase.GetACType"""
+    """See AbstractPowerInfoMixin.GetACType"""
     return self._GetPowerAttribute('line_power_type')
 
   def CheckBatteryPresent(self):
-    """See PowerInfoMixinBase.CheckBatteryPresent"""
+    """See AbstractPowerInfoMixin.CheckBatteryPresent"""
     return self._GetPowerAttribute('battery_present', int) == 1
 
   def GetCharge(self):
-    """See PowerInfoMixinBase.GetCharge"""
+    """See AbstractPowerInfoMixin.GetCharge"""
     return int(self._GetPowerAttribute('battery_charge', float) * 1000)
 
   def GetChargeFull(self):
-    """See PowerInfoMixinBase.GetChargeFull"""
+    """See AbstractPowerInfoMixin.GetChargeFull"""
     return int(self._GetPowerAttribute('battery_charge_full', float) * 1000)
 
   def GetChargePct(self, get_float=False):
-    """See PowerInfoMixinBase.GetChargePct"""
+    """See AbstractPowerInfoMixin.GetChargePct"""
     charge_pct = self._GetPowerAttribute('battery_percent', float)
     if get_float:
       return charge_pct
     return round(charge_pct)
 
   def GetWearPct(self):
-    """See PowerInfoMixinBase.GetWearPct"""
+    """See AbstractPowerInfoMixin.GetWearPct"""
     capacity = self.GetChargeFull()
     design_capacity = self.GetBatteryDesignCapacity()
     if design_capacity <= 0:
@@ -705,12 +721,12 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
     return 100 - round(capacity * 100 / design_capacity)
 
   def GetChargeState(self):
-    """See PowerInfoMixinBase.GetChargeState"""
+    """See AbstractPowerInfoMixin.GetChargeState"""
     return self._CHARGE_STATE_MAP[self._GetPowerAttribute('battery_status')]
 
   # pylint: disable=useless-super-delegation
   def GetChargerCurrent(self):
-    """See PowerInfoMixinBase.GetChargerCurrent
+    """See AbstractPowerInfoMixin.GetChargerCurrent
 
     TODO(chenghan): Currently cros-usb-pd-charger does not provide 'current_now'
                     file in sysfs (crbug/807753), which is read by
@@ -721,24 +737,24 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
     return super().GetChargerCurrent()
 
   def GetBatteryCurrent(self):
-    """See PowerInfoMixinBase.GetBatteryCurrent"""
+    """See AbstractPowerInfoMixin.GetBatteryCurrent"""
     charging = self.GetChargeState() == self.ChargeState.CHARGE
     current = int(self._GetPowerAttribute('battery_current', float) * 1000)
     return current if charging else -current
 
   def GetBatteryDesignCapacity(self):
-    """See PowerInfoMixinBase.GetBatteryDesignCapacity"""
+    """See AbstractPowerInfoMixin.GetBatteryDesignCapacity"""
     return int(
         self._GetPowerAttribute('battery_charge_full_design', float) * 1000)
 
   def GetBatteryVoltage(self):
-    """See PowerInfoMixinBase.GetBatteryVoltage"""
+    """See AbstractPowerInfoMixin.GetBatteryVoltage"""
     return int(
         self._GetPowerAttribute('battery_voltage', float) * 1000)
 
   # pylint: disable=useless-super-delegation
   def GetBatteryCycleCount(self):
-    """See PowerInfoMixinBase.GetBatteryCycleCount
+    """See AbstractPowerInfoMixin.GetBatteryCycleCount
 
     TODO(chenghan): Change this function when `dump_power_status` supports
                     this field.
@@ -747,7 +763,7 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
 
   # pylint: disable=useless-super-delegation
   def GetBatteryManufacturer(self):
-    """See PowerInfoMixinBase.GetBatteryManufacturer
+    """See AbstractPowerInfoMixin.GetBatteryManufacturer
 
     TODO(chenghan): Change this function when `dump_power_status` supports
                     this field.

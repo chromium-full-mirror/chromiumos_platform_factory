@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import time
 
 from cros.factory.test.utils import evdev_utils
@@ -14,7 +15,7 @@ _KEY_CROSSYSTEM = 'crossystem:'
 _KEY_ECTOOL = 'ectool:'
 
 
-class GenericButton:
+class AbstractButton(abc.ABC):
   """Base class for buttons."""
 
   def __init__(self, dut):
@@ -25,12 +26,13 @@ class GenericButton:
     """
     self._dut = dut
 
+  @abc.abstractmethod
   def IsPressed(self):
     """Returns True the button is pressed, otherwise False."""
     raise NotImplementedError
 
 
-class EvtestButton(GenericButton):
+class EvtestButton(AbstractButton):
   """Buttons can be probed by evtest using /dev/input/event*."""
 
   def __init__(self, dut, device_filter, name):
@@ -55,7 +57,7 @@ class EvtestButton(GenericButton):
         ['evtest', '--query', self._event_dev.fn, 'EV_KEY', self._name]) != 0
 
 
-class GpioButton(GenericButton):
+class GpioButton(AbstractButton):
   """GPIO-based buttons."""
 
   def __init__(self, dut, number, is_active_high):
@@ -89,7 +91,7 @@ class GpioButton(GenericButton):
     return int(self._dut.ReadSpecialFile(self._value_path)) == 1
 
 
-class CrossystemButton(GenericButton):
+class CrossystemButton(AbstractButton):
   """A crossystem value that can be mapped as virtual button."""
 
   def __init__(self, dut, name):
@@ -107,7 +109,7 @@ class CrossystemButton(GenericButton):
     return self._dut.Call(['crossystem', f'{self._name}?1']) == 0
 
 
-class ECToolButton(GenericButton):
+class ECToolButton(AbstractButton):
   """Buttons can be checked by ectool."""
 
   def __init__(self, dut, name, active_value):
@@ -141,7 +143,7 @@ def Button(dut, button_key_name, device_filter):
     device_filter: Event ID or name for evdev. None for auto probe.
 
   Returns:
-    A GenericButton instance that supports `IsPressed` method to check if the
+    An AbstractButton instance that supports `IsPressed` method to check if the
     button is pressed.
   """
   if button_key_name.startswith(_KEY_GPIO):
