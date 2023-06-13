@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import inspect
 import logging
 import os
@@ -36,7 +37,7 @@ def RegisterFunction(name, cls, force=False):
     cls: the function class. It should be a derived class of "Function".
     force: True to allow overwriting a registered function name.
   """
-  if not isinstance(cls, type) or not issubclass(cls, Function):
+  if not isinstance(cls, type) or not issubclass(cls, AbstractFunction):
     raise FunctionException(f'"{cls.__name__}" is not subclass of Function.')
   if name in _function_map and not force:
     raise FunctionException(f'Function "{name}" is already registered.')
@@ -51,7 +52,7 @@ def LoadFunctions():
   _function_loaded = True
 
   def IsFunctionClass(obj):
-    return isinstance(obj, type) and issubclass(obj, Function)
+    return isinstance(obj, type) and issubclass(obj, AbstractFunction)
 
   from cros.factory.probe import functions
   module_path = os.path.dirname(functions.__file__)
@@ -127,7 +128,7 @@ class FunctionException(Exception):
   pass
 
 
-class Function:
+class AbstractFunction(abc.ABC):
   """The base function class.
 
   The instance of a function class is callable, which input data and output data
@@ -171,5 +172,6 @@ class Function:
                         self.__class__.__module__, self.__class__.__name__)
       return NOTHING
 
+  @abc.abstractmethod
   def Apply(self, data):
     raise NotImplementedError

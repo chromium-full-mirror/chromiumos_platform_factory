@@ -214,15 +214,17 @@ class ImageToolRMATest(unittest.TestCase):
     subparser = parser.add_subparsers()
     self.cmd_parsers = (parser, subparser)
     self.cmd_map = dict(
-        (v.name, v) for v in image_tool.__dict__.values()
-        if inspect.isclass(v) and issubclass(v, image_tool.SubCommand)
-        and v.namespace is None)
+        (v.name, v)
+        for v in image_tool.__dict__.values()
+        if inspect.isclass(v) and
+        issubclass(v, image_tool.AbstractSubCommand) and v.namespace is None)
     rma_parser = subparser.add_parser(image_tool.CMD_NAMESPACE_RMA)
     rma_subparser = rma_parser.add_subparsers()
     self.rma_parsers = (rma_parser, rma_subparser)
     self.rma_map = dict(
-        (v.name, v) for v in image_tool.__dict__.values()
-        if inspect.isclass(v) and issubclass(v, image_tool.SubCommand)
+        (v.name, v)
+        for v in image_tool.__dict__.values()
+        if inspect.isclass(v) and issubclass(v, image_tool.AbstractSubCommand)
         and v.namespace == image_tool.CMD_NAMESPACE_RMA)
 
   def tearDown(self):

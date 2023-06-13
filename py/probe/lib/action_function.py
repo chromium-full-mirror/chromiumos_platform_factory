@@ -5,7 +5,7 @@
 from cros.factory.probe import function
 
 
-class ActionFunction(function.Function):
+class ActionFunction(function.AbstractFunction):
   """The base class of action functions.
 
   While evaluation, an action function executes a side-effect action. If the

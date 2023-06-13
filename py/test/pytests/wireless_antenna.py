@@ -122,7 +122,7 @@ _DEFAULT_SWITCH_ANTENNA_CONFIG = {'main': [1, 1],
                                   'all': [3, 3]}
 
 
-class SwitchAntennaWiFiChip(wifi.WiFiChip):
+class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
 
   # The scanned result with last_seen value greater than this value
   # will be ignored.
@@ -503,7 +503,7 @@ class Capture:
     self.RemoveDevice()
 
 
-class RadiotapWiFiChip(wifi.WiFiChip):
+class RadiotapWiFiChip(wifi.AbstractWiFiChip):
 
   _ANTENNA_CONFIG = ['all', 'main', 'aux']
 

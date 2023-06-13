@@ -8,7 +8,7 @@ from cros.factory.probe import function
 from cros.factory.utils.arg_utils import Arg
 
 
-class MatchFunction(function.Function):
+class MatchFunction(function.AbstractFunction):
   """Filter the results which does not match the rule.
 
   Description

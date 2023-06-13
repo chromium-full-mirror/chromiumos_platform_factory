@@ -11,7 +11,8 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class EvaluateStatementTest(unittest.TestCase):
-  class MockFunction(function.Function):
+
+  class MockFunction(function.AbstractFunction):
     ARGS = [Arg('data', list, 'help message')]
     def Apply(self, data):
       return self.args.data

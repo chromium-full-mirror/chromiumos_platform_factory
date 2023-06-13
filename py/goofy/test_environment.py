@@ -33,9 +33,6 @@ class Environment:
     """
     raise NotImplementedError
 
-  def terminate(self):
-    """Terminates and cleans up environment."""
-
 
 class DUTEnvironment(Environment):
   """A real environment on a device under test."""

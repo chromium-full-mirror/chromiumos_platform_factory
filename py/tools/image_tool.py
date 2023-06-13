@@ -10,6 +10,7 @@ Run "image_tool help" for more info and a list of subcommands.
 To add a subcommand, just add a new SubCommand subclass to this file.
 """
 
+import abc
 import argparse
 import contextlib
 import copy
@@ -2909,7 +2910,7 @@ def GetSubparsers(parser):
 
 # TODO(hungte) Generalize this (copied from py/tools/factory.py) for all
 # commands to utilize easily.
-class SubCommand:
+class AbstractSubCommand(abc.ABC):
   """A subcommand.
 
   Properties:
@@ -2945,6 +2946,7 @@ class SubCommand:
     refer to the subparser object.
     """
 
+  @abc.abstractmethod
   def Run(self):
     """Runs the command.
 
@@ -2953,7 +2955,7 @@ class SubCommand:
     raise NotImplementedError
 
 
-class SubCommandNamespace(SubCommand):
+class SubCommandNamespace(AbstractSubCommand):
   """A command namespace."""
 
   def __init__(self, parser, subparsers):
@@ -2978,7 +2980,7 @@ class RMANamespace(SubCommandNamespace):
   name = CMD_NAMESPACE_RMA
 
 
-class HelpCommand(SubCommand):
+class HelpCommand(AbstractSubCommand):
   """Get help on COMMAND"""
   name = 'help'
 
@@ -2998,7 +3000,7 @@ class HelpCommand(SubCommand):
     parser.print_help()
 
 
-class MountPartitionCommand(SubCommand):
+class MountPartitionCommand(AbstractSubCommand):
   """Mounts a partition from Chromium OS disk image.
 
   Chrome OS rootfs with rootfs verification turned on will be mounted as
@@ -3047,7 +3049,7 @@ class MountPartitionCommand(SubCommand):
     print(f'OK: Mounted {part} as {mode} on {self.args.mount_point}.')
 
 
-class GetFirmwareCommand(SubCommand):
+class GetFirmwareCommand(AbstractSubCommand):
   """Extracts firmware updater from a Chrome OS disk image."""
   # Only Chrome OS disk images should have firmware updater, not Chromium OS.
   name = 'get_firmware'
@@ -3067,7 +3069,7 @@ class GetFirmwareCommand(SubCommand):
     print(f'OK: Extracted {part}:{PATH_CROS_FIRMWARE_UPDATER} to: {output}')
 
 
-class NetbootFirmwareSettingsCommand(SubCommand):
+class NetbootFirmwareSettingsCommand(AbstractSubCommand):
   """Access Chrome OS netboot firmware (image.net.bin) settings."""
   name = 'netboot'
   aliases = ['netboot_firmware_settings']
@@ -3079,7 +3081,7 @@ class NetbootFirmwareSettingsCommand(SubCommand):
     netboot_firmware_settings.NetbootFirmwareSettings(self.args)
 
 
-class GPTCommand(SubCommand):
+class GPTCommand(AbstractSubCommand):
   """Access GPT (GUID Partition Table) with `cgpt` style commands."""
   name = 'gpt'
   aliases = ['pygpt', 'cgpt']
@@ -3093,7 +3095,7 @@ class GPTCommand(SubCommand):
     self.gpt.Execute(self.args)
 
 
-class ResizeFileSystemCommand(SubCommand):
+class ResizeFileSystemCommand(AbstractSubCommand):
   """Changes file system size from a partition on a Chromium OS disk image."""
   name = 'resize'
   aliases = ['resize_image_fs']
@@ -3135,7 +3137,7 @@ class ResizeFileSystemCommand(SubCommand):
         f'to {new_size // MEGABYTE} MB.')
 
 
-class CreatePreflashImageCommand(SubCommand):
+class CreatePreflashImageCommand(AbstractSubCommand):
   """Create a disk image for factory to pre-flash into internal storage.
 
   The output contains factory toolkit, release and test images.
@@ -3190,7 +3192,7 @@ class CreatePreflashImageCommand(SubCommand):
           f'{new_size // GIGABYTE_STORAGE} G]')
 
 
-class ShowPreflashImageCommand(SubCommand):
+class ShowPreflashImageCommand(AbstractSubCommand):
   """Show the content of a disk image."""
   name = 'preflash-show'
 
@@ -3203,7 +3205,7 @@ class ShowPreflashImageCommand(SubCommand):
     ChromeOSFactoryBundle.ShowDiskImage(self.args.image)
 
 
-class CreateRMAImageCommmand(SubCommand):
+class CreateRMAImageCommmand(AbstractSubCommand):
   """Create an RMA image for factory to boot from USB and repair device.
 
   The output is a special factory install shim (factory_install) with all
@@ -3257,7 +3259,7 @@ class CreateRMAImageCommmand(SubCommand):
       print(f'OK: Generated {bundle.board} RMA image at {self.args.output}')
 
 
-class MergeRMAImageCommand(SubCommand):
+class MergeRMAImageCommand(AbstractSubCommand):
   """Merge multiple RMA images into one single large image."""
   namespace = CMD_NAMESPACE_RMA
   name = 'merge'
@@ -3296,7 +3298,7 @@ class MergeRMAImageCommand(SubCommand):
     print(f'OK: Merged successfully in new image: {output}')
 
 
-class ExtractRMAImageCommand(SubCommand):
+class ExtractRMAImageCommand(AbstractSubCommand):
   """Extract an RMA image from a universal RMA image."""
   namespace = CMD_NAMESPACE_RMA
   name = 'extract'
@@ -3332,7 +3334,7 @@ class ExtractRMAImageCommand(SubCommand):
     print(f'OK: Extracted successfully in new image: {output}')
 
 
-class UnsignRMAImageCommand(SubCommand):
+class UnsignRMAImageCommand(AbstractSubCommand):
   """Unsign (e.g., sign with DEV keys) an RMA image."""
   namespace = CMD_NAMESPACE_RMA
   name = 'unsign'
@@ -3359,7 +3361,7 @@ class UnsignRMAImageCommand(SubCommand):
     print(f'OK: Unsigned (resigned with DEV keys) the image: {image}')
 
 
-class ShowRMAImageCommand(SubCommand):
+class ShowRMAImageCommand(AbstractSubCommand):
   """Show the content of a RMA image."""
   namespace = CMD_NAMESPACE_RMA
   name = 'show'
@@ -3374,7 +3376,7 @@ class ShowRMAImageCommand(SubCommand):
     ChromeOSFactoryBundle.ShowRMAImage(self.args.image)
 
 
-class ReplaceRMAComponentCommand(SubCommand):
+class ReplaceRMAComponentCommand(AbstractSubCommand):
   """Replace components in an RMA shim."""
   namespace = CMD_NAMESPACE_RMA
   name = 'replace'
@@ -3450,7 +3452,7 @@ class ReplaceRMAComponentCommand(SubCommand):
     print(f'OK: Replaced components successfully in image: {self.args.image}')
 
 
-class ToolkitCommand(SubCommand):
+class ToolkitCommand(AbstractSubCommand):
   """Unpack/repack the factory toolkit in an RMA shim."""
   namespace = CMD_NAMESPACE_PAYLOAD
   name = 'toolkit'
@@ -3522,7 +3524,7 @@ class ToolkitCommand(SubCommand):
               f'{target_path}".')
 
 
-class CreateBundleCommand(SubCommand):
+class CreateBundleCommand(AbstractSubCommand):
   """Creates a factory bundle from given arguments."""
   name = 'bundle'
 
@@ -3565,7 +3567,7 @@ class CreateBundleCommand(SubCommand):
       print(f'OK: Created {bundle.board} factory bundle: {output_file}')
 
 
-class CreateDockerImageCommand(SubCommand):
+class CreateDockerImageCommand(AbstractSubCommand):
   """Create a Docker image from existing Chromium OS disk image.
 
   The architecture of the source Chromium OS disk image should be the same as
@@ -3628,7 +3630,7 @@ class CreateDockerImageCommand(SubCommand):
           f'{self.args.image}.')
 
 
-class InstallChromiumOSImageCommand(SubCommand):
+class InstallChromiumOSImageCommand(AbstractSubCommand):
   """Installs a Chromium OS disk image into inactive partition.
 
   This command takes a Chromium OS (USB) disk image, installs into current
@@ -3737,7 +3739,7 @@ class InstallChromiumOSImageCommand(SubCommand):
     )
 
 
-class EditLSBCommand(SubCommand):
+class EditLSBCommand(AbstractSubCommand):
   """Edit contents of 'lsb-factory' file from a factory_install image."""
   name = 'edit_lsb'
 
@@ -3956,7 +3958,7 @@ class EditLSBCommand(SubCommand):
                     self.EditCutoff, self.EditDisplayQrcode, w=Write, q=Quit)
 
 
-class EditToolkitConfigCommand(SubCommand):
+class EditToolkitConfigCommand(AbstractSubCommand):
   """Edit toolkit config payload for factory_install image or RMA shim."""
   name = 'edit_toolkit_config'
 
@@ -4224,7 +4226,9 @@ def main():
 
   subcommands = [
       v for unused_key, v in sorted(globals().items()) if inspect.isclass(v) and
-      v not in [SubCommand, SubCommandNamespace] and issubclass(v, SubCommand)]
+      v not in [AbstractSubCommand, SubCommandNamespace] and
+      issubclass(v, AbstractSubCommand)
+  ]
   # Add namespace.
   for v in subcommands:
     if issubclass(v, SubCommandNamespace):

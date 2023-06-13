@@ -17,7 +17,7 @@ class ConcatFunctionTest(unittest.TestCase):
     def Probe(self):
       return self.args.data
 
-  class FailFunction(function.Function):
+  class FailFunction(function.AbstractFunction):
     def Apply(self, data):
       return 0
 

@@ -415,7 +415,7 @@ def GenerateProbeDoc(output_dir):
   func_tables = {}
   def _AppendToFunctionTable(func_cls, row):
     all_base_cls = inspect.getmro(func_cls)
-    base_cls_index = all_base_cls.index(probe_function.Function) - 1
+    base_cls_index = all_base_cls.index(probe_function.AbstractFunction) - 1
     if base_cls_index == 0:
       func_type = 'Misc'
       type_desc = ''

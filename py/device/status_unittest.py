@@ -33,7 +33,7 @@ class SystemStatusTest(unittest.TestCase):
     # Check "battery" method in class SystemStatus.
     board.power.GetChargeState.side_effect = IOError
 
-    board.fan = mock.Mock(fan.FanControl)
+    board.fan = mock.Mock(fan.IFanControl)
     board.fan.GetFanRPM.return_value = [2000]
 
     board.thermal = mock.Mock(thermal.Thermal)

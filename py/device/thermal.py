@@ -19,7 +19,7 @@ from cros.factory.device import device_types
 # Currently SensorSource is only used by thermal sensors. We may move it to
 # other places if we see more modules having similar request, for example IIO
 # sensors.
-class SensorSource(device_types.DeviceComponent):
+class AbstractSensorSource(device_types.DeviceComponent, abc.ABC):
   """Provides minimal functions for reading sensor input.
 
   Attributes:
@@ -32,6 +32,7 @@ class SensorSource(device_types.DeviceComponent):
     super().__init__(device)
     self._sensors = None
 
+  @abc.abstractmethod
   def _Probe(self):
     """Probes sensors available to the source provider.
 
@@ -45,6 +46,7 @@ class SensorSource(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def _ConvertRawValue(self, value):
     """Converts a raw value to meaningful values.
 
@@ -107,17 +109,20 @@ class SensorSource(device_types.DeviceComponent):
     return {name: self.GetValue(name) for name in self.GetSensors()}
 
 
-class IThermalSensorSource(SensorSource, abc.ABC):
+class IThermalSensorSource(AbstractSensorSource):
   """A special sensor source that returns thermal in Celsius."""
 
+  @abc.abstractmethod
   def _Probe(self):
     """Probes thermal sensors."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def _ConvertRawValue(self, value):
     """Converts raw value into number in Celsius."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetCriticalValue(self, sensor):
     """Gets the critical temperature of the corrosponding component.
 
@@ -125,7 +130,6 @@ class IThermalSensorSource(SensorSource, abc.ABC):
       A number indicates the critical temperature in Celsius.
     """
     raise NotImplementedError
-
 
 class CoreTempSensors(IThermalSensorSource):
   """A thermal sensor source based on CoreTemp.

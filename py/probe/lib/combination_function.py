@@ -8,7 +8,7 @@ from cros.factory.probe import function
 from cros.factory.utils.arg_utils import Arg
 
 
-class AbstractCombinationFunction(function.Function, abc.ABC):
+class AbstractCombinationFunction(function.AbstractFunction, abc.ABC):
   """The base class of combination functions.
 
   While evaluation, the function first evaluates the functions specified

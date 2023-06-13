@@ -7,17 +7,19 @@
 This module provides reading and setting system fan speed.
 """
 
+import abc
 import re
 
 from cros.factory.device import device_types
 
 
-class FanControl(device_types.DeviceComponent):
+class IFanControl(abc.ABC, device_types.DeviceComponent):
   """System module for fan control."""
 
   AUTO = 'auto'
   """Constant representing automatic fan speed."""
 
+  @abc.abstractmethod
   def GetFanRPM(self, fan_id=None):
     """Gets the fan RPM.
 
@@ -29,17 +31,18 @@ class FanControl(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def SetFanRPM(self, rpm, fan_id=None):
     """Sets the target fan RPM.
 
     Args:
-      rpm: Target fan RPM, or FanControl.AUTO for auto fan control.
+      rpm: Target fan RPM, or IFanControl.AUTO for auto fan control.
       fan_id: The id of the fan.
     """
     raise NotImplementedError
 
 
-class ECToolFanControl(FanControl):
+class ECToolFanControl(IFanControl):
   """System module for thermal control (temperature sensors, fans).
 
   Implementation for systems with 'ectool' and able to control thermal with EC.
@@ -69,7 +72,7 @@ class ECToolFanControl(FanControl):
     """Sets the target fan RPM.
 
     Args:
-      rpm: Target fan RPM, or FanControl.AUTO for auto fan control.
+      rpm: Target fan RPM, or IFanControl.AUTO for auto fan control.
       fan_id: The id of the fan.
     """
     try:
@@ -90,7 +93,7 @@ class ECToolFanControl(FanControl):
       raise self.Error(f'Unable to set fan speed to {int(rpm)} RPM: {e}')
 
 
-class SysFSFanControl(FanControl):
+class SysFSFanControl(IFanControl):
   """System module for fan control using sysfs.
 
   Implementation for systems which able to control thermal with sysfs API.
@@ -129,7 +132,7 @@ class SysFSFanControl(FanControl):
         self._fans.append(complete_info)
 
   def GetFanRPM(self, fan_id=None):
-    """See FanControl.GetFanRPM."""
+    """See IFanControl.GetFanRPM."""
     try:
       ret = []
       for info in self._fans:
@@ -142,7 +145,7 @@ class SysFSFanControl(FanControl):
       raise self.Error(f'Unable to get fan speed: {e}')
 
   def SetFanRPM(self, rpm, fan_id=None):
-    """See FanControl.SetFanRPM."""
+    """See IFanControl.SetFanRPM."""
     try:
       for info in self._fans:
         if fan_id is None or info['fan_id'] == fan_id:

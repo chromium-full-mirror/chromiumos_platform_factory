@@ -51,7 +51,8 @@ class InterpretFunctionTest(unittest.TestCase):
           {'mock': {'key': 'foo', 'value': 'FOO', 'extra': 'lala'}})
 
   def testWrongStringArgument(self):
-    class MockFunction(function.Function):
+
+    class MockFunction(function.AbstractFunction):
       ARGS = [
           Arg('key1', str, 'help string'),
           Arg('key2', str, 'help string')
@@ -67,7 +68,7 @@ class InterpretFunctionTest(unittest.TestCase):
 
   def testSyntaxSuger(self):
     # A function containing only one argument with default value.
-    class MockFunction(function.Function):
+    class MockFunction(function.AbstractFunction):
       ARGS = [
           Arg('value', str, 'The value of data.', default='DATA')
       ]
@@ -98,7 +99,8 @@ class UtilTest(unittest.TestCase):
       function.RegisterFunction('object', object)
 
   def testRegisterTwice(self):
-    class TestFunction(function.Function):
+
+    class TestFunction(function.AbstractFunction):
       def Apply(self, data):
         pass
     function.RegisterFunction('TEST', TestFunction)

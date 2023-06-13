@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import enum
 import re
 import threading
@@ -12,24 +13,24 @@ from cros.factory.utils import process_utils
 from cros.factory.external.py_lib import pyudev
 
 
-class UdevMonitorBase(device_types.DeviceComponent):
+class AbstractUdevMonitor(device_types.DeviceComponent, abc.ABC):
   """Abstract class for detecting udev event.
 
   This class provide an interface to detect udev event, e.g.
   insertion / removal of an USB disk / SD card.
 
   Caller can use
-  :py:func:`cros.factory.device.udev.UdevMonitorBase.RequestUpdate`
+  :py:func:`cros.factory.device.udev.AbstractUdevMonitor.RequestUpdate`
   to start monitoring a given sysfs path, and call
-  :py:func:`cros.factory.device.udev.UdevMonitorBase.RemoveUpdate` to stop
+  :py:func:`cros.factory.device.udev.AbstractUdevMonitor.RemoveUpdate` to stop
   monitoring.
 
   Implementation of this class should override
   :py:func:`cros.factory.device.udev.OnStartMonitor` and
   :py:func:`cros.factory.device.udev.OnStopMonitor`, which is executed when
   caller requests / removes update. The child is also responsible for calling
-  :py:func:`cros.factory.device.udev.UdevMonitorBase.NotifyEvent to send out the
-  event.
+  :py:func:`cros.factory.device.udev.AbstractUdevMonitor.NotifyEvent to send out
+  the event.
   """
 
   # Event types.
@@ -55,10 +56,10 @@ class UdevMonitorBase(device_types.DeviceComponent):
           The path could be a regular expression.
       handler: The callback function to be executed when event triggered.
           Should have signature handler(event, device), where event should be
-          cros.factory.device.udev.UdevMonitorBase.Event and device should be
-          instance of cros.factory.device.udev.UdevMonitorBase.Device. This
-          callback function may be executed in another thread, so it should be
-          thread-safe.
+          cros.factory.device.udev.AbstractUdevMonitor.Event and device should
+          be instance of cros.factory.device.udev.AbstractUdevMonitor.Device.
+          This callback function may be executed in another thread, so it should
+          be thread-safe.
     """
 
     if sys_path not in self._handler:
@@ -92,7 +93,7 @@ class UdevMonitorBase(device_types.DeviceComponent):
     Args:
       event: Udev event.
       sys_path: The sysfs path that is requested for update.
-      device: Instance of cros.factory.device.udev.UdevMonitorBase.Device.
+      device: Instance of cros.factory.device.udev.AbstractUdevMonitor.Device.
     """
     handler = self._handler[sys_path]
     if handler is not None:
@@ -100,6 +101,7 @@ class UdevMonitorBase(device_types.DeviceComponent):
       # in another worker thread.
       process_utils.StartDaemonThread(target=handler, args=(event, device))
 
+  @abc.abstractmethod
   def OnStartMonitor(self):
     """Callback function when system starts monitoring the udev device.
 
@@ -107,6 +109,7 @@ class UdevMonitorBase(device_types.DeviceComponent):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def OnStopMonitor(self):
     """Callback function when system stops monitoring the udev device.
 
@@ -144,12 +147,12 @@ class UdevMonitorBase(device_types.DeviceComponent):
       self.sys_path = sys_path
 
 
-class LocalUdevMonitor(UdevMonitorBase):
-  """Implementation of UdevMonitorBase using pyudev.
+class LocalUdevMonitor(AbstractUdevMonitor):
+  """Implementation of AbstractUdevMonitor using pyudev.
 
 
   This class is an implementation of
-  :py:class:`cros.factory.device.udev.UdevMonitorBase`
+  :py:class:`cros.factory.device.udev.AbstractUdevMonitor`
   using pyudev to monitoring the udev event happen in the local device.
   """
 
@@ -158,8 +161,10 @@ class LocalUdevMonitor(UdevMonitorBase):
   _UDEV_ACTION_REMOVE = 'remove'
   _UDEV_ACTION_CHANGE = 'change'
 
-  _EVENT_MAP = {_UDEV_ACTION_INSERT: UdevMonitorBase.Event.INSERT,
-                _UDEV_ACTION_REMOVE: UdevMonitorBase.Event.REMOVE}
+  _EVENT_MAP = {
+      _UDEV_ACTION_INSERT: AbstractUdevMonitor.Event.INSERT,
+      _UDEV_ACTION_REMOVE: AbstractUdevMonitor.Event.REMOVE
+  }
 
   def __init__(self, dut):
     super().__init__(dut)
@@ -201,12 +206,12 @@ class LocalUdevMonitor(UdevMonitorBase):
         self.NotifyEvent(event, path, device)
 
 
-class PollingUdevMonitor(UdevMonitorBase):
-  """Implementation of UdevMonitorBase polling sysfs folder.
+class PollingUdevMonitor(AbstractUdevMonitor):
+  """Implementation of AbstractUdevMonitor polling sysfs folder.
 
-  This class implements :py:class:`cros.factory.device.udev.UdevMonitorBase` by
-  polling block device under sysfs block folder, e.g. /sys/block, which can be
-  used when there is no udevadm on the dut.
+  This class implements :py:class:`cros.factory.device.udev.AbstractUdevMonitor`
+  by polling block device under sysfs block folder, e.g. /sys/block, which can
+  be used when there is no udevadm on the dut.
 
   When a new device is inserted, a new file will be created in sysfs block
   device folder, e.g.  /sys/block, and the file should be a symbolic link to the

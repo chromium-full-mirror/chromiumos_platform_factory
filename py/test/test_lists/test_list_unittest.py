@@ -211,10 +211,11 @@ class EvaluateRunIfTest(unittest.TestCase):
                                          constants=constants)
 
   def _EvaluateRunIf(self):
-    return test_list_module.ITestList.EvaluateRunIf(self.test, self.test_list)
+    return test_list_module.AbstractTestList.EvaluateRunIf(
+        self.test, self.test_list)
 
   def _ReplaceIsEngineeringModeInRunIf(self, is_engineering_mode):
-    return test_list_module.ITestList.ReplaceIsEngineeringModeInRunIf(
+    return test_list_module.AbstractTestList.ReplaceIsEngineeringModeInRunIf(
         self.test.run_if, is_engineering_mode)
 
   def testReplaceIsEngineeringModeInRunIf_Match(self):

@@ -298,7 +298,7 @@ class EventServer(socketserver.ThreadingUnixStreamServer):
         q.put(message)
 
 
-class EventClientBase(abc.ABC):
+class AbstractEventClient(abc.ABC):
   """A client used to post and receive messages from an event server.
 
   All events sent through this class must be subclasses of Event. It
@@ -307,7 +307,7 @@ class EventClientBase(abc.ABC):
   The _process_event() need to be called periodically.
 
   Inherit graph:
-  EventClientBase:
+  AbstractEventClient:
     |-- ThreadingEventClient: A daemon thread to process events.
     |-- BlockingEventClient: A while-loop on calling thread to process events.
   """
@@ -477,7 +477,7 @@ class EventClientBase(abc.ABC):
     return self.request_response(None, condition, timeout)
 
 
-class BlockingEventClient(EventClientBase):
+class BlockingEventClient(AbstractEventClient):
   """A blocking event client.
 
   A while-loop is used to serve as the event loop. This will block the
@@ -487,7 +487,7 @@ class BlockingEventClient(EventClientBase):
   so the callbacks will be called only when these calls are invoked.
   """
   def request_response(self, request_event, check_response, timeout=None):
-    """See EventClientBase.request_response."""
+    """See AbstractEventClient.request_response."""
 
     start = None
     if timeout is not None:
@@ -516,7 +516,7 @@ class BlockingEventClient(EventClientBase):
         return event
 
 
-class ThreadingEventClient(EventClientBase):
+class ThreadingEventClient(AbstractEventClient):
   """A threaded event client.
 
   A daemon thread is created in constructor to process events. After instance is
@@ -526,9 +526,9 @@ class ThreadingEventClient(EventClientBase):
     """Constructor.
 
     Args:
-      path: See EventClientBase.__init__.
-      callback: See EventClientBase.__init__.
-      name: An optional name for the receving thread.
+      path: See AbstractEventClient.__init__.
+      callback: See AbstractEventClient.__init__.
+      name: An optional name for the receiving thread.
     """
     super().__init__(path, callback)
 
@@ -548,7 +548,7 @@ class ThreadingEventClient(EventClientBase):
       pass
 
   def request_response(self, request_event, check_response, timeout=None):
-    """See EventClientBase.request_response."""
+    """See AbstractEventClient.request_response."""
     q = queue.Queue()
 
     def check_response_callback(event):

@@ -310,7 +310,7 @@ class Options:
     * **run_if** (*optional*): A set of `run_if` expressions.
 
       The expressions in the array are to be evaluated and checked. Please check
-      ``ITestList._EvaluateRunIf`` to see how an expression is evaluated.
+      ``AbstractTestList._EvaluateRunIf`` to see how an expression is evaluated.
 
       If `run_if` is not set or it's empty, this field will be ignore and check
       other fields only.
@@ -396,8 +396,7 @@ class FactoryTestList(test_object_module.FactoryTest):
           list.  If False, the caller may add modify subtests and options and
           then call FinishConstruction().
       constants: A type_utils.AttrDict object, which will be used to resolve
-          'eval! ' dargs.  See test.test_lists.manager.ITestList.ResolveTestArgs
-          for how it is used.
+          'eval! ' dargs.See ResolveTestArgs for how it is used.
     """
     super().__init__(_root=True, subtests=subtests)
     self.state_instance = state_instance
@@ -518,7 +517,7 @@ class FactoryTestList(test_object_module.FactoryTest):
     return json.dumps(self.ToTestListConfig(recursive=False), sort_keys=True)
 
 
-class ITestList(abc.ABC):
+class AbstractTestList(abc.ABC):
   """An interface of test list object."""
 
   # Declare instance variables to make __setattr__ happy.
@@ -824,8 +823,8 @@ class ITestList(abc.ABC):
     Returns:
       True if this test should be run, otherwise False
     """
-    return ITestList._EvaluateRunIf(
-        test.run_if, test.path, test_list, default=True)
+    return AbstractTestList._EvaluateRunIf(test.run_if, test.path, test_list,
+                                           default=True)
 
   @classmethod
   def _EvaluateRunIf(cls, run_if, source, test_list, default):
@@ -845,8 +844,8 @@ class ITestList(abc.ABC):
     }
 
     is_engineering_mode = state_instance.IsEngineeringMode()
-    run_if = ITestList.ReplaceIsEngineeringModeInRunIf(run_if,
-                                                       is_engineering_mode)
+    run_if = AbstractTestList.ReplaceIsEngineeringModeInRunIf(
+        run_if, is_engineering_mode)
 
     try:
       syntax_tree = ast.parse(run_if, mode='eval')
@@ -929,7 +928,7 @@ class NodeTransformer_AddGet(ast.NodeTransformer):
     return node
 
 
-class TestList(ITestList):
+class TestList(AbstractTestList):
   """A test list object represented by test list config.
 
   This object should act like a

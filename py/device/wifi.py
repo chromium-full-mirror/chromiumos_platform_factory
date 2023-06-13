@@ -23,6 +23,7 @@ Example usage::
   conn.Disconnect()
 """
 
+import abc
 import logging
 import os
 import re
@@ -922,14 +923,16 @@ class ServiceSpec(type_utils.Obj):
   def __hash__(self):
     return hash((self.ssid, self.freq, self.password))
 
-class WiFiChip:
-  """WiFiChip is an abstaction of a signal data collection."""
+
+class AbstractWiFiChip(abc.ABC):
+  """WiFiChip is an abstraction of a signal data collection."""
 
   def __init__(self, device, interface, phy_name):
     self._device = device
     self._interface = interface
     self._phy_name = phy_name
 
+  @abc.abstractmethod
   def ScanSignal(self, service, antenna, scan_count):
     """Collects strength of signals.
 
@@ -946,10 +949,12 @@ class WiFiChip:
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def GetAverageSignal(self, service, antenna):
     """Get the average signal strength of (service, antenna)."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def Destroy(self):
     """Restore wifi to initial state."""
     raise NotImplementedError

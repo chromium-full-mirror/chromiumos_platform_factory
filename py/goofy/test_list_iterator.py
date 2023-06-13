@@ -147,14 +147,14 @@ class TestListIterator:
       self.Push(root.path)
     elif isinstance(root, str):
       self.Push(root)
-    elif isinstance(root, test_list_module.ITestList):
+    elif isinstance(root, test_list_module.AbstractTestList):
       self.Push(root.path)
     elif root is None:
       self.stack = []
     else:
       raise ValueError(
-          'root must be one of ITestList, FactoryTest, string or None (got '
-          f'{root!r})')
+          'root must be one of AbstractTestList, FactoryTest, string or None '
+          f'(got {root!r})')
 
   # define __getstate__ and __setstate__ to make this object pickable
   def __getstate__(self):
@@ -231,7 +231,7 @@ class TestListIterator:
     Since we are not serializing test list when pickling TestListIterator, users
     need to invoke SetTestList to set current test list of the runner.
     """
-    assert isinstance(test_list, test_list_module.ITestList)
+    assert isinstance(test_list, test_list_module.AbstractTestList)
     self.test_list = test_list
 
   def Stop(self, subtree_root=None):
@@ -444,7 +444,7 @@ class TestListIterator:
             status in self.status_filter)
 
   def CheckRunIf(self, test):
-    return test_list_module.ITestList.EvaluateRunIf(test, self.test_list)
+    return test_list_module.AbstractTestList.EvaluateRunIf(test, self.test_list)
 
   def _ResetIterations(self, test):
     test.UpdateState(iterations_left=test.iterations,

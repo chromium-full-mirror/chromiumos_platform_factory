@@ -17,6 +17,7 @@ class IPartition(device_types.DeviceComponent, abc.ABC):
   This should not be created by the caller; rather, the caller should use
   vpd.ro or vpd.rw."""
 
+  @abc.abstractmethod
   def get(self, key, default=None):
     """Returns a single item from the VPD, or default if not present.
 
@@ -25,6 +26,7 @@ class IPartition(device_types.DeviceComponent, abc.ABC):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def Delete(self, *keys):
     """Deletes entries from the VPD.
 
@@ -34,11 +36,12 @@ class IPartition(device_types.DeviceComponent, abc.ABC):
     """
     raise NotImplementedError
 
-
+  @abc.abstractmethod
   def GetAll(self):
     """Returns the contents of the VPD as a dict."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def Update(self, items, log=True):
     """Updates items in the VPD.
 
@@ -166,7 +169,7 @@ class MutableFileBasedPartition(ImmutableFileBasedPartition):
     self._device.CheckCall(['sync'])
 
 
-class VPDSource(device_types.DeviceComponent):
+class VPDSource(abc.ABC, device_types.DeviceComponent):
   """A source to read Vital Product Data (VPD).
 
   Properties:
@@ -174,10 +177,12 @@ class VPDSource(device_types.DeviceComponent):
     rw: Access to Read-Write partition.
   """
 
+  @abc.abstractmethod
   @device_types.DeviceProperty
   def ro(self):
     raise NotImplementedError
 
+  @abc.abstractmethod
   @device_types.DeviceProperty
   def rw(self):
     raise NotImplementedError
@@ -263,14 +268,16 @@ class SysRawVPDSource(VPDSource):
         self._device.path.join(self._path, 'rw_raw'))
 
 
-class VitalProductData(device_types.DeviceComponent):
+class AbstractVitalProductData(abc.ABC, device_types.DeviceComponent):
   """System module for Vital Product Data (VPD)."""
 
+  @abc.abstractmethod
   @device_types.DeviceProperty
   def live(self):
     """An VPD source to read live VPD values."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   @device_types.DeviceProperty
   def boot(self):
     """An VPD source to read VPD values cached at boot time."""
@@ -291,7 +298,7 @@ class VitalProductData(device_types.DeviceComponent):
     return self.live.GetPartition(partition)
 
 
-class ChromeOSVitalProductData(VitalProductData):
+class ChromeOSVitalProductData(AbstractVitalProductData):
   """System module for Vital Product Data (VPD) on Chrome OS."""
 
   def __init__(self, dut, path=None):
@@ -309,7 +316,7 @@ class ChromeOSVitalProductData(VitalProductData):
     return SysRawVPDSource(self._device, self._sysfs_path)
 
 
-class AndroidVitalProductData(VitalProductData):
+class AndroidVitalProductData(AbstractVitalProductData, abc.ABC):
   """System module for Vital Product Data (VPD) on Andoird OS."""
 
   def __init__(self, dut, path=None):
@@ -318,6 +325,7 @@ class AndroidVitalProductData(VitalProductData):
     if self._path is None:
       self._path = '/persist'
 
+  @abc.abstractmethod
   @device_types.DeviceProperty
   def boot(self):
     raise NotImplementedError

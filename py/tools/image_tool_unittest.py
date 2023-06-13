@@ -159,8 +159,9 @@ class ImageToolTest(unittest.TestCase):
     subparser = parser.add_subparsers()
     self.cmd_parsers = (parser, subparser)
     self.cmd_map = dict(
-        (v.name, v) for v in image_tool.__dict__.values()
-        if inspect.isclass(v) and issubclass(v, image_tool.SubCommand))
+        (v.name, v)
+        for v in image_tool.__dict__.values()
+        if inspect.isclass(v) and issubclass(v, image_tool.AbstractSubCommand))
 
   def tearDown(self):
     if not DEBUG:
