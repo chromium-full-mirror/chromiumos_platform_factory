@@ -79,7 +79,7 @@ class GSCToolError(Exception):
 
 
 class GSCTool:
-  """Helper class to operate on Cr50 firmware by the `gsctool` cmdline utility.
+  """Helper class to operate on GSC firmware by the `gsctool` cmdline utility.
   """
 
   def __init__(self, dut=None):
@@ -90,8 +90,8 @@ class GSCTool:
     cmd = [GSCTOOL_PATH, '-a', '-c']
     self._InvokeCommand(cmd, 'failed to clear inactive GSC slot.')
 
-  def GetCr50FirmwareVersion(self):
-    """Get the version of the current Cr50 firmware.
+  def GetGSCFirmwareVersion(self):
+    """Get the version of the current GSC firmware.
 
     Returns:
       Instance of `FirmwareVersion`.

@@ -11,11 +11,14 @@ import os
 import re
 
 from cros.factory.device import device_types
+from cros.factory.gooftool import write_protect_target
 from cros.factory.hwid.v3 import hwid_utils
 from cros.factory.test import device_data
 from cros.factory.test.env import paths
 from cros.factory.test.rules import phase
 from cros.factory.test import session
+from cros.factory.test.utils import cbi_utils
+from cros.factory.utils import gsc_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils.sys_utils import MountDeviceAndReadFile
 
@@ -383,7 +386,7 @@ class SystemInfo(device_types.DeviceComponent):
 
   @InfoProperty
   def gsc_version(self):
-    fw_version = gsctool_module.GSCTool(self._device).GetCr50FirmwareVersion()
+    fw_version = gsctool_module.GSCTool(self._device).GetGSCFirmwareVersion()
     return {
         'ro_version': fw_version.ro_version,
         'rw_version': fw_version.rw_version,

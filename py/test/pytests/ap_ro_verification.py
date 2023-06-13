@@ -37,14 +37,14 @@ Examples
 To test AP RO verification, add this to test list::
 
   {
-    "pytest_name": "ap_ro_verification",
+    "pytest_name": "cr50_ap_ro_verification",
     "allow_reboot": true
   }
 
 To use manual test of AP RO verification, add this to test list::
 
   {
-    "pytest_name": "ap_ro_verification",
+    "pytest_name": "cr50_ap_ro_verification",
     "allow_reboot": true,
     "args": {
       "timeout_secs": 5,
@@ -115,7 +115,7 @@ class APROVerficationTest(test_case.TestCase):
       session.console.info('Skip Cr50 AP RO Verification test '
                            'since the firmware is Ti50.')
       return
-    if self.gooftool.IsCr50BoardIDSet():
+    if self.gooftool.IsGSCBoardIDSet():
       session.console.warn('Unable to verify RO hash '
                            'since the board ID is set, test skipped.')
       return
