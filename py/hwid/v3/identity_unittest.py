@@ -79,7 +79,8 @@ _LEGACY_SAMPLES = [
             _BASE8192, None, None),
 ]
 
-class _IdentityGeneratorTestBase:
+
+class _AbstractIdentityGeneratorTest:
   NEEDED_ARGS = []
 
   def testSuccess(self):
@@ -110,7 +111,7 @@ class _IdentityGeneratorTestBase:
 
 
 class IdentityGenerateFromBinaryStringTest(unittest.TestCase,
-                                           _IdentityGeneratorTestBase):
+                                           _AbstractIdentityGeneratorTest):
   NEEDED_ARGS = ['encoding_scheme', 'project', 'encoding_pattern_index',
                  'image_id', 'components_bitset', 'brand_code',
                  'encoded_configless']
@@ -147,7 +148,7 @@ class IdentityGenerateFromBinaryStringTest(unittest.TestCase,
 
 
 class IdentityGenerateFromEncodedStringTest(unittest.TestCase,
-                                            _IdentityGeneratorTestBase):
+                                            _AbstractIdentityGeneratorTest):
   NEEDED_ARGS = ['encoding_scheme', 'encoded_string']
 
   def GenerateIdentity(self, **kwargs):

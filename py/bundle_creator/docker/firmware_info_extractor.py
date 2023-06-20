@@ -62,7 +62,7 @@ class ExtractFirmwareInfoTask(worker.IWorkerTask):
     return message
 
 
-class FirmwareInfoExtractor(worker.BaseWorker):
+class FirmwareInfoExtractor(worker.AbstractWorker):
   """Firmware Info Extractor"""
 
   WORKER_TASK = ExtractFirmwareInfoTask

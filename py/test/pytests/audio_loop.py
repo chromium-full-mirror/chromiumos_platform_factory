@@ -546,7 +546,7 @@ class AudioLoopTest(test_case.TestCase):
           default=True)
   ]
 
-  def GetAudio(self) -> base.BaseAudioControl:
+  def GetAudio(self) -> base.AbstractAudioControl:
     return self._dut.audio
 
   def setUp(self):

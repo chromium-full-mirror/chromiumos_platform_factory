@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import os
 import pipes
 import subprocess
@@ -12,7 +13,7 @@ from cros.factory.utils import process_utils
 from cros.factory.utils import type_utils
 
 
-class FactoryTools:
+class AbstractFactoryTools(abc.ABC):
   """An abstract class for factory tools.
 
   For some standalone factory tools such as gooftool and hwid, we can either
@@ -20,15 +21,20 @@ class FactoryTools:
   This class is an abstract class that unifies the interface of these two
   approaches.
   """
+
+  @abc.abstractmethod
   def Call(self, command, **kargs):
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CheckCall(self, command, **kargs):
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CallOutput(self, command, **kargs):
     raise NotImplementedError
 
+  @abc.abstractmethod
   def CheckOutput(self, command, **kargs):
     raise NotImplementedError
 
@@ -49,7 +55,7 @@ class FactoryTools:
         return (stdout.read(), stderr.read(), return_code)
 
 
-class FactoryPythonArchive(FactoryTools):
+class FactoryPythonArchive(AbstractFactoryTools):
   """Deploy and invoke the Factory Python Archive (.par) file.
 
   Some factory programs may need to run on restricted environments without full
@@ -152,8 +158,8 @@ class FactoryPythonArchive(FactoryTools):
     return self._dut.CallOutput(command, **kargs)
 
 
-class FactoryBin(FactoryTools):
-  """An implementation of FactoryTools which uses scripts under factory/bin."""
+class FactoryBin(AbstractFactoryTools):
+  """An implementation of AbstractFactoryTools using scripts in factory/bin."""
 
   def __init__(self, dut):
     """Constructor of FactoryBin.
@@ -193,7 +199,7 @@ class FactoryBin(FactoryTools):
 
 
 def CreateFactoryTools(dut, factory_par_path=None):
-  """Get an implementation of FactoryTools depends on arguments.
+  """Get an implementation of AbstractFactoryTools depends on arguments.
 
   If factory/bin exists on DUT, we assume that they are available and working,
   so just returns a FactoryBin instance.
@@ -207,8 +213,8 @@ def CreateFactoryTools(dut, factory_par_path=None):
         use the default one.
 
   Returns:
-    an implementation of FactoryTools.
-    :rtype: FactoryTools
+    an implementation of AbstractFactoryTools.
+    :rtype: AbstractFactoryTools
   """
   if dut.path.exists(dut.path.join(paths.FACTORY_DIR, 'bin')):
     # factory/bin exists, let's use factory/bin

@@ -29,7 +29,7 @@ _DEFAULT_FLUSH_TIMEOUT = 30
 _DEFAULT_STOP_TIMEOUT = 10
 
 
-class InstalogService(daemon_utils.Daemon):
+class InstalogService(daemon_utils.AbstractDaemon):
   """Represents the Instalog daemon service."""
 
   def __init__(self, config, logging_level):

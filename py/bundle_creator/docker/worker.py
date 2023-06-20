@@ -28,15 +28,17 @@ from cros.factory.utils import process_utils
 
 class IWorkerTask(abc.ABC):
 
+  @abc.abstractmethod
   @classmethod
   def FromPubSubMessage(cls, pubsub_message: pubsub_connector.PubSubMessage):
     raise NotImplementedError
 
+  @abc.abstractmethod
   def ToOriginalRequest(self):
     raise NotImplementedError
 
 
-class BaseWorker:
+class AbstractWorker(abc.ABC):
 
   WORKER_TASK = None
   SUBSCRIPTION_ID = None
@@ -44,6 +46,7 @@ class BaseWorker:
   def __init__(self):
     self._logger = logging.getLogger(self.__class__.__name__)
 
+  @abc.abstractmethod
   def TryProcessRequest(self):
     """Tries to pull the first task and process the request."""
     raise NotImplementedError
@@ -168,7 +171,7 @@ class CreateBundleTask(IWorkerTask):
         firmware_source=self.firmware_source or None)
 
 
-class EasyBundleCreationWorker(BaseWorker):
+class EasyBundleCreationWorker(AbstractWorker):
   """Easy Bundle Creation worker."""
 
   WORKER_TASK = CreateBundleTask

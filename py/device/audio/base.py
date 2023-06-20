@@ -26,7 +26,7 @@ DEFAULT_HEADPHONE_JACK_NAMES = ['Headphone Jack', 'Headset Jack']
 DEFAULT_MIC_JACK_NAMES = ['Mic Jack'] + DEFAULT_HEADPHONE_JACK_NAMES
 
 
-class BaseMixerController(abc.ABC):
+class AbstractMixerController(abc.ABC):
   def __init__(self, device):
     self._device = device
     self._restore_mixer_control_stack = []
@@ -73,6 +73,7 @@ class BaseMixerController(abc.ABC):
     for card, mixer_settings in final_settings.items():
       self.SetMixerControls(mixer_settings, card, False)
 
+  @abc.abstractmethod
   def GetCardIndexByName(self, card_name):
     """Get audio card index by card name. If the card_name is already an index,
     the function will just return it.
@@ -89,7 +90,7 @@ class BaseMixerController(abc.ABC):
     raise NotImplementedError
 
 
-class BaseAudioControl(device_types.DeviceComponent):
+class AbstractAudioControl(device_types.DeviceComponent, abc.ABC):
   """An abstract class for different target audio utils"""
 
   def __init__(self, dut, config_name, mixer_controller):
@@ -124,7 +125,7 @@ class BaseAudioControl(device_types.DeviceComponent):
           self.ucm_device_map, self.ucm_verb)
 
   def GetCardIndexByName(self, card_name):
-    """See BaseMixerController.GetCardIndexByName."""
+    """See AbstractMixerController.GetCardIndexByName."""
     return self.mixer_controller.GetCardIndexByName(card_name)
 
   def GetHeadphoneJackStatus(self, card='0'):
@@ -298,6 +299,7 @@ class BaseAudioControl(device_types.DeviceComponent):
       except Exception:
         pass  # Not all types of output devices are present
 
+  @abc.abstractmethod
   def _PlaybackWavFile(self, path, card, device):
     """Playback .wav file.
     The function is a protected method, user can't use it directly, user must
@@ -327,6 +329,7 @@ class BaseAudioControl(device_types.DeviceComponent):
       self._playback_thread = process_utils.StartDaemonThread(
           target=lambda: self._PlaybackWavFile(path, card, device))
 
+  @abc.abstractmethod
   def _StopPlaybackWavFile(self):
     """Stop Playback process if we have one in system
     The function is a protected method, user can't use it directly, user must
@@ -341,6 +344,7 @@ class BaseAudioControl(device_types.DeviceComponent):
       self._playback_thread.join()
       self._playback_thread = None
 
+  @abc.abstractmethod
   def RecordWavFile(self, path, card, device, duration, channels, rate):
     """Record audio to a .wav file.
 

@@ -1276,7 +1276,7 @@ class TestList(AbstractTestList):
     self.ToFactoryTestList().state_change_callback = state_change_callback
 
 
-class BasePatch(abc.ABC):
+class AbstractPatch(abc.ABC):
   """Base class of patches with different actions."""
 
   @type_utils.ClassProperty
@@ -1300,7 +1300,7 @@ class BasePatch(abc.ABC):
     raise NotImplementedError
 
 
-class SkipPatch(BasePatch):
+class SkipPatch(AbstractPatch):
   """Patch class to handle skipping tests."""
 
   @type_utils.ClassProperty
@@ -1320,7 +1320,7 @@ class SkipPatch(BasePatch):
     return args == {}
 
 
-class WaivePatch(BasePatch):
+class WaivePatch(AbstractPatch):
   """Patch class to handle waiving tests."""
 
   @type_utils.ClassProperty
@@ -1340,7 +1340,7 @@ class WaivePatch(BasePatch):
     return args == {}
 
 
-class RetriesPatch(BasePatch):
+class RetriesPatch(AbstractPatch):
   """Patch class to set retry times of tests."""
 
   @type_utils.ClassProperty

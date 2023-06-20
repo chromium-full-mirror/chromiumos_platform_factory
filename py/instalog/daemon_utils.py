@@ -9,6 +9,7 @@
 #                 to use it.
 # TODO(kitching): Write unittests for this module.
 
+import abc
 import atexit
 import logging
 import multiprocessing
@@ -25,12 +26,12 @@ CHILD = 0
 PARENT = 1
 
 
-class Daemon:
+class AbstractDaemon(abc.ABC):
   """A generic daemon class.
 
   Usage: subclass the Daemon class and override the run() method.
 
-  Based on Sander Marechal's public domain code sample: https://web.archive.org/web/20131017130434/http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
+  Based on Sander Marechal's public domain code sample: https://web.archive.org/web/20131017130434/http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/ # pylint: disable=line-too-long
   """
 
   def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null',
@@ -201,6 +202,7 @@ class Daemon:
     self.Stop()
     self.Start()
 
+  @abc.abstractmethod
   def Run(self, foreground, rpc_ready=None):
     """Runs the code that represents the daemon process.
 
@@ -210,4 +212,5 @@ class Daemon:
     It is expected that Run will not necessarily return (daemon main loop
     may be contained in its thread).
     """
+
     raise NotImplementedError

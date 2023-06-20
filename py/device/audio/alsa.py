@@ -34,13 +34,13 @@ from cros.factory.utils import file_utils
 # =========================================================
 
 
-class AlsaMixerController(base.BaseMixerController):
+class AlsaMixerController(base.AbstractMixerController):
   """Mixer controller for alsa."""
   _CONTROL_RE_STR = r'numid=(\d+).*?name=\'%s\''
   _RE_CARD_INDEX = re.compile(r'card (\d+):.*?\[(.+?)\]')
 
   def GetMixerControls(self, name, card='0'):
-    """See BaseMixerController.GetMixerControls"""
+    """See AbstractMixerController.GetMixerControls"""
     list_controls = self._device.CallOutput(
         ['amixer', f'-c{int(card)}', 'controls'])
     re_control = re.compile(self._CONTROL_RE_STR % name)
@@ -65,7 +65,7 @@ class AlsaMixerController(base.BaseMixerController):
     return None
 
   def SetMixerControls(self, mixer_settings, card='0', store=True):
-    """See BaseMixerController.SetMixerControls"""
+    """See AbstractMixerController.SetMixerControls"""
     logging.debug('Setting mixer control values on card %s', card)
     restore_mixer_settings = {}
     for name, value in mixer_settings.items():
@@ -81,7 +81,7 @@ class AlsaMixerController(base.BaseMixerController):
       self._restore_mixer_control_stack.append((restore_mixer_settings, card))
 
   def GetCardIndexByName(self, card_name):
-    """See BaseMixerController.GetCardIndexByName"""
+    """See AbstractMixerController.GetCardIndexByName"""
     if not isinstance(card_name, str):
       raise ValueError(f'card_name {card_name!r} is not a str')
     if card_name.isdigit():
@@ -94,7 +94,7 @@ class AlsaMixerController(base.BaseMixerController):
     raise ValueError(f'device name {card_name} is incorrect')
 
 
-class AlsaAudioControl(base.BaseAudioControl):
+class AlsaAudioControl(base.AbstractAudioControl):
   """This class is used for setting audio related configuration.
   It reads ALSA UCM configs to control the hardware components.
   If an audio.conf exists, the operations defined in that config
@@ -152,12 +152,12 @@ class AlsaAudioControl(base.BaseAudioControl):
                        '\n'.join(joined_exceptions))
 
   def _PlaybackWavFile(self, path, card, device):
-    """See BaseAudioControl._PlaybackWavFile"""
+    """See AbstractAudioControl._PlaybackWavFile"""
     self._device.Call(
         ['aplay', '-t', 'wav', '-D', f'plughw:{card},{device}', path])
 
   def _StopPlaybackWavFile(self):
-    """See BaseAudioControl._StopPlaybackWavFile"""
+    """See AbstractAudioControl._StopPlaybackWavFile"""
     pid = self._GetPIDByName('aplay')
     if pid:
       self._device.Call(['kill', pid])
@@ -292,11 +292,11 @@ class AlsaAudioControl(base.BaseAudioControl):
       ] + remix)
 
   def RecordWavFile(self, path, card, device, duration, channels, rate):
-    """See BaseAudioControl.RecordWavFile"""
+    """See AbstractAudioControl.RecordWavFile"""
     self._RecordFile(self.RecordType.wav, path, card, device, duration,
                      channels, rate)
 
   def RecordRawFile(self, path, card, device, duration, channels, rate):
-    """See BaseAudioControl.RecordRawFile"""
+    """See AbstractAudioControl.RecordRawFile"""
     self._RecordFile(self.RecordType.raw, path, card, device, duration,
                      channels, rate)

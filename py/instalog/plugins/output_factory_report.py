@@ -978,7 +978,7 @@ class ExtractError(Exception):
   """Generic error if extracting archive content failed."""
 
 
-class Archive(abc.ABC):
+class AbstractArchive(abc.ABC):
 
   def __init__(self, archive_path):
     self._archive_path = archive_path
@@ -1018,7 +1018,7 @@ class Archive(abc.ABC):
     self._file.close()
 
 
-class ZipArchive(Archive):
+class ZipArchive(AbstractArchive):
 
   def GetNonDirFileNames(self):
     return [
@@ -1034,7 +1034,7 @@ class ZipArchive(Archive):
     self._file = zipfile.ZipFile(self._archive_path, 'r')  # pylint: disable=consider-using-with
 
 
-class ZipWith7ZArchive(Archive):
+class ZipWith7ZArchive(AbstractArchive):
 
   def __init__(self, archive_path):
     super().__init__(archive_path)
@@ -1077,7 +1077,7 @@ class ZipWith7ZArchive(Archive):
     """7z archive does not open any file, thus no need to clean up."""
 
 
-class TarArchive(Archive):
+class TarArchive(AbstractArchive):
 
   def GetNonDirFileNames(self):
     member_list = []

@@ -38,7 +38,7 @@ from cros.factory.utils import file_utils
 # =========================================================
 
 
-class TinyalsaMixerController(base.BaseMixerController):
+class TinyalsaMixerController(base.AbstractMixerController):
   """Mixer controller for tinyalsa."""
   _RE_CARD_INDEX = re.compile(r'.*(\d+).*?\[(.+?)\]')
 
@@ -47,7 +47,7 @@ class TinyalsaMixerController(base.BaseMixerController):
     self._remote_directory = remote_directory
 
   def GetMixerControls(self, name, card='0'):
-    """See BaseAudioControl.GetMixerControls """
+    """See AbstractAudioControl.GetMixerControls """
     command = ['tinymix', '-D', card, name]
     lines = self._device.CheckOutput(command)
     return self._GetMixerControlsByLines(name, lines)
@@ -182,7 +182,7 @@ class TinyalsaMixerController(base.BaseMixerController):
       open_file.write(f'tinymix -D {card} \'{name}\' \'{value}\'\n')
 
   def GetCardIndexByName(self, card_name):
-    """See BaseMixerController.GetCardIndexByName"""
+    """See AbstractMixerController.GetCardIndexByName"""
     if card_name.isdigit():
       return card_name
     output = self._device.CallOutput(['cat', '/proc/asound/cards'])
@@ -193,7 +193,7 @@ class TinyalsaMixerController(base.BaseMixerController):
     raise ValueError(f'device name {card_name} is incorrect')
 
 
-class TinyalsaAudioControl(base.BaseAudioControl):
+class TinyalsaAudioControl(base.AbstractAudioControl):
   """This class is used for setting audio related configuration.
   It reads audio.conf initially to decide how to enable/disable each
   component by tinymixer.
@@ -239,17 +239,17 @@ class TinyalsaAudioControl(base.BaseAudioControl):
       logging.info('Destroy audio loop - not found tinycap_stdout pid')
 
   def _PlaybackWavFile(self, path, card, device):
-    """See BaseAudioControl._PlaybackWavFile"""
+    """See AbstractAudioControl._PlaybackWavFile"""
     self._device.Call(['tinyplay', path, '-D', card, '-d', device])
 
   def _StopPlaybackWavFile(self):
-    """See BaseAudioControl._StopPlaybackWavFile"""
+    """See AbstractAudioControl._StopPlaybackWavFile"""
     pid = self._GetPIDByName('tinyplay')
     if pid:
       self._device.Call(['kill', pid])
 
   def RecordWavFile(self, path, card, device, duration, channels, rate):
-    """See BaseAudioControl.RecordWavFile
+    """See AbstractAudioControl.RecordWavFile
     Since there is no duration parameter in the tinycap. We use a thread to
     simulate it. We will use a thread to execute tinycap for recording and after
     the specified duration, we will send a Ctrl-C singal to the tinycap process

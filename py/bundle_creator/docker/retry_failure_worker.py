@@ -130,7 +130,7 @@ class RetryFailureTask(worker.IWorkerTask):
     return cls(within_days=int(within_days_str), requester=requester)
 
 
-class RetryFailureWorker(worker.BaseWorker):
+class RetryFailureWorker(worker.AbstractWorker):
 
   WORKER_TASK = RetryFailureTask
   SUBSCRIPTION_ID = config.RETRY_PUBSUB_SUBSCRIPTION

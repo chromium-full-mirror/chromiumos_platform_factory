@@ -4,6 +4,7 @@
 
 """Utility for accessing web services."""
 
+import abc
 import json
 import logging
 import xmlrpc.client
@@ -71,7 +72,7 @@ def ParseURL(url):
   return protocols, url
 
 
-class WebServiceProxy:
+class AbstractWebServiceProxy(abc.ABC):
   """An abstract class for proxy to web services.
 
   Most web services are using HTTP as transport instance, which may cause race
@@ -83,6 +84,7 @@ class WebServiceProxy:
   invoked.
   """
 
+  @abc.abstractmethod
   def callRemote(self, method, *args, **kargs):
     raise NotImplementedError
 
@@ -92,7 +94,7 @@ class WebServiceProxy:
     return _wrapper
 
 
-class XMLRPCProxy(WebServiceProxy):
+class XMLRPCProxy(AbstractWebServiceProxy):
   """A proxy for web service implemented in XML-RPC."""
 
   def __init__(self, url):
@@ -103,7 +105,7 @@ class XMLRPCProxy(WebServiceProxy):
     return getattr(proxy, method)(*args, **kargs)
 
 
-class TwistedXMLRPCProxy(WebServiceProxy):
+class TwistedXMLRPCProxy(AbstractWebServiceProxy):
   """ A proxy for web service implemented in XML-RPC, powered by Twisted."""
 
   def __init__(self, url):
@@ -117,7 +119,7 @@ class TwistedXMLRPCProxy(WebServiceProxy):
     return proxy.callRemote(method, *args, **kargs)
 
 
-class JSONRPCProxy(WebServiceProxy):
+class JSONRPCProxy(AbstractWebServiceProxy):
   """A proxy for web service implemented in JSON-RPC."""
 
   def __init__(self, url):
@@ -129,7 +131,7 @@ class JSONRPCProxy(WebServiceProxy):
     return getattr(proxy, method)(*args, **kargs)
 
 
-class TXJSONRPCProxy(WebServiceProxy):
+class TXJSONRPCProxy(AbstractWebServiceProxy):
 
   def __init__(self, url):
     CheckPackage(url, HAVE_TXJSONRPC, 'txJSON-RPC')
@@ -140,7 +142,7 @@ class TXJSONRPCProxy(WebServiceProxy):
     return proxy.callRemote(method, *args, **kargs)
 
 
-class ZeepProxy(WebServiceProxy):
+class ZeepProxy(AbstractWebServiceProxy):
   """A proxy for web service implemented as Zeep Client (WSDL/SOAP)."""
 
   def __init__(self, url):
@@ -157,12 +159,12 @@ class ZeepProxy(WebServiceProxy):
     return zeep.helpers.serialize_object(result, target_cls=dict)
 
 
-class TwistedProxy(WebServiceProxy):
+class TwistedProxy(AbstractWebServiceProxy):
   """A virtual proxy to turn a proxy into twisted deferred proxy."""
 
   def __init__(self, proxy):
     CheckPackage('<unknown>', HAVE_TWISTED, 'twisted')
-    assert isinstance(proxy, WebServiceProxy)
+    assert isinstance(proxy, AbstractWebServiceProxy)
     self._proxy = proxy
 
   def callRemote(self, method, *args, **kargs):
@@ -170,11 +172,11 @@ class TwistedProxy(WebServiceProxy):
         self._proxy.callRemote, method, *args, **kargs)
 
 
-class JSONProxyFilter(WebServiceProxy):
+class JSONProxyFilter(AbstractWebServiceProxy):
   """A proxy that converts input and output for chained proxies."""
 
   def __init__(self, proxy):
-    assert isinstance(proxy, WebServiceProxy)
+    assert isinstance(proxy, AbstractWebServiceProxy)
     self._proxy = proxy
 
   def callRemote(self, method, *args, **kargs):
