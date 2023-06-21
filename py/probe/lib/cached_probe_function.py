@@ -15,7 +15,7 @@ class InvalidCategoryError(Exception):
   pass
 
 
-class CachedProbeFunction(probe_function.ProbeFunction):
+class CachedProbeFunction(probe_function.AbstractProbeFunction):
   """An abstract class of probe function which caches the probe data forever.
 
   The cached probed results is recorded as a dictionary which categories probed
@@ -80,7 +80,7 @@ class CachedProbeFunction(probe_function.ProbeFunction):
                              for k, v in probed_data.items()}
 
 
-class LazyCachedProbeFunction(probe_function.ProbeFunction):
+class LazyCachedProbeFunction(probe_function.AbstractProbeFunction):
   """An abstract probe function which probes and caches the data only in need.
 
   This class is similar to `CachedProbeFunction` but this class strickly forces

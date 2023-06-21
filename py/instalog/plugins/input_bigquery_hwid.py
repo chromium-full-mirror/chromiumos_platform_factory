@@ -13,7 +13,7 @@ from cros.factory.instalog import plugin_base
 from cros.factory.instalog.plugins import input_bigquery
 
 
-class InputBigQueryHWID(input_bigquery.InputBigQuery):
+class InputBigQueryHWID(input_bigquery.AbstractInputBigQuery):
 
   def GetQuery(self):
     """Returns a query to run."""

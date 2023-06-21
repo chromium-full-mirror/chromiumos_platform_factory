@@ -8,6 +8,8 @@
 A plugin to query data in BigQuery.
 """
 
+import abc
+
 import google.auth
 from google.auth import impersonated_credentials
 from google.cloud import bigquery
@@ -22,7 +24,7 @@ _BIGQUERY_SCOPE = 'https://www.googleapis.com/auth/bigquery'
 _DEFAULT_INTERVAL = 86400
 
 
-class InputBigQuery(plugin_base.InputPlugin):
+class AbstractInputBigQuery(plugin_base.InputPlugin, abc.ABC):
 
   ARGS = [
       # TODO(chuntsen): Remove key_path argument since we don't use it anymore.
@@ -75,10 +77,12 @@ class InputBigQuery(plugin_base.InputPlugin):
     # Query doesn't need a project ID.
     return bigquery.Client(project=None, credentials=credentials)
 
+  @abc.abstractmethod
   def GetQuery(self):
     """Returns a query to run."""
     raise NotImplementedError
 
+  @abc.abstractmethod
   def ProcessRow(self, row):
     """Processes a row and returns a event to emit."""
     raise NotImplementedError

@@ -60,7 +60,7 @@ def ReadContent(response):
   return d
 
 
-class TestWebApplication(wsgi.WebApp):
+class TestWebApplication(wsgi.AbstractWebApp):
 
   def Handle(self, session):
     logging.debug('test webapp is called: %s', session)

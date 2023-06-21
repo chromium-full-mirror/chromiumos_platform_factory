@@ -43,7 +43,7 @@ def ReadSysfs(dir_path, keys, optional_keys=None):
   return ret
 
 
-class SysfsFunction(probe_function.ProbeFunction):
+class SysfsFunction(probe_function.AbstractProbeFunction):
   """Read the required files in a directory.
 
   Description

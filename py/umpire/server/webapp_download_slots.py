@@ -14,10 +14,11 @@ from cros.factory.umpire.server import download_slots_manager
 from cros.factory.umpire.server.web import wsgi
 from cros.factory.umpire.server import webapp_utils
 
+
 PATH_INFO = '/webapps/download_slots'
 
 
-class DownloadSlotsApp(wsgi.WebApp):
+class DownloadSlotsApp(wsgi.AbstractWebApp):
   """Download slots web application class."""
 
   def __init__(self):

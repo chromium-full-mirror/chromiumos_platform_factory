@@ -189,7 +189,7 @@ def LoadFromFile(path):
   return Parse(file_utils.ReadFile(path, encoding=None))
 
 
-class EDIDFunction(probe_function.ProbeFunction):
+class EDIDFunction(probe_function.AbstractProbeFunction):
   """Probe EDID information from file or I2C bus.
 
   Description

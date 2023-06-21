@@ -2,11 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
+
 from cros.factory.probe import function
 from cros.factory.utils.arg_utils import Arg
 
 
-class CombinationFunction(function.Function):
+class AbstractCombinationFunction(function.Function, abc.ABC):
   """The base class of combination functions.
 
   While evaluation, the function first evaluates the functions specified
@@ -26,5 +28,6 @@ class CombinationFunction(function.Function):
   def Apply(self, data):
     return self.Combine(self.functions, data)
 
+  @abc.abstractmethod
   def Combine(self, functions, data):
     raise NotImplementedError

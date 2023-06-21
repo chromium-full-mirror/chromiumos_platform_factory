@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 
+import abc
 import logging
 import threading
 
@@ -12,7 +13,7 @@ from cros.factory.utils import process_utils
 from cros.factory.utils import type_utils
 
 
-class PeriodicPlugin(plugin.Plugin):
+class AbstractPeriodicPlugin(plugin.Plugin, abc.ABC):
   """Plugins that runs specific task periodically.
 
   A common implementation of `cros.factory.goofy.plugins` that run a specific
@@ -24,7 +25,7 @@ class PeriodicPlugin(plugin.Plugin):
 
   def __init__(self, goofy, period_secs, used_resources=None,
                catch_exception=True, *, stop_timeout_secs=1):
-    """Constructor of PeriodicPlugin.
+    """Constructor of AbstractPeriodicPlugin.
 
     Args:
       period_secs: seconds between each run.
@@ -55,6 +56,7 @@ class PeriodicPlugin(plugin.Plugin):
       self._run_task()
       self._run_times += 1
 
+  @abc.abstractmethod
   def RunTask(self):
     """Called periodically
 
@@ -62,7 +64,7 @@ class PeriodicPlugin(plugin.Plugin):
     """
     raise NotImplementedError
 
-  @debug_utils.CatchException('PeriodicPlugin')
+  @debug_utils.CatchException('AbstractPeriodicPlugin')
   def _RunTaskWithCatch(self):
     """Wrapper of `RunTask()` that catches any exception."""
     self.RunTask()

@@ -46,7 +46,7 @@ def GetResourceMap(env):
   return ''.join(f'{s}\n' for s in result)
 
 
-class ResourceMapApp(wsgi.WebApp):
+class ResourceMapApp(wsgi.AbstractWebApp):
   """ResourceMap web application class.
 
   Args:

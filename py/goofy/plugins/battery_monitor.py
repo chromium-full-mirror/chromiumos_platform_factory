@@ -12,7 +12,7 @@ from cros.factory.utils import log_utils
 from cros.factory.utils import type_utils
 
 
-class BatteryMonitor(periodic_plugin.PeriodicPlugin):
+class BatteryMonitor(periodic_plugin.AbstractPeriodicPlugin):
   # Sync disks when battery level is higher than this value.
   # Otherwise, power loss during disk sync operation may incur even worse
   # outcome.

@@ -20,92 +20,97 @@ from cros.factory.instalog.plugins import output_bigquery
 from cros.factory.utils import time_utils
 
 
-class OutputBigQueryTestlog(output_bigquery.OutputBigQuery):
+class OutputBigQueryTestlog(output_bigquery.AbstractOutputBigQuery):
 
   def GetTableSchema(self):
     """Returns a list of fields in the table schema."""
     return [
         # history
-        SchemaField(u'history', u'record', u'REPEATED', None, (
-            SchemaField(u'node_id', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'time', u'timestamp', 'NULLABLE', None, ()),
-            SchemaField(u'plugin_id', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'plugin_type', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'target', u'string', 'NULLABLE', None, ())
-        )),
+        SchemaField('history', 'record', 'REPEATED', None,
+                    (SchemaField('node_id', 'string', 'NULLABLE', None, ()),
+                     SchemaField('time', 'timestamp', 'NULLABLE', None, ()),
+                     SchemaField('plugin_id', 'string', 'NULLABLE', None, ()),
+                     SchemaField('plugin_type', 'string', 'NULLABLE', None, ()),
+                     SchemaField('target', 'string', 'NULLABLE', None, ()))),
 
         # station
-        SchemaField(u'uuid', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'type', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'apiVersion', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'time', u'timestamp', 'NULLABLE', None, ()),
-        SchemaField(u'seq', u'integer', 'NULLABLE', None, ()),
-        SchemaField(u'dutDeviceId', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'stationDeviceId', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'stationInstallationId', u'string', 'NULLABLE', None, ()),
+        SchemaField('uuid', 'string', 'NULLABLE', None, ()),
+        SchemaField('type', 'string', 'NULLABLE', None, ()),
+        SchemaField('apiVersion', 'string', 'NULLABLE', None, ()),
+        SchemaField('time', 'timestamp', 'NULLABLE', None, ()),
+        SchemaField('seq', 'integer', 'NULLABLE', None, ()),
+        SchemaField('dutDeviceId', 'string', 'NULLABLE', None, ()),
+        SchemaField('stationDeviceId', 'string', 'NULLABLE', None, ()),
+        SchemaField('stationInstallationId', 'string', 'NULLABLE', None, ()),
 
         # station.status
-        SchemaField(u'filePath', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'serialNumbers', u'record', u'REPEATED', None, (
-            SchemaField(u'key', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'value', u'string', 'NULLABLE', None, ())
-        )),
-        SchemaField(u'parameters', u'record', u'REPEATED', None, (
-            SchemaField(u'key', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'description', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'group', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'valueUnit', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'data', u'record', u'REPEATED', None, (
-                SchemaField(u'id', u'integer', 'NULLABLE', None, ()),
-                SchemaField(u'status', u'string', 'NULLABLE', None, ()),
-                SchemaField(u'numericValue', u'float', 'NULLABLE', None, ()),
-                SchemaField(u'expectedMinimum', u'float', 'NULLABLE', None, ()),
-                SchemaField(u'expectedMaximum', u'float', 'NULLABLE', None, ()),
-                SchemaField(u'textValue', u'string', 'NULLABLE', None, ()),
-                SchemaField(u'expectedRegex', u'string', 'NULLABLE', None, ()),
-                SchemaField(u'serializedValue', u'string', 'NULLABLE', None, ())
-            ))
-        )),
+        SchemaField('filePath', 'string', 'NULLABLE', None, ()),
+        SchemaField('serialNumbers', 'record', 'REPEATED', None, (SchemaField(
+            'key', 'string', 'NULLABLE', None,
+            ()), SchemaField('value', 'string', 'NULLABLE', None, ()))),
+        SchemaField(
+            'parameters', 'record', 'REPEATED', None,
+            (SchemaField('key', 'string', 'NULLABLE', None, ()),
+             SchemaField('description', 'string', 'NULLABLE', None, ()),
+             SchemaField('group', 'string', 'NULLABLE', None, ()),
+             SchemaField('valueUnit', 'string', 'NULLABLE', None, ()),
+             SchemaField('data', 'record', 'REPEATED', None,
+                         (SchemaField('id', 'integer', 'NULLABLE', None, ()),
+                          SchemaField('status', 'string', 'NULLABLE', None, ()),
+                          SchemaField('numericValue', 'float', 'NULLABLE', None,
+                                      ()),
+                          SchemaField('expectedMinimum', 'float', 'NULLABLE',
+                                      None, ()),
+                          SchemaField('expectedMaximum', 'float', 'NULLABLE',
+                                      None, ()),
+                          SchemaField('textValue', 'string', 'NULLABLE', None,
+                                      ()),
+                          SchemaField('expectedRegex', 'string', 'NULLABLE',
+                                      None, ()),
+                          SchemaField('serializedValue', 'string', 'NULLABLE',
+                                      None, ()))))),
 
         # station.init
-        SchemaField(u'count', u'integer', 'NULLABLE', None, ()),
-        SchemaField(u'success', u'boolean', 'NULLABLE', None, ()),
-        SchemaField(u'failureMessage', u'string', 'NULLABLE', None, ()),
+        SchemaField('count', 'integer', 'NULLABLE', None, ()),
+        SchemaField('success', 'boolean', 'NULLABLE', None, ()),
+        SchemaField('failureMessage', 'string', 'NULLABLE', None, ()),
 
         # station.message
-        SchemaField(u'message', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'lineNumber', u'integer', 'NULLABLE', None, ()),
-        SchemaField(u'functionName', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'logLevel', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'testRunId', u'string', 'NULLABLE', None, ()),
+        SchemaField('message', 'string', 'NULLABLE', None, ()),
+        SchemaField('lineNumber', 'integer', 'NULLABLE', None, ()),
+        SchemaField('functionName', 'string', 'NULLABLE', None, ()),
+        SchemaField('logLevel', 'string', 'NULLABLE', None, ()),
+        SchemaField('testRunId', 'string', 'NULLABLE', None, ()),
 
         # station.test_run (also use testRunId)
-        SchemaField(u'testName', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'testType', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'arguments', u'record', u'REPEATED', None, (
-            SchemaField(u'key', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'description', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'value', u'string', 'NULLABLE', None, ())
-        )),
-        SchemaField(u'status', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'startTime', u'timestamp', 'NULLABLE', None, ()),
-        SchemaField(u'endTime', u'timestamp', 'NULLABLE', None, ()),
-        SchemaField(u'duration', u'float', 'NULLABLE', None, ()),
-        SchemaField(u'operatorId', u'string', 'NULLABLE', None, ()),
-        SchemaField(u'attachments', u'record', u'REPEATED', None, (
-            SchemaField(u'key', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'description', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'path', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'mimeType', u'string', 'NULLABLE', None, ())
-        )),
-        SchemaField(u'failures', u'record', u'REPEATED', None, (
-            SchemaField(u'id', u'integer', 'NULLABLE', None, ()),
-            SchemaField(u'code', u'string', 'NULLABLE', None, ()),
-            SchemaField(u'details', u'string', 'NULLABLE', None, ())
-        )),
+        SchemaField('testName', 'string', 'NULLABLE', None, ()),
+        SchemaField('testType', 'string', 'NULLABLE', None, ()),
+        SchemaField('arguments', 'record', 'REPEATED', None, (SchemaField(
+            'key', 'string', 'NULLABLE', None,
+            ()), SchemaField(
+                'description', 'string', 'NULLABLE', None,
+                ()), SchemaField('value', 'string', 'NULLABLE', None, ()))),
+        SchemaField('status', 'string', 'NULLABLE', None, ()),
+        SchemaField('startTime', 'timestamp', 'NULLABLE', None, ()),
+        SchemaField('endTime', 'timestamp', 'NULLABLE', None, ()),
+        SchemaField('duration', 'float', 'NULLABLE', None, ()),
+        SchemaField('operatorId', 'string', 'NULLABLE', None, ()),
+        SchemaField(
+            'attachments', 'record', 'REPEATED', None,
+            (SchemaField('key', 'string', 'NULLABLE', None, ()),
+             SchemaField('description', 'string', 'NULLABLE', None,
+                         ()), SchemaField('path', 'string', 'NULLABLE', None,
+                                          ()),
+             SchemaField('mimeType', 'string', 'NULLABLE', None, ()))),
+        SchemaField(
+            'failures', 'record', 'REPEATED', None,
+            (SchemaField('id', 'integer', 'NULLABLE', None,
+                         ()), SchemaField('code', 'string', 'NULLABLE', None,
+                                          ()),
+             SchemaField('details', 'string', 'NULLABLE', None, ()))),
 
         # serialized
-        SchemaField(u'serialized', u'string', 'NULLABLE', None, ())
+        SchemaField('serialized', 'string', 'NULLABLE', None, ())
     ]
 
   def ConvertEventToRow(self, event):

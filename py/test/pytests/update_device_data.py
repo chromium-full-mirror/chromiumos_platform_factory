@@ -157,6 +157,7 @@ names::
   }
 """
 
+import abc
 import logging
 import queue
 import re
@@ -321,7 +322,7 @@ class UpdateDeviceData(test_case.TestCase):
     self.ui.SetFocus(entry.key)
 
 
-class DataEntry:
+class AbstractDataEntry(abc.ABC):
   """A simple data store for storing DeviceData"""
 
   def __init__(self, key, value, label):
@@ -332,11 +333,12 @@ class DataEntry:
   def GetValue(self):
     return self.value
 
+  @abc.abstractmethod
   def SetValueFromString(self, value):
     raise NotImplementedError
 
 
-class TextDataEntry(DataEntry):
+class TextDataEntry(AbstractDataEntry):
   """A data store holding DeviceData as string type field.
 
   Raises:
@@ -361,7 +363,7 @@ class TextDataEntry(DataEntry):
     self.value = value
 
 
-class SelectionDataEntry(DataEntry):
+class SelectionDataEntry(AbstractDataEntry):
   """A data store holding DeviceData which value can only be in a set.
 
   Args:

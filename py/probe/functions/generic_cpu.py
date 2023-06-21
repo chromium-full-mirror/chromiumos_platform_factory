@@ -78,7 +78,7 @@ def _GetSoCInfo():
   return model, chip_id
 
 
-class GenericCPUFunction(probe_function.ProbeFunction):
+class GenericCPUFunction(probe_function.AbstractProbeFunction):
   """Probe the generic CPU information."""
 
   ARGS = [

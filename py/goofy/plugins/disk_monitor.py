@@ -13,7 +13,7 @@ from cros.factory.utils import process_utils
 from cros.factory.utils import type_utils
 
 
-class DiskMonitor(periodic_plugin.PeriodicPlugin):
+class DiskMonitor(periodic_plugin.AbstractPeriodicPlugin):
   """Plugin to log disk space usage during tests."""
 
   def __init__(self, goofy, period_secs, stateful_usage_threshold=None,

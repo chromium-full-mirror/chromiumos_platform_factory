@@ -20,6 +20,7 @@ Partitioned table updates limits:
 ( Source: https://cloud.google.com/bigquery/quotas )
 """
 
+import abc
 import datetime
 import os
 
@@ -46,7 +47,7 @@ _DEFAULT_INTERVAL = 90
 _DEFAULT_BATCH_SIZE = 3000
 
 
-class OutputBigQuery(plugin_base.OutputPlugin):
+class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
 
   ARGS = [
       Arg(
@@ -149,6 +150,7 @@ class OutputBigQuery(plugin_base.OutputPlugin):
       self.info('The table %s does not exist. Creating...',
                 self.args.table_id)
 
+  @abc.abstractmethod
   def GetTableSchema(self):
     """Returns a list of fields in the table schema.
 
@@ -167,6 +169,7 @@ class OutputBigQuery(plugin_base.OutputPlugin):
     """
     raise NotImplementedError
 
+  @abc.abstractmethod
   def ConvertEventToRow(self, event):
     """Converts an event to its corresponding BigQuery table row JSON string.
 

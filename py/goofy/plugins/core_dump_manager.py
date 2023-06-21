@@ -9,7 +9,7 @@ from cros.factory.utils import debug_utils
 from cros.factory.utils import type_utils
 
 
-class CoreDumpManager(periodic_plugin.PeriodicPlugin):
+class CoreDumpManager(periodic_plugin.AbstractPeriodicPlugin):
 
   def __init__(self, goofy, period_secs, core_dump_watchlist=None):
     """Constructor

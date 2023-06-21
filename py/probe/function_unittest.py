@@ -13,7 +13,8 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class InterpretFunctionTest(unittest.TestCase):
-  class MockFunction(probe_function.ProbeFunction):
+
+  class MockFunction(probe_function.AbstractProbeFunction):
     ARGS = [
         Arg('key', str, 'The key of data.', default='default_key'),
         Arg('value', str, 'The value of data.')

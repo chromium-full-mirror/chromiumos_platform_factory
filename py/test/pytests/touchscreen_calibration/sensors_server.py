@@ -11,6 +11,7 @@ Note: this module does not have any dependency on factory stuffs so that
       it could be run as a pure server e.g. on a Beagle Bone.
 """
 
+import abc
 import codecs
 import configparser
 import logging
@@ -62,7 +63,7 @@ class TSConfig:
     return self.parser.items(section)
 
 
-class BaseSensorService:
+class AbstractSensorService(abc.ABC):
   """A base class to provide sensor relalted services."""
 
   def __init__(self, board, log=None):
@@ -82,23 +83,23 @@ class BaseSensorService:
     self.normalized_edge_deviation_threshold = float(
         self.config.Read('TouchSensors', 'NORMALIZED_EDGE_DEVIATION_THRESHOLD'))
 
+  @abc.abstractmethod
   def CheckStatus(self):
     """Checks if the touchscreen sensor data object is present.
 
     Returns:
       True if the sensor data object is present.
     """
-    raise NotImplementedError(
-        'Should implement the CheckStatus() method in the subclass.')
+    raise NotImplementedError
 
+  @abc.abstractmethod
   def Read(self, category):
     """Implementation of sensor reading method.
 
     Returns:
       Sensor data: a list of lists of row sensor data
     """
-    raise NotImplementedError(
-        'Should implement the Read() method in the subclass.')
+    raise NotImplementedError
 
   def VerifyRefs(self, data):
     """Verify sensor refs data.
@@ -205,7 +206,7 @@ class BaseSensorService:
     return True
 
 
-class SensorServiceSamus(BaseSensorService):
+class SensorServiceSamus(AbstractSensorService):
   """Sensor services for Samus.
 
   On Samus, the sensor data are manipulated through sys fs and kernel debug fs.
@@ -353,7 +354,7 @@ class SensorServiceSamus(BaseSensorService):
     return super()._VerifyDeltasTouched(data, touched_cols)
 
 
-class SensorServiceRyu(BaseSensorService):
+class SensorServiceRyu(AbstractSensorService):
   """Sensor services for Ryu.
 
   On Ryu, the sensor data are provided by a user-level program f54test.

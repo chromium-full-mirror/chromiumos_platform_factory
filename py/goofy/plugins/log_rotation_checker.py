@@ -8,10 +8,11 @@ from cros.factory.goofy.plugins import periodic_plugin
 from cros.factory.utils import file_utils
 from cros.factory.utils import type_utils
 
+
 CLEANUP_LOGS_PAUSED = '/var/lib/cleanup_logs_paused'
 
 
-class LogRotationChecker(periodic_plugin.PeriodicPlugin):
+class LogRotationChecker(periodic_plugin.AbstractPeriodicPlugin):
   """Checks log rotation file presence/absence.
 
   This plugin disables (or enables) log rotation by writing (or deleting)

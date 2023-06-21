@@ -5,7 +5,7 @@
 from cros.factory.probe.lib import combination_function
 
 
-class Concat(combination_function.CombinationFunction):
+class Concat(combination_function.AbstractCombinationFunction):
   """Returns the concatenation of output.
 
   Description

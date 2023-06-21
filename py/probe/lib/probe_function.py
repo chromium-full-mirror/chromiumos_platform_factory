@@ -2,12 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import copy
 
 from cros.factory.probe import function
 
 
-class ProbeFunction(function.Function):
+class AbstractProbeFunction(function.Function, abc.ABC):
   """The base class of probe functions.
 
   While evaluation, the function probes the result, and update to the input
@@ -29,6 +30,7 @@ class ProbeFunction(function.Function):
         ret.append(new_item)
     return ret
 
+  @abc.abstractmethod
   def Probe(self):
     """Return the probe result. It can be a dict or a list of dict."""
     raise NotImplementedError

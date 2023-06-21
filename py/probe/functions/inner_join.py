@@ -7,7 +7,7 @@ from cros.factory.probe.lib import combination_function
 from cros.factory.utils.arg_utils import Arg
 
 
-class InnerJoin(combination_function.CombinationFunction):
+class InnerJoin(combination_function.AbstractCombinationFunction):
   """Inner join the result of functions.
 
   Description

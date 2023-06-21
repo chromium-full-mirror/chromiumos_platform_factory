@@ -16,7 +16,7 @@ from cros.factory.instalog import plugin_base
 from cros.factory.instalog.plugins import output_bigquery
 
 
-class OutputBigQueryCSV(output_bigquery.OutputBigQuery):
+class OutputBigQueryCSV(output_bigquery.AbstractOutputBigQuery):
 
   def GetTableSchema(self):
     """Returns a list of fields in the table schema."""

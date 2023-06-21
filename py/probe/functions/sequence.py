@@ -5,7 +5,7 @@
 from cros.factory.probe.lib import combination_function
 
 
-class Sequence(combination_function.CombinationFunction):
+class Sequence(combination_function.AbstractCombinationFunction):
   """Sequential execute the functions.
 
   Description
@@ -18,7 +18,7 @@ class Sequence(combination_function.CombinationFunction):
     ...
 
   This function is very useful when you want to union the outputs of a series
-  of :ref:`probe functions <ProbeFunction>`.
+  of :ref:`probe functions <AbstractProbeFunction>`.
 
   Examples
   --------

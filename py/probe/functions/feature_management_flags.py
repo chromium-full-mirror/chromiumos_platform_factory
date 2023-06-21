@@ -9,7 +9,7 @@ from cros.factory.test.utils import gsc_utils
 from cros.factory.external.chromeos_cli import gsctool as gsctool_module
 
 
-class FeatureManagementFlagsFunction(probe_function.ProbeFunction):
+class FeatureManagementFlagsFunction(probe_function.AbstractProbeFunction):
   """Probes the feature management flags."""
 
   def __init__(self, **kwargs):

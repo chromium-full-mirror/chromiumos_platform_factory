@@ -7,6 +7,7 @@
 This class provides shortcuts to HTTP request and response.
 """
 
+import abc
 import logging
 import time
 
@@ -152,11 +153,12 @@ class WebAppDispatcher(dict):
       return session.ServerError500()
 
 
-class WebApp:
+class AbstractWebApp(abc.ABC):
   """Web application class."""
 
   def __call__(self, environ, start_response):
     return self.Handle(WSGISession(environ, start_response))
 
+  @abc.abstractmethod
   def Handle(self, session):
     raise NotImplementedError

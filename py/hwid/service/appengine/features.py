@@ -6,7 +6,7 @@ import abc
 import collections
 import enum
 import itertools
-from typing import Container, Generic, Iterable, Mapping, NamedTuple, Optional, Sequence, Sized, TypeVar, Union
+from typing import Container, Generic, Iterable, Mapping, NamedTuple, Optional, Sequence, Sized, Type, TypeVar, Union
 
 from cros.factory.hwid.v3 import common as hwid_common
 from cros.factory.hwid.v3 import database as db_module
@@ -304,7 +304,7 @@ class _HWIDSpecBitStringRequirementResolver:
   def DeduceRequirementCandidates(
       self, db: db_module.Database, pattern_idx: int,
       dlm_db: DLMComponentDatabase
-  ) -> Union[type(_ALWAYS_FULFILL), Sequence[HWIDBitStringRequirement]]:
+  ) -> Union[Type[_ALWAYS_FULFILL], Sequence[HWIDBitStringRequirement]]:
     """Deduce the HWID bit string requirement candidates for the given pattern.
 
     Args:
@@ -502,7 +502,7 @@ class CreateDLMCompEntryAcceptor(
     return None
 
 
-class _SatisfiedEncodedValueResolver(abc.ABC):
+class _AbstractSatisfiedEncodedValueResolver(abc.ABC):
   """A class method to help find all satisfied encoded values for a spec."""
 
   def __init__(self, db: db_module.Database, dlm_db: DLMComponentDatabase):
@@ -588,7 +588,7 @@ class CPUV1Spec(HWIDSpec):
   """
 
   class _CPUV1SatisfiedEncodedFieldValueResolver(
-      _SatisfiedEncodedValueResolver):
+      _AbstractSatisfiedEncodedValueResolver):
     _TARGET_VERSION = 1
     _CPU_COMPONENT_TYPE = 'cpu'
 
@@ -700,7 +700,7 @@ class StorageV1Spec(HWIDSpec):
   """
 
   class _StorageV1SatisfiedEncodedFieldValueResolver(
-      _SatisfiedEncodedValueResolver):
+      _AbstractSatisfiedEncodedValueResolver):
     _STORAGE_COMPONENT_TYPES = ('storage', 'storage_bridge')
     _MIN_STORAGE_SIZE_IN_GB = 128
 
@@ -735,7 +735,7 @@ class DisplayPanelV1Spec(HWIDSpec):
   """
 
   class _DisplayV1SatisfiedEncodedFieldValueResolver(
-      _SatisfiedEncodedValueResolver):
+      _AbstractSatisfiedEncodedValueResolver):
     _DISPLAY_COMPONENT_TYPE = 'display_panel'
     _FHD_HORIZONTAL_RESOLUTION = 1920
     _FHD_VERTICAL_RESOLUTION = 1080
@@ -779,7 +779,7 @@ class CameraV1Spec(HWIDSpec):
   """
 
   class _CameraV1SatisfiedEncodedFieldValueResolver(
-      _SatisfiedEncodedValueResolver):
+      _AbstractSatisfiedEncodedValueResolver):
     _CAMERA_COMPONENT_TYPES = ('camera', 'video')
     _MIN_HORIZONTAL_RESOLUTION = 1920
     _MIN_VERTICAL_RESOLUTION = 1080

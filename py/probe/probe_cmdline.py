@@ -5,6 +5,7 @@
 
 """Command-line interface for probe utilities."""
 
+import abc
 import argparse
 import logging
 import sys
@@ -30,13 +31,14 @@ def RegisterCommand(cls):
   return cls
 
 
-class SubCommand:
+class AbstractSubCommand(abc.ABC):
   """The sub-command class."""
 
   # The sub-command string. Derived class should override it.
   CMD_NAME = ''
 
   @classmethod
+  @abc.abstractmethod
   def AddArgumentToParser(cls, subparsers):
     """Adds the argument parser of the sub-command to the subparsers.
 
@@ -52,6 +54,7 @@ class SubCommand:
     cls._AddArgument(subparser)
 
   @classmethod
+  @abc.abstractmethod
   def _AddArgument(cls, parser):
     """Adds the argument parser of the sub-command to the parser.
 
@@ -73,16 +76,19 @@ class SubCommand:
 
 
 @RegisterCommand
-class EvalFunctionCmd(SubCommand):
+class EvalFunctionCmd(AbstractSubCommand):
   """Evaluates a probe function."""
   CMD_NAME = 'eval-function'
 
   @classmethod
   def _AddArgument(cls, parser):
     function.LoadFunctions()
-    func_list = [func_name for func_name in function.GetRegisteredFunctions()
-                 if issubclass(function.GetFunctionClass(func_name),
-                               probe_function.ProbeFunction)]
+    func_list = [
+        func_name for func_name in function.GetRegisteredFunctions()
+        if issubclass(
+            function.GetFunctionClass(func_name),
+            probe_function.AbstractProbeFunction)
+    ]
     func_parsers = parser.add_subparsers()
     for func_name in func_list:
       func_cls = function.GetFunctionClass(func_name)
@@ -103,7 +109,7 @@ class EvalFunctionCmd(SubCommand):
 
 
 @RegisterCommand
-class ProbeCmd(SubCommand):
+class ProbeCmd(AbstractSubCommand):
   """Probe the result according to the configuration file.
 
   The format of the config file:
@@ -167,7 +173,7 @@ class ProbeCmd(SubCommand):
 
 
 @RegisterCommand
-class SearchCmd(SubCommand):
+class SearchCmd(AbstractSubCommand):
   """Search the components in generic way.
 
   We can use this command to find common components, and generate its probe

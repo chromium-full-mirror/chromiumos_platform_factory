@@ -6,7 +6,7 @@ from cros.factory.probe import function
 from cros.factory.probe.lib import combination_function
 
 
-class Or(combination_function.CombinationFunction):
+class Or(combination_function.AbstractCombinationFunction):
   """Returns the first successful output.
 
   Description
