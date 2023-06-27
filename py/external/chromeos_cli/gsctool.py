@@ -73,7 +73,7 @@ class APROResult(enum.Enum):
 
 
 class GSCToolError(Exception):
-  pass
+  """All exceptions when calling gsctool."""
 
 
 class GSCTool:
@@ -312,6 +312,21 @@ class GSCTool:
       return match.group('status')
     raise GSCToolError(
         f'Failed to get expanded_aprov_status from {result.stdout}')
+
+  def SetAddressingMode(self, flash_size):
+    """Sets addressing mode for ap ro verification on Ti50.
+
+    The flash_size should be derived from flashrom. b/249398623
+    """
+    if flash_size <= 0x1000000:  # 2^24
+      cmd = [GSCTOOL_PATH, '-a', '-C', '3byte']
+    else:
+      cmd = [GSCTOOL_PATH, '-a', '-C', '4byte']
+    self._InvokeCommand(cmd, 'Fail to set addressing mode.')
+
+  def SetWpsr(self, wpsr):
+    """Sets wpsr for ap ro verification on Ti50."""
+    self._InvokeCommand([GSCTOOL_PATH, '-a', '-E', wpsr], 'Fail to set wpsr.')
 
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):
     cmd_result_checker = cmd_result_checker or (lambda result: result.success)

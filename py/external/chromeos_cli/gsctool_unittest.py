@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import textwrap
 import unittest
 from unittest import mock
 
@@ -193,6 +194,14 @@ class GSCToolTest(unittest.TestCase):
     status = self.gsctool.GetExpandedAprovStatus()
     self.assertEqual(status, '20094FC')
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-W'])
+
+  def testSetAddressingMode3byte(self):
+    self.gsctool.SetAddressingMode(0x1000000)
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-C', '3byte'])
+
+  def testSetAddressingMode4byte(self):
+    self.gsctool.SetAddressingMode(0x1000001)
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-C', '4byte'])
 
 if __name__ == '__main__':
   unittest.main()
