@@ -199,6 +199,7 @@ class GooftoolTest(unittest.TestCase):
 
     self._smart_amp_info = self._gooftool.GetSmartAmpInfo
     self._gooftool.GetSmartAmpInfo = mock.Mock(return_value=[None, None, None])
+    self._gooftool._gsctool = mock.Mock(self._gooftool._gsctool)
 
   def testVerifyECKeyWithPubkeyHash(self):
     f = MockFile()
