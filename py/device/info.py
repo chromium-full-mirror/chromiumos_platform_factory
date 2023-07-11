@@ -19,6 +19,9 @@ from cros.factory.test import session
 from cros.factory.utils import net_utils
 from cros.factory.utils.sys_utils import MountDeviceAndReadFile
 
+from cros.factory.external.chromeos_cli import gsctool as gsctool_module
+from cros.factory.external.chromeos_cli import vpd
+
 
 # Static list of known properties in SystemInfo.
 _INFO_PROP_LIST = []
@@ -290,6 +293,198 @@ class SystemInfo(device_types.DeviceComponent):
     """Returns the device name of the device."""
     return self._device.CallOutput(['cros_config', '/', 'name']).strip()
 
+  @InfoProperty
+  def system_timezone(self):
+    """Returns the system timezone of the device."""
+    timezone = self._device.CheckOutput(['date', '+%Z']).strip()
+    offset = self._device.CheckOutput(['date', '+%:z']).strip()
+    return {
+        'timezone': timezone,
+        'offset': offset,
+    }
+
+  @InfoProperty
+  def image_info(self):
+    return {
+        'test_image': {
+            'version': self.test_image_version,
+            'channel': self.test_image_channel,
+        },
+        'release_image': {
+            'version': self.release_image_version,
+            'channel': self.release_image_channel,
+        },
+    }
+
+  @InfoProperty
+  def factory_info(self):
+    return {
+        'stage': self.stage,
+        'toolkit_version': self.toolkit_version,
+        'hwid_database_version': self.hwid_database_version,
+    }
+
+  @InfoProperty
+  def system_info(self):
+    return {
+        'architecture': self.architecture,
+        'kernel_version': self.kernel_version,
+        'root_device': self.root_device,
+    }
+
+  # TODO (phoebewang): collect more fw version from /var/log/message
+  @InfoProperty
+  def fw_info(self):
+    return {
+        'fwid': self.firmware_version,
+        'ro_fwid': self.ro_firmware_version,
+        'mainfw_act': self.mainfw_act,
+        'mainfw_type': self.mainfw_type,
+        'ecfw_act': self.ecfw_act,
+        'ec_version': self.ec_version,
+        'pd_version': self.pd_version,
+        'hwid': self.hwid,
+    }
+
+  @InfoProperty
+  def hw_info(self):
+    return {
+        'cpu_info': {
+            'model_name': self.cpu_model,
+            'count': self.cpu_count,
+        },
+        'storage': self.storage_type,
+        'total_memory_kb': self.memory_total_kb,
+        'wlan0_mac': self.wlan0_mac,
+        'eth_mac': self.eth_macs,
+    }
+
+  @InfoProperty
+  def device_info(self):
+    return {
+        'name': self.device_name,
+        'id': self.device_id,
+        'serial_number': self.serial_number,
+        'mlb_serial_number': self.mlb_serial_number,
+        'pci_device_number': self.pci_device_number,
+        'system_timezone': self.system_timezone,
+    }
+
+  @InfoProperty
+  def gsc_sn_bits(self):
+    return self._device.CheckOutput(
+        ['/usr/share/cros/cr50-read-rma-sn-bits.sh']).strip()
+
+  @InfoProperty
+  def gsc_factory_config(self):
+    factory_config = gsctool_module.GSCTool(
+        self._device).GetFeatureManagementFlags()
+    return factory_config.__dict__
+
+  @InfoProperty
+  def gsc_version(self):
+    fw_version = gsctool_module.GSCTool(self._device).GetCr50FirmwareVersion()
+    return {
+        'ro_version': fw_version.ro_version,
+        'rw_version': fw_version.rw_version,
+    }
+
+  @InfoProperty
+  def ap_ro_verify(self):
+    gsctool = gsctool_module.GSCTool(self._device)
+    wpsr_list = gsctool.GetWpsr()
+    wpsr_hex_str_list = []
+    for wpsr_tuple in wpsr_list:
+      wpsr_hex_str_list.append({
+          'value': self._IntToHexStr(wpsr_tuple.value),
+          'mask': self._IntToHexStr(wpsr_tuple.mask)
+      })
+
+    return {
+        'addressing_mode': gsctool.GetAddressingMode(),
+        'wpsr': wpsr_hex_str_list,
+        'result': str(gsctool.GSCGetAPROResult()),
+    }
+
+  @InfoProperty
+  def board_id(self):
+    # Though the board id info from gsctool.GetBoardID() should be sufficient,
+    # we still store all the fields from command `gsctool -a -M -i` to improve
+    # the readability.
+    content = self._device.CheckOutput(
+        [gsctool_module.GSCTOOL_PATH, '-a', '-M', '-i']).strip()
+    return self._ParseStrToDict(self._REGEX_KEY_EQUAL_VALUE, content)
+
+  @InfoProperty
+  def gsc_info(self):
+    """Returns the Google Security Chip (GSC) info of the device."""
+
+    return {
+        'gsc_type': gsc_utils.GSCUtils().name,
+        'board_id': self.board_id,
+        'fw_version': self.gsc_version,
+        'sn_bits': self.gsc_sn_bits,
+        'factory_config': self.gsc_factory_config,
+        'ap_ro_verify': self.ap_ro_verify,
+    }
+
+  @InfoProperty
+  def cbi_info(self):
+    """Returns the cbi info of the device."""
+    cbi_info = {}
+    cbi_info['board_version'] = cbi_utils.GetCbiData(
+        self._device, cbi_utils.CbiDataName.BOARD_VERSION)
+    cbi_info['sku_id'] = self._IntToHexStr(
+        cbi_utils.GetCbiData(self._device, cbi_utils.CbiDataName.SKU_ID))
+    cbi_info['fw_config'] = self._IntToHexStr(
+        cbi_utils.GetCbiData(self._device, cbi_utils.CbiDataName.FW_CONFIG))
+    return cbi_info
+
+  @InfoProperty
+  def vpd_info(self):
+    """Returns the VPD info of the device."""
+    vpd_tool = vpd.VPDTool(self._device)
+    return {
+        'ro': vpd_tool.GetAllData(partition=vpd.VPD_READONLY_PARTITION_NAME),
+        'rw': vpd_tool.GetAllData(partition=vpd.VPD_READWRITE_PARTITION_NAME),
+    }
+
+  @InfoProperty
+  def crosid(self):
+    """Returns the crosid of the device.
+
+    The output of `crosid` command looks like:
+      SKU=xxx
+      CONFIG_INDEX=xxx
+      FIRMWARE_MANIFEST_KEY='xxx'
+    """
+    output = self._device.CheckOutput(['crosid']).strip()
+    crosid = self._ParseStrToDict(self._REGEX_KEY_EQUAL_VALUE, output)
+    return {
+        'sku': self._IntToHexStr(int(crosid['SKU'])),
+        'config_index': int(crosid['CONFIG_INDEX']),
+        'firmware_manifest_key': crosid['FIRMWARE_MANIFEST_KEY'],
+    }
+
+  @InfoProperty
+  def wp_info(self):
+    software_wp = {}
+    for target in set(write_protect_target.WriteProtectTargetType):
+      wp_target = write_protect_target.CreateWriteProtectTarget(target)
+      try:
+        software_wp[target.name] = wp_target.GetStatus()
+      except write_protect_target.UnsupportedOperationError:
+        pass
+
+    return {
+        'hardware_wp': {
+            "enabled": {
+                '0': False,
+                '1': True
+            }[self.hwwp]
+        },
+        'software_wp': software_wp,
+    }
 
 def main():
   import pprint
