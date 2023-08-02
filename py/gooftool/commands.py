@@ -78,126 +78,6 @@ _hwdb_path_cmd_arg = CmdArg('--hwdb_path', metavar='PATH',
                             default=hwid_utils.GetDefaultDataPath(),
                             help='Path to the HWID database.')
 
-
-def GetGooftool(options):
-  global _global_gooftool  # pylint: disable=global-statement
-
-  if _global_gooftool is None:
-    with _gooftool_lock:
-      if _global_gooftool is None:
-        project = getattr(options, 'project', None)
-        hwdb_path = getattr(options, 'hwdb_path', None)
-        _global_gooftool = Gooftool(hwid_version=3, project=project,
-                                    hwdb_path=hwdb_path)
-  return _global_gooftool
-
-# Define __args__ to make it easier to propagate the arguments
-GetGooftool.__args__ = (
-    _hwdb_path_cmd_arg,
-    _project_cmd_arg,
-)
-
-
-def HasFpmcu():
-  global _has_fpmcu  # pylint: disable=global-statement
-
-  if _has_fpmcu is None:
-    FPMCU_PATH = '/dev/cros_fp'
-    has_cros_config_fpmcu = False
-    cros_config_output = Shell(['cros_config', '/fingerprint', 'board'])
-    if cros_config_output.success and cros_config_output.stdout:
-      has_cros_config_fpmcu = True
-
-    if not os.path.exists(FPMCU_PATH) and has_cros_config_fpmcu:
-      raise Error(f'FPMCU found in cros_config but missing in {FPMCU_PATH}.')
-
-    _has_fpmcu = has_cros_config_fpmcu
-
-  return _has_fpmcu
-
-
-_waive_list_cmd_arg = CmdArg(
-    '--waive_list', nargs='*', default=[], metavar='SUBCMD',
-    help=('A list of waived checks, separated by whitespace. '
-          'Each item should be a sub-command of gooftool. '
-          'e.g. "gooftool verify --waive_list verify_tpm clear_gbb_flags".'))
-
-_skip_list_cmd_arg = CmdArg(
-    '--skip_list', nargs='*', default=[], metavar='SUBCMD',
-    help=('A list of skipped checks, separated by whitespace. '
-          'Each item should be a sub-command of gooftool. '
-          'e.g. "gooftool verify --skip_list verify_tpm clear_gbb_flags".'))
-
-
-def Command(cmd_name, *args, **kwargs):
-  """Decorator for commands in gooftool.
-
-  This is similar to argparse_utils.Command, but all gooftool commands
-  can be waived during `gooftool finalize` or `gooftool verify` using
-  --waive_list or --skip_list option.
-  """
-  args = args + (_skip_list_cmd_arg, _waive_list_cmd_arg)
-
-  def Decorate(fun):
-
-    @functools.wraps(fun)
-    def CommandWithWaiveSkipCheck(options):
-      waive_list = vars(options).get('waive_list', [])
-      skip_list = vars(options).get('skip_list', [])
-      if phase.GetPhase() >= phase.PVT_DOGFOOD and (
-          waive_list != [] or skip_list != []):
-        raise Error('waive_list and skip_list should be empty for phase '
-                    f'{phase.GetPhase()}')
-
-      if cmd_name not in skip_list:
-        try:
-          fun(options)
-        except Exception as e:
-          if cmd_name in waive_list:
-            logging.exception(e)
-          else:
-            raise
-
-    wrapped = argparse_utils.Command(cmd_name, *args, **kwargs)(
-        CommandWithWaiveSkipCheck)
-    wrapped.__args__ = args
-    return wrapped
-  return Decorate
-
-
-@Command('get_release_fs_type', *GetGooftool.__args__)
-def GetReleaseFSType(options):
-  """Get the FS type of the stateful partition of the release image."""
-
-  if GetGooftool(options).IsReleaseLVM():
-    print('Release image has LVM stateful partition.')
-  else:
-    print('Release image has EXT4 stateful partition.')
-
-
-@Command(
-    'write_hwid',
-    CmdArg('hwid', metavar='HWID', help='HWID string'),  # this
-    *GetGooftool.__args__)
-def WriteHWID(options):
-  """Write specified HWID value into the system BB."""
-
-  logging.info('writing hwid string %r', options.hwid)
-  GetGooftool(options).WriteHWID(options.hwid)
-  event_log.Log('write_hwid', hwid=options.hwid)
-  print(f'Wrote HWID: {options.hwid!r}')
-
-
-@Command('read_hwid', *GetGooftool.__args__)
-def ReadHWID(options):
-  """Read the HWID string from GBB."""
-
-  logging.info('reading the hwid string')
-  print(GetGooftool(options).ReadHWID())
-
-
-# TODO(yhong): Replace this argument with `--hwid-material-file` when
-# `cros.factory.hwid.v3.hwid_utils` provides methods to parse such file.
 _probe_results_cmd_arg = CmdArg(
     '--probe_results', metavar='RESULTS.json',
     help=('Output from "hwid probe" (used instead of probing this system).'))
@@ -320,6 +200,163 @@ _skip_feature_tiering_steps_cmd_arg = CmdArg(
     '--skip_feature_tiering_steps', action='store_true', default=False,
     help='Skip feature flag provisions for legacy project on features.')
 
+_boot_to_shimless_cmd_arg = CmdArg(
+    '--boot_to_shimless', action='store_true', default=False,
+    help='Initiate the Shimless RMA after performing wiping.')
+
+def GetGooftool(options):
+  global _global_gooftool  # pylint: disable=global-statement
+
+  if _global_gooftool is None:
+    with _gooftool_lock:
+      if _global_gooftool is None:
+        project = getattr(options, 'project', None)
+        hwdb_path = getattr(options, 'hwdb_path', None)
+        _global_gooftool = Gooftool(hwid_version=3, project=project,
+                                    hwdb_path=hwdb_path)
+  return _global_gooftool
+
+# Define __args__ to make it easier to propagate the arguments
+GetGooftool.__args__ = (
+    _hwdb_path_cmd_arg,
+    _project_cmd_arg,
+)
+
+
+def HasFpmcu():
+  global _has_fpmcu  # pylint: disable=global-statement
+
+  if _has_fpmcu is None:
+    FPMCU_PATH = '/dev/cros_fp'
+    has_cros_config_fpmcu = False
+    cros_config_output = Shell(['cros_config', '/fingerprint', 'board'])
+    if cros_config_output.success and cros_config_output.stdout:
+      has_cros_config_fpmcu = True
+
+    if not os.path.exists(FPMCU_PATH) and has_cros_config_fpmcu:
+      raise Error(f'FPMCU found in cros_config but missing in {FPMCU_PATH}.')
+
+    _has_fpmcu = has_cros_config_fpmcu
+
+  return _has_fpmcu
+
+
+_waive_list_cmd_arg = CmdArg(
+    '--waive_list', nargs='*', default=[], metavar='SUBCMD',
+    help=('A list of waived checks, separated by whitespace. '
+          'Each item should be a sub-command of gooftool. '
+          'e.g. "gooftool verify --waive_list verify_tpm clear_gbb_flags".'))
+
+_skip_list_cmd_arg = CmdArg(
+    '--skip_list', nargs='*', default=[], metavar='SUBCMD',
+    help=('A list of skipped checks, separated by whitespace. '
+          'Each item should be a sub-command of gooftool. '
+          'e.g. "gooftool verify --skip_list verify_tpm clear_gbb_flags".'))
+
+
+def Command(cmd_name, *args, **kwargs):
+  """Decorator for commands in gooftool.
+
+  This is similar to argparse_utils.Command, but all gooftool commands
+  can be waived during `gooftool finalize` or `gooftool verify` using
+  --waive_list or --skip_list option.
+  """
+  args = args + (_skip_list_cmd_arg, _waive_list_cmd_arg)
+
+  def Decorate(fun):
+
+    @functools.wraps(fun)
+    def CommandWithWaiveSkipCheck(options):
+      waive_list = vars(options).get('waive_list', [])
+      skip_list = vars(options).get('skip_list', [])
+      if phase.GetPhase() >= phase.PVT_DOGFOOD and (
+          waive_list != [] or skip_list != []):
+        raise Error('waive_list and skip_list should be empty for phase '
+                    f'{phase.GetPhase()}')
+
+      if cmd_name not in skip_list:
+        try:
+          fun(options)
+        except Exception as e:
+          if cmd_name in waive_list:
+            logging.exception(e)
+          else:
+            raise
+
+    wrapped = argparse_utils.Command(cmd_name, *args, **kwargs)(
+        CommandWithWaiveSkipCheck)
+    wrapped.__args__ = args
+    return wrapped
+  return Decorate
+
+
+@Command('get_release_fs_type', *GetGooftool.__args__)
+def GetReleaseFSType(options):
+  """Get the FS type of the stateful partition of the release image."""
+
+  if GetGooftool(options).IsReleaseLVM():
+    print('Release image has LVM stateful partition.')
+  else:
+    print('Release image has EXT4 stateful partition.')
+
+
+@Command(
+    'write_hwid',
+    CmdArg('hwid', metavar='HWID', help='HWID string'),  # this
+    *GetGooftool.__args__)
+def WriteHWID(options):
+  """Write specified HWID value into the system BB."""
+
+  logging.info('writing hwid string %r', options.hwid)
+  GetGooftool(options).WriteHWID(options.hwid)
+  event_log.Log('write_hwid', hwid=options.hwid)
+  print(f'Wrote HWID: {options.hwid!r}')
+
+
+@Command('read_hwid', *GetGooftool.__args__)
+def ReadHWID(options):
+  """Read the HWID string from GBB."""
+
+  logging.info('reading the hwid string')
+  print(GetGooftool(options).ReadHWID())
+
+
+# TODO(yhong): Replace this argument with `--hwid-material-file` when
+# `cros.factory.hwid.v3.hwid_utils` provides methods to parse such file.
+
+def PrepareWipeArgs(options):
+  wipe_args = []
+
+  if options.fast:
+    wipe_args += ['--fast']
+  if options.shopfloor_url:
+    wipe_args += ['--shopfloor_url', options.shopfloor_url]
+  if options.station_ip:
+    wipe_args += ['--station_ip', options.station_ip]
+  if options.station_port:
+    wipe_args += ['--station_port', options.station_port]
+  if options.wipe_finish_token:
+    wipe_args += ['--wipe_finish_token', options.wipe_finish_token]
+  if options.boot_to_shimless:
+    wipe_args += ['--boot_to_shimless']
+  if options.skip_list:
+    wipe_args += ['--skip_list'] + options.skip_list
+  if options.waive_list:
+    wipe_args += ['--waive_list'] + options.waive_list
+  wipe_args += ['--phase', str(phase.GetPhase())]
+
+  return wipe_args
+
+
+PrepareWipeArgs.__args__ = (
+    _fast_cmd_arg,
+    _shopfloor_url_args_cmd_arg,
+    _station_ip_cmd_arg,
+    _station_port_cmd_arg,
+    _wipe_finish_token_cmd_arg,
+    _test_umount_cmd_arg,
+    _boot_to_shimless_cmd_arg,
+)
 
 @Command('verify_dlc_images', *GetGooftool.__args__)
 def VerifyDLCImages(options):
@@ -658,6 +695,7 @@ def EnableReleasePartition(options):
     _station_ip_cmd_arg,  # this
     _station_port_cmd_arg,  # this
     _wipe_finish_token_cmd_arg,  # this
+    _boot_to_shimless_cmd_arg,  # this
     _test_umount_cmd_arg,  # this
     *GetGooftool.__args__,
 )
@@ -669,6 +707,7 @@ def WipeInPlace(options):
                                    options.station_ip,
                                    options.station_port,
                                    options.wipe_finish_token,
+                                   options.boot_to_shimless,
                                    options.test_umount)
 
 
@@ -684,6 +723,7 @@ def WipeInPlace(options):
     _station_port_cmd_arg,  # this
     _wipe_finish_token_cmd_arg,  # this
     _keep_developer_mode_flag_after_clobber_state_cmd_arg,  # this
+    _boot_to_shimless_cmd_arg,  # this
     _test_umount_cmd_arg,  # this
     *GetGooftool.__args__)
 def WipeInit(options):
@@ -1141,6 +1181,7 @@ def FpmcuInitializeEntropy(options):
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
+    *PrepareWipeArgs.__args__,
 )
 def SMTFinalize(options):
   """Call this function to finalize MLB in SMT stage.
@@ -1155,20 +1196,22 @@ def SMTFinalize(options):
   LogSystemDetails(options)
   UploadReport(options)
 
+  if options.boot_to_shimless:
+    event_log.Log(WIPE_IN_PLACE)
+    wipe_args = PrepareWipeArgs(options)
+
+    ExecFactoryPar('gooftool', WIPE_IN_PLACE, *wipe_args)
+
 
 @Command(
     'finalize',
-    _fast_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
     _rlz_embargo_end_date_offset_cmd_arg,  # this
     _no_generate_mfg_date_cmd_arg,  # this
     _cros_core_cmd_arg,  # this
     _no_write_protect_cmd_arg,  # this
-    _shopfloor_url_args_cmd_arg,  # this
-    _station_ip_cmd_arg,  # this
-    _station_port_cmd_arg,  # this
-    _wipe_finish_token_cmd_arg,  # this
     _skip_list_cmd_arg,  # this
+    *PrepareWipeArgs.__args__,
     *ClearFactoryVPDEntries.__args__,
     *ClearGBBFlags.__args__,
     *GSCFinalize.__args__,
@@ -1236,22 +1279,7 @@ def Finalize(options):
   UploadReport(options)
 
   event_log.Log(WIPE_IN_PLACE)
-  wipe_args = []
-  if options.shopfloor_url:
-    wipe_args += ['--shopfloor_url', options.shopfloor_url]
-  if options.fast:
-    wipe_args += ['--fast']
-  if options.station_ip:
-    wipe_args += ['--station_ip', options.station_ip]
-  if options.station_port:
-    wipe_args += ['--station_port', options.station_port]
-  if options.wipe_finish_token:
-    wipe_args += ['--wipe_finish_token', options.wipe_finish_token]
-  if options.skip_list:
-    wipe_args += ['--skip_list'] + options.skip_list
-  if options.waive_list:
-    wipe_args += ['--waive_list'] + options.waive_list
-  wipe_args += ['--phase', str(phase.GetPhase())]
+  wipe_args = PrepareWipeArgs(options)
   ExecFactoryPar('gooftool', WIPE_IN_PLACE, *wipe_args)
 
 
