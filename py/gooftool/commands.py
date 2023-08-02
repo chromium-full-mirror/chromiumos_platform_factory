@@ -314,6 +314,45 @@ _is_reference_board_cmd_arg = CmdArg(
 _fast_cmd_arg = CmdArg('--fast', action='store_true',
                        help='use non-secure but faster wipe method.')
 
+_boot_to_shimless_cmd_arg = CmdArg(
+    '--boot_to_shimless', action='store_true', default=False,
+    help='Initiate the Shimless RMA after performing wiping.')
+
+
+def PrepareWipeArgs(options):
+  wipe_args = []
+
+  if options.fast:
+    wipe_args += ['--fast']
+  if options.shopfloor_url:
+    wipe_args += ['--shopfloor_url', options.shopfloor_url]
+  if options.station_ip:
+    wipe_args += ['--station_ip', options.station_ip]
+  if options.station_port:
+    wipe_args += ['--station_port', options.station_port]
+  if options.wipe_finish_token:
+    wipe_args += ['--wipe_finish_token', options.wipe_finish_token]
+  if options.boot_to_shimless:
+    wipe_args += ['--boot_to_shimless']
+  if options.skip_list:
+    wipe_args += ['--skip_list'] + options.skip_list
+  if options.waive_list:
+    wipe_args += ['--waive_list'] + options.waive_list
+  wipe_args += ['--phase', str(phase.GetPhase())]
+
+  return wipe_args
+
+
+PrepareWipeArgs.__args__ = (
+    _fast_cmd_arg,
+    _shopfloor_url_args_cmd_arg,
+    _station_ip_cmd_arg,
+    _station_port_cmd_arg,
+    _wipe_finish_token_cmd_arg,
+    _test_umount_cmd_arg,
+    _boot_to_shimless_cmd_arg,
+)
+
 
 @Command('verify_dlc_images', *GetGooftool.__args__)
 def VerifyDLCImages(options):
@@ -658,18 +697,17 @@ def EnableReleasePartition(options):
     _station_ip_cmd_arg,  # this
     _station_port_cmd_arg,  # this
     _wipe_finish_token_cmd_arg,  # this
+    _boot_to_shimless_cmd_arg,  # this
     _test_umount_cmd_arg,  # this
     *GetGooftool.__args__,
 )
 def WipeInPlace(options):
   """Start factory wipe directly without reboot."""
 
-  GetGooftool(options).WipeInPlace(options.fast,
-                                   options.shopfloor_url,
-                                   options.station_ip,
-                                   options.station_port,
-                                   options.wipe_finish_token,
-                                   options.test_umount)
+  GetGooftool(options).WipeInPlace(
+      options.fast, options.shopfloor_url, options.station_ip,
+      options.station_port, options.wipe_finish_token, options.boot_to_shimless,
+      options.test_umount)
 
 
 @Command(
@@ -1046,6 +1084,7 @@ def FpmcuInitializeEntropy(options):
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
+    *PrepareWipeArgs.__args__,
 )
 def SMTFinalize(options):
   """Call this function to finalize MLB in SMT stage.
@@ -1060,21 +1099,23 @@ def SMTFinalize(options):
   LogSystemDetails(options)
   UploadReport(options)
 
+  if options.boot_to_shimless:
+    event_log.Log(WIPE_IN_PLACE)
+    wipe_args = PrepareWipeArgs(options)
+
+    ExecFactoryPar('gooftool', WIPE_IN_PLACE, *wipe_args)
+
 
 @Command(
     'finalize',
-    _fast_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
     _rlz_embargo_end_date_offset_cmd_arg,  # this
     _no_generate_mfg_date_cmd_arg,  # this
     _block_dev_mode_cmd_arg,  # this
     _cros_core_cmd_arg,  # this
     _no_write_protect_cmd_arg,  # this
-    _shopfloor_url_args_cmd_arg,  # this
-    _station_ip_cmd_arg,  # this
-    _station_port_cmd_arg,  # this
-    _wipe_finish_token_cmd_arg,  # this
     _skip_list_cmd_arg,  # this
+    *PrepareWipeArgs.__args__,
     *ClearFactoryVPDEntries.__args__,
     *ClearGBBFlags.__args__,
     *GSCFinalize.__args__,
@@ -1145,22 +1186,8 @@ def Finalize(options):
   UploadReport(options)
 
   event_log.Log(WIPE_IN_PLACE)
-  wipe_args = []
-  if options.shopfloor_url:
-    wipe_args += ['--shopfloor_url', options.shopfloor_url]
-  if options.fast:
-    wipe_args += ['--fast']
-  if options.station_ip:
-    wipe_args += ['--station_ip', options.station_ip]
-  if options.station_port:
-    wipe_args += ['--station_port', options.station_port]
-  if options.wipe_finish_token:
-    wipe_args += ['--wipe_finish_token', options.wipe_finish_token]
-  if options.skip_list:
-    wipe_args += ['--skip_list'] + options.skip_list
-  if options.waive_list:
-    wipe_args += ['--waive_list'] + options.waive_list
-  wipe_args += ['--phase', str(phase.GetPhase())]
+  wipe_args = PrepareWipeArgs(options)
+
   ExecFactoryPar('gooftool', WIPE_IN_PLACE, *wipe_args)
 
 
