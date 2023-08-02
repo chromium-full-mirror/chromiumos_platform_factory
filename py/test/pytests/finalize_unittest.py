@@ -40,7 +40,6 @@ class DefaultArgs:
     self.cbi_eeprom_wp_status = cbi_utils.CbiEepromWpStatus.Locked
     self.is_reference_board = False
     self.project = None
-    self.wpsr = ''
     self.mode = FinalizeMode.ASSEMBLED
     self.enforced_release_channels = None
 
@@ -76,6 +75,23 @@ class FinalizeUnittest(unittest.TestCase):
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with('gooftool -v 4 smt_finalize upload_args',
                                      True)
+
+  @mock.patch(f'{finalize.__name__}.Finalize.AppendUploadReportArgs')
+  @mock.patch(f'{finalize.__name__}.Finalize._DoFinalize')
+  def testFinalizeShimlessMLB(self, mock_finalize, mock_upload_report_args):
+    self.test.args.factory_process = FactoryProcessEnum.RMA
+    self.test.args.mode = FinalizeMode.SHIMLESS_MLB
+    mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
+
+    self.test.FinalizeMLB()
+    mock_finalize.assert_called_with(
+        'gooftool -v 4 smt_finalize upload_args --boot_to_shimless', False)
+
+    self.test.args.secure_wipe = False
+    self.test.FinalizeMLB()
+    mock_finalize.assert_called_with(
+        'gooftool -v 4 smt_finalize upload_args --boot_to_shimless --fast',
+        False)
 
   def testUploadReportArgsUploadMethodNone(self):
     self.test.args.enable_factory_server = False
@@ -187,7 +203,6 @@ class FinalizeUnittest(unittest.TestCase):
     self.test.args.enforced_release_channels = ['1', '2', '3']
     self.test.args.enable_zero_touch = True
     self.test.args.is_reference_board = True
-    self.test.args.wpsr = '0 0'
     self.test.args.project = 'project'
 
     actual = self.test.AppendAssembledArgs('')
@@ -206,7 +221,6 @@ class FinalizeUnittest(unittest.TestCase):
         '--enable_zero_touch',
         '--is_reference_board',
         '--has_ec_pubkey',
-        '--wpsr "0 0"',
         '--project project',
     ]
 
@@ -226,7 +240,6 @@ class FinalizeUnittest(unittest.TestCase):
     self.test.args.enforced_release_channels = None
     self.test.args.enable_zero_touch = False
     self.test.args.is_reference_board = False
-    self.test.args.wpsr = ''
     self.test.args.project = None
 
     actual = self.test.AppendAssembledArgs('')
@@ -245,7 +258,6 @@ class FinalizeUnittest(unittest.TestCase):
         '--enable_zero_touch',
         '--is_reference_board',
         '--has_ec_pubkey',
-        '--wpsr',
         '--project',
     ]
     for flag in not_append_flags:
