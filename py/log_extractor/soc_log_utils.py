@@ -14,6 +14,11 @@ SoCInfo = collections.namedtuple('SoCInfo', ['component', 'info'])
 class IntelFWParser:
   """Parses the log lines from /var/log/messages to get the FW info."""
 
+  class GPUSubComponents(str, enum.Enum):
+    GuC = 'GuC'
+    HuC = 'HuC'
+    DMC = 'DMC'
+
   class Components(str, enum.Enum):
     Bluetooth = 'Bluetooth'
     GPU = 'GPU'
@@ -53,8 +58,9 @@ class IntelFWParser:
       for patterns in (GUC_HUC_REGEX, DMC_REGEX):
         match = re.search(patterns, log_line)
         if match:
+          name = match.group("name")
           return {
-              'name': match.group('name'),
+              'name': self.GPUSubComponents(name).value,
               'binary': match.group('bin'),
               'version': match.group('ver'),
           }
