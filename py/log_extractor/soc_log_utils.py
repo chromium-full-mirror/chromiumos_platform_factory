@@ -8,10 +8,6 @@ import re
 from typing import Dict, Optional
 
 
-class IntelFWParserError(Exception):
-  pass
-
-
 SoCInfo = collections.namedtuple('SoCInfo', ['component', 'info'])
 
 
@@ -48,7 +44,7 @@ class IntelFWParser:
 
   def ParseGPU(self, log_line: str) -> Optional[Dict]:
 
-    def ParseSubComponents(log_line: str) -> Dict:
+    def ParseSubComponents(log_line: str) -> Optional[Dict]:
       GUC_HUC_REGEX = (
           r'(?P<name>\S+) firmware i915\/(?P<bin>\S+) version (?P<ver>\S+)')
       DMC_REGEX = (
@@ -62,7 +58,7 @@ class IntelFWParser:
               'binary': match.group('bin'),
               'version': match.group('ver'),
           }
-      raise IntelFWParserError(f'Failed to parse GPU components: {log_line}')
+      return None
 
     GPU_REGEX = r'i915\s*\S+\s*\[drm\]\s*(?P<firmware_info>[^\n]+)'
 
