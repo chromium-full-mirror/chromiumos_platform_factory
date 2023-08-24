@@ -87,3 +87,6 @@ export abstract class BaseService {
     return responseHandler<T>(response);
   }
 }
+
+/** Exception to raise when parameters are undefined. */
+export class ParamsUndefined extends Error {}

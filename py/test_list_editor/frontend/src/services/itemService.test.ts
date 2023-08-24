@@ -4,10 +4,10 @@
 
 import "@testing-library/jest-dom";
 import { Status } from "../interfaces/common";
+import { ParamsUndefined } from "./common";
 import {
   getTestItemConfig,
   ItemService,
-  ParamsUndefined,
   TestItem,
   TestItemDisplay,
 } from "./itemService";

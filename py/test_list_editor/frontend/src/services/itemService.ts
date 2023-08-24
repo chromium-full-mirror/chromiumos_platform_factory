@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import { BaseResponse } from "../interfaces/common";
-import { BaseService } from "./common";
+import { BaseService, ParamsUndefined } from "./common";
 
 // TODO(louischiu): Make optional fields required.
 
@@ -110,9 +110,6 @@ export interface TestItemLoaderResponse {
   testItemData: TestItem;
   testItemId: string;
 }
-
-/** Exception to raise when parameters are undefined. */
-export class ParamsUndefined extends Error {}
 
 /** Test item loader function.
  *
