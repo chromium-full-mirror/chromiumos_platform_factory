@@ -49,6 +49,7 @@ from cros.factory.test import device_data
 from cros.factory.test import session
 from cros.factory.test import state
 from cros.factory.test import test_case
+from cros.factory.test.rules import phase
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils.gsc_utils import GSCUtils
 
@@ -97,6 +98,18 @@ class Ti50APROVerficationTest(test_case.TestCase):
           self.FailTask('Ti50 AP RO Verification failed '
                         f'with the following result: {result.name}, '
                         f'and expanded_aprov_status: {status}')
+
+        # Check the WPSR value for PVT/MP devices,
+        # it should be set to correct value instead of "0 0" for 
+        # security concern.
+        wpsr_list = self.gsctool.GetWpsr()
+        if (phase.GetPhase() >= phase.PVT and len(wpsr_list) == 1 and
+            wpsr_list[0].value == 0 and wpsr_list[0].mask == 0):
+          self.FailTask('Ti50 AP RO Verification passed, '
+                        'but PVT/MP devices should not pass the factory test '
+                        'with 0 & 0 values for WPSR.')
+
+        session.console.info('Ti50 AP RO Verification passed.')
       else:
         # Enable software write protect.
         if self.args.enable_swwp:
