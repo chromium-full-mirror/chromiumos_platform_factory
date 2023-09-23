@@ -102,7 +102,7 @@ class ProjectsApp extends React.Component<ProjectAppProps, DialogStates> {
           <List>
             {projectNames.length === 0 ? (
               <ListItem className={classes.center}>
-                <Typography variant="body1">
+                <Typography data-testid="no-projects" variant="body1">
                   no projects, create or add an existing one
                 </Typography>
               </ListItem>

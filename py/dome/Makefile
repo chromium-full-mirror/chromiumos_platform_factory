@@ -16,6 +16,7 @@ endef
 export DOME_MAKE_HELP_MESSAGE
 
 DOME_DIR=/usr/local/factory/py/dome
+TEMP_DOME_E2E_DIR=/tmp/dome_e2e
 
 # Command used to analyze test coverage in target 'test-backend'.
 TEST_COVERAGE_CMD = \
@@ -74,7 +75,9 @@ test-frontend-coverage:
 
 e2e-test:
 	echo "Running dome frontend e2e test"
-	HOST_SHARED_DIR=/tmp/dome_e2e ../../setup/cros_docker.sh dev run
+	[ -d "${TEMP_DOME_E2E_DIR}" ] && \
+		sudo rm -r "${TEMP_DOME_E2E_DIR}" || echo "${TEMP_DOME_E2E_DIR} not found."
+	HOST_SHARED_DIR="${TEMP_DOME_E2E_DIR}" ../../setup/cros_docker.sh dev run
 	docker run --network dome-dev-network --rm cros/dome-builder npm run e2e
 	../../setup/cros_docker.sh dev destroy
 	touch .e2e-tests-passed

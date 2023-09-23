@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if [ -z "${dome_dev_run}" ] && [ "${dome_dev_run}" = "true" ]; then
+if [ -n "${dome_dev_run}" ] && [ "${dome_dev_run}" = "true" ]; then
   # Install latest chrome dev package.
   # Note: this installs the necessary libs to make the bundled version of
   # Chrome that Puppeteer installs, work.
