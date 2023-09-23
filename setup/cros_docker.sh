@@ -214,10 +214,10 @@ DOME_NGINX_CONTAINER_NAME="dome_nginx"
 
 DOME_BUILDER_IMAGE_NAME="cros/dome-builder"
 
-DOME_DEV_FRONTEND_CONTAINER_NAME="dome_dev_frontend"
-DOME_DEV_DJANGO_CONTAINER_NAME="dome_dev_django"
-DOME_DEV_NGINX_CONTAINER_NAME="dome_dev_nginx"
-DOME_DEV_DOCKER_NETWORK_NAME="dome_dev_network"
+DOME_DEV_FRONTEND_CONTAINER_NAME="dome-dev-frontend"
+DOME_DEV_DJANGO_CONTAINER_NAME="dome-dev-django"
+DOME_DEV_NGINX_CONTAINER_NAME="dome-dev-nginx"
+DOME_DEV_DOCKER_NETWORK_NAME="dome-dev-network"
 
 ensure_dir() {
   local dir="$1"
@@ -763,11 +763,14 @@ do_dev_run() {
 
   do_prepare_dome
 
-  echo "Copying node_modules into host directory ..."
+  echo "Copying node_modules and build directories into host directory ..."
   ${DOCKER} create --name "${builder_container_name}" \
     "${DOME_BUILDER_IMAGE_NAME}"
   ${DOCKER} cp \
     "${builder_container_name}:${DOCKER_DOME_FRONTEND_DIR}/node_modules" \
+    "${DOME_DIR}/frontend"
+  ${DOCKER} cp \
+    "${builder_container_name}:${DOCKER_DOME_FRONTEND_DIR}/build" \
     "${DOME_DIR}/frontend"
   ${DOCKER} rm "${builder_container_name}"
 

@@ -2,18 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-const convert = require('koa-convert');
 const path = require('path');
-const process = require('process');
-const webpack = require('webpack');
-const forkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const webpackHotMiddleware = require('koa-webpack-hot-middleware');
 const tsconfigPathsWebpackPlugin = require('tsconfig-paths-webpack-plugin');
 
-const config = {
+module.exports = {
   devtool: 'source-map',
   entry: ['./src/index'],
-  mode: 'production',
   module: {
     rules: [{
       test: /\.tsx?$/,
@@ -37,44 +31,18 @@ const config = {
     emitOnErrors: false,
   },
   performance: {hints: false},
-  plugins: [new forkTsCheckerWebpackPlugin(
-      {async: false})],
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     plugins: [new tsconfigPathsWebpackPlugin()],
     fallback: {buffer: require.resolve("buffer/")},
   },
-};
-
-if (process.env.WEBPACK_SERVE) {
-  const wsPath = '/__hot_ws';
-
-  config.entry.push(`webpack-hot-middleware/client?path=${wsPath}&reload=true`);
-  config.plugins.push(new webpack.HotModuleReplacementPlugin());
-  config.module.rules[0].use.unshift({loader: 'babel-loader'});
-  config.devtool = 'eval-source-map';
-  config.mode = 'development';
-
-  config.serve = {
-    add: (app, middleware, options) => {
-      middleware.webpack();
-      middleware.content();
-      app.use(convert(webpackHotMiddleware(options.compiler, {
-        path: wsPath,
-      })));
-    },
-    clipboard: false,
-    content: path.resolve(__dirname, 'src', 'static'),
+  devServer: {
+    allowedHosts: 'all',
     host: '0.0.0.0',
-    // The webpack-hot-client that come with webpack-serve doesn't support
-    // mounting the WebSocket server on a subpath, and has issues that cause it
-    // hard to write reliable error overlay
-    // (https://github.com/webpack-contrib/webpack-hot-client/issues/93), so we
-    // use webpack-hot-middleware instead (which also has a native error
-    // overlay!).
-    hotClient: false,
-    logTime: true,
-  };
-}
-
-module.exports = config;
+    port: 8080,
+    static: {
+      directory: path.join(__dirname, 'build'),
+      publicPath: '/',
+    },
+  },
+};
