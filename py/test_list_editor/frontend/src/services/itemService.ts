@@ -22,6 +22,7 @@ export interface TestItem {
   args?: object;
   locals?: object;
   disable_services?: object;
+  __comment?: string;
 }
 
 export interface TestItemResponse extends BaseResponse {

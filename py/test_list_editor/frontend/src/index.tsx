@@ -14,6 +14,7 @@ import { Edit } from "./pages/edit";
 import { ErrorPage } from "./pages/error";
 import { Landing } from "./pages/landing";
 import { Upload } from "./pages/upload";
+import { getTestItemConfig } from "./services/itemService";
 
 // TODO: Move router to a separate browser.ts
 const router = createBrowserRouter([
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
           },
           {
             path: ":testItemId",
+            loader: getTestItemConfig,
             element: <EditItemConfigPanel />,
           },
         ],

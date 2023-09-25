@@ -20,6 +20,7 @@ export interface EditorTestItem {
   args?: string;
   locals?: string;
   disable_services?: string;
+  __comment?: string;
 }
 
 /**
