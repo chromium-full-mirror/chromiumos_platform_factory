@@ -261,6 +261,27 @@ class AddFirmwareUpdaterAndImagesTest(FinalizeBundleTestBase):
             os.path.join(bundle_builder.bundle_dir, 'firmware')),
         {'chromeos-firmwareupdate': 'da39a3ee5e6b4b0d3255bfef95601890afd80709'})
 
+  @mock.patch(file_utils.__name__ + '.TryMakeDirs',
+              wraps=file_utils.TryMakeDirs)
+  def testAddFirmware_withNoFirmwareArgument_doNothing(
+      self, try_make_dirs_mock: mock.MagicMock):
+    bundle_builder = finalize_bundle.FinalizeBundle(
+        manifest={
+            'board': 'brya',
+            'project': 'brya',
+            'bundle_name': '20210107_evt',
+            'toolkit': '14909.124.0',
+            'test_image': '14909.124.0',
+            'release_image': '15003.0.0',
+            'firmware': 'release_image',
+            'designs': finalize_bundle.BOXSTER_DESIGNS,
+        }, work_dir=self.temp_dir, no_firmware=True)
+
+    self._SetupBuilder(bundle_builder)
+    try_make_dirs_mock.reset_mock()
+    bundle_builder.AddFirmwareUpdaterAndImages()
+
+    try_make_dirs_mock.assert_not_called()
 
 
 class DownloadResourcesTest(FinalizeBundleTestBase):
@@ -723,6 +744,79 @@ class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
                                                 self.bundle_builder.bundle_dir)
 
     self.assertTrue(os.path.exists(os.path.join(self.shim_dir, 'test_file')))
+
+
+class NoFirmwareArgumentTest(FinalizeBundleTestBase):
+  """Unit tests for --no-firmware argument."""
+  default_manifest = {
+      'board': 'brya',
+      'project': 'brya',
+      'bundle_name': '20210107_evt',
+      'toolkit': '14909.124.0',
+      'test_image': '14909.124.0',
+      'release_image': '15003.0.0',
+      'firmware': 'release_image',
+      'designs': finalize_bundle.BOXSTER_DESIGNS,
+  }
+  default_expected_args = [
+      'image_tool',
+      'bundle',
+      '-o',
+      mock.ANY,
+      '--timestamp',
+      '20210107',
+      '--phase',
+      'evt',
+      '--board',
+      'brya',
+      '--project',
+      'brya',
+      '--designs',
+      'test',
+  ]
+
+  def _SetupBuilder(self, bundle_builder: finalize_bundle.FinalizeBundle):
+    bundle_builder.ProcessManifest()
+    bundle_builder.designs = ['test']  # Set by PrepareProjectConfig
+
+  def setUp(self):
+    super().setUp()
+
+    patcher = mock.patch(finalize_bundle.__name__ + '._GetImageTool')
+    patcher.start().return_value = ['image_tool']
+    self.addCleanup(patcher.stop)
+
+    patcher = mock.patch(finalize_bundle.__name__ + '.os.path.getsize')
+    patcher.start().return_value = 1024
+    self.addCleanup(patcher.stop)
+
+    patcher = mock.patch(finalize_bundle.__name__ + '.Spawn')
+    self.spawn_mock = patcher.start()
+    self.addCleanup(patcher.stop)
+
+  def testArchive_flagIsNotSet_calledImageToolWithoutNoFirmware(self):
+    bundle_builder = finalize_bundle.FinalizeBundle(
+        manifest=self.default_manifest, work_dir=self.temp_dir)
+
+    self._SetupBuilder(bundle_builder)
+    bundle_builder.Archive()
+
+    self.spawn_mock.assert_called_with(self.default_expected_args, log=True,
+                                       check_call=True, cwd=mock.ANY)
+
+  def testArchive_flagIsSet_calledImageToolWithNoFirmware(self):
+    bundle_builder = finalize_bundle.FinalizeBundle(
+        manifest=self.default_manifest, work_dir=self.temp_dir,
+        no_firmware=True)
+
+    self._SetupBuilder(bundle_builder)
+    bundle_builder.Archive()
+
+    expected_args = self.default_expected_args.copy()
+    expected_args.append('--no-firmware')
+    self.spawn_mock.assert_called_with(expected_args, log=True, check_call=True,
+                                       cwd=mock.ANY)
+
 
 if __name__ == '__main__':
   unittest.main()

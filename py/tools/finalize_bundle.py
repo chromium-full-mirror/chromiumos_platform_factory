@@ -249,7 +249,7 @@ class FinalizeBundle:
   netboot_firmware_source: Optional[version_module.StrictVersion] = None
 
   def __init__(self, manifest, work_dir, download=True, archive=True,
-               bundle_record=None, jobs=1, rma_shim=False):
+               bundle_record=None, jobs=1, rma_shim=False, no_firmware=False):
     self.manifest = manifest
     self.work_dir = work_dir
     self.download = download
@@ -260,6 +260,7 @@ class FinalizeBundle:
     self.timestamp = ''
     self.bundle_phase = 'mp'
     self.rma_shim = rma_shim
+    self.no_firmware = no_firmware
 
   def Main(self):
     self.ProcessManifest()
@@ -355,6 +356,8 @@ class FinalizeBundle:
           netboot_firmware_source)
 
     self.readme_path = os.path.join(self.bundle_dir, 'README')
+    # TODO(b/302107328): should set `self.has_firmware` to be empty when
+    #                    `--no-firmware` is used.
     self.has_firmware = self.manifest.get('has_firmware', DEFAULT_FIRMWARES)
 
   @property
@@ -545,7 +548,9 @@ class FinalizeBundle:
                        self.test_image_path is None)
     need_release_image = (self.release_image_source != LOCAL and
                           self.release_image_path is None)
-    need_firmware = self.firmware_source.startswith('release_image')
+    need_firmware = (
+        self.firmware_source.startswith('release_image') and
+        not self.no_firmware)
 
     # TODO(crbug.com/707155): see #c1. We have to always download the factory
     #                         toolkit unless the "toolkit" source in config
@@ -767,6 +772,8 @@ class FinalizeBundle:
       firmware_source is wrong.
       KeyError: Some model(s) is not in the chromeos-firmwareupdate.
     """
+    if self.no_firmware:
+      return
     firmware_dir = os.path.join(self.bundle_dir, FIRMWARE_SEARCH_DIR)
     file_utils.TryMakeDirs(firmware_dir)
     if self.firmware_image_source is not None:
@@ -1487,6 +1494,8 @@ class FinalizeBundle:
       args.extend(['--factory_shim', self.signed_shim_path])
     if self.test_list_phase < phase.EVT:
       args.append('--no_verify_cros_config')
+    if self.no_firmware:
+      args.append('--no-firmware')
 
   def Archive(self):
     if self.archive:
@@ -1809,7 +1818,7 @@ class FinalizeBundle:
       raise
     work_dir = args.dir or os.path.dirname(os.path.realpath(manifest_path))
     return cls(manifest, work_dir, args.download, args.archive,
-               args.bundle_record, args.jobs, args.rma_shim)
+               args.bundle_record, args.jobs, args.rma_shim, args.no_firmware)
 
   @classmethod
   def ParseArgs(cls):
@@ -1839,6 +1848,8 @@ class FinalizeBundle:
                         default=None, help='Working directory')
     parser.add_argument('--rma-shim', action='store_true',
                         help='Create a rma shim (for testing only)')
+    parser.add_argument('--no-firmware', action='store_true',
+                        help='Skip downloading and packing firmware.')
 
     args = parser.parse_args()
     assert args.jobs > 0
