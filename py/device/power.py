@@ -222,21 +222,25 @@ class PowerInfoMixinBase:
     """Gets battery's manufacturer."""
     raise NotImplementedError
 
+  def GetBatteryModelNumber(self):
+    """Gets battery's model number."""
+    raise NotImplementedError
+
   def GetInfoDict(self):
     """Returns a dict containing information about the battery."""
-    _SysfsBatteryAttributes = [
-        ('present', self.CheckBatteryPresent),
-        ('status', self.GetChargeState),
-        ('voltage_now', self.GetBatteryVoltage),
-        ('current_now', self.GetBatteryCurrent),
-        ('charge_full', self.GetChargeFull),
-        ('charge_full_design', self.GetBatteryDesignCapacity),
-        ('charge_now', self.GetCharge),
-        ('chargePct', self.GetChargePct),
-        ('wearPct', self.GetWearPct),
-        ('cycleCount', self.GetBatteryCycleCount),
-        ('manufacturer', self.GetBatteryManufacturer),
-    ]
+    _SysfsBatteryAttributes = [('present', self.CheckBatteryPresent),
+                               ('status', self.GetChargeState),
+                               ('voltage_now', self.GetBatteryVoltage),
+                               ('current_now', self.GetBatteryCurrent),
+                               ('charge_full', self.GetChargeFull),
+                               ('charge_full_design',
+                                self.GetBatteryDesignCapacity),
+                               ('charge_now', self.GetCharge),
+                               ('chargePct', self.GetChargePct),
+                               ('wearPct', self.GetWearPct),
+                               ('cycleCount', self.GetBatteryCycleCount),
+                               ('manufacturer', self.GetBatteryManufacturer),
+                               ('model_number', self.GetBatteryModelNumber)]
     result = {}
     for k, getter in _SysfsBatteryAttributes:
       try:
@@ -464,6 +468,10 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     """See PowerInfoMixinBase.GetBatteryManufacturer"""
     return self.GetBatteryAttribute('manufacturer')
 
+  def GetBatteryModelNumber(self):
+    """See PowerInfoMixinBase.GetBatteryModelNumber"""
+    return self.GetBatteryAttribute('model_number')
+
 
 class ECToolPowerInfoMixin(PowerInfoMixinBase):
   """Power info mixin that uses ectool."""
@@ -562,6 +570,10 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
   def GetBatteryManufacturer(self):
     """See PowerInfoMixinBase.GetBatteryManufacturer"""
     return self._GetECToolBatteryAttribute('OEM name:')
+
+  def GetBatteryModelNumber(self):
+    """See PowerInfoMixinBase.GetBatteryModelNumber"""
+    return self._GetECToolBatteryAttribute('Model number:')
 
   def GetPowerInfo(self):
     """Gets power information.
@@ -723,6 +735,11 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
                     this field.
     """
     return super().GetBatteryManufacturer()
+
+  # pylint: disable=useless-super-delegation
+  def GetBatteryModelNumber(self):
+    """See PowerInfoMixinBase.GetBatteryModelNumber"""
+    return super().GetBatteryModelNumber()
 
 
 class LinuxPower(DummyPowerControlMixin, SysfsPowerInfoMixin, PowerBase):

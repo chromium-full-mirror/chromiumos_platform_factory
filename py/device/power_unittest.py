@@ -209,7 +209,8 @@ class ECToolPowerInfoTest(unittest.TestCase):
         'chargePct': 50,
         'wearPct': 1,
         'cycleCount': 4,
-        'manufacturer': 'LGC'
+        'manufacturer': 'LGC',
+        'model_number': 'AC14B8K'
     }
     self.assertEqual(self.power.GetInfoDict(), expected_dict)
 

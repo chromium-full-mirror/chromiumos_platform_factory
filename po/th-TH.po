@@ -78,6 +78,10 @@ msgid "Battery Sysfs"
 msgstr "แบตเตอรี่ Sysfs"
 
 #: ../build/pytests_label_generated.json
+msgid "Bcic"
+msgstr ""
+
+#: ../build/pytests_label_generated.json
 msgid "BFT Fixture"
 msgstr "ชุดทดสอบ BFT"
 

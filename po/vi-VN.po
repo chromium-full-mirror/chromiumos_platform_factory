@@ -78,6 +78,10 @@ msgid "Battery Sysfs"
 msgstr "pin  Sysfs"
 
 #: ../build/pytests_label_generated.json
+msgid "Bcic"
+msgstr ""
+
+#: ../build/pytests_label_generated.json
 msgid "BFT Fixture"
 msgstr "BFT lịch thi đấu"
 
