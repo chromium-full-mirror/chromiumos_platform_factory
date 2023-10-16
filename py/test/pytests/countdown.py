@@ -144,6 +144,10 @@ class CountDownTest(test_case.TestCase):
           'Maximum CPU frequency expected. (unit: MHz)', default=None),
       Arg('show_warn_on_display', bool,
           'To show warnings on display during the test', default=True),
+      Arg(
+          'terminate_on_critical_temp', bool,
+          'To terminate all running tests when temperature reaches critical '
+          'temperature.', default=False),
   ]
 
   def FormatSeconds(self, secs):
@@ -248,6 +252,8 @@ class CountDownTest(test_case.TestCase):
         warnings.append(
             f'{name} over critical temperature (now: {temp:.1f}, critical: '
             f'{critical_temp:.1f})')
+        if self.args.terminate_on_critical_temp:
+          self.goofy.StopTest(reason=f'Stop all tests since {warnings[-1]}')
       elif temp >= warning_temp:
         warnings.append(
             f'{name} over warning temperature (now: {temp:.1f}, warning: '

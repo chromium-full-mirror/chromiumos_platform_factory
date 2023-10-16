@@ -307,12 +307,11 @@ class GoofyRPC:
     """Posts an event."""
     self.goofy.event_client.post_event(event)
 
-  def StopTest(self, timeout_secs=DEFAULT_GOOFY_RPC_TIMEOUT_SECS):
+  def StopTest(self, timeout_secs=DEFAULT_GOOFY_RPC_TIMEOUT_SECS,
+               reason='RPC call to stop tests'):
     """Stops current tests."""
-    self._InRunQueue(
-        lambda: self.goofy.Stop(reason='RPC call to stop tests',
-                                fail=True),
-        timeout_secs=timeout_secs)
+    self._InRunQueue(lambda: self.goofy.Stop(reason=reason, fail=True),
+                     timeout_secs=timeout_secs)
 
   def ClearState(self, timeout_secs=DEFAULT_GOOFY_RPC_TIMEOUT_SECS):
     """Stops current tests and clear all test state."""
