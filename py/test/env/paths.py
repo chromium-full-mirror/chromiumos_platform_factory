@@ -17,6 +17,7 @@ FACTORY_PYTHON_DIR = os.path.join(FACTORY_DIR, 'py')
 FACTORY_TOOLKIT_VERSION_PATH = os.path.join(FACTORY_DIR, 'TOOLKIT_VERSION')
 FACTORY_FIRMWARE_UPDATER_PATH = os.path.join(
     FACTORY_DIR, 'board', 'chromeos-firmwareupdate')
+FACTORY_PYTESTS_DIR = os.path.join(FACTORY_PYTHON_DIR, 'test', 'pytests')
 
 # Path to factory log on a "real" device.
 FACTORY_LOG_PATH_ON_DEVICE = '/var/factory/log/factory.log'

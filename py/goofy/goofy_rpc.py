@@ -382,10 +382,10 @@ class GoofyRPC:
     states = self.goofy.state_instance.GetTestStates()
     for t in self.goofy.test_list.Walk(in_order=True):
       test_state = states.get(t.path)
-      ret.append(dict(path=t.path,
-                      parent=(t.subtests != []),
-                      pending=t.path in paths_to_run,
-                      **test_state.__dict__))
+      ret.append(
+          dict(path=t.path, parent=(t.subtests != []), pending=t.path
+               in paths_to_run, test_categories=t.test_categories,
+               **test_state.__dict__))
     return ret
 
   def IsReadyForUIConnection(self):
