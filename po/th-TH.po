@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-10-31 15:01+CST\n"
+"PO-Revision-Date: 2023-11-01 13:01+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3488,6 +3488,110 @@ msgstr "ตั้งค่า DeviceInfo"
 msgid "Empty Test List"
 msgstr "รายการทดสอบว่างเปล่า"
 
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera without camera_characteristics.conf"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera Tests"
+msgstr "การทดสอบกล้อง"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble"
+msgstr "ตรวจสอบการประกอบกล้องหน้า"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble QR"
+msgstr "ประกอบกล้องหน้า QR"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Face"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera LED"
+msgstr "ไฟ LED กล้องหน้า"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera QR Scan"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Probe Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "QR Scan"
+msgstr "สแกน QR"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble"
+msgstr "ประกอบกล้องหลัง"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble QR"
+msgstr "กล้องหลังประกอบ QR"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Face"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera LED"
+msgstr "ไฟ LED กล้องหลัง"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera QR Scan"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Assemble 07"
+msgstr "ตรวจสอบการประกอบกล้องหน้า 07"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Brightness"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Frames"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Manual OpenCV"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera QR Scan 1920x1080"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Stress"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Rear Camera Manual OpenCV"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Generic Camera Factory tests"
+msgstr ""
+
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Activate Registration Code"
 msgstr "เปิดใช้รหัสการลงทะเบียน"
@@ -3527,10 +3631,6 @@ msgstr "USB TypeC ด้านหลัง"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Type C HDMI CEC Test"
 msgstr "การทดสอบ Type C HDMI CEC"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Camera Tests"
-msgstr "การทดสอบกล้อง"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Charge Discharge Current"
@@ -3632,18 +3732,6 @@ msgid "Finish"
 msgstr "เสร็จสิ้น"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble"
-msgstr "ตรวจสอบการประกอบกล้องหน้า"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble QR"
-msgstr "ประกอบกล้องหน้า QR"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera LED"
-msgstr "ไฟ LED กล้องหน้า"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (GetDeviceInfo)"
 msgstr "บริการ Shopfloor (GetDeviceInfo)"
 
@@ -3709,22 +3797,6 @@ msgstr "ตัวยึดตำแหน่ง"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Probe Hardware"
 msgstr "ฮาร์ดแวร์โพรบ"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "QR Scan"
-msgstr "สแกน QR"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble"
-msgstr "ประกอบกล้องหลัง"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble QR"
-msgstr "กล้องหลังประกอบ QR"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera LED"
-msgstr "ไฟ LED กล้องหลัง"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Unload Driver"

@@ -328,37 +328,6 @@
         }
       ]
     },
-    "Camera": {
-      "pytest_name": "camera"
-    },
-    "CameraManual": {
-      "inherit": "Camera",
-      "args": {
-        "mode": "manual"
-      }
-    },
-    "CameraNoCharacteristics": {
-      "pytest_name": "camera",
-      "__comment": "This is used if camera_characteristics.conf is not ready. Users must replace ``camera_usb_vid_pid`` with vid pid they are testing.",
-      "args": {
-        "mode": "manual",
-        "e2e_mode": false,
-        "camera_facing": null,
-        "camera_usb_vid_pid": [
-          "13d3",
-          "56ec"
-        ]
-      }
-    },
-    "CameraTests": {
-      "label": "Camera Tests",
-      "subtests": [
-        "FrontCamera",
-        "FrontCameraLED",
-        "RearCamera",
-        "RearCameraLED"
-      ]
-    },
     "ChargeDischargeCurrent": {
       "pytest_name": "battery_current",
       "label": "Charge Discharge Current",
@@ -671,45 +640,6 @@
         "flush_testlog": true
       }
     },
-    "FrontCamera": {
-      "inherit": "Camera",
-      "run_if": "not constants.has_device_data or device.component.has_front_camera",
-      "args": {
-        "camera_facing": "front"
-      }
-    },
-    "FrontCameraAssemble": {
-      "inherit": "FrontCamera",
-      "label": "Front Camera Assemble",
-      "args": {
-        "mode": "camera_assemble",
-        "min_luminance_ratio": 0.5
-      }
-    },
-    "FrontCameraAssembleQR": {
-      "inherit": "FrontCamera",
-      "label": "Front Camera Assemble QR",
-      "args": {
-        "mode": "camera_assemble_qr",
-        "min_luminance_ratio": 0.5,
-        "QR_string": "ChromeTeam"
-      }
-    },
-    "FrontCameraLED": {
-      "inherit": "FrontCamera",
-      "label": "Front Camera LED",
-      "args": {
-        "mode": "manual_led"
-      }
-    },
-    "FrontCameraQRScan": {
-      "inherit": "FrontCamera",
-      "args": {
-        "mode": "qr",
-        "QR_string": "ChromeTeam",
-        "timeout_secs": 2000
-      }
-    },
     "GetDeviceInfo": {
       "inherit": "ShopfloorService",
       "label": "Shopfloor Service (GetDeviceInfo)",
@@ -911,15 +841,6 @@
         "powerd"
       ]
     },
-    "QRScan": {
-      "inherit": "Camera",
-      "label": "QR Scan",
-      "__comment": "Deprecated. Use FrontCameraQRScan or RearCameraQRScan.",
-      "args": {
-        "mode": "qr",
-        "QR_string": "Hello ChromeOS!"
-      }
-    },
     "ReSignReleaseKernel": {
       "pytest_name": "update_kernel",
       "run_if": "constants.phase != 'PVT' and constants.grt.re_sign_release_kernel",
@@ -932,45 +853,6 @@
     },
     "ReadDeviceDataFromVPD": {
       "pytest_name": "read_device_data_from_vpd"
-    },
-    "RearCamera": {
-      "inherit": "Camera",
-      "run_if": "not constants.has_device_data or device.component.has_rear_camera",
-      "args": {
-        "camera_facing": "rear"
-      }
-    },
-    "RearCameraAssemble": {
-      "inherit": "RearCamera",
-      "label": "Rear Camera Assemble",
-      "args": {
-        "mode": "camera_assemble",
-        "min_luminance_ratio": 0.5
-      }
-    },
-    "RearCameraAssembleQR": {
-      "inherit": "RearCamera",
-      "label": "Rear Camera Assemble QR",
-      "args": {
-        "mode": "camera_assemble_qr",
-        "min_luminance_ratio": 0.5,
-        "QR_string": "ChromeTeam"
-      }
-    },
-    "RearCameraLED": {
-      "inherit": "RearCamera",
-      "label": "Rear Camera LED",
-      "args": {
-        "mode": "manual_led"
-      }
-    },
-    "RearCameraQRScan": {
-      "inherit": "RearCamera",
-      "args": {
-        "mode": "qr",
-        "QR_string": "ChromeTeam",
-        "timeout_secs": 2000
-      }
     },
     "RecoveryButtonGroup": {
       "label": "Recovery Button Group",

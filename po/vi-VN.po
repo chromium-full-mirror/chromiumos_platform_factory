@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-10-31 15:01+CST\n"
+"PO-Revision-Date: 2023-11-01 13:01+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3531,6 +3531,110 @@ msgstr "Cài đặt thông tin máy"
 msgid "Empty Test List"
 msgstr "Danh sách kiểm tra quá tải"
 
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera without camera_characteristics.conf"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera Tests"
+msgstr "Máy ảnh"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble QR"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Face"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera LED"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera QR Scan"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Probe Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "QR Scan"
+msgstr "quét mã QR"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble QR"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Face"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera LED"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera QR Scan"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Assemble 07"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Brightness"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Frames"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Manual OpenCV"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera QR Scan 1920x1080"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Stress"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Rear Camera Manual OpenCV"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Generic Camera Factory tests"
+msgstr ""
+
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Activate Registration Code"
 msgstr "Kích hoạt mã đăng ký(ECHO Code)"
@@ -3570,10 +3674,6 @@ msgstr ""
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Type C HDMI CEC Test"
 msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Camera Tests"
-msgstr "Máy ảnh"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Charge Discharge Current"
@@ -3675,18 +3775,6 @@ msgid "Finish"
 msgstr "Kết thúc"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble QR"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera LED"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (GetDeviceInfo)"
 msgstr "Dịch vụ Shopfloor (GetDeviceInfo)"
 
@@ -3752,22 +3840,6 @@ msgstr "Kiểm tra không xác định"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Probe Hardware"
 msgstr "Thăm dò ổ cứng"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "QR Scan"
-msgstr "quét mã QR"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble QR"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera LED"
-msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Unload Driver"

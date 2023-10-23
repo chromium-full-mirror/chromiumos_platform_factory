@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-10-31 15:01+CST\n"
+"PO-Revision-Date: 2023-11-01 13:01+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3469,6 +3469,110 @@ msgstr "设定机器资讯"
 msgid "Empty Test List"
 msgstr "重载测试列表"
 
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera without camera_characteristics.conf"
+msgstr "未设定 camera_characteristics.conf 时使用的相机测试"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Camera Tests"
+msgstr "相机测试"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera"
+msgstr "前相机"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble"
+msgstr "前相机组装"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Assemble QR"
+msgstr "前相机组装和扫描QR码"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Face"
+msgstr "前相机脸部辨识"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera LED"
+msgstr "前相机 LED"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera Manual"
+msgstr "手动前相机测试"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Front Camera QR Scan"
+msgstr "前相机扫描 QR 码"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Probe Camera"
+msgstr "侦测相机"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "QR Scan"
+msgstr "扫描 QR 码"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera"
+msgstr "后相机"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble"
+msgstr "后相机组装"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Assemble QR"
+msgstr "后相机组装和扫描QR码"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Face"
+msgstr "后相机脸部辨识"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera LED"
+msgstr "后相机 LED"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera Manual"
+msgstr "手动后相机测试"
+
+#: ../py/test/test_lists/generic_camera.test_list.json
+msgid "Rear Camera QR Scan"
+msgstr "后相机扫描 QR 码"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Assemble 07"
+msgstr "前相机组装 07"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Brightness"
+msgstr "前相机亮度"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Frames"
+msgstr "前相机帧数"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Manual OpenCV"
+msgstr "手动前相机测试 OpenCV"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera QR Scan 1920x1080"
+msgstr "前相机扫描 QR 码 1920x1080"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Front Camera Stress"
+msgstr "前相机压力"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Rear Camera Manual OpenCV"
+msgstr "手动后相机测试 OpenCV"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Generic Camera Factory tests"
+msgstr "一般相机测试"
+
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Activate Registration Code"
 msgstr "激活注册码(ECHO Code)"
@@ -3508,10 +3612,6 @@ msgstr "后 USB TypeC Port"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Type C HDMI CEC Test"
 msgstr "Type C HDMI CEC 测试"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Camera Tests"
-msgstr "相机测试"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Charge Discharge Current"
@@ -3613,18 +3713,6 @@ msgid "Finish"
 msgstr "结束"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble"
-msgstr "前相机组装"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera Assemble QR"
-msgstr "前相机组装和扫描QR码"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Front Camera LED"
-msgstr "前相机 LED"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (GetDeviceInfo)"
 msgstr "Shopfloor 服务 (GetDeviceInfo)"
 
@@ -3690,22 +3778,6 @@ msgstr "未定义测项"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Probe Hardware"
 msgstr "侦测硬件"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "QR Scan"
-msgstr "扫描 QR 码"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble"
-msgstr "后相机组装"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera Assemble QR"
-msgstr "后相机组装和扫描QR码"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Rear Camera LED"
-msgstr "后相机 LED"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Unload Driver"

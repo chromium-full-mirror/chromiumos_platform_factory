@@ -1,0 +1,102 @@
+{
+  "inherit": [
+    "generic_camera.test_list"
+  ],
+  "label": "Generic Camera Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "FrontCameraAssemble07": {
+      "inherit": "FrontCameraAssemble",
+      "label": "Front Camera Assemble 07",
+      "args": {
+        "min_luminance_ratio": 0.7
+      }
+    },
+    "FrontCameraBrightness": {
+      "inherit": "FrontCamera",
+      "label": "Front Camera Brightness",
+      "__comment": "Brightness mode doesn't support e2e_mode.",
+      "args": {
+        "e2e_mode": false,
+        "num_frames_to_pass": 5,
+        "mode": "brightness",
+        "timeout_secs": 3,
+        "brightness_range": [
+          null,
+          10
+        ]
+      }
+    },
+    "FrontCameraFrames": {
+      "inherit": "FrontCamera",
+      "label": "Front Camera Frames",
+      "args": {
+        "num_frames_to_pass": 100,
+        "mode": "frame_count",
+        "timeout_secs": 1000,
+        "show_image": false
+      }
+    },
+    "FrontCameraManualOpenCV": {
+      "inherit": "FrontCameraManual",
+      "label": "Front Camera Manual OpenCV",
+      "args": {
+        "e2e_mode": false
+      }
+    },
+    "FrontCameraQRScan1920x1080": {
+      "inherit": "FrontCameraQRScan",
+      "label": "Front Camera QR Scan 1920x1080",
+      "args": {
+        "camera_args": {
+          "resolution": [
+            1920,
+            1080
+          ]
+        }
+      }
+    },
+    "FrontCameraStress": {
+      "inherit": "FrontCamera",
+      "label": "Front Camera Stress",
+      "args": {
+        "mode": "timeout",
+        "timeout_secs": 1000,
+        "show_image": false
+      }
+    },
+    "RearCameraManualOpenCV": {
+      "inherit": "RearCameraManual",
+      "label": "Rear Camera Manual OpenCV",
+      "args": {
+        "e2e_mode": false
+      }
+    }
+  },
+  "tests": [
+    "ProbeCamera",
+    "FrontCameraAssemble",
+    "FrontCameraAssembleQR",
+    "FrontCameraFace",
+    "FrontCameraLED",
+    "FrontCameraManual",
+    "FrontCameraManualOpenCV",
+    "FrontCameraQRScan",
+    "RearCameraAssemble",
+    "RearCameraAssembleQR",
+    "RearCameraFace",
+    "RearCameraLED",
+    "RearCameraManual",
+    "RearCameraManualOpenCV",
+    "RearCameraQRScan",
+    "CameraNoCharacteristics",
+    "FrontCameraAssemble07",
+    "FrontCameraQRScan1920x1080",
+    "FrontCameraStress",
+    "FrontCameraFrames",
+    "FrontCameraBrightness"
+  ]
+}

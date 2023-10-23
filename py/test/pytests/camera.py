@@ -84,129 +84,68 @@ If not end-to-end mode, depend on OpenCV and device API
 
 Examples
 --------
-To run a manual capture test. (The default case), add this in test list::
+To run a manual capture test:
 
-  {
-    "pytest_name": "camera"
-  }
+.. test_list::
 
-To use device API for USB cameras which don't support MediaStream API::
+  generic_camera_examples:FrontCameraManual
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "e2e_mode": false
-    }
-  }
+To run camera_assemble test, and specify the minimal luminance ratio to 0.7:
 
-To run camera_assemble test, and specify the minimal luminance ratio to 0.7::
+.. test_list::
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "camera_args": {
-        "resolution": [1920, 1280]
-      },
-      "mode": "camera_assemble",
-      "min_luminance_ratio": 0.7
-    }
-  }
+  generic_camera_examples:FrontCameraAssemble07
 
-To run QR scan test, and specify camera resolution to 1920 x 1080::
+To run QR scan test, and specify camera resolution to 1920 x 1080:
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "camera_args": {
-        "resolution": [1920, 1280]
-      },
-      "mode": "qr"
-    }
-  }
+.. test_list::
 
-To run camera_assemble_qr test, and specify the QR string::
+  generic_camera_examples:FrontCameraQRScan1920x1080
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "camera_args": {
-        "resolution": [1920, 1280]
-      },
-      "mode": "camera_assemble_qr",
-      "QR_string": "hello world"
-    }
-  }
+To run camera_assemble_qr test:
 
-To run facial recognition test::
+.. test_list::
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "camera_args": {
-        "resolution": [1920, 1280]
-      },
-      "mode": "face"
-    }
-  }
+  generic_camera_examples:FrontCameraAssembleQR
 
-To stress camera for 1000 seconds, and don't show the image::
+To run facial recognition test:
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "mode": "timeout",
-      "timeout_secs": 1000,
-      "show_image": false
-    }
-  }
+.. test_list::
+
+  generic_camera_examples:FrontCameraFace
+
+To stress camera for 1000 seconds, and don't show the image:
+
+.. test_list::
+
+  generic_camera_examples:FrontCameraStress
 
 To stress camera capturing for 100 frames, have a timeout of 1000 seconds, and
-don't show the image::
+don't show the image:
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "num_frames_to_pass": 100,
-      "mode": "frame_count",
-      "timeout_secs": 1000,
-      "show_image": false
-    }
-  }
+.. test_list::
+
+  generic_camera_examples:FrontCameraFrames
 
 To check the camera capturing black frames (the maximum brightness less than
-10)::
+10), this is a subitem of testing camera privacy switch:
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "num_frames_to_pass": 5,
-      "mode": "brightness",
-      "timeout_secs": 3,
-      "brightness_range": [null, 10]
-    }
-  }
+.. test_list::
+
+  generic_camera_examples:FrontCameraBrightness
 
 This is used if camera_characteristics.conf is not ready. Users must replace
-``camera_usb_vid_pid`` with vid pid they are testing::
+``camera_usb_vid_pid`` with vid pid they are testing:
 
-  {
-    "pytest_name": "camera",
-    "args": {
-      "mode": "manual",
-      "e2e_mode": false,
-      "camera_facing": null,
-      "camera_usb_vid_pid": [
-        "13d3",
-        "56ec"
-      ]
-    }
-  }
+.. test_list::
+
+  generic_camera_examples:CameraNoCharacteristics
 
 To test the LED of the front camera:
 
 .. test_list::
 
-  generic_main:FFT.CameraTests.FrontCameraLED
+  generic_camera_examples:FrontCameraLED
 
 """
 
