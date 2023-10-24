@@ -1465,7 +1465,8 @@
         "cbi_data_names": [
           "SKU_ID",
           "DRAM_PART_NUM",
-          "PCB_SUPPLIER"
+          "PCB_SUPPLIER",
+          "SSFC"
         ]
       }
     },

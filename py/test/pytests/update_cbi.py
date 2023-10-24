@@ -84,9 +84,8 @@ _ARG_CBI_DATA_NAMES_SCHEMA = JSONSchemaDict(
         'type': 'array',
         'items': {
             'enum': [
-                CbiDataName.SKU_ID,
-                CbiDataName.DRAM_PART_NUM,
-                CbiDataName.PCB_SUPPLIER
+                CbiDataName.SKU_ID, CbiDataName.DRAM_PART_NUM,
+                CbiDataName.PCB_SUPPLIER, CbiDataName.SSFC
             ]
         }
     })
@@ -302,6 +301,34 @@ class UpdateCBITest(test_case.TestCase):
     SetCbiData(self._dut, CbiDataName.PCB_SUPPLIER, new_pcb_supplier)
     self.CheckCbiData(CbiDataName.PCB_SUPPLIER, new_pcb_supplier)
 
+  def SetSSFC(self):
+    old_ssfc = GetCbiData(self._dut, CbiDataName.SSFC)
+
+    # case 1: SSFC is Not Needed: normal exit, print log
+    # case 2: SSFC is Needed and Success: normal exit, print value in hex
+    # case 3: SSFC is Needed but Failed: abnormal exit, print error log
+    new_ssfc_str = self._dut.CallOutput(
+        ["sudo", "-u", "rmad", "/usr/local/sbin/factory_generate_ssfc"],
+        log=True)
+
+    # case 3: If new_ssfc_str is None, it means something went wrong.
+    if new_ssfc_str is None:
+      self.FailTask('Failed to generate SSFC.')
+
+    # case 1: If new_ssfc_str is not a hex string, it means SSFC is not needed.
+    if not new_ssfc_str.startswith('0x'):
+      return
+
+    # case 2: If new_ssfc_str is a hex string, it represents SSFC value.
+    new_ssfc = int(new_ssfc_str, 16)
+    if old_ssfc == new_ssfc:
+      return
+
+    session.console.info('Set the new SSFC to CBI (%r -> %r).', old_ssfc,
+                         new_ssfc)
+    SetCbiData(self._dut, CbiDataName.SSFC, new_ssfc)
+    self.CheckCbiData(CbiDataName.SSFC, new_ssfc)
+
   def runTest(self):
     if CbiDataName.SKU_ID in self.args.cbi_data_names:
       self.SetSKUIDAndFWConfig()
@@ -309,3 +336,5 @@ class UpdateCBITest(test_case.TestCase):
       self.SetDramPartNum()
     if CbiDataName.PCB_SUPPLIER in self.args.cbi_data_names:
       self.SetPcbSupplier()
+    if CbiDataName.SSFC in self.args.cbi_data_names:
+      self.SetSSFC()
