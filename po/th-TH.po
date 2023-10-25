@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-07 17:52+CST\n"
+"PO-Revision-Date: 2023-12-12 22:24+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -4010,6 +4010,10 @@ msgstr "แท่นชาร์จไร้สาย"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
 msgstr "เขียน HWID"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Write RMA HWID"
+msgstr "เขียน RMA HWID"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write Test HWID"
