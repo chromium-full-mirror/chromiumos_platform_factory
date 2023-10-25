@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-27 11:06+UTC\n"
+"PO-Revision-Date: 2024-05-27 12:25+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3917,6 +3917,10 @@ msgstr "断开无线网络"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
 msgstr "硬体代号"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Write RMA HWID"
+msgstr "RMA硬体代号"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write Test HWID"

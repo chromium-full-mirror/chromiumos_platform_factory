@@ -1787,6 +1787,13 @@
     "WriteProtectSwitch": {
       "pytest_name": "write_protect_switch"
     },
+    "WriteRMAHWID": {
+      "inherit": "WriteHWID",
+      "label": "Write RMA HWID",
+      "args": {
+        "rma_mode": true
+      }
+    },
     "WriteTestHWID": {
       "pytest_name": "exec_shell",
       "label": "Write Test HWID",

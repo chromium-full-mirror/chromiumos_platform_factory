@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-27 11:06+UTC\n"
+"PO-Revision-Date: 2024-05-27 12:25+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3983,11 +3983,15 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
-msgstr "Mã phần cứng"
+msgstr "Viết HWID"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Write RMA HWID"
+msgstr "Viết RMA HWID"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write Test HWID"
-msgstr ""
+msgstr "Viết Test HWID"
 
 #: ../py/test/test_lists/generic_fat.test_list.json
 msgid "FAT (Final Assembly Test)"
