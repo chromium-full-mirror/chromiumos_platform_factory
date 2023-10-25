@@ -1728,6 +1728,13 @@
         "rma_mode": "eval! constants.factory_process == 'RMA'"
       }
     },
+    "WriteRMAHWID": {
+      "inherit": "WriteHWID",
+      "label": "Write RMA HWID",
+      "args": {
+        "rma_mode": true
+      }
+    },
     "WriteProtectSwitch": {
       "pytest_name": "write_protect_switch"
     },
