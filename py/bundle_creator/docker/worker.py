@@ -173,9 +173,11 @@ class EasyBundleCreationWorker(BaseWorker):
 
   WORKER_TASK = CreateBundleTask
   SUBSCRIPTION_ID = config.PUBSUB_SUBSCRIPTION
+  TOOLKIT_VERSION_PATH = '/usr/local/factory/TOOLKIT_VERSION'
 
   def __init__(self):
     super().__init__()
+    self._processed_by = file_utils.ReadFile(self.TOOLKIT_VERSION_PATH).strip()
     self._cloudtasks_connector = cloudtasks_connector.CloudTasksConnector(
         config.GCLOUD_PROJECT)
     self._firestore_connector = firestore_connector.FirestoreConnector(
@@ -195,6 +197,8 @@ class EasyBundleCreationWorker(BaseWorker):
         self._firestore_connector.UpdateUserRequestStatus(
             task.doc_id, firestore_connector.UserRequestStatus.IN_PROGRESS)
         self._firestore_connector.UpdateUserRequestStartTime(task.doc_id)
+        self._firestore_connector.UpdateUserRequestProcessedBy(
+            task.doc_id, self._processed_by)
 
         gs_path, cl_url, cl_error_msg = self._CreateBundle(task)
 

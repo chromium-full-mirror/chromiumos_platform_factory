@@ -203,6 +203,15 @@ class FirestoreConnector:
     """
     self._TryUpdateUserRequestDocRef(doc_id, {'gs_path': gs_path})
 
+  def UpdateUserRequestProcessedBy(self, doc_id: str, processed_by: str):
+    """Updates the used toolkit version to the specific user request document.
+
+    Args:
+      doc_id: The document id of the document to be updated.
+      processed_by: The toolkit version used to process the request.
+    """
+    self._TryUpdateUserRequestDocRef(doc_id, {'processed_by': processed_by})
+
   def GetUserRequestsByEmail(self, email: str) -> List[Dict]:
     """Returns user requests with the specific email.
 

@@ -34,6 +34,7 @@ from cros.factory.utils import process_utils
 CreateBundleTask = worker.CreateBundleTask
 
 _BUNDLE_RECORD = '{"fake_key": "fake_value"}'
+_PROCESSED_BY = 'board Factory Toolkit 12345.0.2023_11_06_220530 foo@bar'
 
 
 def _MockFinalizeBundle(command: List[str], **kwargs) -> str:
@@ -58,6 +59,14 @@ def _MockFinalizeBundle(command: List[str], **kwargs) -> str:
       f'factory_bundle_{manifest["project"]}_{manifest["bundle_name"]}.tar.bz2')
   file_utils.WriteFile(factory_bundle_path, 'fake_bundle')
   return 'fake_output'
+
+
+def _MockReadFile(path: str) -> str:
+  if path == worker.EasyBundleCreationWorker.TOOLKIT_VERSION_PATH:
+    return f'{_PROCESSED_BY}\n'
+
+  with open(path, mode='r', encoding='utf-8') as f:
+    return f.read()
 
 
 class CreateBundleTaskTest(unittest.TestCase):
@@ -221,18 +230,21 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
         'cros.factory.bundle_creator.connector.firestore_connector')
     self._MockDatetime('cros.factory.bundle_creator.docker.worker')
 
-    mock_check_output_patcher = mock.patch(
-        'cros.factory.utils.process_utils.LogAndCheckOutput')
-    self._mock_check_output = mock_check_output_patcher.start()
+    patcher = mock.patch('cros.factory.utils.process_utils.LogAndCheckOutput')
+    self._mock_check_output = patcher.start()
     self._mock_check_output.side_effect = _MockFinalizeBundle
-    self.addCleanup(mock_check_output_patcher.stop)
+    self.addCleanup(patcher.stop)
 
     self._temp_dir_path = tempfile.mkdtemp()
-    mock_temp_dir_patcher = mock.patch(
-        'cros.factory.utils.file_utils.TempDirectory')
-    mock_temp_dir = mock_temp_dir_patcher.start()
+    patcher = mock.patch('cros.factory.utils.file_utils.TempDirectory')
+    mock_temp_dir = patcher.start()
     mock_temp_dir.return_value.__enter__.return_value = self._temp_dir_path
-    self.addCleanup(mock_temp_dir_patcher.stop)
+    self.addCleanup(patcher.stop)
+
+    patcher = mock.patch('cros.factory.utils.file_utils.ReadFile')
+    mock_read_file = patcher.start()
+    mock_read_file.side_effect = _MockReadFile
+    self.addCleanup(patcher.stop)
 
     self._message = factorybundle_pb2.CreateBundleMessage()
     self._message.request.board = 'board'
@@ -292,6 +304,7 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     self.assertEqual(doc['start_time'], self._FIRESTORE_CURRENT_DATETIME)
     self.assertEqual(doc['end_time'], self._FIRESTORE_CURRENT_DATETIME)
     self.assertEqual(doc['gs_path'], self._GS_PATH)
+    self.assertEqual(doc['processed_by'], _PROCESSED_BY)
     mock_method.assert_called_once_with(expected_worker_result)
 
   def testTryProcessRequest_bundleCreationFailed_verifiesResultHandling(self):
@@ -312,6 +325,7 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
                      firestore_connector.UserRequestStatus.FAILED.name)
     self.assertEqual(doc['end_time'], self._FIRESTORE_CURRENT_DATETIME)
     self.assertEqual(doc['error_message'], error_message)
+    self.assertEqual(doc['processed_by'], _PROCESSED_BY)
     mock_method.assert_called_once_with(expected_worker_result)
 
   def testTryProcessRequest_createHWIDCLSucceed_verifiesResultHandling(self):

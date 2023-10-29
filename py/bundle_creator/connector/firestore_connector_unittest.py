@@ -240,6 +240,16 @@ class FirestoreConnectorTest(unittest.TestCase):
         self._EMPTY_USER_REQUEST_DOC_ID)
     self.assertEqual(doc['gs_path'], gs_path)
 
+  def testUpdateUserRequestProcessedBy_succeed_verifiesProcessedBy(self):
+    processed_by = 'board Factory Toolkit 12345.0.0'
+
+    self._connector.UpdateUserRequestProcessedBy(
+        self._EMPTY_USER_REQUEST_DOC_ID, processed_by)
+
+    doc = self._connector.GetUserRequestDocument(
+        self._EMPTY_USER_REQUEST_DOC_ID)
+    self.assertEqual(doc['processed_by'], processed_by)
+
   def testGetUserRequestsByEmail_succeed_returnsExpectedDocuments(self):
     email = 'foo@bar'
     self._user_requests_col.document('doc_1').set({
