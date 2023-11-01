@@ -8,48 +8,49 @@ import unittest
 from unittest import mock
 
 from cros.factory.test.env import paths
+from cros.factory.utils import sys_utils
+
+
+_GET_PATH = 'GetRunningFactoryPythonArchivePath'
 
 
 class GetFactoryPythonArchivePathUnittest(unittest.TestCase):
-  def setUp(self):
-    pass
 
-  def testLocalFactoryPythonArchiveRegularParExists(self):
-    paths.sys_utils.GetRunningFactoryPythonArchivePath = lambda: None
-    paths.os.path.exists = mock.MagicMock(
-        side_effect=lambda p: p.endswith('factory.par'))
+  @mock.patch.object(sys_utils, _GET_PATH, mock.Mock(return_value=None))
+  @mock.patch.object(os.path, 'exists', autospec=True)
+  def testLocalFactoryPythonArchiveRegularParExists(self, mock_exists):
+    mock_exists.side_effect = lambda p: p.endswith('factory.par')
     expected = os.path.join(paths.FACTORY_DIR, 'factory.par')
 
     self.assertEqual(paths.GetFactoryPythonArchivePath(), expected)
 
-  def testLocalFactoryPythonArchiveMiniParExists(self):
-    paths.sys_utils.GetRunningFactoryPythonArchivePath = lambda: None
+  @mock.patch.object(sys_utils, _GET_PATH, mock.Mock(return_value=None))
+  @mock.patch.object(os.path, 'exists', autospec=True)
+  def testLocalFactoryPythonArchiveMiniParExists(self, mock_exists):
     expected = os.path.join(paths.FACTORY_DIR, 'factory-mini.par')
-    paths.os.path.exists = mock.MagicMock(
-        side_effect=lambda p: p == expected)
+    mock_exists.side_effect = lambda p: p == expected
 
     self.assertEqual(paths.GetFactoryPythonArchivePath(), expected)
 
-  def testLocalFactoryPythonArchiveTestImageMiniParExists(self):
+  @mock.patch.object(sys_utils, _GET_PATH, mock.Mock(return_value=None))
+  @mock.patch.object(os.path, 'exists', autospec=True)
+  def testLocalFactoryPythonArchiveTestImageMiniParExists(self, mock_exists):
     expected = '/usr/local/factory-mini/factory-mini.par'
-    paths.sys_utils.GetRunningFactoryPythonArchivePath = lambda: None
-    paths.os.path.exists = mock.MagicMock(
-        side_effect=lambda p: p == expected)
+    mock_exists.side_effect = lambda p: p == expected
 
     self.assertEqual(paths.GetFactoryPythonArchivePath(), expected)
 
+  @mock.patch.object(sys_utils, _GET_PATH, mock.Mock(return_value=None))
+  @mock.patch.object(os.path, 'exists', mock.Mock(return_value=False))
   def testLocalFactoryPythonArchiveParNotExists(self):
-    paths.sys_utils.GetRunningFactoryPythonArchivePath = lambda: None
-    paths.os.path.exists = mock.MagicMock(return_value=False)
-
-    with self.assertRaisesRegex(
-        EnvironmentError, 'cannot find factory python archive'):
+    with self.assertRaisesRegex(EnvironmentError,
+                                'cannot find factory python archive'):
       unused_var = paths.GetFactoryPythonArchivePath()
 
-  def testLocalFactoryPythonArchiveRunningPar(self):
+  @mock.patch.object(sys_utils, _GET_PATH, autospec=True)
+  def testLocalFactoryPythonArchiveRunningPar(self, mock_get_path):
     expected = '/path/to/running/factory/par'
-    paths.sys_utils.GetRunningFactoryPythonArchivePath = lambda: expected
-
+    mock_get_path.return_value = expected
     self.assertEqual(paths.GetFactoryPythonArchivePath(), expected)
 
 
