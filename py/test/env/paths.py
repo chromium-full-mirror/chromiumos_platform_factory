@@ -13,8 +13,7 @@ SCRIPT_PATH = os.path.realpath(__file__)
 # Path to factory environment (code and resources)
 FACTORY_DIR = os.path.realpath(
     os.path.join(SCRIPT_PATH, '..', '..', '..', '..'))
-FACTORY_PYTHON_PACKAGE_DIR = os.path.join(
-    FACTORY_DIR, 'py_pkg', 'cros', 'factory')
+FACTORY_PYTHON_DIR = os.path.join(FACTORY_DIR, 'py')
 FACTORY_TOOLKIT_VERSION_PATH = os.path.join(FACTORY_DIR, 'TOOLKIT_VERSION')
 FACTORY_FIRMWARE_UPDATER_PATH = os.path.join(
     FACTORY_DIR, 'board', 'chromeos-firmwareupdate')

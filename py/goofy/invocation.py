@@ -343,10 +343,9 @@ class TestInvocation:
 
     try:
       if not os.path.exists(self._source_code_path):
-        source_code_file = os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR,
-                                        'test', 'pytests',
-                                        self.test.pytest_name.replace('.', '/')
-                                        + '.py')
+        source_code_file = os.path.join(
+            paths.FACTORY_PYTHON_DIR, 'test', 'pytests',
+            self.test.pytest_name.replace('.', '/') + '.py')
         os.symlink(source_code_file, self._source_code_path)
     except Exception:
       logging.exception('Unable to link source code file')
@@ -368,7 +367,7 @@ class TestInvocation:
     log_func = (
         session.console.error if status == TestState.FAILED else logging.info)
     tag_decorator = (f' ({self._tag})' if self._tag else '')
-    log_func(u'Test %s%s%s %s: %s', self.test.path, iteration_string,
+    log_func('Test %s%s%s %s: %s', self.test.path, iteration_string,
              tag_decorator, status, error_msg)
 
     self._InvokeOnCompleteCallBack(status, error_msg)

@@ -11,7 +11,7 @@ from cros.factory.test.env import paths
 from cros.factory.test.test_lists import test_list_common
 
 
-TEST_LIST_CONFIG_DIR = os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR, 'test',
+TEST_LIST_CONFIG_DIR = os.path.join(paths.FACTORY_PYTHON_DIR, 'test',
                                     'test_lists')
 
 JSON_FILE_SUFFIX = '.json'

@@ -281,7 +281,7 @@ class Goofy:
     self.goofy_server_thread.daemon = True
 
   def _InitStaticFiles(self):
-    static_path = os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR, 'goofy/static')
+    static_path = os.path.join(paths.FACTORY_PYTHON_DIR, 'goofy/static')
     # Setup static file path
     self.goofy_server.RegisterPath('/', static_path)
 

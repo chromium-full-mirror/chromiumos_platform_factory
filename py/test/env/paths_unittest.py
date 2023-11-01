@@ -54,5 +54,25 @@ class GetFactoryPythonArchivePathUnittest(unittest.TestCase):
     self.assertEqual(paths.GetFactoryPythonArchivePath(), expected)
 
 
+class PathExistenceUnittest(unittest.TestCase):
+
+  def _CheckDirectoryAndContent(self, dir_path, expected_content):
+    self.assertTrue(os.path.exists(dir_path))
+    self.assertTrue(os.path.isdir(dir_path))
+    # check some files under |dir_path| to gain confidence that we are looking
+    # at the right path.
+    for filename in expected_content:
+      filepath = os.path.join(dir_path, filename)
+      with self.subTest(filename=filename, filepath=filepath):
+        self.assertTrue(os.path.exists(filepath))
+
+  def testFactoryDir(self):
+    self._CheckDirectoryAndContent(paths.FACTORY_DIR, ['py', 'CODING_STYLE.md'])
+
+  def testFactoryPythonDir(self):
+    self._CheckDirectoryAndContent(paths.FACTORY_PYTHON_DIR,
+                                   ['utils', 'test', 'probe', 'hwid'])
+
+
 if __name__ == '__main__':
   unittest.main()

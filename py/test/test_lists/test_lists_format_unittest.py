@@ -16,9 +16,9 @@ from cros.factory.utils import process_utils
 class JSONFormatTest(unittest.TestCase):
   def testFormatted(self):
     test_lists = glob.glob(
-        os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR, 'test', 'test_lists',
+        os.path.join(paths.FACTORY_PYTHON_DIR, 'test', 'test_lists',
                      '*.test_list.json'))
-    formatter = os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR, 'tools',
+    formatter = os.path.join(paths.FACTORY_PYTHON_DIR, 'tools',
                              'format_json_test_list.py')
 
     failed_files = []

@@ -104,7 +104,7 @@ class PluginController:
         logging.exception('Failed to get menu items from %s', name)
 
   def _RegisterFrontendPath(self, goofy_server):
-    base = os.path.join(paths.FACTORY_PYTHON_PACKAGE_DIR, 'goofy', 'plugins')
+    base = os.path.join(paths.FACTORY_PYTHON_DIR, 'goofy', 'plugins')
     for name, instance in self._plugins.items():
       plugin_paths = name.split('.')
       if len(plugin_paths) < 2:
