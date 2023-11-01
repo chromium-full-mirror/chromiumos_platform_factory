@@ -29,6 +29,12 @@ be placed here.
 
 * If you just want to recover the existing packages, you should run `npm ci`. If you want to run the
 installation process and also update the package when possible, use `npm install`.
+
+  ```sh
+  # Run the command to recover existing packages based on package.json.
+  npm ci
+  ```
+
 * The frontend default runs on port `5100`. If you want to change the port setting, you can
 modify the `.env` file located in this folder.
 * If you want the page to show up in your browser, you will

@@ -7,6 +7,12 @@ import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { EditMainPanel } from "./edit_main_panel";
 
+jest.mock("./edit_test_sequence_panel", () => {
+  return {
+    EditTestSequencePanel: () => <div>Test Sequences</div>,
+  };
+});
+
 describe("Edit Main panel", () => {
   test("renders correctly", () => {
     const router = createMemoryRouter(
