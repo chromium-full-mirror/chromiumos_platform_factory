@@ -18,9 +18,7 @@
     "FrontCameraBrightness": {
       "inherit": "FrontCamera",
       "label": "Front Camera Brightness",
-      "__comment": "Brightness mode doesn't support e2e_mode.",
       "args": {
-        "e2e_mode": false,
         "num_frames_to_pass": 5,
         "mode": "brightness",
         "timeout_secs": 3,

@@ -743,11 +743,13 @@ class CameraTest(test_case.TestCase):
       self.ui.RunJS(
           'window.cameraTest = new CameraTest(args.options)', options=options)
       self.camera_device = None
-      if self.mode in [
-          TestModes.camera_assemble, TestModes.qr, TestModes.camera_assemble_qr,
-          TestModes.face
-      ]:
-        self.need_transmit_from_ui = True
+      self.need_transmit_from_ui = self.mode in (
+          TestModes.camera_assemble,
+          TestModes.qr,
+          TestModes.camera_assemble_qr,
+          TestModes.face,
+          TestModes.brightness,
+      )
     elif (self.args.camera_facing is None and
           self.args.camera_usb_vid_pid is not None and
           len(self.args.camera_usb_vid_pid) == 2):
