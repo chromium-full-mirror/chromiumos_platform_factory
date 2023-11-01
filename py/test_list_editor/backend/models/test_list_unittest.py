@@ -502,6 +502,50 @@ class TestEditor(unittest.TestCase):
         }]
     }])
 
+  def testGetTestSequenceInherited(self):
+    mock_definitions = {
+        'definitions': {
+            'fake1': {
+                'test_item_id': 'fake1',
+                'display_name': 'fake1',
+            },
+            'fake2': {
+                'test_item_id': 'fake2',
+                'display_name': 'fake2',
+            },
+            'A': {
+                'test_item_id': 'A',
+                'display_name': 'A',
+                'subtests': ['fake1', 'fake2']
+            },
+            'B': {
+                'test_item_id': 'B',
+                'display_name': 'B',
+                'inherit': 'A'
+            },
+        },
+        'tests': ['B']
+    }
+    fake_test_list = test_list.TestList()
+    mock_file = mock.Mock(data=mock_definitions, diff_data={})
+    fake_test_list.LoadFromFile(mock_file)
+    test_sequence = fake_test_list.GetTestSequence()
+    self.assertEqual(test_sequence, [{
+        'test_item_id':
+            'B',
+        'display_name':
+            'B',
+        'subtests': [{
+            'test_item_id': 'fake1',
+            'display_name': 'fake1',
+            'subtests': []
+        }, {
+            'test_item_id': 'fake2',
+            'display_name': 'fake2',
+            'subtests': []
+        }]
+    }])
+
   def testUpdateTestSequence(self):
     fake_test_list = test_list.TestList()
     mock_item = mock.Mock()

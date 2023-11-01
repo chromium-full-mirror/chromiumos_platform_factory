@@ -140,7 +140,8 @@ def _ResolveTestItemInheritance(test_item_id: str,
 def _ResolveSubtest(test_item_id: str, test_items: TestItemCollection):
   """Recursively resolve the current test_item's subtest."""
   # TODO: Do some error handling if `test_item_id` not in test_items
-  test_item = test_items[test_item_id]
+  # TODO: Consider caching the results once resolved.
+  test_item = _ResolveTestItemInheritance(test_item_id, test_items)
 
   resolved_subtests = [
       _ResolveSubtest(subtest_id, test_items)
