@@ -284,7 +284,6 @@ class TestList(ITestList):
     aggregated results.
     """
     diff = self._diff.Export()
-    diff['definitions'] = _RemoveFields(diff.get('definitions', {}))
     test_list_file.diff_data = diff
     test_list_file.SaveDiff()
 

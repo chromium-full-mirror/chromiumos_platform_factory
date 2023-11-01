@@ -440,7 +440,7 @@ class TestEditor(unittest.TestCase):
     mock_file = mock.Mock()
     fake_test_list.ExportDiff(mock_file)
 
-    self.assertEqual(mock_file.diff_data, {'definitions': {}})
+    self.assertEqual(mock_file.diff_data, {})
 
   def testUpdateTestItemConfig(self):
     fake_test_list = test_list.TestList()
@@ -455,9 +455,16 @@ class TestEditor(unittest.TestCase):
     fake_test_list.UpdateTestItemConfig(mock_item)
     fake_test_list.ExportDiff(mock_file)
 
-    self.assertEqual(mock_file.diff_data, {'definitions': {
-        'ABC': {}
-    }})
+    self.assertEqual(
+        mock_file.diff_data, {
+            'definitions': {
+                'ABC': {
+                    'test_item_id': 'ABC',
+                    'display_name': 'A B C',
+                    'last_modified': ISO_TIME_STRING
+                }
+            }
+        })
 
   def testGetTestSequence(self):
     mock_definitions = {
