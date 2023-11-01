@@ -2127,6 +2127,8 @@ class ChromeOSFactoryBundle:
       else:
         key_name = 'BOTH dev and non-dev'
       print(f'SIGNING: The image was signed by {key_name} keys.')
+      if not all(results):
+        print('WARNING: DO NOT distribute this image to unauthorized users.')
     except Exception:
       print('SIGNING: WARNING: Unable to identify the signing keys.')
 
