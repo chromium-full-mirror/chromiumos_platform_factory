@@ -343,7 +343,7 @@ class GSCUtils:
       if is_flags_only:
         mode += '_flags'
 
-    if not is_flags_only:
+    if not is_flags_only and self.IsTi50():
       self._VerifyBrandCode()
     self.ExecuteGSCSetScript(GSCScriptPath.BOARD_ID, mode)
 

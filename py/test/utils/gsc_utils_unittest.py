@@ -349,9 +349,10 @@ class GSCUtilsTest(unittest.TestCase):
 
     self.gsctool.SetFeatureManagementFlags.assert_called_with(True, 1)
 
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
                      spec=gsc_utils.GSCUtils)
-  def testGSCSetBoardIdTwoStagesFlags(self, mock_script):
+  def testGSCSetBoardIdTwoStagesFlags(self, mock_script, unused_mock_is_ti50):
     self.mock_phase.return_value = phase.PVT
     self._SetShellResult(status=0)
 
@@ -360,33 +361,38 @@ class GSCUtilsTest(unittest.TestCase):
     mock_script.assert_called_with(GSCScriptPath.BOARD_ID,
                                    'two_stages_pvt_flags')
 
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
                      spec=gsc_utils.GSCUtils)
-  def testGSCSetBoardIdTwoStagesPVT(self, mock_script):
+  def testGSCSetBoardIdTwoStagesPVT(self, mock_script, unused_mock_is_ti50):
     self.mock_phase.return_value = phase.PVT
 
     self.gsc.GSCSetBoardId(two_stages=True, is_flags_only=False)
     mock_script.assert_called_with(GSCScriptPath.BOARD_ID, 'two_stages_pvt')
 
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
                      spec=gsc_utils.GSCUtils)
-  def testGSCSetBoardIdPVT(self, mock_script):
+  def testGSCSetBoardIdPVT(self, mock_script, unused_mock_is_ti50):
     for p in [phase.PVT, phase.PVT_DOGFOOD]:
       self.mock_phase.return_value = p
       self.gsc.GSCSetBoardId(two_stages=False, is_flags_only=False)
       mock_script.assert_called_with(GSCScriptPath.BOARD_ID, 'pvt')
 
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
                      spec=gsc_utils.GSCUtils)
-  def testGSCSetBoardIdDev(self, mock_script):
+  def testGSCSetBoardIdDev(self, mock_script, unused_mock_is_ti50):
     for p in [phase.DVT, phase.EVT, phase.PROTO]:
       self.mock_phase.return_value = p
       self.gsc.GSCSetBoardId(two_stages=False, is_flags_only=False)
       mock_script.assert_called_with(GSCScriptPath.BOARD_ID, 'dev')
 
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
                      spec=gsc_utils.GSCUtils)
-  def testGSCSetBoardIdMismatched(self, mock_script):
+  def testGSCSetBoardIdMismatched(self, mock_script, mock_is_ti50):
+    mock_is_ti50.return_value = True
     self.mock_phase.return_value = phase.EVT
     self.mock_brand_code.return_value = 'ABCD'
 
@@ -399,6 +405,17 @@ class GSCUtilsTest(unittest.TestCase):
 
     # Won't verify brand code when only set board ID flags.
     self.gsc.GSCSetBoardId(two_stages=True, is_flags_only=True)
+    mock_script.assert_called_once()
+
+  @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
+  @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
+                     spec=gsc_utils.GSCUtils)
+  def testGSCSetBoardIdNotVerifyBrandCode(self, mock_script, mock_is_ti50):
+    mock_is_ti50.return_value = False
+    self.mock_phase.return_value = phase.EVT
+    self.mock_brand_code.return_value = 'ABCD'
+
+    self.gsc.GSCSetBoardId(two_stages=False, is_flags_only=False)
     mock_script.assert_called_once()
 
   @mock.patch.object(gsc_utils.GSCUtils, 'Ti50SetSWWPRegister',
