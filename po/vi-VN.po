@@ -3305,26 +3305,32 @@ msgid "Group Registration Code"
 msgstr "Mã đăng ký nhóm(Group ECHO)"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "No valid data on machine for {label}."
 msgstr "Thiếu dữ liệu thiết bị: {label}"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Invalid value for {label}."
 msgstr "đã nhập không chính xác{label}"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select {label}:"
 msgstr "Chọn {label}:"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select with ENTER"
 msgstr "Nhấn ENTER để chọn"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Enter {label}: "
 msgstr "Nhập{label}: "
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "(ESC to keep current value)"
 msgstr "(ESC giữ nguyên giá trị ban đầu)"
 

@@ -3246,26 +3246,32 @@ msgid "Group Registration Code"
 msgstr "群组注册码(Group ECHO)"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "No valid data on machine for {label}."
 msgstr "缺少装置资料: {label}"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Invalid value for {label}."
 msgstr "输入的{label}不正确"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select {label}:"
 msgstr "选择{label}:"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select with ENTER"
 msgstr "按 ENTER 选择"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Enter {label}: "
 msgstr "输入{label}: "
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "(ESC to keep current value)"
 msgstr "(ESC 保持原值不变)"
 

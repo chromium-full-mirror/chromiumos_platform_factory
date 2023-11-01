@@ -3261,26 +3261,32 @@ msgid "Group Registration Code"
 msgstr "รหัสลงทะเบียนกลุ่ม"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "No valid data on machine for {label}."
 msgstr "ไม่มีข้อมูลที่ถูกต้องบนเครื่องสําหรับ {label}"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Invalid value for {label}."
 msgstr "ค่า {label} ไม่ถูกต้อง"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select {label}:"
 msgstr "เลือก {label}:"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select with ENTER"
 msgstr "เลือกด้วย ENTER"
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "Enter {label}: "
 msgstr "ใส่ {label}: "
 
 #: ../py/test/pytests/update_device_data.py
+#: ../py/test/pytests/update_device_data_unittest.py
 msgid "(ESC to keep current value)"
 msgstr "(กด ESC เพื่อเก็บค่าปัจจุบัน)"
 

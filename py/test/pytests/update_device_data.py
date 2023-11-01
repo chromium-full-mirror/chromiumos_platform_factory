@@ -356,9 +356,8 @@ class TextDataEntry(DataEntry):
       ValueError if the value does not mat ch regex pattern check.
     """
     if self._regex_check is not None and not self._regex_check.match(value):
-      raise ValueError(
-          f'Cannot use value {value} for key {self.key}: not matching pattern '
-          f'{self._pattern_check}')
+      raise ValueError(f'Cannot use value {value!r} for key {self.key!r}: '
+                       f'not matching pattern {self._pattern_check!r}')
     self.value = value
 
 
@@ -392,7 +391,7 @@ class SelectionDataEntry(DataEntry):
         self.value = option_value
         return
     raise ValueError(
-        f'Cannot use value {value} for key {self.key}: not in options')
+        f'Cannot use value {value!r} for key {self.key!r}: not in options')
 
   def GetOptions(self):
     """Returns valid options.
@@ -459,9 +458,8 @@ def CreateDataEntry(key, value_arg=None, display_name=None,
   if isinstance(value_check, str) or value_check is None:
     return TextDataEntry(key, value, label, value_check)
 
-  raise TypeError(
-      f'value_check ({value_check}) for {key} must be either regex, sequence, '
-      'or None.')
+  raise TypeError(f'value_check {value_check!r} for {key!r} '
+                  'must be either regex, sequence, or None.')
 
 
 def GetDisplayNameWithKey(key, name=None):
@@ -500,9 +498,8 @@ def CreateRegionOptions(allowed_regions=None):
   if allowed_regions is not None:
     assert isinstance(allowed_regions, list)
     if not set(allowed_regions).issubset(set(all_regions)):
-      raise ValueError(
-          f'value of options for {device_data.KEY_VPD_REGION} must be a subset '
-          'of known regions')
+      raise ValueError(f'value of options for {device_data.KEY_VPD_REGION!r} '
+                       'must be a subset of known regions')
     region_to_use = allowed_regions
   else:
     # Put commonly used regions at the beginning.
@@ -552,5 +549,5 @@ def CreateSelectOptions(value_check):
                         'truncated.')
         options.append((e[0], f'{i + 1} - {e[1]}'))
     else:
-      raise ValueError(f'Unsupported value_check {value_check}')
+      raise ValueError(f'Unsupported value_check {value_check!r}')
   return options
