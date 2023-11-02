@@ -35,31 +35,13 @@ Dependency
 
 Examples
 --------
-Here's an example of input arguments::
+Here's an example of input arguments. Users need to adjust the network topology
+and the IP. To pass go/pe-sw-gates, the device has to pass suite:wifi_perf which
+includes some iperf3 tests.:
 
-  {
-    "pytest_name": "wifi_throughput",
-    "args": {
-      "event_log_name": "wifi_throughput_in_chamber",
-      "enable_iperf_server": true,
-      "services": [
-        {
-          "ssid": "ap",
-          "password": "pass1",
-          "min_rx_throughput": 80,
-          "iperf_host": "127.0.0.1",
-          "iperf_port": 5201
-        },
-        {
-          "ssid": "ap_5g",
-          "password": "pass2",
-          "min_strength": -40,
-          "iperf_host": "::1",
-          "iperf_port": 5201
-        }
-      ]
-    }
-  }
+.. test_list::
+
+  generic_wireless_examples:WifiThroughputInChamber
 
 """
 

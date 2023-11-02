@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-14 18:16+CST\n"
+"PO-Revision-Date: 2023-11-22 15:07+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -694,6 +694,7 @@ msgid "Wifi Throughput"
 msgstr "ปริมาณข้อมูลผ่าน Wifi"
 
 #: ../build/pytests_label_generated.json
+#: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wireless Antenna"
 msgstr "เสาอากาศไร้สาย"
 
@@ -4006,10 +4007,6 @@ msgid "Verify Widevine Keybox"
 msgstr "ตรวจสอบกล่องคีย์ Widevine"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Wifi"
-msgstr "Wifi"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Attach peripheral to charging port"
 msgstr "ต่ออุปกรณ์ต่อพ่วงเข้ากับพอร์ตชาร์จ"
 
@@ -4020,10 +4017,6 @@ msgstr "ถอดอุปกรณ์ต่อพ่วงออกจากพ
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Wireless Charger"
 msgstr "แท่นชาร์จไร้สาย"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Disconnect from wireless networks"
-msgstr "ยกเลิกการเชื่อมต่อจากเครือข่ายไร้สาย"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
@@ -4175,6 +4168,62 @@ msgstr "รายการทดสอบสำหรับ Tast ทดสอบ
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"
 msgstr "เตรียมใช้งาน Chromebook ด้วยรหัส SKU"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Probe Wireless"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wifi"
+msgstr "Wifi"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wireless Antenna (radiotap only)"
+msgstr "เสาอากาศไร้สาย (radiotap only)"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wireless Antenna (switch antenna only)"
+msgstr "เสาอากาศไร้สาย (switch antenna only)"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Disconnect from wireless networks"
+msgstr "ยกเลิกการเชื่อมต่อจากเครือข่ายไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example WifiSSIDList"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example Wireless Connect 2G"
+msgstr "Example การเชื่อมต่อไร้สาย 2G"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example Wireless Connect 5G"
+msgstr "Example การเชื่อมต่อไร้สาย 5G"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Intel Wireless Antenna"
+msgstr "Intel เสาอากาศไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Mediatek Wireless Antenna"
+msgstr "Mediatek เสาอากาศไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Qualcomm Atheros Wireless Antenna"
+msgstr "Qualcomm Atheros เสาอากาศไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Realtek Wireless Antenna"
+msgstr "Realtek เสาอากาศไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Wireless Antenna With Specific Frequency"
+msgstr "เสาอากาศไร้สาย (with specific frequency)"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Generic Wireless Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Set EOM NVAR"

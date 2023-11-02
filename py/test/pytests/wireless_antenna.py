@@ -35,44 +35,17 @@ Dependency
 
 Examples
 --------
-To run this test on DUT, add a test item in the test list::
+To run this test on DUT, add a test item in the test list:
 
-  {
-    "pytest_name": "wireless_antenna",
-    "args": {
-      "device_name": "wlan0",
-      "services": [
-        ["my_ap_service", 5745, null]
-      ],
-      "strength": {
-        "main": -60,
-        "aux": -60,
-        "all": -60
-      },
-      "scan_count": 10,
-      "switch_antenna_sleep_secs": 1
-    }
-  }
+.. test_list::
 
-Set the 2nd element in a service to null if you want to use all available
-frequencies::
+  generic_wireless_examples:WirelessAntenna
 
-  {
-    "pytest_name": "wireless_antenna",
-    "args": {
-      "device_name": "wlan0",
-      "services": [
-        ["my_ap_service", null, null]
-      ],
-      "strength": {
-        "main": -60,
-        "aux": -60,
-        "all": -60
-      },
-      "scan_count": 10,
-      "switch_antenna_sleep_secs": 1
-    }
-  }
+Set the 2nd element in a service if you only want to use a specific frequency:
+
+.. test_list::
+
+  generic_wireless_examples:WirelessAntennaSpecificFrequency
 
 """
 

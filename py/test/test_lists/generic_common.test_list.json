@@ -99,14 +99,7 @@
     "use_prepvt_cr50_firmware": false,
     "__comment_use_prepvt_cr50_firmware": "Set this to true if the prepvt cr50 firmware in release image should be used.",
     "use_prepvt_ti50_firmware": false,
-    "__comment_use_prepvt_ti50_firmware": "Set this to true if the prepvt ti50 firmware in release image should be used.",
-    "wireless_services": [
-      [
-        "antenna_test",
-        2412,
-        null
-      ]
-    ]
+    "__comment_use_prepvt_ti50_firmware": "Set this to true if the prepvt ti50 firmware in release image should be used."
   },
   "definitions": {
     "APROVerification": {
@@ -1602,32 +1595,6 @@
     "WebGLAquarium": {
       "pytest_name": "webgl_aquarium"
     },
-    "WifiSSIDList": {
-      "pytest_name": "wifi_throughput",
-      "label": "Wifi"
-    },
-    "Wireless": {
-      "inherit": "WirelessRadiotap",
-      "args": {
-        "device_name": "wlan0",
-        "services": "eval! constants.wireless_services",
-        "strength": {
-          "main": -60,
-          "aux": -60,
-          "all": -60
-        },
-        "wifi_chip_type": null
-      }
-    },
-    "WirelessAntenna": {
-      "pytest_name": "wireless_antenna",
-      "exclusive_resources": [
-        "NETWORK"
-      ],
-      "args": {
-        "wifi_chip_type": "switch_antenna"
-      }
-    },
     "WirelessCharger": {
       "pytest_name": "wireless_charge",
       "label": "Wireless Charger",
@@ -1635,22 +1602,6 @@
       "args": {
         "occupy_instruction": "i18n! Attach peripheral to charging port",
         "release_instruction": "i18n! Remove peripheral from charging port"
-      }
-    },
-    "WirelessDisconnect": {
-      "pytest_name": "wireless_connect",
-      "label": "Disconnect from wireless networks",
-      "args": {
-        "service_name": []
-      }
-    },
-    "WirelessRadiotap": {
-      "pytest_name": "wireless_antenna",
-      "exclusive_resources": [
-        "NETWORK"
-      ],
-      "args": {
-        "wifi_chip_type": "radiotap"
       }
     },
     "WriteDeviceDataToVPD": {

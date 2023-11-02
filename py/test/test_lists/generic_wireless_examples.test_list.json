@@ -1,0 +1,174 @@
+{
+  "__comment": "Examples for testing wireless components. wireless is called \"Wifi / Bluetooth\" in AVL.",
+  "inherit": [
+    "generic_wireless.test_list"
+  ],
+  "label": "Generic Wireless Factory tests",
+  "constants": {
+    "wireless_services": [
+      [
+        "GoogleGuest-Legacy",
+        null,
+        null
+      ],
+      [
+        "GoogleGuest-IPv4",
+        null,
+        null
+      ]
+    ]
+  },
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "ExampleWifiSSIDList": {
+      "inherit": "WifiSSIDList",
+      "label": "Example WifiSSIDList",
+      "args": {
+        "event_log_name": "example_basic_ssid_list"
+      }
+    },
+    "ExampleWirelessConnect2G": {
+      "inherit": "WirelessConnect",
+      "label": "Example Wireless Connect 2G",
+      "args": {
+        "service_name": [
+          {
+            "ssid": "GoogleGuest-Legacy",
+            "security": "none",
+            "passphrase": ""
+          }
+        ]
+      }
+    },
+    "ExampleWirelessConnect5G": {
+      "inherit": "WirelessConnect",
+      "label": "Example Wireless Connect 5G",
+      "args": {
+        "service_name": [
+          {
+            "ssid": "GoogleGuest-IPv4",
+            "security": "none",
+            "passphrase": ""
+          }
+        ]
+      }
+    },
+    "IntelWirelessAntenna": {
+      "inherit": "WirelessAntennaRadiotap",
+      "label": "Intel Wireless Antenna",
+      "__comment": "Tested on device with component (cid, qid) = (3645, 7066)",
+      "args": {
+        "press_space_to_start": false
+      }
+    },
+    "MediatekWirelessAntenna": {
+      "inherit": "WirelessAntennaRadiotap",
+      "label": "Mediatek Wireless Antenna",
+      "__comment": "Tested on device with component (cid, qid) = (5423, 12758)",
+      "args": {
+        "press_space_to_start": false
+      }
+    },
+    "QualcommAtherosWirelessAntenna": {
+      "inherit": "WirelessAntennaSwitchAntenna",
+      "label": "Qualcomm Atheros Wireless Antenna",
+      "__comment": "Tested on device with component (cid, qid) = (1719, 2965), ath10k components don't support testing aux. See b/312619787.",
+      "args": {
+        "press_space_to_start": false,
+        "switch_antenna_config": {
+          "main": [
+            1,
+            1
+          ],
+          "aux": [
+            3,
+            3
+          ],
+          "all": [
+            3,
+            3
+          ]
+        },
+        "strength": {
+          "main": -60,
+          "aux": -60,
+          "all": -60
+        }
+      }
+    },
+    "RealtekWirelessAntenna": {
+      "inherit": "WirelessAntennaRadiotap",
+      "label": "Realtek Wireless Antenna",
+      "__comment": "Tested on device with component (cid, qid) = (1522, 5668)",
+      "args": {
+        "press_space_to_start": false
+      }
+    },
+    "WifiThroughputInChamber": {
+      "pytest_name": "wifi_throughput",
+      "exclusive_resources": [
+        "NETWORK"
+      ],
+      "__comment": "Users need to adjust the network topology and the IP. To pass go/pe-sw-gates, the device has to pass suite:wifi_perf which includes some iperf3 tests.",
+      "args": {
+        "event_log_name": "wifi_throughput_in_chamber",
+        "services": [
+          {
+            "ssid": "GoogleGuest-Legacy",
+            "password": "",
+            "min_rx_throughput": 80,
+            "min_strength": -80,
+            "iperf_host": "127.0.0.1",
+            "iperf_port": 5201
+          },
+          {
+            "ssid": "GoogleGuest-IPv4",
+            "password": "",
+            "min_rx_throughput": 80,
+            "min_strength": -80,
+            "iperf_host": "127.0.0.1",
+            "iperf_port": 5201
+          }
+        ],
+        "enable_iperf_server": true
+      }
+    },
+    "WirelessAntenna": {
+      "args": {
+        "press_space_to_start": false
+      }
+    },
+    "WirelessAntennaSpecificFrequency": {
+      "inherit": "WirelessAntenna",
+      "label": "Wireless Antenna With Specific Frequency",
+      "args": {
+        "press_space_to_start": false,
+        "services": [
+          [
+            "GoogleGuest-Legacy",
+            2412,
+            null
+          ]
+        ]
+      }
+    }
+  },
+  "tests": [
+    "ProbeWireless",
+    "ExampleWifiSSIDList",
+    "WirelessAntenna",
+    "WirelessAntennaSpecificFrequency",
+    "WirelessAntennaSwitchAntenna",
+    "WirelessAntennaRadiotap",
+    "IntelWirelessAntenna",
+    "MediatekWirelessAntenna",
+    "QualcommAtherosWirelessAntenna",
+    "RealtekWirelessAntenna",
+    "WifiThroughputInChamber",
+    "ExampleWirelessConnect2G",
+    "ExampleWirelessConnect5G",
+    "WirelessDisconnect"
+  ]
+}

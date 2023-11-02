@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-14 18:16+CST\n"
+"PO-Revision-Date: 2023-11-22 15:07+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -694,6 +694,7 @@ msgid "Wifi Throughput"
 msgstr "无线频宽"
 
 #: ../build/pytests_label_generated.json
+#: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wireless Antenna"
 msgstr "无线天线"
 
@@ -3987,10 +3988,6 @@ msgid "Verify Widevine Keybox"
 msgstr "验证 Widevine Keybox"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Wifi"
-msgstr "无线网路"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Attach peripheral to charging port"
 msgstr "连接配件至充电区"
 
@@ -4001,10 +3998,6 @@ msgstr "移除充电区配件"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Wireless Charger"
 msgstr "无线充电"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Disconnect from wireless networks"
-msgstr "断开无线网络"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
@@ -4156,6 +4149,62 @@ msgstr "Test List for Tast Tests"
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"
 msgstr "供应 Chromebook 样式 ID"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Probe Wireless"
+msgstr "侦测无线网路硬件"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wifi"
+msgstr "无线网路"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wireless Antenna (radiotap only)"
+msgstr "无线天线 (radiotap only)"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Wireless Antenna (switch antenna only)"
+msgstr "无线天线 (switch antenna only)"
+
+#: ../py/test/test_lists/generic_wireless.test_list.json
+msgid "Disconnect from wireless networks"
+msgstr "断开无线网络"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example WifiSSIDList"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example Wireless Connect 2G"
+msgstr "连线到 2G 无线网路示例"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Example Wireless Connect 5G"
+msgstr "连线到 5G 无线网路示例"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Intel Wireless Antenna"
+msgstr "Intel 无线天线"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Mediatek Wireless Antenna"
+msgstr "Mediatek 无线天线"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Qualcomm Atheros Wireless Antenna"
+msgstr "Qualcomm Atheros 无线天线"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Realtek Wireless Antenna"
+msgstr "Realtek 无线天线"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Wireless Antenna With Specific Frequency"
+msgstr "特定频率无线天线"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Generic Wireless Factory tests"
+msgstr "一般无线测试"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Set EOM NVAR"

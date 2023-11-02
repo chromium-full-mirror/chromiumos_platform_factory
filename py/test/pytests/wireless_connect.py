@@ -17,34 +17,18 @@ Dependency
 
 Examples
 --------
-To run this test on DUT, add a test item in the test list::
+To run this test on DUT, add a test item in the test list:
 
-  {
-    "pytest_name": "wireless_connect",
-    "args": {
-      "service_name": [
-        {
-          "ssid": "crosfactory20",
-          "security": "psk",
-          "passphrase": "crosfactory"
-        },
-        {
-          "ssid": "crosfactory21",
-          "security": "psk",
-          "passphrase": "crosfactory"
-        }
-      ]
-    }
-  }
+.. test_list::
 
-To disconnect to all WiFi services.::
+  generic_wireless_examples:ExampleWirelessConnect2G
 
-  {
-    "pytest_name": "wireless_connect",
-    "args": {
-      "service_name": []
-    }
-  }
+To disconnect to all WiFi services.:
+
+.. test_list::
+
+  generic_wireless_examples:WirelessDisconnect
+
 """
 
 import re

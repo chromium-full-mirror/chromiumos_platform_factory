@@ -1,0 +1,122 @@
+{
+  "__comment": "Predefined wireless tests. wireless is called \"Wifi / Bluetooth\" in AVL.",
+  "inherit": [
+    "generic_common.test_list"
+  ],
+  "constants": {
+    "wireless_services": [
+      [
+        "antenna_test",
+        2412,
+        null
+      ]
+    ],
+    "__comment_wireless_services": "Used by wireless_antenna.py."
+  },
+  "options": {},
+  "definitions": {
+    "ProbeWireless": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Wireless",
+      "args": {
+        "component_list": [
+          "wireless"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "wireless",
+            "==",
+            1
+          ]
+        ]
+      }
+    },
+    "WifiSSIDList": {
+      "pytest_name": "wifi_throughput",
+      "label": "Wifi",
+      "__comment": "This test object cannot be run directly. Users have to inherit and modify it."
+    },
+    "Wireless": {
+      "inherit": "WirelessAntenna",
+      "__comment": "Alias of WirelessAntenna for legacy test lists."
+    },
+    "WirelessAntenna": {
+      "pytest_name": "wireless_antenna",
+      "label": "Wireless Antenna",
+      "exclusive_resources": [
+        "NETWORK"
+      ],
+      "__comment": "Auto detect the type of the wifi chip.",
+      "args": {
+        "device_name": "wlan0",
+        "ignore_missing_services": true,
+        "services": "eval! constants.wireless_services",
+        "switch_antenna_config": {
+          "main": [
+            1,
+            1
+          ],
+          "aux": [
+            2,
+            2
+          ],
+          "all": [
+            3,
+            3
+          ]
+        },
+        "strength": {
+          "main": -60,
+          "aux": -60,
+          "all": -60
+        },
+        "wifi_chip_type": null
+      }
+    },
+    "WirelessAntennaRadiotap": {
+      "inherit": "WirelessAntenna",
+      "label": "Wireless Antenna (radiotap only)",
+      "__comment": "Only allow wifi chips which supports radiotap.",
+      "args": {
+        "wifi_chip_type": "radiotap"
+      }
+    },
+    "WirelessAntennaSwitchAntenna": {
+      "inherit": "WirelessAntenna",
+      "label": "Wireless Antenna (switch antenna only)",
+      "__comment": "Only allow wifi chips which supports switch_antenna.",
+      "args": {
+        "wifi_chip_type": "switch_antenna"
+      }
+    },
+    "WirelessConnect": {
+      "pytest_name": "wireless_connect",
+      "args": {
+        "service_name": [
+          {
+            "ssid": "crosfactory20",
+            "security": "psk",
+            "passphrase": "crosfactory"
+          },
+          {
+            "ssid": "crosfactory21",
+            "security": "psk",
+            "passphrase": "crosfactory"
+          }
+        ]
+      }
+    },
+    "WirelessDisconnect": {
+      "pytest_name": "wireless_connect",
+      "label": "Disconnect from wireless networks",
+      "args": {
+        "service_name": []
+      }
+    },
+    "WirelessRadiotap": {
+      "inherit": "WirelessAntennaRadiotap",
+      "__comment": "Alias of WirelessAntennaRadiotap for legacy test lists."
+    }
+  }
+}
