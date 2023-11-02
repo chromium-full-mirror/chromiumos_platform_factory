@@ -428,17 +428,16 @@ class Gooftool:
         try:
           # Check if minios is officially signed.
           for minios_part in minios_a_part, minios_b_part:
-            _TmpExec(
-                f'check recovery key signed minios image ({minios_part})',
-                f'futility vbutil_kernel --verify {minios_part} '
-                f'--signpubkey {key_recovery}')
+            _TmpExec(f'check recovery key signed minios image ({minios_part})',
+                     (f'futility verify --type kernel "{minios_part}"'
+                      f' --publickey "{key_recovery}"'))
         except Error:
           # Check if minios is dev-signed.
           for minios_part in minios_a_part, minios_b_part:
             _TmpExec(
                 f'check dev-signed minios image ({minios_part})',
-                f'! futility vbutil_kernel --verify {minios_part} '
-                f'--signpubkey {dir_devkeys}/{key_recovery}',
+                (f'! futility verify --type kernel "{minios_part}"'
+                 f' --publickey {dir_devkeys}/{key_recovery}'),
                 f'YOU ARE USING A DEV-SIGNED MINIOS IMAGE. ({minios_part})')
           raise
 
@@ -450,10 +449,6 @@ class Gooftool:
 
     if firmware_path is None:
       firmware_path = self._flashrom.LoadMainFirmware().GetFileName()
-      firmware_image = self._flashrom.LoadMainFirmware().GetFirmwareImage()
-    else:
-      with open(firmware_path, 'rb') as f:
-        firmware_image = self._flashrom.FirmwareImage(f.read())
 
     with file_utils.TempDirectory() as tmpdir:
 
@@ -481,10 +476,9 @@ class Gooftool:
 
       # define key names
       key_normal = 'kernel_subkey.vbpubk'
-      key_normal_a = 'kernel_subkey_a.vbpubk'
-      key_normal_b = 'kernel_subkey_b.vbpubk'
-      key_root = 'rootkey.vbpubk'
       key_recovery = 'recovery_key.vbpubk'
+      fw_vblock_a = 'fw_vblock_a.blob'
+      fw_vblock_b = 'fw_vblock_b.blob'
       blob_kern = 'kern.blob'
       dir_devkeys = '/usr/share/vboot/devkeys'
 
@@ -493,22 +487,14 @@ class Gooftool:
         # The kernel is usually 8M or 16M, but let's read more.
         file_utils.WriteFile(os.path.join(tmpdir, blob_kern),
                              f.read(64 * 1048576), encoding=None)
-      logging.debug('extract firmware from %s', firmware_path)
-      for section in ('GBB', 'FW_MAIN_A', 'FW_MAIN_B', 'VBLOCK_A', 'VBLOCK_B'):
-        file_utils.WriteFile(os.path.join(tmpdir, section),
-                             firmware_image.get_section(section), encoding=None)
 
-      _TmpExec(
-          'get keys from firmware GBB',
-          f'futility gbb -g --rootkey {key_root}  '
-          f'--recoverykey {key_recovery} GBB')
-      rootkey_hash = _TmpExec('unpack rootkey',
-                              f'futility vbutil_key --unpack {key_root}',
-                              regex=r'Key sha1sum:(.*)').strip()
+      # Verify firmware
+      rootkey_hash = _TmpExec(
+          'verify firmware',
+          f'futility verify --type bios -P "{firmware_path}"',
+          regex=r'bios::GBB::root_key::sha1_sum::(\w+)')
       if not rootkey_hash:
-        raise Error('Failed to extract rootkey hash from rootkey')
-      _TmpExec('unpack recoverykey',
-               f'futility vbutil_key --unpack {key_recovery}')
+        raise Error(f'Failed to extract rootkey hash from {firmware_path}')
 
       # Pre-scan for well-known problems.
       is_dev_rootkey = (
@@ -518,38 +504,31 @@ class Gooftool:
         if phase.GetPhase() >= phase.PVT:
           raise Error('Dev-signed firmware should not be used in PVT phase.')
 
+      # Extract keys from firmware
       _TmpExec(
-          'verify firmware A with root key',
-          f'futility vbutil_firmware --verify VBLOCK_A --signpubkey {key_root}'
-          f'  --fv FW_MAIN_A --kernelkey {key_normal_a}')
-      _TmpExec(
-          'verify firmware B with root key',
-          f'futility vbutil_firmware --verify VBLOCK_B --signpubkey {key_root}'
-          f'  --fv FW_MAIN_B --kernelkey {key_normal_b}')
+          'extract recovery key from firmware',
+          f'futility gbb -g --recoverykey "{key_recovery}" "{firmware_path}"')
+      _TmpExec('extract VBLOCKs from firmware',
+               (f'futility dump_fmap -x "{firmware_path}"'
+                f' "VBLOCK_A:{fw_vblock_a}" "VBLOCK_B:{fw_vblock_b}"'))
 
-      # Unpack keys and keyblocks
-      _TmpExec('unpack kernel keyblock',
-               f'futility vbutil_keyblock --unpack {blob_kern}')
+      # Verify kernel
       try:
-        for key in key_normal_a, key_normal_b:
-          _TmpExec(f'unpack {key}', f'vbutil_key --unpack {key}')
-          _TmpExec(
-              f'verify kernel by {key}',
-              f'futility vbutil_kernel --verify {blob_kern} --signpubkey '
-              f'{key}')
-
+        for fw_vblock in fw_vblock_a, fw_vblock_b:
+          _TmpExec(f'verify kernel by {fw_vblock}',
+                   (f'futility verify --type kernel "{blob_kern}"'
+                    f' --publickey "{fw_vblock}"'))
       except Error:
-        _TmpExec(
-            'check recovery key signed image',
-            f'! futility vbutil_kernel --verify {blob_kern} --signpubkey '
-            f'{key_recovery}', 'YOU ARE USING A RECOVERY KEY SIGNED IMAGE.')
+        _TmpExec('check recovery key signed image',
+                 (f'! futility verify --type kernel "{blob_kern}"'
+                  f' --publickey "{key_recovery}"'),
+                 'YOU ARE USING A RECOVERY KEY SIGNED IMAGE.')
 
         for key in key_normal, key_recovery:
-          _TmpExec(
-              f'check dev-signed image <{key}>',
-              f'! futility vbutil_kernel --verify {blob_kern} --signpubkey '
-              f'{dir_devkeys}/{key}',
-              f'YOU ARE FINALIZING WITH DEV-SIGNED IMAGE <{key}>')
+          _TmpExec(f'check dev-signed image <{key}>',
+                   (f'! futility verify --type kernel "{blob_kern}"'
+                    f' --publickey "{dir_devkeys}/{key}"'),
+                   f'YOU ARE FINALIZING WITH DEV-SIGNED IMAGE <{key}>')
         raise
 
       _VerifyMiniOS(is_dev_rootkey, key_recovery, dir_devkeys)
