@@ -5,25 +5,66 @@
 import { useEffect, useState } from "react";
 import { ItemService, TestItem } from "../services/itemService";
 
-const objectFields = ["args", "locals", "disable_services"];
-type testItemKeyType = keyof TestItem;
+// TODO: Make the fields required once we have defined the schema of `TestItem`.
+export interface EditorTestItem {
+  test_item_id?: string;
+  display_name?: string;
+  inherit?: string;
+  last_modified?: string;
+  pytest_name?: string;
+  run_if?: string;
+  action_on_failure?: string;
+  allow_reboot?: boolean;
+  disable_abort?: boolean;
+  parallel?: boolean;
+  args?: string;
+  locals?: string;
+  disable_services?: string;
+}
 
 /**
- * Converts defined object field in `TestItem` to string field.
+ * Converts a TestItem object to an EditorTestItem object.
  *
- * The function converts predefined attributes in `objectFields` of the passed in
- * test item to string format.
+ * TODO: Handle JSON conversion error and show notification.
+ *
+ * @param {TestItem} item - The TestItem object to convert.
+ * @return {EditorTestItem} - The converted EditorTestItem object.
+ *
+ * @throws {SyntaxError} If the properties of the TestItem object are not valid JSON.
  */
-function _convertObjectToString(obj: TestItem): void {
-  objectFields.forEach((val) => {
-    if (Object.prototype.hasOwnProperty.call(obj, val)) {
-      const key = val as testItemKeyType;
-      if (typeof obj[key] === "object") {
-        (obj[key] as string) = JSON.stringify(obj[key], null, 2);
-      }
-    }
-  });
-  return;
+function _convertToEditorTestItem(item: TestItem): EditorTestItem {
+  const { args, locals, disable_services, ...rest } = item;
+  const editorTestItem: EditorTestItem = {
+    ...rest,
+    ...(args !== undefined && { args: JSON.stringify(args, null, 2) }),
+    ...(locals !== undefined && { locals: JSON.stringify(locals, null, 2) }),
+    ...(disable_services !== undefined && {
+      disable_services: JSON.stringify(disable_services, null, 2),
+    }),
+  };
+  return editorTestItem;
+}
+
+/**
+ * Converts an EditorTestItem object to a TestItem object.
+ *
+ * TODO: Handle JSON conversion error and show notification.
+ *
+ * @param {EditorTestItem} item - The EditorTestItem object to convert.
+ * @return {TestItem} - The converted TestItem object.
+ *
+ * @throws {SyntaxError} If the properties of the EditorTestItem object are not valid JSON.
+ */
+function _convertToTestItem(item: EditorTestItem): TestItem {
+  const { args, locals, disable_services, ...rest } = item;
+  return {
+    ...rest,
+    ...(args !== undefined && { args: JSON.parse(args) as object }),
+    ...(locals !== undefined && { locals: JSON.parse(locals) as object }),
+    ...(disable_services !== undefined && {
+      disable_services: JSON.parse(disable_services) as object,
+    }),
+  };
 }
 
 /**
@@ -33,7 +74,7 @@ function _convertObjectToString(obj: TestItem): void {
  * Use `updateTestItem` to propagate the change in the frontend to the backend.
  */
 export interface TestItemHookResult {
-  testItem: TestItem;
+  testItem: EditorTestItem;
   /**
    * Updates the field of a `testItem` with `data`.
    *
@@ -64,9 +105,9 @@ export function useTestItem(
   testListId: string,
   testItemData: TestItem,
 ): TestItemHookResult {
-  _convertObjectToString(testItemData);
-
-  const [testItem, setTestItem] = useState<TestItem>(testItemData);
+  const [testItem, setTestItem] = useState<EditorTestItem>(
+    _convertToEditorTestItem(testItemData),
+  );
   const itemService = new ItemService(testListId);
 
   function updateField(field: keyof TestItem, data: string | boolean | object) {
@@ -77,12 +118,21 @@ export function useTestItem(
   }
 
   async function updateTestItem() {
-    const response = await itemService.updateTestItem(testItem);
-    setTestItem(response.data);
+    let updateTestItem;
+    try {
+      updateTestItem = _convertToTestItem(testItem);
+    } catch (e) {
+      // TODO: Raise a notification at this point about serialization
+      //       failure.
+      return;
+    }
+
+    const response = await itemService.updateTestItem(updateTestItem);
+    setTestItem(_convertToEditorTestItem(response.data));
   }
 
   useEffect(() => {
-    setTestItem(testItemData);
+    setTestItem(_convertToEditorTestItem(testItemData));
   }, [testItemData]);
 
   return { testItem, updateField, updateTestItem };

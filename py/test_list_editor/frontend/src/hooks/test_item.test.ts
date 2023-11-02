@@ -61,23 +61,24 @@ describe("Test TestItem hook", () => {
   });
 
   test("Convert object field of a test item.", () => {
-    const fakeItem = { args: { some_field: true } };
-    const expectedOutput = JSON.stringify(fakeItem.args, null, 2);
+    const fakeItem = {
+      args: { some_field: true },
+      locals: {},
+      disable_services: [],
+    };
     const { result } = renderHook(() =>
       useTestItem("fake.test_list", fakeItem),
     );
     const hookResult: TestItemHookResult = result.current;
-    expect(hookResult.testItem.args).toStrictEqual(expectedOutput);
-  });
-
-  test("Don't convert object field if type not match", () => {
-    const fakeItem = { args: '{\n  "some_field": true\n}' };
-    const expectedOutput = '{\n  "some_field": true\n}';
-    const { result } = renderHook(() =>
-      useTestItem("fake.test_list", fakeItem),
+    expect(hookResult.testItem.args).toStrictEqual(
+      JSON.stringify(fakeItem.args, null, 2),
     );
-    const hookResult: TestItemHookResult = result.current;
-    expect(hookResult.testItem.args).toStrictEqual(expectedOutput);
+    expect(hookResult.testItem.locals).toStrictEqual(
+      JSON.stringify(fakeItem.locals, null, 2),
+    );
+    expect(hookResult.testItem.disable_services).toStrictEqual(
+      JSON.stringify(fakeItem.disable_services, null, 2),
+    );
   });
 
   test("Update test item filed", async () => {
@@ -93,6 +94,49 @@ describe("Test TestItem hook", () => {
       ...items,
       test_item_id: "Modified ABC",
     });
+  });
+
+  test("Update test item with JSON object", async () => {
+    const { result } = renderHook(() => useTestItem("fake.test_list", items));
+
+    let hookResult: TestItemHookResult = result.current;
+    await waitFor(() => {
+      hookResult.updateField("disable_services", "[]");
+    });
+    hookResult = result.current;
+    await waitFor(() => {
+      hookResult.updateField("locals", "{}");
+    });
+    hookResult = result.current;
+    await waitFor(() => {
+      hookResult.updateField("args", "{}");
+    });
+
+    hookResult = result.current;
+    await waitFor(async () => {
+      await hookResult.updateTestItem();
+    });
+    expect(spyUpdate).toHaveBeenCalledWith({
+      ...items,
+      args: {},
+      locals: {},
+      disable_services: [],
+    });
+  });
+
+  test("Update test item with incorrect JSON string", async () => {
+    const { result } = renderHook(() => useTestItem("fake.test_list", items));
+
+    let hookResult: TestItemHookResult = result.current;
+    await waitFor(() => {
+      hookResult.updateField("args", "{");
+    });
+
+    hookResult = result.current;
+    await waitFor(async () => {
+      await hookResult.updateTestItem();
+    });
+    expect(spyUpdate).not.toBeCalled();
   });
 
   test("Call updateTestItem and expect updated test item", async () => {

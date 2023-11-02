@@ -19,9 +19,9 @@ export interface TestItem {
   allow_reboot?: boolean;
   disable_abort?: boolean;
   parallel?: boolean;
-  args?: string | object;
-  locals?: string | object;
-  disable_services?: string | object;
+  args?: object;
+  locals?: object;
+  disable_services?: object;
 }
 
 export interface TestItemResponse extends BaseResponse {
