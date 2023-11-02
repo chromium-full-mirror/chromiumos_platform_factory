@@ -864,9 +864,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
         keys_comp_name = f'firmware_keys_{match.group(1)}'
 
       covered_bundle_uuids = None
+      db = action.GetDBV3()
+      old_hwid_db_contents_external = action.PatchHeader(
+          db.DumpDataWithoutChecksum(internal=False,
+                                     suppress_support_status=False))
       # Add component to DB
-      with v3_builder.DatabaseBuilder.FromExistingDB(
-          db=action.GetDBV3()) as db_builder:
+      with v3_builder.DatabaseBuilder.FromExistingDB(db=db) as db_builder:
         for field, values in firmware_record.ListFields():
           if (field.message_type is None or
               not v3_common.FirmwareComps.has_value(field.name)):
@@ -909,10 +912,6 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             else:
               covered_bundle_uuids &= set(comp.bundle_uuids)
 
-      if covered_bundle_uuids:
-        logging.info('No component is added/modified to DB: %s', model)
-        continue
-
       db = db_builder.Build()
 
       # Create commit
@@ -922,6 +921,11 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       hwid_db_contents_external = action.PatchHeader(
           db.DumpDataWithoutChecksum(internal=False,
                                      suppress_support_status=False))
+      if (covered_bundle_uuids and
+          hwid_db_contents_external == old_hwid_db_contents_external):
+        logging.info('No component is added/modified to DB: %s', model)
+        continue
+
       commit_msg = textwrap.dedent(f"""\
           ({int(time.time())}) {db.project}: HWID Firmware Info Update
 

@@ -1736,6 +1736,26 @@ class SelfServiceShardTest(unittest.TestCase):
 
     self.assertEqual(len(resp.commits), 0)
 
+  def testCreateHwidDbFirmwareInfoUpdateCl_FlipStatusOnly(self):
+    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.return_value = 123
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
+        bundle_record=self._CreateBundleRecord(['proj'], supported=True))
+    resp = self.service.CreateHwidDbFirmwareInfoUpdateCl(req)
+    comps = action.GetComponents(['ro_main_firmware'])
+
+    self.assertEqual(comps['ro_main_firmware']['Google_Proj_1111_1_1'].status,
+                     'supported')
+    self.assertIn('PROJ', resp.commits)
+    self.assertEqual(resp.commits['PROJ'].cl_number, 123)
+    self.assertEqual(resp.commits['PROJ'].new_hwid_db_contents,
+                     action.GetDBEditableSection())
+
   def testCreateHwidDbFirmwareInfoUpdateCl_NameCollision(self):
     raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
@@ -2587,7 +2607,7 @@ class SelfServiceShardTest(unittest.TestCase):
                                             'TEST-COMMIT-ID', None))
 
   @classmethod
-  def _CreateBundleRecord(cls, projects):
+  def _CreateBundleRecord(cls, projects, supported=False):
     firmware_records = []
     for proj in projects:
       firmware_records.append(
@@ -2604,7 +2624,7 @@ class SelfServiceShardTest(unittest.TestCase):
               ], ro_main_firmware=[
                   _FirmwareRecord.FirmwareInfo(hash='hash_string',
                                                version='Google_Proj.1111.1.1')
-              ]))
+              ], supported=supported))
 
     return _FactoryBundleRecord(board='board', firmware_signer='BoardMPKeys-V1',
                                 firmware_records=firmware_records)
