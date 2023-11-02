@@ -46,6 +46,20 @@ describe("Test TestItem hook", () => {
     expect(hookResult.testItem).toStrictEqual(items);
   });
 
+  test("Updates when item data has changed", () => {
+    const { result: result1 } = renderHook(() =>
+      useTestItem("fake.test_list", items),
+    );
+    const hookResult1: TestItemHookResult = result1.current;
+    expect(hookResult1.testItem).toStrictEqual(items);
+
+    const { result: result2 } = renderHook(() =>
+      useTestItem("fake.test_list", newItem),
+    );
+    const hookResult2: TestItemHookResult = result2.current;
+    expect(hookResult2.testItem).toStrictEqual(newItem);
+  });
+
   test("Convert object field of a test item.", () => {
     const fakeItem = { args: { some_field: true } };
     const expectedOutput = JSON.stringify(fakeItem.args, null, 2);

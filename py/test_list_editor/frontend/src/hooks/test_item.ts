@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ItemService, TestItem } from "../services/itemService";
 
 const objectFields = ["args", "locals", "disable_services"];
-
 type testItemKeyType = keyof TestItem;
 
 /**
@@ -81,6 +80,10 @@ export function useTestItem(
     const response = await itemService.updateTestItem(testItem);
     setTestItem(response.data);
   }
+
+  useEffect(() => {
+    setTestItem(testItemData);
+  }, [testItemData]);
 
   return { testItem, updateField, updateTestItem };
 }
