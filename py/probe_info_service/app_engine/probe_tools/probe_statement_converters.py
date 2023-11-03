@@ -17,6 +17,7 @@ from cros.factory.probe.runtime_probe import probe_config_definition
 from cros.factory.probe.runtime_probe import probe_config_types
 from cros.factory.probe_info_service.app_engine import probe_info_analytics
 from cros.factory.probe_info_service.app_engine.probe_tools import analyzers
+from cros.factory.probe_info_service.app_engine.probe_tools import utils
 
 
 _ProbeParameterDefinition = probe_info_analytics.ProbeParameterDefinition
@@ -34,6 +35,7 @@ _ProbeInfoArtifact = probe_info_analytics.ProbeInfoArtifact
 _IBidirectionalProbeInfoConverter = analyzers.IBidirectionalProbeInfoConverter
 _ParsedProbeParameter = analyzers.ParsedProbeParameter
 _CollectedProbeParams = analyzers.CollectedProbeParams
+_ProbeResultMatchResult = analyzers.ProbeResultMatchResult
 
 
 class _ParamValueConverter:
@@ -520,7 +522,42 @@ def _ToProbeParamInputs(
   return probe_param_inputs
 
 
-class _SingleProbeFuncConverter(_IBidirectionalProbeInfoConverter):
+class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
+  """Base converters for all probe functions."""
+
+  def MatchProbeResult(
+      self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
+      parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
+  ) -> _ProbeResultMatchResult:
+    """See base class."""
+    expect_values = collections.defaultdict(set)
+
+    probe_parameters = self.GetNormalizedProbeParams(probe_params)
+    for param in probe_parameters:
+      param_val = utils.GetProbeParameterValue(param)
+      expect_values[param.name].add(param_val)
+
+    # Collect names of all mismatched parameters.
+    param_name_to_category = {}
+    for parsed_result in parsed_probe_result:
+      param = parsed_result.probe_parameter
+      if param.name in param_name_to_category:
+        continue
+
+      param_val = utils.GetProbeParameterValue(param)
+      if self._Match(expect_values[param.name], param_val):
+        # TODO(b/308330814): self._RegexMatch() for regex parameters.
+        continue
+
+      param_name_to_category[param.name] = parsed_result.component_category
+
+    return _ProbeResultMatchResult(param_name_to_category)
+
+  def _Match(self, expects: Collection[str], param_val: str):
+    return param_val in expects
+
+
+class _SingleProbeFuncConverter(_ProbeFuncConverter):
   """Converts probe info into a statement of one single probe function call."""
 
   _DEFAULT_VALUE_TYPE_MAPPING = {
@@ -751,7 +788,7 @@ def _AggregrateProbeInfoParsedResults(
   return aggregated_result
 
 
-class _MultiProbeFuncConverter(_IBidirectionalProbeInfoConverter):
+class _MultiProbeFuncConverter(_ProbeFuncConverter):
   """Converts a probe info into multiple component probe statements.
 
   It can convert one single probe info into a list of component probe
@@ -1005,7 +1042,7 @@ _MMC_BASIC_PARAMS = (
 )
 
 
-class MMCWithBridgeProbeStatementConverter(_IBidirectionalProbeInfoConverter):
+class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
 
   _NAME = 'emmc_pcie_assembly.generic'
   _DESCRIPTION = (

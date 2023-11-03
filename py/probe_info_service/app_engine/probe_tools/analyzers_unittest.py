@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 import os
 import shlex
 import tempfile
@@ -15,6 +16,7 @@ from cros.factory.probe.runtime_probe import probe_config_types
 from cros.factory.probe_info_service.app_engine import probe_info_analytics
 from cros.factory.probe_info_service.app_engine.probe_tools import analyzers
 from cros.factory.probe_info_service.app_engine.probe_tools import probe_statement_converters as ps_converters
+from cros.factory.probe_info_service.app_engine.probe_tools import utils
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import process_utils
@@ -96,7 +98,6 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
               probe_statement))
     return _ProbeInfoArtifact(parsed_result, comp_probe_statements)
 
-
   def ParseProbeResult(
       self, probe_result: Mapping[str, Sequence[Mapping[str, str]]]
   ) -> Sequence[analyzers.ParsedProbeParameter]:
@@ -121,6 +122,30 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
       self,
       probe_params: Sequence[_ProbeParameter]) -> Sequence[_ProbeParameter]:
     return probe_params
+
+  def MatchProbeResult(
+      self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
+      parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
+  ) -> analyzers.ProbeResultMatchResult:
+    expect_values = collections.defaultdict(set)
+
+    probe_parameters = self.GetNormalizedProbeParams(probe_params)
+    for param in probe_parameters:
+      param_val = utils.GetProbeParameterValue(param)
+      expect_values[param.name].add(param_val)
+
+    # Collect names of all mismatched parameters.
+    param_name_to_category = {}
+    for parsed_result in parsed_probe_result:
+      param = parsed_result.probe_parameter
+      if param.name in param_name_to_category:
+        continue
+
+      param_val = utils.GetProbeParameterValue(param)
+      if param_val not in expect_values[param.name]:
+        param_name_to_category[param.name] = parsed_result.component_category
+
+    return analyzers.ProbeResultMatchResult(param_name_to_category)
 
 
 class ProbeInfoAnalyzerTest(unittest.TestCase):

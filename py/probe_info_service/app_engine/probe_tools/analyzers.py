@@ -19,6 +19,7 @@ from cros.factory.probe.runtime_probe import probe_config_types
 from cros.factory.probe_info_service.app_engine import bundle_builder
 from cros.factory.probe_info_service.app_engine import probe_info_analytics
 from cros.factory.probe_info_service.app_engine.probe_tools import client_payload_pb2  # pylint: disable=no-name-in-module
+from cros.factory.probe_info_service.app_engine.probe_tools import utils
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
@@ -31,6 +32,15 @@ class ParsedProbeParameter(NamedTuple):
   """Represents a probe parameter extracted from generic probe function."""
   component_category: str
   probe_parameter: probe_info_analytics.ProbeParameter
+
+
+class ProbeResultMatchResult(NamedTuple):
+  """The names of mismatched parameters and their component categories."""
+  param_name_to_category: Mapping[str, str]
+
+  @property
+  def mismatch_param_names(self) -> Collection[str]:
+    return set(self.param_name_to_category)
 
 
 class IProbeInfoConverter(abc.ABC):
@@ -113,6 +123,27 @@ class IBidirectionalProbeInfoConverter(IProbeInfoConverter):
 
     Raises:
       `ValueError` if the normalization fails.
+    """
+
+  @abc.abstractmethod
+  def MatchProbeResult(
+      self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
+      parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
+  ) -> ProbeResultMatchResult:
+    """Parse `probe_result` and returns names of mismatch components.
+
+    This method checks all probe values in `parsed_probe_result`. If any probe
+    value does not match any values of the same probe parameter in
+    `probe_params`, add the parameter name to returned `ProbeResultMatchResult`.
+
+    Args:
+      probe_params: A list of `ProbeParameter` expected to be probed.
+      parsed_probe_result: A list of `ProbeParameter` parsed from the probe
+          result.
+
+    Returns:
+      A `ProbeResultMatchResult` containing the mismatch parameter names, and a
+          dictionary mapping parameter names to component categories.
     """
 
   def GenerateSuggestionMsg(
@@ -313,14 +344,6 @@ def _GetComponentPartNames(
     ps_metadata: client_payload_pb2.ProbeStatementMetadata) -> Sequence[str]:
   return (ps_metadata.component_part_names
           if ps_metadata.component_part_names else [ps_metadata.component_name])
-
-
-def _GetProbeParameterValue(probe_param: probe_info_analytics.ProbeParameter):
-  which_one_of = probe_param.WhichOneof('value')
-  if which_one_of is None:
-    return None
-
-  return getattr(probe_param, which_one_of)
 
 
 USE_LATEST_IMAGE = ('Please use the latest ChromeOS test image and run the '
@@ -647,11 +670,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       self, generic_probe_result: Mapping[str, Sequence[Mapping[str, str]]],
       probe_data_source: _ProbeDataSourceImpl
   ) -> Tuple[Sequence[_ProbeParameterSuggestion], str]:
-    generic_parsed_results = []
-    probe_params = collections.defaultdict(set)
-
     probe_info = probe_data_source.probe_info
     probe_parameters = probe_info.probe_parameters
+
     unused_parsed_result, converter = self._LookupProbeConverter(
         probe_info.probe_function_name)
     if not converter or not isinstance(converter,
@@ -659,32 +680,17 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       return [], ''
 
     generic_parsed_results = converter.ParseProbeResult(generic_probe_result)
-    probe_parameters = converter.GetNormalizedProbeParams(probe_parameters)
-
-    for param in probe_parameters:
-      param_val = _GetProbeParameterValue(param)
-      probe_params[param.name].add(param_val)
-
-    # Collect names of all mismatched parameters.
-    mismatch_param_names = set()
-    param_name_to_category = {}
-    for parsed_result in generic_parsed_results:
-      param = parsed_result.probe_parameter
-      if param.name in mismatch_param_names:
-        continue
-
-      param_val = _GetProbeParameterValue(param)
-      if param_val not in probe_params[param.name]:
-        mismatch_param_names.add(param.name)
-        param_name_to_category[param.name] = parsed_result.component_category
+    match_result = converter.MatchProbeResult(probe_parameters,
+                                              generic_parsed_results)
+    mismatch_param_names = match_result.mismatch_param_names
+    param_name_to_category = match_result.param_name_to_category
 
     # Collect the expected values of the mismatched parameters from probe
     # parameters.
     expected_params = collections.defaultdict(list)
-    probe_parameters = probe_data_source.probe_info.probe_parameters
     for probe_param in probe_parameters:
       if probe_param.name in mismatch_param_names:
-        val = _GetProbeParameterValue(probe_param)
+        val = utils.GetProbeParameterValue(probe_param)
         expected_params[probe_param.name].append(val)
 
     # Collect the probed values of the mismatched parameters from generic probe
@@ -693,7 +699,7 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     for parsed_result in generic_parsed_results:
       probe_param = parsed_result.probe_parameter
       if probe_param.name in mismatch_param_names:
-        val = _GetProbeParameterValue(probe_param)
+        val = utils.GetProbeParameterValue(probe_param)
         generic_probe_params[probe_param.name].append(val)
 
     param_hints = {}
