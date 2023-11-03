@@ -690,10 +690,6 @@ msgid "Whale Cover"
 msgstr "Whale 压合"
 
 #: ../build/pytests_label_generated.json
-msgid "Wifi Check Calibration"
-msgstr "检查无线校正"
-
-#: ../build/pytests_label_generated.json
 msgid "Wifi Throughput"
 msgstr "无线频宽"
 

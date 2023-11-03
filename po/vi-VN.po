@@ -690,10 +690,6 @@ msgid "Whale Cover"
 msgstr ""
 
 #: ../build/pytests_label_generated.json
-msgid "Wifi Check Calibration"
-msgstr "Kiểm tra chỉnh sửa không dây"
-
-#: ../build/pytests_label_generated.json
 msgid "Wifi Throughput"
 msgstr "Băng thông không dây"
 
