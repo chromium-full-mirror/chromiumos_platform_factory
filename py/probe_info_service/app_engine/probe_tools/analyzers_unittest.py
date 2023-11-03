@@ -508,7 +508,19 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     self.assertIsNotNone(actual.output)
     bundle_content = actual.output.content
 
-    with self.subTest('WithNormalGenericProbeResults'):
+    with self.subTest('Probed'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "battery": [ {"name": "comp_name"}] }''')
+
+      result = pi_analyzer.AnalyzeDeviceProbeResultPayload([pds], bundle_output)
+
+      self.assertEqual(
+          result.probe_info_test_results,
+          [_ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED)])
+
+    with self.subTest('NotProbed_WithNormalGenericProbeResults'):
       # Arrange, invoke the probe bundle.
       bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
           bundle_content, runtime_probe_stdout='''
@@ -537,7 +549,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS)
       self.assertEqual(result, expected_result)
 
-    with self.subTest('WithTruncatedProbeValues'):
+    with self.subTest('NotProbed_WithTruncatedProbeValues'):
       # Arrange, invoke the probe bundle.
       bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
           bundle_content, runtime_probe_stdout='''
@@ -563,6 +575,101 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                   hint=('expected: \"[\'1234567890123456\']\", probed 1 '
                         'battery component(s) with value:\ncomponent 1: '
                         '\"1234567\"'))
+          ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
+          ps_converters.BatteryProbeInfoConverter.PROBED_TRUNCATED_BATTERY)
+      self.assertEqual(result, expected_result)
+
+  def testWithRegexBatteryProbeStatementProbeInfo_ThenCanTestByQualBundle(self):
+    # Arrange.
+    pi_analyzer = analyzers.ProbeInfoAnalyzer([
+        converter for converter in ps_converters.GetAllConverters()
+        if converter.GetName() == 'battery.generic_battery'
+    ])
+    pi = text_format.Parse(
+        '''probe_function_name: "battery.generic_battery"
+           probe_parameters {
+            name: "manufacturer" string_value: "ABC[0-9]"
+           }
+           probe_parameters {
+            name: "model_name" string_value: "123[A-Z][a-z]456"
+           }''', _ProbeInfo())
+
+    # Act, generate the probe bundle.
+    pds = pi_analyzer.CreateProbeDataSource('comp_name', pi)
+    actual = pi_analyzer.GenerateProbeBundlePayload([pds])
+
+    # Assert, the bundle is generated.
+    self.assertEqual(actual.probe_info_parsed_results[0].result_type,
+                     _ProbeInfoParsedResult.PASSED)
+    self.assertIsNotNone(actual.output)
+    bundle_content = actual.output.content
+
+    with self.subTest('Probed'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "battery": [ {"name": "comp_name"}] }''')
+
+      result = pi_analyzer.AnalyzeDeviceProbeResultPayload([pds], bundle_output)
+
+      self.assertEqual(
+          result.probe_info_test_results,
+          [_ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED)])
+
+    with self.subTest('NotProbed_WithNormalGenericProbeResults'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "battery": [ {
+                  "name": "generic",
+                  "values": {
+                    "manufacturer": "ABC0",
+                    "model_name": "123Cc456"
+              } }, {
+                  "name": "generic",
+                  "values": {
+                    "manufacturer": "ABC1",
+                    "model_name": "123Dd456"
+              } } ] }''')
+
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+
+      # "manufacturer" doesn't support regex, so the probe parameter is treated
+      #  as a normal string.
+      # "model_name" matches the regex, so we won't generate suggestion for it.
+      expected_result = _ProbeInfoTestResult(
+          result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
+          probe_parameter_suggestions=[
+              _ProbeParameterSuggestion(
+                  index=0,
+                  hint=('expected: \"[\'ABC[0-9]\']\", probed 2 '
+                        'battery component(s) with value:\ncomponent 1: '
+                        '\"ABC0\"\ncomponent 2: \"ABC1\"'))
+          ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
+          analyzers.MULTIPLE_PROBED_COMPS)
+      self.assertEqual(result, expected_result)
+
+    with self.subTest('NotProbed_WithTruncatedProbeResult'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "battery": [ {
+                  "name": "generic",
+                  "values": {
+                    "manufacturer": "ABC[0-9]",
+                    "model_name": "123Cd4"
+              } } ] }''')
+
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+
+      expected_result = _ProbeInfoTestResult(
+          result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
+          probe_parameter_suggestions=[
+              _ProbeParameterSuggestion(
+                  index=1,
+                  hint=('expected: \"[\'123[A-Z][a-z]456\']\", probed 1 '
+                        'battery component(s) with value:\ncomponent 1: '
+                        '\"123Cd4\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
           ps_converters.BatteryProbeInfoConverter.PROBED_TRUNCATED_BATTERY)
       self.assertEqual(result, expected_result)

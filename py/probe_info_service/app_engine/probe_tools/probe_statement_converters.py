@@ -1322,7 +1322,7 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
   def __init__(self):
     probe_params = [
         _ProbeFunctionParam('manufacturer'),
-        _ProbeFunctionParam('model_name'),
+        _ProbeFunctionParam('model_name', is_restricted_re=True),
     ]
     ps_generator = probe_config_definition.GetProbeStatementDefinition(
         self.RUNTIME_PROBE_CATEGORY)

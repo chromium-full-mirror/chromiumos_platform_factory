@@ -188,7 +188,7 @@ class BatteryConverterTest(ConverterTestCase):
                 },
                 'expect': {
                     'manufacturer': [True, 'str', '!eq abcd1234'],
-                    'model_name': [True, 'str', '!eq efgh5678']
+                    'model_name': [True, 'str', '!re efgh5678']
                 }
             })
     ]
@@ -212,12 +212,36 @@ class BatteryConverterTest(ConverterTestCase):
                 },
                 'expect': {
                     'manufacturer': [True, 'str', '!eq ABCD1234'],
-                    'model_name': [True, 'str', '!eq EFGH5678']
+                    'model_name': [True, 'str', '!re EFGH5678']
                 }
             })
     ]
     self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
+  def testParseProbeParam_WithRegexParams_CanGenerateProbeStatement(self):
+    probe_params = [
+        _CreateStrProbeParam('manufacturer', 'abcd[0-9]'),
+        _CreateStrProbeParam('model_name', 'efgh[0-9]'),
+    ]
+
+    actual = self._converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'battery', 'comp_name', {
+                'eval': {
+                    'generic_battery': {}
+                },
+                'expect': {
+                    'manufacturer': [True, 'str', '!eq abcd[0-9]'],
+                    'model_name': [True, 'str', '!re efgh[0-9]']
+                }
+            })
+    ]
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -250,6 +274,25 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'def456'),
         _CreateStrProbeParam('manufacturer', 'ABC123'),
         _CreateStrProbeParam('model_name', 'DEF456'),
+    ]
+
+    self.assertCountEqual(actual, expected_probe_params)
+
+  def testGetNormalizedProbeParams_WithRegexParams_CanGetParamsCorrectly(self):
+    self.maxDiff = None
+    probe_params = [
+        _CreateStrProbeParam('manufacturer', 'abc[0-9]'),
+        _CreateStrProbeParam('model_name', 'def[0-9]'),
+        _CreateStrProbeParam('manufacturer', 'ABC[0-9]'),
+        _CreateStrProbeParam('model_name', 'DEF[0-9]'),
+    ]
+
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
+    expected_probe_params = [
+        _CreateStrProbeParam('manufacturer', 'abc[0-9]'),
+        _CreateStrProbeParam('model_name', 'def[0-9]'),
+        _CreateStrProbeParam('manufacturer', 'ABC[0-9]'),
+        _CreateStrProbeParam('model_name', 'DEF[0-9]'),
     ]
 
     self.assertCountEqual(actual, expected_probe_params)

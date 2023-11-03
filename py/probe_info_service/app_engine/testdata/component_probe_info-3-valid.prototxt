@@ -1,5 +1,5 @@
 # the fingerprint of the probe statement overridden of the exactly same
-# probe info is: 5b8c7e58e9b373b9b6e99808d6862665cf38cded
+# probe info is: 13e454cd583cb14ad809e52c7b9fa390dc33c600
 component_identity: {
   component_id: 300
   qual_id: 3
@@ -9,10 +9,10 @@ probe_info: {
   probe_function_name: "battery.generic_battery"
   probe_parameters: {
     name: "manufacturer"
-    string_value: "Elgoog"
+    string_value: "Google [0-9]"
   }
   probe_parameters: {
     name: "model_name"
-    string_value: "!re Goo+gle$"
+    string_value: "Google"
   }
 }
