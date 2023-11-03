@@ -1309,12 +1309,25 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
 class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
   """A converter for the battery probe function."""
 
+  RUNTIME_PROBE_CATEGORY = 'battery'
+  PROBE_FUNCTION_NAME = 'generic_battery'
+
   PROBED_TRUNCATED_BATTERY = (
       'Truncated values for battery components are '
       'probed. Please use the latest ChromeOS test image '
       'and firmware, and run the probe test bundle again.'
       ' If the probe test still fails, please contact '
       'Google.')
+
+  def __init__(self):
+    probe_params = [
+        _ProbeFunctionParam('manufacturer'),
+        _ProbeFunctionParam('model_name'),
+    ]
+    ps_generator = probe_config_definition.GetProbeStatementDefinition(
+        self.RUNTIME_PROBE_CATEGORY)
+    super().__init__(ps_generator, self.PROBE_FUNCTION_NAME,
+                     probe_params=probe_params)
 
   def GenerateSuggestionMsg(
       self, expected_params: _CollectedProbeParams,
@@ -1324,6 +1337,12 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
 
     def IsProbedValueTruncatedOfAnyExpectedValue(comp_idx, param_name):
       probed_value = generic_probe_params[param_name][comp_idx]
+
+      if self.probe_info_params[param_name].is_restricted_re:
+        return any(
+            utils.RestrictedPrefixRegexMatch(expected_pattern, probed_value)
+            for expected_pattern in expected_params[param_name])
+
       return any(
           expected_value.startswith(probed_value)
           for expected_value in expected_params[param_name])
@@ -1351,11 +1370,7 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
           'audio_codec', 'audio_codec', probe_params=[
               _ProbeFunctionParam('name'),
           ]),
-      BatteryProbeInfoConverter.FromDefaultRuntimeProbeStatementGenerator(
-          'battery', 'generic_battery', probe_params=[
-              _ProbeFunctionParam('manufacturer'),
-              _ProbeFunctionParam('model_name'),
-          ]),
+      BatteryProbeInfoConverter(),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'camera', 'mipi_camera', probe_params=[
               _ConcatParam('mipi_module_id', [
