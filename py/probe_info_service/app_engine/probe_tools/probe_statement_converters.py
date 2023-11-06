@@ -555,6 +555,52 @@ def _ToProbeParamInputs(
   return probe_param_inputs
 
 
+class _IProbeParameterMatcher(abc.ABC):
+  """Matcher to check if the given value matches the expected values."""
+
+  @abc.abstractmethod
+  def GetName(self) -> str:
+    """Gets the probe parameter name."""
+
+  @abc.abstractmethod
+  def Match(self, target_val: Any) -> bool:
+    """Returns if `target_val` matches the criteria defined by this matcher."""
+
+
+class _ProbeParameterEqMatcher(_IProbeParameterMatcher):
+  """Matcher that performs exact match."""
+
+  def __init__(self, param_name: str, expect_vals: Collection[Any]):
+    self._name = param_name
+    self._expect_vals = expect_vals
+
+  def GetName(self) -> str:
+    """See base class."""
+    return self._name
+
+  def Match(self, target_val: Any) -> bool:
+    """See base class."""
+    return target_val in self._expect_vals
+
+
+class _ProbeParameterReMatcher(_IProbeParameterMatcher):
+  """Matcher that performs regex match."""
+
+  def __init__(self, param_name: str, expect_vals: Collection[Any]):
+    self._name = param_name
+    self._expect_vals = set()
+    for val in expect_vals:
+      self._expect_vals.add(re.compile(val))
+
+  def GetName(self) -> str:
+    """See base class."""
+    return self._name
+
+  def Match(self, target_val: Any) -> bool:
+    """See base class."""
+    return any(pattern.fullmatch(target_val) for pattern in self._expect_vals)
+
+
 class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
   """Base converters for all probe functions."""
 
@@ -568,17 +614,31 @@ class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
     perspective, this indicates all the probe info parameters for the converter.
     """
 
+  def GenerateMatchers(
+      self, probe_params: Sequence[probe_info_analytics.ProbeParameter]
+  ) -> Mapping[str, _IProbeParameterMatcher]:
+    """Returns a dictionary maps parameter names to matchers."""
+    probe_parameters = self.GetNormalizedProbeParams(probe_params)
+    param_vals = collections.defaultdict(set)
+    for param in probe_parameters:
+      param_val = utils.GetProbeParameterValue(param)
+      param_vals[param.name].add(param_val)
+
+    matchers = {}
+    for param_name, param_vals in param_vals.items():
+      if self.probe_info_params[param_name].is_restricted_re:
+        matchers[param_name] = _ProbeParameterReMatcher(param_name, param_vals)
+      else:
+        matchers[param_name] = _ProbeParameterEqMatcher(param_name, param_vals)
+
+    return matchers
+
   def MatchProbeResult(
       self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
       parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
   ) -> _ProbeResultMatchResult:
     """See base class."""
-    expect_values = collections.defaultdict(set)
-
-    probe_parameters = self.GetNormalizedProbeParams(probe_params)
-    for param in probe_parameters:
-      param_val = utils.GetProbeParameterValue(param)
-      expect_values[param.name].add(param_val)
+    matchers = self.GenerateMatchers(probe_params)
 
     # Collect names of all mismatched parameters.
     param_name_to_category = {}
@@ -588,16 +648,12 @@ class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
         continue
 
       param_val = utils.GetProbeParameterValue(param)
-      if self._Match(expect_values[param.name], param_val):
-        # TODO(b/308330814): self._RegexMatch() for regex parameters.
+      if matchers[param.name].Match(param_val):
         continue
 
       param_name_to_category[param.name] = parsed_result.component_category
 
     return _ProbeResultMatchResult(param_name_to_category)
-
-  def _Match(self, expects: Collection[str], param_val: str):
-    return param_val in expects
 
 
 class _SingleProbeFuncConverter(_ProbeFuncConverter):
