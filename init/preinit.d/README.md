@@ -2,7 +2,17 @@
 
 ## Script
 
-### 004-mount_bind_files.sh
+### 002-override\_jobs.sh
+
+This script provides the override file functionality for init jobs. The file
+under `override_jobs` should be a valid init config, and will override the
+stanzas in `/etc/init/${JOB_NAME}.conf`.
+
+See **Override File Handling** section in
+[`init` manual](https://manpages.ubuntu.com/manpages/trusty/man5/init.5.html)
+for details.
+
+### 004-mount\_bind\_files.sh
 
 This script provides a standard way to override system files with mount-bind.
 You can follow the flow to easily override system files with this script:
