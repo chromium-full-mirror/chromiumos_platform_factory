@@ -120,7 +120,17 @@ def main():
   # Only check filenames end with '.py'.  We filter these again in case
   # args.files is an empty list, in this case, line_diffs will be all files
   # changed by args.commit.
-  files = [f for f in line_diffs if f.endswith('.py') and not ShouldExclude(f)]
+  files = []
+  for f in line_diffs:
+    if not f.endswith('.py') or ShouldExclude(f):
+      continue
+    if args.commit:
+      result = subprocess.run(['git', 'cat-file', '-e', f'{args.commit}:{f}'],
+                              check=False, stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
+      if result.returncode != 0:  # File doesn't exist.
+        continue
+    files.append(f)
 
   if is_not_head_commit:
     # Checkout to the commit before we format.
