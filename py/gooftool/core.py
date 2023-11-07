@@ -9,6 +9,7 @@ import datetime
 from distutils.version import LooseVersion
 import enum
 import glob
+import json
 import logging
 import os
 import re
@@ -242,22 +243,17 @@ class Gooftool:
       return sub_dir_names
 
     def _GetNumDLCToBeVerified():
-      num_dlcs = 0
       with sys_utils.MountPartition(
           self._util.GetReleaseRootPartitionPath()) as root:
         dlc_metadata_path = os.path.join(root, _DLCMETADATADIR)
-        # Enumerate all the possible paths to factory installed DLC metadata.
-        sub_dir_names = _ListSubDirectories(dlc_metadata_path)
-        for sub_dir_name in sub_dir_names:
-          metadata_path = os.path.join(dlc_metadata_path, sub_dir_name,
-                                       'package', 'imageloader.json')
-          if os.path.exists(metadata_path):
-            metadata = json_utils.LoadFile(metadata_path)
-            # A DLC is a factory installed DLC if `factory-install` is true.
-            if metadata['factory-install']:
-              num_dlcs += 1
+        dlc_list = self._util.shell([
+            'dlc_metadata_util', f'--metadata_dir={dlc_metadata_path}',
+            '--list', '--factory_install'
+        ])
+        if not dlc_list.success:
+          raise Error('Failed to get the factory-install DLC list.')
 
-      return num_dlcs
+        return len(json.loads(dlc_list.stdout))
 
     dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
                                   wipe.DLC_CACHE_PAYLOAD_NAME)
