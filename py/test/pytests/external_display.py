@@ -116,6 +116,7 @@ For tablet or Chromebox, use HW buttons instead of keyboard numbers::
 """
 
 import collections
+import enum
 import logging
 import os
 import queue
@@ -123,12 +124,15 @@ import random
 
 from cros.factory.device import device_utils
 from cros.factory.device import usb_c
+from cros.factory.probe.functions import edid
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.i18n import _
 from cros.factory.test.pytests import audio
 from cros.factory.test import state
 from cros.factory.test import test_case
 from cros.factory.test.utils import button_utils
+from cros.factory.testlog import testlog
+from cros.factory.utils import file_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import schema
 from cros.factory.utils import sync_utils
@@ -223,6 +227,47 @@ def _MigrateDisplayInfo(display_info):
   return display_info
 
 
+# TODO(louischiu): Set up schemas for different status and refactor this.
+class ConnectedExternalDisplayStatus(enum.IntEnum):
+  """Enum for the test status of external display.
+
+  The following order should NOT be changed as other components depend on the
+  order of the state.
+  """
+  NOT_STARTED = enum.auto()
+  SUCCESS = enum.auto()
+  FAILURE = enum.auto()
+
+
+class ExternalDisplayFailureReason(enum.IntEnum):
+  """Enum for failure test reasons.
+
+  The class is used to specify different failure reasons when the test failed.
+
+  The following order should NOT be changed as other components depend on the
+  order of the state.
+  """
+  NONE = enum.auto()
+  WRONG_KEY_PRESSED = enum.auto()  # Raised from WrongKeyPressed
+  TEST_ABORTED_BY_OPERATOR = enum.auto()  # Raised from TestAbortedByOperator
+  UNKNOWN_ERROR = enum.auto()
+
+
+class _ExternalDisplayBaseException(Exception):
+  """Base exception for external display failure."""
+  error_code = ExternalDisplayFailureReason.UNKNOWN_ERROR
+
+
+class WrongKeyPressed(_ExternalDisplayBaseException):
+  """Exception to raise when incorrect key is pressed."""
+  error_code = ExternalDisplayFailureReason.WRONG_KEY_PRESSED
+
+
+class TestAbortedByOperator(_ExternalDisplayBaseException):
+  """Exception to raise when operator aborted the test."""
+  error_code = ExternalDisplayFailureReason.TEST_ABORTED_BY_OPERATOR
+
+
 class ExtDisplayTest(test_case.TestCase):
   """Main class for external display test."""
   ARGS = [
@@ -300,26 +345,41 @@ class ExtDisplayTest(test_case.TestCase):
 
     self._toggle_timestamp = 0
     self._last_status = (None, None)
+    self.edid = None
 
-    # Setup tasks
+  def runTest(self):
     for info in self.args.display_info:
+      test_status = ConnectedExternalDisplayStatus.NOT_STARTED
+      failed_reason = ExternalDisplayFailureReason.NONE
+      self.edid = None
       args = self.ParseDisplayInfo(info)
+      try:
+        if self.do_connect:
+          self.WaitConnect(args)
+        if self.do_output:
+          self.CheckVideo(args)
+          if args.audio_card:
+            self.SetupAudio(args)
+            audio_label = _(
+                '{display_label} Audio', display_label=args.display_label)
+            audio.TestAudioDigitPlayback(self.ui, self._dut, audio_label,
+                                         card=args.audio_card,
+                                         device=args.audio_device)
 
-      if self.do_connect:
-        self.AddTask(self.WaitConnect, args)
+        if self.do_disconnect:
+          self.WaitDisconnect(args)
 
-      if self.do_output:
-        self.AddTask(self.CheckVideo, args)
-        if args.audio_card:
-          self.AddTask(self.SetupAudio, args)
-          audio_label = _(
-              '{display_label} Audio', display_label=args.display_label)
-          self.AddTask(
-              audio.TestAudioDigitPlayback, self.ui, self._dut, audio_label,
-              card=args.audio_card, device=args.audio_device)
-
-      if self.do_disconnect:
-        self.AddTask(self.WaitDisconnect, args)
+        test_status = ConnectedExternalDisplayStatus.SUCCESS
+      except _ExternalDisplayBaseException as e:
+        test_status = ConnectedExternalDisplayStatus.FAILURE
+        failed_reason = e.error_code
+        self.FailTask(str(e))
+      except Exception as e:
+        test_status = ConnectedExternalDisplayStatus.FAILURE
+        failed_reason = ExternalDisplayFailureReason.UNKNOWN_ERROR
+        raise e from None
+      finally:
+        self._LogConnectedExternalDisplay(args, test_status, failed_reason)
 
   def ParseDisplayInfo(self, info):
     """Parses lists from args.display_info.
@@ -380,7 +440,8 @@ class ExtDisplayTest(test_case.TestCase):
           pass_button[0].IsPressed() or not self._IsDisplayConnected(args))
     else:
       key_pressed = queue.Queue()
-      keys = [str(i) for i in range(10)]
+      fail_keys = ['ESCAPE', 'F']
+      keys = [str(i) for i in range(10)] + fail_keys
       for key in keys:
         self.ui.BindKey(
             key, (lambda k: lambda unused_event: key_pressed.put(k))(key))
@@ -393,7 +454,6 @@ class ExtDisplayTest(test_case.TestCase):
         _('Do you see video on {display}?', display=args.display_label),
         _('Press {key} to pass the test.', key=pass_input)
     ])
-
     sync_utils.WaitFor(pass_event, self.args.timeout_secs)
 
     if not self._IsDisplayConnected(args):
@@ -404,8 +464,12 @@ class ExtDisplayTest(test_case.TestCase):
         self.ui.UnbindKey(key)
 
       key = key_pressed.get()
-      if key != pass_input:
-        self.FailTask(
+      if key == pass_input:
+        return
+      if key in fail_keys:
+        raise TestAbortedByOperator('The test is aborted by the operator')
+
+      raise WrongKeyPressed(
             f'Wrong key pressed. pressed: {key}, correct: {pass_input}')
 
   def CheckVideoFixture(self, args):
@@ -511,6 +575,7 @@ class ExtDisplayTest(test_case.TestCase):
                        display=args.display_label))
 
     self._WaitDisplayConnection(args, True)
+    self._SetEdidData()
 
   def WaitDisconnect(self, args):
     self.ui.BindStandardFailKeys()
@@ -607,3 +672,40 @@ class ExtDisplayTest(test_case.TestCase):
           logging.info('Get display info %r', display_info)
           break
       self.Sleep(_CONNECTION_CHECK_PERIOD_SECS)
+
+  def _GetEdidPath(self):
+    status_file_path = self._last_status[0]
+    return status_file_path.replace('status', 'edid')
+
+  def _SetEdidData(self):
+    edid_path = self._GetEdidPath()
+    edid_bytes = file_utils.ReadFile(edid_path, encoding=None)
+    try:
+      edid_data = edid.Parse(edid_bytes)
+    except Exception as err:
+      raise RuntimeError(f'edid.Parse({edid_bytes}) fails for edid_path: '
+                         f'{edid_path}') from err
+    if edid_data is None:
+      raise RuntimeError(f'edid.Parse({edid_bytes}) fails for edid_path: '
+                         f'{edid_path}. See logging.warning for the '
+                         'reason.')
+    try:
+      edid_data['manufacturerId'] = edid_data.pop('vendor')
+      edid_data['productId'] = edid_data.pop('product_id').upper()
+    except KeyError as err:
+      raise RuntimeError(f'Bad edid {edid_data!r} found from edid_path: '
+                         f'{edid_path}') from err
+    self.edid = edid_data
+
+  def _LogConnectedExternalDisplay(self, args: ExtDisplayTaskArg,
+                                   status: ConnectedExternalDisplayStatus,
+                                   failed_reason: ExternalDisplayFailureReason):
+    """Logs the connected external display and result to testlog."""
+    # TODO(louischiu): Set up schemas for observation and refactor this.
+    observation = {
+        'status': status.value,
+        'edidData': self.edid,
+        'displayInfo': args._asdict(),
+        'failureReason': failed_reason.value,
+    }
+    testlog.LogParam('ConnectedExternalDisplay', observation)
