@@ -460,16 +460,21 @@ class Gooftool:
       def _DefaultTmpExec(message, command, fail_message=None, regex=None):
         """Executes a command inside temp folder (tmpdir).
 
-        If regex is specified, return matched string from stdout.
+        Args:
+          command: The command to run.
+          fail_message: The custom message to print on failure.
+          regex: An optional regular expression to full-match a line in the
+            output. The first parenthesized subgroup is returned if found.
         """
         logging.debug(message)
         result = self._util.shell(f'( cd {tmpdir}; {command} )')
         if not result.success:
           raise Error(fail_message or f'Failed to {message}: {result.stderr}')
         if regex:
-          matched = re.findall(regex, result.stdout)
-          if matched:
-            return matched[0]
+          for line in result.stdout.splitlines():
+            match = re.fullmatch(regex, line)
+            if match:
+              return match.group(1)
         return None
 
       _TmpExec = _tmpexec if _tmpexec else _DefaultTmpExec
@@ -499,7 +504,9 @@ class Gooftool:
           f'--recoverykey {key_recovery} GBB')
       rootkey_hash = _TmpExec('unpack rootkey',
                               f'futility vbutil_key --unpack {key_root}',
-                              regex=r'(?<=Key sha1sum:).*').strip()
+                              regex=r'Key sha1sum:(.*)').strip()
+      if not rootkey_hash:
+        raise Error('Failed to extract rootkey hash from rootkey')
       _TmpExec('unpack recoverykey',
                f'futility vbutil_key --unpack {key_recovery}')
 
@@ -567,8 +574,10 @@ class Gooftool:
           _TmpExec('unpack firmware updater from release rootfs partition',
                    f'{release_updater_path} --unpack {tmpdir}')
         release_rootkey_hash = _TmpExec('get rootkey from signer',
-                                        'cat VERSION.signer', regex=r'(?<='
-                                        f'{firmware_name}:).*').strip()
+                                        'cat VERSION.signer',
+                                        regex=rf'\s*{firmware_name}:\s*(\w*)')
+        if not release_rootkey_hash:
+          raise Error('Failed to extract rootkey hash from VERSION.signer')
         if release_rootkey_hash != rootkey_hash:
           raise Error(
               f'Firmware rootkey is not matched ({release_rootkey_hash} != '

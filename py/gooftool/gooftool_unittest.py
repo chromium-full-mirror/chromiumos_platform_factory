@@ -260,8 +260,8 @@ class GooftoolTest(unittest.TestCase):
     ]
 
     # TODO(hungte) Improve unit test scope.
-    def fake_tmpexc(*unused_args, **unused_kargs):
-      return ''
+    def fake_tmpexc(_message, _command, _fail_message=None, regex=None):
+      return 'FAKE_MATCH' if regex else None
 
     class FakeGPT:
 
