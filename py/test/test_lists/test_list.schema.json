@@ -441,6 +441,11 @@
             "project": {
               "type": ["string", "null"],
               "default": null
+            },
+            "block_dev_mode": {
+              "type": "boolean",
+              "description": "Enable this if you want to block dev mode with firmware management parameters after finalize. One sample usage can be found in b/243670638.",
+              "default": false
             }
           },
           "patternProperties": {

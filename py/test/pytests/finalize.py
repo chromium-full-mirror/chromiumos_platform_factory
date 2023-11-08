@@ -200,7 +200,10 @@ class Finalize(test_case.TestCase):
            'is absent.'), default=cbi_utils.CbiEepromWpStatus.Locked),
       Arg('is_reference_board', bool, 'Is reference board or not. If yes, skip '
           'the check for rlz code', default=False),
-      Arg('project', str, 'Project name of the HWID.', default=None)
+      Arg('project', str, 'Project name of the HWID.', default=None),
+      Arg('block_dev_mode', bool,
+          'Set as True to block dev mode via firmware management parameters.',
+          default=False)
   ]
 
   FINALIZE_TIMEOUT = 180
@@ -396,6 +399,8 @@ class Finalize(test_case.TestCase):
           'Should not use `project` option in this phase')
       command += ' --project %s' % self.args.project
     command += ' --phase "%s"' % phase.GetPhase()
+    if self.args.block_dev_mode:
+      command += ' --block_dev_mode'
 
     self._FinalizeWipeInPlace(command)
 
