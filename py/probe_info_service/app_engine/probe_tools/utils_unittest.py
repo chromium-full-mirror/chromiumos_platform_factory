@@ -35,6 +35,47 @@ class GetProbeParameterValueTest(unittest.TestCase):
     self.assertEqual(result, None)
 
 
+class ToRestrictedPatternArrayTest(unittest.TestCase):
+
+  def testNormalString(self):
+    pattern = r'ABC123'
+
+    result = utils.ToRestrictedPatternArray(pattern)
+
+    self.assertListEqual(result, ['A', 'B', 'C', '1', '2', '3'])
+
+  def testNormalStringWithEscapeChr(self):
+    pattern = r'A\-BC\[12\\3'
+
+    result = utils.ToRestrictedPatternArray(pattern)
+
+    self.assertListEqual(result,
+                         ['A', r'\-', 'B', 'C', r'\[', '1', '2', r'\\', '3'])
+
+  def testRestrictedRegexPatternString(self):
+    pattern = r'[0-9]ABC[1a2b]123[A-Z]'
+
+    result = utils.ToRestrictedPatternArray(pattern)
+
+    self.assertListEqual(
+        result, ['[0-9]', 'A', 'B', 'C', '[1a2b]', '1', '2', '3', '[A-Z]'])
+
+  def testRestrictedRegexPatternStringWithEscapeChr(self):
+    pattern = r'[0\-9]AB[a\]]12\[A-Z]'
+
+    result = utils.ToRestrictedPatternArray(pattern)
+
+    self.assertListEqual(
+        result,
+        [r'[0\-9]', 'A', 'B', r'[a\]]', '1', '2', r'\[', 'A', '-', 'Z', ']'])
+
+  def testInvalidRegexPattern_ShouldRaiseError(self):
+    pattern = r'ABC['
+
+    with self.assertRaises(re.error):
+      utils.ToRestrictedPatternArray(pattern)
+
+
 class RestrictedPrefixRegexMatchTest(unittest.TestCase):
 
   def testNormalString_PrefixMatch_ShouldReturnTrue(self):

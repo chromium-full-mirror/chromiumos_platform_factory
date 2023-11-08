@@ -8,7 +8,9 @@ different value representations.
 """
 
 import logging
+import re
 from typing import Any, Callable, Optional
+
 
 # Formatter type
 StrFormatter = Callable[[str], str]
@@ -66,6 +68,8 @@ class FormattedStrType(str, ConvertedValueType):
   self/other before comparison.
   """
 
+  __hash__ = str.__hash__
+
   def __new__(cls, *args, formatter_self: Optional[StrFormatter] = None,
               formatter_other: Optional[StrFormatter] = None, **kwargs):
     instance = super().__new__(cls, *args, **kwargs)
@@ -92,7 +96,7 @@ class FormattedStrType(str, ConvertedValueType):
           return False
       else:
         formatted_other = other
-      return str.__eq__(formatted_self, formatted_other)
+      return self.IsEqual(formatted_self, formatted_other)
     return False
 
   def __ne__(self, other: Any):
@@ -101,10 +105,20 @@ class FormattedStrType(str, ConvertedValueType):
   @classmethod
   def CreateInstanceFactory(
       cls, formatter_self: Optional[StrFormatter] = None,
-      formatter_other: Optional[StrFormatter] = None) -> 'FormattedStrType':
+      formatter_other: Optional[StrFormatter] = None
+  ) -> Callable[..., 'FormattedStrType']:
 
-    def _Callable(*args, **kwargs):
+    def _Callable(*args, **kwargs) -> 'FormattedStrType':
       return cls(*args, formatter_self=formatter_self,
                  formatter_other=formatter_other, **kwargs)
 
     return _Callable
+
+  def IsEqual(self, formatted_self: str, formatted_other: str) -> bool:
+    return str.__eq__(formatted_self, formatted_other)
+
+
+class FormattedRegexStrType(FormattedStrType):
+
+  def IsEqual(self, formatted_self: str, formatted_other: str) -> bool:
+    return bool(re.fullmatch(formatted_self, formatted_other))

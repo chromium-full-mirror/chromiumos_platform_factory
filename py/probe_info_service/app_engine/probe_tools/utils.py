@@ -17,7 +17,25 @@ def GetProbeParameterValue(probe_param: probe_info_analytics.ProbeParameter):
   return getattr(probe_param, which_one_of)
 
 
-def _ToRestrictedPatternArray(pattern: str) -> Sequence[str]:
+def ToRestrictedPatternArray(pattern: str) -> Sequence[str]:
+  """Converts `pattern` into an array in units of character or character set.
+
+  Example:
+  ```
+    pattern: abc[a-z][0-9][a-z]123
+    outputs: ['a','b','c','[a-z]','[0-9]','[a-z]','1','2','3']
+  ```
+
+  Args:
+    pattern: The restricted regex pattern string.
+
+  Returns:
+    A list of strings, where each string is either a single character or a
+        character set.
+
+  Raises:
+    `re.error`: If `pattern` is not a valid regex pattern.
+  """
   # Make sure the pattern is a valid regex pattern.
   re.compile(pattern)
 
@@ -47,7 +65,7 @@ def _ToRestrictedPatternArray(pattern: str) -> Sequence[str]:
   return pattern_arr
 
 
-def RestrictedPrefixRegexMatch(pattern: str, target: str):
+def RestrictedPrefixRegexMatch(pattern: str, target: str) -> bool:
   """Performs a prefix regex match.
 
   Restricted regex will only include operators "[", "]" and "-". Therefore, this
@@ -73,7 +91,7 @@ def RestrictedPrefixRegexMatch(pattern: str, target: str):
   Raises:
     `re.error`: If `pattern` is not a valid regex pattern.
   """
-  pattern_arr = _ToRestrictedPatternArray(pattern)
+  pattern_arr = ToRestrictedPatternArray(pattern)
 
   if len(pattern_arr) < len(target):
     return False

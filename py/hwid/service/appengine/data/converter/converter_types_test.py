@@ -79,5 +79,60 @@ class FormattedStrTypeTest(unittest.TestCase):
     self.assertEqual(callable_other('(prefix)foo'), 'foo')
 
 
+class FormattedRegexStrTypeTest(unittest.TestCase):
+
+  def testNoFormatter(self):
+    not_formatted = converter_types.FormattedRegexStrType('not_formatted[0-8]')
+    for i in range(9):
+      self.assertEqual(not_formatted, f'not_formatted{i}')
+    self.assertNotEqual(not_formatted, 'not_formatted9')
+
+  def testFormatted(self):
+
+    def _PrefixRegexFormatter(s: str) -> str:
+      return f'[0-9]{s}'
+
+    def _PrefixNumberFormatter(s: str) -> str:
+      return f'5{s}'
+
+    format_self = converter_types.FormattedRegexStrType(
+        'foo', formatter_self=_PrefixRegexFormatter)
+    self.assertEqual(format_self, '5foo')
+
+    format_other = converter_types.FormattedRegexStrType(
+        '[0-9]foo', formatter_other=_PrefixNumberFormatter)
+    self.assertEqual(format_other, 'foo')
+
+  def testFormatterException(self):
+
+    def _FormatterWithException(s: str) -> str:
+      raise converter_types.StrFormatterError
+
+    format_self = converter_types.FormattedRegexStrType(
+        'foo', formatter_self=_FormatterWithException)
+    self.assertNotEqual(format_self, 'foo')
+
+    format_other = converter_types.FormattedRegexStrType(
+        'foo', formatter_other=_FormatterWithException)
+    self.assertNotEqual(format_other, 'foo')
+
+  def testCallable(self):
+
+    def _PrefixRegexFormatter(s: str) -> str:
+      return f'[0-9]{s}'
+
+    def _PrefixNumberFormatter(s: str) -> str:
+      return f'5{s}'
+
+    callable_self = converter_types.FormattedRegexStrType.CreateInstanceFactory(
+        formatter_self=_PrefixRegexFormatter)
+    self.assertEqual(callable_self('foo'), '5foo')
+
+    callable_other = (
+        converter_types.FormattedRegexStrType.CreateInstanceFactory(
+            formatter_other=_PrefixNumberFormatter))
+    self.assertEqual(callable_other('[0-9]foo'), 'foo')
+
+
 if __name__ == '__main__':
   unittest.main()
