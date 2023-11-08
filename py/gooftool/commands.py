@@ -58,6 +58,7 @@ from cros.factory.utils import sys_utils
 from cros.factory.utils import time_utils
 from cros.factory.utils.type_utils import Error
 
+from cros.factory.external.chromeos_cli import cryptohome_utils
 from cros.factory.external.chromeos_cli import gsctool
 from cros.factory.external.chromeos_cli import vpd
 
@@ -248,6 +249,10 @@ _add_file_cmd_arg = CmdArg(
 _boot_to_shimless_cmd_arg = CmdArg(
     '--boot_to_shimless', action='store_true', default=False,
     help='Initiate the Shimless RMA after performing wiping.')
+
+_block_dev_mode_cmd_arg = CmdArg(
+    '--block_dev_mode', action='store_true', default=False,
+    help='Block dev mode with firmware management parameters after finalize.')
 
 
 def GetGooftool(options):
@@ -697,6 +702,19 @@ def LockHPS(options):
       'one.')
   hps = hps_utils.HPSDevice(dut=sys_interface.SystemInterface())
   hps.EnableWriteProtection()
+
+
+@Command('block_dev_mode')
+def BlockDevMode(options):
+  del options
+  util = cryptohome_utils.CryptohomeUtils()
+  PARAM = cryptohome_utils.FirmwareManagementParametersFlags
+  block_dev_mode_flag = (
+      PARAM.DEVELOPER_DISABLE_BOOT
+      | PARAM.DEVELOPER_DISABLE_CASE_CLOSED_DEBUGGING_UNLOCK)
+  util.SetFirmwareManagementParameters(flags=block_dev_mode_flag)
+  fw_parameters = util.GetFirmwareManagementParameters()
+  logging.info('FW management flags set as %d.', fw_parameters.flags)
 
 
 @Command('clear_gbb_flags', *GetGooftool.__args__)
@@ -1227,6 +1245,7 @@ def SMTFinalize(options):
     _factory_process_cmd_arg,  # this
     _rlz_embargo_end_date_offset_cmd_arg,  # this
     _no_generate_mfg_date_cmd_arg,  # this
+    _block_dev_mode_cmd_arg,  # this
     _cros_core_cmd_arg,  # this
     _no_write_protect_cmd_arg,  # this
     _skip_list_cmd_arg,  # this
@@ -1274,6 +1293,9 @@ def Finalize(options):
     if not options.no_write_protect:
       # We cannot lock HPS after HWWP is enabled.
       LockHPS(options)
+
+  if options.block_dev_mode:
+    BlockDevMode(options)
 
   ClearGBBFlags(options)
   VerifyBeforeGSCFinalize(options)

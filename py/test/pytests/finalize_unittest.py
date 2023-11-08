@@ -43,6 +43,7 @@ class DefaultArgs:
     self.mode = FinalizeMode.ASSEMBLED
     self.enforced_release_channels = None
     self.skip_feature_tiering_steps = False
+    self.block_dev_mode = False
 
 
 class FinalizeUnittest(unittest.TestCase):

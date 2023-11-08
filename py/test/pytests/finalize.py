@@ -209,6 +209,9 @@ class Finalize(test_case.TestCase):
           'enter shipping mode.', default=FinalizeMode.ASSEMBLED),
       Arg('skip_feature_tiering_steps', bool,
           'Set as True to skip feature flag provisions for legacy projects.',
+          default=False),
+      Arg('block_dev_mode', bool,
+          'Set as True to block dev mode via firmware management parameters.',
           default=False)
   ]
 
@@ -431,6 +434,8 @@ class Finalize(test_case.TestCase):
     command += f' --factory_process {self.args.factory_process}'
     if self.args.skip_feature_tiering_steps:
       command += ' --skip_feature_tiering_steps'
+    if self.args.block_dev_mode:
+      command += ' --block_dev_mode'
 
     return command
 
