@@ -70,6 +70,8 @@ class PSRToolTest(test_case.TestCase):
     self._intel_psr_tool = intel_psrtool.IntelPSRTool()
 
   def runTest(self):
+    if not self._intel_psr_tool.IsPSRSupported():
+      self.PassTask()
     action = self.args.action
     if action == EnumAction.set:
       self._intel_psr_tool.CloseManufacturing()

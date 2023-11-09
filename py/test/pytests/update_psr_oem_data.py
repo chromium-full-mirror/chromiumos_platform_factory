@@ -91,6 +91,8 @@ class UpdatePSROEMData(test_case.TestCase):
     self.CheckUpdateSource(self.args.update_from_config)
 
   def runTest(self):
+    if not self._intel_psr_tool.IsPSRSupported():
+      self.PassTask()
     try:
       self.VerifyOEMData(self.args.update_from_config)
       logging.info(

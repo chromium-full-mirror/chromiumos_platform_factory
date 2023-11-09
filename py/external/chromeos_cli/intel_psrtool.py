@@ -33,6 +33,14 @@ class IntelPSRTool:
   def __init__(self, dut=None) -> None:
     self._shell = shell.Shell(dut)
 
+  def IsPSRSupported(self):
+    stdout = self._shell(['intel-psrtool', '-s']).stdout
+    match = re.search(r'PSR is not supported on this device.', stdout)
+    if match:
+      logging.warning(stdout)
+      return False
+    return True
+
   def StartPSREventLog(self):
     stdout = self._shell(['intel-psrtool', '-a']).stdout
     match = re.search(r'ACTION_NOT_ALLOWED', stdout)
