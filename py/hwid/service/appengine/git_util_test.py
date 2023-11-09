@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 """Tests for cros.factory.hwid.service.appengine.git_util"""
 
+import base64
 import datetime
 import hashlib
 import http
@@ -180,6 +181,16 @@ class GetCommitIdTest(unittest.TestCase):
                         git_url_prefix, project, branch, auth_cookie)
 
 
+def _BuildGerritSuccResponse(json_obj):
+  data = b")]}'\n" + json_utils.DumpStr(json_obj, pretty=True).encode('utf-8')
+  return type_utils.Obj(status=http.HTTPStatus.OK, data=data)
+
+
+def _BuildGerritFileContentResponse(body: bytes):
+  data = b")]}'\n" + base64.b64encode(body)
+  return type_utils.Obj(status=http.HTTPStatus.OK, data=data)
+
+
 class GetCLInfoTest(unittest.TestCase):
   _THE_CREATED_TIMESTAMP = datetime.datetime(2022, 2, 10, 18, 6, 6, 0)
   _THE_CHANGE_ID = 'the_change_id_value'
@@ -194,10 +205,6 @@ class GetCLInfoTest(unittest.TestCase):
     patcher = mock.patch('urllib3.PoolManager')
     self._mocked_pool_manager_cls = patcher.start()
     self.addCleanup(patcher.stop)
-
-  def _BuildGerritSuccResponse(self, json_obj):
-    data = b")]}'\n" + json_utils.DumpStr(json_obj, pretty=True).encode('utf-8')
-    return type_utils.Obj(status=http.HTTPStatus.OK, data=data)
 
   def _BuildGetChangeSuccResponseWithDefaults(
       self, change_id=None, cl_number=None, created_timestamp=None, status=None,
@@ -215,7 +222,7 @@ class GetCLInfoTest(unittest.TestCase):
         },
     }
     json_obj.update(other_fields)
-    return self._BuildGerritSuccResponse(json_obj)
+    return _BuildGerritSuccResponse(json_obj)
 
   def _BuildGerritRelatedChangeInfos(
       self, tot_commit_id: Optional[str] = None,
@@ -244,7 +251,7 @@ class GetCLInfoTest(unittest.TestCase):
       # To assert that the order is unimportant.
       random.shuffle(json_obj['changes'])
 
-    return self._BuildGerritSuccResponse(json_obj)
+    return _BuildGerritSuccResponse(json_obj)
 
   def testGetCLInfo_BasicInfo(self):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
@@ -279,7 +286,7 @@ class GetCLInfoTest(unittest.TestCase):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
     mock_urlopen.side_effect = [
         self._BuildGetChangeSuccResponseWithDefaults(status='NEW'),
-        self._BuildGerritSuccResponse({'mergeable': True}),
+        _BuildGerritSuccResponse({'mergeable': True}),
     ]
 
     actual_cl_info = git_util.GetCLInfo(
@@ -464,7 +471,7 @@ class GetCLInfoTest(unittest.TestCase):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
     mock_urlopen.side_effect = [
         self._BuildGetChangeSuccResponseWithDefaults(),
-        self._BuildGerritSuccResponse({
+        _BuildGerritSuccResponse({
             '/PATCHSET_LEVEL': [{
                 'id': 'comment_id_1',
                 'message': 'This is comment 1.',
@@ -490,7 +497,7 @@ class GetCLInfoTest(unittest.TestCase):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
     mock_urlopen.side_effect = [
         self._BuildGetChangeSuccResponseWithDefaults(),
-        self._BuildGerritSuccResponse({
+        _BuildGerritSuccResponse({
             'file1': [{
                 'id':
                     'comment_id_1',
@@ -545,7 +552,7 @@ class GetCLInfoTest(unittest.TestCase):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
     mock_urlopen.side_effect = [
         self._BuildGetChangeSuccResponseWithDefaults(),
-        self._BuildGerritSuccResponse({
+        _BuildGerritSuccResponse({
             '/PATCHSET_LEVEL': [
                 _CreateCommentInfoJSONFromTemplate(1),
                 _CreateCommentInfoJSONFromTemplate(2, in_reply_to=1),
@@ -636,7 +643,7 @@ class GetCLInfoTest(unittest.TestCase):
         self._BuildGetChangeSuccResponseWithDefaults(
             cl_number=cl_number,
         ),
-        self._BuildGerritSuccResponse([
+        _BuildGerritSuccResponse([
             _CreateCLMessageJSONFromTemplate(1, datetime.datetime(2023, 1, 1)),
             _CreateCLMessageJSONFromTemplate(2, datetime.datetime(2023, 1, 2)),
         ]),
@@ -664,6 +671,100 @@ class GetCLInfoTest(unittest.TestCase):
             revision_number=2,
         ),
     ], actual_cl_info.messages)
+
+
+class GetFileContentTest(unittest.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    patcher = mock.patch.object(git_util.urllib3, 'PoolManager')
+    mocked_pool_manager_cls = patcher.start()
+    self._mock_urlopen = mocked_pool_manager_cls.return_value.urlopen
+    self.addCleanup(mock.patch.stopall)
+
+  def testGetFileContent_SpecifyCommitID(self):
+    git_url_prefix = 'https://url_prefix'
+    project = 'my/project'
+    commit_id = 'commit-id'
+    path = 'path/to/file'
+    self._mock_urlopen.return_value = _BuildGerritFileContentResponse(
+        b'content')
+
+    actual_content = git_util.GetFileContent(
+        git_url_prefix=git_url_prefix,
+        project=project,
+        path=path,
+        commit_id=commit_id,
+    )
+
+    self.assertEqual(b'content', actual_content)
+    self._mock_urlopen.assert_called_once_with(
+        'GET', ('https://url_prefix/projects/my%2Fproject/'
+                'commits/commit-id/files/path%2Fto%2Ffile/content'), body=b'')
+
+  def testGetFileContent_SpecifyChangeID(self):
+    git_url_prefix = 'https://url_prefix'
+    project = 'my/project'
+    change_id = 'change-id'
+    path = 'path/to/file'
+    self._mock_urlopen.return_value = _BuildGerritFileContentResponse(
+        b'content')
+
+    actual_content = git_util.GetFileContent(
+        git_url_prefix=git_url_prefix,
+        project=project,
+        path=path,
+        change_id=change_id,
+    )
+
+    self.assertEqual(b'content', actual_content)
+    self._mock_urlopen.assert_called_once_with(
+        'GET', ('https://url_prefix/changes/change-id/revisions/current/'
+                'files/path%2Fto%2Ffile/content'), body=b'')
+
+  def testGetFileContent_SpecifyBranch(self):
+    git_url_prefix = 'https://url_prefix'
+    project = 'my/project'
+    branch = 'branch/name'
+    path = 'path/to/file'
+    self._mock_urlopen.return_value = _BuildGerritFileContentResponse(
+        b'content')
+
+    actual_content = git_util.GetFileContent(
+        git_url_prefix=git_url_prefix,
+        project=project,
+        path=path,
+        branch=branch,
+    )
+
+    self.assertEqual(b'content', actual_content)
+    self._mock_urlopen.assert_called_once_with(
+        'GET', ('https://url_prefix/projects/my%2Fproject/'
+                'branches/branch%2Fname/files/path%2Fto%2Ffile/content'),
+        body=b'')
+
+  @mock.patch.object(git_util, 'GetCurrentBranch')
+  def testGetFileContent_ToT(self, mock_get_cur_branch):
+    git_url_prefix = 'https://url_prefix'
+    project = 'my/project'
+    path = 'path/to/file'
+    self._mock_urlopen.return_value = _BuildGerritFileContentResponse(
+        b'content')
+    mock_get_cur_branch.return_value = 'curr/branch'
+
+    actual_content = git_util.GetFileContent(
+        git_url_prefix=git_url_prefix,
+        project=project,
+        path=path,
+    )
+
+    self.assertEqual(b'content', actual_content)
+    mock_get_cur_branch.assert_called_once_with('https://url_prefix',
+                                                'my/project', mock.ANY)
+    self._mock_urlopen.assert_called_once_with(
+        'GET', ('https://url_prefix/projects/my%2Fproject/'
+                'branches/curr%2Fbranch/files/path%2Fto%2Ffile/content'),
+        body=b'')
 
 
 class CreateCLTest(unittest.TestCase):

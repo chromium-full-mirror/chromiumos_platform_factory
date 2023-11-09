@@ -637,7 +637,8 @@ def GetFileContent(git_url_prefix: str, project: str, path: str,
     If the file is not found and `optional` is `True`, it returns `None`.
     Otherwise it returns the file contents in bytes.
   """
-  project, path = map(lambda s: urllib.parse.quote(s, safe=''), (project, path))
+  quoted_project, quoted_path = map(lambda s: urllib.parse.quote(s, safe=''),
+                                    (project, path))
   if commit_id:
     if branch:
       logging.warning('Commit id is already specified, ignore branch %r.',
@@ -646,19 +647,19 @@ def GetFileContent(git_url_prefix: str, project: str, path: str,
       logging.warning('Commit id is already specified, ignore change_id %s.',
                       change_id)
 
-    git_url = (f'{git_url_prefix}/projects/{project}/commits/{commit_id}/files/'
-               f'{path}/content')
+    git_url = (f'{git_url_prefix}/projects/{quoted_project}/commits/{commit_id}'
+               f'/files/{quoted_path}/content')
   elif change_id:
     if branch:
       logging.warning('Change ID is already specified, ignore branch %r.',
                       branch)
     git_url = (f'{git_url_prefix}/changes/{change_id}/revisions/current/files/'
-               f'{path}/content')
+               f'{quoted_path}/content')
   else:
-    branch = branch or urllib.parse.quote(
-        GetCurrentBranch(git_url_prefix, project, auth_cookie), safe='')
-    git_url = (f'{git_url_prefix}/projects/{project}/branches/{branch}/files/'
-               f'{path}/content')
+    branch = branch or GetCurrentBranch(git_url_prefix, project, auth_cookie)
+    quoted_branch = urllib.parse.quote(branch, safe='')
+    git_url = (f'{git_url_prefix}/projects/{quoted_project}/'
+               f'branches/{quoted_branch}/files/{quoted_path}/content')
   raw_data = _InvokeGerritAPI('GET', git_url, auth_cookie=auth_cookie,
                               accept_not_found=optional)
   if raw_data is None:
