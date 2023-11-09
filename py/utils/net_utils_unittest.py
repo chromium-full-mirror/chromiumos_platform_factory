@@ -205,5 +205,58 @@ class UtilityFunctionTest(unittest.TestCase):
         ret = net_utils.GetDefaultGatewayInterface()
 
 
+class LeasedIPTest(unittest.TestCase):
+
+  def testBothIP_PreferIPv4(self):
+    device = mock.Mock()
+    device.CheckOutput = mock.Mock(return_value="""\
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 54:6c:eb:32:43:71 brd ff:ff:ff:ff:ff:ff
+    inet 100.123.123.123/24 brd 100.123.123.255 scope global wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76/64 scope global temporary dynamic
+       valid_lft 604787sec preferred_lft 86146sec
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371/64 scope global dynamic mngtmpaddr
+       valid_lft 2591987sec preferred_lft 604787sec
+    inet6 fe80::ffff:ffff:ffff:4371/64 scope link
+       valid_lft forever preferred_lft forever
+""")
+
+    result = net_utils.GetLeasedIP('wlan0', device)
+
+    self.assertEqual(result, '100.123.123.123')
+
+  def testIPv6Only_GetIPv6Address(self):
+    device = mock.Mock()
+    device.CheckOutput = mock.Mock(return_value="""\
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 54:6c:eb:32:43:71 brd ff:ff:ff:ff:ff:ff
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76/64 scope global temporary dynamic
+       valid_lft 604787sec preferred_lft 86146sec
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371/64 scope global dynamic mngtmpaddr
+       valid_lft 2591987sec preferred_lft 604787sec
+    inet6 fe80::ffff:ffff:ffff:4371/64 scope link
+       valid_lft forever preferred_lft forever
+""")
+
+    result = net_utils.GetLeasedIP('wlan0', device)
+
+    self.assertIn(result, ('2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76',
+                           '2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371'))
+
+  def testNoLease_GetFalse(self):
+    device = mock.Mock()
+    device.CheckOutput = mock.Mock(return_value="""\
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 54:6c:eb:32:43:71 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::ffff:ffff:ffff:4371/64 scope link
+       valid_lft forever preferred_lft forever
+""")
+
+    result = net_utils.GetLeasedIP('wlan0', device)
+
+    self.assertIsNone(result)
+
+
 if __name__ == '__main__':
   unittest.main()

@@ -16,7 +16,10 @@ import socket
 import socketserver
 import struct
 import time
+from typing import Optional
 import xmlrpc.client
+
+from cros.factory.utils import sys_interface
 
 from . import file_utils
 from . import process_utils
@@ -251,6 +254,34 @@ def SetEthernetIp(ip, interface=None, netmask=None, force=False, logger=None):
   elif logger:
     logger(f'Not setting IP address for interface {interface}: already set to '
            f'{current_ip}')
+
+
+def GetLeasedIP(
+    interface: str,
+    device: Optional[sys_interface.SystemInterface] = None) -> Optional[str]:
+  """Returns current global scoped leased IP.
+
+  Args:
+    interface: The interface to query.
+    device: The interface to perform command. Use sys_interface.SystemInterface
+    if not set.
+
+  Returns:
+    Leased IP as a string or None if not yet leased.
+  """
+  device = device or sys_interface.SystemInterface()
+  # See unit tests LeasedIPTest for possible outputs.
+  ip_output = device.CheckOutput(['ip', 'addr', 'show', 'dev', interface])
+  match = re.search(r'^\s*inet ([.0-9]+)/[0-9]+', ip_output, re.MULTILINE)
+  if match:
+    return match.group(1)
+
+  match = re.search(r'^\s*inet6 ([:0-9a-fA-F]+)/[0-9]+ .* global', ip_output,
+                    re.MULTILINE)
+  if match:
+    return match.group(1)
+
+  return None
 
 
 def GetEthernetIp(interface=None):

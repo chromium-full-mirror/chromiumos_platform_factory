@@ -31,6 +31,7 @@ import textwrap
 import time
 
 from cros.factory.device import device_types
+from cros.factory.utils import net_utils
 from cros.factory.utils import sync_utils
 from cros.factory.utils import type_utils
 
@@ -677,19 +678,7 @@ class Connection:
     return ret
 
   def _LeasedIP(self):
-    """Returns current leased IP.
-
-    Returns:
-      Leased IP as a string or False if not yet leased.
-    """
-    check_command = f'ip addr show {self.interface} | grep "inet "'
-    try:
-      # grep exit with return code 0 when we have retrieved an IP.
-      out = self._device.CheckOutput(check_command)
-    except device_types.CalledProcessError:
-      return False
-    # ex: inet 192.168.159.78/20 brd 192.168.159.255 scope global wlan0
-    return out.split()[1].split('/')[0]
+    return net_utils.GetLeasedIP(self.interface, self._device)
 
   def _RunDHCPCD(self, **kwargs):
     """Grabs an IP for the device using the dhcpcd command."""
@@ -735,7 +724,7 @@ class Connection:
     clear_ifconfig_command = f'ifconfig {self.interface} 0.0.0.0'
     dhcp_command = (
         'echo "" | '  # dhclient expects STDIN for some reason
-        'dhclient -4 '  # only run on IPv4
+        'dhclient '
         '-nw '  # immediately daemonize
         f'-pf {PID_FILE} '
         f'-sf {dhclient_script_path} '
