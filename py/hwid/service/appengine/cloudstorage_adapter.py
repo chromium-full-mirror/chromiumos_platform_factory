@@ -4,6 +4,7 @@
 """Facade for interfacing with various storage mechanisms."""
 
 import contextlib
+import functools
 import logging
 import os.path
 from typing import Optional, Sequence, Union
@@ -15,7 +16,6 @@ from google.cloud import storage
 # isort: split
 
 from cros.factory.hwid.v3 import filesystem_adapter
-from cros.factory.utils import type_utils
 
 
 class CloudStorageAdapter(filesystem_adapter.IFileSystemAdapter):
@@ -47,13 +47,13 @@ class CloudStorageAdapter(filesystem_adapter.IFileSystemAdapter):
     # use the default parameter for staging/prod.
     self._project = os.getenv('CLOUDSDK_CORE_PROJECT')
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _storage_client(self):
     if self._project:
       return storage.Client(project=self._project)
     return storage.Client()
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _storage_bucket(self):
     return self._storage_client.bucket(self._bucket_name)
 

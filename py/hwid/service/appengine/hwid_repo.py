@@ -5,6 +5,7 @@
 
 import abc
 import collections
+import functools
 import logging
 import re
 from typing import Mapping, NamedTuple, Optional, Sequence
@@ -12,7 +13,6 @@ from typing import Mapping, NamedTuple, Optional, Sequence
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.v3 import filesystem_adapter
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
-from cros.factory.utils import type_utils
 
 
 class HWIDDBMetadata(NamedTuple):
@@ -118,7 +118,7 @@ class HWIDRepoView(abc.ABC):
   def _GetV3FeatureMatcherSourcePath(cls, path: str) -> str:
     return f'{path}{cls._FEATURE_MATCHER_SOURCE_SUFFIX}'
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def hwid_db_metadata_of_name(self) -> Mapping[str, HWIDDBMetadata]:
     raw_metadata = self._LoadMandatoryTextFile(_PROJECTS_YAML_PATH)
     try:
@@ -396,7 +396,7 @@ class GerritToTHWIDRepo(_GerritHWIDRepo):
         commit_id=self.commit_id, auth_cookie=git_util.GetGerritAuthCookie(),
         optional=optional)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def commit_id(self) -> str:
     return git_util.GetCommitId(
         INTERNAL_REPO_REVIEW_URL, _CHROMEOS_HWID_PROJECT,

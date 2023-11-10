@@ -20,7 +20,6 @@ from cros.factory.hwid.v3 import common as v3_common
 from cros.factory.hwid.v3 import database as db_module
 from cros.factory.hwid.v3 import feature_compliance
 from cros.factory.hwid.v3 import identity as identity_module
-from cros.factory.utils import type_utils
 
 
 Collection = features.Collection
@@ -197,20 +196,20 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     #     has completed.
     _PatchDeviceFeatureSpec(self._spec)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _soft_branded_legacy_brand_code_set(self) -> Set[str]:
     return set(brand_code
                for brand_code, p in self._spec.brand_code_permissions.items()
                if p.allow_soft_branded_legacy_units)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _soft_branded_brand_code_set(self) -> Set[str]:
     return set(brand_code
                for brand_code, p in self._spec.brand_code_permissions.items()
                if p.allow_soft_branded_legacy_units or
                p.allow_soft_branded_waiver_units)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _hwid_feature_requirement_payload(self) -> str:
     must_enabled_brand_codes = [
         b for b, p in self._spec.brand_code_permissions.items()
@@ -334,7 +333,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
             required_values=required_values)
     return feature_compliance.FeatureRequirementSpecChecker(checker_spec)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _chassis_is_branded_checker(
       self) -> feature_compliance.FeatureRequirementSpecChecker:
     """The checker to match the chassis branding state."""
@@ -342,7 +341,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     return self._BuildFeatureManagementFlagChecker(
         _FeatureManagementFlagField.IS_CHASSIS_BRANDED)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _hw_compliant_checker(
       self) -> feature_compliance.FeatureRequirementSpecChecker:
     """The checker to match the HW compliance version state."""
@@ -350,7 +349,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     return self._BuildFeatureManagementFlagChecker(
         _FeatureManagementFlagField.HW_COMPLIANCE_VERSION)
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _legacy_checker(self) -> feature_compliance.FeatureRequirementSpecChecker:
     """The checker to match the feature enablement state for legacy devices."""
     assert self._spec.feature_version != features.NO_FEATURE_VERSION

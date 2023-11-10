@@ -3,18 +3,18 @@
 # found in the LICENSE file.
 """Provides an interface to access / use Google Cloud NDB."""
 
-from google.cloud import ndb
+import functools
 
-from cros.factory.utils import type_utils
+from google.cloud import ndb
 
 
 class NDBConnector:
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _ndb_client(self):
     return ndb.Client()
 
-  @type_utils.LazyProperty
+  @functools.cached_property
   def _global_cache(self):
     return ndb.RedisCache.from_environment()
 
