@@ -38,47 +38,29 @@ Examples
 Here's an example of input arguments::
 
   {
+    "pytest_name": "wifi_throughput",
+    "args": {
       "event_log_name": "wifi_throughput_in_chamber",
+      "enable_iperf_server": true,
       "services": [
-          {
-            "ssid": "ap",
-            "password": "pass1",
-            "min_rx_throughput": 80,
-          },
-          {
-            "ssid": "ap_5g",
-            "password": "pass2",
-            "min_strength": -40,
-          }
-      ],
-      "min_strength": -20,
-      "iperf_host": "10.0.0.1",
-      "min_tx_throughput": 100,
+        {
+          "ssid": "ap",
+          "password": "pass1",
+          "min_rx_throughput": 80,
+          "iperf_host": "127.0.0.1",
+          "iperf_port": 5201
+        },
+        {
+          "ssid": "ap_5g",
+          "password": "pass2",
+          "min_strength": -40,
+          "iperf_host": "::1",
+          "iperf_port": 5201
+        }
+      ]
+    }
   }
 
-After processing, each service would effectively have a configuration that
-looks like this::
-
-  {
-      "event_log_name": "wifi_throughput_in_chamber",
-      "services": [
-          {
-            "ssid": "ap",
-            "password": "pass1",
-            "min_strength": -20,  # inherited from test-level arg
-            "iperf_host": "10.0.0.1",  # inherited from test-level arg
-            "min_tx_throughput": 100,  # inherited from test-level arg
-            "min_rx_throughput": 80,
-          },
-          {
-            "ssid": "ap_5g",
-            "password": "pass2",
-            "min_strength": -40,  # blocks test-level arg
-            "iperf_host": "10.0.0.1",  # inherited from test-level arg
-            "min_tx_throughput": 100,  # inherited from test-level arg
-          }
-      ],
-  }
 """
 
 import contextlib
@@ -110,33 +92,56 @@ _WIFI_TIMEOUT_SECS = 20
 _DEFAULT_POLL_INTERVAL_SECS = 1
 _IPERF_TIMEOUT_SECS = 5
 
-_ARG_SERVICES_SCHEMA = JSONSchemaDict('services schema object', {
-    'definitions': {
-        'service': {
-            'type': 'object',
-            'properties': {
-                'ssid': {'type': 'string'},
-                'password': {'type': 'string'},
-                'min_strength': {'type': 'number'},
-                'min_quality': {'type': 'number'},
-                'iperf_host': {'type': 'string'},
-                'transmit_time': {'type': 'number'},
-                'transmit_interval': {'type': 'number'},
-                'min_rx_throughput': {'type': 'number'},
-                'min_tx_throughput': {'type': 'number'}
-            },
-            'required': ['ssid'],
-            'additionalProperties': False
-        }
-    },
-    'oneOf': [
-        {'$ref': '#/definitions/service'},
-        {
+_ARG_SERVICES_SCHEMA = JSONSchemaDict(
+    'services schema object', {
+        'definitions': {
+            'service': {
+                'type': 'object',
+                'properties': {
+                    'ssid': {
+                        'type': 'string'
+                    },
+                    'password': {
+                        'type': 'string'
+                    },
+                    'min_strength': {
+                        'type': 'number'
+                    },
+                    'min_quality': {
+                        'type': 'number'
+                    },
+                    'iperf_host': {
+                        'type': 'string'
+                    },
+                    'iperf_port': {
+                        'type': 'integer'
+                    },
+                    'transmit_time': {
+                        'type': 'number'
+                    },
+                    'transmit_interval': {
+                        'type': 'number'
+                    },
+                    'min_rx_throughput': {
+                        'type': 'number'
+                    },
+                    'min_tx_throughput': {
+                        'type': 'number'
+                    }
+                },
+                'required': ['ssid'],
+                'additionalProperties': False
+            }
+        },
+        'oneOf': [{
+            '$ref': '#/definitions/service'
+        }, {
             'type': 'array',
-            'items': {'$ref': '#/definitions/service'}
-        }
-    ]
-})
+            'items': {
+                '$ref': '#/definitions/service'
+            }
+        }]
+    })
 
 
 def _MbitsToBits(x):
@@ -196,16 +201,14 @@ class Iperf3Client:
   def __init__(self, dut_object):
     self._dut = dut_object
 
-  def InvokeClient(
-      self, server_host, bind_ip=None,
-      transmit_time=DEFAULT_TRANSMIT_TIME,
-      transmit_interval=DEFAULT_TRANSMIT_INTERVAL,
-      reverse=False):
+  def InvokeClient(self, server_host, server_port, bind_ip=None,
+                   transmit_time=DEFAULT_TRANSMIT_TIME,
+                   transmit_interval=DEFAULT_TRANSMIT_INTERVAL, reverse=False):
     """Invoke iperf3 and return its result.
 
     Args:
-      server_host: Host of the machine running iperf3 server. Can optionally
-          include a port in the format '<server_host>:<server_port>'.
+      server_host: Host of the machine running iperf3 server.
+      server_port: The port of the server.
       bind_ip: Local IP address to bind to when opening a connection to the
           server.  If provided, this should correspond to the IP address of the
           device through which the server can be accessed (e.g. eth0 or wlan0).
@@ -258,11 +261,10 @@ class Iperf3Client:
           }
         }
     """
-    if ':' in server_host:
-      server_host, server_port = server_host.split(':')
-      host_args = ['--client', server_host, '--port', server_port]
-    else:
-      host_args = ['--client', server_host]
+    host_args = ['--client', server_host]
+    if server_port is not None:
+      host_args.extend(['--port', str(server_port)])
+
     iperf_cmd = ['iperf3'] + host_args + [
         '--time', str(transmit_time),
         '--interval', str(transmit_interval),
@@ -292,7 +294,8 @@ class Iperf3Client:
         server_host, transmit_time)
 
     try:
-      output = self._dut.CallOutput(timeout_cmd, log=True)
+      process = self._dut.Popen(timeout_cmd, log=True, stdout=subprocess.PIPE)
+      output, unused_stderr = process.communicate()
       logging.info('iperf3 output: %s', output)
       json_output = json.loads(output)
 
@@ -458,11 +461,18 @@ class _ServiceTest:
         (False, 'TX', ap_config.min_tx_throughput),
         (True, 'RX', ap_config.min_rx_throughput)]:
       try:
-        DoTest(self._RunIperf, abort=True, iperf_host=ap_config.iperf_host,
-               bind_wifi=self._bind_wifi, reverse=reverse, tx_rx=tx_rx,
-               log_key=f'iperf_{tx_rx.lower()}',
-               transmit_time=ap_config.transmit_time,
-               transmit_interval=ap_config.transmit_interval)
+        DoTest(
+            self._RunIperf,
+            abort=True,
+            iperf_host=ap_config.iperf_host,
+            iperf_port=ap_config.iperf_port,
+            bind_wifi=self._bind_wifi,
+            reverse=reverse,
+            tx_rx=tx_rx,
+            log_key=f'iperf_{tx_rx.lower()}',
+            transmit_time=ap_config.transmit_time,
+            transmit_interval=ap_config.transmit_interval,
+        )
 
         DoTest(self._CheckIperfThroughput, abort=True, ssid=ap_config.ssid,
                tx_rx=tx_rx, log_key=f'iperf_{tx_rx.lower()}',
@@ -524,7 +534,10 @@ class _ServiceTest:
           ap=self._ap,
           passkey=password,
           connect_timeout=_WIFI_TIMEOUT_SECS,
-          dhcp_timeout=_WIFI_TIMEOUT_SECS)
+          dhcp_timeout=_WIFI_TIMEOUT_SECS,
+          ip_address_family=net_utils.ConvertIPtoFamily(
+              self._ap_config.iperf_host),
+      )
     except self._wifi.WiFiError:
       unused_exc_class, exc, tb = sys.exc_info()
       exc_message = f'{exc.__class__.__name__}: {str(exc)}'
@@ -550,9 +563,8 @@ class _ServiceTest:
     self._log['iw_connection_status'] = self._conn.GetStatus()
     return 'Saved connection summary status'
 
-  def _RunIperf(
-      self, iperf_host, bind_wifi, reverse, tx_rx, log_key,
-      transmit_time, transmit_interval):
+  def _RunIperf(self, iperf_host, iperf_port, bind_wifi, reverse, tx_rx,
+                log_key, transmit_time, transmit_interval):
     # Determine the IP address to bind to (in order to prevent the test from
     # running on a wired device).
     if bind_wifi:
@@ -572,10 +584,12 @@ class _ServiceTest:
         iperf_output = sync_utils.PollForCondition(
             poll_method=lambda: self._iperf3.InvokeClient(
                 server_host=iperf_host,
+                server_port=iperf_port,
                 bind_ip=bind_ip if bind_wifi else None,
                 reverse=reverse,
                 transmit_time=transmit_time,
-                transmit_interval=transmit_interval),
+                transmit_interval=transmit_interval,
+            ),
             condition_method=lambda x: (
                 # Success if no error, or if non-busy error.
                 ('error' not in x) or
@@ -692,43 +706,48 @@ class WiFiThroughput(test_case.TestCase):
   # directly provided as a "test-level" argument.  "service-level" arguments
   # take precedence.
   _SHARED_ARGS = [
-      Arg('iperf_host', str,
+      Arg(
+          'iperf_host', str,
           'Host running iperf3 in server mode, used for testing data '
           'transmission speed. If it is CIDR format (IP/prefix), then '
           'interfaces will be scanned to find the one with an IP within the '
           'given CIDR, and iperf_host will take on this value. Useful for '
           'cases where the host\'s IP may change (from using DHCP). '
           'The CIDR format is valid only when `enable_iperf_server` argument '
-          'is enabled.',
-          default=None),
-      Arg('enable_iperf_server', bool,
+          'is enabled.', default=None),
+      Arg('iperf_port', int, 'The port of the iperf server.', default=None),
+      Arg(
+          'enable_iperf_server', bool,
           'Start iperf server locally. In station-based testing we can run '
           'iperf server at the test station directly, instead of preparing '
-          'another machine.',
-          default=False),
-      Arg('min_strength', int,
+          'another machine.', default=False),
+      Arg(
+          'min_strength', int,
           'Minimum signal strength required (measured in dBm).  If the driver '
           'does not report this value, setting a limit always fail.',
           default=None),
-      Arg('min_quality', int,
+      Arg(
+          'min_quality', int,
           'Minimum link quality required (out of 100).  If the driver '
           'does not report this value, setting a limit always fail.',
           default=None),
-      Arg('transmit_time', int,
-          'Time in seconds for which to transmit data.',
+      Arg('transmit_time', int, 'Time in seconds for which to transmit data.',
           default=Iperf3Client.DEFAULT_TRANSMIT_TIME),
-      Arg('transmit_interval', (int, float),
+      Arg(
+          'transmit_interval', (int, float),
           'There will be an overall average of transmission speed.  But it may '
           'also be useful to check bandwidth within subintervals of this time. '
           'This argument can be used to check bandwidth for every interval of '
           'n seconds.  Assuming nothing goes wrong, there will be '
           'ceil(transmit_time / n) intervals reported.',
           default=Iperf3Client.DEFAULT_TRANSMIT_INTERVAL),
-      Arg('min_tx_throughput', int,
+      Arg(
+          'min_tx_throughput', int,
           'Required DUT-to-host (TX) minimum throughput in Mbits/sec.  If the '
           'average throughput is lower than this, will report a failure.',
           default=None),
-      Arg('min_rx_throughput', int,
+      Arg(
+          'min_rx_throughput', int,
           'Required host-to-DUT (RX) minimum throughput in Mbits/sec.  If the '
           'average throughput is lower than this, will report a failure.',
           default=None),

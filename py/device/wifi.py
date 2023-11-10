@@ -29,6 +29,7 @@ import re
 import subprocess
 import textwrap
 import time
+from typing import Optional
 
 from cros.factory.device import device_types
 from cros.factory.utils import net_utils
@@ -349,9 +350,9 @@ class WiFi(device_types.DeviceComponent):
     except type_utils.TimeoutError:
       raise WiFiError('No matching access points found') from None
 
-  def Connect(self, ap, interface=None, passkey=None,
-              connect_timeout=None, connect_attempt_timeout=None,
-              dhcp_timeout=None):
+  def Connect(self, ap, interface=None, passkey=None, connect_timeout=None,
+              connect_attempt_timeout=None, dhcp_timeout=None,
+              ip_address_family: Optional[net_utils.IpAddressFamily] = None):
     """Connects to a given AccessPoint.
 
     Returns:
@@ -360,13 +361,12 @@ class WiFi(device_types.DeviceComponent):
     if not isinstance(ap, AccessPoint):
       raise WiFiError(f'Expected AccessPoint for ap argument: {ap}')
     interface = self._ValidateInterface(interface)
-    conn = self._NewConnection(
-        dut=self._device, interface=interface,
-        ap=ap, passkey=passkey,
-        connect_timeout=connect_timeout,
-        connect_attempt_timeout=connect_attempt_timeout,
-        dhcp_timeout=dhcp_timeout,
-        tmp_dir=self.tmp_dir)
+    conn = self._NewConnection(dut=self._device, interface=interface, ap=ap,
+                               passkey=passkey, connect_timeout=connect_timeout,
+                               connect_attempt_timeout=connect_attempt_timeout,
+                               dhcp_timeout=dhcp_timeout,
+                               ip_address_family=ip_address_family,
+                               tmp_dir=self.tmp_dir)
     conn.Connect()
     return conn
 
@@ -511,7 +511,6 @@ class ConnectionStatus(type_utils.Obj):
     super().__init__(signal=signal, avg_signal=avg_signal,
                      tx_bitrate=tx_bitrate, rx_bitrate=rx_bitrate)
 
-
 class Connection:
   """Represents a connection to a particular AccessPoint."""
   DHCP_DHCPCD = 'dhcpcd'
@@ -522,13 +521,16 @@ class Connection:
 
   _CONN_STATUS_SIGNALS_RE = re.compile(r'\s*signal:.*')
   _CONN_STATUS_AVG_SIGNALS_RE = re.compile(r'\s*signal avg:.*')
+  _CONN_STATUS_SIGNALS_PARSE_RE = re.compile(
+      r'[^:]*:\W*(-?\d+)(?: \[((?:-?\d+, )*(?:-?\d+))\])? dBm')
   _CONN_STATUS_TX_BITRATE_RE = re.compile(r'\s*tx bitrate:.*')
   _CONN_STATUS_RX_BITRATE_RE = re.compile(r'\s*rx bitrate:.*')
 
   def __init__(self, dut: device_types.DeviceInterface, interface: str,
                ap: AccessPoint, passkey, connect_timeout=None,
                connect_attempt_timeout=None, dhcp_timeout=None, tmp_dir=None,
-               dhcp_method=DHCP_DHCLIENT, dhclient_script_path=None):
+               dhcp_method=DHCP_DHCLIENT, dhclient_script_path=None,
+               ip_address_family=None):
     self._device = dut
     self.interface = interface
     self.ap = ap
@@ -556,6 +558,7 @@ class Connection:
 
     # Arguments for DHCP function.
     self._dhcp_args = {'dhclient_script_path': dhclient_script_path}
+    self._ip_address_family = ip_address_family
 
   def _DisconnectAP(self):
     """Disconnects from the current AP."""
@@ -645,15 +648,22 @@ class Connection:
       self._tmp_dir = None
 
   def GetStatus(self):
-    def _ParseSignal(s):
+
+    def _ParseSignal(s: str) -> ConnectionStatus.Signal:
       try:
-        # the command output must looks like "  signal: -50 [-40 -60] dBm"
-        data = s.partition(':')[2].strip()
-        assert data.endswith('] dBm')
-        data = data[:-5].replace(' ', '')
-        computed, unused_sep, antenna = data.partition('[')
-        return ConnectionStatus.Signal(
-            int(computed), [int(a) for a in antenna.split(',')])
+        # Possible command outputs:
+        # - "  signal avg: -50 dBm"
+        # - "  signal avg: -50 [-40] dBm"
+        # - "  signal: -50 [-40, -60] dBm"
+        # - "  signal: -50 [-40, -60, -40, -60] dBm"
+        match = self._CONN_STATUS_SIGNALS_PARSE_RE.fullmatch(s)
+        if not match:
+          raise WiFiError(
+              f'pattern={self._CONN_STATUS_SIGNALS_PARSE_RE.pattern!r} '
+              'does not match.')
+        computed = match.group(1)
+        antenna = [] if match.group(2) is None else match.group(2).split(',')
+        return ConnectionStatus.Signal(int(computed), [int(a) for a in antenna])
       except Exception as e:
         raise WiFiError(f'unexpected signal format: {s!r}, {e!r}') from None
 
@@ -685,7 +695,8 @@ class Connection:
     return ret
 
   def _LeasedIP(self):
-    return net_utils.GetLeasedIP(self.interface, self._device)
+    return net_utils.GetLeasedIP(self.interface, self._device,
+                                 ip_address_family=self._ip_address_family)
 
   def _RunDHCPCD(self, **kwargs):
     """Grabs an IP for the device using the dhcpcd command."""

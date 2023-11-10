@@ -5,9 +5,11 @@
 """Networking-related utilities."""
 
 import codecs
+import enum
 import fnmatch
 import glob
 import http.client
+import ipaddress
 import logging
 import os
 import random
@@ -256,15 +258,29 @@ def SetEthernetIp(ip, interface=None, netmask=None, force=False, logger=None):
            f'{current_ip}')
 
 
+class IpAddressFamily(enum.Enum):
+  ipv4 = enum.auto()
+  ipv6 = enum.auto()
+
+
+def ConvertIPtoFamily(ip_str: str) -> IpAddressFamily:
+  ip = ipaddress.ip_address(ip_str)
+  if isinstance(ip, ipaddress.IPv4Address):
+    return IpAddressFamily.ipv4
+  return IpAddressFamily.ipv6
+
+
 def GetLeasedIP(
-    interface: str,
-    device: Optional[sys_interface.SystemInterface] = None) -> Optional[str]:
+    interface: str, device: Optional[sys_interface.SystemInterface] = None,
+    ip_address_family: Optional[IpAddressFamily] = None) -> Optional[str]:
   """Returns current global scoped leased IP.
 
   Args:
     interface: The interface to query.
     device: The interface to perform command. Use sys_interface.SystemInterface
     if not set.
+    ip_address_family: Only return ip in this family. If it's None, then the
+    function returns ip in any family.
 
   Returns:
     Leased IP as a string or None if not yet leased.
@@ -272,14 +288,17 @@ def GetLeasedIP(
   device = device or sys_interface.SystemInterface()
   # See unit tests LeasedIPTest for possible outputs.
   ip_output = device.CheckOutput(['ip', 'addr', 'show', 'dev', interface])
-  match = re.search(r'^\s*inet ([.0-9]+)/[0-9]+', ip_output, re.MULTILINE)
-  if match:
-    return match.group(1)
 
-  match = re.search(r'^\s*inet6 ([:0-9a-fA-F]+)/[0-9]+ .* global', ip_output,
-                    re.MULTILINE)
-  if match:
-    return match.group(1)
+  if ip_address_family in (None, IpAddressFamily.ipv4):
+    match = re.search(r'^\s*inet ([.0-9]+)/[0-9]+', ip_output, re.MULTILINE)
+    if match:
+      return match.group(1)
+
+  if ip_address_family in (None, IpAddressFamily.ipv6):
+    match = re.search(r'^\s*inet6 ([:0-9a-fA-F]+)/[0-9]+ .* global', ip_output,
+                      re.MULTILINE)
+    if match:
+      return match.group(1)
 
   return None
 

@@ -207,6 +207,17 @@ class UtilityFunctionTest(unittest.TestCase):
 
 class LeasedIPTest(unittest.TestCase):
 
+  ipv6_only_ap_output = """\
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 54:6c:eb:32:43:71 brd ff:ff:ff:ff:ff:ff
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76/64 scope global temporary dynamic
+       valid_lft 604787sec preferred_lft 86146sec
+    inet6 2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371/64 scope global dynamic mngtmpaddr
+       valid_lft 2591987sec preferred_lft 604787sec
+    inet6 fe80::ffff:ffff:ffff:4371/64 scope link
+       valid_lft forever preferred_lft forever
+"""
+
   def testBothIP_PreferIPv4(self):
     device = mock.Mock()
     device.CheckOutput = mock.Mock(return_value="""\
@@ -226,25 +237,35 @@ class LeasedIPTest(unittest.TestCase):
 
     self.assertEqual(result, '100.123.123.123')
 
-  def testIPv6Only_GetIPv6Address(self):
+  def testIPv6OnlyAP_GetIPv6Address(self):
     device = mock.Mock()
-    device.CheckOutput = mock.Mock(return_value="""\
-3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 54:6c:eb:32:43:71 brd ff:ff:ff:ff:ff:ff
-    inet6 2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76/64 scope global temporary dynamic
-       valid_lft 604787sec preferred_lft 86146sec
-    inet6 2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371/64 scope global dynamic mngtmpaddr
-       valid_lft 2591987sec preferred_lft 604787sec
-    inet6 fe80::ffff:ffff:ffff:4371/64 scope link
-       valid_lft forever preferred_lft forever
-""")
+    device.CheckOutput = mock.Mock(return_value=self.ipv6_only_ap_output)
 
     result = net_utils.GetLeasedIP('wlan0', device)
 
     self.assertIn(result, ('2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76',
                            '2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371'))
 
-  def testNoLease_GetFalse(self):
+  def testIPv6OnlyAP_QueryIPv4Only_GetNone(self):
+    device = mock.Mock()
+    device.CheckOutput = mock.Mock(return_value=self.ipv6_only_ap_output)
+
+    result = net_utils.GetLeasedIP(
+        'wlan0', device, ip_address_family=net_utils.IpAddressFamily.ipv4)
+
+    self.assertIsNone(result)
+
+  def testIPv6OnlyAP_QueryIPv6Only_GetIPv6Address(self):
+    device = mock.Mock()
+    device.CheckOutput = mock.Mock(return_value=self.ipv6_only_ap_output)
+
+    result = net_utils.GetLeasedIP(
+        'wlan0', device, ip_address_family=net_utils.IpAddressFamily.ipv6)
+
+    self.assertIn(result, ('2a00:ffff:ffff:ffff:ffff:ffff:183d:3a76',
+                           '2a00:ffff:ffff:ffff:ffff:ffff:fe32:4371'))
+
+  def testNoLease_GetNone(self):
     device = mock.Mock()
     device.CheckOutput = mock.Mock(return_value="""\
 3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
@@ -257,6 +278,22 @@ class LeasedIPTest(unittest.TestCase):
 
     self.assertIsNone(result)
 
+
+class ConvertIPtoFamilyTest(unittest.TestCase):
+
+  def testIPv4(self):
+    result = net_utils.ConvertIPtoFamily('100.123.123.123')
+
+    self.assertEqual(result, net_utils.IpAddressFamily.ipv4)
+
+  def testIPv6(self):
+    result = net_utils.ConvertIPtoFamily('fe80::ffff:ffff:ffff:4371')
+
+    self.assertEqual(result, net_utils.IpAddressFamily.ipv6)
+
+  def testNotIP_ThrowException(self):
+    with self.assertRaises(ValueError):
+      net_utils.ConvertIPtoFamily('Im.not.an.ip')
 
 if __name__ == '__main__':
   unittest.main()
