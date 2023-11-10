@@ -1048,6 +1048,16 @@ message CreateHwidRegionClResponse {
   HwidDbCommit commit = 1;
 }
 
+// The request to get all potentially soft-branded HWID string prefixes.
+message GetPotentiallySoftBrandedHwidPrefixesRequest {
+}
+
+// The response containing all potentially soft-branded HWID string prefixes.
+message GetPotentiallySoftBrandedHwidPrefixesResponse {
+  // List of strings of HWID prefixes which are potentially soft-branded.
+  repeated string hwid_prefixes = 1;
+}
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1158,4 +1168,9 @@ service HwidService {
   // Create HWID CL to modify region components.
   rpc CreateHwidRegionCl(CreateHwidRegionClRequest)
     returns (CreateHwidRegionClResponse);
+
+  // Get all HWID string prefixes which are potentially soft-branded.
+  rpc GetPotentiallySoftBrandedHwidPrefixes(
+      GetPotentiallySoftBrandedHwidPrefixesRequest)
+    returns (GetPotentiallySoftBrandedHwidPrefixesResponse);
 }

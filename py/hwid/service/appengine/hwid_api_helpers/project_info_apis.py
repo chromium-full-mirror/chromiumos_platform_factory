@@ -117,3 +117,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
   @auth.RpcCheck
   def GetRegionList(self, unused_request):
     return GET_REGION_LIST_RESPONSE
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
+  def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
+    raise common_helper.ConvertExceptionToProtoRPCException(
+        NotImplementedError('To be implemented'))
