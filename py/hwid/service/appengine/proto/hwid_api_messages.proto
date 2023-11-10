@@ -1058,6 +1058,40 @@ message GetPotentiallySoftBrandedHwidPrefixesResponse {
   repeated string hwid_prefixes = 1;
 }
 
+// The request to get corresponding soft brand eligibility of given HWID
+// strings.
+message GetSoftBrandEligibilityRequest {
+  // List of HWID strings.
+  repeated string hwid_strings = 1;
+}
+
+// A eligibility report of an HWID string per focused image version types.
+message SoftBrandEligibility {
+  // The version type enum values.
+  enum ImageVersionType {
+    IMAGE_VERSION_TYPE_UNSPECIFIED = 0;
+    LATEST_PUSHED_LTS = 1;
+    LATEST_PUSHED_STABLE = 2;
+    TOT = 3;
+  }
+  // The entry representing the eligible status and image version type.
+  message Entry {
+    // The version type.
+    ImageVersionType version_type = 1;
+    // True if the device with the HWID is soft-brand eligible.
+    bool eligible = 2;
+  }
+  // The eligibility status per image types.
+  repeated Entry eligibility_entries = 1;
+}
+
+// The response containing the map of hwid string and corresponding soft-brand
+// eligibility.
+message GetSoftBrandEligibilityResponse {
+  // The the map of hwid string and corresponding soft-brand eligibility.
+  map<string, SoftBrandEligibility> soft_brand_eligibility = 1;
+}
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1173,4 +1207,8 @@ service HwidService {
   rpc GetPotentiallySoftBrandedHwidPrefixes(
       GetPotentiallySoftBrandedHwidPrefixesRequest)
     returns (GetPotentiallySoftBrandedHwidPrefixesResponse);
+
+  // Get soft-brand eligibility in LTS, pushed-stable, and ToT versions.
+  rpc GetSoftBrandEligibility(GetSoftBrandEligibilityRequest)
+    returns (GetSoftBrandEligibilityResponse);
 }

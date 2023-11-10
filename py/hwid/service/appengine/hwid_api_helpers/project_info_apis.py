@@ -123,3 +123,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
   def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
     raise common_helper.ConvertExceptionToProtoRPCException(
         NotImplementedError('To be implemented'))
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
+  def GetSoftBrandEligibility(self, request):
+    raise common_helper.ConvertExceptionToProtoRPCException(
+        NotImplementedError('To be implemented'))
