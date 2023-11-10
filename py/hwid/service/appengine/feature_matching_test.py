@@ -600,6 +600,35 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNone(actual)
 
+  def testConvertedHWIDFeatureMatcher_SoftBrandedBrandCodeSetProperty(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    brand_allowed_feature_enablement_types = {
+        'ABCD': [_FeatureEnablementType.DISABLED],
+        'EFGH': [_FeatureEnablementType.HARD_BRANDED],
+        'IJKL': [_FeatureEnablementType.SOFT_BRANDED_LEGACY],
+        'MNOP': [_FeatureEnablementType.SOFT_BRANDED_WAIVER],
+    }
+    hwid_requirement_candidates = [
+        features.HWIDRequirement(
+            description='scenario_1', bit_string_prerequisites=[
+                features.HWIDBitStringRequirement(
+                    description='image_id_0_or_1',
+                    bit_positions=[4, 3, 2, 1,
+                                   0], required_values=[0b00000, 0b00001]),
+            ]),
+    ]
+
+    builder = feature_matching.HWIDFeatureMatcherBuilder()
+    source = builder.GenerateFeatureMatcherRawSource(
+        feature_version, brand_allowed_feature_enablement_types,
+        hwid_requirement_candidates)
+    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+
+    actual = matcher.soft_branded_brand_code_set
+    self.assertCountEqual(['IJKL', 'MNOP'], actual)
+
 
 if __name__ == '__main__':
   unittest.main()

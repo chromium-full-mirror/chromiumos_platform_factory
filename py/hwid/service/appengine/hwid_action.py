@@ -469,4 +469,4 @@ class HWIDAction:
   def GetFeatureMatcher(self) -> feature_matching.HWIDFeatureMatcher:
     """Gets the feature matcher of the current project."""
     raise NotSupportedError(
-        '`GetFeatureMatcher` is not supported in HWID v{self.HWID_VERSION}')
+        f'`GetFeatureMatcher` is not supported in HWID v{self.HWID_VERSION}')

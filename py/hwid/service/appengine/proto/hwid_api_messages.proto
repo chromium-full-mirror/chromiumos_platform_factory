@@ -1088,7 +1088,7 @@ message SoftBrandEligibility {
 // The response containing the map of hwid string and corresponding soft-brand
 // eligibility.
 message GetSoftBrandEligibilityResponse {
-  // The the map of hwid string and corresponding soft-brand eligibility.
+  // The map of hwid string and corresponding soft-brand eligibility.
   map<string, SoftBrandEligibility> soft_brand_eligibility = 1;
 }
 

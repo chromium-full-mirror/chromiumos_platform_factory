@@ -2,10 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import logging
 from typing import Optional
 
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_mngr_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
@@ -121,8 +123,20 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
-    raise common_helper.ConvertExceptionToProtoRPCException(
-        NotImplementedError('To be implemented'))
+    hwid_prefixes = set()
+    for project in self._hwid_action_manager.ListProjects():
+      action = self._hwid_action_manager.GetHWIDAction(project)
+      try:
+        matcher = action.GetFeatureMatcher()
+      except hwid_action.NotSupportedError:
+        logging.info('Project %s does not support feature matcher, skipped',
+                     project)
+        continue
+      hwid_prefixes.update(
+          f'{project}-{brand_code}'
+          for brand_code in matcher.soft_branded_brand_code_set)
+    return hwid_api_messages_pb2.GetPotentiallySoftBrandedHwidPrefixesResponse(
+        hwid_prefixes=hwid_prefixes)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck

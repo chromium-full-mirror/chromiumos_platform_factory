@@ -132,6 +132,11 @@ class HWIDFeatureMatcher(abc.ABC):
       ValueError: If the given `hwid_string` is invalid for the project.
     """
 
+  @property
+  @abc.abstractmethod
+  def soft_branded_brand_code_set(self) -> Set[str]:
+    """A set of brand codes with soft-branded brand codes."""
+
 
 _BrandFeatureRequirementSpec = (
     factory_hwid_feature_requirement_pb2.BrandFeatureRequirementSpec)
@@ -203,7 +208,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
                if p.allow_soft_branded_legacy_units)
 
   @functools.cached_property
-  def _soft_branded_brand_code_set(self) -> Set[str]:
+  def soft_branded_brand_code_set(self) -> Set[str]:
     return set(brand_code
                for brand_code, p in self._spec.brand_code_permissions.items()
                if p.allow_soft_branded_legacy_units or
@@ -277,7 +282,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     # for the waiver scenario but will not mistakenly match with the raw HWID
     # regexp.
     non_legacy_soft_branded_brand_codes = (
-        self._soft_branded_brand_code_set -
+        self.soft_branded_brand_code_set -
         self._soft_branded_legacy_brand_code_set)
     if non_legacy_soft_branded_brand_codes:
       profile = hwid_feature_requirement_pb2.HwidProfile()
@@ -407,7 +412,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
       return build_hw_compliant_result(FeatureEnablementType.HARD_BRANDED)
 
     if _MatchByChecker(self._hw_compliant_checker, hwid_identity):
-      if hwid_identity.brand_code in self._soft_branded_brand_code_set:
+      if hwid_identity.brand_code in self.soft_branded_brand_code_set:
         return build_hw_compliant_result(
             FeatureEnablementType.SOFT_BRANDED_WAIVER)
       return build_hw_compliant_result(FeatureEnablementType.DISABLED)
