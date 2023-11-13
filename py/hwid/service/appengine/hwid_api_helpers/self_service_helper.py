@@ -45,16 +45,6 @@ from cros.factory.utils import json_utils
 _CollectionElementType = TypeVar('_CollectionElementType')
 
 
-def _ConvertRequestToMetadata(request):
-  # TODO(wyuang): deprecate outer metadata fields in the request message.
-  return hwid_api_messages_pb2.DbChangeRequestMetadata(
-      bug_number=request.bug_number,
-      description=(request.description if request.HasField("description") else
-                   None), original_requester=request.original_requester,
-      reviewer_emails=request.reviewer_emails, cc_emails=request.cc_emails,
-      auto_approved=request.auto_approved)
-
-
 class Collection(abc.ABC, Generic[_CollectionElementType],
                  Container[_CollectionElementType], Sized,
                  Iterable[_CollectionElementType]):
@@ -743,8 +733,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateHwidDbEditableSectionChangeCl(self, request):
-    request_metadata = request.request_metadata or _ConvertRequestToMetadata(
-        request)
+    request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
     live_hwid_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
     cache = self._session_cache_adapter.Get(request.validation_token)
@@ -832,8 +821,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateHwidDbFirmwareInfoUpdateCl(self, request):
-    request_metadata = request.request_metadata or _ConvertRequestToMetadata(
-        request)
+    request_metadata = request.request_metadata
     live_hwid_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
     bundle_record = request.bundle_record
     request_uuid = str(uuid.uuid4())
@@ -1264,8 +1252,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateHwidDbInitCl(self, request):
-    request_metadata = request.request_metadata or _ConvertRequestToMetadata(
-        request)
+    request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
     board = _NormalizeProjectString(request.board)
     live_hwid_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
@@ -1346,8 +1333,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def SetFirmwareInfoSupportStatus(self, request):
-    request_metadata = request.request_metadata or _ConvertRequestToMetadata(
-        request)
+    request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
     live_hwid_repo, action = self._GetRepoAndAction(project)
     resp = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusResponse()
