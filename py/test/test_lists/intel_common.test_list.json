@@ -3,13 +3,6 @@
     "generic_common.test_list"
   ],
   "definitions": {
-    "CheckEOMNVAR": {
-      "pytest_name": "setup_psr_feature",
-      "label": "Check EOM NVAR",
-      "args": {
-        "action": "check"
-      }
-    },
     "LockIntelDescriptor": {
       "pytest_name": "lock_intel_descriptor"
     },
@@ -48,9 +41,14 @@
       "__comment": "Put this test right before GRTFinalize to minimize logging",
       "subtests": [
         "SetEOMNVAR",
-        "FullRebootStep",
-        "SyncFactoryServer",
-        "CheckEOMNVAR",
+        {
+          "inherit": "FullRebootStep",
+          "run_if": "device.factory.psr_update_need_reboot"
+        },
+        {
+          "inherit": "SyncFactoryServer",
+          "run_if": "device.factory.psr_update_need_reboot"
+        },
         "StartPSRLog"
       ]
     },

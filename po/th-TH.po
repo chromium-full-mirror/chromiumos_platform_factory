@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-01 13:01+CST\n"
+"PO-Revision-Date: 2023-11-14 18:16+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -4175,10 +4175,6 @@ msgstr "รายการทดสอบสำหรับ Tast ทดสอบ
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"
 msgstr "เตรียมใช้งาน Chromebook ด้วยรหัส SKU"
-
-#: ../py/test/test_lists/intel_common.test_list.json
-msgid "Check EOM NVAR"
-msgstr "ตรวจสอบ EOM NVAR"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Set EOM NVAR"
