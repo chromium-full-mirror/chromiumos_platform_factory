@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-29 11:40+UTC\n"
+"PO-Revision-Date: 2023-12-06 14:52+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -1646,6 +1646,7 @@ msgid "Read battery level for the 2nd time."
 msgstr "อ่านระดับแบตเตอรี่ครั้งที่ 2"
 
 #: ../py/test/pytests/bluetooth.py
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Detect bluetooth adapter"
 msgstr "ตรวจหาแฮนด์เซ็ตบลูทูธ"
 
@@ -4192,6 +4193,26 @@ msgstr "เสาอากาศไร้สาย (switch antenna only)"
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Disconnect from wireless networks"
 msgstr "ยกเลิกการเชื่อมต่อจากเครือข่ายไร้สาย"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Bluetooth Device Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Scan Bluetooth Device Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Pair With Bluetooth Device"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Scan for Bluetooth device named Chromebook"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Scan for Bluetooth devices with a specific strength threshold"
+msgstr ""
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example WifiSSIDList"

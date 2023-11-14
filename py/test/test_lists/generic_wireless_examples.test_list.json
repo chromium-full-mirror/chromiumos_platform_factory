@@ -22,6 +22,57 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "BluetoothDetectAdapterOnly": {
+      "pytest_name": "bluetooth",
+      "label": "Detect bluetooth adapter",
+      "args": {
+        "expected_adapter_count": 1,
+        "scan_devices": false
+      }
+    },
+    "BluetoothPairWithDevice": {
+      "inherit": "TestGroup",
+      "label": "Pair With Bluetooth Device",
+      "subtests": [
+        {
+          "inherit": "Scan",
+          "label": "Scan Bluetooth Device Name",
+          "args": {
+            "device_data_key": "factory.bluetooth_device_name",
+            "label": "Bluetooth Device Name"
+          }
+        },
+        {
+          "pytest_name": "bluetooth",
+          "label": "Pair With Bluetooth Device",
+          "args": {
+            "expected_adapter_count": 1,
+            "pair_with_match": true,
+            "scan_devices": true,
+            "scan_counts": 1,
+            "keyword": "eval! device.factory.bluetooth_device_name"
+          }
+        }
+      ]
+    },
+    "BluetoothScanChromebook": {
+      "pytest_name": "bluetooth",
+      "label": "Scan for Bluetooth device named Chromebook",
+      "args": {
+        "expected_adapter_count": 1,
+        "scan_devices": true,
+        "keyword": "Chromebook"
+      }
+    },
+    "BluetoothScanSpecificStrength": {
+      "pytest_name": "bluetooth",
+      "label": "Scan for Bluetooth devices with a specific strength threshold",
+      "args": {
+        "expected_adapter_count": 1,
+        "scan_devices": true,
+        "average_rssi_threshold": -60.0
+      }
+    },
     "ExampleWifiSSIDList": {
       "inherit": "WifiSSIDList",
       "label": "Example WifiSSIDList",
@@ -169,6 +220,11 @@
     "WifiThroughputInChamber",
     "ExampleWirelessConnect2G",
     "ExampleWirelessConnect5G",
-    "WirelessDisconnect"
+    "WirelessDisconnect",
+    "Bluetooth",
+    "BluetoothDetectAdapterOnly",
+    "BluetoothScanChromebook",
+    "BluetoothScanSpecificStrength",
+    "BluetoothPairWithDevice"
   ]
 }

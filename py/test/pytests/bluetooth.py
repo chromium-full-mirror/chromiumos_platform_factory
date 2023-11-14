@@ -33,49 +33,31 @@ Dependency
 Examples
 --------
 To detect the specified number of bluetooth adapter on DUT, add this in test
-list::
+list:
 
-  {
-    "pytest_name": "bluetooth",
-    "args": {
-      "expected_adapter_count": 1
-    }
-  }
+.. test_list::
 
-To scan remote bluetooth device and try to find at least one deivce whose name
-contains 'KEY_WORD'::
+  generic_wireless_examples:BluetoothDetectAdapterOnly
 
-  {
-    "pytest_name": "bluetooth",
-    "args": {
-      "scan_devices": true,
-      "keyword": "KEY_WORD"
-    }
-  }
+To scan remote bluetooth device and try to find at least one device whose name
+contains 'Chromebook':
+
+.. test_list::
+
+  generic_wireless_examples:BluetoothScanChromebook
 
 To check the the largest average RSSI among all scanned devices is bigger than
-threshold::
+threshold:
 
-  {
-    "pytest_name": "bluetooth",
-    "args": {
-      "scan_devices": true,
-      "average_rssi_threshold": -65.0
-    }
-  }
+.. test_list::
 
-To pair, connect with, and disconnect with the bluetooth input device::
+  generic_wireless_examples:BluetoothScanSpecificStrength
 
-  {
-    "pytest_name": "bluetooth",
-    "label": "Pair With Bluetooth Device",
-    "args": {
-      "scan_devices": true,
-      "scan_counts": 1,
-      "pair_with_match": true,
-      "keyword": "Keyboard"
-    }
-  }
+To pair, connect with, and disconnect with the bluetooth device:
+
+.. test_list::
+
+  generic_wireless_examples:BluetoothPairWithDevice
 
 """
 

@@ -232,13 +232,6 @@
         "POWER"
       ]
     },
-    "Bluetooth": {
-      "pytest_name": "bluetooth",
-      "args": {
-        "expected_adapter_count": 1,
-        "scan_devices": true
-      }
-    },
     "BrandedChassis": {
       "pytest_name": "branded_chassis",
       "args": {
