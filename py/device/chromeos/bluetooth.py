@@ -78,6 +78,12 @@ class AuthenticationAgent(service.Object):
     logging.info('Cancel')
     self._cancel_callback()
 
+  @service.method(AGENT_INTERFACE, in_signature='ou', out_signature='')
+  def RequestConfirmation(self, device, passkey):
+    logging.info('RequestConfirmation (%s, %06d)', device, passkey)
+    passkey_str = str(passkey).zfill(6)
+    self._display_passkey_callback(passkey_str)
+
 
 # TODO(cychiang) Add unittest for this class.
 class ChromeOSBluetoothManager(BluetoothManager):
@@ -100,7 +106,7 @@ class ChromeOSBluetoothManager(BluetoothManager):
   def __init__(self, dut):
     super().__init__(dut)
     DBusGMainLoop(set_as_default=True)
-    self._main_loop = None
+    self._main_loop = gobject.MainLoop()
     self._manager = None
     bus = dbus.SystemBus()
     try:
@@ -239,8 +245,6 @@ class ChromeOSBluetoothManager(BluetoothManager):
       Raises BluetoothManagerException if fails to create service agent or
           fails to create paired device.
     """
-    # TODO(kerker) This statement will fail now, wait for b:154882586
-    self._main_loop = gobject.MainLoop()
     matching_device = self._FindDeviceInterface(device_address, adapter)
     if not matching_device:
       raise BluetoothManagerException(
@@ -277,7 +281,7 @@ class ChromeOSBluetoothManager(BluetoothManager):
         AuthenticationAgent(bus, agent_path,
                             display_passkey_callback=display_passkey_callback,
                             cancel_callback=cancel_callback)
-      agent_manager.RegisterAgent(agent_path, capability)
+      agent_manager.RegisterAgent(agent_path, dbus.String(capability))
 
     except DBusException as e:
       if str(e).find('there is already a handler.'):
@@ -578,8 +582,10 @@ class ChromeOSBluetoothManager(BluetoothManager):
     logging.info('Device scan started.')
 
     # Scan for timeout_secs
-    gobject.timeout_add(timeout_secs * 1000, _QuitScan, 'Device scan timed out')
+    source_id = gobject.timeout_add(timeout_secs * 1000, _QuitScan,
+                                    'Device scan timed out')
     self._main_loop.run()
+    gobject.source_remove(source_id)
 
     bus.remove_signal_receiver(
         _CallbackInterfacesAdded,

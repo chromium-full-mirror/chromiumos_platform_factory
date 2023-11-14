@@ -68,10 +68,15 @@ To pair, connect with, and disconnect with the bluetooth input device::
 
   {
     "pytest_name": "bluetooth",
+    "label": "Pair With Bluetooth Device",
     "args": {
-      "pair_with_match": true
+      "scan_devices": true,
+      "scan_counts": 1,
+      "pair_with_match": true,
+      "keyword": "Keyboard"
     }
   }
+
 """
 
 import contextlib
@@ -82,7 +87,9 @@ import shutil
 import sys
 import threading
 import time
+from typing import cast
 
+from cros.factory.device import bluetooth
 from cros.factory.device import device_utils
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
@@ -296,6 +303,7 @@ class BluetoothTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
+    self.bt_manager = cast(bluetooth.BluetoothManager, self.dut.bluetooth)
     bluetooth_utils.VerifyAltSetting()
     self.ui.ToggleTemplateClass('font-large', True)
 
@@ -583,7 +591,7 @@ class BluetoothTest(test_case.TestCase):
        expected_adapter_count: The expected number of bluetooth adapters.
     """
     self.ui.SetState(_('Detect bluetooth adapter'))
-    adapters = self.dut.bluetooth.GetAdapters(
+    adapters = self.bt_manager.GetAdapters(
         self.args.detect_adapters_retry_times,
         self.args.detect_adapters_interval_secs)
     self.assertEqual(
@@ -615,15 +623,14 @@ class BluetoothTest(test_case.TestCase):
     self.ui.SetState(_('Unpairing'))
 
     input_count_before_unpair = GetInputCount()
-    bluetooth_manager = self.dut.bluetooth
-    adapter = bluetooth_manager.GetFirstAdapter(self.host_mac)
-    devices = bluetooth_manager.GetAllDevices(adapter).values()
+    adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
+    devices = self.bt_manager.GetAllDevices(adapter).values()
     devices_to_unpair = list(filter(_ShouldUnpairDevice, devices))
     logging.info('Unpairing %d device(s)', len(devices_to_unpair))
     for device_to_unpair in devices_to_unpair:
       address = device_to_unpair['Address']
-      bluetooth_manager.DisconnectAndUnpairDevice(adapter, address)
-      bluetooth_manager.RemovePairedDevice(adapter, address)
+      self.bt_manager.DisconnectAndUnpairDevice(adapter, address)
+      self.bt_manager.RemovePairedDevice(adapter, address)
 
     # Check that we unpaired what we thought we did
     expected_input_count = input_count_before_unpair - len(devices_to_unpair)
@@ -632,8 +639,9 @@ class BluetoothTest(test_case.TestCase):
   def ScanDevices(self):
     """Scan bluetooth devices around.
 
-    In this task, the test will use btmgmt tool to find devices around. The task
-    passed if there is at least one device.
+    In this task, the test will control the first adapter from BluetoothManager
+    and scan devices around for timeout_secs. The task passed if there is at
+    least one device.
 
     If target_addresses is provided, the test will also check if it can find
     at least one device specified in target_addresses list.
@@ -694,6 +702,8 @@ class BluetoothTest(test_case.TestCase):
       """Helper to check if the target MAC has been scanned."""
       return mac_to_scan and mac_to_scan in candidate_rssis
 
+    adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
+
     # Records RSSI of each scan and calculates average rssi.
     candidate_rssis = {}
 
@@ -701,13 +711,13 @@ class BluetoothTest(test_case.TestCase):
       self.ui.SetState(_('Scanning...'))
 
       with self.TimedProgressBar(timeout_secs):
-        devices = self.btmgmt.FindDevices(timeout_secs=timeout_secs)
+        devices = self.bt_manager.ScanDevices(adapter, timeout_secs)
 
       logging.info('Found %d device(s).', len(devices))
       for mac, props in devices.items():
         try:
-          logging.info('Device found: %s. Name: %s, RSSI: %d',
-                       mac, props['Name'], props['RSSI'])
+          logging.info('Device found: %s. Name: %s, RSSI: %d', mac,
+                       props.get('Name'), props['RSSI'])
         except KeyError:
           logging.exception('Name or RSSI is not available in %s', mac)
 
@@ -785,9 +795,8 @@ class BluetoothTest(test_case.TestCase):
               int(device_props["Connected"]) >= 1)
 
     def _CheckDisconnection():
-      bluetooth_manager = self.dut.bluetooth
-      adapter = bluetooth_manager.GetFirstAdapter(self.host_mac)
-      devices = bluetooth_manager.GetAllDevices(adapter).values()
+      adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
+      devices = self.bt_manager.GetAllDevices(adapter).values()
       connected_devices = list(filter(_ConnectedDevice, devices))
       logging.info('Connected and paired %d device(s)', len(connected_devices))
       return not connected_devices
@@ -811,8 +820,9 @@ class BluetoothTest(test_case.TestCase):
   def DetectRSSIofTargetMAC(self):
     """Detect the RSSI strength at a given target MAC address.
 
-    In this task, a generic test host uses btmgmt tool to find devices around.
-    The task passed if it can detect the RSSI strength at the target MAC.
+    In this task, a generic test host uses the first adapter from
+    BluetoothManager and scans devices around for timeout_secs. The task
+    passed if it can detect the RSSI strength at the target MAC.
 
     Note: this task is intended to be executed on a generic test host to test
     if the RSSI of a target device, e.g., a Ryu base, could be detected.
@@ -846,8 +856,7 @@ class BluetoothTest(test_case.TestCase):
       session.console.error(fail_msg)
       self.FailTask(fail_msg)
 
-    bluetooth_manager = self.dut.bluetooth
-    adapter = bluetooth_manager.GetFirstAdapter(self.host_mac)
+    adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
     logging.info('mac (%s): %s', self.host_mac, adapter)
 
     rssis = []
@@ -855,7 +864,8 @@ class BluetoothTest(test_case.TestCase):
       self.ui.SetState(
           _('Detect RSSI (count {count}/{total})', count=i, total=scan_counts))
       with self.TimedProgressBar(timeout_secs):
-        devices = self.btmgmt.FindDevices(timeout_secs=timeout_secs)
+        devices = self.bt_manager.ScanDevices(
+            adapter, timeout_secs=timeout_secs, match_address=mac_to_scan)
       for mac, props in devices.items():
         if mac == mac_to_scan and 'RSSI' in props:
           session.console.info('RSSI of count %d: %.2f', i, props['RSSI'])
@@ -940,18 +950,18 @@ class BluetoothTest(test_case.TestCase):
       _AppendLog(self.log_tmp_file, data)
       self.FailTask(fail_reason)
 
-    def DisplayPasskey(self, passkey):
+    def DisplayPasskey(passkey):
       logging.info("Displaying passkey %s", passkey)
       self.ui.SetState(
           _('Enter passkey {key} then press enter on the base.', key=passkey))
 
-    def AuthenticationCancelled(self):
+    def AuthenticationCancelled():
       self.ui.SetState(_('Authentication failed, retrying...'))
 
     need_to_cleanup = True
     try:
       input_count_before_connection = GetInputCount()
-      bt_manager = self.dut.bluetooth
+      bt_manager = self.bt_manager
       adapter = bt_manager.GetFirstAdapter(self.host_mac)
       target_mac = self.GetInputDeviceMac()
       if not target_mac:
@@ -1044,7 +1054,8 @@ class BluetoothTest(test_case.TestCase):
       try:
         target_result = target(*args, **kwargs)
       except Exception:
-        pass
+        logging.exception(action_string)
+        target_result = None
       self.ui.AdvanceProgress()
       return target_result
 
