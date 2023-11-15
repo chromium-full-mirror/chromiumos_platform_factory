@@ -9,10 +9,17 @@ from typing import Optional
 
 from cros.factory.test.env import paths
 from cros.factory.test.test_lists import test_list_common
+from cros.factory.utils import process_utils
 
 
 TEST_LIST_CONFIG_DIR = os.path.join(paths.FACTORY_PYTHON_DIR, 'test',
                                     'test_lists')
+
+TEST_LIST_FILE_GLOB = '*.test_list.json'
+TEST_LIST_SCHEMA_FILE_GLOB = '*.schema.json'
+
+TEST_LIST_STORAGE_DIR = os.path.join('/tmp/editor')
+# TODO(louischiu): Set up different storage location for GCP env.
 
 JSON_FILE_SUFFIX = '.json'
 DIFF_FILE_PREFIX = 'diff.'
@@ -150,3 +157,27 @@ def GetFactoryInstance() -> TestListFileFactory:
     if _file_factory is None:
       _file_factory = TestListFileFactory()
   return _file_factory
+
+
+def CopyAndUpdateTestLists(target_folder: str):
+  """Compares and updates test list files inside `target_folder`.
+
+  This function uses `rsync` to synchronize the files between
+  `py/test/test_lists` and the `target_folder`.
+
+  Args:
+    target_folder (str): The path of the folder to compare against the
+      factory test list folder.
+  """
+
+  # Add trialing slash to sync the contents inside the folder.
+  source_folder = os.path.join(TEST_LIST_CONFIG_DIR, '')
+
+  if not os.path.exists(target_folder):
+    os.makedirs(target_folder)
+
+  process_utils.CheckCall([
+      'rsync', '-acm', f'--include={TEST_LIST_FILE_GLOB}',
+      f'--include={TEST_LIST_SCHEMA_FILE_GLOB}', '--exclude=*/', '--exclude=*',
+      source_folder, target_folder
+  ])

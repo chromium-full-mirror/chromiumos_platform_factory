@@ -6,8 +6,10 @@ import os
 import unittest
 from unittest import mock
 
+from cros.factory.test.env import paths
 from cros.factory.test.test_lists import test_list_common
 from cros.factory.test_list_editor.backend.models import files
+from cros.factory.utils import process_utils
 
 
 class TestTestListFileFactory(unittest.TestCase):
@@ -81,3 +83,30 @@ class TestTestListFile(unittest.TestCase):
 
     with self.assertRaises(files.FilepathNotSetException):
       file.SaveDiff()
+
+
+class TestUtilFunctions(unittest.TestCase):
+
+  def setUp(self) -> None:
+    self.factory_path = os.path.join(paths.FACTORY_PYTHON_DIR, 'test',
+                                     'test_lists')
+    self.target_folder = '/tmp/editor-testing-123'
+
+  @mock.patch.object(os, 'makedirs')
+  @mock.patch.object(process_utils, 'CheckCall')
+  def testCopyAndUpdateTestLists(self, mock_check_call: mock.Mock,
+                                 mock_makedirs: mock.Mock):
+    files.CopyAndUpdateTestLists(self.target_folder)
+    source_folder = os.path.join(self.factory_path, '')
+    expected_rsync_args = [
+        'rsync',
+        '-acm',
+        '--include=*.test_list.json',
+        '--include=*.schema.json',
+        '--exclude=*/',
+        '--exclude=*',
+        source_folder,
+        self.target_folder,
+    ]
+    mock_check_call.assert_called_with(expected_rsync_args)
+    mock_makedirs.assert_called_with(self.target_folder)
