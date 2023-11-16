@@ -157,7 +157,7 @@ class WiFi(device_types.DeviceComponent):
     # Arbitrarily choose first interface.
     return interfaces[0]
 
-  def _AllAccessPoints(self, interface, frequency, log=True):
+  def AllAccessPoints(self, interface, frequency, log=True):
     """Retrieves a list of AccessPoint objects.
 
     Args:
@@ -252,7 +252,10 @@ class WiFi(device_types.DeviceComponent):
             ap.encryption_type = 'wpa3-sae'
 
         elif key == 'freq':
-          ap.frequency = int(value)
+          frequency, _, frequency_khz = value.partition('.')
+          ap.frequency = int(frequency)
+          if len(frequency_khz) > 0:
+            ap.frequency_khz = int(frequency_khz)
 
         # The primary channel is located within the "HT operation" section.
         elif key.strip() == '* primary channel':
@@ -327,7 +330,7 @@ class WiFi(device_types.DeviceComponent):
       # Filter frequency again because iw scan may report other frequency even
       # if frequency is specified in the command.
       return [
-          ap for ap in self._AllAccessPoints(interface, frequency, log)
+          ap for ap in self.AllAccessPoints(interface, frequency, log)
           if ((ssid is None or ssid == ap.ssid) and
               (frequency is None or frequency == ap.frequency) and
               (active is None or active == ap.active) and
@@ -393,6 +396,7 @@ class AccessPoint:
     bssid: BSSID of AP (string with format 'xx:xx:xx:xx:xx:xx').
     channel: Channel of the AP (integer).
     frequency: Frequency of the AP (MHz as integer).
+    frequency_khz: S1G frequency offset in kHz as defined by 802.11ah.
     active: Whether or not this network is currently associated.
     strength: Signal strength in dBm.
     quality: Link quality out of 100.
@@ -405,6 +409,7 @@ class AccessPoint:
     self.bssid = None
     self.channel = None
     self.frequency = None
+    self.frequency_khz = None
     self.active = None
     self.strength = None
     self.quality = None
@@ -424,8 +429,10 @@ class AccessPoint:
       return 'AccessPoint()'
     strength = f'{self.strength:.2f} dBm, ' if self.strength is not None else ''
     quality = f'{self.quality:.2f}/100, ' if self.quality is not None else ''
+    frequency = (f'{self.frequency}.{self.frequency_khz}'
+                 if self.frequency_khz is not None else f'{self.frequency}')
     return (f'AccessPoint({self.ssid}, {self.bssid}, channel={self.channel}, '
-            f'frequency={self.frequency} MHz, '
+            f'frequency={frequency} MHz, '
             f'{"active" if self.active else "inactive"}, {strength}{quality}'
             f'encryption={self.encryption_type or "none"}, '
             f'{self.last_seen}ms)').encode('utf-8')
