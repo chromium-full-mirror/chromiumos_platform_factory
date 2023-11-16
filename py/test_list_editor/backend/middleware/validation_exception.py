@@ -19,12 +19,18 @@ class ParamsValidationException(ValidationException):
   """Exception raised for parameters validation errors."""
 
 
+# TODO(louischiu): Rename this class to RequestContentValidation to better
+# reflect the purpose of this class.
 class RequestValidationException(ValidationException):
   """Exception raised for request validation errors."""
 
 
 class ResponseValidationException(ValidationException):
   """Exception raised for response validation errors."""
+
+
+class HeaderValidationException(ValidationException):
+  """Exception raised for header validation errors."""
 
 
 def HandleRequestValidationException(exception: ValidationException):
@@ -37,6 +43,11 @@ def HandleResponseValidationException(exception: ValidationException):
                              message=str(exception.message)).dict(), 500
 
 
+def HandleHeaderValidationException(exception: ValidationException):
+  return common.BaseResponse(status=common.StatusEnum.VALIDATION_ERROR,
+                             message=str(exception.message)).dict(), 401
+
+
 def RegisterErrorHandler(flask_app: Flask):
   flask_app.register_error_handler(ParamsValidationException,
                                    HandleRequestValidationException)
@@ -44,3 +55,5 @@ def RegisterErrorHandler(flask_app: Flask):
                                    HandleRequestValidationException)
   flask_app.register_error_handler(ResponseValidationException,
                                    HandleResponseValidationException)
+  flask_app.register_error_handler(HeaderValidationException,
+                                   HandleHeaderValidationException)

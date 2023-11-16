@@ -3,12 +3,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 import unittest
+from unittest import mock
 
 from flask import Flask
 from pydantic import BaseModel
 
 from cros.factory.test_list_editor.backend.middleware import validation
 from cros.factory.test_list_editor.backend.middleware import validation_exception
+from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common
 
 
@@ -189,3 +191,35 @@ class TestCombinedUsecase(unittest.TestCase):
       response = client.get('/users/foo', json={'data': 'test123'})
       self.assertEqual(response.status_code, 200)
       self.assertEqual(response.get_json(), {'content': {}})
+
+
+class TestUserSession(unittest.TestCase):
+
+  def setUp(self) -> None:
+    self.app = Flask(__name__)
+
+    @self.app.route('/', methods=['GET'])
+    @validation.ValidateUserSession
+    def MockEndpoint():
+      return {}
+
+    validation_exception.RegisterErrorHandler(self.app)
+
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testCreating(self, _: mock.Mock):
+    with self.app.test_client() as client:
+      response = client.get('/', headers={
+          'user_id': 'uid1',
+          'session_id': 'sid1'
+      })
+      self.assertEqual(response.status_code, 200)
+
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testMissingHeader(self, _: mock.Mock):
+    with self.app.test_client() as client:
+      response = client.get('/', headers={
+          'user_id': 'uid1',
+      })
+      self.assertEqual(response.status_code, 401)
+      self.assertEqual(response.get_json()['status'],
+                       common.StatusEnum.VALIDATION_ERROR)

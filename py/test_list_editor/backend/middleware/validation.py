@@ -45,14 +45,17 @@ def CreateUser(params: UserIDParam, request_body: UserData) -> UserResponse:
 """
 
 from functools import wraps
+import os
 import typing
 from typing import Type
 
+from flask import g
 from flask import request
 from pydantic import BaseModel
 from pydantic import ValidationError
 
 from cros.factory.test_list_editor.backend.middleware import validation_exception as exceptions
+from cros.factory.test_list_editor.backend.models import files as file_model
 
 
 _PARAMS_STR = 'params'
@@ -131,3 +134,27 @@ def Validate(f):
     return result_data.dict()
 
   return wrapped
+
+
+def ValidateUserSession(func):
+
+  @wraps(func)
+  def wrapper(*args, **kwargs):
+    user_id = request.headers.get('user_id')
+    session_id = request.headers.get('session_id')
+
+    # Validate user_id and session_id
+    if not user_id or not session_id:
+      raise exceptions.HeaderValidationException(
+          'Missing user_id or session_id in headers')
+
+    # Setup user session folder
+    user_session_folder = os.path.join(file_model.TEST_LIST_STORAGE_DIR,
+                                       user_id, session_id)
+    file_model.CopyAndUpdateTestLists(user_session_folder)
+
+    g.session_folder = user_session_folder
+
+    return func(*args, **kwargs)
+
+  return wrapper
