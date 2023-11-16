@@ -19,15 +19,16 @@ def CreateBP():
 
   @bp.route('/<test_list_id>')
   @validation.Validate
+  @validation.ValidateUserSession
   def GetTests(
       params: test_list_schema.TestSequenceParams
   ) -> test_list_schema.TestSequenceResponse:
     """Returns the test sequence of the give test list id."""
     return controller.GetTestSequence(params.test_list_id,
                                       test_list_model.TestList())
-
   @bp.route('/<test_list_id>', methods=['PUT'])
   @validation.Validate
+  @validation.ValidateUserSession
   def UpdateTests(
       params: test_list_schema.TestSequenceParams,
       request_body: test_list_schema.TestSequenceRequest
@@ -36,5 +37,4 @@ def CreateBP():
     return controller.UpdateTestSequence(params.test_list_id,
                                          test_list_model.TestList(),
                                          request_body.data)
-
   return bp

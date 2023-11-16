@@ -4,6 +4,8 @@
 
 from typing import cast
 
+from flask import g
+
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.models import test_list as test_list_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema
@@ -24,14 +26,15 @@ class TestListController:
     test_list.LoadFromFile(test_list_file)
 
   def _GetTestListFile(self, test_list_id: str) -> file_model.TestListFile:
-    test_list_file = self._factory.Get(filename=test_list_id)
+    folder_path = g.session_folder
+    test_list_file = self._factory.Get(filename=test_list_id,
+                                       folder_path=folder_path)
     return cast(file_model.TestListFile, test_list_file)
 
   def GetTestListItemList(
       self, test_list_id: str, test_list: test_list_model.TestList
   ) -> test_list_schema.TestItemsResponse:
     self._LoadTestListFromFile(test_list_id, test_list)
-
     return test_list_schema.ItemListResponse(
         status=common_schema.StatusEnum.SUCCESS,
         data=test_list.GetTestDefinitions())
@@ -73,6 +76,7 @@ class TestListController:
   def GetTestSequence(
       self, test_list_id: str, test_list: test_list_model.TestList
   ) -> test_list_schema.TestSequenceResponse:
+
     self._LoadTestListFromFile(test_list_id, test_list)
 
     return test_list_schema.TestSequenceResponse(

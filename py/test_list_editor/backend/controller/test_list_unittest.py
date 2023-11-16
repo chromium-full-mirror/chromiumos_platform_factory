@@ -5,6 +5,9 @@
 import unittest
 from unittest import mock
 
+from flask import Flask
+from flask import g
+
 from cros.factory.test_list_editor.backend.controller import test_list as test_list_controller
 from cros.factory.test_list_editor.backend.models import test_list as test_list_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema
@@ -28,11 +31,16 @@ class TestItemsController(unittest.TestCase):
         'subtests': []
     }]
     self.fake_diff = mock.Mock(spec=test_list_model.DiffUnit)
+    self.flask_app = Flask(__name__)
 
   def testGetItemList(self):
     self.fake_factory.Get.return_value = self.fake_loaded_data
     controller = test_list_controller.TestListController(self.fake_factory)
-    response = controller.GetTestListItemList('', self.fake_test_list)
+
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.GetTestListItemList('fake_test_list',
+                                                self.fake_test_list)
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(response.data, {})
 
@@ -41,8 +49,10 @@ class TestItemsController(unittest.TestCase):
     self.fake_factory.Get.return_value = self.fake_loaded_data
     controller = test_list_controller.TestListController(self.fake_factory)
 
-    response = controller.GetItem('fake_list_id', self.fake_test_list,
-                                  'fake_item_id')
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.GetItem('fake_test_list', self.fake_test_list,
+                                    'test123')
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(
         response.data, {
@@ -65,7 +75,9 @@ class TestItemsController(unittest.TestCase):
 
     controller = test_list_controller.TestListController(self.fake_factory)
 
-    response = controller.CreateItem('', mock.Mock(), fake_item)
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.CreateItem('', mock.Mock(), fake_item)
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(
         response.data, {
@@ -87,8 +99,12 @@ class TestItemsController(unittest.TestCase):
         inherit='test321')
 
     controller = test_list_controller.TestListController(self.fake_factory)
+    mock_request_body = mock.Mock()
+    mock_request_body.data = fake_item
 
-    response = controller.UpdateItem('', mock.Mock(), fake_item)
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.UpdateItem('', mock.Mock(), fake_item)
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(
         response.data, {
@@ -101,7 +117,9 @@ class TestItemsController(unittest.TestCase):
   def testGetTestSequence(self):
     controller = test_list_controller.TestListController(self.fake_factory)
 
-    response = controller.GetTestSequence('fake_list_id', self.fake_test_list)
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.GetTestSequence('fake_list_id', self.fake_test_list)
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(response.data, [{
         'test_item_id': '',
@@ -127,7 +145,10 @@ class TestItemsController(unittest.TestCase):
 
     controller = test_list_controller.TestListController(self.fake_factory)
 
-    response = controller.UpdateTestSequence('', self.fake_test_list, fake_item)
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.UpdateTestSequence('', self.fake_test_list,
+                                               fake_item)
 
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)
     self.assertEqual(response.data, [{

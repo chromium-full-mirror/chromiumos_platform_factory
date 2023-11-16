@@ -19,6 +19,7 @@ def CreateBP():
 
   @bp.route('/<test_list_id>')
   @validation.Validate
+  @validation.ValidateUserSession
   def GetTestItemList(
       params: test_list_schema.TestItemListParams
   ) -> test_list_schema.ItemListResponse:
@@ -28,6 +29,7 @@ def CreateBP():
 
   @bp.route('/<test_list_id>/<test_item_id>')
   @validation.Validate
+  @validation.ValidateUserSession
   def GetItem(
       params: test_list_schema.TestItemParams
   ) -> test_list_schema.TestItemsResponse:
@@ -37,6 +39,7 @@ def CreateBP():
 
   @bp.route('/<test_list_id>', methods=['POST'])
   @validation.Validate
+  @validation.ValidateUserSession
   def CreateItem(
       params: test_list_schema.InsertTestItemParams,
       request_body: test_list_schema.UpdateTestItemBody
@@ -47,6 +50,7 @@ def CreateBP():
 
   @bp.route('/<test_list_id>', methods=['PUT'])
   @validation.Validate
+  @validation.ValidateUserSession
   def UpdateItem(
       params: test_list_schema.UpdateTestItemParams,
       request_body: test_list_schema.UpdateTestItemBody

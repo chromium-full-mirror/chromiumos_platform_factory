@@ -9,6 +9,7 @@ from flask import Flask
 
 from cros.factory.test_list_editor.backend.api.v1 import items
 from cros.factory.test_list_editor.backend.controller import test_list
+from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema
 from cros.factory.test_list_editor.backend.schema import test_list as test_list_schema
 
@@ -39,22 +40,39 @@ class TestItemsEndpoint(unittest.TestCase):
       flask_app.register_blueprint(items.CreateBP())
       self.client = flask_app.test_client()
 
-  def testGetItemList(self):
-    response = self.client.get('/api/v1/items/fake.test_list')
+    self.user_session_header = {
+        'user_id': 'uid123',
+        'session_id': 'sid123',
+    }
+
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testGetItemList(self, _: mock.Mock):
+    response = self.client.get('/api/v1/items/fake.test_list',
+                               headers=self.user_session_header)
     self.assertEqual(response.status_code, 200)
 
-  def testGetItem(self):
-    response = self.client.get('/api/v1/items/fake.test_list/ABC')
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testGetItem(self, _: mock.Mock):
+    response = self.client.get('/api/v1/items/fake.test_list/ABC',
+                               headers=self.user_session_header)
     self.assertEqual(response.status_code, 200)
 
-  def testCreateItems(self):
-    response = self.client.post('/api/v1/items/fake.test_list',
-                                json={'data': self.mock_data.dict()})
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testCreateItems(self, _: mock.Mock):
+    data = {
+        'data': self.mock_data.dict(),
+    }
+    response = self.client.post('/api/v1/items/fake.test_list', json=data,
+                                headers=self.user_session_header)
     self.assertEqual(response.status_code, 200)
 
-  def testUpdateItems(self):
-    response = self.client.put('/api/v1/items/fake.test_list',
-                               json={'data': self.mock_data.dict()})
+  @mock.patch.object(file_model, 'CopyAndUpdateTestLists')
+  def testUpdateItems(self, _: mock.Mock):
+    data = {
+        'data': self.mock_data.dict(),
+    }
+    response = self.client.put('/api/v1/items/fake.test_list', json=data,
+                               headers=self.user_session_header)
     self.assertEqual(response.status_code, 200)
 
 

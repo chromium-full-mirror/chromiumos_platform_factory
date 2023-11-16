@@ -18,8 +18,8 @@ class TestTestListFileFactory(unittest.TestCase):
     self.test_list_factory = files.GetFactoryInstance()
 
   def testGetJSON(self):
-    json_test_list = self.test_list_factory.Get(data={}, filename='',
-                                                diff_data={})
+    json_test_list = self.test_list_factory.Get(
+        filename='', folder_path=files.TEST_LIST_STORAGE_DIR)
     self.assertIsInstance(json_test_list, files.TestListFile)
 
 
@@ -30,7 +30,8 @@ class TestTestListFile(unittest.TestCase):
         'foo': 'bar'
     }
     self.filename = 'fake.test_list'
-    self.test_list_file = files.TestListFile(self.data, self.filename, {})
+    self.test_list_file = files.TestListFile(files.TEST_LIST_STORAGE_DIR,
+                                             self.filename, self.data)
 
   @mock.patch.object(json, 'dump')
   def testSaveDiffToDisk(self, mock_write: mock.Mock):
@@ -43,7 +44,8 @@ class TestTestListFile(unittest.TestCase):
     self.test_list_file.Save()
 
     mock_save.assert_called_once_with(self.data,
-                                      self.filename.removesuffix('.test_list'))
+                                      self.filename.removesuffix('.test_list'),
+                                      files.TEST_LIST_STORAGE_DIR)
 
   @mock.patch.object(os, 'path')
   @mock.patch.object(json, 'load')
@@ -59,7 +61,8 @@ class TestTestListFile(unittest.TestCase):
     mock_load_test_list.return_value = fake_data
     mock_path_exists.exists.return_value = True
     mock_json_load.return_value = fake_diff_data
-    self.test_list_file = files.TestListFile({}, self.filename, {})
+    self.test_list_file = files.TestListFile(files.TEST_LIST_STORAGE_DIR,
+                                             self.filename)
 
     with mock.patch('builtins.open'):
       self.test_list_file.Load()
@@ -71,19 +74,9 @@ class TestTestListFile(unittest.TestCase):
     self.test_list_file.Load()
     self.assertEqual(self.test_list_file.diff_data, {})
 
-  @mock.patch.object(json, 'load')
-  @mock.patch.object(test_list_common, 'LoadTestList')
-  def testRaisesExceptionIfPathNotSet(
-      self,
-      mock_load_test_list: mock.Mock,  # pylint: disable=unused-argument
-      mock_json_load: mock.Mock):  # pylint: disable=unused-argument
-    file = files.TestListFile()
-    with self.assertRaises(files.FilepathNotSetException):
-      file.Save()
-
-    with self.assertRaises(files.FilepathNotSetException):
-      file.SaveDiff()
-
+  def testRaisesExceptionIfPathNotSet(self):
+    with self.assertRaises(files.FolderPathInvalid):
+      files.TestListFile('file1', '/fake_folder')
 
 class TestUtilFunctions(unittest.TestCase):
 

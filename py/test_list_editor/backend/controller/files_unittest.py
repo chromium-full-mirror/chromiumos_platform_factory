@@ -5,6 +5,9 @@
 import unittest
 from unittest import mock
 
+from flask import Flask
+from flask import g
+
 from cros.factory.test_list_editor.backend.controller import files as file_controller
 from cros.factory.test_list_editor.backend.schema import common as common_schema
 
@@ -18,6 +21,8 @@ class TestFilesController(unittest.TestCase):
     self.file_controller = file_controller.SaveFileController(
         self.file_factory_mock)
 
+    self.flask_app = Flask(__name__)
+
   def testValidateAllFiles(self):
     files_request = mock.Mock()
     files_request.files = [
@@ -25,6 +30,9 @@ class TestFilesController(unittest.TestCase):
         mock.Mock(filename='foo2.txt', data={})
     ]
     controller = file_controller.SaveFileController(self.file_factory_mock)
-    response = controller.SaveFiles(files_request)
+
+    with self.flask_app.app_context():
+      g.session_folder = '/tmp/editor/uid123/sid123'
+      response = controller.SaveFiles(files_request)
 
     self.assertEqual(response.status, common_schema.StatusEnum.SUCCESS)

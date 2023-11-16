@@ -18,7 +18,7 @@ TEST_LIST_CONFIG_DIR = os.path.join(paths.FACTORY_PYTHON_DIR, 'test',
 TEST_LIST_FILE_GLOB = '*.test_list.json'
 TEST_LIST_SCHEMA_FILE_GLOB = '*.schema.json'
 
-TEST_LIST_STORAGE_DIR = os.path.join('/tmp/editor')
+TEST_LIST_STORAGE_DIR = '/tmp/editor'
 # TODO(louischiu): Set up different storage location for GCP env.
 
 JSON_FILE_SUFFIX = '.json'
@@ -56,8 +56,8 @@ class ITestListFile(abc.ABC):
     """Loads the test list file and diff data."""
 
 
-class FilepathNotSetException(Exception):
-  """Exception to raise when path is not set."""
+class FolderPathInvalid(Exception):
+  """Exception to raise when folder path is not set to the right location."""
 
 
 class TestListFile(ITestListFile):
@@ -67,38 +67,37 @@ class TestListFile(ITestListFile):
   corresponding base test list and its diff file.
 
   Args:
-    data (dict): A dictionary of test items.
+    folder_path (str): The path to the folder that stores test lists.
     filename (str): The name of the test list. The `filename` does not need
       to include ".json".
+    data (dict): A dictionary of test items.
     diff_data (dict): A dictionary containing diff data.
   """
 
-  def __init__(self, data: Optional[dict] = None, filename: str = '',
-               diff_data: Optional[dict] = None):
+  def __init__(self, folder_path: str, filename: str,
+               data: Optional[dict] = None, diff_data: Optional[dict] = None):
     data = data or {}
     diff_data = diff_data or {}
     super().__init__(data, diff_data)
+    self.folder_path = folder_path
+    if not folder_path.startswith(TEST_LIST_STORAGE_DIR):
+      raise FolderPathInvalid(f'Expected to start with {TEST_LIST_STORAGE_DIR}'
+                              f'received: {folder_path}')
     self.filename = filename
     self.diff_file_path = os.path.join(
-        TEST_LIST_CONFIG_DIR, DIFF_FILE_PREFIX + filename +
-        JSON_FILE_SUFFIX) if filename else ''
+        self.folder_path, DIFF_FILE_PREFIX + filename + JSON_FILE_SUFFIX)
 
   def Save(self):
     """Saves test list to JSON file.
 
     Refer to the underlying function for detailed exceptions.
     """
-    if not self.filename:
-      raise FilepathNotSetException('File path is not set.')
-
     test_list_common.SaveTestList(self.data,
-                                  self.filename.removesuffix('.test_list'))
+                                  self.filename.removesuffix('.test_list'),
+                                  self.folder_path)
 
   def SaveDiff(self) -> None:
     """Save the diff to test list diff file."""
-    if not self.diff_file_path:
-      raise FilepathNotSetException('File path is not set.')
-
     with open(self.diff_file_path, 'w', encoding='UTF-8') as file:
       json.dump(self.diff_data, file)
 
@@ -108,8 +107,7 @@ class TestListFile(ITestListFile):
     This method loads the test list JSON file and its diff data into
     `self.data` and `self.diff_data`.
     """
-    self.data = test_list_common.LoadTestList(self.filename,
-                                              TEST_LIST_CONFIG_DIR)
+    self.data = test_list_common.LoadTestList(self.filename, self.folder_path)
 
     if not os.path.exists(self.diff_file_path):
       self.diff_data = {}
@@ -123,7 +121,7 @@ class ITestListFileFactory(abc.ABC):
   """Factory interface of the test list."""
 
   @abc.abstractmethod
-  def Get(self, **kwargs) -> ITestListFile:
+  def Get(self, folder_path: str, filename: str, **kwargs) -> ITestListFile:
     """Abstract method for getting file interface."""
 
 
@@ -135,7 +133,7 @@ class TestListFileFactory(ITestListFileFactory):
     # part if we have other use case than JSON.
     self._store = TestListFile
 
-  def Get(self, **kwargs) -> ITestListFile:
+  def Get(self, folder_path: str, filename: str, **kwargs) -> ITestListFile:
     """Return an instance of the test list file.
 
     Args:
@@ -144,7 +142,7 @@ class TestListFileFactory(ITestListFileFactory):
     Returns:
       TestListFile: An instance of the test list file.
     """
-    return self._store(**kwargs)
+    return self._store(folder_path, filename, **kwargs)
 
 
 _file_factory = None

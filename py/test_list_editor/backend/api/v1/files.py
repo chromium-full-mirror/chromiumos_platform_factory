@@ -18,6 +18,7 @@ def CreateBP():
 
   @bp.route('/', methods=['PUT'])
   @validation.Validate
+  @validation.ValidateUserSession
   def SaveFiles(
       request_body: file_schema.FilesRequest) -> file_schema.SaveFilesResponse:
     """Saves files sent from the frontend."""
