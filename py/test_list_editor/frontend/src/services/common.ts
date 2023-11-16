@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import { getUserSessionToken } from "../utils/user_session";
+
 // TODO: setup a mechanism for using different endpoints
 // based on the config (dev, staging, prod).
 export const backendURL = "http://localhost:5000";
@@ -29,37 +31,58 @@ function responseHandler<T>(response: Response): Promise<T> {
 // TODO: Add session to this class
 export abstract class BaseService {
   protected backendURL: string;
-  protected baseOptions: RequestInit;
+  protected headers: HeadersInit;
+  protected body: BodyInit | null;
 
   constructor() {
     this.backendURL = backendURL;
     // TODO: Add a timeout handler
-    this.baseOptions = {};
+    this.headers = {
+      ...getUserSessionToken(),
+    };
+    this.body = null;
   }
 
-  protected async get<T>(endpoint: URL, options: object = {}): Promise<T> {
-    this.baseOptions.method = "GET";
-    const requestOptions = { ...this.baseOptions, ...options };
+  protected async get<T>(endpoint: URL, options: RequestInit = {}): Promise<T> {
+    const requestOptions: RequestInit = {
+      method: "GET",
+      headers: new Headers({ ...this.headers, ...(options.headers ?? {}) }),
+    };
     const response = await fetch(endpoint, requestOptions);
     return responseHandler<T>(response);
   }
 
-  protected async put<T>(endpoint: URL, options: object = {}): Promise<T> {
-    this.baseOptions.method = "PUT";
-    this.baseOptions.headers = {
-      "Content-Type": "application/json",
+  protected async put<T>(endpoint: URL, options: RequestInit = {}): Promise<T> {
+    const requestOptions: RequestInit = {
+      method: "PUT",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        ...this.headers,
+        ...(options.headers ?? {}),
+      }),
     };
-    const requestOptions = { ...this.baseOptions, ...options };
+    if (options.body !== undefined) {
+      requestOptions.body = options.body;
+    }
     const response = await fetch(endpoint, requestOptions);
     return responseHandler<T>(response);
   }
 
-  protected async post<T>(endpoint: URL, options: object = {}): Promise<T> {
-    this.baseOptions.method = "POST";
-    this.baseOptions.headers = {
-      "Content-Type": "application/json",
+  protected async post<T>(
+    endpoint: URL,
+    options: RequestInit = {},
+  ): Promise<T> {
+    const requestOptions: RequestInit = {
+      method: "POST",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        ...this.headers,
+        ...(options.headers ?? {}),
+      }),
     };
-    const requestOptions = { ...this.baseOptions, ...options };
+    if (options.body !== undefined) {
+      requestOptions.body = options.body;
+    }
     const response = await fetch(endpoint, requestOptions);
     return responseHandler<T>(response);
   }

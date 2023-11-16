@@ -57,16 +57,14 @@ export class ItemService extends BaseService {
   }
 
   public async getItemList(): Promise<ItemListResponse> {
-    const options = {};
-    const response = await this.get<ItemListResponse>(this.endpoint, options);
+    const response = await this.get<ItemListResponse>(this.endpoint);
     return response;
   }
 
   public async getTestItem(testItemId: string): Promise<TestItemResponse> {
     const apiEndpoint = `${this.apiBaseEndpoint}${this.testListId}/${testItemId}`;
     const endpoint = new URL(apiEndpoint, this.backendURL);
-    const options = {};
-    const response = await this.get<TestItemResponse>(endpoint, options);
+    const response = await this.get<TestItemResponse>(endpoint);
     return response;
   }
 

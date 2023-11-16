@@ -12,6 +12,10 @@ import {
   TestItemDisplay,
 } from "./itemService";
 
+jest.mock("uuid", () => ({
+  v4: () => "12345678",
+}));
+
 describe("Item service testing", () => {
   const fakeResponse = {
     status: Status.SUCCESS,
@@ -50,6 +54,10 @@ describe("Item service testing", () => {
     );
     const expectedCallOptions = {
       method: "GET",
+      headers: new Headers({
+        user_id: "12345678",
+        session_id: "12345678",
+      }),
     };
     expect(customMock).toHaveBeenLastCalledWith(
       expectedURL,
@@ -70,6 +78,10 @@ describe("Item service testing", () => {
     );
     const expectedCallOptions = {
       method: "GET",
+      headers: new Headers({
+        user_id: "12345678",
+        session_id: "12345678",
+      }),
     };
     expect(customMock).toHaveBeenLastCalledWith(
       expectedURL,
@@ -90,9 +102,11 @@ describe("Item service testing", () => {
     );
     const expectedCallOptions = {
       method: "PUT",
-      headers: {
+      headers: new Headers({
         "Content-Type": "application/json",
-      },
+        user_id: "12345678",
+        session_id: "12345678",
+      }),
       body: '{"data":{"test_item_id":"ABC","display_name":"ABC"}}',
     };
     expect(customMock).toHaveBeenLastCalledWith(
@@ -114,9 +128,11 @@ describe("Item service testing", () => {
     );
     const expectedCallOptions = {
       method: "POST",
-      headers: {
+      headers: new Headers({
         "Content-Type": "application/json",
-      },
+        user_id: "12345678",
+        session_id: "12345678",
+      }),
       body: '{"data":{"test_item_id":"ABC","display_name":"ABC"}}',
     };
     expect(customMock).toHaveBeenLastCalledWith(
