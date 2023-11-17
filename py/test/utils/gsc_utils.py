@@ -30,9 +30,9 @@ from cros.factory.external.chromeos_cli import vpd
 
 class GSCScriptPath(str, enum.Enum):
   GSC_CONSTANTS = '/usr/share/cros/gsc-constants.sh'
-  BOARD_ID = '/usr/share/cros/hwsec-utils/cr50_set_board_id'
-  SN_BITS = '/usr/share/cros//hwsec-utils/cr50_set_sn_bits'
-  FACTORY_CONFIG = '/usr/share/cros/hwsec-utils/cr50_set_factory_config'
+  BOARD_ID = '/usr/share/cros/hwsec-utils/gsc_set_board_id'
+  SN_BITS = '/usr/share/cros/hwsec-utils/gsc_set_sn_bits'
+  FACTORY_CONFIG = '/usr/share/cros/hwsec-utils/gsc_set_factory_config'
   AP_RO_HASH = '/usr/local/bin/ap_ro_hash.py'
 
   def __str__(self):
@@ -241,7 +241,7 @@ class GSCUtils:
     Serial number bits along with the board id allow a device to attest to its
     identity and participate in Chrome OS Zero-Touch.
 
-    A script located at /usr/share/cros/hwsec-utils/cr50_set_sn_bits helps us
+    A script located at /usr/share/cros/hwsec-utils/gsc_set_sn_bits helps us
     to set the proper serial number bits in the GSC chip.
     """
 
@@ -261,7 +261,7 @@ class GSCUtils:
     """Leverages HwSec utils to set feature management flags.
 
     According to https://crrev.com/c/4483473, the return codes of
-    /usr/share/cros/hwsec-utils/cr50_set_factory_config are
+    /usr/share/cros/hwsec-utils/gsc_set_factory_config are
       0: Success
       1: General Error
       2: Config Already Set Error
@@ -284,7 +284,7 @@ class GSCUtils:
     For details, please refer to b/275356839.
 
     Raises:
-      `cros.factory.utils.type_utils.Error` if cr50_set_factory_config fails.
+      `cros.factory.utils.type_utils.Error` if gsc_set_factory_config fails.
       `GSCToolError` if GSC tool fails.
     """
 
@@ -317,7 +317,7 @@ class GSCUtils:
     security reason. To achieve this, we need to tell the GSC which board
     it is running on, and which phase is it, during the factory flow.
 
-    A script located at /usr/share/cros/hwsec-utils/cr50_set_board_id helps us
+    A script located at /usr/share/cros/hwsec-utils/gsc_set_board_id helps us
     to set the board id and phase to the GSC chip.
 
     To the detail design of the lock-down mechanism, please refer to
