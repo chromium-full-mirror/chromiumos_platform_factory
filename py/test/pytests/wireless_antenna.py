@@ -53,6 +53,27 @@ To run this test on DUT, add a test item in the test list::
       "switch_antenna_sleep_secs": 1
     }
   }
+
+Set the 2nd element in a service to null if you want to use all available
+frequencies::
+
+  {
+    "pytest_name": "wireless_antenna",
+    "args": {
+      "device_name": "wlan0",
+      "services": [
+        ["my_ap_service", null, null]
+      ],
+      "strength": {
+        "main": -60,
+        "aux": -60,
+        "all": -60
+      },
+      "scan_count": 10,
+      "switch_antenna_sleep_secs": 1
+    }
+  }
+
 """
 
 import collections
@@ -61,7 +82,7 @@ import re
 import struct
 import subprocess
 import sys
-from typing import Tuple
+from typing import Set, Tuple
 
 from cros.factory.device import device_types
 from cros.factory.device import device_utils
@@ -822,7 +843,7 @@ class WirelessTest(test_case.TestCase):
 
     raise ValueError(f'Wifi chip type {self._wifi_chip_type} is not supported.')
 
-  def _ScanAllServices(self):
+  def _ScanAllServices(self) -> None:
     self.ui.SetState(_('Checking frequencies...'))
 
     scan_result = self._dut.wifi.FilterAccessPoints(
@@ -833,28 +854,32 @@ class WirelessTest(test_case.TestCase):
       if scanned_service.ssid in ssid_freqs:
         ssid_freqs[scanned_service.ssid].add(scanned_service.frequency)
 
-    # Make a copy of the list because we might delete services in the loop.
-    for service in list(self._services):
+    resolved_service_specs: Set[wifi.ServiceSpec] = set()
+    for service in self._services:
       if not ssid_freqs[service.ssid]:
+        error_message = f'The service {service.ssid} is not found.'
         if self.args.ignore_missing_services:
-          logging.info(
-              'The service %s is not found. '
-              'Ignore this service and continue the test.', service.ssid)
-          self._services.remove(service)
+          logging.info('%s Ignore this service and continue the test.',
+                       error_message)
           continue
-        self.FailTask(f'The service {service.ssid} is not found.')
+        self.FailTask(error_message)
       elif service.freq is None:
-        if len(ssid_freqs[service.ssid]) > 1:
-          self.FailTask(
-              f'There are more than one frequencies '
-              f'({ssid_freqs[service.ssid]!r}) for ssid {service.ssid}. Please '
-              f'specify the frequency explicitly.')
-        service.freq = ssid_freqs[service.ssid].pop()
+        for freq in ssid_freqs[service.ssid]:
+          resolved_service_specs.add(
+              wifi.ServiceSpec(service.ssid, freq, service.password))
       elif service.freq not in ssid_freqs[service.ssid]:
-        self.FailTask(
+        error_message = (
             f'Frequency {service.freq} is not supported by the service '
             f'{service.ssid}.  Available frequencies are '
             f'{ssid_freqs[service.ssid]!r}.')
+        if self.args.ignore_missing_services:
+          logging.info('%s Ignore this service and continue the test.',
+                       error_message)
+          continue
+        self.FailTask(error_message)
+      else:
+        resolved_service_specs.add(service)
+    self._services = list(resolved_service_specs)
 
   def _TrySetRegionUSFor6G(self):
     """Set region for testing 6G in the factory."""
