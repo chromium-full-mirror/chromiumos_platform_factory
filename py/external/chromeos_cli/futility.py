@@ -2,11 +2,20 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import os
 import re
 import tempfile
+from typing import Dict, List
+
+from cros.factory.utils import file_utils
 
 from cros.factory.external.chromeos_cli import shell
 
+
+# Ref: src/platform/ti50/common/capsules/src/ap_ro_verification/gscvd.rs
+GSCVD_AREA_NAME = 'RO_GSCVD'
+GSCVD_MAGIC = b'5afe'
+GSCVD_RLZ_OFFSET = 12
 
 class FutilityError(Exception):
   """All exceptions when calling futility or flashrom."""
@@ -142,6 +151,48 @@ class Futility:
                                  'Failed to read the HWID string')
 
     return re.findall(r'hardware_id:(.*)', result.stdout)[0].strip()
+
+  def GetRegions(self, regions: List[str], output_dir: str,
+                 prefix: str = 'bios') -> Dict[str, str]:
+    """Gets specific regions from the FW.
+
+    Args:
+      regions: A list which contains the name of the FW regions.
+      output_dir: Path to the output directory.
+      prefix: Prefix of the output FW regions.
+
+    Returns:
+      A dictionary with keys being the region name and the value being the
+      path to the dumped FW.
+    """
+    prefix = os.path.join(output_dir, prefix)
+    region_str = ','.join(regions)
+    self._InvokeCommand(
+        f'futility read --region {region_str} --split-output {prefix}',
+        f'Failed to read FW region {region_str} from firmware.')
+
+    return {region: f'{prefix}_{region}'
+            for region in regions}
+
+  def GetRLZFromROGSCVD(self):
+    """Gets the RLZ from FW RO_GSCVD region."""
+    with file_utils.TempDirectory() as tempd:
+      gscvd_file = self.GetRegions([GSCVD_AREA_NAME], tempd)[GSCVD_AREA_NAME]
+      with open(gscvd_file, 'rb') as gscvd:
+        magic = gscvd.read(len(GSCVD_MAGIC))
+        if magic != GSCVD_MAGIC:
+          raise ValueError('Failed to find magic number in GSCVD! '
+                           f'Expected: {GSCVD_MAGIC}, Found: {magic}')
+        gscvd.seek(GSCVD_RLZ_OFFSET, 0)
+        rlz_bytes = gscvd.read(4)
+        try:
+          rlz_code = rlz_bytes.decode('ascii')
+          assert rlz_code.isalpha() and rlz_code.isupper()
+          # Reads as little endian.
+          return rlz_code[::-1]
+        except (UnicodeDecodeError, AssertionError) as e:
+          raise ValueError('Each char in the RLZ code should be a char between '
+                           f'A~Z. Found: {rlz_bytes}') from e
 
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):
     cmd_result_checker = cmd_result_checker or (lambda result: result.success)

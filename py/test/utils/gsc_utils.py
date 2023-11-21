@@ -352,15 +352,14 @@ class GSCUtils:
 
     To prevent setting wrong Board ID type, which makes AP RO verification fail.
     """
-    firmware_image = flashrom.LoadMainFirmware().GetFirmwareImage()
-    gscvd = firmware_image.get_section('RO_GSCVD')
-
-    # Need to reverse since the byte string should be read in little endian.
-    # The brand code is stored at the 12~15 bytes.
-    brand_code_in_gscvd = gscvd[12:16][::-1].decode('utf-8')
+    brand_code_in_gscvd = self._futility.GetRLZFromROGSCVD()
     brand_code_in_cros_config = cros_config.CrosConfig(
         dut=self._dut).GetBrandCode()
 
+    if brand_code_in_gscvd == 'ZZCR':
+      logging.warning(
+          'Brand code in RO_GSCVD is %s. '
+          'Are you using a dev-signed FW?', brand_code_in_gscvd)
     if brand_code_in_gscvd != brand_code_in_cros_config:
       raise GSCUtilsError(f'The brand code in RO_GSCVD {brand_code_in_gscvd}'
                           ' is different from the brand code in cros_config '

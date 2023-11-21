@@ -59,12 +59,10 @@ class GSCUtilsTest(unittest.TestCase):
                                 autospec=True)
     self.mock_brand_code = patcher.start()
 
-    patcher = mock.patch.object(
-        gsc_utils.flashrom.FirmwareContent,
-        'GetFirmwareImage', return_value=FakeFirmwareImage(
-            {'RO_GSCVD': (0x0, 0x1b)},
-            b'wordsbefore RCZZ wordsafter'), autospec=True)
-    self.mock_fw = patcher.start()
+    patcher = mock.patch.object(gsc_utils.futility.Futility,
+                                'GetRLZFromROGSCVD', return_value='ZZCR',
+                                autospec=True)
+    patcher.start()
 
     patcher = mock.patch.object(gsc_utils.phase, 'GetPhase', autospec=True)
     self.mock_phase = patcher.start()
@@ -259,8 +257,10 @@ class GSCUtilsTest(unittest.TestCase):
         cm.output, ['WARNING:root:GSC fields is locked. Skip setting RO hash.'])
 
   @mock.patch.object(gsc_utils.gbb, 'UnpackGBB', autospec=True)
-  def testCalculateHashInterval(self, mock_gbb):
-    self.mock_fw.return_value = FakeFirmwareImage(
+  @mock.patch.object(gsc_utils.flashrom.FirmwareContent, 'GetFirmwareImage',
+                     autospec=True)
+  def testCalculateHashInterval(self, mock_fw, mock_gbb):
+    mock_fw.return_value = FakeFirmwareImage(
         {
             'RO_SECTION': (0x100, 0x900000),  # All [0x100, 0x900100)
             'RO_VPD': (0x200, 0x100),  # Exclude [0x200, 0x300)
