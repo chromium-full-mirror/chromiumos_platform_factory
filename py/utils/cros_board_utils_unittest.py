@@ -7,34 +7,39 @@
 
 import unittest
 
-from cros.factory.unittest_utils import label_utils
 from cros.factory.utils.cros_board_utils import BuildBoard
 
 
-# TODO (b/204839190)
-@label_utils.Informational
 class BuildBoardTest(unittest.TestCase):
   """Unit tests for BuildBoard class."""
-  def runTest(self):
+
+  def testBuildBoard_ReplaceUnderscoreWithDash_FullNameIsTheSame(self):
+    expected_output = {
+        'base': 'veyron',
+        'variant': 'mickey',
+        'full_name': 'veyron_mickey',
+        'short_name': 'mickey',
+        'gsutil_name': 'veyron-mickey',
+    }
+
     mickey = BuildBoard('veyron_mickey')
-    self.assertDictContainsSubset(
-        dict(base='veyron', variant='mickey', full_name='veyron_mickey',
-             short_name='mickey', gsutil_name='veyron-mickey'), mickey.__dict__)
+    mickey_dash = BuildBoard('veyron-mickey')
 
-    # "veyron_mickey" and "veyron-mickey" should be the same
-    for i in ['veyron_mickey', 'veyron-mickey']:
-      self.assertEqual(mickey.__dict__, BuildBoard(i).__dict__)
+    self.assertDictContainsSubset(expected_output, mickey.__dict__)
+    self.assertDictContainsSubset(expected_output, mickey_dash.__dict__)
 
-    self.assertDictContainsSubset(
-        dict(base='hatch', variant=None, full_name='hatch',
-             short_name='hatch', gsutil_name='hatch'),
-        BuildBoard('hatch').__dict__)
+  def testBuildBoard_NoVariant_Success(self):
+    expected_output = {
+        'base': 'hatch',
+        'variant': None,
+        'full_name': 'hatch',
+        'short_name': 'hatch',
+        'gsutil_name': 'hatch',
+    }
 
-  def testBoardArch(self):
-    self.assertEqual('arm', BuildBoard('kukui').arch)
-    # The Factory Support Date of grunt is 2022-12.
-    self.assertEqual('amd64', BuildBoard('grunt').arch)
-    self.assertEqual('amd64', BuildBoard('hatch').arch)
+    hatch = BuildBoard('hatch')
+
+    self.assertDictContainsSubset(expected_output, hatch.__dict__)
 
 
 if __name__ == '__main__':

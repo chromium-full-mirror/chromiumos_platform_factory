@@ -7,7 +7,6 @@
 import logging
 import os
 import re
-import subprocess
 
 from . import file_utils
 from . import process_utils
@@ -46,8 +45,6 @@ class BuildBoard:
   """A board that we build CrOS for.
 
   Properties:
-    arch: The architecture of the board, or None if unable to determine
-      architecture.
     base: The base name.  Always set.
     variant: The variant name, or None if there is no variant.
     full_name: The base name, plus '_'+variant if set.  This is
@@ -123,45 +120,3 @@ class BuildBoard:
   def factory_board_files(self):
     return (GetChromeOSFactoryBoardPath(self.full_name) if sys_utils.InChroot()
             else None)
-
-  @type_utils.LazyProperty
-  def arch(self):
-    if sys_utils.InChroot():
-      if os.environ.get('ROOT'):
-        # Skip if ROOT env var is set as crossdev does not work with it. This
-        # can happen while running 'emerge-<board>'. Extract arch from
-        # 'emerge-<board> --info' instead.
-        try:
-          emerge_info = process_utils.CheckOutput(
-              [f'emerge-{self.full_name}', '--info'])
-          return re.search(r'^ACCEPT_KEYWORDS="(.*)"$', emerge_info,
-                           re.MULTILINE).group(1)
-        except subprocess.CalledProcessError:
-          return None
-      else:
-        # Try to determine arch through toolchain.
-        chromite = os.path.join(os.environ['CROS_WORKON_SRCROOT'], 'chromite')
-        toolchain = process_utils.CheckOutput([
-            os.path.join(chromite, 'bin', 'cros_setup_toolchains'),
-            f'--show-board-cfg={self.full_name}'
-        ]).split(',')[0].strip()
-        target_cfg = process_utils.CheckOutput(
-            ['/usr/bin/crossdev', '--show-target-cfg', toolchain])
-        arch = re.search(r'^arch=(.*)$', target_cfg, re.MULTILINE).group(1)
-        return arch if arch != '*' else None
-    else:
-      if self.board_name not in [None, 'default']:
-        return None
-      # Try to determine arch from 'uname -m'.
-      uname_machine = process_utils.CheckOutput(['uname', '-m'])
-      # Translate the output from 'uname -m' to match the arch definition in
-      # chroot.
-      machine_arch_map = {
-          'x86_64': 'amd64',
-          'arm': 'arm',
-          'aarch64': 'arm64'
-      }
-      for key, value in machine_arch_map.items():
-        if uname_machine.startswith(key):
-          return value
-      return None
