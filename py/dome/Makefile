@@ -71,3 +71,10 @@ test-frontend-coverage:
 	docker run --name dome_builder cros/dome-builder npm run test:coverage
 	docker cp "dome_builder:${DOME_DIR}/frontend/report" "$(CURDIR)/frontend/"
 	docker rm dome_builder
+
+e2e-test:
+	echo "Running dome frontend e2e test"
+	HOST_SHARED_DIR=/tmp/dome_e2e ../../setup/cros_docker.sh dev run
+	docker run --network dome-dev-network --rm cros/dome-builder npm run e2e
+	../../setup/cros_docker.sh dev destroy
+	touch .e2e-tests-passed

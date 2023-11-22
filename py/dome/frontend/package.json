@@ -82,8 +82,9 @@
     "build": "mkdir -p build && cp src/static/* build && webpack-cli --mode=production",
     "dev": "webpack-dev-server --mode=development ./webpack.config.js",
     "lint": "tslint -t verbose -p ./",
-    "test": "jest --testEnvironment=jest-environment-jsdom",
-    "test:coverage": "jest --testEnvironment=jest-environment-jsdom --collectCoverageFrom=src/** --coverage"
+    "test": "jest --testPathIgnorePatterns=__tests__/e2e/ --testEnvironment=jest-environment-jsdom",
+    "test:coverage": "jest --testPathIgnorePatterns=__tests__/e2e/ --testEnvironment=jest-environment-jsdom --collectCoverageFrom=src/** --coverage",
+    "e2e": "jest --testPathPattern=__tests__/e2e/.*\\.e2e\\.test\\.ts"
   },
   "author": "Mao Huang <littlecvr@google.com>"
 }

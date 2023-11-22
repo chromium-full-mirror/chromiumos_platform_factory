@@ -3,6 +3,7 @@
 build
 shopfloor_data
 .tests-passed
+.e2e-tests-passed
 .lint-frontend-passed
 .frontend-presubmit-passed
 overlay-*

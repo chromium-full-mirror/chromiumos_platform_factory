@@ -51,3 +51,11 @@ since they're normally very large.
 
 ### Using Dome
 TBD.
+
+---
+
+### Run E2E Testing of Dome
+
+1. Run following command under `py/dome` to run the e2e test.
+
+       make e2e-test
