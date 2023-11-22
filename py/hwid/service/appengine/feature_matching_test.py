@@ -7,10 +7,14 @@ import textwrap
 import unittest
 from unittest import mock
 
+import device_selection_pb2  # pylint: disable=import-error
 import factory_hwid_feature_requirement_pb2  # pylint: disable=import-error
+import feature_management_pb2  # pylint: disable=import-error
 from google.protobuf import text_format
+import hwid_feature_requirement_pb2  # pylint: disable=import-error
 import yaml
 
+from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import features
 from cros.factory.hwid.v3 import database as db_module
@@ -18,6 +22,7 @@ from cros.factory.hwid.v3 import database as db_module
 
 _FeatureEnablementType = feature_matching.FeatureEnablementType
 _FeatureEnablementStatus = feature_matching.FeatureEnablementStatus
+_HwidProfileMsg = hwid_feature_requirement_pb2.HwidProfile
 
 
 def _BuildHWIDDBForTest(project_name: str, image_ids: features.Collection[int],
@@ -96,6 +101,10 @@ def _BuildHWIDDBForTest(project_name: str, image_ids: features.Collection[int],
 
 class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
 
+  def setUp(self):
+    super().setUp()
+    self._builder = feature_matching.HWIDFeatureMatcherBuilder()
+
   @mock.patch('hashlib.sha256')
   def testConvertedHWIDFeatureMatcherCanGenerateFeatureRequirementPayload(
       self, mock_sha256):
@@ -120,7 +129,6 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
     brand_allowed_feature_enablement_types = {
         'ABCD': [_FeatureEnablementType.HARD_BRANDED],
         'EFGH': [
@@ -128,10 +136,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
         ],
         'IJKL': [_FeatureEnablementType.DISABLED],
     }
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
     actual = matcher.GenerateHWIDFeatureRequirementPayload()
 
     self.assertEqual(actual.splitlines()[0], '# checksum: the_fixed_checksum')
@@ -227,11 +235,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
     hw_compliant_but_disabled_match_result = _FeatureEnablementStatus(
@@ -285,33 +292,33 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
     feature_version = 1
     db = db_module.Database.LoadData(
         textwrap.dedent("""\
-        checksum:
-        project: THEPROJ
-        encoding_patterns:
-          0: default
-        image_id:
-          0: PROTO
-          1: EVT
-          2: DVT
-          3: PVT
-          4: PVT_COMPLIANT
-        pattern:
-        - image_ids: [0, 1, 2, 3, 4]
-          encoding_scheme: base8192
-          fields:
-          - dummy_field: 8
-        encoded_fields:
-          dummy_field:
-            0:
-              dummy_type: null
-        components:
-          dummy_type:
-            items:
-              dummy_component:
-                status: supported
-                values:
-                  dummy_probe_attr: dummy_probe_value
-        rules: []
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
         """))
     brand_allowed_feature_enablement_types = {
         'ABCD': [_FeatureEnablementType.SOFT_BRANDED_LEGACY],
@@ -325,11 +332,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
     legacy_enabled_match_result = _FeatureEnablementStatus(
@@ -385,11 +391,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNotNone(actual)
@@ -458,11 +463,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNotNone(actual)
@@ -522,11 +526,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNone(actual)
@@ -549,11 +552,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNotNone(actual)
@@ -591,11 +593,10 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.GenerateLegacyPayload()
     self.assertIsNone(actual)
@@ -620,14 +621,485 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             ]),
     ]
 
-    builder = feature_matching.HWIDFeatureMatcherBuilder()
-    source = builder.GenerateFeatureMatcherRawSource(
+    source = self._builder.GenerateFeatureMatcherRawSource(
         feature_version, brand_allowed_feature_enablement_types,
         hwid_requirement_candidates)
-    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
 
     actual = matcher.soft_branded_brand_code_set
     self.assertCountEqual(['IJKL', 'MNOP'], actual)
+
+  def testConvertedHWIDFeatureMatcherFromDeviceSelectionCanMatchHWIDs(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    device_selection = device_selection_pb2.DeviceSelection(
+        feature_level=feature_version,
+        scope=feature_management_pb2.Feature.Scope.SCOPE_DEVICES_0,
+        hwid_profiles=[
+            _HwidProfileMsg(
+                prefixes=['THEPROJ-ABCD'],
+                encoding_requirements=[
+                    _HwidProfileMsg.EncodingRequirement(
+                        bit_locations=[4, 3, 2, 1, 0],
+                        required_values=[
+                            '00000',
+                            '10000',
+                        ],
+                    ),
+                ],
+            ),
+            _HwidProfileMsg(
+                prefixes=['THEPROJ-ABCD'],
+                encoding_requirements=[
+                    _HwidProfileMsg.EncodingRequirement(
+                        bit_locations=[4, 3, 2, 1, 0],
+                        required_values=[
+                            '01000',
+                        ],
+                    ),
+                    _HwidProfileMsg.EncodingRequirement(
+                        bit_locations=[5, 6, 7],
+                        required_values=[
+                            '100',
+                            '111',
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    matcher = self._builder.CreateHWIDFeatureMatcherFromDeviceSelection(
+        db, device_selection)
+
+    hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
+    hw_compliant_but_disabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.DISABLED)
+    legacy_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.SOFT_BRANDED_LEGACY)
+    branded_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.HARD_BRANDED)
+    waiver_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.SOFT_BRANDED_WAIVER)
+    for hwid_string, expected_match_result_or_error in (
+        # incorrect project
+        ('NOTTHISPROJ-ABCD A2A-B47', ValueError),
+        # no brand
+        ('THEPROJ A2A-B47', hw_incompliant_match_result),
+        # incorrect brand with no feature management flag
+        ('THEPROJ-WXYZ A2A-B9W', hw_incompliant_match_result),
+        # match scenario_1
+        ('THEPROJ-ABCD A8A-B4T', legacy_enabled_match_result),
+        # match scenario_2
+        ('THEPROJ-ABCD B2A-B5L', legacy_enabled_match_result),
+        # match neither scenario_1 nor scenario_2
+        ('THEPROJ-ABCD C8A-B8Y', hw_incompliant_match_result),
+        # match scenario_2
+        ('THEPROJ-ABCD C6A-B8S', legacy_enabled_match_result),
+        # match neither scenario_1 nor scenario_2, but feature management flag
+        # indicates chassis has branded.
+        ('THEPROJ-WXYZ C2A-A2C-B93', branded_enabled_match_result),
+        # feature management flag indicates chassis has branded while scenario_1
+        # is also matched
+        ('THEPROJ-WXYZ A2A-A2C-B8S', branded_enabled_match_result),
+        # feature management flag indicates HW compliant without branded
+        # chassis, also the brand code is on the legacy list
+        ('THEPROJ-ABCD C2A-A2B-B3L', waiver_enabled_match_result),
+        # feature management flag indicates HW compliant without branded
+        # chassis, also the brand code is not on the legacy list
+        ('THEPROJ-WXYZ C2A-A2B-B72', hw_compliant_but_disabled_match_result),
+    ):
+      if isinstance(expected_match_result_or_error, _FeatureEnablementStatus):
+        with self.subTest(hwid_string=hwid_string,
+                          expected_version=expected_match_result_or_error):
+          actual = matcher.Match(hwid_string)
+          self.assertEqual(actual, expected_match_result_or_error)
+      else:
+        with self.subTest(hwid_string=hwid_string,
+                          expected_error=expected_match_result_or_error):
+          with self.assertRaises(expected_match_result_or_error):
+            matcher.Match(hwid_string)
+
+  def testConvertedHWIDFeatureMatcherFromDeviceSelectionCanMatchForOldHWIDDB(
+      self):
+    feature_version = 1
+    db = db_module.Database.LoadData(
+        textwrap.dedent("""\
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
+        """))
+    device_selection = device_selection_pb2.DeviceSelection(
+        feature_level=feature_version,
+        scope=feature_management_pb2.Feature.Scope.SCOPE_DEVICES_0,
+        hwid_profiles=[
+            _HwidProfileMsg(
+                prefixes=['THEPROJ-ABCD'],
+                encoding_requirements=[
+                    _HwidProfileMsg.EncodingRequirement(
+                        bit_locations=[4, 3, 2, 1, 0],
+                        required_values=[
+                            '00100',
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    matcher = self._builder.CreateHWIDFeatureMatcherFromDeviceSelection(
+        db, device_selection)
+
+    hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
+    legacy_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.SOFT_BRANDED_LEGACY)
+    for hwid_string, expected_match_result_or_error in (
+        # incorrect project
+        ('NOTTHISPROJ-ABCD A2A-B47', ValueError),
+        # no brand
+        ('THEPROJ A2A-B47', hw_incompliant_match_result),
+        # incorrect brand, not match scenario_1
+        ('THEPROJ-WXYZ E2A-B7B', hw_incompliant_match_result),
+        # incorrect brand, match scenario_1
+        ('THEPROJ-WXYZ E8A-B5X', hw_incompliant_match_result),
+        # correct brand, not match scenario_1
+        ('THEPROJ-ABCD A8A-B4T', hw_incompliant_match_result),
+        # correct brand, match scenario_1
+        ('THEPROJ-ABCD E8A-B2E', legacy_enabled_match_result),
+    ):
+      if isinstance(expected_match_result_or_error, _FeatureEnablementStatus):
+        with self.subTest(hwid_string=hwid_string,
+                          expected_version=expected_match_result_or_error):
+          actual = matcher.Match(hwid_string)
+          self.assertEqual(actual, expected_match_result_or_error)
+      else:
+        with self.subTest(hwid_string=hwid_string,
+                          expected_error=expected_match_result_or_error):
+          with self.assertRaises(expected_match_result_or_error):
+            matcher.Match(hwid_string)
+
+  def testConvertedHWIDFeatureMatcherFromInvalidDeviceSelection(self):
+    feature_version = 1
+    db = db_module.Database.LoadData(
+        textwrap.dedent("""\
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
+        """))
+    device_selection = device_selection_pb2.DeviceSelection(
+        feature_level=feature_version,
+        scope=feature_management_pb2.Feature.Scope.SCOPE_DEVICES_0,
+        hwid_profiles=[
+            _HwidProfileMsg(
+                prefixes=['THEPROJ-ABCD', 'NOTTHEPROJ-ABCD'],
+                encoding_requirements=[
+                    _HwidProfileMsg.EncodingRequirement(
+                        bit_locations=[4, 3, 2, 1, 0],
+                        required_values=[
+                            '00100',
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    with self.assertRaisesRegex(
+        feature_matching.InvalidDeviceSelectionError,
+        ('The project in prefix of device selection payload should only be '
+         r"single element 'THEPROJ', found \['NOTTHEPROJ', 'THEPROJ'\]\.")):
+      self._builder.CreateHWIDFeatureMatcherFromDeviceSelection(
+          db, device_selection)
+
+  @mock.patch.object(feature_matching.git_util, 'GetGerritAuthCookie')
+  @mock.patch.object(feature_matching.git_util, 'GetFileContent')
+  def testCreateHWIDFeatureMatcherFromPrivateOverlayCommit_Pass(
+      self, mock_get_file_content, unused_mock_get_auth_cookie):
+    db = db_module.Database.LoadData(
+        textwrap.dedent("""\
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
+        """))
+    payload = textwrap.dedent('''\
+        selections {
+          feature_level: 1
+          scope: SCOPE_DEVICES_0
+          hwid_profiles {
+            prefixes: "NOTTHISPROJ-ABCD"
+            encoding_requirements {
+              bit_locations: 0
+              required_values: "0"
+            }
+          }
+        }
+        selections {
+          feature_level: 1
+          scope: SCOPE_DEVICES_0
+          hwid_profiles {
+            prefixes: "ANOTHERPROJ-ABCD"
+            encoding_requirements {
+              bit_locations: 0
+              required_values: "0"
+            }
+          }
+        }
+        selections {
+          feature_level: 1
+          scope: SCOPE_DEVICES_0
+          hwid_profiles {
+            prefixes: "THEPROJ-ABCD"
+            encoding_requirements {
+              bit_locations: 4
+              bit_locations: 3
+              bit_locations: 2
+              bit_locations: 1
+              bit_locations: 0
+              required_values: "00100"
+            }
+          }
+        }
+    ''').encode('utf8')
+    mock_get_file_content.return_value = payload
+
+    matcher = self._builder.CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+        config_data.CreateHWIDSelectionPayloadSettings('THEBOARD'),
+        db,
+        'the-commit',
+    )
+
+    mock_get_file_content.assert_called_once_with(
+        git_url_prefix='https://chrome-internal-review.googlesource.com',
+        project='chromeos/overlays/overlay-theboard-private',
+        path=('chromeos-base/feature-management-bsp/files/'
+              'device_selection.textproto'),
+        commit_id='the-commit',
+        auth_cookie=mock.ANY,
+        optional=True,
+    )
+    hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
+    legacy_enabled_match_result = _FeatureEnablementStatus(
+        1, _FeatureEnablementType.SOFT_BRANDED_LEGACY)
+    for hwid_string, expected_match_result_or_error in (
+        # incorrect project
+        ('NOTTHISPROJ-ABCD A2A-B47', ValueError),
+        # no brand
+        ('THEPROJ A2A-B47', hw_incompliant_match_result),
+        # incorrect brand, not match scenario_1
+        ('THEPROJ-WXYZ E2A-B7B', hw_incompliant_match_result),
+        # incorrect brand, match scenario_1
+        ('THEPROJ-WXYZ E8A-B5X', hw_incompliant_match_result),
+        # correct brand, not match scenario_1
+        ('THEPROJ-ABCD A8A-B4T', hw_incompliant_match_result),
+        # correct brand, match scenario_1
+        ('THEPROJ-ABCD E8A-B2E', legacy_enabled_match_result),
+    ):
+      if isinstance(expected_match_result_or_error, _FeatureEnablementStatus):
+        with self.subTest(hwid_string=hwid_string,
+                          expected_version=expected_match_result_or_error):
+          actual = matcher.Match(hwid_string)
+          self.assertEqual(actual, expected_match_result_or_error)
+      else:
+        with self.subTest(hwid_string=hwid_string,
+                          expected_error=expected_match_result_or_error):
+          with self.assertRaises(expected_match_result_or_error):
+            matcher.Match(hwid_string)
+
+  @mock.patch.object(feature_matching.git_util, 'GetGerritAuthCookie')
+  @mock.patch.object(feature_matching.git_util, 'GetFileContent')
+  def testCreateHWIDFeatureMatcherFromPrivateOverlayCommit_NoBundle(
+      self, mock_get_file_content, unused_mock_get_auth_cookie):
+    db = db_module.Database.LoadData(
+        textwrap.dedent("""\
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
+        """))
+    mock_get_file_content.return_value = None
+
+    self.assertIsNone(
+        self._builder.CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+            config_data.CreateHWIDSelectionPayloadSettings('THEBOARD'),
+            db,
+            'the-commit',
+        ))
+
+  @mock.patch.object(feature_matching.git_util, 'GetGerritAuthCookie')
+  @mock.patch.object(feature_matching.git_util, 'GetFileContent')
+  def testCreateHWIDFeatureMatcherFromPrivateOverlayCommit_NoDeviceSelection(
+      self, mock_get_file_content, unused_mock_get_auth_cookie):
+    db = db_module.Database.LoadData(
+        textwrap.dedent("""\
+            checksum:
+            project: THEPROJ
+            encoding_patterns:
+              0: default
+            image_id:
+              0: PROTO
+              1: EVT
+              2: DVT
+              3: PVT
+              4: PVT_COMPLIANT
+            pattern:
+            - image_ids: [0, 1, 2, 3, 4]
+              encoding_scheme: base8192
+              fields:
+              - dummy_field: 8
+            encoded_fields:
+              dummy_field:
+                0:
+                  dummy_type: null
+            components:
+              dummy_type:
+                items:
+                  dummy_component:
+                    status: supported
+                    values:
+                      dummy_probe_attr: dummy_probe_value
+            rules: []
+        """))
+    payload = textwrap.dedent('''\
+        selections {
+          feature_level: 1
+          scope: SCOPE_DEVICES_0
+          hwid_profiles {
+            prefixes: "NOTTHISPROJ-ABCD"
+            encoding_requirements {
+              bit_locations: 0
+              required_values: "0"
+            }
+          }
+        }
+        selections {
+          feature_level: 1
+          scope: SCOPE_DEVICES_0
+          hwid_profiles {
+            prefixes: "ANOTHERPROJ-ABCD"
+            encoding_requirements {
+              bit_locations: 0
+              required_values: "0"
+            }
+          }
+        }
+    ''').encode('utf8')
+    mock_get_file_content.return_value = payload
+
+    self.assertIsNone(
+        self._builder.CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+            config_data.CreateHWIDSelectionPayloadSettings('THEBOARD'),
+            db,
+            'the-commit',
+        ))
+
+  @mock.patch.object(feature_matching.git_util, 'GetGerritAuthCookie')
+  @mock.patch.object(feature_matching.git_util, 'GetFileContent')
+  def testCreateHWIDFeatureMatcherFromPrivateOverlayCommit_InvalidPayload(
+      self, mock_get_file_content, unused_mock_get_auth_cookie):
+    mock_get_file_content.return_value = b'invalid-payload'
+
+    with self.assertRaises(feature_matching.InvalidDeviceSelectionError):
+      self._builder.CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+          config_data.CreateHWIDSelectionPayloadSettings('THEBOARD'),
+          mock.create_autospec(db_module.Database, instance=True),
+          'the-commit',
+      )
 
 
 if __name__ == '__main__':

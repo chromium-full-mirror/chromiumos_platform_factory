@@ -14,7 +14,10 @@ import feature_management_pb2  # pylint: disable=import-error
 from google.protobuf import text_format
 import hwid_feature_requirement_pb2  # pylint: disable=import-error
 
+from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import features
+from cros.factory.hwid.service.appengine import git_util
+from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import feature_match_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3 import common as v3_common
 from cros.factory.hwid.v3 import database as db_module
@@ -159,7 +162,6 @@ def _MatchByChecker(checker: feature_compliance.FeatureRequirementSpecChecker,
 # expect a HWID string that occupies more than 8MB.
 _IMPOSSIBLE_BIT_LOCATION = 8 * 1024 * 1024
 
-
 _ALLOW_ONLY_HARD_BRANDED_MSG = feature_match_pb2.FeatureEnablementPermission(
     allow_hard_branded_units=True)
 
@@ -178,28 +180,94 @@ def _ExtendHWIDProfiles(
           required_values=encoding_requirement.required_values)
 
 
+class InvalidDeviceSelectionError(ValueError):
+  """An exception raised when the device selection is invalid."""
+
+
 class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
   """A seralizable HWID feature matcher implementation."""
 
-  def __init__(self, db: db_module.Database, spec: str):
+  def __init__(
+      self,
+      db: db_module.Database,
+      spec: feature_match_pb2.DeviceFeatureSpec,
+  ):
     """Initializer.
 
     Args:
       db: The HWID DB instance.
-      spec: A `feature_match_pb2.DeviceFeatureSpec` message in prototext form.
+      spec: A `feature_match_pb2.DeviceFeatureSpec` message.
+    """
+    self._db = db
+    self._spec = spec
+    # TODO(yhong): Stop migrating from the old data format once the migration
+    #     has completed.
+    _PatchDeviceFeatureSpec(self._spec)
+
+  @classmethod
+  def FromFeatureSpecData(
+      cls,
+      db: db_module.Database,
+      spec_text: str,
+  ) -> HWIDFeatureMatcher:
+    """Create an _HWIDFeatureMatcherImpl instance from DeviceFeatureSpec text.
+
+    Args:
+      db: The HWID DB instance.
+      spec_text: A `feature_match_pb2.DeviceFeatureSpec` message in prototext
+        form.
 
     Raises:
       ValueError: If the given spec is invalid.
     """
-    self._db = db
     try:
-      self._spec = text_format.Parse(spec,
-                                     feature_match_pb2.DeviceFeatureSpec())
+      spec = text_format.Parse(spec_text, feature_match_pb2.DeviceFeatureSpec())
     except text_format.ParseError as ex:
       raise ValueError(f'Invalid raw spec: {ex}') from ex
-    # TODO(yhong): Stop migrating from the old data format once the migration
-    #     has completed.
-    _PatchDeviceFeatureSpec(self._spec)
+    return cls(db, spec)
+
+  @classmethod
+  def FromDeviceSelection(
+      cls,
+      db: db_module.Database,
+      device_selection: device_selection_pb2.DeviceSelection,
+  ) -> HWIDFeatureMatcher:
+    """Create an _HWIDFeatureMatcherImpl instance from device selection msg.
+
+    Args:
+      db: The HWID DB instance.
+      device_selection: A `device_selection_pb2.DeviceSelection` message.
+
+    Raises:
+      InvalidDeviceSelectionError: If the given DeviceSelection is not generated
+        from the project.
+    """
+    spec = feature_match_pb2.DeviceFeatureSpec(
+        feature_version=device_selection.feature_level)
+    prefixes = {
+        prefix
+        for hwid_profile in device_selection.hwid_profiles
+        for prefix in hwid_profile.prefixes
+    }
+    projs, unused_seps, brand_codes = zip(
+        *(prefix.partition('-') for prefix in prefixes))
+    if {db.project.upper()} != set(projs):
+      raise InvalidDeviceSelectionError(
+          'The project in prefix of device selection payload should only be '
+          f'single element {db.project.upper()!r}, found {sorted(set(projs))}.')
+    for brand_code in set(brand_codes):
+      spec.brand_code_permissions[brand_code].CopyFrom(
+          feature_match_pb2.FeatureEnablementPermission(
+              allow_soft_branded_legacy_units=True))
+
+    spec.hwid_requirement_candidates.extend(
+        feature_match_pb2.HwidRequirement(encoding_requirements=[
+            feature_match_pb2.HwidRequirement.EncodingRequirement(
+                bit_positions=encoding_requirement.bit_locations,
+                required_values=encoding_requirement.required_values,
+            ) for encoding_requirement in hwid_profile.encoding_requirements
+        ]) for hwid_profile in device_selection.hwid_profiles)
+    return cls(db, spec)
 
   @functools.cached_property
   def _soft_branded_legacy_brand_code_set(self) -> Set[str]:
@@ -378,8 +446,8 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
   def _GetHWIDIdentityFromHWIDString(
       self, hwid_string: str) -> identity_module.Identity:
     image_id = identity_module.GetImageIdFromEncodedString(hwid_string)
-    encoding_scheme = self._db.GetEncodingScheme(image_id)
     try:
+      encoding_scheme = self._db.GetEncodingScheme(image_id)
       return identity_module.Identity.GenerateFromEncodedString(
           encoding_scheme, hwid_string)
     except v3_common.HWIDException as ex:
@@ -441,6 +509,19 @@ def _ToFeatureEnablementPermissionMsg(
     else:
       raise AssertionError(f'Incomplete if-elif clause, {a!r} is not covered.')
   return inst
+
+
+def _PickSelection(
+    project: str,
+    selection_bundle: device_selection_pb2.SelectionBundle,
+) -> Optional[device_selection_pb2.DeviceSelection]:
+  for selection in selection_bundle.selections:
+    for profile in selection.hwid_profiles:
+      for prefix in profile.prefixes:
+        proj_in_profile, unused_sep, unused_brand = prefix.partition('-')
+        if proj_in_profile == project:
+          return selection
+  return None
 
 
 class HWIDFeatureMatcherBuilder:
@@ -518,4 +599,67 @@ class HWIDFeatureMatcherBuilder:
     Raises:
       ValueError: If the given source is invalid.
     """
-    return _HWIDFeatureMatcherImpl(db, source)
+    return _HWIDFeatureMatcherImpl.FromFeatureSpecData(db, source)
+
+  def CreateHWIDFeatureMatcherFromDeviceSelection(
+      self,
+      db: db_module.Database,
+      device_selection: device_selection_pb2.DeviceSelection,
+  ) -> HWIDFeatureMatcher:
+    """Creates a HWID feature matcher instance from DeviceSelection message.
+
+    Args:
+      db: The HWID DB instance.
+      device_selection: The DeviceSelection message that is expected to be
+        generated by `HWIDFeatureMatcher.GenerateLegacyPayload()`.
+
+    Returns:
+      The created instance.
+
+    Raises:
+      InvalidDeviceSelectionError: If the given DeviceSelection message is
+        invalid.
+    """
+    return _HWIDFeatureMatcherImpl.FromDeviceSelection(db, device_selection)
+
+  def CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+      self,
+      payload_config: config_data.CLSetting,
+      db: db_module.Database,
+      commit: str,
+  ) -> Optional[HWIDFeatureMatcher]:
+    """Creates a HWID feature matcher instance from commit of private-overlay.
+
+    Args:
+      payload_config: The payload config of the private-overlay repo containing
+        exported SelectionBundle prototxt.
+      db: The HWID DB instance.
+      commit: The commit ID of the private-overlay repo.
+
+    Returns:
+      The created instance, None if no SelectionBundle is created or no
+        corresponding DeviceSelection message exists for the given project.
+
+    Raises:
+      InvalidDeviceSelectionError: If the DeviceSelection is invalid.
+    """
+    payload = git_util.GetFileContent(
+        git_url_prefix=hwid_repo.INTERNAL_REPO_REVIEW_URL,
+        project=payload_config.project,
+        path=f'{payload_config.prefix}device_selection.textproto',
+        commit_id=commit,
+        auth_cookie=git_util.GetGerritAuthCookie(),
+        optional=True,
+    )
+    if payload is None:
+      return None
+    try:
+      selection_bundle = text_format.Parse(
+          payload, device_selection_pb2.SelectionBundle())
+    except text_format.ParseError as ex:
+      raise InvalidDeviceSelectionError(str(ex)) from None
+    device_selection = _PickSelection(db.project.upper(), selection_bundle)
+    if device_selection is None:
+      return None
+    return self.CreateHWIDFeatureMatcherFromDeviceSelection(
+        db, device_selection)
