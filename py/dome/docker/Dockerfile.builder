@@ -27,6 +27,13 @@ ENV workdir="${workdir}"
 
 WORKDIR "${workdir}"
 
+# install google-chrome-stable for dome e2e test environment.
+ARG dome_dev_run
+ENV dome_dev_run="${dome_dev_run}"
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+COPY docker/install_chrome.sh docker/install_chrome.sh
+RUN ./docker/install_chrome.sh
+
 # copy package.json and pull in dependencies first, so we don't need to do this
 # again if package.json hasn't been modified
 COPY frontend/package.json frontend/package-lock.json "${workdir}"/

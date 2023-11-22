@@ -218,6 +218,7 @@ DOME_DEV_FRONTEND_CONTAINER_NAME="dome-dev-frontend"
 DOME_DEV_DJANGO_CONTAINER_NAME="dome-dev-django"
 DOME_DEV_NGINX_CONTAINER_NAME="dome-dev-nginx"
 DOME_DEV_DOCKER_NETWORK_NAME="dome-dev-network"
+DOME_DEV_RUN="false"
 
 ensure_dir() {
   local dir="$1"
@@ -750,6 +751,7 @@ overlord_main() {
 do_dev_run() {
   check_docker
 
+  DOME_DEV_RUN="true"
   do_build
 
   local docker_db_dir="/var/db/factory/dome"
@@ -1027,6 +1029,7 @@ do_build_dome_deps() {
   ${DOCKER} build \
     --file "${builder_dockerfile}" \
     --tag "${builder_image_name}" \
+    --build-arg dome_dev_run="${DOME_DEV_RUN}" \
     --build-arg workdir="${builder_workdir}" \
     --build-arg output_file="${builder_output_file}" \
     "${DOME_DIR}"
