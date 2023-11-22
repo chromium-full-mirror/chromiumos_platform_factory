@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-22 15:07+CST\n"
+"PO-Revision-Date: 2023-11-28 17:08+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3459,6 +3459,7 @@ msgid "{instruction} then hit SPACE"
 msgstr "{instruction} จากนั้นกดปุ่ม SPACE"
 
 #: ../py/test/pytests/write_device_data_to_vpd.py
+#: ../py/test/pytests/write_device_data_to_vpd_unittest.py
 msgid "Writing device data to {vpd_section} VPD..."
 msgstr "กําลังเขียนข้อมูลอุปกรณ์ไปยัง {vpd_section} VPD..."
 
