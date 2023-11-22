@@ -4,8 +4,9 @@
 
 import "@testing-library/jest-dom";
 import { Status } from "../interfaces/common";
-import { backendURL } from "./common";
+import { backendURL, ParamsUndefined } from "./common";
 import {
+  getTestListSubtests,
   NestedTestSequence,
   TestSequenceResponse,
   TestService,
@@ -86,5 +87,29 @@ describe("Test service testing", () => {
       expectedURL,
       expectedCallOptions,
     );
+  });
+
+  test("Loader has no testListId", async () => {
+    const param = {
+      params: {
+        testListId: undefined,
+      },
+    };
+    const target = async () => await getTestListSubtests(param);
+    await expect(target).rejects.toThrow(ParamsUndefined);
+  });
+
+  test("Loader returns correct test subtests", async () => {
+    const param = {
+      params: {
+        testListId: "fake.test_list",
+      },
+    };
+
+    const spy = jest.spyOn(TestService.prototype, "getTestListSubtests");
+    spy.mockResolvedValue([]);
+
+    const result = await getTestListSubtests(param);
+    expect(result).toStrictEqual([]);
   });
 });

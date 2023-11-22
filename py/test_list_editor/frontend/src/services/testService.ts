@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import { BaseResponse } from "../interfaces/common";
-import { BaseService } from "./common";
+import { BaseService, ParamsUndefined } from "./common";
 
 export interface NestedTestSequence {
   test_item_id: string;
@@ -33,4 +33,30 @@ export class TestService extends BaseService {
     const response = await this.get<TestSequenceResponse>(this.endpoint);
     return response.data;
   }
+}
+
+interface param {
+  testListId?: string;
+  [key: string]: unknown;
+}
+
+interface loaderParams {
+  params: param;
+}
+
+/**
+ * Test list test sequence loader function.
+ *
+ * This function is for react router to make request when we visit
+ * the edit page.
+ */
+export async function getTestListSubtests({
+  params,
+}: loaderParams): Promise<NestedTestSequence[]> {
+  if (!params.testListId) {
+    throw new ParamsUndefined("Test list id is not defined");
+  }
+  const testService = new TestService(params.testListId);
+  const result = await testService.getTestListSubtests();
+  return result;
 }

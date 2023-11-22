@@ -15,6 +15,7 @@ import { ErrorPage } from "./pages/error";
 import { Landing } from "./pages/landing";
 import { Upload } from "./pages/upload";
 import { getTestItemConfig } from "./services/itemService";
+import { getTestListSubtests } from "./services/testService";
 
 // TODO: Move router to a separate browser.ts
 const router = createBrowserRouter([
@@ -39,6 +40,7 @@ const router = createBrowserRouter([
       },
       {
         path: ":testListId",
+        loader: getTestListSubtests,
         element: <EditMainPanel />,
         children: [
           {
