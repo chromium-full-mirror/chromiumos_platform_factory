@@ -17,6 +17,7 @@ from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configl
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
+from cros.factory.hwid.service.appengine import release_version_utils
 from cros.factory.utils import file_utils
 from cros.factory.utils import type_utils
 
@@ -107,6 +108,12 @@ class _Config:
             avl_metadata_topic,
             avl_metadata_cl_ccs,
         ))
+    release_version_setting = conf.get('release_version_setting', {})
+    bigquery_cloud_project = release_version_setting.get(
+        'bigquery_cloud_project', _CONFIG_DATA.cloud_project)
+    latest_push_sql = release_version_setting.get('latest_push_sql', '')
+    self.release_version_manager = release_version_utils.ReleaseVersionManager(
+        bigquery_cloud_project, latest_push_sql, ndb_connector)
 
 
 CONFIG = type_utils.LazyObject(_Config)
