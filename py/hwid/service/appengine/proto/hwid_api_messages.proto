@@ -227,7 +227,12 @@ message ComponentsRequest {
   // The included classes to filter the result.
   repeated string with_classes = 2;
   // A flag to indicate whether to return the detail fields in response.
-  bool verbose = 3;
+  // Deprecated. Use include_avl and include_fields instead.
+  bool verbose = 3 [deprecated = true];
+  // A flag to indicate whether to return the AVL info in response.
+  bool include_avl = 4;
+  // A flag to indicate whether to return the fields in response.
+  bool include_fields = 5;
 }
 
 // The response to a components request.

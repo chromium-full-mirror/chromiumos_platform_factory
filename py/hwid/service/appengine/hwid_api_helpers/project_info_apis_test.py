@@ -166,13 +166,12 @@ class ProtoRPCServiceTest(unittest.TestCase):
     msg = self.service.GetComponents(req)
 
     self.assertEqual(msg.status, StatusMsg.SUCCESS)
-    self.assertCountEqual(
-        list(msg.components), [
-            ComponentMsg(component_class='dram', name='dram1',
-                         status=SupportStatus.SUPPORTED),
-            ComponentMsg(component_class='storage', name='storage1',
-                         status=SupportStatus.SUPPORTED),
-        ])
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram1',
+                     status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1',
+                     status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetComponents_SuccessWithLimitedComponentClasses(self):
     sampled_components = {
@@ -201,13 +200,12 @@ class ProtoRPCServiceTest(unittest.TestCase):
     msg = self.service.GetComponents(req)
 
     self.assertEqual(msg.status, StatusMsg.SUCCESS)
-    self.assertCountEqual(
-        list(msg.components), [
-            ComponentMsg(component_class='dram', name='dram1',
-                         status=SupportStatus.SUPPORTED),
-        ])
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram1',
+                     status=SupportStatus.SUPPORTED),
+    ])
 
-  def testGetComponents_SuccessWithVerbose(self):
+  def testGetComponents_SuccessWithIncludeAVL(self):
     sampled_components = {
         'dram': {
             'dram_1_2': database.ComponentInfo({'key': 'value'}, 'supported')
@@ -229,20 +227,54 @@ class ProtoRPCServiceTest(unittest.TestCase):
     fake_hwid_action.GetComponents.side_effect = FakeGetComponents
     self._modules.ConfigHWID('FOO', '3', 'db data', fake_hwid_action)
 
-    req = hwid_api_messages_pb2.ComponentsRequest(project='foo', verbose=True)
+    req = hwid_api_messages_pb2.ComponentsRequest(project='foo',
+                                                  include_avl=True)
     msg = self.service.GetComponents(req)
 
     self.assertEqual(msg.status, StatusMsg.SUCCESS)
-    self.assertCountEqual(
-        list(msg.components), [
-            ComponentMsg(component_class='dram', name='dram_1_2', fields=[
-                FieldMsg(name='key', value='value')
-            ], avl_info=AVLInfoMsg(cid=1, qid=2), has_avl=True,
-                         status=SupportStatus.SUPPORTED),
-            ComponentMsg(component_class='storage', name='storage1', fields=[
-                FieldMsg(name='key', value='value')
-            ], status=SupportStatus.SUPPORTED),
-        ])
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(
+            component_class='dram', name='dram_1_2', avl_info=AVLInfoMsg(
+                cid=1, qid=2), has_avl=True, status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1',
+                     status=SupportStatus.SUPPORTED),
+    ])
+
+  def testGetComponents_SuccessWithIncludeFields(self):
+    sampled_components = {
+        'dram': {
+            'dram_1_2': database.ComponentInfo({'key': 'value'}, 'supported')
+        },
+        'storage': {
+            'storage1': database.ComponentInfo({'key': 'value'}, 'supported')
+        },
+    }
+
+    def FakeGetComponents(with_classes=None):
+      return {
+          k: v
+          for k, v in sampled_components.items()
+          if with_classes is None or k in with_classes
+      }
+
+    fake_hwid_action = mock.create_autospec(hwid_action.HWIDAction,
+                                            instance=True)
+    fake_hwid_action.GetComponents.side_effect = FakeGetComponents
+    self._modules.ConfigHWID('FOO', '3', 'db data', fake_hwid_action)
+
+    req = hwid_api_messages_pb2.ComponentsRequest(project='foo',
+                                                  include_fields=True)
+    msg = self.service.GetComponents(req)
+
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram_1_2', fields=[
+            FieldMsg(name='key', value='value')
+        ], status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1', fields=[
+            FieldMsg(name='key', value='value')
+        ], status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetRegionList_Success(self):
     resp = self.service.GetRegionList(

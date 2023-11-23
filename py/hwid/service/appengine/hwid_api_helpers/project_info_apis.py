@@ -102,10 +102,10 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
         status = (
             common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[comp_info.status])
         avl_info, fields = None, []
-        if request.verbose:
+        if request.include_avl:
           avl_info = self._bc_helper.GetAVLInfo(cls, comp)
-          if comp_info.values is not None:
-            fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)
+        if request.include_fields and not comp_info.value_is_none:
+          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)
 
         components_list.append(
             hwid_api_messages_pb2.Component(
