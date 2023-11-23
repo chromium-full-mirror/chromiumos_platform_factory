@@ -51,7 +51,7 @@ setup_local_server() {
       -d "{\"input_url\": \"/datastore/${ENTITY_FILE}\"}"
   fi
 
-  python -m flask run --host 0.0.0.0
+  python -m flask --debug run --host 0.0.0.0
 }
 
 start_server() {
