@@ -25,6 +25,7 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils.sys_utils import MountDeviceAndReadFile
 
+from cros.factory.external.chromeos_cli import futility
 from cros.factory.external.chromeos_cli import gsctool as gsctool_module
 from cros.factory.external.chromeos_cli import vpd
 
@@ -514,6 +515,7 @@ class SystemInfo(device_types.DeviceComponent):
         'addressing_mode': gsctool.GetAddressingMode(),
         'wpsr': wpsr_hex_str_list,
         'result': str(gsctool.GSCGetAPROResult()),
+        'rlz_ro_gscvd': futility.Futility().GetRLZFromROGSCVD(),
     }
 
   @InfoProperty
