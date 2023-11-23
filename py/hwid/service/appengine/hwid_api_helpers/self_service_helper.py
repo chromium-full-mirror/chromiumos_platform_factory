@@ -1016,12 +1016,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
     is_cl_expired, cl_expiration_reason = False, None
 
-    # Auto rebase metadata when bot commit merge conflict.
+    # Auto rebase metadata when merge conflict.
     merge_conflict = (
         cl_info.status == hwid_repo.HWIDDBCLStatus.NEW and
-        not cl_info.mergeable and cl_info.bot_commit)
+        not cl_info.mergeable)
 
-    if merge_conflict:
+    if merge_conflict and _IsCLReadyForCQ(cl_info):
       logging.info('CL %d merge conflict, perform auto rebase.', cl_number)
       try:
         self._hwid_repo_manager.RebaseCLMetadata(cl_info)
