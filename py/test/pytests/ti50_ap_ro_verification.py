@@ -100,7 +100,7 @@ class Ti50APROVerficationTest(test_case.TestCase):
                         f'and expanded_aprov_status: {status}')
 
         # Check the WPSR value for PVT/MP devices,
-        # it should be set to correct value instead of "0 0" for 
+        # it should be set to correct value instead of "0 0" for
         # security concern.
         wpsr_list = self.gsctool.GetWpsr()
         if (phase.GetPhase() >= phase.PVT and len(wpsr_list) == 1 and
