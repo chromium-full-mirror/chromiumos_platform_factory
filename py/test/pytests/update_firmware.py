@@ -72,10 +72,13 @@ from cros.factory.test.env import paths
 from cros.factory.test import event
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
+from cros.factory.test.utils import gsc_utils
 from cros.factory.test.utils import update_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 from cros.factory.utils import sys_utils
+
+from cros.factory.external.chromeos_cli import futility
 
 
 _FIRMWARE_UPDATER_NAME = 'chromeos-firmwareupdate'
@@ -176,6 +179,10 @@ class UpdateFirmwareTest(test_case.TestCase):
   def runTest(self):
     # Either download_from_server or from_release can be True.
     self.assertFalse(self.args.download_from_server and self.args.from_release)
+    is_ti50 = gsc_utils.GSCUtils().IsTi50()
+    if is_ti50:
+      logging.info('Current RLZ code in RO_GSCVD: %s',
+                   futility.Futility().GetRLZFromROGSCVD())
 
     @contextlib.contextmanager
     def GetUpdater():
@@ -205,3 +212,8 @@ class UpdateFirmwareTest(test_case.TestCase):
         self.UpdateFirmware()
     except NoUpdatesException:
       pass
+    else:
+      if is_ti50:
+        logging.info('New RLZ code in RO_GSCVD: %s',
+                     futility.Futility().GetRLZFromROGSCVD())
+        gsc_utils.GSCUtils().VerifyBrandCode()

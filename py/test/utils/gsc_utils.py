@@ -344,10 +344,10 @@ class GSCUtils:
         mode += '_flags'
 
     if not is_flags_only and self.IsTi50():
-      self._VerifyBrandCode()
+      self.VerifyBrandCode()
     self.ExecuteGSCSetScript(GSCScriptPath.BOARD_ID, mode)
 
-  def _VerifyBrandCode(self):
+  def VerifyBrandCode(self):
     """Makes sure brand code is consistent between RO_GSCVD and cros_config.
 
     To prevent setting wrong Board ID type, which makes AP RO verification fail.
