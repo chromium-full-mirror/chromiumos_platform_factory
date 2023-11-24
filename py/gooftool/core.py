@@ -1435,7 +1435,7 @@ class Gooftool:
         mode += '_flags'
 
     if not is_flags_only:
-      self._VerifyBrandCode()
+      self.VerifyBrandCode()
 
     cmd = [script_path, mode]
     try:
@@ -1458,7 +1458,7 @@ class Gooftool:
       logging.exception('Failed to set GSC Board ID.')
       raise
 
-  def _VerifyBrandCode(self):
+  def VerifyBrandCode(self):
     """Makes sure brand code is consistent between RO_GSCVD and cros_config.
 
     To prevent setting wrong Board ID type, which makes AP RO verification fail.
