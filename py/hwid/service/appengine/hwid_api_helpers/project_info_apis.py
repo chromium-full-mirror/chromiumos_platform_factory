@@ -2,16 +2,22 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import logging
-from typing import Optional
+from typing import Collection, NamedTuple, Optional
 
 from cros.factory.hwid.service.appengine import auth
+from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_mngr_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
+from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.service.appengine import release_version_utils
+from cros.factory.hwid.v3 import database as db_module
 from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.test.l10n import regions
 
@@ -19,21 +25,115 @@ from cros.factory.test.l10n import regions
 GET_REGION_LIST_RESPONSE = hwid_api_messages_pb2.GetRegionListResponse(
     region_codes=list(regions.REGIONS.keys()))
 
+_ImageVersionType = release_version_utils.ImageVersionType
+_SoftBrandEligibilityMsg = hwid_api_messages_pb2.SoftBrandEligibility
+_ImageVersionTypeMsg = _SoftBrandEligibilityMsg.ImageVersionType
+
+
+def _ConvertImageVersionTypeToMsg(
+    image_version_type: _ImageVersionType,
+) -> _ImageVersionTypeMsg.ValueType:
+  if image_version_type == _ImageVersionType.LATEST_PUSHED_STABLE:
+    return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE
+  if image_version_type == _ImageVersionType.LATEST_PUSHED_LTS:
+    return _ImageVersionTypeMsg.LATEST_PUSHED_LTS
+  raise ValueError(f'Unexpected image version type {image_version_type!r}')
+
+
+def _ExtractProjectName(hwid: str) -> str:
+  project_and_brand, unused_sep, unused_part = hwid.partition(' ')
+  project, unused_sep, unused_part = project_and_brand.partition('-')
+  return project
+
 
 def _NormalizeProjectString(string: str) -> Optional[str]:
   """Normalizes a string to account for things like case."""
   return string.strip().upper() if string else None
 
 
+class _SoftBrandEligibilityChecker(abc.ABC):
+
+  @abc.abstractmethod
+  def CheckEligibility(self, hwid: str) -> _SoftBrandEligibilityMsg.Entry:
+    """Check soft-brand eligibility of a given HWID string."""
+
+
+class _ErrorSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
+  """An implementation of eligibility checker which always generate errors."""
+
+  def __init__(
+      self,
+      version_type: _ImageVersionTypeMsg.ValueType,
+      error: _SoftBrandEligibilityMsg.Error,
+  ):
+    super().__init__()
+    self._version_type = version_type
+    self._error = error
+
+  def CheckEligibility(self, hwid: str) -> _SoftBrandEligibilityMsg.Entry:
+    """See base class."""
+    del hwid
+    return _SoftBrandEligibilityMsg.Entry(
+        version_type=self._version_type,
+        error=self._error,
+    )
+
+
+class _NormalSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
+  """An implementation of eligibility checker based on given feature_matcher."""
+
+  _SOFT_BRAND_ELIGIBLE_STATUSES = (
+      feature_matching.FeatureEnablementType.SOFT_BRANDED_LEGACY,
+      feature_matching.FeatureEnablementType.SOFT_BRANDED_WAIVER,
+  )
+
+  def __init__(
+      self,
+      version_type: _ImageVersionTypeMsg.ValueType,
+      feature_matcher: feature_matching.HWIDFeatureMatcher,
+  ):
+    super().__init__()
+    self._version_type = version_type
+    self._feature_matcher = feature_matcher
+
+  def CheckEligibility(self, hwid: str) -> _SoftBrandEligibilityMsg.Entry:
+    """See base class."""
+    try:
+      match_status = self._feature_matcher.Match(hwid)
+    except ValueError:
+      return _SoftBrandEligibilityMsg.Entry(
+          version_type=self._version_type,
+          error=_SoftBrandEligibilityMsg.Error(
+              message=f'Invalid HWID string: {hwid!r}.'),
+      )
+    return _SoftBrandEligibilityMsg.Entry(
+        version_type=self._version_type,
+        eligible=(match_status.enablement_type
+                  in self._SOFT_BRAND_ELIGIBLE_STATUSES),
+    )
+
+
+class _SoftBrandEligibilityCheckerSpec(NamedTuple):
+  version_type: _ImageVersionTypeMsg.ValueType
+  image_version: release_version_utils.ImageVersion
+  db: db_module.Database
+  repo_name: str
+  payload_config: config_data.CLSetting
+
+
 class ProjectInfoShard(common_helper.HWIDServiceShardBase):
 
-  def __init__(self,
-               hwid_action_manager: hwid_action_mngr_module.HWIDActionManager,
-               hwid_db_data_manager: hwid_db_data.HWIDDBDataManager,
-               bc_helper: bc_helper_module.BOMAndConfiglessHelper):
+  def __init__(
+      self,
+      hwid_action_manager: hwid_action_mngr_module.HWIDActionManager,
+      hwid_db_data_manager: hwid_db_data.HWIDDBDataManager,
+      bc_helper: bc_helper_module.BOMAndConfiglessHelper,
+      release_version_manager: release_version_utils.ReleaseVersionManager,
+  ):
     self._hwid_action_manager = hwid_action_manager
     self._hwid_db_data_manager = hwid_db_data_manager
     self._bc_helper = bc_helper
+    self._release_version_manager = release_version_manager
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -141,5 +241,159 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def GetSoftBrandEligibility(self, request):
-    raise common_helper.ConvertExceptionToProtoRPCException(
-        NotImplementedError('To be implemented'))
+    hwid_proj_mapping = {
+        hwid: _ExtractProjectName(hwid)
+        for hwid in request.hwid_strings
+    }
+    proj_board_mapping = {}
+    for proj in set(hwid_proj_mapping.values()):
+      try:
+        metadata = self._hwid_db_data_manager.GetHWIDDBMetadataOfProject(proj)
+      except (hwid_db_data.HWIDDBNotFoundError,
+              hwid_db_data.TooManyHWIDDBError):
+        logging.exception('Invalid project %s', proj)
+      else:
+        proj_board_mapping[proj] = metadata.board
+
+    eligibility_checkers = {
+        proj: self._CollectEligibilityCheckers(proj, board)
+        for proj, board in proj_board_mapping.items()
+    }
+
+    resp = hwid_api_messages_pb2.GetSoftBrandEligibilityResponse()
+    eligibilities = resp.soft_brand_eligibility
+    error_on_checking_eligibility = resp.error_on_checking_eligibility
+    for hwid in request.hwid_strings:
+      logging.info('Collecting soft-brand eligibility for hwid: %s', hwid)
+      proj = hwid_proj_mapping[hwid]
+      if proj not in eligibility_checkers:
+        error_on_checking_eligibility[hwid].CopyFrom(
+            hwid_api_messages_pb2.GetSoftBrandEligibilityResponse.Error(
+                message=f'Feature matcher not collected for {proj}.'))
+        continue
+      for eligibility_checker in eligibility_checkers[proj]:
+        eligibilities[hwid].eligibility_entries.append(
+            eligibility_checker.CheckEligibility(hwid))
+    return resp
+
+  def _CollectEligibilityCheckers(
+      self, proj: str, board: str) -> Collection[_SoftBrandEligibilityChecker]:
+    """Collects eligibility checkers of certain project.
+
+    Args:
+      proj: A string of project.
+      board: The corresponding board of the project.
+
+    Returns:
+      A sequence of eligibility checkers of the given project.
+
+    Raises:
+      protorpc_utils.ProtoRPCException: if unexpected image type is returned
+        from ReleaseVersionManager.GetLatestPushedVersions.
+    """
+    checkers = []
+    # Collect feature matcher from TOT.
+    try:
+      action = self._hwid_action_manager.GetHWIDAction(proj)
+    except (
+        hwid_action_mngr_module.ProjectNotFoundError,
+        hwid_action_mngr_module.ProjectNotSupportedError,
+        hwid_action_mngr_module.ProjectUnavailableError,
+    ):
+      checkers.append(
+          _ErrorSoftBrandEligibilityChecker(
+              version_type=_ImageVersionTypeMsg.TOT,
+              error=_SoftBrandEligibilityMsg.Error(
+                  message=f'Unable to get hwid_action of project {proj}.')))
+      return checkers
+    try:
+      feature_matcher = action.GetFeatureMatcher()
+    except (hwid_preproc_data.PreprocHWIDError, hwid_action.NotSupportedError):
+      logging.exception('Cannot get feature matcher from project %s', proj)
+      checkers.append(
+          _ErrorSoftBrandEligibilityChecker(
+              version_type=_ImageVersionTypeMsg.TOT,
+              error=_SoftBrandEligibilityMsg.Error(
+                  message=('Cannot get feature matcher of TOT from project '
+                           f'{proj}.'))))
+    else:
+      checkers.append(
+          _NormalSoftBrandEligibilityChecker(
+              version_type=_ImageVersionTypeMsg.TOT,
+              feature_matcher=feature_matcher,
+          ))
+
+    # Collect pushed version by project.
+    pushed_versions = self._release_version_manager.GetLatestPushedVersions(
+        proj)
+    payload_config = config_data.CreateHWIDSelectionPayloadSettings(board=board)
+    repo_name = payload_config.project
+    try:
+      db = action.GetDBV3()
+    except hwid_action.NotSupportedError:
+      error = f'{proj} is not a HWIDv3 project.'
+      for image_version_type, image_version in pushed_versions.items():
+        converted_version_type_msg = _ConvertImageVersionTypeToMsg(
+            image_version_type)
+        checkers.append(
+            _ErrorSoftBrandEligibilityChecker(
+                version_type=converted_version_type_msg,
+                error=_SoftBrandEligibilityMsg.Error(message=error)))
+      return checkers
+
+    # Collect feature matcher per Stable/LTS version.
+    for image_version_type, image_version in pushed_versions.items():
+      try:
+        converted_version_type_msg = _ConvertImageVersionTypeToMsg(
+            image_version_type)
+      except ValueError as ex:
+        logging.exception('Cannot convert image version type')
+        raise common_helper.ConvertExceptionToProtoRPCException(ex)
+      checker = self._CreateEligibilityCheckerBySpec(
+          _SoftBrandEligibilityCheckerSpec(
+              converted_version_type_msg,
+              image_version,
+              db,
+              repo_name,
+              payload_config,
+          ))
+      if checker is not None:
+        checkers.append(checker)
+    return checkers
+
+  def _CreateEligibilityCheckerBySpec(
+      self, spec: _SoftBrandEligibilityCheckerSpec
+  ) -> Optional[_SoftBrandEligibilityChecker]:
+    """Create eligibility checker by given spec.
+
+    Args:
+      spec: A _SoftBrandEligibilityCheckerSpec describing the requirements.
+
+    Returns:
+      A _SoftBrandEligibilityChecker instance generated by the spec, or None if
+        not applicable.
+    """
+    matcher_builder = feature_matching.HWIDFeatureMatcherBuilder()
+    try:
+      commit = self._release_version_manager.GetCommitID(
+          spec.repo_name, spec.image_version)
+    except release_version_utils.CommitUnavailableError:
+      logging.exception('GetCommitID fail')
+      return _ErrorSoftBrandEligibilityChecker(
+          version_type=spec.version_type, error=_SoftBrandEligibilityMsg.Error(
+              message=(f'Cannot get commit ID from {spec.image_version} of '
+                       f'{spec.repo_name}.')))
+    try:
+      matcher = (
+          matcher_builder.CreateHWIDFeatureMatcherFromPrivateOverlayCommit(
+              spec.payload_config, spec.db, commit))
+    except ValueError as ex:
+      logging.exception('Cannot get feature matcher')
+      return _ErrorSoftBrandEligibilityChecker(
+          version_type=spec.version_type, error=_SoftBrandEligibilityMsg.Error(
+              message=(f'Cannot get feature matcher from {commit} of '
+                       f'{spec.repo_name}: {ex}.')))
+    return None if matcher is None else _NormalSoftBrandEligibilityChecker(
+        version_type=spec.version_type,
+        feature_matcher=matcher,
+    )

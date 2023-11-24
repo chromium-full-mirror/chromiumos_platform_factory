@@ -643,6 +643,7 @@ class HWIDFeatureMatcherBuilder:
     Raises:
       InvalidDeviceSelectionError: If the DeviceSelection is invalid.
     """
+    # TODO(clarkchung): Consider caching the device selection payload.
     payload = git_util.GetFileContent(
         git_url_prefix=hwid_repo.INTERNAL_REPO_REVIEW_URL,
         project=payload_config.project,

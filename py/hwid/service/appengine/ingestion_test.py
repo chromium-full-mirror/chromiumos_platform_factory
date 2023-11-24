@@ -233,7 +233,8 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
         'cls2': ['cls2_4', 'notcls2_5', 'cls2_6']
     }
     fake_hwid_action = self._FakeHWIDAction(all_comps)
-    self.fixtures.ConfigHWID('PROJ1', 3, 'unused_raw_db', fake_hwid_action)
+    self.fixtures.ConfigHWID('PROJ1', 3, 'unused_raw_db',
+                             hwid_action=fake_hwid_action)
 
     # Initialize mapping
     get_avl_name_mapping.return_value = self.init_mapping_data
@@ -290,8 +291,10 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
     }
     fake_hwid_action1 = self._FakeHWIDAction(all_comps1)
     fake_hwid_action2 = self._FakeHWIDAction(all_comps2)
-    self.fixtures.ConfigHWID('PROJ1', 3, 'unused_raw_db', fake_hwid_action1)
-    self.fixtures.ConfigHWID('PROJ2', 3, 'unused_raw_db', fake_hwid_action2)
+    self.fixtures.ConfigHWID('PROJ1', 3, 'unused_raw_db',
+                             hwid_action=fake_hwid_action1)
+    self.fixtures.ConfigHWID('PROJ2', 3, 'unused_raw_db',
+                             hwid_action=fake_hwid_action2)
     get_avl_name_mapping.return_value = {
         1: 'name1',
         2: 'name2',

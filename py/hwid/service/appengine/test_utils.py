@@ -6,13 +6,14 @@ import fnmatch
 import math
 import tempfile
 import time
-from typing import Optional
+from typing import Callable, Optional
 
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine import hwid_action as hwid_action_module
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine import hwid_preproc_data
@@ -67,7 +68,7 @@ class FakeHWIDInstanceFactory(hwid_action_manager.IInstanceFactory):
 
   def CreateHWIDAction(self, hwid_data):
     if not isinstance(hwid_data, FakeHWIDPreprocData):
-      raise hwid_action_manager.ProjectUnavailableError()
+      raise hwid_action_manager.ProjectUnavailableError
     registered_hwid_action = self._hwid_actions.get(hwid_data.project)
     if registered_hwid_action is not None:
       return registered_hwid_action
@@ -75,7 +76,7 @@ class FakeHWIDInstanceFactory(hwid_action_manager.IInstanceFactory):
         hwid_data.project)
     if registered_hwid_action_factory is not None:
       return registered_hwid_action_factory(hwid_data)
-    raise hwid_action_manager.ProjectUnavailableError()
+    raise hwid_action_manager.ProjectUnavailableError
 
   def CreateHWIDPreprocData(self, metadata, raw_db,
                             raw_db_internal: Optional[str] = None,
@@ -127,9 +128,20 @@ class FakeModuleCollection:
     self.fake_avl_metadata_manager.CleanAllForTest()
     self._tmpdir_for_hwid_db_data.cleanup()
 
-  def ConfigHWID(self, project, version, raw_db, hwid_action=None,
-                 hwid_action_factory=None, commit_id='TEST-COMMIT-ID',
-                 raw_db_internal=None):
+  def ConfigHWID(
+      self,
+      project: str,
+      version: int,
+      raw_db: Optional[hwid_db_data.HWIDDBData],
+      *,
+      board: Optional[str] = None,
+      hwid_action: Optional[hwid_action_module.HWIDAction] = None,
+      hwid_action_factory: Optional[Callable[
+          [FakeHWIDPreprocData], hwid_action_module.HWIDAction]] = None,
+      commit_id: str = 'TEST-COMMIT-ID',
+      raw_db_internal: Optional[hwid_db_data.HWIDDBData] = None,
+      feature_matcher_source: Optional[str] = None,
+  ):
     """Specifies the behavior of the fake modules.
 
     This method lets caller assign the HWIDAction instance to return for the
@@ -140,14 +152,19 @@ class FakeModuleCollection:
       project: The project to configure.
       version: Specify the HWID version of the specific project.
       raw_db: Specify the HWID DB contents.
+      board: The board of the project, defaults to project if set to None.
       hwid_action: Specify the corresponding HWIDAction instance.
       hwid_action_factory: Specify the factory function to create the HWIDAction
           instance.  The given callable function should accept one positional
           argument -- the `FakeHWIDPreprocData` instance.
       raw_db_internal: Specify the internl HWID DB contents.
+      feature_matcher_source: The optional feature matcher source.
     """
+    if board is None:
+      board = project
     self.fake_hwid_db_data_manager.RegisterProjectForTest(
-        project, project, str(version), raw_db, commit_id, raw_db_internal)
+        board, project, str(version), raw_db, commit_id, raw_db_internal,
+        feature_matcher_source)
     self._fake_hwid_instance_factory.SetHWIDActionForProject(
         project, hwid_action, hwid_action_factory)
 

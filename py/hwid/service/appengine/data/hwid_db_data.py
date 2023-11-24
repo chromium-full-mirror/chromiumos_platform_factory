@@ -238,7 +238,8 @@ class HWIDDBDataManager:
   def RegisterProjectForTest(self, board: str, project: str, version: str,
                              hwid_db: Optional[HWIDDBData],
                              commit_id: str = 'TEST-COMMIT-ID',
-                             hwid_db_internal: Optional[HWIDDBData] = None):
+                             hwid_db_internal: Optional[HWIDDBData] = None,
+                             feature_matcher_source: Optional[str] = None):
     """Append a HWID data into the datastore.
 
     Args:
@@ -248,6 +249,7 @@ class HWIDDBDataManager:
       hwid_db: The HWID DB contents in string.
       commit_id: The commit id of the HWID DB.
       hwid_db_internal: The internal HWID DB contents in string.
+      feature_matcher_source: The optional feature matcher source.
     """
     try:
       metadata = self.GetHWIDDBMetadataOfProject(project)
@@ -267,6 +269,11 @@ class HWIDDBDataManager:
         hwid_db_internal = hwid_db
       self._fs_adapter.WriteFile(
           self._LivePath(metadata.path, internal=True), hwid_db_internal)
+    if feature_matcher_source is not None:
+      self._fs_adapter.WriteFile(
+          self._LivePathForFeatureMatcher(metadata.path),
+          feature_matcher_source,
+      )
 
   def _TryDeleteFile(self, path: str):
     try:
