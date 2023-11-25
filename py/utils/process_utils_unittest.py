@@ -244,8 +244,10 @@ class CommandPipeTest(unittest.TestCase):
 
     # dd will fail due to SIGPIPE error.
     p = CommandPipe(check=False).Pipe(['dd', 'if=/dev/zero']).Pipe(
-        ['xxd', '-p']).Pipe(['head', '-n2'])
-    self.assertEqual((('0' * 60 + '\n') * 2, ''), p.Communicate())
+        ['od', '-v']).Pipe(['head', '-n2'])
+    self.assertEqual(
+        (('0000000' + ' 000000' * 8 + '\n' + '0000020' + ' 000000' * 8 + '\n'),
+         ''), p.Communicate())
 
     with self.assertRaises(ValueError):
       CommandPipe().Communicate()
