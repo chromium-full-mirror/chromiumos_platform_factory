@@ -5,10 +5,20 @@
 
 import importlib
 import os
+import pathlib
+from typing import Any, Dict
 
 
-def _ExternalWrapperLoadModule(file_name, context):
-  name = os.path.splitext(os.path.basename(file_name))[0]
+def ExternalWrapperLoadModule(file_path: pathlib.Path,
+                              context: Dict[str, Any]) -> bool:
+  for parent in file_path.parents:
+    if '.'.join(parent.parts[-4:]) == 'cros.factory.external.py_lib':
+      file_path = file_path.relative_to(parent).with_suffix('')
+      break
+  else:
+    raise ValueError('External modules must under cros.factory.external.py_lib '
+                     f'Get file_path={file_path}')
+  name = '.'.join(file_path.parts)
   module = None
   result = False
   try:
@@ -35,4 +45,4 @@ def _ExternalWrapperLoadModule(file_name, context):
   return result
 
 
-MODULE_READY = _ExternalWrapperLoadModule(__file__, locals())
+MODULE_READY = ExternalWrapperLoadModule(pathlib.Path(__file__), locals())

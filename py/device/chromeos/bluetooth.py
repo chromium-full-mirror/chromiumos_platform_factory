@@ -24,7 +24,7 @@ from cros.factory.external.py_lib import dbus
 from cros.factory.external.py_lib.dbus import DBusException
 from cros.factory.external.py_lib.dbus.mainloop.glib import DBusGMainLoop
 from cros.factory.external.py_lib.dbus import service
-from cros.factory.external.py_lib import gobject
+from cros.factory.external.py_lib.gi.repository import GLib as gobject
 
 
 BUS_NAME = 'org.bluez'
@@ -314,7 +314,7 @@ class ChromeOSBluetoothManager(BluetoothManager):
       adapter = interfaces.get(ADAPTER_INTERFACE)
       if adapter is None:
         continue
-      if mac_addr and adapter.get(u'Address') != mac_addr:
+      if mac_addr and adapter.get('Address') != mac_addr:
         continue
       obj = bus.get_object(BUS_NAME, path)
       adapters.append(dbus.Interface(obj, ADAPTER_INTERFACE))
