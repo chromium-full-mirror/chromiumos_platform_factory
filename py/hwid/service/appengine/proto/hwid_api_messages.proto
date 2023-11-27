@@ -1050,12 +1050,22 @@ message SoftBrandEligibility {
     LATEST_PUSHED_STABLE = 2;
     TOT = 3;
   }
+  // The message of the error checking soft brand eligibility.
+  message Error {
+    // The error message as a string.
+    string message = 1;
+  }
   // The entry representing the eligible status and image version type.
   message Entry {
     // The version type.
     ImageVersionType version_type = 1;
-    // True if the device with the HWID is soft-brand eligible.
-    bool eligible = 2;
+    // The match result of soft-brand eligibility.
+    oneof match_result {
+      // True if the device with the HWID is soft-brand eligible.
+      bool eligible = 2;
+      // Error message if there was a problem checking the eligibility.
+      Error error = 3;
+    }
   }
   // The eligibility status per image types.
   repeated Entry eligibility_entries = 1;
@@ -1064,8 +1074,16 @@ message SoftBrandEligibility {
 // The response containing the map of hwid string and corresponding soft-brand
 // eligibility.
 message GetSoftBrandEligibilityResponse {
+  // The message of the error checking soft brand eligibility.
+  message Error {
+    // The error message as a string.
+    string message = 1;
+  }
   // The map of hwid string and corresponding soft-brand eligibility.
   map<string, SoftBrandEligibility> soft_brand_eligibility = 1;
+  // The map of hwid string and the error message if there was a problem
+  // checking the eligibility.
+  map<string, Error> error_on_checking_eligibility = 2;
 }
 
 service HwidService {
