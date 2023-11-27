@@ -124,7 +124,10 @@ class Ti50APROVerficationTest(test_case.TestCase):
       status = self.gsctool.GetExpandedAprovStatus()
       self.FailTask('Ti50 AP RO Verification failed '
                     f'with the following result: {result.name}, '
-                    f'and expanded_aprov_status: {status}')
+                    f'and expanded_aprov_status: {status}.\n'
+                    'To decode expanded_aprov_status, please run'
+                    f'`explain_ap_ro_verification_status 0x{status}` in '
+                    'chroot.')
 
     # Check the WPSR value for PVT/MP devices,
     # it should be set to correct value instead of "0 0" for security concern.
