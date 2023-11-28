@@ -13,8 +13,7 @@ from cros.factory.test_list_editor.backend.schema import files as file_schema
 def CreateBP():
   bp = Blueprint('files', __name__, url_prefix='/api/v1/files')
 
-  save_file_controller = file_controller.SaveFileController(
-      files_model.GetFactoryInstance())
+  controller = file_controller.FileController(files_model.GetFactoryInstance())
 
   @bp.route('/', methods=['PUT'])
   @validation.Validate
@@ -22,6 +21,6 @@ def CreateBP():
   def SaveFiles(
       request_body: file_schema.FilesRequest) -> file_schema.SaveFilesResponse:
     """Saves files sent from the frontend."""
-    return save_file_controller.SaveFiles(request_body)
+    return controller.SaveFiles(request_body)
 
   return bp

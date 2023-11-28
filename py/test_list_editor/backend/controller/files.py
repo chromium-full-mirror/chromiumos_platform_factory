@@ -9,7 +9,7 @@ from cros.factory.test_list_editor.backend.schema import common as common_schema
 from cros.factory.test_list_editor.backend.schema import files as file_schema
 
 
-class SaveFileController:
+class FileController:
 
   def __init__(self, factory: file_model.ITestListFileFactory):
     self.factory = factory

@@ -18,7 +18,7 @@ class TestFilesController(unittest.TestCase):
     self.file_factory_mock = mock.Mock()
     self.file_mock = mock.Mock()
     self.file_factory_mock.Get.return_value = self.file_mock
-    self.file_controller = file_controller.SaveFileController(
+    self.file_controller = file_controller.FileController(
         self.file_factory_mock)
 
     self.flask_app = Flask(__name__)
@@ -29,7 +29,7 @@ class TestFilesController(unittest.TestCase):
         mock.Mock(filename='foo1.txt', data={}),
         mock.Mock(filename='foo2.txt', data={})
     ]
-    controller = file_controller.SaveFileController(self.file_factory_mock)
+    controller = file_controller.FileController(self.file_factory_mock)
 
     with self.flask_app.app_context():
       g.session_folder = '/tmp/editor/uid123/sid123'
