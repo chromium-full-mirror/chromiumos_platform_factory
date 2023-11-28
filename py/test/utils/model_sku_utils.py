@@ -21,8 +21,7 @@ _RE_GENERATED_MODELSKU = re.compile(r'(\w+)_(\w+)_model_sku')
 _PROGRAM = 'program'
 _PROJECT = 'project'
 _DESIGN = 'design'
-_DEFAULT_SCHEMA_NAME = os.path.join(paths.FACTORY_DIR, 'py', 'test', 'pytests',
-                                    'model_sku')
+_DEFAULT_SCHEMA_NAME = os.path.join(paths.FACTORY_PYTESTS_DIR, 'model_sku')
 
 
 def GetDesignConfig(dut, product_name=None, sku_id=None,

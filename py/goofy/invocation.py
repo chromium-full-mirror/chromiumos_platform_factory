@@ -344,7 +344,7 @@ class TestInvocation:
     try:
       if not os.path.exists(self._source_code_path):
         source_code_file = os.path.join(
-            paths.FACTORY_PYTHON_DIR, 'test', 'pytests',
+            paths.FACTORY_PYTESTS_DIR,
             self.test.pytest_name.replace('.', '/') + '.py')
         os.symlink(source_code_file, self._source_code_path)
     except Exception:

@@ -5,7 +5,6 @@
 from distutils.version import LooseVersion
 import enum
 import logging
-import os
 import re
 
 from cros.factory.gooftool import gbb
@@ -458,10 +457,8 @@ class GSCUtils:
 
     # Reads `.../factory/py/test/pytests/model_sku.json`
     # for 'spi_flash_transform' information.
-    model_sku_config_path = os.path.join(paths.FACTORY_DIR, 'py', 'test',
-                                         'pytests')
     sku_config = model_sku_utils.GetDesignConfig(
-        self._dut, default_config_dirs=model_sku_config_path,
+        self._dut, default_config_dirs=paths.FACTORY_PYTESTS_DIR,
         config_name='model_sku')
     if 'spi_flash_transform' in sku_config and flash_name in sku_config[
         'spi_flash_transform']:
