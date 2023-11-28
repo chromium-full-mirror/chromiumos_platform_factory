@@ -1687,12 +1687,13 @@ class SelfServiceShardTest(unittest.TestCase):
         bundle_record=self._CreateBundleRecord(['proj']))
     resp = self.service.CreateHwidDbFirmwareInfoUpdateCl(req)
     comps = action.GetComponents(
-        ['ro_main_firmware', 'ro_fp_firmware', 'firmware_keys'])
+        ['ro_main_firmware', 'ro_fp_firmware', 'firmware_keys', 'sku_id'])
 
     self.assertIn('Google_Proj_1111_1_1', comps['ro_main_firmware'])
     self.assertIn('fp_firmware_1', comps['ro_fp_firmware'])
     self.assertIn('fp_firmware_2', comps['ro_fp_firmware'])
     self.assertIn('firmware_keys_mp_default', comps['firmware_keys'])
+    self.assertIn('sku_123', comps['sku_id'])
     self.assertIn('PROJ', resp.commits)
     self.assertEqual(resp.commits['PROJ'].cl_number, 123)
     self.assertEqual(resp.commits['PROJ'].new_hwid_db_contents,
@@ -2620,7 +2621,8 @@ class SelfServiceShardTest(unittest.TestCase):
               ], ro_main_firmware=[
                   _FirmwareRecord.FirmwareInfo(hash='hash_string',
                                                version='Google_Proj.1111.1.1')
-              ], supported=supported))
+              ], sku_id=[_FirmwareRecord.SkuId(sku_id='123')],
+              supported=supported))
 
     return _FactoryBundleRecord(board='board', firmware_signer='BoardMPKeys-V1',
                                 firmware_records=firmware_records)

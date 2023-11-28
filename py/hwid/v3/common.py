@@ -26,6 +26,7 @@ class FirmwareComps(str, enum.Enum):
   RO_EC_FIRMWARE = 'ro_ec_firmware'
   RO_FP_FIRMWARE = 'ro_fp_firmware'
   FIRMWARE_KEYS = 'firmware_keys'
+  SKU_ID = 'sku_id'
 
   @classmethod
   def has_value(cls, value: str):

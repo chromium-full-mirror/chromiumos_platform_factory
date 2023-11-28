@@ -787,6 +787,9 @@ message FactoryBundleRecord {
       string key_root = 2;
       string key_id = 3;
     }
+    message SkuId {
+      string sku_id = 1;
+    }
     // Model name of firmware info.
     string model = 1;
     // Firmware keys
@@ -800,6 +803,8 @@ message FactoryBundleRecord {
     bool supported = 6;
     // RO FP firmware info.
     repeated FirmwareInfo ro_fp_firmware = 7;
+    // SKU IDs.
+    repeated SkuId sku_id = 8;
   }
 
   // Firmware record of each model.
