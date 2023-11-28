@@ -1828,20 +1828,16 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(ex.exception.code,
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
-  @mock.patch('cros.factory.hwid.service.appengine.hwid_action_helpers'
-              '.v3_self_service_helper.HWIDV3SelfServiceActionHelper'
-              '.RemoveHeader')
-  def testCreateHwidDbFirmwareInfoUpdateCl_InternalError_AbandonCL(
-      self, remove_header):
-    self._ConfigLiveHWIDRepo('PROJ1', 3, 'db data')
-    self._ConfigLiveHWIDRepo('PROJ2', 3, 'db data')
+  def testCreateHwidDbFirmwareInfoUpdateCl_InternalError_AbandonCL(self):
+    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    self._ConfigLiveHWIDRepo('PROJ1', 3, raw_db)
+    self._ConfigLiveHWIDRepo('PROJ2', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [123, hwid_repo.HWIDRepoError]
-    action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    action.GetDBV3.return_value = mock.MagicMock(spec=database.WritableDatabase)
-    remove_header.return_value = 'db data'
-    self._modules.ConfigHWID('PROJ1', '3', 'db data', hwid_action=action)
-    self._modules.ConfigHWID('PROJ2', '3', 'db data', hwid_action=action)
+    action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
+    action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
+    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)
+    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))

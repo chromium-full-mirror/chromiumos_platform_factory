@@ -324,29 +324,6 @@ class DatabaseBuilderTest(unittest.TestCase):
 
   # TODO (b/212216855)
   @label_utils.Informational
-  def testUpdateByProbedResultsAddFirmware(self):
-    self._prompt_and_ask.return_value = True
-    with builder.DatabaseBuilder.FromFilePath(
-        db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.UpdateByProbedResults(
-          {
-              'ro_main_firmware': [{
-                  'name': 'generic',
-                  'values': {
-                      'hash': '1',
-                      'version': 'Google_Proj.2222.2.2'
-                  }
-              }]
-          }, {}, {}, [])
-
-    db = db_builder.Build()
-    # Should deprecated the legacy firmwares.
-    self.assertEqual(
-        db.GetComponents('ro_main_firmware')['firmware0'].status,
-        common.ComponentStatus.deprecated)
-
-  # TODO (b/212216855)
-  @label_utils.Informational
   def testUpdateByProbedResultsAddFirmware_SkipFirmwareComponents(self):
     self._prompt_and_ask.return_value = True
     with builder.DatabaseBuilder.FromFilePath(
@@ -799,26 +776,154 @@ class DatabaseBuilderTest(unittest.TestCase):
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddFirmwareComponent(self):
+  def testAddFirmwareComponents_Success(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent(
-          'ro_main_firmware', {'version': 'Google_Proj.2222.2.2'}, 'firmware1')
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.2222.2.2'
+      }], bundle_uuid='uuid1')
 
     db = db_builder.Build()
 
     components = db.GetComponents('ro_main_firmware')
-    self.assertDictEqual({'ro_main_firmware': ['firmware1']},
+    self.assertDictEqual({'ro_main_firmware': ['Google_Proj_2222_2_2']},
                          db.GetEncodedField('ro_main_firmware_field')[1])
-    self.assertIn('firmware1', components)
+    self.assertIn('Google_Proj_2222_2_2', components)
+    self.assertCountEqual(components['Google_Proj_2222_2_2'].bundle_uuids,
+                          ['uuid1'])
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddFirmwareComponent_NewCompClass_AppendNullAtZero(self):
+  def testAddFirmwareComponents_NotFirmwareComponent(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent(
-          'ro_fp_firmware', {'version': 'version_string'}, 'firmware1')
+      with self.assertRaisesRegex(builder.BuilderException,
+                                  "'not_a_fw' is not a firmware component"):
+        db_builder.AddFirmwareComponents('not_a_fw', [])
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_UpdatePatternForMultipleEntries(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('ro_main_firmware', [
+          {
+              'version': 'Google_Proj.2222.2.1'
+          },
+          {
+              'version': 'Google_Proj.2222.2.2'
+          },
+          {
+              'version': 'Google_Proj.2222.2.3'
+          },
+          {
+              'version': 'Google_Proj.2222.2.4'
+          },
+      ])
+
+    db = db_builder.Build()
+
+    self.assertEqual(
+        database.PatternField('ro_main_firmware_field', 2),
+        db.GetPattern().fields[-1])
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_FirmwareKeys_MP(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('firmware_keys', [{
+          'key_recovery': 'recovery',
+          'key_root': 'rootkey'
+      }], mp_key=True)
+
+    db = db_builder.Build()
+
+    components = db.GetComponents('firmware_keys')
+    self.assertIn('firmware_keys_mp', components)
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_FirmwareKeys_PreMP(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('firmware_keys', [{
+          'key_recovery': 'recovery',
+          'key_root': 'rootkey'
+      }], mp_key=False)
+
+    db = db_builder.Build()
+
+    components = db.GetComponents('firmware_keys')
+    self.assertIn('firmware_keys_premp', components)
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_FirmwareKeys_withKeyID(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('firmware_keys', [{
+          'key_recovery': 'recovery',
+          'key_root': 'rootkey',
+          'key_id': 'DEFAULT'
+      }])
+
+    db = db_builder.Build()
+
+    components = db.GetComponents('firmware_keys')
+    expected_value = {
+        'key_recovery': 'recovery',
+        'key_root': 'rootkey'
+    }
+    self.assertIn('firmware_keys_premp_default', components)
+    self.assertEqual(components['firmware_keys_premp_default'].values,
+                     expected_value)
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_UpdateExistingComponent(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.1111.1.1',
+          'hash': '0'
+      }], supported=True, bundle_uuid='uuid1')
+
+    db = db_builder.Build()
+
+    components = db.GetComponents('ro_main_firmware')
+    self.assertNotIn('firmware0', components)  # Renamed to Google_Proj_1111_1_1
+    self.assertCountEqual(components['Google_Proj_1111_1_1'].bundle_uuids,
+                          ['uuid1'])
+    self.assertEqual(components['Google_Proj_1111_1_1'].status, 'supported')
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_UpdateExistingComponent_DontRenameValidComps(
+      self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.2222.2.2'
+      }])
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.2222.2.2'
+      }])
+
+    db = db_builder.Build()
+
+    components = db.GetComponents('ro_main_firmware')
+    self.assertCountEqual(['firmware0', 'Google_Proj_2222_2_2'],
+                          components.keys())
+
+  # TODO (b/204729913)
+  @label_utils.Informational
+  def testAddFirmwareComponents_NewCompClass_AppendNullAtZero(self):
+    with builder.DatabaseBuilder.FromFilePath(
+        db_path=_TEST_DATABASE_PATH) as db_builder:
+      db_builder.AddFirmwareComponents('ro_fp_firmware', [{
+          'version': 'version_string'
+      }])
 
     db = db_builder.Build()
 
@@ -828,7 +933,7 @@ class DatabaseBuilderTest(unittest.TestCase):
                 'ro_fp_firmware': []
             },
             1: {
-                'ro_fp_firmware': ['firmware1']
+                'ro_fp_firmware': ['version_string']
             },
         }, db.GetEncodedField('ro_fp_firmware_field'))
     self.assertIn(
@@ -837,69 +942,32 @@ class DatabaseBuilderTest(unittest.TestCase):
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddFirmwareComponent_InitialDB_DontUpdatePattern(self):
+  def testAddFirmwareComponents_InitialDB_DontUpdatePattern(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_INITIAL_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent('ro_main_firmware',
-                                      {'version': 'Google_Proj.2222.2.2'},
-                                      'firmware1', True)
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.2222.2.2'
+      }], True)
 
     db = db_builder.Build()
 
     self.assertFalse(db.GetEncodedFieldsBitLength())
-    self.assertDictEqual({'ro_main_firmware': ['firmware1']},
+    self.assertDictEqual({'ro_main_firmware': ['Google_Proj_2222_2_2']},
                          db.GetEncodedField('ro_main_firmware_field')[0])
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddFirmwareComponent_RenameSameComponent(self):
+  def testAddFirmwareComponents_NameCollision(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent('firmware_keys',
-                                      {'key_recovery': 'some_hash'}, 'key1')
-      db_builder.AddFirmwareComponent('firmware_keys',
-                                      {'key_recovery': 'some_hash'}, 'key2')
-
-    db = db_builder.Build()
-
-    components = db.GetComponents('firmware_keys')
-    self.assertNotIn('key1', components)
-    self.assertDictEqual({'key_recovery': 'some_hash'},
-                         components['key2'].values)
-
-  # TODO (b/204729913)
-  @label_utils.Informational
-  def testAddFirmwareComponent_DontRenameValidComponent(self):
-    with builder.DatabaseBuilder.FromFilePath(
-        db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent('firmware_keys',
-                                      {'key_recovery': 'some_hash'}, 'key1')
-      db_builder.AddFirmwareComponent('firmware_keys',
-                                      {'key_recovery': 'some_hash2'}, 'key1')
-      db_builder.AddFirmwareComponent(
-          'firmware_keys', {'key_recovery': 'some_hash2'}, 'key1', True)
-
-    db = db_builder.Build()
-
-    components = db.GetComponents('firmware_keys')
-    self.assertIn('key1_1', components)
-    self.assertDictEqual({'key_recovery': 'some_hash2'},
-                         components['key1_1'].values)
-    self.assertEqual(components['key1_1'].status, 'supported')
-
-  # TODO (b/204729913)
-  @label_utils.Informational
-  def testAddFirmwareComponent_NameCollision(self):
-    with builder.DatabaseBuilder.FromFilePath(
-        db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFirmwareComponent('ro_ec_firmware', {
+      db_builder.AddFirmwareComponents('ro_ec_firmware', [{
           'version': 'version_string',
           'hash': '0'
-      }, 'firmware1')
-      db_builder.AddFirmwareComponent('ro_ec_firmware', {
+      }])
+      db_builder.AddFirmwareComponents('ro_ec_firmware', [{
           'version': 'version_string',
           'hash': '1'
-      }, 'firmware1')
+      }])
 
     db = db_builder.Build()
 
@@ -909,10 +977,10 @@ class DatabaseBuilderTest(unittest.TestCase):
                 'ro_ec_firmware': ['firmware0']
             },
             1: {
-                'ro_ec_firmware': ['firmware1']
+                'ro_ec_firmware': ['version_string']
             },
             2: {
-                'ro_ec_firmware': ['firmware1_1']
+                'ro_ec_firmware': ['version_string_1']
             },
         }, db.GetEncodedField('ro_ec_firmware_field'))
     self.assertIn(
@@ -921,38 +989,48 @@ class DatabaseBuilderTest(unittest.TestCase):
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddComponentCheck_AutoDeprecate(self):
+  def testAddFirmwareComponents_AutoDeprecate(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddComponentCheck('ro_main_firmware',
-                                   {'version': 'Google_Proj.2222.2.2'},
-                                   'firmware1', True)
-      db_builder.AddComponentCheck(
-          'ro_ec_firmware', {'version': 'proj_v2.0.22222'}, 'firmware1', True)
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_Proj.2222.2.2'
+      }], True)
+      db_builder.AddFirmwareComponents('ro_ec_firmware', [{
+          'version': 'proj_v2.0.22222'
+      }], True)
 
     db = db_builder.Build()
 
     components = db.GetComponents('ro_main_firmware')
     self.assertEqual('deprecated', components['firmware0'].status)
-    self.assertEqual('supported', components['firmware1'].status)
+    self.assertEqual('supported', components['Google_Proj_2222_2_2'].status)
 
     components = db.GetComponents('ro_ec_firmware')
     self.assertEqual('deprecated', components['firmware0'].status)
-    self.assertEqual('supported', components['firmware1'].status)
+    self.assertEqual('supported', components['proj_v2_0_22222'].status)
 
   # TODO (b/204729913)
   @label_utils.Informational
-  def testAddComponentCheck_OnlyDeprecatePrePVTKeys(self):
+  def testAddFirmwareComponents_OnlyDeprecatePrePVTKeys(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddComponentCheck('firmware_keys', {'key_recovery': 'hash1'},
-                                   'firmware_keys_dev', True)
-      db_builder.AddComponentCheck('firmware_keys', {'key_recovery': 'hash1'},
-                                   'firmware_keys_mp_default', True)
-      db_builder.AddComponentCheck('firmware_keys', {'key_recovery': 'hash1'},
-                                   'firmware_keys_mp_keyid1', True)
-      db_builder.AddComponentCheck('firmware_keys', {'key_recovery': 'hash1'},
-                                   'firmware_keys_mp_keyid2', True)
+      db_builder.AddFirmwareComponents('firmware_keys', [{
+          'key_recovery': 'hash1',
+          'key_root': 'devkeys'
+      }], True)
+      db_builder.AddFirmwareComponents('firmware_keys', [{
+          'key_recovery': 'hash2',
+          'key_root': 'mpkeys',
+          'key_id': 'DEFAULT'
+      }, {
+          'key_recovery': 'hash3',
+          'key_root': 'mpkeys',
+          'key_id': 'KEYID1'
+      }, {
+          'key_recovery': 'hash4',
+          'key_root': 'mpkeys',
+          'key_id': 'KEYID2'
+      }], True, mp_key=True)
 
     db = db_builder.Build()
 
@@ -963,15 +1041,15 @@ class DatabaseBuilderTest(unittest.TestCase):
     self.assertEqual('supported', components['firmware_keys_mp_keyid1'].status)
 
   @label_utils.Informational
-  def testAddComponentCheck_OnlyDeprecateSameIdentity(self):
+  def testAddFirmwareComponents_OnlyDeprecateSameIdentity(self):
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddComponentCheck('ro_main_firmware',
-                                   {'version': 'Google_NotProj.2222.2.2'},
-                                   'firmware1', True)
-      db_builder.AddComponentCheck('ro_ec_firmware',
-                                   {'version': 'notproj_v2.0.22222'},
-                                   'firmware1', True)
+      db_builder.AddFirmwareComponents('ro_main_firmware', [{
+          'version': 'Google_NotProj.2222.2.2'
+      }], True)
+      db_builder.AddFirmwareComponents('ro_ec_firmware', [{
+          'version': 'notproj_v2.0.22222'
+      }], True)
 
     db = db_builder.Build()
 
@@ -980,27 +1058,6 @@ class DatabaseBuilderTest(unittest.TestCase):
 
     components = db.GetComponents('ro_ec_firmware')
     self.assertEqual('supported', components['firmware0'].status)
-
-  @label_utils.Informational
-  def testAddComponentCheck_HandleCollisionName(self):
-    with builder.DatabaseBuilder.FromFilePath(
-        db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddComponentCheck('ro_main_firmware', {
-          'version': 'Google_Proj.1111.1.1',
-          'hash': '1'
-      }, 'firmware0', True)
-
-    db = db_builder.Build()
-
-    components = db.GetComponents('ro_main_firmware')
-    self.assertDictEqual({
-        'version': 'Google_Proj.1111.1.1',
-        'hash': '0'
-    }, components['firmware0'].values)
-    self.assertDictEqual({
-        'version': 'Google_Proj.1111.1.1',
-        'hash': '1'
-    }, components['firmware0_1'].values)
 
   # TODO (b/204729913)
   @label_utils.Informational

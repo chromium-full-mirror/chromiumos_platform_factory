@@ -8,7 +8,7 @@ import itertools
 import logging
 import re
 import textwrap
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Union
+from typing import Any, Dict, List, Mapping, NamedTuple, Optional, Sequence, Set, Union
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
@@ -50,9 +50,18 @@ def FilterSpecialCharacter(string: str) -> str:
   return string
 
 
-def DetermineComponentName(comp_cls: str, value: ProbedValueType,
-                           name_list=None):
-  comp_name = _DetermineComponentName(comp_cls, value)
+class FirmwareNameOptions(NamedTuple):
+  """Options to determine the firmware component name."""
+  mp_key: bool = False
+  key_id: Optional[str] = None
+
+
+def DetermineComponentName(
+    comp_cls: str, value: ProbedValueType,
+    name_list: Optional[Sequence[str]] = None, *,
+    firmware_name_opt: Optional[FirmwareNameOptions] = None) -> str:
+  comp_name = _DetermineComponentName(comp_cls, value,
+                                      firmware_name_opt=firmware_name_opt)
   if name_list is None:
     name_list = []
   return HandleCollisionName(comp_name, name_list)
@@ -88,10 +97,14 @@ def _DetermineFeatureManagementComponentName(comp_cls: str,
 
 
 def _DetermineFirmwareComponentName(unused_comp_cls: str,
-                                    value: ProbedValueType) -> str:
-  if 'devkeys' in value['key_root']:
+                                    value: ProbedValueType,
+                                    opt: FirmwareNameOptions) -> str:
+  if 'devkeys' in value.get('key_root', {}):
     return 'firmware_keys_dev'
-  return 'firmware_keys_non_dev'
+  comp_name = f'firmware_keys_{"mp" if opt.mp_key else "premp"}'
+  if opt.key_id is not None:
+    comp_name = f'{comp_name}_{opt.key_id.lower()}'
+  return comp_name
 
 
 def _DetermineSkuIdComponentName(unused_comp_cls: str,
@@ -99,7 +112,9 @@ def _DetermineSkuIdComponentName(unused_comp_cls: str,
   return f'sku_{value["sku_id"]}'
 
 
-def _DetermineComponentName(comp_cls: str, value: ProbedValueType):
+def _DetermineComponentName(
+    comp_cls: str, value: ProbedValueType, *,
+    firmware_name_opt: Optional[FirmwareNameOptions] = None) -> str:
   """Determines the component name by the value.
 
   For some specific components, we can determine a meaningful name by the
@@ -110,14 +125,19 @@ def _DetermineComponentName(comp_cls: str, value: ProbedValueType):
   Args:
     comp_cls: the component class name.
     value: the probed value of the component item.
+    firmware_name_opt: the options for determining firmware component name.
 
   Returns:
     the component name.
   """
   component_name_generators = {
-      'feature_management_flags': _DetermineFeatureManagementComponentName,
-      'firmware_keys': _DetermineFirmwareComponentName,
-      'sku_id': _DetermineSkuIdComponentName,
+      'feature_management_flags':
+          _DetermineFeatureManagementComponentName,
+      'firmware_keys':
+          functools.partial(_DetermineFirmwareComponentName,
+                            opt=firmware_name_opt or FirmwareNameOptions()),
+      'sku_id':
+          _DetermineSkuIdComponentName,
   }
 
   if comp_cls in component_name_generators:
@@ -354,49 +374,83 @@ class DatabaseBuilder:
       self._database.AddEncodedFieldComponents(field_name, {comp_cls: []})
 
   @_EnsureInBuilderContext
-  def AddFirmwareComponent(self, comp_cls, value, comp_name,
-                           supported=False) -> database.ComponentInfo:
-    # Update the name, status and bundle_uuis if the probe value exists in the
+  def _AddFirmwareComponent(self, comp_cls: str, value: ProbedValueType,
+                            supported: bool = False, mp_key: bool = False,
+                            bundle_uuid: Optional[str] = None):
+    comps = self.GetComponents(comp_cls)
+    key_id = value.pop('key_id', None)
+    comp_name = DetermineComponentName(
+        comp_cls, value, list(comps), firmware_name_opt=FirmwareNameOptions(
+            mp_key=mp_key, key_id=key_id))
+    # Update the name, status and bundle_uuid if the probe value exists in the
     # database.
-    for old_comp_name, comp_info in self.GetComponents(comp_cls).items():
+    for old_comp_name, comp_info in comps.items():
       if (value and not comp_info.value_is_none and
           dict.__eq__(comp_info.values, value)):
         status = (
             common.ComponentStatus.supported if supported else comp_info.status)
-        # Only rename if the old component name is incorrect.
-        if re.fullmatch(fr'{re.escape(comp_name)}_\d+', old_comp_name):
+        # Don't rename if the old component name is already valid.
+        if comp_name.rsplit('_')[0] == old_comp_name.rsplit('_')[0]:
           comp_name = old_comp_name
+        bundle_uuids = comp_info.bundle_uuids
+        if bundle_uuid is not None:
+          bundle_uuids = list(bundle_uuids) + [bundle_uuid]
         self.UpdateComponent(comp_cls, old_comp_name, comp_name,
                              comp_info.values, status, comp_info.information,
-                             comp_info.bundle_uuids)
-        return self.GetComponents(comp_cls)[comp_name]
-
-    field_name = f'{comp_cls}_field'
+                             bundle_uuids)
+        return
 
     # Append null comp for new firmware comp, otherwise the index 0 will be
     # decoded by default and break the existing devices.
+    field_name = f'{comp_cls}_field'
     if (not self._database.is_initial and
         comp_cls not in common.ESSENTIAL_COMPS and
         comp_cls not in self._database.GetComponentClasses()):
       self.AddNullComponent(comp_cls)
       self.AppendEncodedFieldBit(field_name, 1)
 
-    comp_info = self.AddComponentCheck(comp_cls, value, comp_name,
-                                       supported=supported)
+    self._DeprecateOldFirmwareComponent(comp_cls, value)
+    self.AddComponentCheck(comp_cls, value, comp_name, supported=supported)
 
-    # Get the comp_name by hash again since it may be renamed if there's
-    # a collision
-    comp_name = self.GetComponentNameByHash(comp_cls, comp_info.comp_hash)
+    if bundle_uuid is not None:
+      self._database.SetBundleUUIDs(comp_cls, comp_name, [bundle_uuid])
+
     if field_name not in self._database.encoded_fields:
       self.AddNewEncodedField(comp_cls, [comp_name])
     else:
       self.AddEncodedFieldComponents(field_name, comp_cls, [comp_name])
-    # Skip updating pattern to initial DB since it swill cause error due to
+
+  @_EnsureInBuilderContext
+  def AddFirmwareComponents(self, comp_cls: str,
+                            values: Sequence[ProbedValueType],
+                            supported: bool = False, mp_key: bool = False,
+                            bundle_uuid: Optional[str] = None):
+    """Adds firmware components.
+
+    This function also does the following things beside adding components:
+    1. If there's a component with the same probed value, the old component will
+       be updated instead of add a new one.
+    2. If a firmware component is successfully added, old firmware components
+       with the same identity will be deprecated.
+
+    Args:
+      comp_cls: component class.
+      supported: whether to set the status to "supported".
+      mp_key: whether the firmware is a MP signed firmware.
+      bundle_uuid: set bundle_uuid for the component.
+
+    Raises:
+      BuilderException if the given comp_cls is not a firmware component.
+    """
+    if not common.FirmwareComps.has_value(comp_cls):
+      raise BuilderException(f'{comp_cls!r} is not a firmware component.')
+    for value in values:
+      self._AddFirmwareComponent(comp_cls, value, supported, mp_key,
+                                 bundle_uuid)
+    # Skip updating pattern to initial DB since it will cause error due to
     # missing essential comps.
     if not self._database.is_initial:
       self._UpdatePattern()
-
-    return comp_info
 
   @_EnsureInBuilderContext
   def AddRegions(self, new_regions, region_field_name='region_field'):
@@ -419,7 +473,7 @@ class DatabaseBuilder:
       added_regions.add(new_region)
       self._database.AddEncodedFieldComponents(
           region_field_name, {common.REGION_CLS: [new_region]})
-    # Skip updating pattern to initial DB since it swill cause error due to
+    # Skip updating pattern to initial DB since it will cause error due to
     # missing essential comps.
     if not self._database.is_initial:
       self._UpdatePattern()
@@ -580,16 +634,15 @@ class DatabaseBuilder:
   @_EnsureInBuilderContext
   def AddComponentCheck(self, comp_cls: str, probed_value: ProbedValueType,
                         set_comp_name: Optional[str] = None,
-                        supported: bool = False) -> database.ComponentInfo:
+                        supported: bool = False):
     """Tries to add an item into the component.
 
     This method is called with probed value from factory process instead of
     existing HWID DB content, so it has to perform the following checks:
 
-      1. Mark previously supported firmware components as deprecated.
-      2. Generate component names by the info of probe values if not specified
+      1. Generate component names by the info of probe values if not specified
          at the set_comp_name argument.
-      3. Deprecate default component of the same component class.
+      2. Deprecate default component of the same component class.
 
     Args:
       comp_cls: The component class.
@@ -597,18 +650,9 @@ class DatabaseBuilder:
       set_comp_name: Set component name for the item. If None is given, it will
         be determined automatically.
       supported: whether to mark the added component as supported.
-
-    Returns:
-      The added component info.
     """
-
-    if common.FirmwareComps.has_value(comp_cls):
-      self._DeprecateOldFirmwareComponent(comp_cls, probed_value)
-
-    comps = list(self._database.GetComponents(comp_cls))
-    comp_name = (
-        HandleCollisionName(set_comp_name, comps) or
-        DetermineComponentName(comp_cls, probed_value, comps))
+    comp_name = set_comp_name or DetermineComponentName(
+        comp_cls, probed_value, list(self._database.GetComponents(comp_cls)))
 
     logging.info('Component %s: add an item "%s".', comp_cls, comp_name)
     status = (
@@ -616,13 +660,11 @@ class DatabaseBuilder:
         if supported else common.ComponentStatus.unqualified)
     self._database.AddComponent(comp_cls, comp_name, probed_value, status)
 
-    # Deprecate the default component.
+    # Mark the default component unsupported.
     default_comp_name = self._database.GetDefaultComponent(comp_cls)
     if default_comp_name is not None:
       self._database.SetComponentStatus(comp_cls, default_comp_name,
                                         common.ComponentStatus.unsupported)
-
-    return self.GetComponents(comp_cls)[comp_name]
 
   @_EnsureInBuilderContext
   def AddComponent(self, comp_cls: str, comp_name: str,

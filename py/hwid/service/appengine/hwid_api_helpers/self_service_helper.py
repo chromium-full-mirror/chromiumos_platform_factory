@@ -13,7 +13,6 @@ import time
 from typing import Container, Generic, Iterable, Iterator, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Sized, Tuple, Type, TypeVar
 import uuid
 
-from google.protobuf import descriptor
 from google.protobuf import json_format
 
 from cros.factory.hwid.service.appengine import auth
@@ -383,6 +382,22 @@ def _IsCQCountOverLimit(cl_info: hwid_repo.HWIDDBCLInfo) -> bool:
 
 def _HasCQCountOverLimitHashtag(cl_info: hwid_repo.HWIDDBCLInfo) -> bool:
   return CQ_COUNT_OVER_LIMIT_HASHTAG in cl_info.hashtags
+
+
+def _HasCoveredBundleUUID(db: database.Database, request_uuid: str) -> bool:
+  """
+  Check if the added components are covered by any other uuid, which should be a
+  no-op.
+  """
+  try:
+    covered_bundle_uuids = set.intersection(
+        *(set(comp_info.bundle_uuids)
+          for comp_cls in v3_common.FirmwareComps
+          for comp_info in db.GetComponents(comp_cls).values()
+          if request_uuid in comp_info.bundle_uuids))
+  except TypeError as ex:
+    raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+  return covered_bundle_uuids > {request_uuid}
 
 
 class FeatureMatcherBuildResult(NamedTuple):
@@ -826,6 +841,18 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     bundle_record = request.bundle_record
     request_uuid = str(uuid.uuid4())
     all_commits = []
+
+    # Derive firmware key component name
+    mp_key = False
+    if bundle_record.firmware_signer:
+      match = re.fullmatch(f'{bundle_record.board}(mp|premp)keys(?:-v[0-9]+)?',
+                           bundle_record.firmware_signer.lower())
+      if match is None:
+        raise common_helper.ConvertExceptionToProtoRPCException(
+            ValueError('Cannot derive firmware key name from signer: '
+                       f'{bundle_record.firmware_signer}.'))
+      mp_key = (match.group(1) == 'mp')
+
     for firmware_record in bundle_record.firmware_records:
       model = _NormalizeProjectString(firmware_record.model)
       # Load HWID DB
@@ -839,66 +866,24 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
               hwid_repo.HWIDRepoError) as ex:
         raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
-      # Derive firmware key component name
-      keys_comp_name = None
-      if bundle_record.firmware_signer:
-        match = re.fullmatch(
-            f'{bundle_record.board}(mp|premp)keys(?:-v[0-9]+)?',
-            bundle_record.firmware_signer.lower())
-        if match is None:
-          raise common_helper.ConvertExceptionToProtoRPCException(
-              ValueError('Cannot derive firmware key name from signer: '
-                         f'{bundle_record.firmware_signer}.'))
-        keys_comp_name = f'firmware_keys_{match.group(1)}'
-
-      covered_bundle_uuids = None
       db = action.GetDBV3()
       old_hwid_db_contents_external = action.PatchHeader(
           db.DumpDataWithoutChecksum(internal=False,
                                      suppress_support_status=False))
+
       # Add component to DB
+      firmware_record_dict = json_format.MessageToDict(
+          firmware_record, preserving_proto_field_name=True)
       with v3_builder.DatabaseBuilder.FromExistingDB(db=db) as db_builder:
-        for field, values in firmware_record.ListFields():
-          if (field.message_type is None or
-              not v3_common.FirmwareComps.has_value(field.name)):
-            continue
-
-          if field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
-            values = [values]
-
-          for value in values:
-            value = json_format.MessageToDict(value,
-                                              preserving_proto_field_name=True)
-            if (field.name == v3_common.FirmwareComps.FIRMWARE_KEYS and
-                keys_comp_name):
-              comp_name = keys_comp_name
-              key_id = value.pop('key_id', None)
-              if key_id:
-                comp_name = f'{keys_comp_name}_{key_id.lower()}'
-            else:
-              comp_name = v3_builder.DetermineComponentName(field.name, value)
-
-            try:
-              comp = db_builder.AddFirmwareComponent(
-                  field.name, value, comp_name,
-                  supported=firmware_record.supported)
-            except ValueError as ex:
-              raise common_helper.ConvertExceptionToProtoRPCException(
-                  ex) from None
-
-            # Get the comp_name by hash again since it may be renamed if there's
-            # a collision
-            comp_name = db_builder.GetComponentNameByHash(
-                field.name, comp.comp_hash)
-            db_builder.GetComponents(field.name)[comp_name] = comp.Replace(
-                bundle_uuids=list(comp.bundle_uuids) + [request_uuid])
-
-            # If the added components are covered by any other uuid, this CL
-            # is a no-op.
-            if covered_bundle_uuids is None:
-              covered_bundle_uuids = set(comp.bundle_uuids)
-            else:
-              covered_bundle_uuids &= set(comp.bundle_uuids)
+        for comp_cls in v3_common.FirmwareComps:
+          values = firmware_record_dict.get(comp_cls, [])
+          try:
+            db_builder.AddFirmwareComponents(
+                str(comp_cls), values, bundle_uuid=request_uuid,
+                supported=firmware_record.supported, mp_key=mp_key)
+          except ValueError as ex:
+            raise common_helper.ConvertExceptionToProtoRPCException(
+                ex) from None
 
       db = db_builder.Build()
 
@@ -909,8 +894,8 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       hwid_db_contents_external = action.PatchHeader(
           db.DumpDataWithoutChecksum(internal=False,
                                      suppress_support_status=False))
-      if (covered_bundle_uuids and
-          hwid_db_contents_external == old_hwid_db_contents_external):
+      if (hwid_db_contents_external == old_hwid_db_contents_external and
+          _HasCoveredBundleUUID(db, request_uuid)):
         logging.info('No component is added/modified to DB: %s', model)
         continue
 
