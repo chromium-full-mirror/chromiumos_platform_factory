@@ -22,7 +22,6 @@ import re
 import socket
 import sys
 import time
-
 import yaml
 
 from cros.factory.device import info
@@ -202,15 +201,8 @@ class TestsCommand(Subcommand):
 
   def Init(self):
     self.subparser.add_argument(
-        '--interesting', '-i', action='store_true',
-        help=('Show only information about "interesting" tests '
-              '(tests that are not untested or passed'))
-    self.subparser.add_argument(
         '--status', '-s', action='store_true',
         help='Include information about test status')
-    self.subparser.add_argument(
-        '--yaml', action='store_true',
-        help='Show lots of information in YAML format')
     self.subparser.add_argument(
         '--this-run', action='store_true',
         help='Show only information about current active run')
@@ -276,11 +268,6 @@ class TestsCommand(Subcommand):
     # Ignore parents
     tests = [x for x in tests if not x.get('parent')]
 
-    if self.args.interesting:
-      tests = [
-          x for x in tests if x['status'] in [
-              TestState.ACTIVE, TestState.FAILED]]
-
     if self.args.this_run:
       scheduled_tests = (
           goofy.GetTestRunStatus(None).get('scheduled_tests') or [])
@@ -291,9 +278,7 @@ class TestsCommand(Subcommand):
     for t in tests:
       t['label'] = _GetLabel(t['path'])
 
-    if self.args.yaml:
-      print(yaml.safe_dump(tests))
-    elif self.args.csv:
+    if self.args.csv:
       # the csv can be used to generate factory test status sheet like the
       # template here: go/factory-test-status-template
       print('\n'.join(_GetHeader()))
