@@ -486,6 +486,9 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 },
                 'firmware-signing': {
                     'signature-id': 'randomSignId'
+                },
+                'identity': {
+                    'sku-id': 123
                 }
             }, {
                 'name': 'test',
@@ -494,6 +497,9 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 },
                 'firmware-signing': {
                     'signature-id': 'randomSignId'
+                },
+                'identity': {
+                    'sku-id': 456
                 }
             }]
         }
@@ -509,8 +515,7 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
     self.assertEqual(
         firmware_record, {
             'firmware_records': [{
-                'model':
-                    'test',
+                'model': 'test',
                 'firmware_keys': [{
                     'key_id': 'DEFAULT',
                     'key_recovery': 'hash123',
@@ -522,6 +527,11 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 }, {
                     'hash': 'hash456',
                     'version': 'version456'
+                }],
+                'sku_id': [{
+                    'sku_id': '123'
+                }, {
+                    'sku_id': '456'
                 }]
             }]
         })
@@ -536,7 +546,10 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 },
                 'firmware-signing': {
                     'signature-id': 'randomSignId'
-                }
+                },
+                'identity': {
+                    'sku-id': 123
+                },
             }, {
                 'name': 'test15W360',
                 'firmware': {
@@ -544,6 +557,9 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 },
                 'firmware-signing': {
                     'signature-id': 'randomSignId'
+                },
+                'identity': {
+                    'sku-id': 456
                 }
             }]
         }
@@ -565,6 +581,9 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 'name': 'randomFWKey',
                 'firmware-signing': {
                     'signature-id': 'randomSignId'
+                },
+                'identity': {
+                    'sku-id': 123
                 }
             }]
         }
@@ -578,8 +597,7 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
     self.assertEqual(
         firmware_record, {
             'firmware_records': [{
-                'model':
-                    'randomFWKey',
+                'model': 'randomFWKey',
                 'firmware_keys': [{
                     'key_id': 'DEFAULT',
                     'key_recovery': 'hash123',
@@ -588,6 +606,9 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 'ro_main_firmware': [{
                     'hash': 'hash123',
                     'version': 'version123'
+                }],
+                'sku_id': [{
+                    'sku_id': '123'
                 }]
             }]
         })

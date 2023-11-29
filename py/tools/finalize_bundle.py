@@ -910,6 +910,7 @@ class FinalizeBundle:
     firmware_record = {}
     firmware_manifest_keys = collections.defaultdict(set)
     firmware_sign_ids = collections.defaultdict(set)
+    sku_ids = collections.defaultdict(set)
 
     cros_config = os.path.join(image_path, CROS_CONFIG_YAML_PATH)
     cros_config = yaml.safe_load(file_utils.ReadFile(cros_config))
@@ -921,6 +922,8 @@ class FinalizeBundle:
       model = config.get('name')
       if model not in models:
         continue
+      if 'sku-id' in config['identity']:
+        sku_ids[model].add(config['identity']['sku-id'])
       manifest_key = config.get('firmware', {}).get('image-name') or model
       firmware_manifest_keys[manifest_key].add(model)
       firmware_sign_ids[model].add(config['firmware-signing']['signature-id'])
@@ -997,6 +1000,11 @@ class FinalizeBundle:
 
         if model in fp_firmware_hash:
           record['ro_fp_firmware'] = fp_firmware_hash[model]
+
+        # 4) Firmware SKU IDs
+        record['sku_id'] = [{
+            'sku_id': str(sku_id)
+        } for sku_id in sorted(sku_ids.get(model, []))]
 
         firmware_record['firmware_records'].append(record)
 
