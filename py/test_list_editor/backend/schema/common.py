@@ -49,3 +49,20 @@ class BaseRequest(BaseModel):
   # ref: https://docs.pydantic.dev/usage/model_config/#options
   class Config:
     extra = 'forbid'
+
+
+class BaseHeader(BaseModel):
+  """Base header class with no extra fields.
+
+  This class uses the Config class to forbid any extra fields. The setting
+  can be overridden by defining it in inherited class.
+
+  Attributes:
+    N/A
+  """
+
+  # The Config class is used by Pydantic and the `forbid` value denies having
+  # any fields other than the defined ones.
+  # ref: https://docs.pydantic.dev/usage/model_config/#options
+  class Config:
+    extra = 'forbid'

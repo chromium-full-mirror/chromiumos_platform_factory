@@ -2,11 +2,13 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+from typing import Tuple
 import unittest
 from unittest import mock
 
 from flask import Flask
 from pydantic import BaseModel
+from pydantic import Field
 
 from cros.factory.test_list_editor.backend.middleware import validation
 from cros.factory.test_list_editor.backend.middleware import validation_exception
@@ -110,18 +112,43 @@ class TestValidateResponse(unittest.TestCase):
 
   def testValidResponse(self):
 
-    class UserResponse(BaseModel):
+    class UserResponseBody(BaseModel):
       user_id: int
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
-    def CreateUser() -> UserResponse:
-      return UserResponse(user_id=123)
+    def CreateUser() -> UserResponseBody:
+      return UserResponseBody(user_id=123)
 
     with self.app.test_client() as client:
       response = client.get('/users/')
-      self.assertEqual(response.status_code, 200)
-      self.assertEqual(response.get_json(), {'user_id': 123})
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.get_json(), {'user_id': 123})
+
+  def testValidResponseTupleType(self):
+
+    class UserResponseBody(BaseModel):
+      user_id: int
+
+    class UserResponseHeader(common.BaseHeader):
+      custom_header: str = Field(alias='custom-header')
+
+    @self.app.route('/export/users/', methods=['GET'])
+    @validation.Validate
+    def DownloadUser() -> Tuple[UserResponseBody, UserResponseHeader]:
+      header = {
+          'custom-header': '1'
+      }
+      return UserResponseBody(user_id=123), UserResponseHeader(**header)
+
+    with self.app.test_client() as client:
+      response = client.get('/export/users/')
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.headers.get('custom-header', None), '1')
+    self.assertEqual(response.get_json(), {'user_id': 123})
+
 
   def testValidResponseDifferentClass(self):
 
@@ -134,7 +161,7 @@ class TestValidateResponse(unittest.TestCase):
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
     def GetUser() -> UserResponse:
-      return AnotherUserResponse(user_id=123)
+      return AnotherUserResponse(user_id=123)  # type: ignore
 
     with self.app.test_client() as client:
       response = client.get('/users/')
@@ -152,7 +179,7 @@ class TestValidateResponse(unittest.TestCase):
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
     def CreateUser() -> UserResponse:
-      return BadUserResponse(user_id='abc')
+      return BadUserResponse(user_id='abc')  # type: ignore
 
     with self.app.test_client() as client:
       response = client.get('/users/')
@@ -160,6 +187,22 @@ class TestValidateResponse(unittest.TestCase):
       self.assertEqual(response.get_json()['status'],
                        common.StatusEnum.VALIDATION_ERROR)
 
+  def testInvalidResponseUnknownType(self):
+
+    class UserResponseBody(BaseModel):
+      user_id: int
+
+    class BadUserResponse(BaseModel):
+      bad_data: int
+
+    @self.app.route('/export/bad/users/', methods=['GET'])
+    @validation.Validate
+    def DownloadBadUser() -> Tuple[UserResponseBody, BadUserResponse]:
+      return UserResponseBody(user_id=123), BadUserResponse(bad_data=1)
+
+    with self.app.test_client() as client:
+      response = client.get('/export/bad/users/')
+      self.assertEqual(response.status_code, 500)
 
 class TestCombinedUsecase(unittest.TestCase):
 

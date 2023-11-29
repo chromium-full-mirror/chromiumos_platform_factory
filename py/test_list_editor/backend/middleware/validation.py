@@ -47,7 +47,7 @@ def CreateUser(params: UserIDParam, request_body: UserData) -> UserResponse:
 from functools import wraps
 import os
 import typing
-from typing import Type
+from typing import Callable, Sequence, Type, Union
 
 from flask import g
 from flask import request
@@ -56,6 +56,7 @@ from pydantic import ValidationError
 
 from cros.factory.test_list_editor.backend.middleware import validation_exception as exceptions
 from cros.factory.test_list_editor.backend.models import files as file_model
+from cros.factory.test_list_editor.backend.schema import common as common_schema
 
 
 _PARAMS_STR = 'params'
@@ -96,7 +97,7 @@ def _ValidateDataWithModels(
     raise model_exception(str(e)) from e
 
 
-def Validate(f):
+def Validate(f: Callable[..., Union[Sequence[BaseModel], BaseModel]]):
   """Decorator function for validating request and response.
 
   This decorator function validates the incoming request's parameters, request
@@ -127,7 +128,23 @@ def Validate(f):
           hints[_REQUEST_STR], request.get_json(),
           exceptions.RequestValidationException)
 
-    result: BaseModel = f(**func_kwargs)
+    result = f(**func_kwargs)
+
+    if isinstance(result, Sequence):
+      resp_type = hints[_RESPONSE_STR]
+
+      body = _ValidateDataWithModels(resp_type.__args__[0], result[0].dict(),
+                                     exceptions.ResponseValidationException)
+      if len(result) == 2 and issubclass(resp_type.__args__[1],
+                                         common_schema.BaseHeader):
+        header = _ValidateDataWithModels(resp_type.__args__[1],
+                                         result[1].dict(by_alias=True),
+                                         exceptions.ResponseValidationException)
+        return body.dict(), header.dict(by_alias=True)
+
+      # TODO(louischiu): Handle the other cases here.
+      raise exceptions.ResponseValidationException(
+          'Unexpected response argument')
     result_data = _ValidateDataWithModels(
         hints[_RESPONSE_STR], result.dict(),
         exceptions.ResponseValidationException)
