@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-11-28 17:57+UTC\n"
+"PO-Revision-Date: 2023-11-29 11:40+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -2647,16 +2647,19 @@ msgid "Please scan the {label} and press ENTER."
 msgstr "กรุณาสแกน {label} แล้วกดเอนเตอร์"
 
 #: ../py/test/pytests/shopfloor_service.py
+#: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Retry"
 msgstr "ลองใหม่"
 
 #: ../py/test/pytests/shopfloor_service.py
-msgid "Invoking shopfloor service"
-msgstr "กําลังเรียกใช้บริการ shopfloor"
-
-#: ../py/test/pytests/shopfloor_service.py
+#: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Shopfloor exception:"
 msgstr "ข้อผิดพลาดจาก shopfloor:"
+
+#: ../py/test/pytests/shopfloor_service.py
+#: ../py/test/pytests/shopfloor_service_unittest.py
+msgid "Invoking shopfloor service"
+msgstr "กําลังเรียกใช้บริการ shopfloor"
 
 #: ../py/test/pytests/shutdown.py
 msgid "reboot"

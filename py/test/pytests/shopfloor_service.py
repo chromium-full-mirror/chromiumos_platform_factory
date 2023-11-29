@@ -238,6 +238,24 @@ class ShopfloorService(test_case.TestCase):
       return {}
     return privacy.FilterDict(result.GetValue(''))
 
+  def ShowMessage(self, caption, css, message, retry=False):
+    retry_button = [
+        '<button data-test-event="retry">',
+        _('Retry'), '</button>'
+    ] if retry else ''
+    self.ui.SetState([
+        f'<span class="{css}">', caption,
+        '</span><p><textarea rows=25 cols=90 readonly>',
+        test_ui.Escape(message, False), '</textarea><p>', retry_button
+    ])
+
+  def HandleError(self, message, invocation_message):
+    self.ShowMessage(
+        _('Shopfloor exception:'), 'test-status-failed large', '\n'.join(
+            (message.splitlines()[-1], invocation_message, message)), True)
+    process_utils.WaitEvent(self.event)
+    self.event.clear()
+
   def runTest(self):
     self.event_loop.AddEventHandler(
         'retry', lambda unused_event: self.event.set())
@@ -281,27 +299,9 @@ class ShopfloorService(test_case.TestCase):
         lambda fault, prompt: logging.exception(prompt, fault))
 
     while True:
-      def ShowMessage(caption, css, message, retry=False):
-        retry_button = [
-            '<button data-test-event="retry">',
-            _('Retry'), '</button>'
-        ] if retry else ''
-        self.ui.SetState([
-            f'<span class="{css}">', caption,
-            '</span><p><textarea rows=25 cols=90 readonly>',
-            test_ui.Escape(message, False), '</textarea><p>', retry_button
-        ])
-
-      ShowMessage(_('Invoking shopfloor service'), 'test-status-active large',
-                  invocation_message)
-
-      def HandleError(message):
-        ShowMessage(_('Shopfloor exception:'), 'test-status-failed large',
-                    '\n'.join((message.splitlines()[-1],
-                               invocation_message, message)), True)
-        process_utils.WaitEvent(self.event)
-        self.event.clear()
-
+      self.ShowMessage(
+          _('Invoking shopfloor service'), 'test-status-active large',
+          invocation_message)
       try:
         result = getattr(server, method)(*args, **kargs)
         logging.info('shopfloor_service: %s%s => %r',
@@ -312,8 +312,8 @@ class ShopfloorService(test_case.TestCase):
       except server_proxy.Fault as f:
         message = f.faultString
         logger.Log(message, 'Server fault occurred: %s')
-        HandleError(message)
+        self.HandleError(message, invocation_message)
       except Exception:
         message = debug_utils.FormatExceptionOnly()
         logger.Log(message, 'Exception invoking shopfloor service: %s')
-        HandleError(message)
+        self.HandleError(message, invocation_message)
