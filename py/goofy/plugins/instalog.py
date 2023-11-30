@@ -120,7 +120,7 @@ class Instalog(plugin.Plugin):
         'input': {
             self.INPUT_TESTLOG_ID: {
                 'plugin': 'input_testlog_file',
-                'targets': self.OUTPUT_UPLOAD_ID,
+                'targets': [],
                 'args': {
                     'path': testlog_json_path,
                     'max_bytes': _TESTLOG_JSON_MAX_BYTES,
@@ -128,26 +128,30 @@ class Instalog(plugin.Plugin):
             },
         },
         'output': {
-            self.OUTPUT_UPLOAD_ID: {
-                'plugin': 'output_http',
-                'args': {
-                    'hostname': self._uplink_hostname,
-                    'port': self._uplink_port,
-                    'url_path': 'instalog'
-                },
-            },
             self.OUTPUT_FILE_ID: {
                 'plugin': 'output_file',
                 'args': {
                     'interval': 10,
                     'target_dir': paths.DATA_TESTLOG_DIR
                 },
-                'allow': [{'rule': 'testlog', 'type': 'station.test_run'}]
+                'allow': [{
+                    'rule': 'testlog',
+                    'type': 'station.test_run'
+                }]
             }
         },
     }
-    if not self._uplink_enable:
-      del config['output'][self.OUTPUT_UPLOAD_ID]
+    if self._uplink_enable:
+      config['output'][self.OUTPUT_UPLOAD_ID] = {
+          'plugin': 'output_http',
+          'args': {
+              'hostname': self._uplink_hostname,
+              'port': self._uplink_port,
+              'url_path': 'instalog'
+          },
+      }
+      config['input'][self.INPUT_TESTLOG_ID]['targets'].append(
+          self.OUTPUT_UPLOAD_ID)
 
     logging.info('Instalog: Saving config YAML to: %s', self._config_path)
     with open(self._config_path, 'w', encoding='utf8') as f:
@@ -244,15 +248,15 @@ class Instalog(plugin.Plugin):
       timeout = _DEFAULT_FLUSH_TIMEOUT
     if uplink and self._uplink_enable:
       p = self._RunCommand(
-          ['flush', self.OUTPUT_UPLOAD_ID, '--timeout', str(timeout)],
-          read_stdout=True)
+          ['flush', self.OUTPUT_UPLOAD_ID, '--timeout',
+           str(timeout)], verbose=True, read_stdout=True)
       result[self.OUTPUT_UPLOAD_ID] = json.loads(p.stdout_data.rstrip())
       if p.returncode != 0:
         return False, json.dumps(result)
     if local:
       p = self._RunCommand(
-          ['flush', self.OUTPUT_FILE_ID, '--timeout', str(timeout)],
-          read_stdout=True)
+          ['flush', self.OUTPUT_FILE_ID, '--timeout',
+           str(timeout)], verbose=True, read_stdout=True)
       result[self.OUTPUT_FILE_ID] = json.loads(p.stdout_data.rstrip())
       if p.returncode != 0:
         return False, result
@@ -271,7 +275,7 @@ class Instalog(plugin.Plugin):
     """Called when the plugin starts."""
     self._CreateInstalogConfig()
     self._RunCommand(['start', '--no-daemon'], stdout=process_utils.DEVNULL,
-                     stderr=process_utils.DEVNULL)
+                     stderr=process_utils.DEVNULL, verbose=True)
 
   @type_utils.Overrides
   def OnStop(self):

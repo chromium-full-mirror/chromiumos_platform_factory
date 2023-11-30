@@ -65,9 +65,9 @@
     },
     "instalog": {
       "args": {
-        "uplink_hostname": "localhost",
-        "uplink_port": 8086,
-        "uplink_use_factory_server": true
+        "uplink_hostname": "",
+        "uplink_port": 0,
+        "uplink_use_factory_server": false
       }
     },
     "device_manager": {},

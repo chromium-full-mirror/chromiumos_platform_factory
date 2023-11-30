@@ -8,9 +8,9 @@
     },
     "instalog": {
       "args": {
-        "uplink_hostname": "localhost",
-        "uplink_port": 7500,
-        "uplink_use_factory_server": true
+        "uplink_hostname": "",
+        "uplink_port": 0,
+        "uplink_use_factory_server": false
       }
     },
     "station_setup.station_setup": {

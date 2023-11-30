@@ -73,6 +73,38 @@
             }
           },
           "type": "object"
+        },
+        "instalog": {
+          "additionalProperties": false,
+          "description": "Run Instalog as a Goofy plugin.",
+          "properties": {
+            "args": {
+              "additionalProperties": false,
+              "properties": {
+                "uplink_hostname": {
+                  "default": "",
+                  "description": "Hostname of the target for uploading logs.",
+                  "type": "string"
+                },
+                "uplink_port": {
+                  "default": 0,
+                  "description": "Port of the target for uploading logs.",
+                  "type": "integer"
+                },
+                "uplink_use_factory_server": {
+                  "default": false,
+                  "description": "Use the configured factory server's IP and port instead. If unable to properly retrieve the IP and port, fall back to uplink_hostname and uplink_port.",
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            },
+            "enabled": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "type": "object"
         }
       },
       "additionalProperties": false

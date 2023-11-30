@@ -362,7 +362,8 @@ class SyncFactoryServer(test_case.TestCase):
     while not result:
       result, progress = self.goofy.FlushTestlog(timeout=2)
       self.ui.SetState(
-          _('Flush Test Log: Progress = <br>{progress}', progress=progress))
+          _('Flush Test Log: Progress = <br>{progress}',
+            progress=str(progress)))
 
   def CreateReport(self):
     self.ui.SetState(_('Collecting report data...'))
