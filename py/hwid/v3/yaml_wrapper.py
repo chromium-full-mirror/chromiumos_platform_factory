@@ -337,7 +337,7 @@ class _RegionComponentYAMLTagHandler(_HWIDV3YAMLTagHandler):
       return dumper.represent_scalar(cls.YAML_TAG, _YAML_DUMMY_STRING)
     return dumper.represent_mapping(
         cls.YAML_TAG, {
-            str(status): list(region_list)
+            str(status): sorted(region_list)
             for status, region_list in data.status_lists.items()
         })
 

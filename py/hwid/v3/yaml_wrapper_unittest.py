@@ -189,6 +189,13 @@ class ParseRegionComponentUnittest(unittest.TestCase):
     doc = 'region: !region_component\n  unqualified: [zz]\n  unsupported: [aa]'
     self.assertEqual(yaml.safe_load(doc), _Load2(doc))
 
+  def testDumpRegionComponent_EnsureStatusListOrder(self):
+    region_comps = yaml.RegionComponent(
+        status_lists={'unqualified': ['zz', 'bb']})
+
+    expected_doc = '!region_component\nunqualified: [bb, zz]\n'
+    self.assertEqual(expected_doc, yaml.safe_dump(region_comps))
+
   def testUpdateRegionComponentStatus_Succeed(self):
     comp = _Load2('region: !region_component\n')
     comp['region'].UpdateStatus('aa', 'unqualified')
