@@ -1167,6 +1167,7 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
   _NVME_MODEL = 'nvme_model'
 
   _INVISIBLE_EMMC_TAG = '(to_be_removed)'
+  _NA = 'N/A'
 
   def __init__(self):
 
@@ -1250,11 +1251,11 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
     """See base class."""
     probe_param_inputs = _ToProbeParamInputs(probe_params)
 
-    # Treat "empty NVMe model string" as not exist.
+    # Treat "empty or N/A NVMe model string" as not exist.
     nvme_model_params = probe_param_inputs.pop(self._NVME_MODEL, [])
     for nvme_model_param in nvme_model_params:
-      if (nvme_model_param.raw_value.WhichOneof('value') != 'string_value' or
-          nvme_model_param.raw_value.string_value):
+      if (nvme_model_param.raw_value.string_value and
+          nvme_model_param.raw_value.string_value.upper().strip() != self._NA):
         probe_param_inputs[self._NVME_MODEL].append(nvme_model_param)
 
     if self._NVME_MODEL not in probe_param_inputs:
@@ -1276,13 +1277,12 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
       self, probe_result: Mapping[str, Sequence[Mapping[str, str]]]
   ) -> Sequence[_ParsedProbeParameter]:
     """See base class."""
-    for storage_res in probe_result.get('storage', []):
-      if self._NVME_MODEL in storage_res:
-        break
-    else:
-      return self._emmc_and_host_converter.ParseProbeResult(probe_result)
+    if any(
+        self._NVME_MODEL in storage_res
+        for storage_res in probe_result.get('storage', [])):
+      return self._nvme_converter.ParseProbeResult(probe_result)
 
-    return self._nvme_converter.ParseProbeResult(probe_result)
+    return self._emmc_and_host_converter.ParseProbeResult(probe_result)
 
   def GetNormalizedProbeParams(
       self,

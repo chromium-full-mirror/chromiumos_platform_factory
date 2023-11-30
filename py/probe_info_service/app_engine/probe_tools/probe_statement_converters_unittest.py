@@ -1626,6 +1626,47 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
     ]
     self.assertCountEqual(actual.output, expected_probe_statements)
 
+  def testParseProbeParam_WithNANVMeModel_CanGenerateMMCAndMMCHostPS(self):
+    probe_params = [
+        _CreateStrProbeParam('mmc_manfid', '0x1a'),
+        _CreateStrProbeParam('mmc_name', '0x656565656565'),
+        _CreateStrProbeParam('bridge_pcie_vendor', '0xab12'),
+        _CreateStrProbeParam('bridge_pcie_device', '0xcd34'),
+        _CreateStrProbeParam('bridge_pcie_class', '0xef5678'),
+        _CreateStrProbeParam('nvme_model', 'N/A'),
+    ]
+
+    actual = self._converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'storage', 'comp_name-storage', {
+                'eval': {
+                    'mmc_storage': {}
+                },
+                'expect': {
+                    'mmc_manfid': [True, 'hex', '!eq 0x1A'],
+                    'mmc_name': [True, 'str', '!eq eeeeee']
+                }
+            }),
+        probe_config_types.ComponentProbeStatement(
+            'mmc_host', 'comp_name-bridge', {
+                'eval': {
+                    'mmc_host': {
+                        'is_emmc_attached': True,
+                    }
+                },
+                'expect': {
+                    'pci_vendor_id': [True, 'hex', '!eq 0xAB12'],
+                    'pci_device_id': [True, 'hex', '!eq 0xCD34'],
+                    'pci_class': [True, 'hex', '!eq 0xEF5678'],
+                }
+            })
+    ]
+    self.assertCountEqual(actual.output, expected_probe_statements)
+    self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
   def testParseProbeParam_WithLowerCaseParams_CanGenerateNVMePS(self):
     probe_params = [
         _CreateStrProbeParam('mmc_manfid', '0x1a'),
