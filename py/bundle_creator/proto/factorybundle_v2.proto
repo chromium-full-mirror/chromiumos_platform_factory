@@ -106,6 +106,7 @@ message GetFirmwareInfoPreviewResponse {
   repeated string main_ro_image = 1;
   repeated string ec_ro_image = 2;
   repeated string fp_ro_image = 3;
+  repeated string firmware_key_id = 4;
 }
 
 

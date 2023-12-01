@@ -266,27 +266,43 @@ class StubbyHandlerTest(unittest.TestCase):
         'chromeos': {
             'configs': [{
                 'name': 'proj',
-                'firmware': {
-                    'main-ro-image': 'main-ro.bin',
-                    'ec-ro-image': 'ec-ro.bin'
-                },
                 'fingerprint': {
                     'board': 'fpboard'
                 }
             }]
         }
     }
-    self._mock_image_archive_storage_connector.ReadFile.return_value = (
-        json.dumps(cros_config))
+    build_report = {
+        'config': {
+            'models': [{
+                'name':
+                    'proj',
+                'firmwareKeyId':
+                    'DEFAULT',
+                'versions': [{
+                    'kind': 'MODEL_VERSION_KIND_EC_FIRMWARE',
+                    'value': 'ec_version_string'
+                }, {
+                    'kind': 'MODEL_VERSION_KIND_MAIN_READONLY_FIRMWARE',
+                    'value': 'main_version_string'
+                }]
+            }]
+        }
+    }
+    self._mock_image_archive_storage_connector.ReadFile.side_effect = [
+        json.dumps(cros_config),
+        json.dumps(build_report)
+    ]
 
     request = factorybundle_v2_pb2.GetFirmwareInfoPreviewRequest(
         project='proj', board='board', milestone=111, version='1111.1.1')
     response = self._stubby_handler.GetFirmwareInfoPreview(request)
 
     expected_response = factorybundle_v2_pb2.GetFirmwareInfoPreviewResponse()
-    expected_response.main_ro_image.append('main-ro.bin')
-    expected_response.ec_ro_image.append('ec-ro.bin')
+    expected_response.main_ro_image.append('main_version_string')
+    expected_response.ec_ro_image.append('ec_version_string')
     expected_response.fp_ro_image.append('fpboard')
+    expected_response.firmware_key_id.append('DEFAULT')
     self.assertEqual(expected_response, response)
 
   def _CreateStorageBundleInfo(
