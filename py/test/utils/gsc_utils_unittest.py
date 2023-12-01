@@ -526,11 +526,10 @@ class GSCUtilsTest(unittest.TestCase):
     with self.assertLogs() as cm:
       self.gsc.ExecuteGSCSetScript(GSCScriptPath.BOARD_ID, 'args')
 
-    self.shell.assert_called_with(
-        ['/usr/share/cros/hwsec-utils/gsc_set_board_id', 'args'])
+    self.shell.assert_called_with(['/usr/sbin/gsc_set_board_id', 'args'])
     self.assertSequenceEqual(cm.output, [
         'INFO:root:Successfully set BOARD_ID on GSC with '
-        '`/usr/share/cros/hwsec-utils/gsc_set_board_id args`.'
+        '`/usr/sbin/gsc_set_board_id args`.'
     ])
 
   def testExecuteGSCSetScriptAlreadySet(self):
