@@ -351,19 +351,25 @@ class HWIDSelectionPayloadManager(PayloadManager):
     for model in sorted(models):
       try:
         hwid_action = self._hwid_action_manager.GetHWIDAction(model)
-        selection = hwid_action.GetFeatureMatcher().GenerateLegacyPayload()
+        feature_matcher = hwid_action.GetFeatureMatcher()
+        selection = feature_matcher.GenerateLegacyPayload()
         if selection is None:
           continue
         generated_models.append(model)
         payload_builder.AppendDeviceSelection(selection)
+        payload_builder.ExtendDeviceSelectionSamples(
+            feature_matcher.GenerateLegacyTestData())
       except (KeyError, ValueError, RuntimeError) as ex:
         self._logger.error('Cannot get model data: %r', ex)
         continue
-    payload_msg = payload_builder.Build()
+    payload_msg = payload_builder.BuildDeviceSelection()
     if payload_msg is None:
       return None
     payloads = {
-        'device_selection.textproto': payload_msg
+        'device_selection.textproto':
+            payload_msg,
+        'device_selection_sample.textproto':
+            payload_builder.BuildDeviceSelectionSample(),
     }
     return _Payload(payloads, _JSONHash(payloads), {'models': generated_models})
 

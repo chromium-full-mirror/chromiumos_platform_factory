@@ -94,15 +94,23 @@ class LegacyPayloadBuilder:
 
   def __init__(self):
     self._bundle = device_selection_pb2.SelectionBundle()
+    self._sample_bundle = device_selection_pb2.SelectionSampleBundle()
 
   def AppendDeviceSelection(
       self, model_legacy_payload: device_selection_pb2.DeviceSelection):
     self._bundle.selections.append(model_legacy_payload)
 
-  def Build(self) -> Optional[str]:
+  def ExtendDeviceSelectionSamples(
+      self, samples: Iterable[device_selection_pb2.DeviceSelectionSample]):
+    self._sample_bundle.selection_samples.extend(samples)
+
+  def BuildDeviceSelection(self) -> Optional[str]:
     if not self._bundle.selections:
       return None
     return text_format.MessageToString(self._bundle)
+
+  def BuildDeviceSelectionSample(self) -> Optional[str]:
+    return text_format.MessageToString(self._sample_bundle)
 
 
 class HWIDFeatureMatcher(abc.ABC):
