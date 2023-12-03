@@ -182,5 +182,15 @@ class IdentityGenerateFromEncodedStringTest(unittest.TestCase,
                        encoded_string=encoded_string)
 
 
+class EncodePrefixAndBitPayloadTest(unittest.TestCase):
+
+  def testBase8192(self):
+    actual_hwid = identity.EncodePrefixAndBitPayload(
+        _BASE8192, 'THEPROJNAME', brand_code='ABCD',
+        bit_payload='00101 110 1'.replace(' ', ''))
+
+    self.assertEqual(actual_hwid, 'THEPROJNAME-ABCD F8Q-A66')
+
+
 if __name__ == '__main__':
   unittest.main()

@@ -44,6 +44,7 @@ and the encoded string.
 """
 
 import re
+from typing import Optional
 
 from cros.factory.hwid.v3 import base32
 from cros.factory.hwid.v3 import base8192
@@ -91,13 +92,15 @@ class _IdentityConverter:
                      for idx in range(0, len(encoded_string),
                                       self._base.DASH_INSERTION_WIDTH)])
 
-  def EncodeComponentsBitset(self, encoding_pattern_index, image_id,
-                             components_bitset):
+  def _EncodeBitPayload(self, bit_payload: str) -> str:
+    total_len = len(bit_payload) + self._base.GetPaddingLength(len(bit_payload))
+    return self._base.Encode(bit_payload.ljust(total_len, '0'))
+
+  def _BuildBitPayload(self, encoding_pattern_index: int, image_id: int,
+                       components_bitset: str) -> str:
     """Encode components bitset according to chosen scheme"""
-    binary_string = _HEADER_FORMAT_STR.format(
-        encoding_pattern_index, image_id) + components_bitset
-    binary_string += '0' * self._base.GetPaddingLength(len(binary_string))
-    return self._base.Encode(binary_string)
+    return _HEADER_FORMAT_STR.format(encoding_pattern_index,
+                                     image_id) + components_bitset
 
   def DecodeComponentsFields(self, encoded_string):
     """Decode encodeded components string to components bitset"""
@@ -115,25 +118,30 @@ class _IdentityConverter:
         'components_bitset': components_bitset,
     }
 
-  def GenerateEncodedString(self, project, encoding_pattern_index, image_id,
-                            components_bitset, brand_code,
-                            encoded_configless=None):
+  def EncodeFromBitPayload(self, project: str, bit_payload: str,
+                           brand_code: Optional[str] = None,
+                           encoded_configless: Optional[str] = None) -> str:
     """Encode components fields and calculate checksum."""
-    encoded_components = self.EncodeComponentsBitset(encoding_pattern_index,
-                                                     image_id,
-                                                     components_bitset)
-    if brand_code:
-      project_and_brand_code = project + '-' + brand_code
-    else:
-      project_and_brand_code = project
+    prefix = f'{project}-{brand_code}' if brand_code is not None else project
+    encoded_bit_payload = self._EncodeBitPayload(bit_payload)
 
-    parts = [project_and_brand_code]
+    parts = [prefix]
     if encoded_configless:
       parts.append(encoded_configless)
-    parts.append(encoded_components)
+    parts.append(encoded_bit_payload)
     checksum = self._base.Checksum(' '.join(parts))
-    parts[-1] = self.FormatComponentsField(encoded_components + checksum)
+    parts[-1] = self.FormatComponentsField(encoded_bit_payload + checksum)
     return ' '.join(parts)
+
+  def EncodeFromComponentBitset(self, project, encoding_pattern_index, image_id,
+                                components_bitset, brand_code,
+                                encoded_configless=None):
+    """Encode components fields and calculate checksum."""
+    bit_payload = self._BuildBitPayload(encoding_pattern_index, image_id,
+                                        components_bitset)
+    return self.EncodeFromBitPayload(project, bit_payload,
+                                     brand_code=brand_code,
+                                     encoded_configless=encoded_configless)
 
   def DecodeEncodedString(self, encoded_string):
     """Decode components fields and verify checksum."""
@@ -342,7 +350,7 @@ class Identity:
     if encoded_configless:
       kwargs['encoded_configless'] = encoded_configless
 
-    encoded_string = converter.GenerateEncodedString(**kwargs)
+    encoded_string = converter.EncodeFromComponentBitset(**kwargs)
     return Identity(project, encoded_string, encoding_pattern_index, image_id,
                     components_bitset, brand_code, encoded_configless)
 
@@ -365,3 +373,12 @@ class Identity:
 
     return Identity(encoded_string=encoded_string,
                     **converter.DecodeEncodedString(encoded_string))
+
+
+def EncodePrefixAndBitPayload(encoding_scheme, project: str, brand_code: str,
+                              bit_payload: str) -> str:
+  _VerifyEncodingSchemePart(encoding_scheme)
+  converter = _IdentityConverter(_ENCODING_SCHEME_MAP[encoding_scheme])
+
+  return converter.EncodeFromBitPayload(project, bit_payload,
+                                        brand_code=brand_code)
