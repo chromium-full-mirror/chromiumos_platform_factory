@@ -3,10 +3,12 @@
 # found in the LICENSE file.
 
 import abc
+import collections
 import enum
 import functools
 import hashlib
-from typing import Collection, Mapping, NamedTuple, Optional, Set
+import itertools
+from typing import Collection, Iterable, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Set
 
 import device_selection_pb2  # pylint: disable=import-error
 import factory_hwid_feature_requirement_pb2  # pylint: disable=import-error
@@ -24,8 +26,6 @@ from cros.factory.hwid.v3 import database as db_module
 from cros.factory.hwid.v3 import feature_compliance
 from cros.factory.hwid.v3 import identity as identity_module
 
-
-Collection = features.Collection
 
 # TODO(yhong): Consider move the following constants to
 #    `cros.factory.hwid.v3.common` to reduce duplications.
@@ -119,6 +119,11 @@ class HWIDFeatureMatcher(abc.ABC):
     """
 
   @abc.abstractmethod
+  def GenerateLegacyTestData(
+      self) -> Sequence[device_selection_pb2.DeviceSelectionSample]:
+    """Generates the feature requirement test data for feature management."""
+
+  @abc.abstractmethod
   def Match(self, hwid_string: str) -> FeatureEnablementStatus:
     """Matches the given HWID string to resolve the feature enablement status.
 
@@ -182,6 +187,53 @@ def _ExtendHWIDProfiles(
 
 class InvalidDeviceSelectionError(ValueError):
   """An exception raised when the device selection is invalid."""
+
+
+class _SampleHWIDBuilder:
+  """A helper class to build sample HWIDs based on given fixed parts."""
+
+  def __init__(self):
+    self._project: str
+    self._brand_code = ''
+    self._fixed_bits: MutableMapping[int, str] = {}
+
+  def SetProject(self, project: str):
+    self._project = project
+
+  def SetBrandCode(self, brand_code: str):
+    self._brand_code = brand_code
+
+  def SetFixedBits(self, bit_positions: Sequence[int], bit_values: str):
+    assert len(bit_positions) == len(bit_values)
+    for position, value in zip(bit_positions, bit_values):
+      self._fixed_bits[position] = value
+
+  _UNSPECIFIED_PART_BIT_PATTERNS = ('01', '10', '00')
+
+  def Build(self) -> str:
+    # Fill in fixed bits.
+    max_idx = max(self._fixed_bits, default=-1)
+    bits = [self._fixed_bits.get(i) for i in range(max_idx + 1)]
+
+    # Truncate ending zeros.
+    while bits and bits[-1] in (None, '0'):
+      bits.pop()
+
+    # Fill in the remaining unspecified bits.
+    num_ones = sum(value == '1' for value in self._fixed_bits.values())
+    unspecified_part_bit_it = itertools.cycle(
+        self._UNSPECIFIED_PART_BIT_PATTERNS[num_ones % len(
+            self._UNSPECIFIED_PART_BIT_PATTERNS)])
+    for idx, original_value in enumerate(bits):
+      if original_value is None:
+        bits[idx] = next(unspecified_part_bit_it)
+
+    # Encode.
+    bits.append('1')
+    bit_payload = ''.join(bits)
+    return identity_module.EncodePrefixAndBitPayload(
+        v3_common.EncodingScheme.base8192, self._project, self._brand_code,
+        bit_payload)
 
 
 class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
@@ -365,6 +417,52 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
       return None
 
     return payload_msg
+
+  def GenerateLegacyTestData(
+      self) -> Sequence[device_selection_pb2.DeviceSelectionSample]:
+    """See base class."""
+    if (self._spec.feature_version == 0 or
+        not self._soft_branded_legacy_brand_code_set):
+      return None
+
+    payload_msg = device_selection_pb2.DeviceSelectionSample(
+        expected_feature_level=self._spec.feature_version,
+        expected_scope=feature_management_pb2.Feature.Scope.SCOPE_DEVICES_0)
+
+    def _AppendSampleHWIDForAllBrandCodes(builder: _SampleHWIDBuilder):
+      for brand_code in self._soft_branded_legacy_brand_code_set:
+        builder.SetBrandCode(brand_code)
+        payload_msg.sample_hwids.append(builder.Build())
+
+    for hwid_requirement_candidate in self._spec.hwid_requirement_candidates:
+      encoding_requirements = hwid_requirement_candidate.encoding_requirements
+      if not all(req.required_values for req in encoding_requirements):
+        # Impossible to match anything.
+        continue
+      bit_position_counts = collections.Counter(
+          itertools.chain.from_iterable(
+              req.bit_positions
+              for req in hwid_requirement_candidate.encoding_requirements))
+      if bit_position_counts and bit_position_counts.most_common(1)[0][1] > 1:
+        # TODO(yhong): Generate test data if the bit value requirements have
+        #    overlaps.
+        continue
+      sample_hwid_builder = _SampleHWIDBuilder()
+      sample_hwid_builder.SetProject(self._db.project.upper())
+      for req in encoding_requirements:
+        sample_hwid_builder.SetFixedBits(req.bit_positions,
+                                         req.required_values[0])
+      _AppendSampleHWIDForAllBrandCodes(sample_hwid_builder)
+
+      for req in encoding_requirements:
+        for required_value in req.required_values[1:]:
+          sample_hwid_builder.SetFixedBits(req.bit_positions, required_value)
+          _AppendSampleHWIDForAllBrandCodes(sample_hwid_builder)
+        sample_hwid_builder.SetFixedBits(req.bit_positions,
+                                         req.required_values[0])
+    payload_msg.sample_hwids.sort()
+    return [payload_msg] if payload_msg.sample_hwids else []
+
 
   def _BuildFeatureManagementFlagChecker(
       self, target_field: _FeatureManagementFlagField

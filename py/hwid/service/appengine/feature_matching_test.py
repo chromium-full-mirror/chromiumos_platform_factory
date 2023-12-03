@@ -1101,6 +1101,60 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
           'the-commit',
       )
 
+  def testConvertedHWIDFeatureMatcher_GenerateLegacyTestData_Success(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    brand_allowed_feature_enablement_types = {
+        'ABCD': [_FeatureEnablementType.SOFT_BRANDED_LEGACY],
+        'EFGH': [_FeatureEnablementType.SOFT_BRANDED_LEGACY],
+    }
+    hwid_requirement_candidates = [
+        features.HWIDRequirement(
+            description='scenario_1', bit_string_prerequisites=[
+                features.HWIDBitStringRequirement(
+                    description='image_id_0_or_1',
+                    bit_positions=[4, 3, 2, 1, 0],
+                    required_values=[0b00000, 0b00001],
+                ),
+                features.HWIDBitStringRequirement(
+                    description=('bit 8 9 10 11 12 has 10000 (encoded as Q) or '
+                                 '11100 (encoded as 4)'),
+                    bit_positions=[12, 11, 10, 9, 8],
+                    required_values=[0b10000, 0b11100],
+                ),
+            ]),
+    ]
+
+    builder = feature_matching.HWIDFeatureMatcherBuilder()
+    source = builder.GenerateFeatureMatcherRawSource(
+        feature_version, brand_allowed_feature_enablement_types,
+        hwid_requirement_candidates)
+    matcher = builder.CreateHWIDFeatureMatcher(db, source)
+
+    actual = matcher.GenerateLegacyTestData()
+    self.assertTrue(actual)
+    sample_hwids = (
+        'THEPROJ-ABCD A46-A74',  # from bit payload 00000 010 111 1
+        'THEPROJ-ABCD A7Y-A6N',  # from bit payload 00000 101 11
+        'THEPROJ-ABCD B2Y-A6I',  # from bit payload 00001 000 11
+        'THEPROJ-EFGH A46-A3C',  # from bit payload 00000 010 111 1
+        'THEPROJ-EFGH A7Y-A2T',  # from bit payload 00000 101 11
+        'THEPROJ-EFGH B2Y-A2W',  # from bit payload 00001 000 11
+    )
+    self.assertEqual(
+        text_format.MessageToString(actual[0]),
+        textwrap.dedent(f"""\
+            expected_feature_level: 1
+            expected_scope: SCOPE_DEVICES_0
+            sample_hwids: "{sample_hwids[0]}"
+            sample_hwids: "{sample_hwids[1]}"
+            sample_hwids: "{sample_hwids[2]}"
+            sample_hwids: "{sample_hwids[3]}"
+            sample_hwids: "{sample_hwids[4]}"
+            sample_hwids: "{sample_hwids[5]}"
+            """))
+
 
 if __name__ == '__main__':
   unittest.main()
