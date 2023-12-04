@@ -42,7 +42,10 @@ from cros.factory.utils import process_utils
 
 
 class ClearTPMOwnerRequest(unittest.TestCase):
-  related_components = (test_tags.TestCategory.TPM, )
+  related_components = (
+      test_tags.TestCategory.SECURE_ELEMENT,
+      test_tags.TestCategory.TPM,
+  )
   ARGS = [
       Arg('only_check_clear_done', bool, 'Only check crossystem '
           'clear_tpm_owner_done=1', default=False)]

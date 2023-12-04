@@ -160,7 +160,7 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
     def __str__(self):
       return self.name
 
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   ARGS = [
       Arg(
           'firmware_file', str, 'The full path of the firmware. If not set, '

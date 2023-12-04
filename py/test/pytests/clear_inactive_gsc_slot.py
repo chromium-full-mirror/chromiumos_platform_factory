@@ -36,7 +36,7 @@ from cros.factory.external.chromeos_cli import gsctool
 
 class ClearInactiveGscSlot(test_case.TestCase):
 
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.gsctool = gsctool.GSCTool(dut=self.dut)

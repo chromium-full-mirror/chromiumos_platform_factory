@@ -41,6 +41,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   LCD = enum.auto()
   MIPI_CAMERA = enum.auto()
   SAR_SENSOR = enum.auto()
+  SECURE_ELEMENT = enum.auto()
   SMART_SPEAKER_AMPLIFIER = enum.auto()
   SPEAKERAMPLIFIER = enum.auto()
   SPIFLASH = enum.auto()
@@ -88,6 +89,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
             CategoryProperties('Camera - MIPI', 'camera'),
         TestCategory.SAR_SENSOR:
             CategoryProperties('Proximity(SAR) Sensor', None),
+        TestCategory.SECURE_ELEMENT:
+            CategoryProperties('Secure Element', 'tpm'),
         TestCategory.SMART_SPEAKER_AMPLIFIER:
             CategoryProperties('Smart Speaker Amplifier', 'audio_codec'),
         TestCategory.SPEAKERAMPLIFIER:

@@ -39,7 +39,10 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class TpmDiagnosisTest(test_case.TestCase):
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (
+      test_case.TestCategory.SECURE_ELEMENT,
+      test_case.TestCategory.TPM,
+  )
   ARGS = [
       Arg('tpm_selftest', str, 'Path of tpm_selftest program.',
           default='/usr/local/sbin/tpm_selftest'),

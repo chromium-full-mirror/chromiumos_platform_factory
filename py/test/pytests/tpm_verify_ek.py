@@ -46,7 +46,10 @@ from cros.factory.utils import string_utils
 
 
 class TPMVerifyEK(unittest.TestCase):
-  related_components = (test_tags.TestCategory.TPM, )
+  related_components = (
+      test_tags.TestCategory.SECURE_ELEMENT,
+      test_tags.TestCategory.TPM,
+  )
   ARGS = [
       # Chromebooks and Chromeboxes should set this to False.
       Arg('is_cros_core', bool, 'Verify with ChromeOS Core endoresement',

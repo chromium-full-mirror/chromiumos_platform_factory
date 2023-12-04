@@ -54,7 +54,7 @@ from cros.factory.external.chromeos_cli import gsctool as gsctool_module
 
 class Ti50APROVerficationTest(test_case.TestCase):
   """A test to ensure the AP RO verification works on Ti50."""
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   ARGS = [
       Arg('enable_swwp', bool, 'True for enabling SWWP (PVT/MP only).',
           default=False),

@@ -56,7 +56,7 @@ from cros.factory.external.chromeos_cli import gsctool
 
 
 class Cr50APROHashTest(test_case.TestCase):
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   ARGS = [Arg('action', str, "The action for AP RO hash ('set', 'clear').")]
 
   def setUp(self):

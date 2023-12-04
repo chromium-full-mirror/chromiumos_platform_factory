@@ -59,7 +59,7 @@ from cros.factory.external.chromeos_cli import gsctool
 
 
 class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
-  related_components = (test_case.TestCategory.TPM, )
+  related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   _PREDEFINED_PHASES = {
       'PHASE_UNSET': 0xffffffff,
       'PHASE_UNKNOWN': 0x0000ff00,
