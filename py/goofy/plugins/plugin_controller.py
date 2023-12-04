@@ -18,6 +18,10 @@ from cros.factory.utils import type_utils
 PLUGIN_PREFIX = '/plugin'
 
 
+class PluginError(Exception):
+  pass
+
+
 def _GetPluginRPCPath(plugin_path):
   """Returns the RPC path that should be used by a given plugin path.
 
@@ -31,11 +35,11 @@ def _GetPluginRPCPath(plugin_path):
 def GetPluginRPCProxy(plugin_name, address=None, port=None):
   """Returns the RPC proxy of a plugin.
 
-  Returns None if no such plugin running in goofy.
+  Raises PluginError if no such plugin running in goofy.
   """
   plugin_class = plugin.GetPluginClass(plugin_name)
   if plugin_class is None:
-    return None
+    raise PluginError(f'Failed to get plugin class of {plugin_name!r}.')
 
   proxy = goofy_proxy.GetRPCProxy(
       address, port,
@@ -48,8 +52,8 @@ def GetPluginRPCProxy(plugin_name, address=None, port=None):
     # ProtocolError has many different cases, and it may has a nested tuple.
     if 404 in type_utils.FlattenTuple(err.args):
       # The requested plugin is not running
-      logging.debug('The requested plugin %s is not running', plugin_name)
-      return None
+      raise PluginError(
+          f'The requested plugin {plugin_name!r} is not running.') from err
     raise
 
 

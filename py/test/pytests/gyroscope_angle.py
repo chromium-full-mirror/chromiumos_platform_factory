@@ -45,7 +45,6 @@ import logging
 import re
 import statistics
 import time
-from typing import Optional
 
 from cros.factory.device import device_utils
 from cros.factory.device import gyroscope
@@ -93,10 +92,8 @@ class Gyroscope(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
-    self._display_manager: Optional[display_manager.DisplayManager] = (
+    self._display_manager: display_manager.DisplayManager = (
         plugin_controller.GetPluginRPCProxy('display_manager'))
-    if not self._display_manager:
-      raise RuntimeError('display_manager plugin is not defined.')
 
     self.gyroscope = self.dut.gyroscope.GetController(
         location=self.args.location, gyro_id=self.args.gyro_id,

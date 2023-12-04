@@ -443,10 +443,8 @@ class ExtDisplayTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._display_manager: Optional[display_manager.DisplayManager] = (
+    self._display_manager: display_manager.DisplayManager = (
         plugin_controller.GetPluginRPCProxy('display_manager'))
-    if not self._display_manager:
-      raise RuntimeError('display_manager plugin is not defined.')
 
     self._fixture = None
     if self.args.bft_fixture:

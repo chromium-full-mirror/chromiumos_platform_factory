@@ -9,11 +9,15 @@ import os
 import unittest
 from unittest import mock
 
+from jsonrpclib import ProtocolError
+
 from cros.factory.goofy import goofy
 from cros.factory.goofy import goofy_server
 from cros.factory.goofy.plugins import plugin
 from cros.factory.goofy.plugins import plugin_controller
+from cros.factory.test.env import goofy_proxy
 from cros.factory.test.env import paths
+from cros.factory.utils import type_utils
 
 
 # pylint: disable=protected-access
@@ -92,14 +96,38 @@ class PluginControllerTest(unittest.TestCase):
     self.assertEqual(
         plugin_controller._GetPluginRPCPath('plugin'), '/plugin/plugin')
 
-  @mock.patch('cros.factory.goofy.plugins.plugin_controller.goofy_proxy')
-  def testGetPluginProxy(self, goofy_proxy):
-    proxy = mock.Mock()
-    goofy_proxy.GetRPCProxy.return_value = proxy
-    self.assertEqual(plugin_controller.GetPluginRPCProxy('plugin'), proxy)
-    goofy_proxy.GetRPCProxy.assert_called_once_with(
-        None, None, '/plugin/plugin')
-    proxy.system.listMethods.assert_called_once_with()
+  @mock.patch.object(goofy_proxy, 'GetRPCProxy', autospec=True)
+  def testGetPluginProxy(self, mock_get_rpc_proxy):
+    mock_proxy = mock_get_rpc_proxy.return_value
+    self.assertEqual(plugin_controller.GetPluginRPCProxy('plugin'), mock_proxy)
+    mock_get_rpc_proxy.assert_called_once_with(None, None, '/plugin/plugin')
+    mock_proxy.system.listMethods.assert_called_once_with()
+
+  @mock.patch.object(plugin, 'GetPluginClass', autospec=True)
+  def testGetPluginProxy_NoPluginClass(self, mock_get_plugin_class):
+    mock_get_plugin_class.return_value = None
+    with self.assertRaisesRegex(
+        plugin_controller.PluginError,
+        r"Failed to get plugin class of 'fake_plugin_name'\."):
+      plugin_controller.GetPluginRPCProxy('fake_plugin_name')
+
+  @mock.patch.object(plugin, 'GetPluginClass', autospec=True)
+  @mock.patch.object(plugin, 'GetPluginNameFromClass', autospec=True)
+  @mock.patch.object(goofy_proxy, 'GetRPCProxy', autospec=True)
+  @mock.patch.object(type_utils, 'FlattenTuple', autospec=True)
+  def testGetPluginProxy_PluginNotRunning(
+      self, mock_flatten_tuple, mock_get_rpc_proxy, mock_get_plugin_name,
+      mock_get_plugin_class):
+    mock_get_plugin_class.return_value = 'fake_plugin_class'
+    mock_get_plugin_name.return_value = 'fake_plugin_name'
+    mock_proxy = mock_get_rpc_proxy.return_value
+    mock_proxy.system.listMethods.side_effect = ProtocolError()
+    mock_flatten_tuple.return_value = (404, )
+
+    with self.assertRaisesRegex(
+        plugin_controller.PluginError,
+        r"The requested plugin 'fake_plugin_name' is not running\."):
+      plugin_controller.GetPluginRPCProxy('fake_plugin_name')
 
   def testOnMenuItemClicked(self):
     controller = self.CreateController()

@@ -45,8 +45,6 @@ class QRCodeManager:
   def __init__(self):
     self._qrcode_manager = plugin_controller.GetPluginRPCProxy(
         'qrcode_manager.qrcode_manager')
-    if not self._qrcode_manager:
-      raise Exception('qrcode_manager.qrcode_manager plugin is not running!')
 
   def DisplayStatus(self):
     info = self._qrcode_manager.GetQRCodeInfo()

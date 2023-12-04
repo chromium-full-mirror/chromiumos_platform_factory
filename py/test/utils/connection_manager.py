@@ -60,9 +60,10 @@ _PROFILE_LOCATION = '/var/cache/%s/default.profile'
 
 def GetConnectionManagerProxy():
   proxy = None
-  if _HAS_PLUGIN_CONTROLLER:
+  try:
+    assert _HAS_PLUGIN_CONTROLLER
     proxy = plugin_controller.GetPluginRPCProxy('connection_manager')
-  if proxy is None:
+  except Exception:
     logging.info('Goofy plugin connection_manager is not running, '
                  'create our own instance')
     proxy = ConnectionManager()

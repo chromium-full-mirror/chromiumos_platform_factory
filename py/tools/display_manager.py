@@ -10,7 +10,6 @@ factory toolkit enabled.
 """
 
 import argparse
-import logging
 import sys
 from typing import Optional
 
@@ -118,9 +117,6 @@ def main():
   manager: display_manager.DisplayManager = (
       plugin_controller.GetPluginRPCProxy(plugin_name, args.dut_ip,
                                           args.dut_port))
-  if not manager:
-    logging.error('%r plugin is off.', plugin_name)
-    sys.exit(1)
 
   args.subcommand(manager, **args.__dict__)
 

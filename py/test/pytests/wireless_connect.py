@@ -81,8 +81,6 @@ class WirelessConnectTest(test_case.TestCase):
     session.console.info('Selected device_name is %s.', self._device_name)
     services = self.args.service_name
     session.console.info('service = %r', services)
-    if not self._connection_manager:
-      self.FailTask('No connection_manager exists.')
     self._connection_manager.Reconnect(services)
     ssid_list = [service.get('ssid') for service in services]
 

@@ -54,8 +54,6 @@ def main():
   manager: camera_manager.CameraManager = (
       plugin_controller.GetPluginRPCProxy(plugin_name, args.dut_ip,
                                           args.dut_port))
-  if not manager:
-    raise Exception(f'{plugin_name!r} plugin is not running!')
 
   if args.subcommand == 'enable':
     manager.EnableCamera(args.facing, args.hidden)
