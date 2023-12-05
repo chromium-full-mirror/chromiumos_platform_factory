@@ -114,9 +114,9 @@ def main():
                       action='store_true',
                       help='remove password from test_list')
   parser.add_argument('-s', dest='shopfloor_host',
-                      help='set shopfloor host')
+                      help='(deprecated) set shopfloor host')
   parser.add_argument('--shopfloor_port', dest='shopfloor_port', type=int,
-                      default=None, help='set shopfloor port')
+                      default=None, help='(deprecated) set shopfloor port')
   parser.add_argument('--board', '-b', dest='board',
                       help='board to use (default: auto-detect)')
   parser.add_argument('--project', '-j', dest='project',
@@ -137,6 +137,11 @@ def main():
   args = parser.parse_args()
 
   logging.basicConfig(level=logging.INFO)
+
+  if args.shopfloor_host:
+    logging.warning('The flag -s is deprecated (b/300048060).')
+  if args.shopfloor_port:
+    logging.warning('The flag --shopfloor_port is deprecated (b/300048060).')
 
   if args.local:
     if sys_utils.InChroot():
