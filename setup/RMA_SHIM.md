@@ -437,7 +437,7 @@ or
 |RMA_AUTORUN|The factory shim will set the default action to **(I) Install** or **(E) Perform RSU** or **(U) Update TPM firmware**, depending on HWWP status and TPM version. |(6)|11394|
 |CUTOFF_METHOD, CUTOFF_AC_STATE, CUTOFF_BATTERY_MIN_PERCENTAGE, CUTOFF_BATTERY_MAX_PERCENTAGE, CUTOFF_BATTERY_MIN_VOLTAGE, CUTOFF_BATTERY_MAX_VOLTAGE, SHOPFLOOR_URL|[Deprecated](#deprecate_cutoff).|(7)|-|
 |DISPLAY_QRCODE|Display the information of the DUT as a qrcode, to increase the flexibility of customized process of factory reset.|(8)|15448|
-|DISPLAY_INFO|Support fields are: `hwid`, `serial_number`, `mlb_serial_number`, `wifi_mac0`. For example: `hwid serial_number, wifi_mac0` will display hwid and serial_number in the first qrcode, and display wifi_mac0 in the second qrcode. |(8)|15448|
+|DISPLAY_INFO|Support fields are: `hwid`, `serial_number`, `mlb_serial_number`, `wifi_mac0`, `service_tag`. For example: `hwid serial_number, wifi_mac0` will display hwid and serial_number in the first qrcode, and display wifi_mac0 in the second qrcode. |(8)|15448|
 |NETBOOT_RAMFS|This flag is automatically set to `1` when using netboot firmware. The factory shim will set the default action to **(I) Install**.|N/A|-|
 
 Note:
