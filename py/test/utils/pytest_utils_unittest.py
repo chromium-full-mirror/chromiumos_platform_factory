@@ -10,7 +10,7 @@ import sys
 import tempfile
 import unittest
 
-from cros.factory.test.utils.pytest_utils import LoadPytestModule
+from cros.factory.test.utils import pytest_utils
 from cros.factory.utils import file_utils
 
 
@@ -86,7 +86,7 @@ class LoadPytestModuleTest(unittest.TestCase):
     with file_utils.UnopenedTemporaryFile(
         suffix='.py', dir=self.pytests_root) as script_file:
       (pytest_name, _) = os.path.splitext(os.path.basename(script_file))
-      module = LoadPytestModule(pytest_name)
+      module = pytest_utils.LoadPytestModule(pytest_name)
       self.assertEqual(module.__file__, script_file)
       # remove tmpXXXXXX.pyc
       file_utils.TryUnlink(script_file + 'c')
@@ -96,9 +96,30 @@ class LoadPytestModuleTest(unittest.TestCase):
 
     basename = os.path.basename(self.tmpdir)
     pytest_name = basename + '.x.y.z'
-    module = LoadPytestModule(pytest_name)
+    module = pytest_utils.LoadPytestModule(pytest_name)
     self.assertEqual(module.__file__, os.path.join(self.tmpdir, 'x/y/z.py'))
 
+  def testRelpathToPytestName(self):
+    self.assertEqual(pytest_utils.RelpathToPytestName('qwe.py'), 'qwe')
+
+    # Subdirectory case:
+    self.assertEqual(
+        pytest_utils.RelpathToPytestName('abc_def/abc_def.py'),
+        'abc_def.abc_def')
+
+    # Empty case:
+    self.assertRaises(ValueError, pytest_utils.RelpathToPytestName, '')
+
+  def testPytestNameToRelpath(self):
+    self.assertEqual(
+        pytest_utils.PytestNameToRelpath('audio_loop'), 'audio_loop.py')
+
+    #Subdirectory case:
+    self.assertEqual(
+        pytest_utils.PytestNameToRelpath('aaa_bc.aaa_bc'), 'aaa_bc/aaa_bc.py')
+
+    # Empty case
+    self.assertRaises(ValueError, pytest_utils.PytestNameToRelpath, '')
 
 if __name__ == '__main__':
   unittest.main()

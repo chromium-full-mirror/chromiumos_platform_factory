@@ -17,7 +17,6 @@ import os
 import re
 from typing import Any, Dict
 
-from cros.factory.test.env import paths
 from cros.factory.test import i18n
 from cros.factory.test.i18n import _
 from cros.factory.test.i18n import translation
@@ -287,17 +286,16 @@ class FactoryTest:
 
     self.test_categories = []
     if pytest_name:
-      file_path = pytest_name.replace('.', '/')
-      if not os.path.exists(
-          os.path.join(paths.FACTORY_PYTESTS_DIR, f'{file_path}.py')):
+      if os.path.exists(pytest_utils.GetPytestSourcePath(pytest_name)):
+        try:
+          pytest = pytest_utils.LoadPytest(pytest_name)()
+          self.test_categories.extend(getattr(pytest, 'related_components', []))
+        except Exception as e:
+          logging.warning(
+              'Failed to obtain test categories of the pytest(%s) due to %s',
+              pytest_name, e)
+      else:
         logging.warning('Failed to find the source of pytest(%s)', pytest_name)
-      try:
-        pytest = pytest_utils.LoadPytest(pytest_name)()
-        self.test_categories.extend(getattr(pytest, 'related_components', []))
-      except Exception as e:
-        logging.warning(
-            'Failed to obtain test categories of the pytest(%s) due to %s',
-            pytest_name, e)
 
   def _SetIterations(self, iterations, set_default=False):
     if not isinstance(iterations, int) or iterations == 0 or iterations < -1:

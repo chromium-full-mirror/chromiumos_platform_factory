@@ -10,6 +10,7 @@ import sys
 import traceback
 import unittest
 
+from cros.factory.test.env import paths
 from cros.factory.utils import file_utils
 from cros.factory.utils import type_utils
 
@@ -90,9 +91,24 @@ def LoadPytest(pytest_name):
   return FindTestCase(LoadPytestModule(pytest_name))
 
 
-def RelpathToPytestName(relpath):
-  """Convert a pytest relpath to dotted pytest name."""
+def RelpathToPytestName(relpath: str):
+  """Convert a pytest relpath to a dotted pytest name."""
+  if not relpath:
+    raise ValueError('`relpath` is required.')
   return os.path.splitext(relpath)[0].replace('/', '.')
+
+
+def PytestNameToRelpath(pytest_name: str):
+  """Convert a dotted pytest name to pytest relpath."""
+  if not pytest_name:
+    raise ValueError('`pytest_name` is required.')
+  return pytest_name.replace('.', '/') + '.py'
+
+
+def GetPytestSourcePath(pytest_name):
+  """Get the path of pytest source from its name"""
+  return os.path.join(paths.FACTORY_PYTESTS_DIR,
+                      PytestNameToRelpath(pytest_name))
 
 
 class IndirectException(Exception):
