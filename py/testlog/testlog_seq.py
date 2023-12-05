@@ -16,11 +16,11 @@ from cros.factory.utils import file_utils
 # help ensure monotonicity.
 #
 # For example, say we write events #55 and #56 to the event file and
-# sync them to the Shopfloor server, but then we have a power problem
+# sync them to the factory server, but then we have a power problem
 # and then lose those events before they are completely flushed to
 # disk. On reboot, the last event we will find in the events file is
 # #54, so if we started again with #55 we would violate monotonicity
-# in the Shopfloor server record. But this way we will start with
+# in the factory server record. But this way we will start with
 # sequence number #1000055.
 #
 # This is not bulletproof: we could write and sync event #1000055,
