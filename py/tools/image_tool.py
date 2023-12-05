@@ -3851,9 +3851,8 @@ class EditLSBCommand(AbstractSubCommand):
         None, None)
     self._DoOptionalNumber('Maximum allowed battery voltage (mA)',
                            'CUTOFF_BATTERY_MAX_VOLTAGE', answer, None)
-    self._DoURL(
-        'Chrome OS Factory Server or Shopfloor Service for OQC ReFinalize',
-        ['SHOPFLOOR_URL'])
+    self._DoURL('Chrome OS Factory Server for OQC ReFinalize',
+                ['FACTORY_SERVER_URL'])
 
   def EditDisplayQrcode(self):
     """Enable or disable qrcode when factory reset.
@@ -4088,9 +4087,8 @@ class EditToolkitConfigCommand(AbstractSubCommand):
     self._DoOptionalNumber(
         'Maximum allowed battery voltage (mA)', 'CUTOFF_BATTERY_MAX_VOLTAGE',
         answer, None)
-    self._DoURL(
-        'Chrome OS Factory Server or Shopfloor Service for OQC ReFinalize',
-        ['SHOPFLOOR_URL'])
+    self._DoURL('Chrome OS Factory Server for OQC ReFinalize',
+                ['FACTORY_SERVER_URL'])
     self.toolkit_config[subconfig_key] = self.config_wip
 
   def EditContinueKey(self):
