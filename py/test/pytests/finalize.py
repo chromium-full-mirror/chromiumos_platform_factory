@@ -363,7 +363,7 @@ class Finalize(test_case.TestCase):
     if self.args.enable_factory_server:
       server_url = server_proxy.GetServerURL()
       if server_url:
-        command += f' --shopfloor_url "{server_url}"'
+        command += f' --factory_server_url "{server_url}"'
 
     command += f' --upload_method "{upload_method}"'
     if self.args.upload_max_retry_times:

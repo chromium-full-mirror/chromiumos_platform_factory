@@ -111,19 +111,19 @@ class FinalizeUnittest(unittest.TestCase):
   def testUploadReportArgsEnableFactoryServer(self):
     self.test.args.enable_factory_server = True
     actual = self.test.AppendUploadReportArgs('')
-    self.assertTrue('--shopfloor_url "url"' in actual)
+    self.assertTrue('--factory_server_url "url"' in actual)
 
   @mock.patch('cros.factory.test.server_proxy.GetServerURL')
   def testUploadReportArgsNoServerUrl(self, mock_server_url):
     mock_server_url.return_value = None
     self.test.args.enable_factory_server = True
     actual = self.test.AppendUploadReportArgs('')
-    self.assertFalse('--shopfloor_url' in actual)
+    self.assertFalse('--factory_server_url' in actual)
 
   def testUploadReportArgsNotEnableFactoryServer(self):
     self.test.args.enable_factory_server = False
     actual = self.test.AppendUploadReportArgs('')
-    self.assertFalse('--shopfloor_url' in actual)
+    self.assertFalse('--factory_server_url' in actual)
 
   def testUploadReportArgsAlways(self):
     self.test.test_states_path = 'path'
