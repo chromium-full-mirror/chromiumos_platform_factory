@@ -8,8 +8,8 @@ Description
 -----------
 The Chromium OS Factory Software has defined a protocol, "Chrome OS Factory
 Shopfloor Service Specification", to access factory manufacturing line shopfloor
-system (or MES) backend system. This test allows interaction with a server
-following the protocol.
+system (or MES) backend system. This test allows interaction with a shopfloor
+service, by requesting the factory server with defined protocol.
 
 For more information about Chrome OS Factory Shopfloor Service Specification,
 read
@@ -78,18 +78,18 @@ To invoke a non-standard call 'DoSomething' with args (1, 2) and keyword args
     }
   }
 
-To manually set server URL, set 'server_url' in test list::
+To manually set factory server URL, set 'server_url' in test list::
 
   {
     "pytest_name": "shopfloor_service",
     "args": {
       "args": ["arg1", "arg2"],
       "method": "DoSomething",
-      "server_url": "http://my-server:8090"
+      "server_url": "http://my-server:8080"
     }
   }
 
-To auto-detect shopfloor server by received DHCP IP address, specify a mapping
+To auto-detect factory server by received DHCP IP address, specify a mapping
 object with key set to "IP/CIDR" and value set to server URL::
 
   {
@@ -98,10 +98,10 @@ object with key set to "IP/CIDR" and value set to server URL::
       "args": ["arg1", "arg2"],
       "method": "DoSomething",
       "server_url": {
-        "192.168.1.0/24": "http://192.168.1.254:8090",
-        "10.3.0.0/24": "http://10.3.0.10:8090",
-        "10.1.0.0/16": "http://10.1.0.10:8090",
-        "default": "http://my-default-server:8090"
+        "192.168.1.0/24": "http://192.168.1.254:8080",
+        "10.3.0.0/24": "http://10.3.0.10:8080",
+        "10.1.0.0/16": "http://10.1.0.10:8080",
+        "default": "http://my-default-factory-server:8080"
       }
     }
   }
@@ -144,15 +144,13 @@ class ShopfloorService(test_case.TestCase):
   """Execution of remote shoploor service."""
 
   ARGS = [
-      Arg('method', str,
-          'Name of shopfloor service method to call'),
+      Arg('method', str, 'Name of shopfloor service method to call'),
       Arg('args', list, 'Arguments for specified method.', default=None),
       Arg('kargs', collections.abc.Mapping, 'Keyword arguments for method.',
           default=None),
       Arg('raw_invocation', bool, 'Allow invocation of arbitrary calls.',
           default=False),
-      Arg('server_url', (str, dict),
-          'The URL to shopfloor service server', default=None),
+      Arg('server_url', (str, dict), 'The URL to factory server', default=None),
   ]
 
   # The expected value for GetVersion, to help checking server implementation.
