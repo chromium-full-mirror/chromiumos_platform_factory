@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-29 16:26+CST\n"
+"PO-Revision-Date: 2024-01-05 14:53+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -582,10 +582,6 @@ msgstr "Tạm dừng bàn di chuột"
 #: ../build/pytests_label_generated.json
 msgid "Touchscreen"
 msgstr "Bảng cảm ứng"
-
-#: ../build/pytests_label_generated.json
-msgid "Touchscreen Calibration"
-msgstr "Hiệu chỉnh bảng cảm ứng"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM Clear Owner"
@@ -3105,144 +3101,6 @@ msgid "Please take off your fingers and then press SPACE to start testing..."
 msgstr ""
 "Vui lòng giữ ngón tay tránh xa màn hình cảm ứng và nhấn nút trống để bắt đầu "
 "kiểm tra ..."
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Serial number"
-msgstr "Hoàn thành tác vụ"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Submit"
-msgstr "gửi"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe goes down"
-msgstr "Vị trí thấp hơn của vật trước khi tắt"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe goes up"
-msgstr "Trước khi thử chuẩn bị vị trí trên"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Read sensor data"
-msgstr "Đọc dữ liệu theo cách thủ công"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe self test"
-msgstr "JIG thủ công , tự mình thử"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Controller status"
-msgstr "Liên kết khuôn"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Refresh"
-msgstr "Làm mới"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Touchscreen status"
-msgstr "Liên kết đến đối tượng thử nghiệm"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe state"
-msgstr "trạng thái nội bộ JIG"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "FixtureState"
-msgstr "Điều tra trạng thái Jig"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Host IP"
-msgstr "URL gốc"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "BB IP"
-msgstr "Trang web BB"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Shopfloor IP"
-msgstr "Trang web Shopfloor"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Shutdown the host"
-msgstr "Tắt máy"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.js
-msgid "Please enter SN"
-msgstr "Vui lòng nhập số sê-ri"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Fail to detect the touchscreen.\n"
-"Insert the traveler board, and restart the test."
-msgstr ""
-"Không thể phát hiện bảng điều khiển\n"
-"Vui lòng tháo bảng nhỏ và lắp lại bảng nhỏ và chạy lại thử nghiệm"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Fail to assign DIRECT_SENSORS_IP in ryu.conf"
-msgstr "Cầnchỉđịnh DIRECT_SENSORS_IP trongryu.conf"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Disconnected from controller"
-msgstr "Mất liên lạc với vật cố"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in initial position, aborted"
-msgstr "JIG không về vị trí cũ, hủy"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Please check if the USB cable has been connected between the test fixture "
-"and the control host.\n"
-"Click \"RefreshFixture\" button on screen after connecting the USB cable."
-msgstr ""
-"Vui lòng xác nhận xem cáp USB có được kết nối với máy tính cố định và điều "
-"khiển hay không.\n"
-"Vui lòng kết nối cáp USB và nhấp vào nút làm mới trên màn hình."
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"The test fixture is not ready.\n"
-"(1) It is possible that the test fixure is not powered on yet.\n"
-"    Turn on the power and click \"RefreshFixture\" button on screen.\n"
-"(2) The test fixture is already powered on. The fixture may be in the "
-"emergency stop state.\n"
-"    Press debug button on the test fixture and click \"RefreshFixture\" "
-"button on screen."
-msgstr ""
-"Không cố định trong vị trí, lý do sau đây: \n"
-"(1) nguồn điện không được mở. Vui lòng bật nguồn và nhấp vào nút làm mới "
-"trên màn hình. \n"
-"(2) Nguồn điện được bật, nhưng nó đang ở trạng thái dừng khẩn cấp. Vui lòng "
-"nhấn nút gỡ lỗi ở phía bên trái của vật cố một lần. "
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in the DOWN position, aborted"
-msgstr "JIG không ở vị trí dưới, hủy"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in the UP position, aborted"
-msgstr "JIG không ở vị trí trên, hủy"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Wrong serial number!"
-msgstr "Số thứ tự sai"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Fail to detect the touchscreen.\n"
-"Remove and re-insert the traveler board. And restart the test."
-msgstr ""
-"Không thể phát hiện bảng điều khiển \n"
-"Vui lòng tháo bảng nhỏ và lắp lại bảng nhỏ và chạy lại thử nghiệm"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Current calibration has not completed yet"
-msgstr "Hiệu chuẩn hiện tại vẫn chưa kết thúc"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Please enter SN first"
-msgstr "Vui lòng nhập số sê-ri trước."
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Please start drawing from upper-left corner."

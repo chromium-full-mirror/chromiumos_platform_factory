@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-29 16:26+CST\n"
+"PO-Revision-Date: 2024-01-05 14:53+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -582,10 +582,6 @@ msgstr "การเลื่อนเมาส์บนทัชแพด"
 #: ../build/pytests_label_generated.json
 msgid "Touchscreen"
 msgstr "หน้าจอสัมผัส"
-
-#: ../build/pytests_label_generated.json
-msgid "Touchscreen Calibration"
-msgstr "การสอบเทียบหน้าจอสัมผัส"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM Clear Owner"
@@ -3067,143 +3063,6 @@ msgstr "กำลังตรวจสอบหาผลบวกปลอม...
 #: ../py/test/pytests/touchpad_static/touchpad.html
 msgid "Please take off your fingers and then press SPACE to start testing..."
 msgstr "กรุณาถอดนิ้วออกแล้วกด SPACE เพื่อเริ่มการทดสอบ..."
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Serial number"
-msgstr "หมายเลขประจำเครื่อง"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Submit"
-msgstr "ยื่น"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe goes down"
-msgstr "โพรบเลื่อนลง"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe goes up"
-msgstr "โพรบเลื่อนขึ้น"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Read sensor data"
-msgstr "อ่านข้อมูลเซนเซอร์"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe self test"
-msgstr "ทดสอบโพรบด้วยตัวเอง"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Controller status"
-msgstr "สถานะตัวควบคุม"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Refresh"
-msgstr "เรียกข้อมูลใหม่"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Touchscreen status"
-msgstr "สถานะหน้าจอสัมผัส"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Probe state"
-msgstr "สถานะโพรบ"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "FixtureState"
-msgstr "สถานะFixture"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Host IP"
-msgstr "Host IP"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "BB IP"
-msgstr "BB IP"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Shopfloor IP"
-msgstr "Shopfloor IP"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.html
-msgid "Shutdown the host"
-msgstr "ปิดเครื่องโฮสต์"
-
-#: ../py/test/pytests/touchscreen_calibration/static/touchscreen_calibration.js
-msgid "Please enter SN"
-msgstr "โปรดป้อน SN"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Fail to detect the touchscreen.\n"
-"Insert the traveler board, and restart the test."
-msgstr ""
-"ไม่สามารถตรวจพบหน้าจอสัมผัสได้\n"
-"ใส่บอร์ดเดินทาง แล้วเริ่มการทดสอบใหม่"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Fail to assign DIRECT_SENSORS_IP in ryu.conf"
-msgstr "ไม่สามารถกําหนด DIRECT_SENSORS_IP ใน ryu.conf"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Disconnected from controller"
-msgstr "ตัดการเชื่อมต่อจากตัวควบคุมแล้ว"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in initial position, aborted"
-msgstr "โพรบไม่อยู่ในตําแหน่งเริ่มต้น ยกเลิกแล้ว"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Please check if the USB cable has been connected between the test fixture "
-"and the control host.\n"
-"Click \"RefreshFixture\" button on screen after connecting the USB cable."
-msgstr ""
-"โปรดตรวจสอบว่าสายเคเบิล USB ได้เชื่อมต่อระหว่างอุปกรณ์ทดสอบและโฮสต์ควบคุมแล้วหรือยัง\n"
-"กรุณาคลิกปุ่ม \"รีเฟรชฟิกซ์เจอร์\" บนหน้าจอหลังจากเชื่อมต่อสาย USB"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"The test fixture is not ready.\n"
-"(1) It is possible that the test fixure is not powered on yet.\n"
-"    Turn on the power and click \"RefreshFixture\" button on screen.\n"
-"(2) The test fixture is already powered on. The fixture may be in the "
-"emergency stop state.\n"
-"    Press debug button on the test fixture and click \"RefreshFixture\" "
-"button on screen."
-msgstr ""
-"อุปกรณ์ทดสอบไม่พร้อม\n"
-"(1) อุปกรณ์ทดสอบอาจยังไม่ได้เปิดเครื่อง\n"
-"    เปิดเครื่องแล้วกดปุ่ม \"RefreshFixture\" บนหน้าจอ\n"
-"(2) อุปกรณ์ทดสอบเปิดเครื่องแล้ว อุปกรณ์อาจอยู่ในสถานะหยุดฉุกเฉิน\n"
-"    กดปุ่มดีบั๊กบนอุปกรณ์ทดสอบแล้วกดปุ่ม \"RefreshFixture\" บนหน้าจอ"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in the DOWN position, aborted"
-msgstr "โพรบไม่อยู่ในตําแหน่งล่างสุด ยกเลิก"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Probe not in the UP position, aborted"
-msgstr "โพรบไม่อยู่ในตําแหน่งบนสุด ยกเลิก"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Wrong serial number!"
-msgstr "หมายเลขซีเรียลผิด!"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid ""
-"Fail to detect the touchscreen.\n"
-"Remove and re-insert the traveler board. And restart the test."
-msgstr ""
-"ตรวจจับหน้าจอสัมผัสไม่สําเร็จ\n"
-"ถอดและใส่บอร์ดที่เคลื่อนที่ได้ใหม่ แล้วเริ่มการทดสอบใหม่"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Current calibration has not completed yet"
-msgstr "การปรับเทียบปัจจุบันยังไม่เสร็จสิ้น"
-
-#: ../py/test/pytests/touchscreen_calibration/touchscreen_calibration.py
-msgid "Please enter SN first"
-msgstr "โปรดป้อน SN ก่อน"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Please start drawing from upper-left corner."
