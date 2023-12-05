@@ -268,6 +268,9 @@ class StubbyHandlerTest(unittest.TestCase):
                 'name': 'proj',
                 'fingerprint': {
                     'board': 'fpboard'
+                },
+                'identity': {
+                    'sku-id': 123
                 }
             }]
         }
@@ -303,6 +306,7 @@ class StubbyHandlerTest(unittest.TestCase):
     expected_response.ec_ro_image.append('ec_version_string')
     expected_response.fp_ro_image.append('fpboard')
     expected_response.firmware_key_id.append('DEFAULT')
+    expected_response.sku_id.append('123')
     self.assertEqual(expected_response, response)
 
   def _CreateStorageBundleInfo(

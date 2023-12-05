@@ -166,6 +166,8 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
         continue
       if 'fingerprint' in conf and 'board' in conf['fingerprint']:
         fw_info_preview['fp-ro-image'].add(conf['fingerprint']['board'])
+      if 'sku-id' in conf['identity']:
+        fw_info_preview['sku-id'].add(str(conf['identity']['sku-id']))
 
     for report in json.loads(build_report)['config'].get('models', []):
       if report.get('name') != request.project:
@@ -182,4 +184,5 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
     response.ec_ro_image.extend(fw_info_preview['ec-ro-image'])
     response.fp_ro_image.extend(fw_info_preview['fp-ro-image'])
     response.firmware_key_id.extend(fw_info_preview['firmware-key-id'])
+    response.sku_id.extend(fw_info_preview['sku-id'])
     return response
