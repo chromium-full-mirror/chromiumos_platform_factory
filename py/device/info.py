@@ -338,7 +338,7 @@ class SystemInfo(device_types.DeviceComponent):
   def update_toolkit_version(self):
     """Indicates if an update is available on server.
 
-    Usually set by using Overrides after checking shopfloor server.
+    Usually set by using Overrides after checking factory server.
     """
     # TODO(youcheng) Implement this in another way. Probably move this to goofy
     # state variables.
