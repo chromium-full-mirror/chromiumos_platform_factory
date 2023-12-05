@@ -44,7 +44,7 @@ RUN_DIR = os.path.join(paths.RUNTIME_VARIABLE_DATA_DIR, "factory")
 SEQUENCE_PATH = os.path.join(RUN_DIR, "event_log_seq")
 
 # The main events file.  Goofy will add "." + reimage_id to this
-# filename when it synchronizes events to the shopfloor server.
+# filename when it synchronizes events to the factory server.
 EVENTS_PATH = os.path.join(EVENT_LOG_DIR, "events")
 
 BOOT_SEQUENCE_PATH = os.path.join(EVENT_LOG_DIR, ".boot_sequence")
@@ -58,11 +58,11 @@ _reimage_id = None
 # help ensure monotonicity.
 #
 # For example, say we write events #55 and #56 to the event file and
-# sync them to the shopfloor server, but then we have a power problem
+# sync them to the factory server, but then we have a power problem
 # and then lose those events before they are completely flushed to
 # disk.  On reboot, the last event we will find in the events file is
 # #54, so if we started again with #55 we would violate monotonicity
-# in the shopfloor server record.  But this way we will start with
+# in the factory server record.  But this way we will start with
 # sequence number #1000055.
 #
 # This is not bulletproof: we could write and sync event #1000055,
@@ -143,7 +143,7 @@ class FloatDigit:
 
 def YamlFloatDigitRepresenter(dumper, data):
   """The representer for FloatDigit type."""
-  return dumper.represent_scalar(u"tag:yaml.org,2002:float", repr(data))
+  return dumper.represent_scalar("tag:yaml.org,2002:float", repr(data))
 
 
 def YamlObjectRepresenter(dumper, data):
