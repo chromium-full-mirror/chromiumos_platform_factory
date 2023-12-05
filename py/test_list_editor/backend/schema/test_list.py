@@ -37,14 +37,14 @@ class TestItemDisplay(BaseModel):
   subtests: List[str] = []
 
 
-class TestItem(TestItemDisplay):
+class TestItem(BaseModel):
   """Test item container."""
   # Fields for test list editor
   # TODO: Make sure to modify the field whenever there is a change.
   # last_modified: datetime.datetime = datetime.datetime.now().isoformat()
 
-  # Other fields are from TestList.
-  inherit: str = 'FactoryTest'
+  test_item_id: str
+  display_name: str
 
   # TODO: Merge the test list fields into this class so we can remove
   # the Extra.allow
