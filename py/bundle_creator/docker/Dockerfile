@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-FROM python:3.7
+FROM python:3.8
 LABEL maintainer="Liang-Chieh Chen <jamesqaq@google.com>"
 
 # lbzip2 is the best variant of bzip2 for `image_tool bundle`.
