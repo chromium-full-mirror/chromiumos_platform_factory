@@ -3,30 +3,56 @@
 # found in the LICENSE file.
 """Sphinx extension for preprocessing including test list objects."""
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, cast
 
-# yapf: enable
-# yapf: disable
-from sphinx import application  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
-# yapf: disable
-from sphinx.directives import code  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+from docutils.statemachine import StringList
+from sphinx import application  # type: ignore #TODO(b/338318729) Fixit!  # yapf: disable
+from sphinx.directives import code  # type: ignore #TODO(b/338318729) Fixit!  # yapf: disable
 from sphinx import errors
 
 from cros.factory.test.test_lists import manager
+from cros.factory.test.test_lists import test_object
 from cros.factory.utils import config_utils
 from cros.factory.utils import json_utils
 
 
 # We sort the displayed json according to the key created by this function.
 # The weights come from cyueh's human neural network.
-def _GetFieldComparableKey(value: Tuple[str, str]):
+def _GetFieldComparableKey(value: Tuple[str, str]) -> int:
   return {
+      'inherit': -1,
       'pytest_name': 0,
       'label': 1,
       'run_if': 2,
       'args': 999,
   }.get(value[0], 500)
+
+
+def _GenerateSubtests(dict_test_object: Dict[str, Any]):
+  """Yields all subtests in postorder."""
+  for subtest in dict_test_object.get('subtests', []):
+    for test in _GenerateSubtests(subtest):
+      yield test
+  yield dict_test_object
+
+
+def _ApplyPostProcess(dict_test_object: Dict[str, Any]):
+  """Iterates all sub test objects and applies formatting."""
+  for subtest in _GenerateSubtests(dict_test_object):
+    subtest.pop('id', None)
+    subtest.pop('locals', None)
+
+    # Resolve i18n label.
+    label = subtest.pop('label', None)
+    if isinstance(label, dict) and 'en-US' in label:
+      label = label['en-US']
+    subtest['label'] = label
+
+    # Sort key order
+    ordered_dict_test_object = dict(
+        sorted(subtest.items(), key=_GetFieldComparableKey))
+    subtest.clear()
+    subtest.update(ordered_dict_test_object)
 
 
 class TestListDirectiveError(errors.SphinxError):
@@ -54,22 +80,17 @@ class TestListDirective(code.CodeBlock):
       '  content={!r}.\n'
       '  Use `bin/factory test-list --list` to list available test lists.\n'
       '  Use '
-      '`bin/test_list_insight show $test_list_id . | grep -E "^[^ {{}}]+$" to '
+      '`bin/test_list_insight show $test_list_id . | grep -E "^[^ {{}}]+$"` to '
       'list available test objects in a test list.')
 
   def run(self):
-    # yapf: disable
-    if len(self.content) != 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self.content = cast(StringList, self.content)  # type: ignore
+    if len(self.content) != 1:
       raise TestListDirectiveError(
-          # yapf: disable
-          f'The content of `.. {self.directive_name}` must be exact one line '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          f'The content of `.. {self.directive_name}` must be exact one line '
           f'which contains the test object name. content={self.content}.')
 
-    # yapf: disable
-    test_object_name = self.content[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    test_object_name = self.content[0]
     test_list_id, test_object_path = test_object_name.split(':', 1)
 
     test_list_manager = manager.Manager()
@@ -88,24 +109,13 @@ class TestListDirective(code.CodeBlock):
           f'Test object path {test_object_path!r} is not found in '
           f'{test_list_id!r}. ' + self.error_messages_template.format(
               self.directive_name, test_object_name))
+    factory_test_object = cast(test_object.FactoryTest, factory_test_object)
+    dict_test_object = factory_test_object.ToStruct(remove_default=True)
+    _ApplyPostProcess(dict_test_object)
 
-    # yapf: disable
-    dict_test_object: Dict[str, Any] = factory_test_object.ToStruct(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        remove_default=True)
-    dict_test_object.pop('id', None)
-    dict_test_object.pop('locals', None)
-
-    # Resolve i18n label.
-    label = dict_test_object.pop('label', None)
-    if isinstance(label, dict) and 'en-US' in label:
-      label = label['en-US']
-    dict_test_object['label'] = label
-
-    ordered_dict_test_object = dict(
-        sorted(dict_test_object.items(), key=_GetFieldComparableKey))
-    self.content = json_utils.DumpStr(ordered_dict_test_object, indent=2,
-                                      separators=(',', ': ')).splitlines()
+    self.content = StringList(
+        json_utils.DumpStr(dict_test_object, indent=2,
+                           separators=(',', ': ')).splitlines())
     return super().run()
 
 

@@ -434,7 +434,10 @@ class FactoryTest:
     ]
     if recursive:
       struct['subtests'] = [
-          subtest.ToStruct(extra_fields) for subtest in struct['subtests']]
+          subtest.ToStruct(extra_fields, recursive,
+                           remove_default=remove_default)
+          for subtest in struct['subtests']
+      ]
     else:
       struct.pop('subtests', None)
     if callable(struct['run_if']):
