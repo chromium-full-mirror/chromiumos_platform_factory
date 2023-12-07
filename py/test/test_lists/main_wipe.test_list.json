@@ -1,7 +1,8 @@
 {
   "inherit": [
-    "generic_fat.test_list",
-    "generic_grt.test_list"
+    "generic_fingerprint.test_list",
+    "generic_grt.test_list",
+    "generic_common.test_list"
   ],
   "label": "Execute Wipe Test-List",
   "definitions": {},

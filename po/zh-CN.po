@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 16:08+UTC\n"
+"PO-Revision-Date: 2024-11-12 08:05+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3664,10 +3664,6 @@ msgid "Check Display Connection"
 msgstr "确认显示链接"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Fingerprint Firmware"
-msgstr "确认指纹韧体"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point"
 msgstr "确认关卡"
 
@@ -3722,14 +3718,6 @@ msgstr "打开上盖功能"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ethernet Test"
 msgstr "网路测试"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Test Group"
-msgstr "测试指纹群组"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Sensor test"
-msgstr "指纹感应器测试"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
@@ -3986,10 +3974,6 @@ msgid "Update Cr50 Firmware"
 msgstr "更新 CR50 韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Fingerprint Firmware"
-msgstr "更新指纹韧体"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "更新样式 ID"
@@ -4058,6 +4042,22 @@ msgstr "准备程序"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (最终功能测试)"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Check Fingerprint Firmware"
+msgstr "检查指纹固件"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Test Group"
+msgstr "指纹测试群组"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Sensor test"
+msgstr "指纹感应器测试"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Update Fingerprint Firmware"
+msgstr "更新指纹感应器韧体"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan FPS Base Test"

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 16:08+UTC\n"
+"PO-Revision-Date: 2024-11-12 08:05+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3726,10 +3726,6 @@ msgid "Check Display Connection"
 msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Fingerprint Firmware"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point"
 msgstr "Mức xác nhận"
 
@@ -3783,14 +3779,6 @@ msgstr "Bật chức năng công tắc Nắp"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ethernet Test"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Test Group"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Sensor test"
 msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
@@ -4048,10 +4036,6 @@ msgid "Update Cr50 Firmware"
 msgstr "Cập nhật firmware CR50"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Fingerprint Firmware"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "Cập nhật SKU ID"
@@ -4120,6 +4104,22 @@ msgstr "Thủ tục chuẩn bị"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (Kiểm tra chức năng cuối cùng)"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Check Fingerprint Firmware"
+msgstr "Kiểm tra firmware vân tay"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Test Group"
+msgstr "Nhóm thử nghiệm vân tay"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Sensor test"
+msgstr "Kiểm tra cảm biến vân tay"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Update Fingerprint Firmware"
+msgstr "Cập nhật firmware vân tay"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan FPS Base Test"
