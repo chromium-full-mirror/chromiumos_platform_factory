@@ -222,8 +222,8 @@ class PowerInfoMixinBase:
     """Gets battery's manufacturer."""
     raise NotImplementedError
 
-  def GetBatteryModelNumber(self):
-    """Gets battery's model number."""
+  def GetBatteryDeviceName(self):
+    """Gets battery's device name."""
     raise NotImplementedError
 
   def GetInfoDict(self):
@@ -240,7 +240,7 @@ class PowerInfoMixinBase:
                                ('wearPct', self.GetWearPct),
                                ('cycleCount', self.GetBatteryCycleCount),
                                ('manufacturer', self.GetBatteryManufacturer),
-                               ('model_number', self.GetBatteryModelNumber)]
+                               ('device_name', self.GetBatteryDeviceName)]
     result = {}
     for k, getter in _SysfsBatteryAttributes:
       try:
@@ -468,9 +468,9 @@ class SysfsPowerInfoMixin(PowerInfoMixinBase):
     """See PowerInfoMixinBase.GetBatteryManufacturer"""
     return self.GetBatteryAttribute('manufacturer')
 
-  def GetBatteryModelNumber(self):
-    """See PowerInfoMixinBase.GetBatteryModelNumber"""
-    return self.GetBatteryAttribute('model_number')
+  def GetBatteryDeviceName(self):
+    """See PowerInfoMixinBase.GetBatteryDeviceName"""
+    return self.GetBatteryAttribute('device_name')
 
 
 class ECToolPowerInfoMixin(PowerInfoMixinBase):
@@ -568,12 +568,30 @@ class ECToolPowerInfoMixin(PowerInfoMixinBase):
     return self._GetECToolBatteryAttribute('Cycle count', int)
 
   def GetBatteryManufacturer(self):
-    """See PowerInfoMixinBase.GetBatteryManufacturer"""
-    return self._GetECToolBatteryAttribute('OEM name:')
+    """See PowerInfoMixinBase.GetBatteryManufacturer
 
-  def GetBatteryModelNumber(self):
-    """See PowerInfoMixinBase.GetBatteryModelNumber"""
-    return self._GetECToolBatteryAttribute('Model number:')
+    This function first attempts to use the 'Manufacturer:' key in the EC tool's
+    battery information. If this key is unavailable, it falls back to the older
+    'OEM name:' key for compatibility with devices running versions prior to
+    https://crrev.com/c/5096745.
+    """
+    try:
+      return self._GetECToolBatteryAttribute('Manufacturer:')
+    except device_types.DeviceException:
+      return self._GetECToolBatteryAttribute('OEM name:')
+
+  def GetBatteryDeviceName(self):
+    """See PowerInfoMixinBase.GetBatteryDeviceName
+
+    This function first attempts to use the 'Device name:' key in the EC tool's
+    battery information. If this key is unavailable, it falls back to the older
+    'Model number:' key for compatibility with devices running versions prior to
+    https://crrev.com/c/5096745.
+    """
+    try:
+      return self._GetECToolBatteryAttribute('Device name:')
+    except device_types.DeviceException:
+      return self._GetECToolBatteryAttribute('Model number:')
 
   def GetPowerInfo(self):
     """Gets power information.
@@ -737,9 +755,9 @@ class PowerDaemonPowerInfoMixin(PowerInfoMixinBase):
     return super().GetBatteryManufacturer()
 
   # pylint: disable=useless-super-delegation
-  def GetBatteryModelNumber(self):
-    """See PowerInfoMixinBase.GetBatteryModelNumber"""
-    return super().GetBatteryModelNumber()
+  def GetBatteryDeviceName(self):
+    """See PowerInfoMixinBase.GetBatteryDeviceName"""
+    return super().GetBatteryDeviceName()
 
 
 class LinuxPower(DummyPowerControlMixin, SysfsPowerInfoMixin, PowerBase):

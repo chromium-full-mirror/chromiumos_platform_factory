@@ -102,8 +102,8 @@ class ECToolPowerInfoTest(unittest.TestCase):
   """Unittest for power.ECToolPowerInfoMixin."""
   _MOCK_EC_BATTERY_READ = textwrap.dedent("""
       Battery info:
-        OEM name:               LGC
-        Model number:           AC14B8K
+        Manufacturer:           LGC
+        Device name:            AC14B8K
         Chemistry   :           LION
         Serial number:          09FE
         Design capacity:        3220 mAh
@@ -210,14 +210,14 @@ class ECToolPowerInfoTest(unittest.TestCase):
         'wearPct': 1,
         'cycleCount': 4,
         'manufacturer': 'LGC',
-        'model_number': 'AC14B8K'
+        'device_name': 'AC14B8K'
     }
     self.assertEqual(self.power.GetInfoDict(), expected_dict)
 
   def testProbeBatteryFail(self):
     _BATTERY_INFO = textwrap.dedent("""
         Battery info:
-          OEM name:          FOO
+          Manufacturer:          FOO
         """)
     self.board.CallOutput = mock.MagicMock(return_value=_BATTERY_INFO)
     self.assertRaises(self.power.Error, self.power.GetBatteryDesignCapacity)
@@ -235,7 +235,7 @@ class ECToolPowerInfoTest(unittest.TestCase):
         return_value=self._MOCK_EC_BATTERY_READ)
     # pylint: disable=protected-access
     self.assertEqual('AC14B8K',
-                     self.power._GetECToolBatteryAttribute('Model number:'))
+                     self.power._GetECToolBatteryAttribute('Device name:'))
     # pylint: disable=protected-access
     self.assertEqual(4,
                      self.power._GetECToolBatteryAttribute('Cycle count', int))
