@@ -1,0 +1,259 @@
+{
+  "inherit": [
+    "generic_fingerprint.test_list"
+  ],
+  "label": "Generic Fingerprint Sensor Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "FPSTestPlusManualTest": {
+      "inherit": "FPSTest",
+      "label": "Fingerprint Sensor test plus manual test",
+      "args": {
+        "number_of_manual_captures": 10
+      }
+    },
+    "FPSTestPlusPixelMedianTestForBloonchipper": {
+      "inherit": "FPSTestPlusPixelMedianTestForDartmonkey",
+      "label": "Fingerprint Sensor test plus pixel median test for Bloonchipper",
+      "args": {
+        "detect_zones": [
+          [
+            20,
+            16,
+            27,
+            23
+          ],
+          [
+            76,
+            16,
+            83,
+            23
+          ],
+          [
+            132,
+            16,
+            139,
+            23
+          ],
+          [
+            20,
+            56,
+            27,
+            63
+          ],
+          [
+            76,
+            56,
+            83,
+            63
+          ],
+          [
+            132,
+            56,
+            139,
+            63
+          ],
+          [
+            20,
+            88,
+            27,
+            95
+          ],
+          [
+            76,
+            88,
+            83,
+            95
+          ],
+          [
+            132,
+            88,
+            139,
+            95
+          ],
+          [
+            20,
+            128,
+            27,
+            135
+          ],
+          [
+            76,
+            128,
+            83,
+            135
+          ],
+          [
+            132,
+            128,
+            139,
+            135
+          ]
+        ]
+      }
+    },
+    "FPSTestPlusPixelMedianTestForDartmonkey": {
+      "inherit": "FPSTest",
+      "pytest_name": "fingerprint_mcu",
+      "label": "Fingerprint Sensor test plus pixel median test for Dartmonkey",
+      "args": {
+        "max_dead_pixels": 10,
+        "pixel_median": {
+          "cb_type1": [
+            180,
+            220
+          ],
+          "cb_type2": [
+            80,
+            120
+          ],
+          "icb_type1": [
+            15,
+            70
+          ],
+          "icb_type2": [
+            155,
+            210
+          ]
+        },
+        "detect_zones": [
+          [
+            8,
+            16,
+            15,
+            23
+          ],
+          [
+            24,
+            16,
+            31,
+            23
+          ],
+          [
+            40,
+            16,
+            47,
+            23
+          ],
+          [
+            8,
+            66,
+            15,
+            73
+          ],
+          [
+            24,
+            66,
+            31,
+            73
+          ],
+          [
+            40,
+            66,
+            47,
+            73
+          ],
+          [
+            8,
+            118,
+            15,
+            125
+          ],
+          [
+            24,
+            118,
+            31,
+            125
+          ],
+          [
+            40,
+            118,
+            47,
+            125
+          ],
+          [
+            8,
+            168,
+            15,
+            175
+          ],
+          [
+            24,
+            168,
+            31,
+            175
+          ],
+          [
+            40,
+            168,
+            47,
+            175
+          ]
+        ]
+      }
+    },
+    "FPSTestPlusRubberStamperTest": {
+      "inherit": "FPSTest",
+      "label": "Fingerprint Sensor test plus rubber stamper test",
+      "args": {
+        "rubber_finger_present": true
+      }
+    },
+    "ProbeFingerprintSensor": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Fingerprint Sensor",
+      "args": {
+        "component_list": [
+          "fingerprint"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "fingerprint",
+            "==",
+            1
+          ]
+        ]
+      }
+    },
+    "SetHasFingerprint": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Fingerprint",
+      "args": {
+        "commands": "factory device-data component.has_fingerprint=1"
+      }
+    },
+    "UnsetHasFingerprint": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Fingerprint",
+      "args": {
+        "commands": "factory device-data component.has_fingerprint=0"
+      }
+    },
+    "UpdateFPFirmwareWithLocalBuildFirmware": {
+      "pytest_name": "update_fpmcu_firmware",
+      "label": "Update Fingerprint Firmware with local build firmware",
+      "args": {
+        "method": "UPDATE",
+        "firmware_file": "/path/to/image.bin"
+      }
+    }
+  },
+  "tests": [
+    "SetHasFingerprint",
+    "UnsetHasFingerprint",
+    "ProbeFingerprintSensor",
+    "UpdateFPFirmware",
+    "CheckFPFirmware",
+    "UpdateFPFirmwareWithLocalBuildFirmware",
+    "FPSTest",
+    "FPSTestPlusManualTest",
+    "FPSTestPlusPixelMedianTestForDartmonkey",
+    "FPSTestPlusPixelMedianTestForBloonchipper",
+    "FPSTestPlusRubberStamperTest",
+    "FPSGroup"
+  ]
+}

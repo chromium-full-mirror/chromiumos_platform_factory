@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-06 14:52+CST\n"
+"PO-Revision-Date: 2023-12-07 17:52+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3661,10 +3661,6 @@ msgid "Check Display Connection"
 msgstr "ตรวจสอบการเชื่อมต่อจอแสดงผล"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Fingerprint Firmware"
-msgstr "ตรวจสอบเฟิร์มแวร์ลายนิ้วมือ"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point"
 msgstr "จุดตรวจสอบ"
 
@@ -3719,14 +3715,6 @@ msgstr "เปิดใช้งานสวิตช์ฝาปิด"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ethernet Test"
 msgstr "การทดสอบอีเทอร์เน็ต"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Test Group"
-msgstr "กลุ่มทดสอบลายนิ้วมือ"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Sensor test"
-msgstr "การทดสอบเซ็นเซอร์ลายนิ้วมือ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
@@ -3983,10 +3971,6 @@ msgid "Update Cr50 Firmware"
 msgstr "อัปเดตเฟิร์มแวร์ของ Cr50"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Fingerprint Firmware"
-msgstr "อัปเดตเฟิร์มแวร์ลายนิ้วมือ"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "อัปเดตรหัส SKU"
@@ -4047,6 +4031,58 @@ msgstr "เตรียม"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (การทดสอบหน้าที่การทํางานสุดท้าย)"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Check Fingerprint Firmware"
+msgstr "ตรวจสอบเฟิร์มแวร์ลายนิ้วมือ"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Test Group"
+msgstr "กลุ่มทดสอบลายนิ้วมือ"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Sensor test"
+msgstr "การทดสอบเซ็นเซอร์ลายนิ้วมือ"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Update Fingerprint Firmware"
+msgstr "อัปเดตเฟิร์มแวร์ลายนิ้วมือ"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus manual test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus rubber stamper test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Probe Fingerprint Sensor"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Unset Has Fingerprint"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Update Fingerprint Firmware with local build firmware"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Generic Fingerprint Sensor Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json

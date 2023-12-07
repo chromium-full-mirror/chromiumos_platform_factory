@@ -11,8 +11,14 @@ by executing commands through the fingerprint micro-controller.
 
 Test Procedure
 --------------
-This is an automated test without user interaction,
-it might use a rubber finger pressed against the sensor by a proper fixture.
+
+#. The sensor must not be pressed until the test shows instruction on the UI.
+#. Test performs automated test (e.g. pixel median) without user interaction.
+#. If number_of_manual_captures is not 0, then an operator or a fixture must
+   pressed a rubber finger or a real finger against the sensor.
+#. If rubber_finger_present is true, then an operator or a fixture must pressed
+   a rubber finger against the sensor to calculate the SNR.
+#. The test fails if any of above three tests is marked as failed.
 
 Dependency
 ----------
@@ -20,40 +26,39 @@ The pytest supposes that the system as a fingerprint MCU exposed through the
 kernel cros_ec driver as ``/dev/cros_fp``.
 
 When available, it uses the vendor 'libfputils' shared library and its Python
-helper to compute the image quality signal-to-noise ratio.
+helper to display the captured image and compute the image quality
+signal-to-noise ratio.
 
 Examples
 --------
 Minimum runnable example to check if the fingerprint sensor is connected
-properly and fits the default quality settings::
+properly and fits the default quality settings:
 
-  {
-    "pytest_name": "fingerprint_mcu"
-  }
+.. test_list::
+
+  generic_fingerprint_examples:FPSTest
 
 To check if the sensor has at most 10 dead pixels,
 with bounds for the pixel grayscale median values and finger detection zones,
-add this in test list, and then show ten captures on the screen::
+add this in test list:
 
-  {
-    "pytest_name": "fingerprint_mcu",
-    "args": {
-      "max_dead_pixels": 10,
-      "pixel_median": {
-        "cb_type1" : [180, 220],
-        "cb_type2" : [80, 120],
-        "icb_type1" : [15, 70],
-        "icb_type2" : [155, 210]
-      },
-      "detect_zones" : [
-        [8, 16, 15, 23], [24, 16, 31, 23], [40, 16, 47, 23],
-        [8, 66, 15, 73], [24, 66, 31, 73], [40, 66, 47, 73],
-        [8, 118, 15, 125], [24, 118, 31, 125], [40, 118, 47, 125],
-        [8, 168, 15, 175], [24, 168, 31, 175], [40, 168, 47, 175]
-      ],
-      "number_of_manual_captures": 10
-    }
-  }
+.. test_list::
+
+  generic_fingerprint_examples:FPSTestPlusPixelMedianTestForDartmonkey
+
+To show 10 captures on the screen:
+
+.. test_list::
+
+  generic_fingerprint_examples:FPSTestPlusManualTest
+
+To test SNR value with a rubber stamp. Only work for Dartmonkey, see b/180757318
+for more info:
+
+.. test_list::
+
+  generic_fingerprint_examples:FPSTestPlusRubberStamperTest
+
 """
 
 import logging

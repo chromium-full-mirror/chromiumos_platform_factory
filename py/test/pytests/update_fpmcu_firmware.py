@@ -42,32 +42,26 @@ Dependency
 Examples
 --------
 To update the fingerprint firmware with the image in DUT release partition,
-add this in test list::
+add this in test list:
 
-  {
-    "pytest_name": "update_fpmcu_firmware"
-  }
+.. test_list::
 
-To update the fingerprint firmware with a specified image in the station
-(only recommended in pre-PVT stages)::
+  generic_fingerprint_examples:UpdateFPFirmware
 
-  {
-    "pytest_name": "update_fpmcu_firmware",
-    "args": {
-      "method": "UPDATE"
-      "firmware_file": "/path/on/station/to/image.bin"
-    }
-  }
+To update the fingerprint firmware with a specified image in the station/DUT
+(only recommended in pre-PVT stages):
+
+.. test_list::
+
+  generic_fingerprint_examples:UpdateFPFirmwareWithLocalBuildFirmware
 
 To check if the fingerprint firmware version is equal to the version in the
-release image::
+release image:
 
-  {
-    "pytest_name": "update_fpmcu_firmware",
-    "args": {
-      "method": "CHECK_VERSION"
-    }
-  }
+.. test_list::
+
+  generic_fingerprint_examples:CheckFPFirmware
+
 """
 
 import enum

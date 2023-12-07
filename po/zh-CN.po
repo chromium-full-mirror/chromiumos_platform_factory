@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-06 14:52+CST\n"
+"PO-Revision-Date: 2023-12-07 17:52+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3642,10 +3642,6 @@ msgid "Check Display Connection"
 msgstr "确认显示链接"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Fingerprint Firmware"
-msgstr "确认指纹韧体"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point"
 msgstr "确认关卡"
 
@@ -3700,14 +3696,6 @@ msgstr "打开上盖功能"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ethernet Test"
 msgstr "网路测试"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Test Group"
-msgstr "测试指纹群组"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Fingerprint Sensor test"
-msgstr "指纹感应器测试"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
@@ -3964,10 +3952,6 @@ msgid "Update Cr50 Firmware"
 msgstr "更新 CR50 韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Fingerprint Firmware"
-msgstr "更新指纹韧体"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "更新样式 ID"
@@ -4028,6 +4012,58 @@ msgstr "准备程序"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (最终功能测试)"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Check Fingerprint Firmware"
+msgstr "确认指纹韧体"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Test Group"
+msgstr "测试指纹群组"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Fingerprint Sensor test"
+msgstr "指纹感应器测试"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Update Fingerprint Firmware"
+msgstr "更新指纹韧体"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus manual test"
+msgstr "指纹感应器测试并手动测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
+msgstr "指纹感应器测试并像素中值测试 (Bloonchipper)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgstr "指纹感应器测试并像素中值测试 (Dartmonkey)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus rubber stamper test"
+msgstr "指纹感应器测试并橡皮印章测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Probe Fingerprint Sensor"
+msgstr "侦测指纹感应器硬件"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint"
+msgstr "设置 Has Fingerprint"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Unset Has Fingerprint"
+msgstr "移除 Has Fingerprint"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Update Fingerprint Firmware with local build firmware"
+msgstr "使用特定韧体更新指纹韧体"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Generic Fingerprint Sensor Factory tests"
+msgstr "一般指纹感应器测试"
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json
