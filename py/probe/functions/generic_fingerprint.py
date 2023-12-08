@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import logging
 import os
 
 from cros.factory.probe.lib import cached_probe_function
@@ -22,8 +23,18 @@ class FingerprintFunction(cached_probe_function.CachedProbeFunction):
 
     _fpmcu = fpmcu_utils.FpmcuDevice(sys_interface.SystemInterface())
 
-    sensor_vendor, sensor_model = _fpmcu.GetFpSensorInfo()
+    sensor_vendor, sensor_model_unmasked = _fpmcu.GetFpSensorInfo()
     fpmcu_name = _fpmcu.GetName()
+    try:
+      # The last four bits are associated with the wafer ID, which does not
+      # contribute to identification, and therefore they can be masked.
+      int_sensor_model_masked = int(sensor_model_unmasked, 16) & ~0xf
+    except ValueError:
+      logging.error('Probed sensor model is not a hex string: %s',
+                    sensor_model_unmasked)
+      sensor_model = sensor_model_unmasked
+    else:
+      sensor_model = f'{int_sensor_model_masked:x}'
 
     results = [{
         'sensor_vendor': sensor_vendor,
