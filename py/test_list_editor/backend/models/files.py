@@ -15,6 +15,10 @@ from cros.factory.utils import process_utils
 TEST_LIST_CONFIG_DIR = os.path.join(paths.FACTORY_PYTHON_DIR, 'test',
                                     'test_lists')
 
+
+if os.environ.get("RUNTIME_ENV", None) == 'prod':
+  TEST_LIST_CONFIG_DIR = '/app/cros/factory/test/test_lists'
+
 TEST_LIST_FILE_GLOB = '*.test_list.json'
 TEST_LIST_SCHEMA_FILE_GLOB = '*.schema.json'
 

@@ -122,7 +122,7 @@ def SaveTestList(test_list: Dict[str, Any], test_list_name: str,
     jsonschema.ValidationError: Raised when the test list cannot pass the
       schema validation.
   """
-  ValidateTestListFileSchema(test_list)
+  ValidateTestListFileSchema(test_list, config_dir)
 
   test_list_name = GetTestListConfigFile(test_list_name)
   filename = os.path.join(config_dir, test_list_name)

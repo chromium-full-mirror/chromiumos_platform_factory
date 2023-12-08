@@ -7,6 +7,7 @@ from jsonschema import ValidationError as JSONValidationError
 from pydantic import validator
 
 from cros.factory.test.test_lists import test_list_common
+from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common
 
 
@@ -42,7 +43,8 @@ class FileObject(common.BaseRequest):
       ValueError: If the validation fails.
     """
     try:
-      test_list_common.ValidateTestListFileSchema(v)
+      test_list_common.ValidateTestListFileSchema(
+          v, file_model.TEST_LIST_CONFIG_DIR)
     except JSONValidationError as e:
       raise ValueError(e.message) from e
     return v

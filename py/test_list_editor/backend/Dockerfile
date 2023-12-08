@@ -2,7 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-FROM python:3.11-slim-buster
+FROM python:3.11-slim
+
+# rsync is for copying files from the factory codebase to the user session workspace
+# Ref: py/test_list_editor/middleware/validation.py
+RUN apt-get update && apt-get install -y rsync \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 3200 appuser
 RUN adduser --disabled-password --gecos '' --uid 3000 --gid 3200 appuser
