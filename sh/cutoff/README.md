@@ -75,8 +75,8 @@ There are few options you can set:
      level (in percentage). Should be 0~100.
  - `CUTOFF_BATTERY_MIN_VOLTAGE`: Minimal allowed value for battery voltage.
  - `CUTOFF_BATTERY_MAX_VOLTAGE`: Maximal allowed value for battery voltage.
- - `SHOPFLOOR_URL`: URL to shopfloor server that we can send request to inform
-     "device is cut-off and ready for packaging".
+ - `FACTORY_SERVER_URL`: URL to factory server that we can send request to
+     inform shopfloor "device is cut-off and ready for packaging".
  - `TTY`: Path of terminal for output. Defaults to /run/frecon/vt0.
  - `CONTINUE_KEY`: A string to confirm continuing cutoff. User must press the
      key in order.
@@ -92,6 +92,6 @@ The options should be set in JSON format. For example:
       "CUTOFF_AC_STATE": "remove_ac",
       "CUTOFF_BATTERY_MIN_PERCENTAGE": 60,
       "CUTOFF_BATTERY_MAX_PERCENTAGE": 80,
-      "SHOPFLOOR_URL": "http://192.168.1.1/"
+      "FACTORY_SERVER_URL": "http://192.168.1.1:8080/"
     }
 ```

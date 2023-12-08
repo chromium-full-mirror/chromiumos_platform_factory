@@ -6,15 +6,15 @@
 # Reads `options` file and check parameters for cut-off scripts.
 
 # Define config default values
-: ${CUTOFF_METHOD:=shutdown}
-: ${CUTOFF_AC_STATE:=}
-: ${CUTOFF_BATTERY_MIN_PERCENTAGE:=}
-: ${CUTOFF_BATTERY_MAX_PERCENTAGE:=}
-: ${CUTOFF_BATTERY_MIN_VOLTAGE:=}
-: ${CUTOFF_BATTERY_MAX_VOLTAGE:=}
-: ${SHOPFLOOR_URL:=}
-: ${CONTINUE_KEY:=}
-: ${QRCODE_INFO:=}
+: "${CUTOFF_METHOD:=shutdown}"
+: "${CUTOFF_AC_STATE:=}"
+: "${CUTOFF_BATTERY_MIN_PERCENTAGE:=}"
+: "${CUTOFF_BATTERY_MAX_PERCENTAGE:=}"
+: "${CUTOFF_BATTERY_MIN_VOLTAGE:=}"
+: "${CUTOFF_BATTERY_MAX_VOLTAGE:=}"
+: "${FACTORY_SERVER_URL:=}"
+: "${CONTINUE_KEY:=}"
+: "${QRCODE_INFO:=}"
 
 # After calling display_wipe_message.sh to draw image with frecon, we must
 # redirect text output to active terminal to display information on the screen.
@@ -65,7 +65,7 @@ options_load_file() {
   for key in CUTOFF_METHOD CUTOFF_AC_STATE \
       CUTOFF_BATTERY_MIN_PERCENTAGE CUTOFF_BATTERY_MAX_PERCENTAGE \
       CUTOFF_BATTERY_MIN_VOLTAGE CUTOFF_BATTERY_MAX_VOLTAGE \
-      SHOPFLOOR_URL TTY CONTINUE_KEY QRCODE_INFO; do
+      FACTORY_SERVER_URL TTY CONTINUE_KEY QRCODE_INFO; do
     # "jq -n -f" allows more flexible JSON, for example keys without quotes or
     # comments started with #.
     value="$(jq -n -f "${file}" | jq -r ".${key}")"
@@ -142,7 +142,7 @@ options_check_values() {
   echo "CUTOFF_BATTERY_MAX_PERCENTAGE=${CUTOFF_BATTERY_MAX_PERCENTAGE}"
   echo "CUTOFF_BATTERY_MIN_VOLTAGE=${CUTOFF_BATTERY_MIN_VOLTAGE}"
   echo "CUTOFF_BATTERY_MAX_VOLTAGE=${CUTOFF_BATTERY_MAX_VOLTAGE}"
-  echo "SHOPFLOOR_URL=${SHOPFLOOR_URL}"
+  echo "FACTORY_SERVER_URL=${FACTORY_SERVER_URL}"
   echo "TTY=${TTY}"
   echo "CONTINUE_KEY=${CONTINUE_KEY}"
   echo "QRCODE_INFO=${QRCODE_INFO}"
@@ -159,7 +159,7 @@ options_usage_help() {
     [--max-battery-percent <maximum battery percentage>]
     [--min-battery-voltage <minimum battery voltage>]
     [--max-battery-voltage <maximum battery voltage>]
-    [--shopfloor <shopfloor_url]
+    [--factory-server <factory_server_url]
     [--tty <tty_path>]
     [--continue_key <key>]
     [--qrcode_info <qrcode info>]
@@ -196,9 +196,9 @@ options_parse_command_line() {
         shift
         CUTOFF_BATTERY_MAX_VOLTAGE="$1"
         ;;
-      --shopfloor )
+      --factory-server)
         shift
-        SHOPFLOOR_URL="$1"
+        FACTORY_SERVER_URL="$1"
         ;;
       --tty )
         shift

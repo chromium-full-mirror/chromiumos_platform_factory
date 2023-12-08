@@ -26,7 +26,7 @@
     "CUTOFF_BATTERY_MAX_VOLTAGE": {
       "type": "number"
     },
-    "SHOPFLOOR_URL": {
+    "FACTORY_SERVER_URL": {
       "type": "string"
     },
     "TTY": {
