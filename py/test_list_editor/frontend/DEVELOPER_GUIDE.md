@@ -36,7 +36,14 @@ installation process and also update the package when possible, use `npm install
   ```
 
 * The frontend default runs on port `5100`. If you want to change the port setting, you can
-modify the `.env` file located in this folder.
+modify the `.env` file located in this folder. Or, with the following command.
+
+  ```sh
+  # In the frontend folder.
+  YOUR_PORT_NUMBER=5100
+  echo "PORT=${YOUR_PORT_NUMBER}" >> .env
+  ```
+
 * If you want the page to show up in your browser, you will
 need to set up [port forwarding](https://www.ssh.com/academy/ssh/tunneling-example) from your
 remote server to your local web browser.
