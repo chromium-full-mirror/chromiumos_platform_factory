@@ -7,6 +7,9 @@
 # This script makes shopfloor call to inform shopfloor server. It can be used
 # after factory wiping (in-place wiping tmpfs) or after factory reset
 # (in factory reset shim) to inform shopfloor the operation is completed.
+#
+# Note that communications between DUT and shopfloor service are proxied by
+# factory server, so a factory server URL should be provided, not shopfloor URL.
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 DISPLAY_MESSAGE="${SCRIPT_DIR}/display_wipe_message.sh"
@@ -31,22 +34,22 @@ die_with_error_message() {
 }
 
 usage_help() {
-  echo "Usage: $0 SHOPFLOOR_URL <POST_FILE | factory_reset | factory_wipe>"
+  echo "Usage: $0 FACTORY_SERVER_URL <POST_FILE | factory_reset | factory_wipe>"
 }
 
 post_to_shopfloor() {
-  local shopfloor_url="$1"
+  local factory_server_url="$1"
   local post_file="$2"
   local response=""
   local rc=""
 
   while true; do
-    echo "Sending data to shopfloor service ${shopfloor_url}..." >"${TTY}"
+    echo "Sending data to shopfloor service ${factory_server_url}..." >"${TTY}"
     rc=0
     response="$(curl --header 'Content-Type: text/xml' --data "@${post_file}" \
-      --connect-timeout 10 --retry 1 -s "${shopfloor_url}")" || rc="$?"
+      --connect-timeout 10 --retry 1 -s "${factory_server_url}")" || rc="$?"
     if [ "${rc}" != 0 ]; then
-      echo "Cannot connect to server: ${shopfloor_url}" >"${TTY}"
+      echo "Cannot connect to server: ${factory_server_url}" >"${TTY}"
     elif ! echo "${response}" | grep -qw "methodResponse"; then
       echo "Unknown response from server: ${response}" >"${TTY}"
     elif echo "${response}" | grep -qw "fault"; then
@@ -71,13 +74,13 @@ main() {
     exit 1
   fi
 
-  local shopfloor_url="$1"
-  if [ -z "${shopfloor_url}" ]; then
-    shopfloor_url="${SHOPFLOOR_URL}"
+  local factory_server_url="$1"
+  if [ -z "${factory_server_url}" ]; then
+    factory_server_url="${FACTORY_SERVER_URL:?}"
   fi
 
-  if [ -z "${shopfloor_url}" ]; then
-    echo "No shopfloor URL specified, ignore inform request."
+  if [ -z "${factory_server_url}" ]; then
+    echo "No factory server URL specified, ignore inform request."
     exit
   fi
 
@@ -90,12 +93,12 @@ main() {
         err="$(cat "${POST_FILE}")"
         die_with_error_message "Failed to generate request: ${err}"
       fi
-      post_to_shopfloor "${shopfloor_url}" "${POST_FILE}"
+      post_to_shopfloor "${factory_server_url}" "${POST_FILE}"
       ;;
     * )
       if [ -f "$2" ]; then
         wait_for_ethernet
-        post_to_shopfloor "${shopfloor_url}" "$2"
+        post_to_shopfloor "${factory_server_url}" "$2"
       else
         usage_help
         exit 1
