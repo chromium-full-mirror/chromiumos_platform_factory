@@ -640,7 +640,6 @@ main() {
         do_deploy_docker "$2"
         ;;
       deploy-all)
-        do_create_pubsub "$2"
         do_deploy_appengine "$2"
         do_deploy_appengine "$2" "v2"
         do_deploy_appengine_legacy "$2"
