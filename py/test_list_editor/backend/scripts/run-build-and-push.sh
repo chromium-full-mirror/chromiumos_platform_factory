@@ -7,6 +7,9 @@ SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 
 source "${SCRIPT_DIR}"/common.sh
 
+${CROS_DIR:?Cros dir is not set, failing...}
+: "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"
+
 check_docker_credential_config() {
   echo "Checking credential helper in docker"
 
@@ -50,16 +53,31 @@ Please make sure variables are set before pushing the container."
   exit
 fi
 
-mkdir -p "${XDG_RUNTIME_DIR}"/test_list_editor
-cd "${XDG_RUNTIME_DIR}"/test_list_editor || exit
+mkdir -p "${XDG_RUNTIME_DIR}"/test_list_editor/cros/factory
+cd "${XDG_RUNTIME_DIR}"/test_list_editor/ || exit
+
+# TODO(louischiu): Refine this so that we could make the files that are copied over
+# as small as possible.
 
 rsync -avLKhz \
-  --include 'cros/factory/*' \
-  --exclude 'cros/factory/dome' \
-  --exclude 'cros/factory/test_list_editor/frontend' \
+  --exclude "dome/" \
+  --exclude "umpire/" \
+  --exclude "probe_info_service/" \
+  --exclude "probe/" \
+  --exclude "instalog/" \
+  --exclude "hwid/" \
+  --exclude "test_list_editor/frontend/" \
+  --exclude "*.venv/" \
+  --exclude '*_unittest.py' \
+  --exclude '*.ts' \
+  --exclude '*.tsx' \
+  --exclude '*.js' \
   --exclude '*.pyc' \
-  --exclude '*/__pycache__/**' \
-  "${CROS_DIR}"/ .
+  --exclude '*/__pycache__' \
+  --exclude 'goofy/static/' \
+  --exclude 'hwid_extractor/' \
+  --exclude 'external_cli/' \
+  "${CROS_DIR}"/cros/factory/ cros/factory/
 
 docker build -t "${BACKEND_IMAGE_NAME}" -f \
   cros/factory/test_list_editor/backend/Dockerfile .

@@ -12,10 +12,13 @@ ENV RUNTIME_ENV="prod"
 
 WORKDIR /app
 
-COPY --chown=appuser . .
-
+# Copy the requirements first so that changes to python files
+# doesn't trigger the package install process again.
+COPY --chown=appuser cros/factory/test_list_editor/backend/requirements.txt requirements.txt
 RUN pip install pip-tools && \
-  pip-sync cros/factory/test_list_editor/backend/requirements.txt
+  pip-sync requirements.txt
+
+COPY --chown=appuser . .
 
 EXPOSE 5000
 
