@@ -3,15 +3,15 @@
 # found in the LICENSE file.
 
 FROM node:18-alpine AS builder
-
-COPY . /app
+ENV NODE_ENV=production
 
 WORKDIR /app
 
-RUN npm ci --omit=dev && npm run build
+COPY . /app
 
+RUN npm ci && npm run build
 
-FROM nginx AS server
+FROM nginx:1.25.3-alpine-slim AS server
 
 COPY --from=builder /app/build/ /usr/share/nginx/http
 
