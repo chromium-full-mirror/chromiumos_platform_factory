@@ -3481,6 +3481,70 @@ msgstr "设定机器资讯"
 msgid "Empty Test List"
 msgstr "重载测试列表"
 
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack"
+msgstr "音源孔"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack Conformance"
+msgstr "音源孔符合性"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Probe Audio Codec"
+msgstr "侦测音频编解码器"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone"
+msgstr "喇叭/麦克风"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone Conformance"
+msgstr "喇叭/麦克风符合性"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Headphone Manual Test"
+msgstr "耳机手动测试"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Audio Card Name"
+msgstr "声卡名稱"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Scan Audio Card Name"
+msgstr "扫描声卡名稱"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker (Only Channel 0)/Microphone"
+msgstr "喇叭(仅测试声道 0)/麦克风"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Rear Microphone"
+msgstr "喇叭/后麦克风"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Manual Test"
+msgstr "喇叭/麦克风手动测试"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Noise Test"
+msgstr "喇叭/麦克风噪音测试"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Sine Wave Test"
+msgstr "喇叭/麦克风正弦波测试"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/External Microphone"
+msgstr "喇叭/外接麦克风"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker Manual Test"
+msgstr "喇叭手动测试"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Generic Audio Factory tests"
+msgstr "一般音频硬件测试"
+
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera without camera_characteristics.conf"
 msgstr "未设定 camera_characteristics.conf 时使用的相机测试"
@@ -3592,14 +3656,6 @@ msgstr "激活注册码(ECHO Code)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point for All Tests"
 msgstr "最终确认关卡"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack"
-msgstr "音源孔"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack Conformance"
-msgstr "音源孔符合性"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Barrier"
@@ -3826,14 +3882,6 @@ msgstr "Shopfloor 服务 (NotifyEnd)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "Shopfloor 服务 (NotifyStart)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone"
-msgstr "喇叭/麦克风"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone Conformance"
-msgstr "喇叭/麦克风符合性"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Stress App Test"

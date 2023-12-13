@@ -6,7 +6,7 @@
 
 Description
 -----------
-This test perform tests on audio plaback and recording devices. It supports 2
+This test perform tests on audio playback and recording devices. It supports 2
 loopback modes:
 
 1. Loop from headphone out to headphone in.
@@ -39,132 +39,50 @@ Dependency
 Examples
 --------
 Here are some test list examples for different test cases. First, you need to
-figure out the particular input/output device you want to perform test on. For
-ALSA input devices, the command `arecord -l` can be used to list all available
-input devices.
+figure out the particular input/output device you want to perform test on.
 
-For instance, if the device showing as ``card 0: kblrt5514rt5663
-[kblrt5514rt5663max], device 1: Audio Record (*)`` is what you want, the
-input_dev should be set to ["kblrt5514rt5663max", "1"]. Similarly, the
-output_dev might be ["kblrt5514rt5663max", "0"]. These settings are used in the
-following examples.
+To find the audio card name, use the command ``arecord -l`` or ``aplay -l``.
 
-Audiofuntest external mic (default) of input_dev and speakers of output_dev::
+For instance, if ``arecord -l`` shows as ``card 0: kblrt5514rt5663
+[kblrt5514rt5663max], device 1: Audio Record (*)``, then your audio card name
+is ``kblrt5514rt5663max`` or ``0`` and your device index is ``1``. In test list
+argument, input_dev is ["kblrt5514rt5663max", "1"] or ["0", "1"].
 
-    {
-      "pytest_name": "audio_loop",
-      "args": {
-        "input_dev": ["kblrt5514rt5663max", "1"],
-        "output_dev": ["kblrt5514rt5663max", "0"],
-        "output_volume": 10,
-        "require_dongle": false,
-        "check_dongle": true,
-        "initial_actions": [
-          ["1", "init_speakerdmic"]
-        ],
-        "tests_to_conduct": [
-          {
-            "type": "audiofun",
-            "threshold": 80,
-            "player_format": "s16"
-          }
-        ]
-      }
-    }
+We also have some alias for common input and output devices:
 
-Audiofuntest on 'mlb' mics of input_dev and speaker channel 0 of output_dev::
+- The input_dev can be ["kblrt5514rt5663max", "Dmic"],
+  ["kblrt5514rt5663max", "Dmic2"], or ["kblrt5514rt5663max", "Extmic"].
+- The output_dev can be ["kblrt5514rt5663max", "Headphone"],
+  or ["kblrt5514rt5663max", "Speaker"].
 
-    {
-      "pytest_name": "audio_loop",
-      "args": {
-        "input_dev": ["kblrt5514rt5663max", "1"],
-        "output_dev": ["kblrt5514rt5663max", "0"],
-        "output_volume": 10,
-        "require_dongle": false,
-        "check_dongle": true,
-        "mic_source": "MLBDmic",
-        "input_rate": 16000,
-        "output_rate": 48000,
-        "initial_actions": [
-          ["1", "init_speakerdmic"]
-        ],
-        "tests_to_conduct": [
-          {
-            "threshold": 80,
-            "type": "audiofun",
-            "output_channels": [0]
-          }
-        ]
-      }
-    }
+We use the minimal volume_gain and lower frequency to protect ears in the
+examples. Use **default volume_gain and frequency in production** to achieve
+higher accuracy.
 
-    {
-      "pytest_name": "audio_loop",
-      "args": {
-        "input_dev": ["kblrt5514rt5663max", "1"],
-        "output_dev": ["kblrt5514rt5663max", "0"],
-        "require_dongle": false,
-        "check_dongle": true,
-        "initial_actions": [
-          ["1", "init_speakerdmic"]
-        ],
-        "tests_to_conduct": [
-          {
-            "duration": 2,
-            "amplitude_threshold": [-0.9, 0.9],
-            "type": "noise",
-            "rms_threshold": [null, 0.5]
-          }
-        ]
-      }
-    }
+To run Audiofuntest on external mic (default) and speakers:
 
-    {
-      "pytest_name": "audio_loop",
-      "args": {
-        "input_dev": ["kblrt5514rt5663max", "1"],
-        "output_dev": ["kblrt5514rt5663max", "0"],
-        "output_volume": 15,
-        "require_dongle": true,
-        "check_dongle": true,
-        "initial_actions": [
-          ["1", "init_audiojack"]
-        ],
-        "tests_to_conduct": [
-          {
-            "freq_threshold": 50,
-            "type": "sinewav",
-            "rms_threshold": [0.08, null]
-          }
-        ]
-      }
-    }
+.. test_list::
 
-AudioJack test using ucm config directly. Make sure your audio.json is not set
-for your sound card. Otherwise the test will use audio.json instead of ucm::
+  generic_audio_examples:SpeakerExtmic
 
-    {
-      "pytest_name": "audio_loop",
-      "disable_services": ["cras"],
-      "args": {
-        "input_dev": ["kblrt5514rt5663max", "Extmic"],
-        "output_dev": ["kblrt5514rt5663max", "Headphone"],
-        "output_volume": 15,
-        "mic_source": "Extmic",
-        "require_dongle": true,
-        "check_dongle": true,
-        "initial_actions": [
-          ["kblrt5514rt5663max", null]
-        ],
-        "tests_to_conduct": [
-          {
-            "freq_threshold": 50,
-            "type": "sinewav",
-            "rms_threshold": [0.08, null]
-          }
-        ]
-      }
-    }
+To run Audiofuntest on internal mics and speaker channel 0:
+
+.. test_list::
+
+  generic_audio_examples:SpeakerChannel0DMic
+
+To run noise test on internal mics and speaker:
+
+.. test_list::
+
+  generic_audio_examples:SpeakerDMicNoiseTest
+
+To run sine wave test on internal mics and speaker:
+
+.. test_list::
+
+  generic_audio_examples:SpeakerDMicSineWaveTest
+
 """
 
 import collections

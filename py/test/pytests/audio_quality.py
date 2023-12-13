@@ -11,9 +11,9 @@ the result of CLIO which is audio quality analysis software.
 DUT will connect to 2 subnets, one is for factory server and the other is for
 fixture.
 
-This pytest starts a socket server listening on port 8888 (can be overriden by
+This pytest starts a socket server listening on port 8888 (can be overridden by
 argument ``network_setting``).  Third party fixture will connect to this port
-and communicate with this pytest in a speical protocol.  See
+and communicate with this pytest in a special protocol.  See
 ``HandleConnection`` and ``setupLoopHandler`` for more details.
 
 The test flow is controlled by the third party fixture, this pytest is command
@@ -33,21 +33,19 @@ No extra dependency.
 
 Examples
 --------
-Here is an example, assuming your audio device is ``<audio_device>``::
+Here is an example, set your audio card name in test list constants or device
+data:
 
-  "AudioQuality": {
-    "label": "AudioQuality",
-    "pytest_name": "audio_quality",
-    "args": {
-      "initial_actions": [["<audio_device>", "initial"]],
-      "input_dev": ["<audio_device>", "1"],
-      "output_dev": ["<audio_device>", "0"],
-      "wav_file": "/usr/local/factory/third_party/SPK48k.wav"
-    }
-  }
+.. test_list::
 
-(Optional) Use pytest ``retrieve parameter`` to download parameters from factory
-server.
+  generic_audio_examples:AudioQuality
+
+(Optional) Use pytest
+`download_from_factory_drive.py <./download_from_factory_drive.html>`_
+to download parameters from factory server.
+
+See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
+``output_dev``.
 """
 
 import binascii

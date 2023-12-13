@@ -2,11 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""A factory test to calibrate speaker.
+"""A factory test to calibrate the smart speaker amplifier.
 
 Description
 -----------
-The test calibrates the speaker by following steps::
+The test calibrates the smart speaker amplifier by following steps::
 
   1. Play silent music to load DSM module.
   2. Enter calibration mode.
@@ -16,7 +16,10 @@ The test calibrates the speaker by following steps::
   6. Quit calibration mode.
 
 After this test, it is recommended to run ``RebootStep`` to load calibration
-data into cras, and run ``audio_loop`` test to verify the calibration result.
+data into cras, and run ``SpeakerDMic`` test to verify the calibration result.
+
+This test only works for some smart speaker amplifiers because some vendors
+don't want to share their software to public.
 
 Test Procedure
 --------------
@@ -30,16 +33,14 @@ Dependency
 
 Examples
 --------
-To calibrate the speaker device hw:1,0, add this into test list::
+To calibrate the speaker device hw:1,0, add this into test list:
 
-  {
-    "pytest_name": "dsm_calibration",
-    "args": {
-      "output_dev": ["1", "0"],
-    }
-  }
+.. test_list::
 
-See audio_loop.py for more details about how to set ``output_dev``.
+  generic_audio_examples:DSMCalibration
+
+See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
+``output_dev``.
 """
 
 import logging

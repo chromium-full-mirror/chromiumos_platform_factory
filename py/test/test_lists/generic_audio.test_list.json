@@ -1,0 +1,101 @@
+{
+  "__comment": "Predefined audio tests. It's called \"Audio Jack Codec\", \"Smart Speaker Amplifier\", or \"Speaker Amplifier\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {
+    "audio": {
+      "card_name": "0"
+    },
+    "__comment_audio": "Used by AudioJack and SpeakerDMic."
+  },
+  "options": {},
+  "definitions": {
+    "AudioJack": {
+      "pytest_name": "audio_loop",
+      "label": "Audio Jack",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Extmic"
+        ],
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Headphone"
+        ],
+        "mic_source": "Extmic",
+        "require_dongle": true,
+        "check_dongle": true,
+        "tests_to_conduct": [
+          {
+            "type": "sinewav",
+            "freq_threshold": 300,
+            "rms_threshold": [
+              0.08,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    "AudioJackConformance": {
+      "inherit": "AudioJack",
+      "label": "Audio Jack Conformance",
+      "args": {
+        "autostart": true,
+        "check_dongle": false,
+        "tests_to_conduct": []
+      }
+    },
+    "ProbeAudioCodec": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Audio Codec",
+      "args": {
+        "component_list": [
+          "audio_codec"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "audio_codec",
+            ">",
+            0
+          ]
+        ]
+      }
+    },
+    "SpeakerDMic": {
+      "pytest_name": "audio_loop",
+      "label": "Speaker/Microphone",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Dmic"
+        ],
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Speaker"
+        ],
+        "mic_source": "Dmic",
+        "require_dongle": false,
+        "check_dongle": true,
+        "tests_to_conduct": [
+          {
+            "type": "audiofun",
+            "threshold": 80,
+            "volume_gain": 50
+          }
+        ]
+      }
+    },
+    "SpeakerDMicConformance": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker/Microphone Conformance",
+      "args": {
+        "autostart": true,
+        "check_dongle": false,
+        "tests_to_conduct": []
+      }
+    }
+  }
+}

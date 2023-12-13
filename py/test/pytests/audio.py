@@ -40,26 +40,21 @@ Dependency
 
 Examples
 --------
-To check if the audio can be played, add this in test list::
+To check if the audio can be played, add this in test list:
 
-  {
-    "pytest_name": "audio",
-    "args": {
-      "output_dev": ["device", "0"]
-    }
-  }
+.. test_list::
+
+  generic_audio_examples:SpeakerManual
 
 To check that headphone is plugged in before audio is played, add this in test
-list::
+list:
 
-  {
-    "pytest_name": "audio",
-    "args": {
-      "check_headphone": true,
-      "output_dev": ["device", "0"],
-      "require_headphone": true
-    }
-  }
+.. test_list::
+
+  generic_audio_examples:HeadphoneManual
+
+See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
+``output_dev``.
 """
 
 import logging
@@ -141,18 +136,17 @@ def TestAudioDigitPlayback(ui, dut, port_name, card, device, channel='all',
   }
 
   if channel in channel_name:
-    device = i18n.StringFormat(
-        '{port_name} ({channel_name})',
-        port_name=port_name,
-        channel_name=channel_name[channel])
+    device_display_name = i18n.StringFormat('{port_name} ({channel_name})',
+                                            port_name=port_name,
+                                            channel_name=channel_name[channel])
   else:
-    device = port_name
+    device_display_name = port_name
 
   all_keys = [test_ui.ESCAPE_KEY, 'R'] + [str(num) for num in range(10)]
   while True:
     ui.SetState(
         _('Please wait for the {device} playback to finish.',
-          device=device))
+          device=device_display_name))
 
     locale = ui.GetUILocale()
     audio_file = os.path.join(_SOUND_DIRECTORY, locale,
@@ -160,9 +154,10 @@ def TestAudioDigitPlayback(ui, dut, port_name, card, device, channel='all',
     _PlayAudioFile(dut, audio_file, card, device, channel, sample_rate)
 
     ui.SetState([
-        _('Press the number you hear from {device} to pass the test.<br>'
-          'Press "R" to replay.',
-          device=device), test_ui.FAIL_KEY_LABEL
+        _(
+            'Press the number you hear from {device} to pass the test.<br>'
+            'Press "R" to replay.', device=device_display_name),
+        test_ui.FAIL_KEY_LABEL
     ])
 
     key = ui.WaitKeysOnce(all_keys)

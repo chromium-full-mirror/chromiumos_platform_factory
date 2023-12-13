@@ -3500,6 +3500,70 @@ msgstr "ตั้งค่า DeviceInfo"
 msgid "Empty Test List"
 msgstr "รายการทดสอบว่างเปล่า"
 
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack"
+msgstr "ช่องเสียบเสียง"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack Conformance"
+msgstr "ความสอดคล้องของช่องเสียบเสียง"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Probe Audio Codec"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone"
+msgstr "ลำโพง/ไมโครโฟน"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone Conformance"
+msgstr "การปฏิบัติตามข้อกำหนดของลำโพง/ไมโครโฟน"
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Headphone Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Audio Card Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Scan Audio Card Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker (Only Channel 0)/Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Rear Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Noise Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Sine Wave Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/External Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Generic Audio Factory tests"
+msgstr ""
+
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera without camera_characteristics.conf"
 msgstr ""
@@ -3611,14 +3675,6 @@ msgstr "เปิดใช้รหัสการลงทะเบียน"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point for All Tests"
 msgstr "จุดตรวจสอบสําหรับการทดสอบทั้งหมด"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack"
-msgstr "ช่องเสียบเสียง"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack Conformance"
-msgstr "ความสอดคล้องของช่องเสียบเสียง"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Barrier"
@@ -3845,14 +3901,6 @@ msgstr "บริการบนชั้นการผลิต (แจ้ง�
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "บริการบนชั้นการผลิต (แจ้งเตือนการเริ่มต้น)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone"
-msgstr "ลำโพง/ไมโครโฟน"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone Conformance"
-msgstr "การปฏิบัติตามข้อกำหนดของลำโพง/ไมโครโฟน"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Stress App Test"

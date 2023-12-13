@@ -1,0 +1,196 @@
+{
+  "__comment": "Examples for testing audio tests. It's called \"Audio Jack Codec\", \"Smart Speaker Amplifier\", or \"Speaker Amplifier\" in AVL.",
+  "inherit": [
+    "generic_audio.test_list"
+  ],
+  "label": "Generic Audio Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "AudioDiagnostic": {
+      "pytest_name": "audio_diagnostic"
+    },
+    "AudioQuality": {
+      "pytest_name": "audio_quality",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "99"
+        ],
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "0"
+        ],
+        "wav_file": "/usr/local/factory/third_party/SPK48k.wav"
+      }
+    },
+    "DSMCalibration": {
+      "pytest_name": "dsm_calibration",
+      "args": {
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "0"
+        ]
+      }
+    },
+    "HeadphoneManual": {
+      "pytest_name": "audio",
+      "label": "Headphone Manual Test",
+      "args": {
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "1"
+        ],
+        "check_headphone": true,
+        "require_headphone": true
+      }
+    },
+    "ScanAudioCardName": {
+      "pytest_name": "scan",
+      "label": "Scan Audio Card Name",
+      "args": {
+        "device_data_key": "component.audio_card_name",
+        "label": "Audio Card Name"
+      }
+    },
+    "SpeakerChannel0DMic": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker (Only Channel 0)/Microphone",
+      "args": {
+        "tests_to_conduct": [
+          {
+            "threshold": 80,
+            "type": "audiofun",
+            "output_channels": [
+              0
+            ],
+            "volume_gain": 1,
+            "min_frequency": 500,
+            "max_frequency": 1000
+          }
+        ]
+      }
+    },
+    "SpeakerDMic": {
+      "__comment": "Use the minimal volume_gain and lower frequency to protect ears in the examples. Use default volume_gain and frequency in production to achieve higher accuracy.",
+      "args": {
+        "tests_to_conduct": [
+          {
+            "threshold": 80,
+            "type": "audiofun",
+            "volume_gain": 1,
+            "min_frequency": 500,
+            "max_frequency": 1000
+          }
+        ]
+      }
+    },
+    "SpeakerDMic2": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker/Rear Microphone",
+      "__comment": "Dmic2 is an alias of Rear Mic.",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Dmic2"
+        ],
+        "mic_source": "Dmic2"
+      }
+    },
+    "SpeakerDMicManual": {
+      "pytest_name": "audio_basic",
+      "label": "Speaker/Microphone Manual Test",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "99"
+        ],
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "0"
+        ]
+      }
+    },
+    "SpeakerDMicNoiseTest": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker/Microphone Noise Test",
+      "args": {
+        "tests_to_conduct": [
+          {
+            "duration": 2,
+            "amplitude_threshold": [
+              -0.9,
+              0.9
+            ],
+            "type": "noise",
+            "rms_threshold": [
+              null,
+              0.5
+            ]
+          }
+        ]
+      }
+    },
+    "SpeakerDMicSineWaveTest": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker/Microphone Sine Wave Test",
+      "args": {
+        "tests_to_conduct": [
+          {
+            "freq_threshold": 300,
+            "type": "sinewav",
+            "rms_threshold": [
+              0.08,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    "SpeakerExtmic": {
+      "inherit": "SpeakerDMic",
+      "label": "Speaker/External Microphone",
+      "args": {
+        "input_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "Extmic"
+        ],
+        "check_dongle": false,
+        "mic_source": "Extmic"
+      }
+    },
+    "SpeakerManual": {
+      "pytest_name": "audio",
+      "label": "Speaker Manual Test",
+      "args": {
+        "output_dev": [
+          "eval! device.component.audio_card_name or constants.audio.card_name",
+          "0"
+        ],
+        "check_headphone": true,
+        "require_headphone": false
+      }
+    }
+  },
+  "tests": [
+    "ProbeAudioCodec",
+    "ScanAudioCardName",
+    "AudioJackConformance",
+    "AudioJack",
+    "DSMCalibration",
+    "SpeakerDMicConformance",
+    "SpeakerDMic",
+    "SpeakerDMic2",
+    "SpeakerExtmic",
+    "SpeakerChannel0DMic",
+    "SpeakerDMicNoiseTest",
+    "SpeakerDMicSineWaveTest",
+    "AudioDiagnostic",
+    "SpeakerDMicManual",
+    "SpeakerManual",
+    "HeadphoneManual",
+    "AudioQuality"
+  ]
+}

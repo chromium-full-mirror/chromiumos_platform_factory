@@ -3543,6 +3543,70 @@ msgstr "Cài đặt thông tin máy"
 msgid "Empty Test List"
 msgstr "Danh sách kiểm tra quá tải"
 
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack"
+msgstr "Lỗ nguồn âm thanh"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Audio Jack Conformance"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Probe Audio Codec"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone"
+msgstr "Loa / micrô"
+
+#: ../py/test/test_lists/generic_audio.test_list.json
+msgid "Speaker/Microphone Conformance"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Headphone Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Audio Card Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Scan Audio Card Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker (Only Channel 0)/Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Rear Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Noise Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/Microphone Sine Wave Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker/External Microphone"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Speaker Manual Test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_audio_examples.test_list.json
+msgid "Generic Audio Factory tests"
+msgstr ""
+
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera without camera_characteristics.conf"
 msgstr ""
@@ -3654,14 +3718,6 @@ msgstr "Kích hoạt mã đăng ký(ECHO Code)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point for All Tests"
 msgstr "Xác nhận cuối cùng của cấp"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack"
-msgstr "Lỗ nguồn âm thanh"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Audio Jack Conformance"
-msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Barrier"
@@ -3888,14 +3944,6 @@ msgstr "Dịch vụ Shopfloor (NotifyEnd)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "Dịch vụ Shopfloor (NotifyStart)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone"
-msgstr "Loa / micrô"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Speaker/Microphone Conformance"
-msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Stress App Test"

@@ -20,11 +20,11 @@ Dependency
 
 Examples
 --------
-To check that audio can be recorded and played, add this into test list::
+To check that audio can be recorded and played, add this into test list:
 
-  {
-    "pytest_name": "audio_diagnostic"
-  }
+.. test_list::
+
+  generic_audio_examples:AudioDiagnostic
 
 """
 
