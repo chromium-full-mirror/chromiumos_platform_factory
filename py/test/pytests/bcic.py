@@ -54,6 +54,7 @@ import subprocess
 
 from cros.factory.device import device_utils
 from cros.factory.test import test_case
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 from cros.factory.external.chromeos_cli import cros_config
@@ -70,6 +71,7 @@ class EnumAction(str, enum.Enum):
 class BCICTest(test_case.TestCase):
   """Factory Test for setting and checking BCIC"""
 
+  related_components = (test_tags.TestCategory.BATTERY, )
   ARGS = [Arg('action', EnumAction, "Which action to do.")]
 
   def setUp(self):
