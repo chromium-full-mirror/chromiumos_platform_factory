@@ -573,7 +573,10 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
       # It implies that the product is legacy and totally non-soft-branded.
       return FeatureEnablementStatus.FromHWIncompliance()
 
-    hwid_identity = self._GetHWIDIdentityFromHWIDString(hwid_string)
+    try:
+      hwid_identity = self._GetHWIDIdentityFromHWIDString(hwid_string)
+    except v3_common.HWIDException as ex:
+      raise ValueError(f'Invalid HWID: {ex}.') from ex
 
     # Follows the same logic as OS runtime feature-level determination workflow
     # (i.e. libsegmentation) deduce whether the versioned feature is enabled or
