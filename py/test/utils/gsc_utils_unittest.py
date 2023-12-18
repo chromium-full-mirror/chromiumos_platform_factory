@@ -242,7 +242,7 @@ class GSCUtilsTest(unittest.TestCase):
 
     self.gsc.Cr50SetROHash()
 
-    mock_script.assert_called_with(GSCScriptPath.AP_RO_HASH, '1:2 6:3')
+    mock_script.assert_called_with(GSCScriptPath.AP_RO_HASH, ['1:2', '6:3'])
     mock_clear_hash.assert_called_once()
 
   @mock.patch.object(gsc_utils.GSCUtils, 'ExecuteGSCSetScript',
