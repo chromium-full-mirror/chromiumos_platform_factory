@@ -58,8 +58,6 @@ class TestItemsController(unittest.TestCase):
         response.data, {
             'test_item_id': '',
             'display_name': '',
-            'subtests': [],
-            'inherit': 'FactoryTest'
         })
 
   def testCreateItem(self):
