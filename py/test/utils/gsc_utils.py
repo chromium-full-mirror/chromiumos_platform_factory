@@ -204,7 +204,7 @@ class GSCUtils:
     hash_intervals = self._CalculateHashInterval()
     self.ExecuteGSCSetScript(
         GSCScriptPath.AP_RO_HASH,
-        ' '.join([(f'{i.start:x}:{i.size:x}') for i in hash_intervals]))
+        [(f'{i.start:x}:{i.size:x}') for i in hash_intervals])
 
   def _CalculateHashInterval(self):
     firmware_image = flashrom.LoadMainFirmware().GetFirmwareImage()
@@ -492,4 +492,5 @@ class GSCUtils:
         raise GSCUtilsError(error_msg)
     else:  # General errors.
       raise GSCUtilsError(
-          f"Failed to set {name} on GSC. (cmd=`{' '.join(cmd)}`)")
+          f"Failed to set {name} on GSC. (cmd=`{' '.join(cmd)}`),"
+          f"error: {result.stderr}")
