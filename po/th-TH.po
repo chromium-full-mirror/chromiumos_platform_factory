@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-12 22:24+CST\n"
+"PO-Revision-Date: 2023-12-18 10:19+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -2798,11 +2798,11 @@ msgstr "ใส่ปากกาสไตลัส"
 msgid "Insert or Remove stylus"
 msgstr "ใส่หรือถอดปากกาสไตลัส"
 
-#: ../py/test/pytests/summary.py
+#: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Click or press SPACE to continue"
 msgstr "คลิกหรือกด SPACE เพื่อดำเนินการต่อ"
 
-#: ../py/test/pytests/summary.py
+#: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Unable to proceed, since some previous tests have not passed."
 msgstr "ไม่สามารถดำเนินการต่อได้เนื่องจากบางการทดสอบก่อนหน้านี้ไม่ผ่าน"
 

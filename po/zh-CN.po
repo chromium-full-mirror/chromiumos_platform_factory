@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-12 22:24+CST\n"
+"PO-Revision-Date: 2023-12-18 10:19+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -2787,11 +2787,11 @@ msgstr "插入触控笔"
 msgid "Insert or Remove stylus"
 msgstr "插入或移除触控笔"
 
-#: ../py/test/pytests/summary.py
+#: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Click or press SPACE to continue"
 msgstr "点击或按空白键继续"
 
-#: ../py/test/pytests/summary.py
+#: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Unable to proceed, since some previous tests have not passed."
 msgstr "之前所有的测试必须通过才能通过此项目"
 

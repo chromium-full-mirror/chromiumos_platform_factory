@@ -92,7 +92,7 @@ from cros.factory.test.i18n import arg_utils as i18n_arg_utils
 from cros.factory.test import state
 from cros.factory.test import test_case
 from cros.factory.utils.arg_utils import Arg
-from cros.factory.utils.type_utils import Obj
+from cros.factory.utils import type_utils
 
 
 _EXTERNAL_DIR = '/run/factory/external'
@@ -139,6 +139,33 @@ class Report(test_case.TestCase):
           default=None)
   ]
 
+  def setUp(self):
+    self.assertTrue(
+        self.args.screensaver_timeout is None or
+        self.args.screensaver_timeout >= 1,
+        "Timeout for screensaver should be positive.")
+
+    self.dut = device_utils.CreateDUTInterface()
+    self._frontend_proxy = self.ui.InitJSTestObject(
+        'SummaryTest', self.args.screensaver_timeout)
+    self.goofy = state.GetInstance()
+
+  def _GetTestResults(self, test, states):
+    previous_tests = []
+    current = test
+    root = test.root if self.args.include_parents else test.parent
+
+    while current != root:
+      previous_tests = list(itertools.takewhile(
+          lambda t: t != current, current.parent.subtests)) + previous_tests
+      current = current.parent
+
+    test_results = [
+        type_utils.Obj(path=t.path, label=t.label,
+                       status=states.get(t.path).status) for t in previous_tests
+    ]
+    return test_results
+
   def _SetFixtureStatusLight(self, all_pass):
     try:
       fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
@@ -148,53 +175,17 @@ class Report(test_case.TestCase):
     except bft_fixture.BFTFixtureException:
       logging.exception('Unable to set status color on BFT fixture')
 
-  def setUp(self):
-    self.assertTrue(self.args.screensaver_timeout is None or
-                    self.args.screensaver_timeout >= 1)
+  def _WriteResultFile(self, all_pass, test_results):
+    self.dut.CheckCall(['mkdir', '-p', _EXTERNAL_DIR])
+    file_path = self.dut.path.join(_EXTERNAL_DIR,
+                                   self.args.run_factory_external_name)
+    if all_pass:
+      self.dut.WriteFile(file_path, 'PASS')
+    else:
+      report = ''.join(f'{r.path}: {r.status}\n' for r in test_results)
+      self.dut.WriteFile(file_path, report)
 
-    self.dut = device_utils.CreateDUTInterface()
-    self._frontend_proxy = self.ui.InitJSTestObject(
-        'SummaryTest', self.args.screensaver_timeout)
-
-  def runTest(self):
-    test_list = self.test_info.ReadTestList()
-    test = test_list.LookupPath(self.test_info.path)
-    states = state.GetInstance().GetTestStates()
-
-    previous_tests = []
-    current = test
-    root = test.root if self.args.include_parents else test.parent
-    while current != root:
-      previous_tests = list(itertools.takewhile(
-          lambda t: t != current, current.parent.subtests)) + previous_tests
-      current = current.parent
-
-    test_results = [Obj(path=t.path, label=t.label,
-                        status=states.get(t.path).status)
-                    for t in previous_tests]
-    overall_status = state.TestState.OverallStatus(
-        [r.status for r in test_results])
-    all_pass = overall_status in _EXTENED_PASSED_STATE
-
-    goofy = state.GetInstance()
-    goofy.PostHookEvent('Summary', 'Good' if all_pass else 'Bad')
-
-    if self.args.bft_fixture:
-      self._SetFixtureStatusLight(all_pass)
-
-    if self.args.run_factory_external_name:
-      self.dut.CheckCall(['mkdir', '-p', _EXTERNAL_DIR])
-      file_path = self.dut.path.join(_EXTERNAL_DIR,
-                                     self.args.run_factory_external_name)
-      if all_pass:
-        self.dut.WriteFile(file_path, 'PASS')
-      else:
-        report = ''.join(f'{r.path}: {r.status}\n' for r in test_results)
-        self.dut.WriteFile(file_path, report)
-
-    if all_pass and self.args.pass_without_prompt:
-      return
-
+  def _PromptMessage(self, all_pass):
     if not self.args.disable_input_on_fail or all_pass:
       self._frontend_proxy.SetPromptMessage(self.args.prompt_message, True)
     else:
@@ -202,10 +193,12 @@ class Report(test_case.TestCase):
           _('Unable to proceed, since some previous tests have not passed.'),
           False)
 
+  def _ShowTestInfoAtFrontend(self, test, overall_status, test_results):
     self._frontend_proxy.SetTestName(test.parent.path)
     self._frontend_proxy.SetOverallTestStatus(overall_status)
     self._frontend_proxy.SetDetailTestResults(test_results)
 
+  def _BindUiKeys(self, all_pass):
     if not self.args.disable_input_on_fail:
       self.ui.BindStandardKeys()
     # If disable_input_on_fail is True, and overall status is PASSED, user
@@ -213,7 +206,33 @@ class Report(test_case.TestCase):
     elif all_pass:
       self.ui.BindStandardPassKeys()
 
+  def runTest(self):
+    test_list = self.test_info.ReadTestList()
+    test = test_list.LookupPath(self.test_info.path)
+    states = state.GetInstance().GetTestStates()
+
+    test_results = self._GetTestResults(test, states)
+    overall_status = state.TestState.OverallStatus(
+        [r.status for r in test_results])
+    all_pass = overall_status in _EXTENED_PASSED_STATE
+    self.goofy.PostHookEvent('Summary', 'Good' if all_pass else 'Bad')
+
+    if self.args.bft_fixture:
+      self._SetFixtureStatusLight(all_pass)
+
+    if self.args.run_factory_external_name:
+      self._WriteResultFile(all_pass, test_results)
+
+    if all_pass and self.args.pass_without_prompt:
+      return
+
+    self._PromptMessage(all_pass)
+    self._ShowTestInfoAtFrontend(test, overall_status, test_results)
+    self._BindUiKeys(all_pass)
+
     if self.args.accessibility and not all_pass:
+      # Display red background at frontend when test fail.
       self._frontend_proxy.EnableAccessibility()
     logging.info('overall_status=%r', overall_status)
+
     self.WaitTaskEnd()
