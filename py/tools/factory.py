@@ -17,11 +17,13 @@ import csv
 import inspect
 import json
 import logging
+import os
 import pprint
 import re
 import socket
 import sys
 import time
+
 import yaml
 
 from cros.factory.device import info
@@ -199,6 +201,9 @@ class TestsCommand(Subcommand):
   name = 'tests'
   help = 'Show information about tests'
 
+  def __init__(self):
+    self.goofy = state.GetInstance()
+
   def Init(self):
     self.subparser.add_argument(
         '--status', '-s', action='store_true',
@@ -207,120 +212,158 @@ class TestsCommand(Subcommand):
         '--this-run', action='store_true',
         help='Show only information about current active run')
     self.subparser.add_argument('--csv', action='store_true',
-                                help='Show information in CSV format')
+                                help='Show test status in CSV format')
     self.subparser.add_argument(
         '--label', action='store_true',
         help=('Show en-US label instead of test item path.'))
     self.subparser.add_argument('--readiness', '-r', action='store_true',
-                                help='Show factory readiness report.')
+                                help='Create a factory readiness report.')
+    self.subparser.add_argument(
+        '--output', '-o', type=str, default=None, metavar='path',
+        help='Path to store the csv file. Print to stdout if not set.')
+
+  def _GetHeader(self, readiness=False):
+    device = sys_interface.SystemInterface()
+    system_info = info.SystemInfo(device)
+    header = [
+        ['Product', f'{system_info.device_name}'],
+        ['Build Phase', f'{system_info.stage}'],
+        ['Release Image Version', f'{system_info.release_image_version}'],
+        ['FW Version', f'{system_info.firmware_version}'],
+        ['Test Image Version', f'{system_info.test_image_version}'],
+        ['Factory Toolkit', f'{system_info.toolkit_version}'],
+    ]
+    if readiness:
+      header.append([
+          'Test Category', 'Component Readiness', 'Test Station', 'Test Group',
+          'Test Item', 'Test Status'
+      ])
+    return header
+
+  def _GetLabel(self, path):
+    test_object = self.goofy.test_list.LookupPath(path)
+    if self.args.label and 'en-US' in test_object.label:
+      return test_object.label['en-US']
+    return path
+
+  def _GetCSVLabelFromPath(self, path: str) -> list:
+    """Returns the test object path in a CSV label format.
+
+    Args:
+      path: The test object path.
+
+    Returns:
+      A list representing the CSV label:
+      [{test_station}, {test_group}, {test_item}].
+
+    Example:
+      path ='main_rex:FAT.RexUpdatePSROEMData'
+      returns ['FAT (Final Assembly Test)', '', 'Update PSR Oem Data']
+    """
+
+    path = path.split('.', 2)
+    labels = [self._GetLabel('.'.join(path[:i + 1])) for i in range(len(path))]
+    if len(path) == 1:
+      return ['', ''] + labels
+    if len(path) == 2:
+      return [labels[0], '', labels[1]]
+    return labels
+
+  def _GenerateFactoryTestStatusSheet(self, tests):
+    # the csv can be used to generate factory test status sheet like the
+    # template here: go/factory-test-status-template
+    self.args.label = True
+    output_csv = []
+
+    if self.args.output:
+      csv_filename = self.args.output
+      if os.path.exists(csv_filename):
+        raise RuntimeError(f'Filename: {csv_filename} exists. '
+                           'Use `factory tests --csv -o` with a unique path.')
+      logging.info('Creating factory test status sheet...')
+
+    output_csv += self._GetHeader()
+    for t in tests:
+      output_csv.append(self._GetCSVLabelFromPath(t["path"]) + [t["status"]])
+
+    if self.args.output:
+      with open(csv_filename, 'w', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerows(output_csv)
+      logging.info('%s is created.', csv_filename)
+    else:
+      writer = csv.writer(sys.stdout)
+      writer.writerows(output_csv)
+
+  def _GenerateFactoryReadinessReport(self, tests):
+    if self.args.output:
+      csv_filename = self.args.output
+      if os.path.exists(csv_filename):
+        raise RuntimeError(f'Filename: {csv_filename} exists. '
+                           'Use `factory tests -r -o` with a unique path.')
+      logging.info('Creating factory readiness report...')
+
+    self.args.label = True
+    report = {}
+    uncategorized_tests = []
+    output_csv = []
+
+    for t in tests:
+      if not t['test_categories']:
+        uncategorized_tests.append(t)
+      for test_category in t['test_categories']:
+        if test_category not in report:
+          report[test_category] = []
+        report[test_category].append(t)
+
+    output_csv += self._GetHeader(readiness=True)
+    for category, categorized_tests in report.items():
+      readiness = 'Ready' if all(t['status'] == state.TestState.PASSED
+                                 for t in categorized_tests) else 'Not Ready'
+      output_csv.append([category.name, readiness])
+      for t in categorized_tests:
+        output_csv.append(['', ''] + self._GetCSVLabelFromPath(t["path"]) +
+                          [t["status"]])
+    output_csv.append(['Uncategorized Tests'])
+    for t in uncategorized_tests:
+      output_csv.append(self._GetCSVLabelFromPath(t["path"]) + [t["status"]])
+
+    if self.args.output:
+      with open(csv_filename, 'w', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerows(output_csv)
+      logging.info('%s is created.', csv_filename)
+    else:
+      writer = csv.writer(sys.stdout)
+      writer.writerows(output_csv)
 
   def Run(self):
-    status_map = {
-        'ACTIVE': 'N/A',
-        'PASSED': 'Passed',
-        'FAILED': 'Failed',
-        'UNTESTED': 'N/A',
-        'FAILED_AND_WAIVED': 'Waived',
-        'SKIPPED': 'Skipped',
-    }
-
-    def _GetHeader(readiness=False):
-      device = sys_interface.SystemInterface()
-      system_info = info.SystemInfo(device)
-      header = [
-          f'Product,{system_info.device_name}',
-          f'Build Phase,{system_info.stage}',
-          f'Release Image Version,{system_info.release_image_version}',
-          f'FW Version,{system_info.firmware_version}',
-          f'Test Image Version,{system_info.test_image_version}',
-          f'Factory Toolkit,{system_info.toolkit_version}',
-      ]
-      if readiness:
-        header.append(
-            'Test Category,Component Readiness,Test Station,Test Group,Test '
-            'Item,Test Status')
-      return header
-
-    def _GetLabel(path):
-      test_object = goofy.test_list.LookupPath(path)
-      if self.args.label and 'en-US' in test_object.label:
-        return test_object.label['en-US']
-      return path
-
-    def _ParsePathToCSV(path):
-      """Prints the test object path in label
-
-      Prints:
-        Label with format {test_station},{test_group},{test_item}.
-      """
-
-      path = path.split('.', 2)
-      labels = [_GetLabel('.'.join(path[:i + 1])) for i in range(len(path))]
-      if len(path) == 3:
-        return ','.join(labels)
-      if len(path) == 2:
-        return ',,'.join(labels)
-      return ',,' + labels[0]
-
-    goofy = state.GetInstance()
-    tests = goofy.GetTests()
-
-    # Ignore parents
-    tests = [x for x in tests if not x.get('parent')]
+    # Consider only tests without parents
+    tests = [t for t in self.goofy.GetTests() if not t.get('parent')]
 
     if self.args.this_run:
       scheduled_tests = (
-          goofy.GetTestRunStatus(None).get('scheduled_tests') or [])
-      scheduled_tests = {t['path'] for t in scheduled_tests}
-      tests = [
-          x for x in tests if x['path'] in scheduled_tests]
+          self.goofy.GetTestRunStatus(None).get('scheduled_tests') or [])
+      scheduled_tests = {t['path']
+                         for t in scheduled_tests}
+      tests = [t for t in tests if t['path'] in scheduled_tests]
 
     for t in tests:
-      t['label'] = _GetLabel(t['path'])
+      t['label'] = self._GetLabel(t['path'])
 
     if self.args.csv:
-      # the csv can be used to generate factory test status sheet like the
-      # template here: go/factory-test-status-template
-      print('\n'.join(_GetHeader()))
-      for t in tests:
-        row = _ParsePathToCSV(t['path'])
-        if self.args.status:
-          row += ',' + status_map[t['status']]
-        print(row)
-    elif self.args.status:
-      for t in tests:
-        sys.stdout.write(t['label'])
-        if t['status'] != TestState.UNTESTED:
-          sys.stdout.write(f": {t['status']}")
-        if t['error_msg']:
-          sys.stdout.write(f": {str(t['error_msg'])!r}")
-        sys.stdout.write('\n')
+      self._GenerateFactoryTestStatusSheet(tests)
     elif self.args.readiness:
-      self.args.label = True
-      report = {}
-      uncategorized_tests = []
-
-      for t in tests:
-        if not t['test_categories']:
-          uncategorized_tests.append(t)
-        for test_category in t['test_categories']:
-          if test_category not in report:
-            report[test_category] = []
-          report[test_category].append(t)
-
-      print('\n'.join(_GetHeader(readiness=True)))
-      for test_category, tests in report.items():
-        readiness = 'Ready' if all(
-            t['status'] == 'Passed' for t in tests) else 'Not Ready'
-        print(f'{test_category.name},{readiness}')
-        for t in tests:
-          print(f',,{_ParsePathToCSV(t["path"])},{status_map[t["status"]]}')
-      print('\nUncategorized Tests')
-      for t in uncategorized_tests:
-        print(f'{_ParsePathToCSV(t["path"])},{status_map[t["status"]]}')
+      self._GenerateFactoryReadinessReport(tests)
     else:
       for t in tests:
-        print(t['label'])
+        sys.stdout.write(t['label'])
+        if self.args.status:
+          if t['status'] != TestState.UNTESTED:
+            sys.stdout.write(f": {t['status']}")
+          if t['error_msg']:
+            sys.stdout.write(f": {str(t['error_msg'])!r}")
+        sys.stdout.write('\n')
 
 
 class ClearCommand(Subcommand):
