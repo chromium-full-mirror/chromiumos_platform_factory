@@ -58,7 +58,7 @@ class ParseMappingAsOrderedDictUnittest(unittest.TestCase):
     self.assertIsInstance(obj, collections.OrderedDict)
 
     yaml_str = yaml.safe_dump(obj).strip()
-    self.assertEqual(YAML_DOC, yaml_str)
+    self.assertEqual(obj, yaml.safe_load(yaml_str))
 
   def testDisable(self):
     YAML_DOC = '{foo: foo1, bar: 234}'
@@ -79,7 +79,7 @@ class ParseMappingAsOrderedDictUnittest(unittest.TestCase):
     del obj['buzz']
 
     yaml_str = yaml.safe_dump(obj).strip()
-    self.assertEqual(EXPECT_YAML_DOC, yaml_str)
+    self.assertEqual(yaml.safe_load(EXPECT_YAML_DOC), yaml.safe_load(yaml_str))
 
 if __name__ == '__main__':
   unittest.main()

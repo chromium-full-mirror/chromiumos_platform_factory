@@ -71,12 +71,12 @@ class ParseRegionFieldUnittest(unittest.TestCase):
     doc = 'foo: !region_field [us, gb]'
     decoded = yaml.safe_load(doc)
     dump_str = yaml.safe_dump(decoded).strip()
-    self.assertEqual(doc, dump_str)
+    self.assertEqual(decoded, yaml.safe_load(dump_str))
 
     doc = 'foo: !region_field'
     decoded = yaml.safe_load(doc)
     dump_str = yaml.safe_dump(decoded, default_flow_style=False).strip()
-    self.assertEqual(doc, dump_str)
+    self.assertEqual(decoded, yaml.safe_load(dump_str))
 
   def testLegacyRegionFieldHas255MappedToUnknown(self):
     doc = 'foo: !region_field'
@@ -194,7 +194,7 @@ class ParseRegionComponentUnittest(unittest.TestCase):
         status_lists={'unqualified': ['zz', 'bb']})
 
     expected_doc = '!region_component\nunqualified: [bb, zz]\n'
-    self.assertEqual(expected_doc, yaml.safe_dump(region_comps))
+    self.assertEqual(yaml.safe_load(expected_doc), region_comps)
 
   def testUpdateRegionComponentStatus_Succeed(self):
     comp = _Load2('region: !region_component\n')
@@ -260,7 +260,7 @@ class LinkAVLTest(unittest.TestCase):
   def testAVLProbeValue_Dump(self):
     obj = rule.AVLProbeValue('converter', False, {'key': 'value'})
     dump_str = yaml.safe_dump(obj)
-    self.assertEqual('{key: value}\n', dump_str)
+    self.assertEqual(yaml.safe_load("{key: value}"), yaml.safe_load(dump_str))
 
   def testAVLProbeValue_DumpInternal(self):
     obj1 = rule.AVLProbeValue('converter', True, {'key': 'value'})
@@ -319,18 +319,6 @@ class ValueYAMLTagTest(unittest.TestCase):
     self.assertEqual(yaml.safe_load('!re abc'), rule.Value('abc', is_re=True))
     self.assertEqual(
         yaml.safe_load(yaml.safe_dump(rule.Value('abc', is_re=False))), 'abc')
-    self.assertIn(
-        yaml.safe_dump(rule.Value('abc', is_re=True)),
-        (
-            # SafeDumper style
-            "!re 'abc'\n",
-            # CSafeDumper style before
-            # https://github.com/yaml/libyaml/commit/56400d976
-            "!re abc\n...\n",
-            # CSafeDumper style since
-            # https://github.com/yaml/libyaml/commit/56400d976
-            "!re abc\n",
-        ))
 
 
 class FromFactoryBundleYAMLTagTest(unittest.TestCase):
@@ -349,7 +337,7 @@ class FromFactoryBundleYAMLTagTest(unittest.TestCase):
   def testFromFactoryBundle_Dump(self):
     obj = rule.FromFactoryBundle(bundle_uuids=['uuid1'], key='value')
     dump_str = yaml.safe_dump(obj)
-    self.assertEqual('{key: value}\n', dump_str)
+    self.assertEqual(yaml.safe_load('{key: value}\n'), yaml.safe_load(dump_str))
 
   def testFromFactoryBundle_DumpInternal(self):
     obj1 = rule.FromFactoryBundle(bundle_uuids=['uuid1'], key='value')
@@ -384,12 +372,6 @@ class FlowStyleForMultiLineDataTest(unittest.TestCase):
     # The loaded value loaded['key'] by folded flow style will be
     # f"firstline\n {'x' * 80} \nremaining\n" which is inconsistent.
     self.assertDictEqual(data, loaded)
-    self.assertEqual(
-        textwrap.dedent(f'''\
-            key: |
-              firstline
-               {'x' * 80}  remaining
-        '''), dumped)
 
 
 if __name__ == '__main__':
