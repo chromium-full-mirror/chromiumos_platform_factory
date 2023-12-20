@@ -33,6 +33,8 @@ def IsShelfValid(shelf):
   env = dict(os.environ)
   env['PYTHONPATH'] = ':'.join(sys.path)
 
+  # TODO(b/317143493): No need to open a new process after gdbm is dropped. It
+  # will be replaced with dbm.
   process = process_utils.Spawn(['python3', '-c',
                                  'import shelve, sys; '
                                  'shelve.open(sys.argv[1], "r").items(); '
