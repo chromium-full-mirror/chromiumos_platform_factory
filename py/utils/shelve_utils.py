@@ -138,6 +138,14 @@ def OpenShelfOrBackup(shelf, flag='c', protocol=None, writeback=False):
   return shelve.open(shelf, flag, protocol, writeback)
 
 
+def DeleteShelf(shelf: str):
+  for f in FindShelfFiles(shelf):
+    try:
+      os.unlink(f)
+    except FileNotFoundError:
+      pass
+
+
 class DictShelfView:
   """Wrapper for shelf.
 

@@ -245,7 +245,7 @@ class EventLogWatcher:
       db = shelve_utils.OpenShelfOrBackup(self._event_log_db_file)
     except Exception:
       logging.exception('Corrupted database, recreating')
-      os.unlink(self._event_log_db_file)
+      shelve_utils.DeleteShelf(self._event_log_db_file)
       db = shelve.open(self._event_log_db_file)
     return db
 

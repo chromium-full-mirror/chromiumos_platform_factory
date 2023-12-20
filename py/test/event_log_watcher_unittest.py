@@ -38,6 +38,16 @@ def MOCK_EVENT(x=0, sync_marker=False):
 MOCK_PERIOD = 0.01
 
 
+def DestroyFiles(parent_dir: str):
+  """Clears and writes random bytes to all files under a directory."""
+  random_bytes = os.urandom(4096)
+  for f in os.listdir(parent_dir):
+    path = os.path.join(parent_dir, f)
+    if os.path.isfile(path):
+      with open(path, 'wb') as file:
+        file.write(random_bytes)
+
+
 class ChunkTest(unittest.TestCase):
 
   def testStr(self):
@@ -131,16 +141,15 @@ class EventLogWatcherTest(unittest.TestCase):
 
     self.WriteLog(MOCK_PREAMBLE(0), MOCK_LOG_NAME(0))
 
-    # Assert nothing stored yet before flush.
-    watcher.ScanEventLogs()
-    self.assertNotEqual(watcher.GetEventLog(MOCK_LOG_NAME(0)), 0)
+    # Assert nothing stored yet before scan.
+    self.assertIsNone(watcher.GetEventLog(MOCK_LOG_NAME(0)))
 
-    # Manually truncate db file.
-    with open(self.db, 'w', encoding='utf8') as f:
-      os.ftruncate(f.fileno(), 10)
+    watcher.ScanEventLogs()
+
+    DestroyFiles(self.temp_dir)
 
     watcher = EventLogWatcher(MOCK_PERIOD, self.events_dir, self.db)
-    self.assertEqual(watcher.GetEventLog(MOCK_LOG_NAME(0)), None)
+    self.assertIsNone(watcher.GetEventLog(MOCK_LOG_NAME(0)))
 
   def testHandleEventLogsCallback(self):
     handle_event_log = mock.MagicMock()
