@@ -13,7 +13,7 @@
     "py/test/pytests/offline_test/shell/starter.sh",
     "py/test/pytests/offline_test/shell/stressapptest.sh",
     "py/test/pytests/offline_test/shell/wait_for.sh",
-    "py/utils/testdata/corrupt-gdbm-shelf"
+    "py/utils/testdata/corrupt-dbm-shelf"
   ],
   "allow_list": [
     "/bin/bash",

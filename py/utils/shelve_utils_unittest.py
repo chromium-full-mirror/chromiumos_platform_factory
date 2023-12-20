@@ -14,13 +14,14 @@ import unittest
 from cros.factory.utils import shelve_utils
 
 
-def WipeFiles(parent_dir):
-  """Clear all files in a directory."""
+def DestroyFiles(parent_dir: str):
+  """Clears and writes random bytes to all files under a directory."""
+  random_bytes = os.urandom(4096)
   for f in os.listdir(parent_dir):
     path = os.path.join(parent_dir, f)
     if os.path.isfile(path):
-      with open(path, 'w', encoding='utf8'):
-        pass
+      with open(path, 'wb') as file:
+        file.write(random_bytes)
 
 
 class ShelveUtilsTest(unittest.TestCase):
@@ -41,8 +42,8 @@ class ShelveUtilsTest(unittest.TestCase):
     self.assertTrue(shelve_utils.IsShelfValid(self.shelf_path))
     self.assertTrue(shelve_utils.BackupShelfIfValid(self.shelf_path))
 
-    # Corrupt the shelf by clearing all files in the temp directory.
-    WipeFiles(self.tmp)
+    # Corrupt the shelf by destroying all files in the temp directory.
+    DestroyFiles(self.tmp)
 
     self.assertFalse(shelve_utils.IsShelfValid(self.shelf_path))
     self.assertFalse(shelve_utils.BackupShelfIfValid(self.shelf_path))
@@ -57,7 +58,7 @@ class ShelveUtilsTest(unittest.TestCase):
     # be backed up.
     shelve_utils.OpenShelfOrBackup(self.shelf_path).close()
     self.assertTrue(shelve_utils.IsShelfValid(self.shelf_path))
-    WipeFiles(self.tmp)
+    DestroyFiles(self.tmp)
     self.assertFalse(shelve_utils.IsShelfValid(self.shelf_path))
     shelf = shelve_utils.OpenShelfOrBackup(self.shelf_path)
     self.assertEqual('BAZ', shelf['FOO'])
@@ -73,9 +74,9 @@ class ShelveUtilsTest(unittest.TestCase):
     self.assertFalse(shelve_utils.BackupShelfIfValid(self.shelf_path))
 
   def testIsShelfValid_Corrupt(self):
-    # This corrupt gdbm database causes the process to abort entirely.
-    path = os.path.join(os.path.dirname(__file__),
-                        'testdata', 'corrupt-gdbm-shelf')
+    # This corrupt dbm database causes the process to abort entirely.
+    path = os.path.join(
+        os.path.dirname(__file__), 'testdata', 'corrupt-dbm-shelf')
     self.assertTrue(os.path.exists(path))
     self.assertFalse(shelve_utils.IsShelfValid(path))
     self.assertFalse(shelve_utils.BackupShelfIfValid(path))
