@@ -784,7 +784,7 @@ class Gooftool:
     wipe.EnableReleasePartition(release_rootfs)
 
 
-  def WipeInPlace(self, is_fast=None, shopfloor_url=None, station_ip=None,
+  def WipeInPlace(self, is_fast=None, factory_server_url=None, station_ip=None,
                   station_port=None, wipe_finish_token=None,
                   boot_to_shimless=False, test_umount=False):
     """Start transition to release state directly without reboot.
@@ -811,15 +811,15 @@ class Gooftool:
     GBB_FLAG_FORCE_DEV_SWITCH_ON = 0x00000008
     keep_developer_mode_flag = bool(gbb_flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
 
-    wipe.WipeInRamFs(is_fast, shopfloor_url, station_ip, station_port,
+    wipe.WipeInRamFs(is_fast, factory_server_url, station_ip, station_port,
                      wipe_finish_token, keep_developer_mode_flag,
                      boot_to_shimless, test_umount)
 
-  def WipeInit(self, wipe_args, shopfloor_url, state_dev, release_rootfs,
+  def WipeInit(self, wipe_args, factory_server_url, state_dev, release_rootfs,
                root_disk, old_root, station_ip, station_port, wipe_finish_token,
                keep_developer_mode_flag, boot_to_shimless, test_umount):
     """Start wiping test image."""
-    wipe.WipeInit(wipe_args, shopfloor_url, state_dev, release_rootfs,
+    wipe.WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
                   root_disk, old_root, station_ip, station_port,
                   wipe_finish_token, keep_developer_mode_flag, boot_to_shimless,
                   test_umount)

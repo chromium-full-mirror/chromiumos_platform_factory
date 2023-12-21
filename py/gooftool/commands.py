@@ -152,11 +152,11 @@ _release_rootfs_cmd_arg = CmdArg(
 _firmware_path_cmd_arg = CmdArg(
     '--firmware_path', help='Location of firmware image partition.')
 
-_shopfloor_url_args_cmd_arg = CmdArg(
-    '--shopfloor_url',
-    help='Shopfloor server url to be informed when wiping is done. '
-         'After wiping, a XML-RPC request will be sent to the '
-         'given url to indicate the completion of wiping.')
+_factory_server_url_args_cmd_arg = CmdArg(
+    '--factory_server_url',
+    help='Factory server URL to inform shopfloor when wiping is done. '
+    'After wiping, an XML-RPC request will be sent to the '
+    'given URL to indicate the completion of wiping.')
 
 _station_ip_cmd_arg = CmdArg(
     '--station_ip',
@@ -280,8 +280,8 @@ def PrepareWipeArgs(options):
 
   if options.fast:
     wipe_args += ['--fast']
-  if options.shopfloor_url:
-    wipe_args += ['--shopfloor_url', options.shopfloor_url]
+  if options.factory_server_url:
+    wipe_args += ['--factory_server_url', options.factory_server_url]
   if options.station_ip:
     wipe_args += ['--station_ip', options.station_ip]
   if options.station_port:
@@ -301,7 +301,7 @@ def PrepareWipeArgs(options):
 
 PrepareWipeArgs.__args__ = (
     _fast_cmd_arg,
-    _shopfloor_url_args_cmd_arg,
+    _factory_server_url_args_cmd_arg,
     _station_ip_cmd_arg,
     _station_port_cmd_arg,
     _wipe_finish_token_cmd_arg,
@@ -823,7 +823,7 @@ def EnableReleasePartition(options):
 @Command(
     WIPE_IN_PLACE,
     _fast_cmd_arg,  # this
-    _shopfloor_url_args_cmd_arg,  # this
+    _factory_server_url_args_cmd_arg,  # this
     _station_ip_cmd_arg,  # this
     _station_port_cmd_arg,  # this
     _wipe_finish_token_cmd_arg,  # this
@@ -835,7 +835,7 @@ def WipeInPlace(options):
   """Start factory wipe directly without reboot."""
 
   GetGooftool(options).WipeInPlace(
-      options.fast, options.shopfloor_url, options.station_ip,
+      options.fast, options.factory_server_url, options.station_ip,
       options.station_port, options.wipe_finish_token, options.boot_to_shimless,
       options.test_umount)
 
@@ -846,7 +846,7 @@ def WipeInPlace(options):
     CmdArg('--state_dev', help='path to stateful partition device'),  # this
     CmdArg('--root_disk', help='path to primary device'),  # this
     CmdArg('--old_root', help='path to old root'),  # this
-    _shopfloor_url_args_cmd_arg,  # this
+    _factory_server_url_args_cmd_arg,  # this
     _release_rootfs_cmd_arg,  # this
     _station_ip_cmd_arg,  # this
     _station_port_cmd_arg,  # this
@@ -857,7 +857,7 @@ def WipeInPlace(options):
     *GetGooftool.__args__)
 def WipeInit(options):
   GetGooftool(options).WipeInit(
-      options.wipe_args, options.shopfloor_url, options.state_dev,
+      options.wipe_args, options.factory_server_url, options.state_dev,
       options.release_rootfs, options.root_disk, options.old_root,
       options.station_ip, options.station_port, options.wipe_finish_token,
       options.keep_developer_mode_flag_after_clobber_state,

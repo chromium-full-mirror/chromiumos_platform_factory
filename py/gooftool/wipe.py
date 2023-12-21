@@ -170,7 +170,7 @@ def ResetLog(logfile=None):
   logging.basicConfig(filename=logfile, level=logging.NOTSET, format=log_format)
 
 
-def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
+def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
                 station_port=None, wipe_finish_token=None,
                 keep_developer_mode_flag=False, boot_to_shimless=False,
                 test_umount=False):
@@ -178,7 +178,7 @@ def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
 
   Args:
     is_fast: whether or not to apply fast wipe.
-    shopfloor_url: for inform_shopfloor.sh
+    factory_server_url: for inform_shopfloor.sh
     boot_to_shimless: Whether or not to boot to Shimless RMA process.
   """
 
@@ -303,8 +303,8 @@ def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
       args = []
       if wipe_args:
         args += ['--wipe_args', wipe_args]
-      if shopfloor_url:
-        args += ['--shopfloor_url', shopfloor_url]
+      if factory_server_url:
+        args += ['--factory_server_url', factory_server_url]
       if station_ip:
         args += ['--station_ip', station_ip]
       if station_port:
@@ -663,12 +663,12 @@ def EnableReleasePartition(release_rootfs):
   logging.debug('Device will boot from %s after reboot.', release_rootfs)
 
 
-def _InformShopfloor(shopfloor_url):
-  if shopfloor_url:
-    logging.debug('inform shopfloor %s', shopfloor_url)
+def _InformShopfloor(factory_server_url: str):
+  if factory_server_url:
+    logging.debug('inform shopfloor via factory server: %s', factory_server_url)
     proc = process_utils.Spawn([
-        os.path.join(CUTOFF_SCRIPT_DIR, 'inform_shopfloor.sh'), shopfloor_url,
-        'factory_wipe'
+        os.path.join(CUTOFF_SCRIPT_DIR, 'inform_shopfloor.sh'),
+        factory_server_url, 'factory_wipe'
     ], read_stdout=True, read_stderr=True)
     logging.debug('stdout: %s', proc.stdout_data)
     logging.debug('stderr: %s', proc.stderr_data)
@@ -682,8 +682,8 @@ def _Cutoff():
   process_utils.Spawn([cutoff_script], check_call=True)
 
 
-def WipeInit(wipe_args, shopfloor_url, state_dev, release_rootfs, root_disk,
-             old_root, station_ip, station_port, finish_token,
+def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
+             root_disk, old_root, station_ip, station_port, finish_token,
              keep_developer_mode_flag, boot_to_shimless, test_umount):
   Daemonize()
   logfile = '/tmp/wipe_init.log'
@@ -691,7 +691,7 @@ def WipeInit(wipe_args, shopfloor_url, state_dev, release_rootfs, root_disk,
   wipe_in_ramfs_log = os.path.join(old_root, 'tmp', WIPE_IN_RAMFS_LOG)
 
   logging.debug('wipe_args: %s', wipe_args)
-  logging.debug('shopfloor_url: %s', shopfloor_url)
+  logging.debug('factory_server_url: %s', factory_server_url)
   logging.debug('state_dev: %s', state_dev)
   logging.debug('release_rootfs: %s', release_rootfs)
   logging.debug('root_disk: %s', root_disk)
@@ -711,9 +711,9 @@ def WipeInit(wipe_args, shopfloor_url, state_dev, release_rootfs, root_disk,
         'failsafe',
         # Keep dbus to make sure we can shutdown the device.
         'dbus',
-        # Keep shill for connecting to shopfloor or stations.
+        # Keep shill for connecting to factory server or stations.
         'shill',
-        # Keep wpasupplicant since shopfloor may connect over WiFi.
+        # Keep wpasupplicant since factory server may connect over WiFi.
         'wpasupplicant',
         # Keep openssh-server for debugging purpose.
         'openssh-server',
@@ -747,7 +747,7 @@ def WipeInit(wipe_args, shopfloor_url, state_dev, release_rootfs, root_disk,
 
     EnableReleasePartition(release_rootfs)
 
-    _InformShopfloor(shopfloor_url)
+    _InformShopfloor(factory_server_url)
 
     _InformStation(station_ip, station_port, finish_token,
                    wipe_init_log=logfile, wipe_in_ramfs_log=wipe_in_ramfs_log,
