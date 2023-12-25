@@ -641,6 +641,44 @@ class RadiotapWiFiChip(AbstractNonSwitchableWiFiChip):
       capture.Destroy()
 
 
+class StationDumpWiFiChip(AbstractNonSwitchableWiFiChip):
+  """WiFi chip type which measures signal strengths by running `iw` command.
+
+  This type of WiFi chip measures signal strengths by the following steps:
+
+  1. Connect to the target AP.
+  2. Run `iw <interface> station dump` command.
+  3. Parse the output from the above command, which includes signal strength
+     information of antennas of "main", "aux", and "all".
+  """
+
+  def _MeasureSignalStrength(self, ssid: str, freq: int,
+                             measure_count: int) -> None:
+    """See NonSwitchableWiFiChip._MeasureSignalStrength."""
+
+    iw_command = ['iw', self._interface, 'station', 'dump']
+    for _ in range(measure_count):
+      try:
+        output = self._device.CheckOutput(iw_command)
+      except device_types.CalledProcessError as e:
+        raise wifi.WiFiError(
+            f'Failed to measure signal strength: {e!r}') from None
+
+      try:
+        connection_status = net_utils.ParseWirelessInterfaceStationDumpOutput(
+            output)
+      except ValueError as e:
+        raise wifi.WiFiError(str(e)) from e
+
+      assert connection_status.signal
+      assert len(connection_status.signal.antenna) == 2
+      all_strength = connection_status.signal.computed
+      self._signal_mapping[(ssid, freq, 'all')].append(all_strength)
+      main_strength, aux_strength = connection_status.signal.antenna
+      self._signal_mapping[(ssid, freq, 'main')].append(main_strength)
+      self._signal_mapping[(ssid, freq, 'aux')].append(aux_strength)
+
+
 class WirelessTest(test_case.TestCase):
   """Basic wireless test class.
 
@@ -690,9 +728,10 @@ class WirelessTest(test_case.TestCase):
       Arg('wifi_chip_type', str,
           ('The type of wifi chip. Indicates how the chip test the signal '
            'strength of different antennas. Currently, the valid options are '
-           '``switch_antenna``, ``radiotap``, or ``disable_switch``. If the '
-           'value is None, it will detect the value automatically.'),
-          default=None),
+           '``switch_antenna``, ``radiotap``, ``station_dump``, or '
+           '``disable_switch``. If the value is None, it will detect the value '
+           'automatically. Note that Qualcomm Atheros chip does not support '
+           'auto-detection.'), default=None),
       Arg('keep_monitor', bool,
           ('Set to True for WiFi driver that does not support '
            '``iw dev antmon0 del``.'), default=False),
@@ -861,6 +900,13 @@ class WirelessTest(test_case.TestCase):
           self._dut, self._device_name, self._phy_name, self._services,
           self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,
           self.args.scan_timeout)
+      return
+
+    if self._wifi_chip_type == 'station_dump':
+      self._wifi_chip = StationDumpWiFiChip(
+          device=self._dut, interface=self._device_name,
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,
+          scan_timeout=self.args.scan_timeout)
       return
 
     raise ValueError(f'Wifi chip type {self._wifi_chip_type} is not supported.')
