@@ -49,13 +49,14 @@ Set the 2nd element in a service if you only want to use a specific frequency:
 
 """
 
+import abc
 import collections
 import logging
 import re
 import struct
 import subprocess
 import sys
-from typing import Set, Tuple
+from typing import Dict, List, Literal, Optional, Set, Tuple
 
 from cros.factory.device import device_types
 from cros.factory.device import device_utils
@@ -121,6 +122,7 @@ _DEFAULT_SWITCH_ANTENNA_CONFIG = {'main': [1, 1],
                                   'aux': [2, 2],
                                   'all': [3, 3]}
 
+Antenna = Literal['main', 'aux', 'all']
 
 class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
 
@@ -503,74 +505,80 @@ class Capture:
     self.RemoveDevice()
 
 
-class RadiotapWiFiChip(wifi.AbstractWiFiChip):
+class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
+  """Abstract class of non-switchable WiFi chip."""
 
-  _ANTENNA_CONFIG = ['all', 'main', 'aux']
-
-  def __init__(self, device, interface, phy_name, services, connect_timeout,
-               scan_timeout, keep_monitor):
+  def __init__(self, device: device_types.DeviceBoard, interface: str,
+               phy_name: str, connect_timeout: int, scan_timeout: int):
     super().__init__(device, interface, phy_name)
-    self._services = [(service.ssid, service.freq) for service in services]
-    self._signal_table = {service: {antenna: []
-                                    for antenna in self._ANTENNA_CONFIG}
-                          for service in self._services}
-    self._ap = None
-    self._connection = None
     self._connect_timeout = connect_timeout
     self._scan_timeout = scan_timeout
-    self._keep_monitor = keep_monitor
 
-  def ScanSignal(self, service, antenna, scan_count):
-    target_service = (service.ssid, service.freq)
-    capture_times = len(self._signal_table[target_service][antenna])
-    if capture_times >= scan_count:
+    # A tuple (SSID, frequency, antenna)-to-signal strengths mapping.
+    self._signal_mapping: Dict[Tuple[str, int, Antenna],
+                               List[int]] = collections.defaultdict(list)
+
+    self._ap: Optional[wifi.AccessPoint] = None
+    self._connection: Optional[wifi.Connection] = None
+
+  def ScanSignal(self, service: wifi.ServiceSpec, antenna: Antenna,
+                 scan_count: int) -> None:
+    """See wifi.AbstractWiFiChip.ScanSignal."""
+    ssid = service.ssid
+    freq = service.freq
+    assert freq is not None
+
+    record_count = len(self._signal_mapping[(ssid, freq, antenna)])
+    if record_count >= scan_count:
       return
 
-    session.console.info(f'Switching to AP {service.ssid} {service.freq:d}...')
-    if not self._ConnectService(service.ssid, service.password,
-                                freqs=service.freq):
+    session.console.info(f'Switching to AP {ssid} {freq:d}...')
+    if not self._ConnectService(ssid=ssid, freq=freq,
+                                password=service.password):
       return
 
-    capture = Capture(self._device, self._interface, self._phy_name,
-                      self._keep_monitor)
-    try:
-      capture.Create()
-      while capture_times < scan_count:
-        signal_result = capture.GetSignal()
-        if (signal_result['ssid'] == service.ssid and
-            signal_result['freq'] == service.freq):
-          session.console.info('%s', signal_result)
-          signal = signal_result['signal']
-          self._signal_table[target_service]['all'].append(signal[0])
-          self._signal_table[target_service]['main'].append(signal[1][1])
-          self._signal_table[target_service]['aux'].append(signal[2][1])
-          capture_times += 1
-        else:
-          session.console.info('Ignore the signal %r', signal_result)
-    finally:
-      capture.Destroy()
+    self._MeasureSignalStrength(ssid, freq, scan_count - record_count)
+    assert len(self._signal_mapping[(ssid, freq, antenna)]) >= scan_count
 
     self._DisconnectService()
 
-  def GetAverageSignal(self, service, antenna):
-    """Get the average signal strength of (service, antenna)."""
-    result = self._signal_table[(service.ssid, service.freq)][antenna]
+  @abc.abstractmethod
+  def _MeasureSignalStrength(self, ssid: str, freq: int,
+                             measure_count: int) -> None:
+    """Measures signal strengths of an AP for each antenna.
+
+    Args:
+      ssid: The AP SSID.
+      freq: The AP frequency.
+      measure_count: The count to measure the signal strength.
+    """
+    raise NotImplementedError
+
+  def GetAverageSignal(self, service: wifi.ServiceSpec,
+                       antenna: Antenna) -> Optional[float]:
+    """See wifi.AbstractWiFiChip.GetAverageSignal."""
+    assert service.freq is not None
+    result = self._signal_mapping[(service.ssid, service.freq, antenna)]
     return sum(result) / len(result) if result else None
 
-  def Destroy(self):
-    self._DisconnectService()
+  def _ConnectService(self, ssid: str, freq: int,
+                      password: Optional[str]) -> bool:
+    """Connects to a WiFi AP.
 
-  def _ConnectService(self, service_name, password, freqs):
-    """Associates a specified wifi AP.
+    Args:
+      ssid: The WiFi AP SSID.
+      freq: The WiFi AP frequency.
+      password: The WiFi AP password; or None if no password required.
 
-    Password can be '' or None.
+    Returns:
+      True if successfully connected to the WiFi AP; otherwise False.
     """
     try:
       self._ap = self._device.wifi.FindAccessPoint(
-          ssid=service_name, interface=self._interface, frequency=freqs,
+          ssid=ssid, interface=self._interface, frequency=freq,
           scan_timeout=self._scan_timeout)
     except wifi.WiFiError as e:
-      session.console.info(f'Unable to find the service {service_name}: {e!r}')
+      session.console.info(f'Unable to find the service {ssid}: {e!r}')
       return False
 
     try:
@@ -578,19 +586,58 @@ class RadiotapWiFiChip(wifi.AbstractWiFiChip):
           self._ap, interface=self._interface, passkey=password,
           connect_timeout=self._connect_timeout)
     except type_utils.TimeoutError:
-      session.console.info(f'Unable to connect to the service {service_name}')
+      session.console.info(f'Unable to connect to the service {ssid}')
       return False
 
-    session.console.info(
-        'Successfully connected to service %s', service_name)
+    session.console.info('Successfully connected to service %s', ssid)
     return True
 
-  def _DisconnectService(self):
-    """Disconnect wifi AP."""
+  def _DisconnectService(self) -> None:
+    """Disconnects from the WiFi AP."""
     if self._connection:
+      assert self._ap is not None
+
       self._connection.Disconnect()
       session.console.info('Disconnect to service %s', self._ap.ssid)
+
+      self._ap = None
       self._connection = None
+
+  def Destroy(self):
+    """See wifi.AbstractWiFiChip.Destroy."""
+    self._DisconnectService()
+
+
+class RadiotapWiFiChip(AbstractNonSwitchableWiFiChip):
+
+  def __init__(self, device: device_types.DeviceBoard, interface: str,
+               phy_name: str, connect_timeout: int, scan_timeout: int,
+               keep_monitor: bool):
+    super().__init__(device=device, interface=interface, phy_name=phy_name,
+                     connect_timeout=connect_timeout, scan_timeout=scan_timeout)
+    self._keep_monitor = keep_monitor
+
+  def _MeasureSignalStrength(self, ssid: str, freq: int,
+                             measure_count: int) -> None:
+    """See NonSwitchableWiFiChip._MeasureSignalStrength"""
+    capture = Capture(self._device, self._interface, self._phy_name,
+                      self._keep_monitor)
+    capture_times = 0
+    try:
+      capture.Create()
+      while capture_times < measure_count:
+        signal_result = capture.GetSignal()
+        if signal_result['ssid'] == ssid and signal_result['freq'] == freq:
+          session.console.info('%s', signal_result)
+          signal = signal_result['signal']
+          self._signal_mapping[(ssid, freq, 'all')].append(signal[0])
+          self._signal_mapping[(ssid, freq, 'main')].append(signal[1][1])
+          self._signal_mapping[(ssid, freq, 'aux')].append(signal[2][1])
+          capture_times += 1
+        else:
+          session.console.info('Ignore the signal %r', signal_result)
+    finally:
+      capture.Destroy()
 
 
 class WirelessTest(test_case.TestCase):
@@ -801,9 +848,10 @@ class WirelessTest(test_case.TestCase):
 
     if not self._wifi_chip_type or self._wifi_chip_type == 'radiotap':
       self._wifi_chip = RadiotapWiFiChip(
-          self._dut, self._device_name, self._phy_name, self._services,
-          self.args.connect_timeout, self.args.scan_timeout,
-          self.args.keep_monitor)
+          device=self._dut, interface=self._device_name,
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,
+          scan_timeout=self.args.scan_timeout,
+          keep_monitor=self.args.keep_monitor)
       self._wifi_chip_type = 'radiotap'
       return
 
