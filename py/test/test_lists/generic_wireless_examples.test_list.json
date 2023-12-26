@@ -123,25 +123,12 @@
       }
     },
     "QualcommAtherosWirelessAntenna": {
-      "inherit": "WirelessAntennaSwitchAntenna",
+      "inherit": "WirelessAntenna",
       "label": "Qualcomm Atheros Wireless Antenna",
-      "__comment": "Tested on device with component (cid, qid) = (1719, 2965), ath10k components don't support testing aux. See b/312619787.",
+      "__comment": "Tested on device with component (cid, qid) = (3062, 5436).",
       "args": {
         "press_space_to_start": false,
-        "switch_antenna_config": {
-          "main": [
-            1,
-            1
-          ],
-          "aux": [
-            3,
-            3
-          ],
-          "all": [
-            3,
-            3
-          ]
-        },
+        "wifi_chip_type": "station_dump",
         "strength": {
           "main": -60,
           "aux": -60,
