@@ -54,7 +54,9 @@ from cros.factory.utils.arg_utils import Arg
 
 _MAX_BEEP_TIMES = 5
 # Use the same frequency as dev boot beep
+# pylint: disable=line-too-long
 # Reference: https://chromium.googlesource.com/chromiumos/platform/depthcharge/+/41b87c02a7facc8ba47c3f9ac6ad16d4fcfbc2b8/src/drivers/sound/gpio_edge_buzzer.c#29
+# pylint: enable=line-too-long
 _BEEP_FREQUENCY = 2700
 _SECOND_TO_NANOSECONDS = 10**9
 
