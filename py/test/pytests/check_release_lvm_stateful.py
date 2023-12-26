@@ -61,6 +61,7 @@ from cros.factory.utils import sys_utils
 
 
 class CheckImageVersionTest(test_case.TestCase):
+  related_components = tuple()
 
   ui_class = test_ui.ScrollableLogUI
 

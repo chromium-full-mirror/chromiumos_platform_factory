@@ -33,6 +33,7 @@ _CHECK_INTERVAL_SECS = 0.2
 
 
 class WaitBFTReady(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
   ]

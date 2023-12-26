@@ -59,6 +59,7 @@ class EnumAction(str, enum.Enum):
 
 
 class PSRToolTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [Arg('action', EnumAction, "Which action to do.")]
 
   def setUp(self):

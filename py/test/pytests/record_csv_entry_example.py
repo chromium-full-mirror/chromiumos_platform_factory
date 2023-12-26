@@ -45,6 +45,7 @@ from cros.factory.test.utils import csv_utils
 
 
 class AddCsvEntry(test_case.TestCase):
+  related_components = tuple()
 
   def runTest(self):
     csv_filename = 'hello_world'

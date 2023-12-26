@@ -41,6 +41,7 @@ from cros.factory.external.chromeos_cli import cros_config as cros_config_module
 
 
 class ReadDeviceDataFromCrosConfig(test_case.TestCase):
+  related_components = tuple()
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()

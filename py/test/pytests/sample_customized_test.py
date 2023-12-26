@@ -57,6 +57,8 @@ class SampleCustomizedTest(unittest.TestCase):
   `tearDown` functions to make sure something is done before / after the test,
   no matter what.
   """
+  related_components = tuple()
+
 
   ARGS = [
       arg_utils.Arg(

@@ -49,6 +49,8 @@ BLOCK_SIZE = 8 * 1024 * 1024
 
 class VerifyRootPartitionTest(test_case.TestCase):
   """Verifies the integrity of the root partition."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg('kern_a_device', str,

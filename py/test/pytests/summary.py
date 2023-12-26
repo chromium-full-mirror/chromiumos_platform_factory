@@ -106,6 +106,8 @@ _EXTENED_PASSED_STATE = {
 
 class Report(test_case.TestCase):
   """A factory test to report test status."""
+  related_components = tuple()
+
   ARGS = [
       i18n_arg_utils.I18nArg(
           'prompt_message', 'Prompt message in HTML when all tests passed',

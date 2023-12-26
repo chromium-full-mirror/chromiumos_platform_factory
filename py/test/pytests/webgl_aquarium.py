@@ -74,6 +74,7 @@ _TAST_METRICS = (
 )
 
 class WebGLAquariumTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('duration_secs', int, 'Duration of time in seconds to run the test',
           default=60),

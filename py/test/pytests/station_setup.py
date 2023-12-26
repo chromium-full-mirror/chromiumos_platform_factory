@@ -49,6 +49,8 @@ from cros.factory.test import test_case
 
 class StationSetup(test_case.TestCase):
   """The factory test to setup station."""
+  related_components = tuple()
+
 
   def runTest(self):
     self.assertTrue(

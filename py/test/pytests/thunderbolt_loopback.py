@@ -128,6 +128,8 @@ _TDTL_PATH = os.path.join(paths.FACTORY_DIR, 'tdtl-master')
 
 class ThunderboltLoopbackTest(test_case.TestCase):
   """Thunderbolt loopback card factory test."""
+  related_components = tuple()
+
   LOG_GROUP_NAME = 'usb4_lane_margining_log'
   LOG_KEYS = [
       'DOMAIN',

@@ -45,7 +45,7 @@ class TestCase(unittest.TestCase):
   """
 
   ui_class = test_ui.StandardUI
-  related_components: Sequence[test_tags.TestCategory] = tuple()
+  related_components: Sequence[test_tags.TestCategory]
 
   def __init__(self, methodName='runTest'):
     super().__init__(methodName='_RunTest')

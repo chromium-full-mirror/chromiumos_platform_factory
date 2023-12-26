@@ -100,6 +100,7 @@ def _ErrorCodeToMessage(error_code, interface):
 
 
 class NetworkConnectionSetup(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       arg_utils.Arg('config_name', str, 'name of the config file.'),
       arg_utils.Arg('timeout_secs', float,

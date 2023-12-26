@@ -98,6 +98,8 @@ class PanelID(str, enum.Enum):
 
 class CountDownTest(test_case.TestCase):
   """A countdown test that monitors and logs various system status."""
+  related_components = tuple()
+
 
   ui_class = test_ui.UI
   ARGS = [

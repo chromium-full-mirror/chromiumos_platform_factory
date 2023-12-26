@@ -97,6 +97,8 @@ def _Average(numbers):
 
 class FanSpeedTest(test_case.TestCase):
   """A factory test for testing system fan."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg(

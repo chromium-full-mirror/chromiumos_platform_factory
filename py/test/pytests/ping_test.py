@@ -73,6 +73,7 @@ from cros.factory.utils import time_utils
 
 
 class PingTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('host', str, 'The IP address or hostname to ping.'),
       Arg('interface', str, 'Source interface address, may be numeric IP '

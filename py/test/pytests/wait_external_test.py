@@ -94,6 +94,8 @@ from cros.factory.utils.arg_utils import Arg
 
 class WaitExternalTest(test_case.TestCase):
   """Wait for a test by external fixture to finish."""
+  related_components = tuple()
+
   ARGS = [
       Arg('run_factory_external_name', str,
           'File name to check in /run/factory/external.'),

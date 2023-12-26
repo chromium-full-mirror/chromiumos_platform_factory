@@ -34,6 +34,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class SwtichTestListTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('test_list_id', str, 'An id of a test list needed to be switched.'),
   ]

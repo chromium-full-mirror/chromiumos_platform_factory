@@ -139,6 +139,8 @@ MSG_FINALIZING = _('Finalizing, please wait.<br>'
 
 class Finalize(test_case.TestCase):
   """The main class for finalize pytest."""
+  related_components = tuple()
+
   ARGS = [
       Arg('write_protection', bool, 'Check and enable write protection.',
           default=None),

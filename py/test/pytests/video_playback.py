@@ -49,6 +49,8 @@ DEFAULT_SECONDS = 10
 
 class VideoPlaybackTest(test_case.TestCase):
   """Video Playback Test."""
+  related_components = tuple()
+
   ARGS = [
       Arg('video_file', str,
           'Relative path to load the video.',

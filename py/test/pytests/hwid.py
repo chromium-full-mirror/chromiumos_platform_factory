@@ -100,6 +100,8 @@ from cros.factory.utils import file_utils
 
 class HWIDV3Test(test_case.TestCase):
   """A test for generating and verifying HWID v3."""
+  related_components = tuple()
+
   ARGS = [
       Arg('generate', bool,
           'Generate and write the HWID (if False, only verify it).',

@@ -84,6 +84,8 @@ class ACPowerTest(test_case.TestCase):
     silent_warning: Skips first N charger type mismatch before giving a
         warning.
   """
+  related_components = tuple()
+
 
   ARGS = [
       Arg('power_type', str, 'Type of the power source', default=None),

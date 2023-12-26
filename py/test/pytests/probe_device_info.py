@@ -65,6 +65,8 @@ from cros.factory.utils.arg_utils import Arg
 
 class ProbeDeviceInfo(test_case.TestCase):
   """Probe device information and update to device data."""
+  related_components = tuple()
+
   ARGS = [
       Arg('filter_colon', bool,
           'If True, the Wi-Fi and Bluetooth MAC will filter out the colon.',

@@ -67,6 +67,7 @@ class TestMode(str, enum.Enum):
 
 
 class LockIntelDescriptor(test_case.TestCase):
+  related_components = tuple()
   _DESC_UPDATE_NEED_REBOOT = device_data.JoinKeys(device_data.KEY_FACTORY,
                                                   'desc_update_need_reboot')
 

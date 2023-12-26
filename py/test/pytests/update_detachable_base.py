@@ -92,6 +92,7 @@ ST_VENDOR_ID = 0x0483
 VENDOR_IDS = (ELAN_VENDOR_ID, ST_VENDOR_ID)
 
 class UpdateDetachableBaseTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('from_release', bool, 'Find the firmwares from release rootfs.',
           default=True),

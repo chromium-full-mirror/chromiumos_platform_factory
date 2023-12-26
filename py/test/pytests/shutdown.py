@@ -120,6 +120,8 @@ class ShutdownTest(test_case.TestCase):
   it sets up its run queue to invoke the PostShutdown() method which does all
   the verifications to make sure the shutdown operation was successful.
   """
+  related_components = tuple()
+
   ARGS = [
       Arg('operation', SHUTDOWN_TYPES,
           ("The command to run to perform the shutdown ('reboot', "

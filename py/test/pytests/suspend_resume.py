@@ -67,6 +67,7 @@ _MAX_EARLY_RESUME_RETRY_COUNT = 3
 
 
 class SuspendResumeTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('cycles', int, 'Number of cycles to suspend/resume', default=1),
       Arg('suspend_delay_max_secs', int,

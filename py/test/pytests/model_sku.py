@@ -87,6 +87,8 @@ _PLATFORM_DATA = ['model', 'sku', 'brand']
 
 class PlatformSKUModelTest(test_case.TestCase):
   """A test to confirm and set SKU and model information."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg(

@@ -19,6 +19,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class PlanktonCC2PullTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('whale_bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('plankton_bft_fixture', dict, bft_fixture.TEST_ARG_HELP),

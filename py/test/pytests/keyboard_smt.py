@@ -52,6 +52,8 @@ class KeyboardSMTTest(test_case.TestCase):
   The keyboard scan module will send a sequence of keycodes. This test checks
   if the upcoming keyup events match the expected keycode sequence.
   """
+  related_components = tuple()
+
   ARGS = [
       Arg('device_filter', (int, str),
           'Keyboard input event id or evdev name.',

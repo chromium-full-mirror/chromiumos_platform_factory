@@ -24,7 +24,7 @@ from io import StringIO
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union, cast
 import urllib.parse
 
 from cros.factory.hwid.v3 import converter
@@ -170,6 +170,10 @@ def WriteArgsTable(rst, title, args):
     rst.WriteListTableRow((arg.name, arg_types, description))
 
 
+class GenerateRstError(Exception):
+  pass
+
+
 def GenerateTestDocs(
     rst: RSTWriter,
     pytest_name: str) -> Tuple[str, Sequence[test_case.TestCategory]]:
@@ -187,7 +191,12 @@ def GenerateTestDocs(
 
   args = getattr(test_case_type, 'ARGS', [])
 
-  related_components = getattr(test_case_type, 'related_components', tuple())
+  try:
+    related_components = cast(Tuple[test_case.TestCategory],
+                              getattr(test_case_type, 'related_components'))
+  except AttributeError as err:
+    raise GenerateRstError(
+        'related_components is a required attribute.') from err
 
   doc = getattr(module, '__doc__', None)
   if doc is None:

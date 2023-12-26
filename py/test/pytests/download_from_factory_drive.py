@@ -87,6 +87,7 @@ class RetrieveParameterError(Exception):
 
 
 class RetrieveParameter(test_case.TestCase):
+  related_components = tuple()
 
   ARGS = [
       Arg('source_namespace', str, 'The path to retrieve parameter files.',

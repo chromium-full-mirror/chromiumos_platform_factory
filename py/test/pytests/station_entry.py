@@ -81,6 +81,8 @@ from cros.factory.utils import type_utils
 
 class StationEntry(test_case.TestCase):
   """The factory test to start station test process."""
+  related_components = tuple()
+
   ARGS = [
       Arg('start_station_tests', bool,
           'To start or stop the factory station tests.',

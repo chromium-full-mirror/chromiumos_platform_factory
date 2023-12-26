@@ -112,6 +112,8 @@ class RetrieveConfig(unittest.TestCase):
       |__ config
           |__ als_fixture.schema.json
   """
+  related_components = tuple()
+
 
   ARGS = [
       Arg('data_method', DataMethod, 'The method to retrieve config.',

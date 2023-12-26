@@ -72,11 +72,14 @@ from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import sync_utils
 
+
 _DEFAULT_TIMEOUT = 30
 
 
 class ButtonTest(test_case.TestCase):
   """Button factory test."""
+  related_components = tuple()
+
   ARGS = [
       Arg('timeout_secs', int, 'Timeout value for the test.',
           default=_DEFAULT_TIMEOUT),

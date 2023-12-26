@@ -63,6 +63,8 @@ _WAIT_RETEST_SECS = 2
 
 class PlanktonDisplayTest(test_case.TestCase):
   """Tests USB type-C ports display functionality."""
+  related_components = tuple()
+
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('usb_c_index', int, 'Index of DUT USB type-C port'),

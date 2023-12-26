@@ -51,6 +51,7 @@ _RECOVERY_KEY_VER_REGEX = r'\s+Key Version:\s+(?P<key_ver>\w+)'
 
 
 class CopyMiniOS(test_case.TestCase):
+  related_components = tuple()
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()

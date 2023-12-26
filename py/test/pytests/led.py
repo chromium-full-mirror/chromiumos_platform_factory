@@ -120,6 +120,8 @@ _ARG_COLORS_SCHEMA = JSONSchemaDict(
 
 class LEDTest(test_case.TestCase):
   """Tests if the onboard LED can light up with specified colors."""
+  related_components = tuple()
+
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP, default=None),
       Arg(

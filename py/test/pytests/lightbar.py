@@ -48,6 +48,8 @@ from cros.factory.utils import type_utils
 
 class LightbarTest(test_case.TestCase):
   """Factory test for lightbar on A case."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg('colors_to_test', type=list,

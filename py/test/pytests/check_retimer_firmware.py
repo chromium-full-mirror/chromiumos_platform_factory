@@ -63,6 +63,8 @@ _CONTROLLER_PORTS_PREFIX = ('0-0', '1-0')
 
 class RetimerFirmwareTest(test_case.TestCase):
   """Retimer firmware test."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg('wait_all_ports_unplugged', bool, 'Deprecated', default=None),

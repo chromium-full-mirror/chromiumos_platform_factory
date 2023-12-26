@@ -60,6 +60,8 @@ _TIMESTAMP_BL_OFF = _BACKLIGHT_OFF_TIMEOUT + _TEST_TOLERANCE
 
 class LidSwitchTest(test_case.TestCase):
   """Lid switch factory test."""
+  related_components = tuple()
+
   ARGS = [
       Arg('timeout_secs', int, 'Timeout value for the test.',
           default=_DEFAULT_TIMEOUT),

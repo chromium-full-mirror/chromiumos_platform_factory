@@ -29,6 +29,7 @@ _NUMBER_NOT_IN_DEVICE_DATA = 1
 
 
 class VerifyComponentTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('approx_match', bool,
           'Enable apporximate matching results.',

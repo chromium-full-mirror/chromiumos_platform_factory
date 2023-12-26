@@ -53,6 +53,8 @@ from cros.factory.external.py_lib import evdev
 
 class MouseTest(test_case.TestCase):
   """Tests the function of a mouse/trackpoint."""
+  related_components = tuple()
+
   ARGS = [
       Arg('device_filter', (int, str),
           ('Mouse input event id or evdev name. The test will probe for '

@@ -13,6 +13,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class WriteProtectSwitchTest(unittest.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('has_ectool', bool, 'Has ectool utility or not.', default=True)
   ]

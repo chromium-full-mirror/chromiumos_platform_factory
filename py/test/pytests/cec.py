@@ -58,8 +58,8 @@ manually. Verify that display can be turned on/off via CEC::
   }
 """
 
-from enum import IntEnum
 import abc
+from enum import IntEnum
 import logging
 import re
 import subprocess
@@ -189,6 +189,8 @@ class ApCecController(ICecController):
 
 class CecTest(test_case.TestCase):
   """ The task to check CEC display power message feature. """
+  related_components = tuple()
+
   ARGS = [
       Arg(
           'standby_wait_time', float,

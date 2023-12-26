@@ -56,6 +56,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class FlashNetbootTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg(
           'image', str, f'Path of netboot firmware image. Default to use '

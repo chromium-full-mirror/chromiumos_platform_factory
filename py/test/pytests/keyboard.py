@@ -152,6 +152,8 @@ class KeyboardTest(test_case.TestCase):
     in order
   - strict_sequential_press: the test failed immediately if a key is skipped.
   """
+  related_components = tuple()
+
   ARGS = [
       Arg(
           'allow_multi_keys', bool, 'Allow multiple keys pressed '

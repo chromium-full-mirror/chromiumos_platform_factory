@@ -35,6 +35,7 @@ from cros.factory.test import test_case
 
 
 class VerifyKeybox(test_case.TestCase):
+  related_components = tuple()
 
   def runTest(self):
     dut = device_utils.CreateDUTInterface()

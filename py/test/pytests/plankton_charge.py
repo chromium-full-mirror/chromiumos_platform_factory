@@ -81,6 +81,8 @@ from cros.factory.utils import type_utils
 
 class PlanktonChargeBFTTest(test_case.TestCase):
   """Tests usb_c port charge functionality."""
+  related_components = tuple()
+
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('charge_duration_secs', (int, float),

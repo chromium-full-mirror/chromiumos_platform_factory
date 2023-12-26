@@ -61,6 +61,7 @@ _DEFAULT_POLL_INTERVAL = 0
 
 
 class Gyroscope(test_case.TestCase):
+  related_components = tuple()
 
   ARGS = [
       Arg('rotation_threshold', int,

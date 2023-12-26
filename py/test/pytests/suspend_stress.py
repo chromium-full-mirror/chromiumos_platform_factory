@@ -117,6 +117,8 @@ def GetWakeSource(elog: List[str]) -> Optional[str]:
 
 class SuspendStressTest(test_case.TestCase):
   """Run suspend_stress_test to test the suspending is fine."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg('cycles', int, 'Number of cycles to suspend/resume', default=1),

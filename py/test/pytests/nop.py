@@ -37,6 +37,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class NopTest(unittest.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('wait_secs', (int, float), 'Wait for N seconds.', default=0)]
 

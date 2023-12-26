@@ -85,6 +85,8 @@ class RobotMovement(test_case.TestCase):
   5. Push the results.
   6. Log the files and results.
   """
+  related_components = tuple()
+
 
   ARGS = [
       Arg('robot_fixture', str,

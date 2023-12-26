@@ -61,6 +61,7 @@ from cros.factory.utils import pygpt
 
 
 class PartitionTableTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('min_usage_pct', (int, float),
           'Percentage of the storage device that must be before the end of the '

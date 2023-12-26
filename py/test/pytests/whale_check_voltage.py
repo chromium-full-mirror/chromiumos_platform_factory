@@ -70,6 +70,8 @@ def _ValueId(key):
 
 class WhaleCheckVoltageTest(test_case.TestCase):
   """Checks voltages."""
+  related_components = tuple()
+
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('criteria', dict,

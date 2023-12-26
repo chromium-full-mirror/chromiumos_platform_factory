@@ -98,6 +98,8 @@ class _KeyType(str, enum.Enum):
 
 class StartTest(test_case.TestCase):
   """The factory test to start the whole factory test process."""
+  related_components = tuple()
+
   ARGS = [
       Arg(
           'key_to_continue', _KeyType,

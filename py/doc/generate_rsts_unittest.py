@@ -22,6 +22,7 @@ class GenerateDocsTest(unittest.TestCase):
     class PseudoModule:
       """Module-level help."""
       class FooTest(unittest.TestCase):
+        related_components = tuple()
         ARGS = [
             Arg('a', int, 'A', default=1),
             Arg('b', enum.Enum('b', ['b1', 'b2']), 'Foo:\n'

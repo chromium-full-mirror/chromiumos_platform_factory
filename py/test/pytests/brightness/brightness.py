@@ -12,6 +12,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class BrightnessTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       i18n_arg_utils.I18nArg('msg', 'Message HTML'),
       Arg('timeout_secs', int, 'Timeout value for the test in seconds.',

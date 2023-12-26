@@ -142,6 +142,8 @@ class ServiceSpec:
 
 class ShopfloorService(test_case.TestCase):
   """Execution of remote shoploor service."""
+  related_components = tuple()
+
 
   ARGS = [
       Arg('method', str, 'Name of shopfloor service method to call'),

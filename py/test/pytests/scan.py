@@ -66,6 +66,8 @@ from cros.factory.utils import debug_utils
 
 class Scan(test_case.TestCase):
   """The main class for this pytest."""
+  related_components = tuple()
+
   ARGS = [
       i18n_arg_utils.I18nArg(
           'label', 'Name of the ID or serial number being scanned, '

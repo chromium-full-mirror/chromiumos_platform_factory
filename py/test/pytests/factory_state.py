@@ -130,6 +130,7 @@ class EnumRole(str, enum.Enum):
 
 
 class ManipulateFactoryStateLayer(unittest.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('action', EnumAction, 'What kind of action to do?'),
       Arg('dut_options', dict, 'DUT options to create remote dut instnace.',

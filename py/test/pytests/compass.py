@@ -22,6 +22,7 @@ _FLASH_STATUS_TIME = 1
 
 
 class CompassTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('tolerance', int, 'The tolerance in degree.', default=5),
       Arg('location', enum.Enum('Location', ['base', 'lid']),

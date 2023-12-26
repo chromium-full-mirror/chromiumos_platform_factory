@@ -48,6 +48,8 @@ SSID_RE = re.compile('SSID: (.*)$', re.MULTILINE)
 
 class WirelessConnectTest(test_case.TestCase):
   """Basic wireless test class."""
+  related_components = tuple()
+
   ARGS = [
       Arg('device_name', str, 'The wifi interface', default=None),
       Arg('service_name', list,

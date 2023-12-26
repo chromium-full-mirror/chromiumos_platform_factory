@@ -178,6 +178,7 @@ class Report:
 
 
 class SyncFactoryServer(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg(
           'first_retry_secs', int,

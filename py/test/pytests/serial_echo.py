@@ -29,6 +29,7 @@ _SERIAL_TIMEOUT = 3
 
 
 class SerialEchoTest(unittest.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('serial_param', dict,
           'a dict of parameters for a serial connection. Should contain '

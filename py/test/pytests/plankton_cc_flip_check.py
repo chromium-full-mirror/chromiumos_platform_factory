@@ -95,6 +95,8 @@ _CC_UNCONNECT = 'UNCONNECTED'
 
 class PlanktonCCFlipCheck(test_case.TestCase):
   """Plankton USB type-C CC line polarity check and operation flip test."""
+  related_components = tuple()
+
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('adb_remote_test', bool, 'Run test against remote ADB target.',

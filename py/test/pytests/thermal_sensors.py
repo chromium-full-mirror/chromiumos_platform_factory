@@ -48,6 +48,8 @@ from cros.factory.utils.arg_utils import Arg
 
 class BoardTempSensorsTest(unittest.TestCase):
   """Tests communication with temperature sensors."""
+  related_components = tuple()
+
   ARGS = [
       Arg('temp_sensor_to_test', (str, list),
           'List of temperature sensor(s) to test, "*" for all sensors. '

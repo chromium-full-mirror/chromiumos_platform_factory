@@ -90,6 +90,7 @@ HTML = """
 
 
 class CheckDeviceState(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('sn_name', str,
           'name of the serial number, e.g. "serial_number" or '

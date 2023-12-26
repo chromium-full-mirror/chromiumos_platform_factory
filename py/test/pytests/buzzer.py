@@ -62,6 +62,8 @@ _SECOND_TO_NANOSECONDS = 10**9
 
 class BuzzerTest(test_case.TestCase):
   """Tests buzzer."""
+  related_components = tuple()
+
   ARGS = [
       # Common arguments
       Arg('beep_duration_secs', float, 'How long for one beep', 0.3),

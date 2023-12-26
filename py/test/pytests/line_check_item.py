@@ -83,6 +83,8 @@ class LineCheckItemTest(test_case.TestCase):
   Properties:
     _items: A sequence of CheckItem.
   """
+  related_components = tuple()
+
   ARGS = [
       i18n_arg_utils.I18nArg('title', 'test title.'),
       Arg('items', list,

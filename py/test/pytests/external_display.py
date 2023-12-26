@@ -403,6 +403,8 @@ class TestAbortedByOperator(_ExternalDisplayBaseException):
 
 class ExtDisplayTest(test_case.TestCase):
   """Main class for external display test."""
+  related_components = tuple()
+
   ARGS = [
       Arg('display_info', list,
           ('A list of tuples (display_label, display_id, audio_info, '

@@ -52,6 +52,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class PdFwMinVersion(unittest.TestCase):
+  related_components = tuple()
 
   ARGS = [
       Arg('ports', (int, list), 'Specify which PD ports are checked.',

@@ -65,6 +65,7 @@ from cros.factory.test.i18n import arg_utils as i18n_arg_utils
 from cros.factory.test import test_case
 from cros.factory.utils.arg_utils import Arg
 
+
 CSS_TEMPLATE = """
 .message { font-size: %(text_size)s%%; color: %(text_color)s; }
 test-template { --template-background-color: %(background_color)s; }
@@ -73,6 +74,8 @@ test-template { --template-background-color: %(background_color)s; }
 
 class MessageTest(test_case.TestCase):
   """A factory test to display a message."""
+  related_components = tuple()
+
   ARGS = [
       i18n_arg_utils.I18nArg('html', 'Message in HTML'),
       Arg('text_size', str, 'size of message in percentage', default='200'),

@@ -72,6 +72,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class WriteDeviceDataToVPD(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('ro_key_map', dict,
           'Mapping of (VPD_NAME, DEVICE_DATA_KEY) to write into RO VPD.',

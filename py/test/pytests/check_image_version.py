@@ -132,6 +132,7 @@ _RE_BRANCHED_IMAGE_VERSION = re.compile(r'R\d+-(\d+\.\d+\.\d+)(?:-b\d+)*')
 
 
 class CheckImageVersionTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('min_version', str,
           ('Minimum allowed test or release image version.'

@@ -73,6 +73,7 @@ def GetPortStateFromChargeState(charge_state):
 
 
 class WirelessChargeTest(test_case.TestCase):
+  related_components = tuple()
   ARGS = [
       Arg('port', int, 'Wireless charging port to test.', default=0),
       i18n_arg_utils.I18nArg(

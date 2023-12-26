@@ -178,6 +178,7 @@ def EvaluateRule(a, op_str, b):
 
 
 class ProbeTest(test_case.TestCase):
+  related_components = tuple()
 
   ARGS = [
       Arg('config_file', str,

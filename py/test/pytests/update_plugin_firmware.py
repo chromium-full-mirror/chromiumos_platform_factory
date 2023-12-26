@@ -64,6 +64,7 @@ FWUPDTOOL = 'fwupdtool'
 
 
 class UpdateUsingFwUpdTest(test_case.TestCase):
+  related_components = tuple()
 
   ARGS = [
       Arg('allow_older', bool, 'Allow downgrading the firmware.',
