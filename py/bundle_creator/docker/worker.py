@@ -28,8 +28,8 @@ from cros.factory.utils import process_utils
 
 class IWorkerTask(abc.ABC):
 
-  @abc.abstractmethod
   @classmethod
+  @abc.abstractmethod
   def FromPubSubMessage(cls, pubsub_message: pubsub_connector.PubSubMessage):
     raise NotImplementedError
 

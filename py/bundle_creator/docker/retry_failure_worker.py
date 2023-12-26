@@ -129,6 +129,9 @@ class RetryFailureTask(worker.IWorkerTask):
           f'Receive invalid message: {pubsub_message.data!r}') from e
     return cls(within_days=int(within_days_str), requester=requester)
 
+  def ToOriginalRequest(self):
+    pass
+
 
 class RetryFailureWorker(worker.AbstractWorker):
 
