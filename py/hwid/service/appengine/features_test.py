@@ -44,7 +44,7 @@ def _BuildDLMComponentEntry(
 
 
 def _BuildDLMComponentDatabase(
-    entries: features.Collection[features.DLMComponentEntry]
+    entries: Collection[features.DLMComponentEntry]
 ) -> features.DLMComponentDatabase:
   return {entry.dlm_id: entry
           for entry in entries}
@@ -152,8 +152,8 @@ def _ToComparableHWIDRequirement(
 
 
 def _ToComparableHWIDRequirements(
-    sources: features.Collection[features.HWIDRequirement]
-) -> features.Collection[features.HWIDRequirement]:
+    sources: Collection[features.HWIDRequirement]
+) -> Collection[features.HWIDRequirement]:
   return list(map(_ToComparableHWIDRequirement, sources))
 
 
@@ -731,7 +731,7 @@ class DisplayPanelV1SpecTest(unittest.TestCase):
                   display_panel: display_panel_5
         """))
 
-    def _BuildProperty(compatible_versions: features.Collection[int]):
+    def _BuildProperty(compatible_versions: Collection[int]):
       return {
           'panel_type': None,
           'horizontal_resolution': None,
@@ -843,7 +843,7 @@ class CameraV1SpecTest(unittest.TestCase):
                   camera: camera_22
         """))
 
-    def _BuildProperty(compatible_versions: features.Collection[int]):
+    def _BuildProperty(compatible_versions: Collection[int]):
       return {
           'is_user_facing': None,
           'has_tnr': None,

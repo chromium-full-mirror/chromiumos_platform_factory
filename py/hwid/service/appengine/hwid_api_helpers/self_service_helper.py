@@ -10,7 +10,7 @@ import os.path
 import re
 import textwrap
 import time
-from typing import Container, Generic, Iterable, Iterator, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Sized, Tuple, Type, TypeVar
+from typing import Collection, Iterator, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple, Type
 import uuid
 
 from google.protobuf import json_format
@@ -39,22 +39,6 @@ from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.utils import json_utils
-
-
-_CollectionElementType = TypeVar('_CollectionElementType')
-
-
-class Collection(abc.ABC, Generic[_CollectionElementType],
-                 Container[_CollectionElementType], Sized,
-                 Iterable[_CollectionElementType]):
-  """A custom alias of `typing.Collection` to avoid `pylint`'s false alarms."""
-  # The current `pylint` reports false alarm "unsubscriptable-object: Value
-  # 'Collection' is unsubscriptable" because it fails to treat the built-in
-  # one as a type.  This replacement helps `pylint` correctly recognize the
-  # data type.
-  # TODO(yhong): Use the built-in `typing.Collection` after the
-  #    [fix](https://github.com/PyCQA/pylint/issues/2377) is adopted to the
-  #    repository.
 
 
 _SESSION_TIMEOUT = 3 * 60  # 3 minutes

@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 import textwrap
+from typing import Collection
 import unittest
 from unittest import mock
 
@@ -25,7 +26,7 @@ _FeatureEnablementStatus = feature_matching.FeatureEnablementStatus
 _HwidProfileMsg = hwid_feature_requirement_pb2.HwidProfile
 
 
-def _BuildHWIDDBForTest(project_name: str, image_ids: features.Collection[int],
+def _BuildHWIDDBForTest(project_name: str, image_ids: Collection[int],
                         feature_version: str = '1') -> db_module.Database:
   image_id_part = {
       'image_id': {

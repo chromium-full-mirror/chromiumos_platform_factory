@@ -6,27 +6,11 @@ import abc
 import collections
 import enum
 import itertools
-from typing import Container, Generic, Iterable, Mapping, NamedTuple, Optional, Sequence, Sized, Type, TypeVar, Union
+from typing import Collection, Mapping, NamedTuple, Optional, Sequence, Union
 
 from cros.factory.hwid.v3 import common as hwid_common
 from cros.factory.hwid.v3 import database as db_module
 from cros.factory.hwid.v3 import name_pattern_adapter as npa_module
-
-
-_CollectionElementType = TypeVar('_CollectionElementType')
-
-
-class Collection(abc.ABC, Generic[_CollectionElementType],
-                 Container[_CollectionElementType], Sized,
-                 Iterable[_CollectionElementType]):
-  """A custom alias of `typing.Collection` to avoid `pylint`'s false alarms."""
-  # The current `pylint` reports false alarm "unsubscriptable-object: Value
-  # 'Collection' is unsubscriptable" because it fails to treat the built-in
-  # one as a type.  This replacement helps `pylint` correctly recognize the
-  # data type.
-  # TODO(yhong): Use the built-in `typing.Collection` after the
-  #    [fix](https://github.com/PyCQA/pylint/issues/2377) is adopted to the
-  #    repository.
 
 
 class DLMComponentEntryID(NamedTuple):
@@ -230,7 +214,8 @@ class HWIDDBNotSupportError(Exception):
   """The HWID DB scheme is incompatible to the HWID requirement resolver."""
 
 
-_ALWAYS_FULFILL = object()
+class _DeduceResult(enum.Enum):
+  ALWAYS_FULFILL = enum.auto()
 
 
 def _RearrangeValueBits(value: int, bit_offsets: Sequence[int]) -> int:
@@ -304,7 +289,7 @@ class _HWIDSpecBitStringRequirementResolver:
   def DeduceRequirementCandidates(
       self, db: db_module.Database, pattern_idx: int,
       dlm_db: DLMComponentDatabase
-  ) -> Union[Type[_ALWAYS_FULFILL], Sequence[HWIDBitStringRequirement]]:
+  ) -> Union[_DeduceResult, Sequence[HWIDBitStringRequirement]]:
     """Deduce the HWID bit string requirement candidates for the given pattern.
 
     Args:
@@ -315,7 +300,8 @@ class _HWIDSpecBitStringRequirementResolver:
     Returns:
       If no HWID string from the specified pattern is ever compliant to the
       spec, it returns an empty container.  If all HWID strings of the specific
-      pattern are compliant to the spec, this method returns `_ALWAYS_FULFILL`.
+      pattern are compliant to the spec, this method returns
+      `_DeduceResult.ALWAYS_FULFILL`.
       Otherwise, it returns a set of HWID bit string requirements that if the
       HWID string fulfills any of the requirement, it is considered compliant
       to the spec.
@@ -330,7 +316,7 @@ class _HWIDSpecBitStringRequirementResolver:
       result = self._GetHWIDBitStringRequirementForEncodedField(
           db, pattern_idx, encoded_field_name, encoded_field_values)
       if result is True:
-        return _ALWAYS_FULFILL
+        return _DeduceResult.ALWAYS_FULFILL
       if result is False:
         continue
       result_requirements.append(result)
@@ -393,7 +379,7 @@ class _HWIDRequirementResolverForEncodedFieldPart:
           self._db, pattern_idx, self._dlm_db)
       if not result:
         return []
-      if result is _ALWAYS_FULFILL:
+      if result is _DeduceResult.ALWAYS_FULFILL:
         continue
       per_spec_requirement_candidates.append(result)
 
