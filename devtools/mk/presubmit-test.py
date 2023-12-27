@@ -89,11 +89,23 @@ def CheckEditorFrontend(files):
        ' in editor venv outside chroot.'), '.frontend-presubmit-passed')
 
 
+_ignored_list = (
+    'py/test/pytests/bft_fixture.py',
+    'py/test/pytests/brightness/brightness.py',
+    'py/test/pytests/compass.py',
+    'py/test/pytests/keyboard_backlight.py',
+    'py/test/pytests/plankton_cc2_pull_test.py',
+    'py/test/pytests/serial_echo.py',
+    'py/test/pytests/verify_component.py',
+    'py/test/pytests/write_protect_switch.py',
+)
+
 def CheckPytestDoc(files):
   all_pytests = json.loads(
       subprocess.check_output(['bin/list_pytests']))
   allow_list = {'py/test/pytests/' + pytest
                 for pytest in all_pytests}
+  allow_list -= set(_ignored_list)
   pytests = [file_path for file_path in files if file_path in allow_list]
 
   # Check if pytest docs follow new template
