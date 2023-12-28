@@ -125,7 +125,7 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
 
   def MatchProbeResult(
       self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
-      parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
+      parsed_probe_result: Sequence[analyzers.ParsedProbeParameter]
   ) -> analyzers.ProbeResultMatchResult:
     expect_values = collections.defaultdict(set)
 

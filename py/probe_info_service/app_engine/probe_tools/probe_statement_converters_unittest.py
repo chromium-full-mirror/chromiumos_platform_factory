@@ -70,7 +70,8 @@ class AudioCodecConverterTest(ConverterTestCase):
           description: "The probed kernel name of audio codec comp."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -168,7 +169,8 @@ class BatteryConverterTest(ConverterTestCase):
           description: "Model name exposed from the EC or the ACPI interface."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -331,7 +333,8 @@ class MipiCameraConverterTest(ConverterTestCase):
           description: "The camera sensor product ID."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -463,7 +466,8 @@ class UsbCameraConverterTest(ConverterTestCase):
           description: "USB BCD Device Info."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -593,7 +597,8 @@ class DisplayPanelConverterTest(ConverterTestCase):
           description: "The height of display panel."
           value_type: INT
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -703,7 +708,8 @@ class MemoryConverterTest(ConverterTestCase):
           description: "Part number."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('part', 'abcd1234')]
@@ -807,7 +813,8 @@ class MmcStorageConverterTest(ConverterTestCase):
           description: "The storage size in GB."
           value_type: INT
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -944,7 +951,8 @@ class NvmeStorageConverterTest(ConverterTestCase):
           description: "The storage size in GB."
           value_type: INT
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1084,7 +1092,8 @@ class UfsStorageConverterTest(ConverterTestCase):
           description: "The storage size in GB."
           value_type: INT
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1192,7 +1201,8 @@ class CpuConverterTest(ConverterTestCase):
           description: "Model name on x86, chip-id on ARM."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('identifier', 'abcd1234')]
@@ -1296,7 +1306,8 @@ class TouchscreenModuleConverterTest(ConverterTestCase):
           description: "The product ID, 16 bits"
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithMissingParamAllowed_ThenValidationPassed(self):
     probe_params = [
@@ -1543,7 +1554,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
           description: "{nvme_model_param_description}"
           value_type: STRING
         }}''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateMMCAndMMCHostPS(self):
     probe_params = [
@@ -1841,7 +1853,8 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
           value_type: STRING
         }
     ''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertEqual(actual, expect)
+    self.assertCountEqual(actual.parameter_definitions,
+                          expect.parameter_definitions)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [

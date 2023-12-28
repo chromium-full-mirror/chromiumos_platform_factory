@@ -128,7 +128,7 @@ class IBidirectionalProbeInfoConverter(IProbeInfoConverter):
   @abc.abstractmethod
   def MatchProbeResult(
       self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
-      parsed_probe_result: Sequence[probe_info_analytics.ProbeParameter]
+      parsed_probe_result: Sequence[ParsedProbeParameter]
   ) -> ProbeResultMatchResult:
     """Parse `probe_result` and returns names of mismatch components.
 
@@ -138,8 +138,8 @@ class IBidirectionalProbeInfoConverter(IProbeInfoConverter):
 
     Args:
       probe_params: A list of `ProbeParameter` expected to be probed.
-      parsed_probe_result: A list of `ProbeParameter` parsed from the probe
-          result.
+      parsed_probe_result: A list of `ParsedProbeParameter` parsed from the
+          probe result.
 
     Returns:
       A `ProbeResultMatchResult` containing the mismatch parameter names, and a
