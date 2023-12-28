@@ -25,20 +25,18 @@ Depend on the sysfs driver to control and read information from the battery.
 
 Examples
 --------
-To perform a basic battery test, add this in test list::
+To perform a basic battery test, add this in test list:
 
-  {
-    "pytest_name": "battery_basic"
-  }
+.. test_list::
 
-To relax the limitation of battery cycle count to 5::
+  generic_battery_examples:BatteryBasic
 
-  {
-    "pytest_name": "battery_basic",
-    "args": {
-      "max_cycle_count": 5
-    }
-  }
+To relax the limitation of battery cycle count to 5:
+
+.. test_list::
+
+  generic_battery_examples:BatteryBasicCycleCountAtMost5
+
 """
 
 import logging

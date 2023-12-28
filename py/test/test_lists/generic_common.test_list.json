@@ -11,7 +11,6 @@
     "__comment_enable_factory_server": "Enable factory_server. Change this to false by adding 'disable_factory_server.test_list' to beginning of inherit list in main test list. Note that some factory environment might not need a shopfloor.",
     "factory_process": "FULL",
     "__comment_factory_process": "The process that a device/MLB is produced or assembled. The value should be one of FactoryProcessEnum.",
-    "has_battery": true,
     "has_device_data": false,
     "__comment_has_device_data": "When setting to true, some test objects will use the info from device data to decide to run or not.",
     "has_ec_pubkey": false,
@@ -179,20 +178,6 @@
       "args": {
         "location": "base"
       }
-    },
-    "Battery": {
-      "pytest_name": "battery",
-      "run_if": "constants.has_battery"
-    },
-    "BatterySysfs": {
-      "pytest_name": "battery_sysfs",
-      "run_if": "constants.has_battery"
-    },
-    "BlockingCharge": {
-      "pytest_name": "blocking_charge",
-      "exclusive_resources": [
-        "POWER"
-      ]
     },
     "BrandedChassis": {
       "pytest_name": "branded_chassis",

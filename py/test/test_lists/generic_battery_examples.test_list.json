@@ -1,0 +1,129 @@
+{
+  "__comment": "Examples for testing battery tests. It's called \"Battery\" in AVL.",
+  "inherit": [
+    "generic_battery.test_list",
+    "generic_common.test_list"
+  ],
+  "label": "Generic Battery Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "BatteryBasic": {
+      "pytest_name": "battery_basic",
+      "exclusive_resources": [
+        "POWER"
+      ]
+    },
+    "BatteryBasicCycleCountAtMost5": {
+      "inherit": "BatteryBasic",
+      "label": "Battery Basic Cycle Count At Most 5",
+      "args": {
+        "max_cycle_count": 5
+      }
+    },
+    "BatteryCapacity": {
+      "inherit": "Battery",
+      "label": "Battery Capacity"
+    },
+    "BatteryCapacityBetween4000And5000": {
+      "inherit": "Battery",
+      "label": "Battery Capacity Between 4000 And 5000",
+      "args": {
+        "design_capacity_range": [
+          4000,
+          5000
+        ]
+      }
+    },
+    "BatteryCycle": {
+      "pytest_name": "battery_cycle",
+      "exclusive_resources": [
+        "POWER"
+      ]
+    },
+    "BlockingCharge10PercentMoreIn5Minutes": {
+      "inherit": "BlockingCharge",
+      "label": "Blocking Charge 10 Percent More In 5 Minutes",
+      "args": {
+        "target_charge_pct_is_delta": true,
+        "timeout_secs": 300,
+        "target_charge_pct": 10
+      }
+    },
+    "BlockingChargeTo75": {
+      "inherit": "BlockingCharge",
+      "label": "Blocking Charge To 75",
+      "args": {
+        "target_charge_pct": 75
+      }
+    },
+    "BlockingChargeToCutOffSetting": {
+      "inherit": "BlockingCharge",
+      "label": "Blocking Charge To Cut Off Setting",
+      "args": {
+        "target_charge_pct": "cutoff"
+      }
+    },
+    "ChargeDischargeCurrentDifference": {
+      "inherit": "ChargeDischargeCurrent",
+      "label": "Charge Discharge Current Difference",
+      "args": {
+        "min_charging_current": null,
+        "min_discharging_current": null,
+        "current_difference": 250
+      }
+    },
+    "ChargeDischargeCurrentExpectNoChargeWhenCharging": {
+      "inherit": "ChargeDischargeCurrent",
+      "label": "Charge Discharge Current Expect No Charge When Charging",
+      "args": {
+        "min_charging_current": -150
+      }
+    },
+    "Charger": {
+      "pytest_name": "charger",
+      "exclusive_resources": [
+        "POWER"
+      ],
+      "args": {
+        "min_starting_charge_pct": 87,
+        "max_starting_charge_pct": 87,
+        "check_battery_current": false,
+        "starting_timeout_secs": 3600,
+        "spec_list": []
+      }
+    },
+    "Charger15VInPort0": {
+      "pytest_name": "battery_current",
+      "label": "Charger 15V In Port 0",
+      "args": {
+        "usbpd_info": [
+          0,
+          14500,
+          15500
+        ],
+        "usbpd_prompt": "i18n! USB TypeC"
+      }
+    }
+  },
+  "tests": [
+    "ProbeBattery",
+    "BatteryBasic",
+    "BatteryBasicCycleCountAtMost5",
+    "BatteryCapacity",
+    "BatteryCapacityBetween4000And5000",
+    "BatteryCycle",
+    "BatterySysfs",
+    "BlockingCharge",
+    "BlockingChargeToCutOffSetting",
+    "BlockingChargeTo75",
+    "BlockingCharge10PercentMoreIn5Minutes",
+    "ChargeDischargeCurrent",
+    "ChargeDischargeCurrentExpectNoChargeWhenCharging",
+    "ChargeDischargeCurrentDifference",
+    "Charger15VInPort0",
+    "Charger"
+  ]
+}

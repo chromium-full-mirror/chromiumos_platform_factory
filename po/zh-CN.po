@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-18 10:19+UTC\n"
+"PO-Revision-Date: 2023-12-29 16:26+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3544,6 +3544,54 @@ msgstr "喇叭手动测试"
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Generic Audio Factory tests"
 msgstr "一般音频硬件测试"
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "Probe Battery"
+msgstr "侦测电池"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Basic Cycle Count At Most 5"
+msgstr "简单电池测试(电池循环次数至多5)"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Capacity"
+msgstr "电池容量"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Capacity Between 4000 And 5000"
+msgstr "电池容量介于4000-5000之间"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge 10 Percent More In 5 Minutes"
+msgstr "5 分钟内充电 10%"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge To 75"
+msgstr "充电至 75"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge To Cut Off Setting"
+msgstr "充电至切断电池电源设置"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charge Discharge Current Difference"
+msgstr "充放电电流差测试"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charge Discharge Current Expect No Charge When Charging"
+msgstr "充放电在充电时无法充电之电流测试"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "USB TypeC"
+msgstr "USB TypeC Port"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charger 15V In Port 0"
+msgstr "15V充电器在 Port 0"
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Generic Battery Factory tests"
+msgstr "一般电池测试"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera without camera_characteristics.conf"

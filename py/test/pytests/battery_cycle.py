@@ -27,11 +27,11 @@ Dependency
 
 Examples
 --------
-Add this into test list::
+Add this into test list:
 
-  {
-    "pytest_name": "battery_cycle"
-  }
+.. test_list::
+
+  generic_battery_examples:BatteryCycle
 
 """
 

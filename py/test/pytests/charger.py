@@ -22,21 +22,11 @@ Device API `cros.factory.device.power`.
 Examples
 --------
 A test that charges/discharges until the battery percentage is 87 with 1 hour
-timeout.::
+timeout:
 
-  {
-    "pytest_name": "charger",
-    "exclusive_resources": [
-      "POWER"
-    ],
-    "args": {
-      "min_starting_charge_pct": 87,
-      "max_starting_charge_pct": 87,
-      "check_battery_current": false,
-      "starting_timeout_secs": 3600,
-      "spec_list": []
-    }
-  }
+.. test_list::
+
+  generic_battery_examples:Charger
 
 """
 

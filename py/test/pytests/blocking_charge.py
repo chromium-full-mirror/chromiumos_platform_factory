@@ -38,46 +38,32 @@ Device API `cros.factory.device.power`.
 Examples
 --------
 To charge the device to ``min_charge_pct`` in Goofy charge_manager (default
-behavior), add this in test list::
+behavior), add this in test list:
 
-  {
-    "pytest_name": "blocking_charge",
-    "exclusive_resources": ["POWER"]
-  }
+.. test_list::
+
+  generic_battery_examples:BlockingCharge
 
 To charge the device to minimum battery level needed for cutoff, add this in
-test list::
+test list:
 
-  {
-    "pytest_name": "blocking_charge",
-    "exclusive_resources": ["POWER"],
-    "args": {
-      "target_charge_pct": "cutoff"
-    }
-  }
+.. test_list::
 
-To charge the device to 75 percent, add this in test list::
+  generic_battery_examples:BlockingChargeToCutOffSetting
 
-  {
-    "pytest_name": "blocking_charge",
-    "exclusive_resources": ["POWER"],
-    "args": {
-      "target_charge_pct": 75
-    }
-  }
+To charge the device to 75 percent, add this in test list:
+
+.. test_list::
+
+  generic_battery_examples:BlockingChargeTo75
 
 To charge the device 10 percent more, and only allow 5 minutes time for
-charging, add this in test list::
+charging, add this in test list:
 
-  {
-    "pytest_name": "blocking_charge",
-    "exclusive_resources": ["POWER"],
-    "args": {
-      "target_charge_pct_is_delta": true,
-      "timeout_secs": 300,
-      "target_charge_pct": 20
-    }
-  }
+.. test_list::
+
+  generic_battery_examples:BlockingCharge10PercentMoreIn5Minutes
+
 """
 
 import enum

@@ -1,0 +1,49 @@
+{
+  "__comment": "Predefined battery tests. It's called \"Battery\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {
+    "__comment": "Todo(cyueh) Move ChargeDischargeCurrent here after moving USBTypeCManualCharge into usb_host test list.",
+    "has_battery": true,
+    "__comment_has_battery": "Used by Battery and BatterySysfs."
+  },
+  "options": {},
+  "definitions": {
+    "Battery": {
+      "pytest_name": "battery",
+      "run_if": "constants.has_battery"
+    },
+    "BatterySysfs": {
+      "pytest_name": "battery_sysfs",
+      "run_if": "constants.has_battery",
+      "args": {
+        "maximum_cycle_count": 10,
+        "percent_battery_wear_allowed": 5
+      }
+    },
+    "BlockingCharge": {
+      "pytest_name": "blocking_charge",
+      "exclusive_resources": [
+        "POWER"
+      ]
+    },
+    "ProbeBattery": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Battery",
+      "args": {
+        "component_list": [
+          "battery"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "battery",
+            "==",
+            1
+          ]
+        ]
+      }
+    }
+  }
+}

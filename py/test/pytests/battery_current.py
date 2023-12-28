@@ -47,47 +47,34 @@ is also used.
 
 Examples
 --------
-To check battery can charge and discharge, add this in test list::
+To check battery can charge and discharge, add this in test list:
 
-  {
-    "pytest_name": "battery_current",
-    "args": {
-      "min_charging_current": 250,
-      "min_discharging_current": 400
-    }
-  }
+.. test_list::
+
+  generic_battery_examples:ChargeDischargeCurrent
 
 Sometimes, the system consumes more power than the charger. In that case, we
 could set the min_charging_current to negative value, and the test would pass
-if the battery discharges less than 150 mA. See b/183679223#comment25::
+if the battery discharges less than 150 mA. See b/183679223#comment25:
 
-  {
-    "pytest_name": "battery_current",
-    "args": {
-      "min_charging_current": -150,
-      "min_discharging_current": 400
-    }
-  }
+.. test_list::
 
-Alternatively, we could also set::
+  generic_battery_examples:ChargeDischargeCurrentExpectNoChargeWhenCharging
 
-  {
-    "pytest_name": "battery_current",
-    "args": {
-      "current_difference": 250
-    }
-  }
+Alternatively, we could also set current_difference to just test the difference
+between charge and discharge:
+
+.. test_list::
+
+  generic_battery_examples:ChargeDischargeCurrentDifference
 
 To check that a 15V USB type C power adapter is connected to port 0, add this
-in test list::
+in test list:
 
-  {
-    "pytest_name": "battery_current",
-    "args": {
-      "usbpd_info": [0, 14500, 15500],
-      "usbpd_prompt": "i18n! USB TypeC"
-    }
-  }
+.. test_list::
+
+  generic_battery_examples:Charger15VInPort0
+
 """
 
 import logging

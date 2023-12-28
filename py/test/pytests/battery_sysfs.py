@@ -19,18 +19,14 @@ Depend on the sysfs driver to read information from the battery.
 
 Examples
 --------
-To perform a battery test, add this in test list::
+To perform a battery test, add this in test list:
 
-  {
-    "pytest_name": "battery_sysfs",
-    "args": {
-      "maximum_cycle_count": 10,
-      "percent_battery_wear_allowed": 5
-    }
-  }
+.. test_list::
 
-To disable max cycle count check, set ``maximum_cycle_count`` to ``-1``.
-To disable wear level check, set ``percent_battery_wear_allowed`` to ``-1``.
+  generic_battery_examples:BatterySysfs
+
+- To disable max cycle count check, set ``maximum_cycle_count`` to ``-1``.
+- To disable wear level check, set ``percent_battery_wear_allowed`` to ``-1``.
 """
 
 import unittest

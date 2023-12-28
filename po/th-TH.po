@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-18 10:19+UTC\n"
+"PO-Revision-Date: 2023-12-29 16:26+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3562,6 +3562,54 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Generic Audio Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "Probe Battery"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Basic Cycle Count At Most 5"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Capacity"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Battery Capacity Between 4000 And 5000"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge 10 Percent More In 5 Minutes"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge To 75"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Blocking Charge To Cut Off Setting"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charge Discharge Current Difference"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charge Discharge Current Expect No Charge When Charging"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "USB TypeC"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Charger 15V In Port 0"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery_examples.test_list.json
+msgid "Generic Battery Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_camera.test_list.json
