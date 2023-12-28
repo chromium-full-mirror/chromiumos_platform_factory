@@ -70,8 +70,7 @@ class AudioCodecConverterTest(ConverterTestCase):
           description: "The probed kernel name of audio codec comp."
           value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertCountEqual(actual.parameter_definitions,
-                          expect.parameter_definitions)
+    self.assertEqual(actual, expect)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -160,17 +159,16 @@ class BatteryConverterTest(ConverterTestCase):
         name: "battery.generic_battery"
         description: "Read battery information from sysfs."
         parameter_definitions {
-          name: "manufacturer"
-          description: "Manufacturer name exposed from the ACPI interface."
-          value_type: STRING
-        }
-        parameter_definitions {
           name: "model_name"
           description: "Model name exposed from the EC or the ACPI interface."
           value_type: STRING
+        }
+        parameter_definitions {
+          name: "manufacturer"
+          description: "Manufacturer name exposed from the ACPI interface."
+          value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
-    self.assertCountEqual(actual.parameter_definitions,
-                          expect.parameter_definitions)
+    self.assertEqual(actual, expect)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1951,6 +1949,262 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
     ]
 
     self.assertCountEqual(actual, expected_probe_params)
+
+
+class WirelessConverterTest(ConverterTestCase):
+
+  def setUp(self):
+    self._pci_converter = _GetConverter('wireless.pci_wireless_network')
+    self._sdio_converter = _GetConverter('wireless.sdio_wireless_network')
+    self.assertIsNotNone(self._pci_converter)
+    self.assertIsNotNone(self._sdio_converter)
+
+  def testGenerateDefinition_PCI(self):
+    actual = self._pci_converter.GenerateDefinition()
+
+    expect = text_format.Parse(
+        '''
+        name: "wireless.pci_wireless_network"
+        description:
+          "A method that tries various of way to detect the wireless component."
+        parameter_definitions {
+          name: "wifi_probe_attributes"
+          description: "Joined probe attributes."
+          value_type: STRING
+        }
+    ''', probe_info_analytics.ProbeFunctionDefinition())
+    self.assertEqual(actual, expect)
+
+  def testGenerateDefinition_SDIO(self):
+    actual = self._sdio_converter.GenerateDefinition()
+
+    expect = text_format.Parse(
+        '''
+        name: "wireless.sdio_wireless_network"
+        description:
+          "A method that tries various of way to detect the wireless component."
+        parameter_definitions {
+          name: "wifi_probe_attributes"
+          description: "Joined probe attributes."
+          value_type: STRING
+        }
+    ''', probe_info_analytics.ProbeFunctionDefinition())
+    self.assertEqual(actual, expect)
+
+  def testParseProbeParam_AllAttrsProvided(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678, 0x90ab'),
+    ]
+
+    actual = self._pci_converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'comp_name', {
+                'eval': {
+                    'wireless_network': {}
+                },
+                'expect': {
+                    'pci_vendor_id': [True, 'hex', '!eq 0x1234'],
+                    'pci_device_id': [True, 'hex', '!eq 0x5678'],
+                    'pci_subsystem': [True, 'hex', '!eq 0x90AB'],
+                }
+            })
+    ]
+    self.assertCountEqual(actual.output, expected_probe_statements)
+
+  def testParseProbeParam_WithoutSubsystem_PCI(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678'),
+    ]
+
+    actual = self._pci_converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'comp_name', {
+                'eval': {
+                    'wireless_network': {}
+                },
+                'expect': {
+                    'pci_vendor_id': [True, 'hex', '!eq 0x1234'],
+                    'pci_device_id': [True, 'hex', '!eq 0x5678'],
+                },
+            })
+    ]
+    self.assertCountEqual(actual.output, expected_probe_statements)
+
+  def testParseProbeParam_WithoutSubsystem_SDIO(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678'),
+    ]
+
+    actual = self._sdio_converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'comp_name', {
+                'eval': {
+                    'wireless_network': {}
+                },
+                'expect': {
+                    'sdio_vendor_id': [True, 'hex', '!eq 0x1234'],
+                    'sdio_device_id': [True, 'hex', '!eq 0x5678'],
+                },
+            })
+    ]
+    self.assertCountEqual(actual.output, expected_probe_statements)
+
+  def testParseProbeResult_CanGenerateProbeParameter_PCI(self):
+    probe_result = {
+        'wireless': [{
+            'pci_vendor_id': '0xab12',
+            'pci_device_id': '0xcd34',
+            'pci_subsystem': '0xef56',
+        }]
+    }
+
+    actual = self._pci_converter.ParseProbeResult(probe_result)
+
+    expected_probe_parameters = [
+        analyzers.ParsedProbeParameter(
+            'wireless',
+            _CreateStrProbeParam('wifi_probe_attributes',
+                                 '0xab12, 0xcd34, 0xef56')),
+    ]
+    self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testParseProbeResult_CanGenerateProbeParameter_SDIO(self):
+    probe_result = {
+        'wireless': [{
+            'sdio_vendor_id': '0xab12',
+            'sdio_device_id': '0xcd34',
+        }]
+    }
+
+    actual = self._sdio_converter.ParseProbeResult(probe_result)
+
+    expected_probe_parameters = [
+        analyzers.ParsedProbeParameter(
+            'wireless',
+            _CreateStrProbeParam('wifi_probe_attributes', '0xab12, 0xcd34')),
+    ]
+    self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testGetNormalizedProbeParams_PCI(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+
+    actual = self._pci_converter.GetNormalizedProbeParams(probe_params)
+
+    expected_probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    self.assertCountEqual(actual, expected_probe_params)
+
+  def testGetNormalizedProbeParams_SDIO(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+
+    actual = self._sdio_converter.GetNormalizedProbeParams(probe_params)
+
+    expected_probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    self.assertCountEqual(actual, expected_probe_params)
+
+  def testMatchProbeResult_PCI_Pass(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    probe_result = {
+        'wireless': [{
+            'pci_vendor_id': '0x11aa',
+            'pci_device_id': '0x22bb',
+            'pci_subsystem': '0x33cc',
+        }],
+    }
+    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)
+
+    actual = self._pci_converter.MatchProbeResult(probe_params,
+                                                  parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult({})
+    self.assertEqual(actual, expected_match_result)
+
+  def testMatchProbeResult_PCI_Fail(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    probe_result = {
+        'wireless': [{
+            'pci_vendor_id': '0x11aa',
+            'pci_device_id': '0x22bb',
+            'pci_subsystem': '0x33cd',
+        }],
+    }
+    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)
+
+    actual = self._pci_converter.MatchProbeResult(probe_params,
+                                                  parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult(
+        {'wifi_probe_attributes': 'wireless'})
+    self.assertEqual(actual, expected_match_result)
+
+  def testMatchProbeResult_SDIO_Pass(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    probe_result = {
+        'wireless': [{
+            'sdio_vendor_id': '0x44dd',
+            'sdio_device_id': '0x55ee',
+        }],
+    }
+    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)
+
+    actual = self._sdio_converter.MatchProbeResult(probe_params,
+                                                   parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult({})
+    self.assertEqual(actual, expected_match_result)
+
+  def testMatchProbeResult_SDIO_Fail(self):
+    probe_params = [
+        _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
+        _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
+    ]
+    probe_result = {
+        'wireless': [{
+            'sdio_vendor_id': '0x44dd',
+            'sdio_device_id': '0x66ff',
+        }],
+    }
+    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)
+
+    actual = self._sdio_converter.MatchProbeResult(probe_params,
+                                                   parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult(
+        {'wifi_probe_attributes': 'wireless'})
+    self.assertEqual(actual, expected_match_result)
+
 
 if __name__ == '__main__':
   unittest.main()

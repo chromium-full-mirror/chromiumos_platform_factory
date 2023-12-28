@@ -8,6 +8,7 @@ import abc
 import binascii
 import collections
 import copy
+import enum
 import functools
 import itertools
 import re
@@ -1148,6 +1149,24 @@ def _StringToRegexpOrString(value):
   return value
 
 
+class _WirelessAttr(enum.IntEnum):
+  VENDOR_ID = 0
+  DEVICE_ID = 1
+  SUBSYSTEM = 2
+
+
+class _WirelessPCIEJoinedAttrs:
+
+  _ATTR_SEPARATOR = ', '
+
+  def __init__(self, idx: _WirelessAttr):
+    self._idx = idx
+
+  def __call__(self, value: str) -> str:
+    sp = value.split(self._ATTR_SEPARATOR, self._idx + 1)
+    return sp[self._idx] if len(sp) > self._idx else ''
+
+
 def _BuildCPUProbeStatementConverter() -> _IBidirectionalProbeInfoConverter:
   builder = probe_config_types.ProbeStatementDefinitionBuilder('cpu')
   builder.AddProbeFunction(
@@ -1404,6 +1423,177 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
     return []
 
 
+class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
+  """A converter for the wireless probe function."""
+
+  _RUNTIME_PROBE_CATEGORY = 'wireless'
+  _PROBE_FUNCTION_NAME = 'wireless_network'
+  _JOINED_ATTR_NAME = 'wifi_probe_attributes'
+  _PCI_INTERFACE = 'pci'
+  _SDIO_INTERFACE = 'sdio'
+
+  def __init__(
+      self,
+      hardware_interface: str,
+      attribute_names: Sequence[str],
+      allow_missing_params: bool,
+  ):
+    if hardware_interface not in (self._PCI_INTERFACE, self._SDIO_INTERFACE):
+      raise ValueError('Invalid hardware interface')
+    self._hardware_interface = hardware_interface
+    self._allow_missing_params = allow_missing_params
+    super().__init__(
+        ps_generator=probe_config_definition.GetProbeStatementDefinition(
+            self._RUNTIME_PROBE_CATEGORY),
+        probe_function_name=self._PROBE_FUNCTION_NAME,
+        converter_name=(f'{self._RUNTIME_PROBE_CATEGORY}.'
+                        f'{self._hardware_interface}_'
+                        f'{self._PROBE_FUNCTION_NAME}'),
+        probe_params=[
+            _ProbeFunctionParam(
+                f'{hardware_interface}_{attribute_name}',
+                value_converter=_ParamValueConverter(
+                    'string', _RemoveHexPrefixAndCapitalize,
+                    _AddHexPrefixIfNotExistAndLowerize))
+            for attribute_name in attribute_names
+        ],
+    )
+
+  @functools.cached_property
+  def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
+    return {
+        self._JOINED_ATTR_NAME:
+            _SingleProbeStatementParam(
+                param_name=self._JOINED_ATTR_NAME,
+                value_converter=_ParamValueConverter('string'),
+                description='Joined probe attributes.',
+            ),
+    }
+
+  def CollectExpectedFields(
+      self,
+      probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
+      allow_missing_params: bool,
+      comp_name_for_probe_statement: Optional[str],
+  ) -> Sequence[Mapping[str, Any]]:
+    del allow_missing_params
+    ps_expected_fields = []
+    for sub_probe_param_inputs in self.ConvertToMultipleProbeParamInputs(
+        probe_param_inputs[self._JOINED_ATTR_NAME]):
+      try:
+        expected_values_of_field, probe_param_errors = (
+            ConvertProbeParamInputsToProbeStatementValues(
+                self.probe_params,
+                sub_probe_param_inputs,
+                self._allow_missing_params,
+            ))
+      except _IncompatibleError:
+        continue
+
+      if probe_param_errors:
+        raise _ProbeParameterError(probe_param_errors) from None
+
+      if comp_name_for_probe_statement:
+        field_names = tuple(expected_values_of_field)
+        field_values_combinations = itertools.product(
+            *expected_values_of_field.values())
+        ps_expected_fields.extend(
+            dict(zip(field_names, field_values))
+            for field_values in field_values_combinations)
+    return ps_expected_fields
+
+  def ConvertToMultipleProbeParamInputs(
+      self,
+      probe_param_inputs: Sequence[_ProbeParamInput],
+  ) -> Collection[Mapping[str, Sequence[_ProbeParamInput]]]:
+    probe_param_input_list = []
+    vendor_converter = _WirelessPCIEJoinedAttrs(_WirelessAttr.VENDOR_ID)
+    device_converter = _WirelessPCIEJoinedAttrs(_WirelessAttr.DEVICE_ID)
+    subsystem_converter = _WirelessPCIEJoinedAttrs(_WirelessAttr.SUBSYSTEM)
+
+    for probe_param_input in probe_param_inputs:
+      joined_attr = probe_param_input.raw_value.string_value
+      vendor = vendor_converter(joined_attr)
+      device = device_converter(joined_attr)
+      subsystem = subsystem_converter(joined_attr)
+
+      converted = {
+          f'{self._hardware_interface}_vendor_id': [
+              _ProbeParamInput(
+                  index=probe_param_input.index,
+                  raw_value=_ProbeParameter(
+                      name=f'{self._hardware_interface}_vendor_id',
+                      string_value=vendor,
+                  ),
+              )
+          ],
+          f'{self._hardware_interface}_device_id': [
+              _ProbeParamInput(
+                  index=probe_param_input.index,
+                  raw_value=_ProbeParameter(
+                      name=f'{self._hardware_interface}_device_id',
+                      string_value=device,
+                  ),
+              )
+          ],
+      }
+      if subsystem:
+        if self._hardware_interface != self._PCI_INTERFACE:
+          raise _IncompatibleError(
+              f'{self._hardware_interface} does not have subsystem attribute')
+        converted[f'{self._hardware_interface}_subsystem'] = [
+            _ProbeParamInput(
+                index=probe_param_input.index,
+                raw_value=_ProbeParameter(
+                    name=f'{self._hardware_interface}_subsystem',
+                    string_value=subsystem,
+                ),
+            )
+        ]
+      probe_param_input_list.append(converted)
+    return probe_param_input_list
+
+  def ParseProbeResult(
+      self, probe_result: Mapping[str, Sequence[Mapping[str, str]]]
+  ) -> Sequence[_ParsedProbeParameter]:
+    """See base class."""
+    category_probe_result = probe_result.get(self._ps_generator.category_name,
+                                             [])
+    parsed_results = []
+    for probe_values in category_probe_result:
+      collected = {}
+      for param in self.probe_params:
+        try:
+          converted_params = param.ConvertProbeValues(probe_values)
+        except _IncompatibleError:
+          break
+        # _SingleProbeStatementParam will return single value.
+        converted = converted_params[0]
+        collected[converted.name] = converted.string_value
+      else:
+        vendor_id = collected.get(f'{self._hardware_interface}_vendor_id')
+        device_id = collected.get(f'{self._hardware_interface}_device_id')
+        subsystem = collected.get(f'{self._hardware_interface}_subsystem')
+        if vendor_id is None or device_id is None:
+          continue
+        if subsystem is not None:
+          parsed_results.append(
+              _ParsedProbeParameter(
+                  self._ps_generator.category_name,
+                  _ProbeParameter(
+                      name=self._JOINED_ATTR_NAME,
+                      string_value=f'{vendor_id}, {device_id}, {subsystem}'),
+              ))
+        else:
+          parsed_results.append(
+              _ParsedProbeParameter(
+                  self._ps_generator.category_name,
+                  _ProbeParameter(name=self._JOINED_ATTR_NAME,
+                                  string_value=f'{vendor_id}, {device_id}'),
+              ))
+    return parsed_results
+
+
 def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
   # TODO(yhong): Separate the data piece out the code logic.
   return [
@@ -1522,4 +1712,14 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
       _BuildCPUProbeStatementConverter(),
       BuildTouchscreenModuleConverter(),
       MMCWithBridgeProbeStatementConverter(),
+      WirelessProbeInfoConverter(
+          hardware_interface='pci',
+          attribute_names=['vendor_id', 'device_id', 'subsystem'],
+          allow_missing_params=True,
+      ),
+      WirelessProbeInfoConverter(
+          hardware_interface='sdio',
+          attribute_names=['vendor_id', 'device_id'],
+          allow_missing_params=False,
+      ),
   ]
