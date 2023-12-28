@@ -3,7 +3,6 @@
 # found in the LICENSE file.
 
 
-import abc
 import logging
 import threading
 
@@ -13,7 +12,9 @@ from cros.factory.utils import process_utils
 from cros.factory.utils import type_utils
 
 
-class AbstractPeriodicPlugin(plugin.Plugin, abc.ABC):
+# This abstract class does not inherit from abc.ABC because of the use of
+# type_utils.Overrides.
+class AbstractPeriodicPlugin(plugin.Plugin):
   """Plugins that runs specific task periodically.
 
   A common implementation of `cros.factory.goofy.plugins` that run a specific
@@ -56,7 +57,6 @@ class AbstractPeriodicPlugin(plugin.Plugin, abc.ABC):
       self._run_task()
       self._run_times += 1
 
-  @abc.abstractmethod
   def RunTask(self):
     """Called periodically
 
