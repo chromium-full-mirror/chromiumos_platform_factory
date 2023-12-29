@@ -10,6 +10,13 @@ It runs for a particular number of cycles or number of hours and records,
 cycling the battery between a minimum charge (e.g., 5%) and a maximum
 charge (e.g., 95%).  Cycle times are logged to event logs.
 
+Internal references
+^^^^^^^^^^^^^^^^^^^
+
+- https://chromeos.google.com/partner/dlm/docs/component-qual/index.html. See
+  the "Power" section -> "Battery_Qualification Test Plan" ->
+  "Battery Recharge Cycle Test".
+
 Test Procedure
 --------------
 This is an automatic test that doesn't need any user interaction.
@@ -229,11 +236,13 @@ class BatteryCycleTest(test_case.TestCase):
               if elapsed_time else '\u221e', id=elt_id)
         self.ui.SetHTML(f'{self.dut.power.GetChargePct(get_float=True):.2f}%',
                         id='bc-charge')
-        time_cost = self.args.charge_threshold_secs - int(
-            round(now - first_done_time[0]))
-        self.ui.SetHTML(
-            f'(complete in {time_cost} s)' if first_done_time[0] else '',
-            id='bc-phase-complete')
+        if first_done_time[0] is None:
+          message = ''
+        else:
+          time_cost = self.args.charge_threshold_secs - int(
+              round(now - first_done_time[0]))
+          message = f'(complete in {time_cost} s)'
+        self.ui.SetHTML(message, id='bc-phase-complete')
 
         self.Sleep(self.args.idle_time_secs)
 
