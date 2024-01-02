@@ -24,14 +24,11 @@ Dependency
 
 Examples
 --------
-An example::
+An example:
 
-  {
-    "pytest_name": "brightness.lcd_backlight",
-    "args": {
-      "levels": [0.2, 0.4, 0.6, 0.8, 1.0]
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:BrightnessLCDBacklight
 
 """
 

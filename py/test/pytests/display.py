@@ -59,68 +59,31 @@ Each item of ``items`` is either:
 
 Examples
 --------
-To test display functionality, add this into test list::
+To test display functionality, add this into test list:
 
-  {
-    "pytest_name": "display"
-  }
+.. test_list::
+
+  generic_display_panel_examples:Display
 
 To test display functionality, show gray image, idle for an hour and pass, add
-this into test list::
+this into test list:
 
-  {
-    "pytest_name": "display",
-    "args": {
-      "items": ["solid-gray-127"],
-      "idle_timeout": 3600
-    }
-  }
+.. test_list::
 
-To test images with symptoms, add this into test list::
+  generic_display_panel_examples:DisplayGrayForAnHour
 
-  {
-    "pytest_name": "display",
-    "args": {
-      "items": [
-        "image-complex.bmp",
-        "solid-red",
-        "hex-color-#afafaf"
-      ],
-      "symptoms": [
-        "Symptom1",
-        "Symptom2",
-        "Dark Dots",
-        "Light Leakage",
-        "Others"
-      ]
-    }
-  }
+To test images with symptoms, add this into test list:
+
+.. test_list::
+
+  generic_display_panel_examples:FrontOfScreenTestSymptom
 
 To test display functionality, and show some more images, add this into test
-list::
+list:
 
-  {
-    "pytest_name": "display",
-    "args": {
-      "items": [
-        "grid",
-        "rectangle",
-        "gradient-red",
-        "image-complex.bmp",
-        "image-black.bmp",
-        "image-white.bmp",
-        "image-crosstalk-black.bmp",
-        "image-crosstalk-white.bmp",
-        "image-gray-63.bmp",
-        "image-gray-127.bmp",
-        "image-gray-170.bmp",
-        "image-horizontal-rgbw.bmp",
-        "image-vertical-rgbw.bmp",
-        "hex-color-#afafaf"
-        "hex-color-#abc"
-      ]
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:FrontOfScreenTestMoreImages
 
 Default images in compressed file ``test_images.tar.bz2``::
 

@@ -147,9 +147,6 @@
         "include_parents": true
       }
     },
-    "Backlight": {
-      "pytest_name": "backlight"
-    },
     "BadBlocks": {
       "pytest_name": "bad_blocks",
       "__comment": "When run alone, this takes ~.5s/MiB (for four passes).  We'll do a gigabyte, which takes about 9 minutes.",
@@ -436,18 +433,6 @@
       "args": {
         "commands": "ectool forcelidopen 1"
       }
-    },
-    "Display": {
-      "pytest_name": "display"
-    },
-    "DisplayPoint": {
-      "pytest_name": "display_point",
-      "args": {
-        "max_point_count": 5
-      }
-    },
-    "EDPPanelTiming": {
-      "pytest_name": "edp_panel_timing"
     },
     "EnableECWriteProtect": {
       "inherit": "TestGroup",

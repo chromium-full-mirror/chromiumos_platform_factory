@@ -27,16 +27,17 @@ This is an automated test without user interaction.
 Dependency
 ----------
 - cros.factory.device.device_utils
-  - cros.factory.utils.sys_interface.Glob
-  - cros.factory.utils.sys_interface.ReadFile
+- cros.factory.utils.sys_interface.Glob
+- cros.factory.utils.sys_interface.ReadFile
 
 Examples
 --------
-To test the eDP::
+To test the eDP:
 
-  {
-    "pytest_name": "edp_panel_timing"
-  }
+.. test_list::
+
+  generic_display_panel_examples:EDPPanelTiming
+
 """
 
 import os

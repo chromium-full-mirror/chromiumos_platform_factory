@@ -21,14 +21,11 @@ Dependency
 
 Examples
 --------
-Turn privacy screen on and then validate state::
+Turn privacy screen on and then validate state:
 
-  {
-    "pytest_name": "privacy_screen",
-    "args": {
-      "target_state": "on"
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:PrivacyScreen
 
 Argument ``target_state`` is required and must be either ``on`` or ``off``.
 """

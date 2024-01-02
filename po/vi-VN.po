@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-05 14:53+CST\n"
+"PO-Revision-Date: 2024-01-09 18:21+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -4015,6 +4015,38 @@ msgstr "Viết RMA HWID"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write Test HWID"
 msgstr "Viết Test HWID"
+
+#: ../py/test/test_lists/generic_display_panel.test_list.json
+msgid "Probe Display Panel"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Backlight (Smaller Adjust Level)"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Display Gray For An Hour"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Enter Front Of Screen Test Interactive Mode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Front Of Screen Test (More Images)"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Front Of Screen Test Station"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Front Of Screen Test (Symptom mode)"
+msgstr ""
+
+#: ../py/test/test_lists/generic_display_panel_examples.test_list.json
+msgid "Generic Display Panel Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/generic_fat.test_list.json
 msgid "FAT (Final Assembly Test)"

@@ -1,0 +1,119 @@
+{
+  "__comment": "Examples for testing display_panel components. display_panel is called \"Display Panel\" in AVL.",
+  "inherit": [
+    "generic_display_panel.test_list"
+  ],
+  "label": "Generic Display Panel Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "BacklightSmallerAdjustLevel": {
+      "inherit": "Backlight",
+      "label": "Backlight (Smaller Adjust Level)",
+      "args": {
+        "adjust_level": 0.02
+      }
+    },
+    "BrightnessLCDBacklight": {
+      "pytest_name": "brightness.lcd_backlight",
+      "args": {
+        "levels": [
+          0.2,
+          0.4,
+          0.6,
+          0.8,
+          1.0
+        ]
+      }
+    },
+    "DisplayGrayForAnHour": {
+      "pytest_name": "display",
+      "label": "Display Gray For An Hour",
+      "args": {
+        "items": [
+          "solid-gray-127"
+        ],
+        "idle_timeout": 3600
+      }
+    },
+    "EnterFrontOfScreenTestInteractiveMode": {
+      "pytest_name": "display_interactive.display_interactive",
+      "label": "Enter Front Of Screen Test Interactive Mode",
+      "args": {
+        "port": 5566,
+        "autostart": true
+      }
+    },
+    "FrontOfScreenTestMoreImages": {
+      "pytest_name": "display",
+      "label": "Front Of Screen Test (More Images)",
+      "args": {
+        "items": [
+          "grid",
+          "rectangle",
+          "gradient-red",
+          "image-complex.bmp",
+          "image-black.bmp",
+          "image-white.bmp",
+          "image-crosstalk-black.bmp",
+          "image-crosstalk-white.bmp",
+          "image-gray-63.bmp",
+          "image-gray-127.bmp",
+          "image-gray-170.bmp",
+          "image-horizontal-rgbw.bmp",
+          "image-vertical-rgbw.bmp",
+          "hex-color-#afafaf",
+          "hex-color-#abc"
+        ]
+      }
+    },
+    "FrontOfScreenTestStation": {
+      "pytest_name": "display_images",
+      "label": "Front Of Screen Test Station",
+      "args": {
+        "compressed_image_file": "display_images.tar.gz"
+      }
+    },
+    "FrontOfScreenTestSymptom": {
+      "pytest_name": "display",
+      "label": "Front Of Screen Test (Symptom mode)",
+      "args": {
+        "items": [
+          "image-complex.bmp",
+          "solid-red",
+          "hex-color-#afafaf"
+        ],
+        "symptoms": [
+          "Symptom1",
+          "Symptom2",
+          "Dark Dots",
+          "Light Leakage",
+          "Others"
+        ]
+      }
+    },
+    "PrivacyScreen": {
+      "pytest_name": "privacy_screen",
+      "args": {
+        "target_state": "on"
+      }
+    }
+  },
+  "tests": [
+    "ProbeDisplayPanel",
+    "Backlight",
+    "BacklightSmallerAdjustLevel",
+    "BrightnessLCDBacklight",
+    "Display",
+    "DisplayGrayForAnHour",
+    "EnterFrontOfScreenTestInteractiveMode",
+    "FrontOfScreenTestSymptom",
+    "FrontOfScreenTestMoreImages",
+    "FrontOfScreenTestStation",
+    "DisplayPoint",
+    "EDPPanelTiming",
+    "PrivacyScreen"
+  ]
+}

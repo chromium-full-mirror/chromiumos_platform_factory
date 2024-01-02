@@ -42,15 +42,11 @@ Dependency
 
 Examples
 --------
-To test display functionality, add this into test list::
+To test display functionality, add this into test list:
 
-  {
-    "pytest_name": "display_interactive.display_interactive",
-    "args": {
-      "port": 5566,
-      "autostart": true
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:EnterFrontOfScreenTestInteractiveMode
 
 """
 

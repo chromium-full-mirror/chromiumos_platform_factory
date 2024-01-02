@@ -24,15 +24,11 @@ Dependency
 
 Examples
 --------
-Sample test_list entry::
+Sample test_list entry:
 
-  {
-    "pytest_name": "display_point",
-    "args": {
-      "point_size": 3.0,
-      "max_point_count": 5
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:DisplayPoint
 
 """
 

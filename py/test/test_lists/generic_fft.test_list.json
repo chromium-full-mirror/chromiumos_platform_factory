@@ -2,6 +2,7 @@
   "inherit": [
     "generic_audio.test_list",
     "generic_camera.test_list",
+    "generic_display_panel.test_list",
     "generic_wireless.test_list",
     "generic_common.test_list"
   ],

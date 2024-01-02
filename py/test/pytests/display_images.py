@@ -35,14 +35,11 @@ Dependency
 
 Examples
 --------
-Sample test_list entry::
+To test display on remote DUT:
 
-  {
-    "pytest_name": "display_images",
-    "args": {
-      "compressed_image_file": "display_images.tar.gz"
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:FrontOfScreenTestStation
 
 """
 

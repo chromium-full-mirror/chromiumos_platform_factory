@@ -26,21 +26,19 @@ Device API `display.SetBacklightBrightness`.
 
 Examples
 --------
-To test display backlight functionality, add this into test list::
+To test display backlight functionality, add this into test list:
 
-  {
-    "pytest_name": "backlight"
-  }
+.. test_list::
+
+  generic_display_panel_examples:Backlight
 
 To test display backlight functionality, and have a smaller change on each
-space pressed, add this into test list::
+space pressed, add this into test list:
 
-  {
-    "pytest_name": "backlight",
-    "args": {
-      "adjust_level": 0.02
-    }
-  }
+.. test_list::
+
+  generic_display_panel_examples:BacklightSmallerAdjustLevel
+
 """
 
 import logging
