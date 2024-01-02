@@ -192,7 +192,7 @@ def GenerateTestDocs(
   args = getattr(test_case_type, 'ARGS', [])
 
   try:
-    related_components = cast(Tuple[test_case.TestCategory],
+    related_components = cast(Sequence[test_case.TestCategory],
                               getattr(test_case_type, 'related_components'))
   except AttributeError as err:
     raise GenerateRstError(
