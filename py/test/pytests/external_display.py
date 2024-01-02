@@ -147,7 +147,7 @@ from typing import Any, Dict, List, Optional
 from cros.factory.device import device_types
 from cros.factory.device import device_utils
 from cros.factory.device import usb_c
-from cros.factory.goofy.plugins import display_manager
+from cros.factory.goofy.plugins.display_manager import display_manager
 from cros.factory.goofy.plugins import plugin_controller
 from cros.factory.probe.functions import edid
 from cros.factory.test.fixture import bft_fixture
@@ -446,7 +446,7 @@ class ExtDisplayTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._display_manager: display_manager.DisplayManager = (
-        plugin_controller.GetPluginRPCProxy('display_manager'))
+        plugin_controller.GetPluginRPCProxy('display_manager.display_manager'))
 
     self._fixture = None
     if self.args.bft_fixture:

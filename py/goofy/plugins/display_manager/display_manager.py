@@ -4,10 +4,13 @@
 
 import enum
 import logging
+import pathlib
 from typing import Any, Dict, List, Optional
 
+from cros.factory.device import device_utils
 from cros.factory.goofy import goofy_rpc
 from cros.factory.goofy.plugins import plugin
+from cros.factory.test import event
 from cros.factory.test import state
 from cros.factory.utils import sync_utils
 from cros.factory.utils import type_utils
@@ -158,3 +161,32 @@ class DisplayManager(plugin.Plugin):
 
     display_id: str = display_info[0]['id']
     server_proxy.DeviceSetDisplayProperties(display_id, {"rotation": degree})
+
+  @plugin.RPCFunction
+  def DisplayImageUrl(self, image_url: str):
+    """Displays an image at image_url."""
+    event.PostNewEvent(event.Event.Type.UPDATE_DISPLAY_MANAGER,
+                       imageUrl=image_url)
+
+  @plugin.RPCFunction
+  def DisplayImageOnFilesystem(self, image_path: str):
+    """Displays an image at image_path."""
+    if not image_path:
+      self.DisplayImageUrl('')
+      return
+
+    if self.static_dir is None:
+      raise RuntimeError(
+          f'Fail to add {image_path!r} to goofy_server: static dir is None')
+
+    dut = device_utils.CreateDUTInterface()
+    if not dut.path.exists(image_path):
+      raise FileNotFoundError(f'{image_path!r} is not found on the device.')
+
+    dut.CheckCall(['cp', image_path, self.static_dir])
+    self.DisplayImageUrl(
+        image_url=f'{self.url_base_path}/{pathlib.Path(image_path).name}')
+
+  @type_utils.Overrides
+  def GetUILocation(self):
+    return 'display'

@@ -85,7 +85,7 @@
         "content": "Hello ChromeOS!"
       }
     },
-    "display_manager": {
+    "display_manager.display_manager": {
       "args": {
         "mirror_mode": true
       }

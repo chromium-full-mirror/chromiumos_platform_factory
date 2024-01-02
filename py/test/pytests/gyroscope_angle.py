@@ -48,7 +48,7 @@ import time
 
 from cros.factory.device import device_utils
 from cros.factory.device import gyroscope
-from cros.factory.goofy.plugins import display_manager
+from cros.factory.goofy.plugins.display_manager import display_manager
 from cros.factory.goofy.plugins import plugin_controller
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
@@ -94,7 +94,7 @@ class Gyroscope(test_case.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
     self._display_manager: display_manager.DisplayManager = (
-        plugin_controller.GetPluginRPCProxy('display_manager'))
+        plugin_controller.GetPluginRPCProxy('display_manager.display_manager'))
 
     self.gyroscope = self.dut.gyroscope.GetController(
         location=self.args.location, gyro_id=self.args.gyro_id,

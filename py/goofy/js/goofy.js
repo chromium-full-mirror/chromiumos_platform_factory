@@ -3294,6 +3294,18 @@ cros.factory.Goofy = class {
             message.facingMode, message.enable, message.hidden);
         break;
       }
+      case 'goofy:update_display_manager': {
+        const message =
+            /**
+             * @type {{imageUrl: string}}*/
+              (untypedMessage);
+        const logMessage = `display_manager: imageUrl: ${message.imageUrl}`;
+        this.logToConsole(logMessage);
+        const iframe = document.getElementById(
+            'display_manager-display_manager-iframe');
+        iframe.contentWindow['updateDisplay'](message.imageUrl);
+        break;
+      }
       case 'goofy:update_qrcode': {
         const message =
            /** @type {{args: !Object}} */(

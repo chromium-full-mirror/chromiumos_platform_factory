@@ -434,20 +434,26 @@ table + .goofy-history-header {
 .goofy-plugin iframe {
   height: 100%; width: 100%;
 }
+/* For plugin `display_manager` */
+#goofy-plugin-area-display {
+  position: fixed;
+  height: 100%; width: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
 /* For plugin `camera_manager` */
 #goofy-plugin-area-camera {
   display: flex;
   position: fixed;
   height: 100%; width: 100%;
-  z-index: 3;
+  z-index: 5;
   pointer-events: none;
 }
 /* For plugin `qrcode_manager` */
 #goofy-plugin-area-goofy-fullscreen {
   position: fixed;
   height: 100%; width: 100%;
-  /* Set z-index to 4 so that it is not covered by test-ui.*/
-  z-index: 4;
+  z-index: 6;
   pointer-events: none;
 }
 /* For plugin `status_monitor` */
@@ -729,7 +735,7 @@ table + .goofy-history-header {
   position: fixed;
   top: 15%;
   left: 25%;
-  z-index: 5;
+  z-index: 7;
   float: left;
   border: 5px solid #eee;
   box-shadow: 0px 0px 20px 5px rgba(0,0,0,0.8);

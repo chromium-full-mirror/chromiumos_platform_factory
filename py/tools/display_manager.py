@@ -13,7 +13,7 @@ import argparse
 import sys
 from typing import Optional
 
-from cros.factory.goofy.plugins import display_manager
+from cros.factory.goofy.plugins.display_manager import display_manager
 from cros.factory.goofy.plugins import plugin_controller
 from cros.factory.utils import json_utils
 
@@ -33,6 +33,15 @@ EXAMPLES = """Examples:
 
 > display_manager --dut-ip 192.168.30.100 list
   List all display with ip 192.168.30.100.
+
+> display_manager display --image-url https://material.angular.io/assets/img/examples/shiba2.jpg
+  Display the url in the goofy UI.
+
+> display_manager display --image-path /usr/share/chromeos-assets/animated_splash_screen/oobe_wallpaper.jpg
+  Display the image in the goofy UI.
+
+> display_manager display
+  Stop displaying the image in the goofy UI.
 """
 TIMEOUT_DESCRIPTION = (
     'maximum number of seconds to wait, -1 means nonblocking.')
@@ -67,6 +76,24 @@ def SetInternalDisplayRotation(manager: display_manager.DisplayManager,
                                degree: int, **unused_kwargs):
   """Sets internal display rotation."""
   manager.SetInternalDisplayRotation(degree=degree)
+
+
+def Display(manager: display_manager.DisplayManager, image_url: str,
+            image_path: str, **unused_kwargs):
+  """Displays the image in the goofy UI.
+
+  Stops displaying if both image_url and image_path are not specified.
+
+  Note that your DUT must be able to access the url. Otherwise, it shows
+  nothing.
+
+  Note that the command looks for the file on the DUT. You must copy the file to
+  the DUT first if you want to run this on a remote device by using --dut-ip.
+  """
+  if not image_path:
+    manager.DisplayImageUrl(image_url=image_url)
+  else:
+    manager.DisplayImageOnFilesystem(image_path=image_path)
 
 
 def ParseArgument():
@@ -107,16 +134,20 @@ def ParseArgument():
   subparser.set_defaults(subcommand=SetInternalDisplayRotation)
   subparser.add_argument('--degree', type=int)
 
+  subparser = subparsers.add_parser('display', help=Display.__doc__)
+  subparser.set_defaults(subcommand=Display)
+  subparser.add_argument('--image-url', type=str, default='')
+  subparser.add_argument('--image-path', type=str, default='')
+
   return parser.parse_args()
 
 
-def main():
+def main() -> None:
   args = ParseArgument()
 
-  plugin_name = 'display_manager'
   manager: display_manager.DisplayManager = (
-      plugin_controller.GetPluginRPCProxy(plugin_name, args.dut_ip,
-                                          args.dut_port))
+      plugin_controller.GetPluginRPCProxy('display_manager.display_manager',
+                                          args.dut_ip, args.dut_port))
 
   args.subcommand(manager, **args.__dict__)
 

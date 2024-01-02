@@ -68,6 +68,8 @@ class Event:
     UPDATE_QRCODE = 'goofy:update_qrcode'
     # Tells goofy to update the camera manager.
     UPDATE_CAMERA_MANAGER = 'goofy:update_camera_manager'
+    # Tells goofy to update the display manager.
+    UPDATE_DISPLAY_MANAGER = 'goofy:update_display_manager'
     # The state of a test has changed.
     STATE_CHANGE = 'goofy:state_change'
     # The UI has come up.
