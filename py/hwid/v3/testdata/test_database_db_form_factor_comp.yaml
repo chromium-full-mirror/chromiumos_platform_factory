@@ -33,6 +33,7 @@ pattern:
     - storage_field: 1
     - display_panel_field: 1
     - battery_field: 1
+    - video_field: 1
 
 encoded_fields:
   mainboard_field:
@@ -51,6 +52,8 @@ encoded_fields:
     0: { battery: null }
   touchscreen_field:
     0: { touchscreen: null }
+  video_field:
+    0: { video: null }
 
 components: {}
 

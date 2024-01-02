@@ -69,6 +69,15 @@ class ContentsAnalyzerTest(unittest.TestCase):
         "Missing component 'touchscreen' for form factor 'CONVERTIBLE'.")
     self.assertIn(expected_error, report.errors)
 
+  def test_ValidateIntegrity_FormFactoryCompAlias(self):
+    db_contents = file_utils.ReadFile(DB_FORM_FACTOR_COMP_PATH)
+    inst = contents_analyzer.ContentsAnalyzer(db_contents, None, None)
+    report = inst.ValidateIntegrity(form_factor=common.FormFactor.CONVERTIBLE)
+    expected_error = contents_analyzer.Error(
+        contents_analyzer.ErrorCode.CONTENTS_ERROR,
+        "Missing component 'camera' for form factor 'CONVERTIBLE'.")
+    self.assertNotIn(expected_error, report.errors)
+
   def test_ValidateChange_GoodCompNameChange(self):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_COMP_AFTER_GOOD_PATH)

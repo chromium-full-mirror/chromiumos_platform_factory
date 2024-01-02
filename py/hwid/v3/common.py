@@ -60,21 +60,22 @@ ESSENTIAL_COMPS = (
     FirmwareComps.RO_MAIN_FIRMWARE,
     FirmwareComps.RO_EC_FIRMWARE,
     FirmwareComps.FIRMWARE_KEYS,
+    'wireless',
 )
 
 FORM_FACTOR_COMPS = {
     FormFactor.CLAMSHELL:
-        ESSENTIAL_COMPS + ('display_panel', 'battery'),
+        ESSENTIAL_COMPS + ('display_panel', 'camera', 'battery'),
     FormFactor.CONVERTIBLE:
-        ESSENTIAL_COMPS + ('display_panel', 'touchscreen', 'battery'),
+        ESSENTIAL_COMPS + ('display_panel', 'camera', 'touchscreen', 'battery'),
     FormFactor.DETACHABLE:
-        ESSENTIAL_COMPS + ('display_panel', 'touchscreen', 'battery'),
+        ESSENTIAL_COMPS + ('display_panel', 'camera', 'touchscreen', 'battery'),
     FormFactor.CHROMEBASE:
-        ESSENTIAL_COMPS + ('display_panel', ),
+        ESSENTIAL_COMPS + ('display_panel', 'camera'),
     FormFactor.CHROMEBOX:
         ESSENTIAL_COMPS,
     FormFactor.CHROMESLATE:
-        ESSENTIAL_COMPS + ('display_panel', 'touchscreen', 'battery'),
+        ESSENTIAL_COMPS + ('display_panel', 'camera', 'touchscreen', 'battery'),
 }
 
 

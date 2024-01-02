@@ -27,6 +27,9 @@ _BLOCKLIST_DRAM_TAG = set([
     'a_fake_dram_0gb',
 ])
 
+_COMP_CLS_ALIAS = {
+    'video': 'camera'
+}
 
 class ErrorCode(enum.Enum):
   """Enumerate the type of errors."""
@@ -206,6 +209,14 @@ class ContentsAnalyzer:
       return
     db_comps = db_instance.GetComponentClasses(
         image_id=db_instance.max_image_id)
+
+    # This is a workaround for checking essential component 'camera' because
+    # 'camera' is named 'video' in some old factory branches.
+    # TODO(wyuang): remove this WA when all "video" comps factory end.
+    for comp_cls, alias in _COMP_CLS_ALIAS.items():
+      if comp_cls in db_comps:
+        db_comps.add(alias)
+
     essential_comps = set(common.FORM_FACTOR_COMPS[form_factor])
     for comp_cls in essential_comps - db_comps:
       validation_report.errors.append(
