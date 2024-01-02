@@ -18,7 +18,7 @@ import socket
 import socketserver
 import struct
 import time
-from typing import Optional
+from typing import NamedTuple, Optional, Sequence
 import xmlrpc.client
 
 from cros.factory.utils import sys_interface
@@ -788,6 +788,98 @@ def GetUnusedIPV4RangeCIDR(preferred_prefix_bits=24, exclude_ip_prefix=None,
           start = (start // step + 1) * step
 
   raise RuntimeError('can not find unused IP range')
+
+
+class WiFiConnectionStatus(NamedTuple):
+  """A place holder for connection status.
+
+  Attributes:
+    signal: The current signal strength in type of `ConnectionStatus.Signal`.
+    avg_signal: The average signal strength in type of
+        `ConnectionStatus.Signal`.
+    tx_bitrate: The bitrate of the TX channel.
+    rx_bitrate: The bitrate of the RX channel.
+  """
+
+  # Mypy fails to handle valid nested named tuple, so suppress the warning to
+  # bypass the presubmit hook. See https://github.com/python/mypy/issues/5362.
+  class Signal(NamedTuple):  # type: ignore
+    """A place holder for RSSI signals.
+
+    Attributes:
+      computed: The signal strength the module sees/calculates.
+      antenna: An array of the signal strengths of the antennas.
+    """
+
+    computed: int
+    antenna: Sequence[int]
+
+  signal: Optional[Signal]  # type: ignore
+  avg_signal: Optional[Signal]  # type: ignore
+  tx_bitrate: Optional[float]
+  rx_bitrate: Optional[float]
+
+
+def _ParseSignalFromStationDumpOutputLine(
+    line: str
+    # Mypy fails to handle valid nested named tuple, so suppress the warning to
+    # bypass the presubmit hook. See https://github.com/python/mypy/issues/5362.
+) -> WiFiConnectionStatus.Signal:  # type: ignore
+  _CONN_STATUS_SIGNALS_PARSE_RE = re.compile(
+      r'[^:]*:\W*(-?\d+)(?: \[((?:-?\d+, )*(?:-?\d+))\])? dBm')
+
+  # Possible command outputs:
+  # - "  signal avg: -50 dBm"
+  # - "  signal avg: -50 [-40] dBm"
+  # - "  signal: -50 [-40, -60] dBm"
+  # - "  signal: -50 [-40, -60, -40, -60] dBm"
+  match = _CONN_STATUS_SIGNALS_PARSE_RE.fullmatch(line)
+  if not match:
+    raise ValueError(f'pattern={_CONN_STATUS_SIGNALS_PARSE_RE.pattern!r} '
+                     'does not match.')
+
+  try:
+    computed = match.group(1)
+    antenna = [] if match.group(2) is None else match.group(2).split(',')
+
+    return WiFiConnectionStatus.Signal(  # type: ignore
+        int(computed), [int(a) for a in antenna])
+  except Exception as e:
+    raise ValueError(f'unexpected signal format: {line!r}, {e!r}') from None
+
+
+def _ParseBitRateFromStationDumpOutputLine(line: str) -> float:
+  try:
+    # the command output must looks like "  tx bitrate: 400 MBit/s bla bla"
+    words = line.partition(':')[2].strip().split(' ')
+    assert words[1] == 'MBit/s'
+    return float(words[0])
+  except Exception as e:
+    raise ValueError(f'unexpected tx_bitrate format: {line!r}, {e!r}') from None
+
+
+def ParseWirelessInterfaceStationDumpOutput(
+    output: str) -> WiFiConnectionStatus:
+  _CONN_STATUS_SIGNALS_RE = re.compile(r'\s*signal:.*')
+  _CONN_STATUS_AVG_SIGNALS_RE = re.compile(r'\s*signal avg:.*')
+  _CONN_STATUS_TX_BITRATE_RE = re.compile(r'\s*tx bitrate:.*')
+  _CONN_STATUS_RX_BITRATE_RE = re.compile(r'\s*rx bitrate:.*')
+
+  signal = None
+  avg_signal = None
+  tx_bitrate = None
+  rx_bitrate = None
+  for line in output.splitlines():
+    if _CONN_STATUS_SIGNALS_RE.fullmatch(line):
+      signal = _ParseSignalFromStationDumpOutputLine(line)
+    elif _CONN_STATUS_AVG_SIGNALS_RE.fullmatch(line):
+      avg_signal = _ParseSignalFromStationDumpOutputLine(line)
+    elif _CONN_STATUS_TX_BITRATE_RE.fullmatch(line):
+      tx_bitrate = _ParseBitRateFromStationDumpOutputLine(line)
+    elif _CONN_STATUS_RX_BITRATE_RE.fullmatch(line):
+      rx_bitrate = _ParseBitRateFromStationDumpOutputLine(line)
+
+  return WiFiConnectionStatus(signal, avg_signal, tx_bitrate, rx_bitrate)
 
 
 class WLAN:

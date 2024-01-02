@@ -484,34 +484,6 @@ class WiFiChromeOS(WiFi):
     return Connection(*args, **kwargs)
 
 
-class ConnectionStatus(type_utils.Obj):
-  """A place holder for connection status.
-
-  Attributes:
-    signal: The current signal strength in type of
-        `ConnectionStatus.Signal`.
-    avg_signal: The average signal strength in type of
-        `ConnectionStatus.Signal`.
-    tx_bitrate: The bitrate of the TX channel.
-    rx_bitrate: The bitrate of the RX channel.
-  """
-  class Signal(type_utils.Obj):
-    def __init__(self, computed=None, antenna=None):
-      """A place holder for RSSI signals.
-
-      Attributes:
-        computed: The signal strength the module sees/calculates.
-        antenna: An array of the signal strengths of the antennas.
-      """
-      super().__init__(computed=computed, antenna=antenna)
-
-  def __init__(
-      self, signal=None, avg_signal=None, tx_bitrate=None, rx_bitrate=None):
-    signal = signal or self.Signal()
-    avg_signal = avg_signal or self.Signal()
-    super().__init__(signal=signal, avg_signal=avg_signal,
-                     tx_bitrate=tx_bitrate, rx_bitrate=rx_bitrate)
-
 class Connection:
   """Represents a connection to a particular AccessPoint."""
   DHCP_DHCPCD = 'dhcpcd'
@@ -519,13 +491,6 @@ class Connection:
   _CONNECT_TIMEOUT = 20
   _CONNECT_ATTEMPT_TIMEOUT = 10
   _DHCP_TIMEOUT = 10
-
-  _CONN_STATUS_SIGNALS_RE = re.compile(r'\s*signal:.*')
-  _CONN_STATUS_AVG_SIGNALS_RE = re.compile(r'\s*signal avg:.*')
-  _CONN_STATUS_SIGNALS_PARSE_RE = re.compile(
-      r'[^:]*:\W*(-?\d+)(?: \[((?:-?\d+, )*(?:-?\d+))\])? dBm')
-  _CONN_STATUS_TX_BITRATE_RE = re.compile(r'\s*tx bitrate:.*')
-  _CONN_STATUS_RX_BITRATE_RE = re.compile(r'\s*rx bitrate:.*')
 
   def __init__(self, dut: device_types.DeviceInterface, interface: str,
                ap: AccessPoint, passkey, connect_timeout=None,
@@ -648,52 +613,17 @@ class Connection:
       self._tmp_dir_handle.__exit__(None, None, None)
       self._tmp_dir = None
 
-  def GetStatus(self):
-
-    def _ParseSignal(s: str) -> ConnectionStatus.Signal:
-      try:
-        # Possible command outputs:
-        # - "  signal avg: -50 dBm"
-        # - "  signal avg: -50 [-40] dBm"
-        # - "  signal: -50 [-40, -60] dBm"
-        # - "  signal: -50 [-40, -60, -40, -60] dBm"
-        match = self._CONN_STATUS_SIGNALS_PARSE_RE.fullmatch(s)
-        if not match:
-          raise WiFiError(
-              f'pattern={self._CONN_STATUS_SIGNALS_PARSE_RE.pattern!r} '
-              'does not match.')
-        computed = match.group(1)
-        antenna = [] if match.group(2) is None else match.group(2).split(',')
-        return ConnectionStatus.Signal(int(computed), [int(a) for a in antenna])
-      except Exception as e:
-        raise WiFiError(f'unexpected signal format: {s!r}, {e!r}') from None
-
-    def _ParseBitRate(s):
-      try:
-        # the command output must looks like "  tx bitrate: 400 MBit/s bla bla"
-        words = s.partition(':')[2].strip().split(' ')
-        assert words[1] == 'MBit/s'
-        return float(words[0])
-      except Exception as e:
-        raise WiFiError(f'unexpected tx_bitrate format: {s!r}, {e!r}') from None
+  def GetStatus(self) -> net_utils.WiFiConnectionStatus:
 
     try:
       out = self._device.CheckOutput(['iw', self.interface, 'station', 'dump'])
     except device_types.CalledProcessError as e:
       raise WiFiError(f'unable to fetch the connection status: {e!r}') from None
 
-    ret = ConnectionStatus()
-    cases = [('signal', _ParseSignal, self._CONN_STATUS_SIGNALS_RE),
-             ('avg_signal', _ParseSignal, self._CONN_STATUS_AVG_SIGNALS_RE),
-             ('tx_bitrate', _ParseBitRate, self._CONN_STATUS_TX_BITRATE_RE),
-             ('rx_bitrate', _ParseBitRate, self._CONN_STATUS_RX_BITRATE_RE)]
-    for line in out.splitlines():
-      for attr_name, parse_func, regexp in cases:
-        if regexp.fullmatch(line):
-          setattr(ret, attr_name, parse_func(line))
-          break
-
-    return ret
+    try:
+      return net_utils.ParseWirelessInterfaceStationDumpOutput(out)
+    except ValueError as e:
+      raise WiFiError(str(e)) from e
 
   def _LeasedIP(self):
     return net_utils.GetLeasedIP(self.interface, self._device,
