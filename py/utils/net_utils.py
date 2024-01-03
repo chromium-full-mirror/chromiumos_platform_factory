@@ -826,7 +826,7 @@ def _ParseSignalFromStationDumpOutputLine(
     # bypass the presubmit hook. See https://github.com/python/mypy/issues/5362.
 ) -> WiFiConnectionStatus.Signal:  # type: ignore
   _CONN_STATUS_SIGNALS_PARSE_RE = re.compile(
-      r'[^:]*:\W*(-?\d+)(?: \[((?:-?\d+, )*(?:-?\d+))\])? dBm')
+      r'[^:]*:\W*?(-?\d+)(?: \[((?:-?\d+, )*(?:-?\d+))\])? dBm')
 
   # Possible command outputs:
   # - "  signal avg: -50 dBm"

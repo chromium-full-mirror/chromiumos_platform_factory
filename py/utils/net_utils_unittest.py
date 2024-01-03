@@ -7,6 +7,7 @@
 """Networking-related utilities."""
 
 import socket
+import textwrap
 import threading
 import time
 import unittest
@@ -294,6 +295,121 @@ class ConvertIPtoFamilyTest(unittest.TestCase):
   def testNotIP_ThrowException(self):
     with self.assertRaises(ValueError):
       net_utils.ConvertIPtoFamily('Im.not.an.ip')
+
+
+class ParseWirelessInterfaceStationDumpOutputTest(unittest.TestCase):
+
+  def testSignalStrengthsForOneAntenna(self):
+
+    output = """\
+    Station 12:34:56:89:90:ab (on wlan0)
+    \tsignal:\t-54 [-55] dBm
+    \tsignal avg:\t-59 [-60] dBm
+    \tbeacon signal avg:\t-64 dBm
+    """
+    result = net_utils.ParseWirelessInterfaceStationDumpOutput(
+        textwrap.dedent(output))
+
+    self.assertEqual(result.signal,
+                     net_utils.WiFiConnectionStatus.Signal(-54, [-55]))
+    self.assertEqual(result.avg_signal,
+                     net_utils.WiFiConnectionStatus.Signal(-59, [-60]))
+
+  def testSignalStrengthsForFourAntennas(self):
+
+    output = """\
+    Station 12:34:56:89:90:ab (on wlan0)
+    \tsignal:\t-54 [-55, -56, -57, -58] dBm
+    \tsignal avg:\t-59 [-60, -61, -62, -63] dBm
+    \tbeacon signal avg:\t-64 dBm
+    """
+    result = net_utils.ParseWirelessInterfaceStationDumpOutput(
+        textwrap.dedent(output))
+
+    self.assertEqual(
+        result.signal,
+        net_utils.WiFiConnectionStatus.Signal(-54, [-55, -56, -57, -58]))
+    self.assertEqual(
+        result.avg_signal,
+        net_utils.WiFiConnectionStatus.Signal(-59, [-60, -61, -62, -63]))
+
+  def testSignalStrengthsWithoutValueForEachAntenna(self):
+
+    output = """\
+    Station 12:34:56:89:90:ab (on wlan0)
+    \tsignal:\t-54 dBm
+    \tsignal avg:\t-59 dBm
+    \tbeacon signal avg:\t-64 dBm
+    """
+    result = net_utils.ParseWirelessInterfaceStationDumpOutput(
+        textwrap.dedent(output))
+
+    self.assertEqual(result.signal,
+                     net_utils.WiFiConnectionStatus.Signal(-54, []))
+    self.assertEqual(result.avg_signal,
+                     net_utils.WiFiConnectionStatus.Signal(-59, []))
+
+  def testBitRates(self):
+    output = """\
+    Station 12:34:56:89:90:ab (on wlan0)
+    \ttx bitrate:\t400.0 MBit/s VHT-MCS 9 40MHz short GI VHT-NSS 2
+    \trx bitrate:\t12.0 MBit/s
+    """
+
+    result = net_utils.ParseWirelessInterfaceStationDumpOutput(
+        textwrap.dedent(output))
+
+    self.assertEqual(result.tx_bitrate, 400.0)
+    self.assertEqual(result.rx_bitrate, 12.0)
+
+  def testEmptyStationDumpOutput(self):
+    result = net_utils.ParseWirelessInterfaceStationDumpOutput('')
+    self.assertEqual(result.signal, None)
+    self.assertEqual(result.avg_signal, None)
+    self.assertEqual(result.tx_bitrate, None)
+    self.assertEqual(result.rx_bitrate, None)
+
+  def testUnexpectedSignalOutput(self):
+    output_cases = [
+        # Non-integer value.
+        """\
+        Station 12:34:56:89:90:ab (on wlan0)
+        \tsignal:\tfoo
+        """,
+        # Missing computed value.
+        """\
+        Station 12:34:56:89:90:ab (on wlan0)
+        \tsignal:\t[ -54, -55 ] dBm
+        """,
+    ]
+    for output in output_cases:
+      with self.assertRaises(ValueError):
+        net_utils.ParseWirelessInterfaceStationDumpOutput(
+            textwrap.dedent(output))
+
+  def textUnexpectedBitRateOutput(self):
+    output_cases = [
+        # Non-float value.
+        """\
+        Station 12:34:56:89:90:ab (on wlan0)
+        \ttx bitrate:\tfoo
+        """,
+        # Unexpected unit.
+        """\
+        Station 12:34:56:89:90:ab (on wlan0)
+        \ttx bitrate:\t200.0 foo/bar
+        """,
+        # Missing unit.
+        """\
+        Station 12:34:56:89:90:ab (on wlan0)
+        \ttx bitrate:\t200.0
+        """
+    ]
+    for output in output_cases:
+      with self.assertRaises(ValueError):
+        net_utils.ParseWirelessInterfaceStationDumpOutput(
+            textwrap.dedent(output))
+
 
 if __name__ == '__main__':
   unittest.main()
