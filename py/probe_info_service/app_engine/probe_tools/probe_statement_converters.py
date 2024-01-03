@@ -8,6 +8,7 @@ import abc
 import binascii
 import collections
 import copy
+import functools
 import itertools
 import re
 from typing import Any, Callable, Collection, List, Mapping, NamedTuple, Optional, Sequence, Tuple
@@ -257,7 +258,7 @@ class _SingleProbeStatementParam(_IProbeStatementParam):
     if self._is_restricted_re:
       assert self._value_converter.value_type == _ProbeParameterValueType.STRING
 
-  @property
+  @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _IProbeStatementParam]:
     return {
         self._param_name: self
@@ -358,25 +359,26 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
     value: str
 
   def __init__(self, name: str,
-               probe_info_params: Sequence[_SingleProbeStatementParam],
+               sub_probe_info_params: Sequence[_SingleProbeStatementParam],
                ps_gen_checker: Optional[Callable]):
     self._name = name
     self._ps_gen_checker = ps_gen_checker
     self._is_informational = ps_gen_checker is None
-    self._probe_info_params: Mapping[str, _SingleProbeStatementParam] = {}
-    for param in probe_info_params:
-      self._probe_info_params.update(param.probe_info_params)
+    self._sub_probe_info_params = sub_probe_info_params
 
-  @property
+  @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _IProbeStatementParam]:
-    return self._probe_info_params
+    ret: Mapping[str, _SingleProbeStatementParam] = {}
+    for param in self._sub_probe_info_params:
+      ret.update(param.probe_info_params)
+    return ret
 
   @property
   def probe_info_param_definitions(
       self) -> Mapping[str, _ProbeParameterDefinition]:
     """See base class."""
     definitions = collections.defaultdict()
-    for probe_info_param in self._probe_info_params.values():
+    for probe_info_param in self.probe_info_params.values():
       definitions.update(probe_info_param.probe_info_param_definitions)
 
     return definitions
@@ -392,7 +394,7 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
     """See base class."""
     converted_values = collections.OrderedDict()
     suggestions = []
-    for param_name, probe_info_param in self._probe_info_params.items():
+    for param_name, probe_info_param in self.probe_info_params.items():
       converted_values[param_name] = []
       for probe_parameter in probe_parameters[param_name]:
         sub_values, sub_suggestions = probe_info_param.ConvertProbeParams(
@@ -431,7 +433,7 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
 
     converted_probe_vals = []
     probe_val = probe_values[self._name]
-    for param_name, probe_info_param in self._probe_info_params.items():
+    for param_name, probe_info_param in self.probe_info_params.items():
       sub_converted_vals = probe_info_param.ConvertProbeValuesWithInformational(
           {param_name: probe_val})
       converted_probe_vals.extend(sub_converted_vals)
@@ -442,7 +444,7 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
       self, probe_parameters: Mapping[str, Sequence[_ProbeParameter]]
   ) -> Sequence[_ProbeParameter]:
     normalized_params = []
-    for probe_info_param in self._probe_info_params.values():
+    for probe_info_param in self.probe_info_params.values():
       normalized_params.extend(
           probe_info_param.NormalizeProbeParams(probe_parameters))
     return normalized_params
@@ -526,11 +528,11 @@ class _ConcatParam(_IProbeParamSpec):
   def __init__(
       self,
       param_name: str,
-      probe_info_params: Sequence[_SingleProbeStatementParam],
+      sub_probe_info_params: Sequence[_SingleProbeStatementParam],
       description: Optional[str] = None,
   ):
     self._param_name = param_name
-    self._probe_info_params = probe_info_params
+    self._sub_probe_info_params = sub_probe_info_params
     self._description = description
 
   def BuildProbeStatementParam(
@@ -539,7 +541,8 @@ class _ConcatParam(_IProbeParamSpec):
   ) -> _IProbeStatementParam:
     """See base class."""
     output_field = output_fields[self._param_name]
-    return _ConcatProbeStatementParam(self._param_name, self._probe_info_params,
+    return _ConcatProbeStatementParam(self._param_name,
+                                      self._sub_probe_info_params,
                                       output_field.probe_statement_generator)
 
 
@@ -687,11 +690,6 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
     self._name = converter_name or (
         f'{self._ps_generator.category_name}.{self._probe_func_def.name}')
 
-    self._probe_info_params = {}
-    for probe_param in self._probe_params:
-      self._probe_info_params.update(probe_param.probe_info_params)
-
-
   @classmethod
   def FromDefaultRuntimeProbeStatementGenerator(
       cls, runtime_probe_category_name: str, runtime_probe_func_name: str,
@@ -704,10 +702,12 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
                converter_name=converter_name, probe_params=probe_params,
                probe_function_argument=probe_function_argument)
 
-  @property
+  @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     """See base class."""
-    return self._probe_info_params
+    return dict(
+        collections.ChainMap(*(probe_param.probe_info_params
+                               for probe_param in self._probe_params)))
 
   @property
   def probe_params(self) -> Sequence[_IProbeStatementParam]:
@@ -912,13 +912,12 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
     self._name = name
     self._description = description
     self._sub_converters = sub_converters
-    self._probe_info_params = {}
-    for converter in self._sub_converters.values():
-      self._probe_info_params.update(converter.probe_info_params)
 
-  @property
+  @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
-    return self._probe_info_params
+    return dict(
+        collections.ChainMap(*(converter.probe_info_params
+                               for converter in self._sub_converters.values())))
 
   def GetName(self) -> str:
     """See base class."""
@@ -1207,20 +1206,14 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
             'assembly': self._nvme_converter,
         })
 
-    self._probe_info_params = {}
-    probe_param_names = set()
-    for converter in [
-        self._emmc_and_host_converter, self._invisible_emmc_and_nvme_converter
-    ]:
-      for name, param in converter.probe_info_params.items():
-        if name in probe_param_names:
-          continue
-        probe_param_names.add(name)
-        self._probe_info_params[name] = param
 
-  @property
+  @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
-    return self._probe_info_params
+    return dict(
+        collections.ChainMap(
+            self._emmc_and_host_converter.probe_info_params,
+            self._invisible_emmc_and_nvme_converter.probe_info_params,
+        ))
 
   def GetName(self) -> str:
     """See base class."""
