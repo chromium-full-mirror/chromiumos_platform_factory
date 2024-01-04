@@ -72,7 +72,7 @@ class _StorageSectorSizeValueType(int, converter_types.ConvertedValueType):
     return not self.__eq__(other)
 
 
-_STORAGE_CONVERTERS: Sequence[converter.Converter] = [
+_STORAGE_CONVERTERS: Sequence[converter.AbstractConverter] = [
     converter.FieldNameConverter.FromFieldMap(
         'pci_no_prefix', {
             StorageAVLAttrs.NVME_MODEL:

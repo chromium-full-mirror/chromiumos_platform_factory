@@ -7,13 +7,20 @@ This module consists of converter types which could be used to compare with
 different value representations.
 """
 
+from __future__ import annotations
+
+import abc
 import logging
 import re
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 
 # Formatter type
-StrFormatter = Callable[[str], str]
+class IStrFormatter(abc.ABC):
+
+  @abc.abstractmethod
+  def __call__(self, value: Union[str, FormattedStrType]) -> str:
+    ...
 
 
 class ConvertedValueType:
@@ -70,8 +77,8 @@ class FormattedStrType(str, ConvertedValueType):
 
   __hash__ = str.__hash__
 
-  def __new__(cls, *args, formatter_self: Optional[StrFormatter] = None,
-              formatter_other: Optional[StrFormatter] = None, **kwargs):
+  def __new__(cls, *args, formatter_self: Optional[IStrFormatter] = None,
+              formatter_other: Optional[IStrFormatter] = None, **kwargs):
     instance = super().__new__(cls, *args, **kwargs)
     instance._formatter_self = formatter_self
     instance._formatter_other = formatter_other
@@ -104,11 +111,11 @@ class FormattedStrType(str, ConvertedValueType):
 
   @classmethod
   def CreateInstanceFactory(
-      cls, formatter_self: Optional[StrFormatter] = None,
-      formatter_other: Optional[StrFormatter] = None
-  ) -> Callable[..., 'FormattedStrType']:
+      cls, formatter_self: Optional[IStrFormatter] = None,
+      formatter_other: Optional[IStrFormatter] = None
+  ) -> Callable[..., FormattedStrType]:
 
-    def _Callable(*args, **kwargs) -> 'FormattedStrType':
+    def _Callable(*args, **kwargs) -> FormattedStrType:
       return cls(*args, formatter_self=formatter_self,
                  formatter_other=formatter_other, **kwargs)
 

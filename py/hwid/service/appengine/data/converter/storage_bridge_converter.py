@@ -16,7 +16,7 @@ _StorageAssemblyAVLAttrs = (
 _StorageBridgeAVLAttrs = (
     pcie_emmc_storage_bridge_converter.PCIEEMMCStorageBridgeAVLAttrs)
 
-_STORAGE_BRIDGE_CONVERTERS: Sequence[converter.Converter] = [
+_STORAGE_BRIDGE_CONVERTERS: Sequence[converter.AbstractConverter] = [
     converter.FieldNameConverter.FromFieldMap(
         'storage_assembly_as_nvme', {
             _StorageAssemblyAVLAttrs.BRIDGE_PCIE_VENDOR:

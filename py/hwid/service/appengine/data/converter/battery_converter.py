@@ -26,13 +26,13 @@ def MakeStrPrefixMatchFactory(
       formatter_other=lambda x: x.ljust(length))
 
 
-class _PrefixRestrictedRegexStrFormatter(converter_types.StrFormatter):
+class _PrefixRestrictedRegexStrFormatter(converter_types.IStrFormatter):
 
   def __init__(self, length: int):
+    super().__init__()
     self._length = length
 
-  def __call__(self, value: converter_types.FormattedRegexStrType, *unused_args,
-               **unused_kwargs):
+  def __call__(self, value: converter_types.FormattedRegexStrType) -> str:
     pattern_arr = probe_info_utils.ToRestrictedPatternArray(value)
     space_count = self._length - len(pattern_arr)
 

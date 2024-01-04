@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 """Defines the converter which converts Probe Info to HWID probe values."""
 
+from __future__ import annotations
+
+import abc
 import collections
 import enum
 import itertools
@@ -37,7 +40,7 @@ class AVLAttrs(str, enum.Enum):
   """Holds the attr names in AVL probe info."""
 
 
-class Converter:
+class AbstractConverter(abc.ABC):
 
   def __init__(self, identifier: str):
     self._identifier = identifier
@@ -46,6 +49,7 @@ class Converter:
   def identifier(self):
     return self._identifier
 
+  @abc.abstractmethod
   def Match(
       self,
       comp_values: Optional[Mapping[str, Any]],
@@ -53,11 +57,10 @@ class Converter:
       is_qual_probe_info: bool = True,
   ) -> ProbeValueMatchStatus:
     """Tries to match a probe info to HWID comp values with this converter."""
-    raise NotImplementedError
 
-  def ConflictWithExisting(self, other: 'Converter') -> bool:
+  @abc.abstractmethod
+  def ConflictWithExisting(self, other: AbstractConverter) -> bool:
     """Checks if this and other converter might cause ambiguity in matching."""
-    raise NotImplementedError
 
 
 class ConvertedValueSpec(NamedTuple):
@@ -201,7 +204,7 @@ def _MatchValue(
   return comp_value in converted_values
 
 
-class FieldNameConverter(Converter):
+class FieldNameConverter(AbstractConverter):
 
   def __init__(self, identifier: str,
                field_name_map: Mapping[AVLAttrs, ConvertedValueSpec]):
@@ -210,9 +213,9 @@ class FieldNameConverter(Converter):
 
   @classmethod
   def FromFieldMap(
-      cls, identifier: str, field_name_map: Mapping[AVLAttrs,
-                                                    ConvertedValueSpec]
-  ) -> 'FieldNameConverter':
+      cls, identifier: str,
+      field_name_map: Mapping[AVLAttrs,
+                              ConvertedValueSpec]) -> FieldNameConverter:
     return cls(identifier, field_name_map)
 
   @property
@@ -272,7 +275,7 @@ class FieldNameConverter(Converter):
         return ProbeValueMatchStatus.VALUE_UNMATCHED
     return ProbeValueMatchStatus.ALL_MATCHED
 
-  def ConflictWithExisting(self, other: 'FieldNameConverter') -> bool:
+  def ConflictWithExisting(self, other: FieldNameConverter) -> bool:
     """Returns if field_name_map of both converters might create conflict."""
     return (self.field_name_map.items() <= other.field_name_map.items() or
             self.field_name_map.items() >= other.field_name_map.items())
@@ -287,13 +290,13 @@ class ConverterCollection:
 
   def __init__(self, category):
     self._category = category
-    self._converters: Dict[str, Converter] = {}
+    self._converters: Dict[str, AbstractConverter] = {}
 
   @property
   def category(self) -> str:
     return self._category
 
-  def AddConverter(self, conv: Converter):
+  def AddConverter(self, conv: AbstractConverter):
     if conv.identifier in self._converters:
       raise ValueError(f'The converter {conv.identifier!r} already exists.')
     for existing_converter in self._converters.values():
@@ -303,7 +306,7 @@ class ConverterCollection:
             f'{existing_converter.identifier!r}.')
     self._converters[conv.identifier] = conv
 
-  def GetConverter(self, identifier: str) -> Optional[Converter]:
+  def GetConverter(self, identifier: str) -> Optional[AbstractConverter]:
     return self._converters.get(identifier)
 
   def Match(
@@ -331,15 +334,16 @@ class ConverterCollection:
 
 # TODO(clarkchung): Consider centralizing similar converters/formatters with
 # the ones used in payload generator.
-class HexToHexValueFormatter(converter_types.StrFormatter):
+class HexToHexValueFormatter(converter_types.IStrFormatter):
 
   def __init__(self, num_digits, source_has_prefix: bool = True,
                target_has_prefix: bool = True):
+    super().__init__()
     self._num_digits = num_digits
     self._source_has_prefix = source_has_prefix
     self._target_has_prefix = target_has_prefix
 
-  def __call__(self, value, *unused_args, **unused_kwargs):
+  def __call__(self, value: str) -> str:
     source_prefix = '0x' if self._source_has_prefix else ''
     if not re.fullmatch(
         f'{source_prefix.lower()}0*[0-9a-f]{{1,{self._num_digits}}}', value,
@@ -350,10 +354,11 @@ class HexToHexValueFormatter(converter_types.StrFormatter):
     return f'{target_prefix}{int(value, 16):0{self._num_digits}x}'
 
 
-class HexEncodedStrValueFormatter(converter_types.StrFormatter):
+class HexEncodedStrValueFormatter(converter_types.IStrFormatter):
 
   def __init__(self, source_has_prefix: bool, encoding: str,
                fixed_num_bytes: Optional[int]):
+    super().__init__()
     source_prefix = '0x' if source_has_prefix else ''
     self._skip_prefix_len = len(source_prefix)
     bytes_pattern = re.escape(str(fixed_num_bytes))
@@ -364,7 +369,7 @@ class HexEncodedStrValueFormatter(converter_types.StrFormatter):
     self._value_pattern = f'{prefix_pattern}{byte_in_hex}{repeat_pattern}'
     self._encoding = encoding
 
-  def __call__(self, value, *unused_args, **unused_kwargs):
+  def __call__(self, value: str) -> str:
     if not re.fullmatch(self._value_pattern, value, flags=re.I):
       raise converter_types.StrFormatterError('Not a hex-encoded string.')
     the_bytes = bytes.fromhex(value[self._skip_prefix_len:])

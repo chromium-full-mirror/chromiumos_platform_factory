@@ -17,7 +17,7 @@ class PCIEEMMCStorageBridgeAVLAttrs(converter.AVLAttrs):
   PCI_CLASS = 'pci_class'
 
 
-_STORAGE_BRIDGE_CONVERTERS: Sequence[converter.Converter] = [
+_STORAGE_BRIDGE_CONVERTERS: Sequence[converter.AbstractConverter] = [
     converter.FieldNameConverter.FromFieldMap(
         'pcie_emmc_storage_bridge', {
             PCIEEMMCStorageBridgeAVLAttrs.PCI_DEVICE:

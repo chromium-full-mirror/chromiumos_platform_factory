@@ -8,6 +8,7 @@ from typing import Callable, Sequence
 from cros.factory.hwid.service.appengine.data.converter import converter
 from cros.factory.hwid.service.appengine.data.converter import converter_types
 
+
 # Shorter identifiers.
 _ConvertedValueSpec = converter.ConvertedValueSpec
 
@@ -25,21 +26,22 @@ class _MIPICameraAVLAttrs(converter.AVLAttrs):
   SENSOR_PID = 'sensor_pid'
 
 
-class _MipiVIDStrFormatter(converter_types.StrFormatter):
+class _MipiVIDStrFormatter(converter_types.IStrFormatter):
 
-  def __call__(self, value: str, *unused_args, **unused_kwargs):
+  def __call__(self, value: str) -> str:
     if len(value) != 6:
       raise converter_types.StrFormatterError(
           f'Expect a string of length 6, got {value!r}.')
     return value[:2]
 
 
-class _MipiPIDStrFormatter(converter_types.StrFormatter):
+class _MipiPIDStrFormatter(converter_types.IStrFormatter):
 
   def __init__(self, has_prefix=False):
+    super().__init__()
     self._has_prefix = has_prefix
 
-  def __call__(self, value: str, *unused_args, **unused_kwargs):
+  def __call__(self, value: str) -> str:
     if len(value) != 6:
       raise converter_types.StrFormatterError(
           f'Expect a string of length 6, got {value!r}.')

@@ -20,7 +20,7 @@ class PCIEEMMCStorageAssemblyAVLAttrs(converter.AVLAttrs):
   NVME_MODEL = 'nvme_model'
 
 
-_STORAGE_ASSEMBLY_CONVERTERS: Sequence[converter.Converter] = [
+_STORAGE_ASSEMBLY_CONVERTERS: Sequence[converter.AbstractConverter] = [
     converter.FieldNameConverter.FromFieldMap(
         'mmc_storage_with_bridge', {
             PCIEEMMCStorageAssemblyAVLAttrs.BRIDGE_PCIE_VENDOR:
