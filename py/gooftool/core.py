@@ -567,11 +567,10 @@ class Gooftool:
         # model_name_design_id_override is used, the firmware image name will
         # be original design name while the model name will be overridden.
         # GetFirmwareImageName might be empty if we haven't pinned firmware
-        # into OS, although this should not happen as in PVT phase we
-        # should already pin the final firmware in OS.
+        # into OS, for factory test image it could be the case.
         firmware_name = self._cros_config.GetFirmwareImageName()
         if not firmware_name:
-          raise Error('cros_config /firmware image-name is not found.')
+          firmware_name = self._cros_config.GetModelName()
         is_custom_label, custom_label_tag = (
             self._cros_config.GetCustomLabelTag())
         if is_custom_label and custom_label_tag:
