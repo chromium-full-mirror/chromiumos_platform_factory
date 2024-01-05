@@ -177,9 +177,12 @@ m/xRnRdZibgYjCw+xGc8LH6ZBdZCwRxkI0av9MHh6DOXcbkFE+YTjA5rfKuJbgatP3H6/T5l9ya/
 # vbutil_key --unpack recovery_kernel_data_key.vbpubk
 RECOVERY_KERNEL_DATA_KEY_HASH = 'e78ce746a037837155388a1096212ded04fb86eb'
 
+# vbutil_key --unpack kernel_data_key.vbpubk
+KERNEL_DATA_KEY_HASH = 'd6170aa480136f1f29cf339a5ab1b960585fa444'
 
-def IsRecoveryKernel(shell, futility, kernel):
-  """Returns if the kernel was signed by the recovery keys.
+
+def IsDeveloperKernel(shell, futility, kernel):
+  """Returns if the kernel was signed by the recovery/normal kernel dev keys.
 
   Args:
     shell: A function to invoke the shell command.
@@ -187,7 +190,8 @@ def IsRecoveryKernel(shell, futility, kernel):
     kernel: A file containing the kernel blob. Can be a block device file.
 
   Returns:
-    True if the kernel was signed by the recovery key, otherwise False.
+    True if the kernel was signed by the recovery dev key or normal dev key,
+    otherwise False.
   """
   # We can either verify if the kernel was signed by the known data key hash,
   # or if the kernel blob can be verified using the recovery public key
@@ -195,7 +199,8 @@ def IsRecoveryKernel(shell, futility, kernel):
   # approach, the result won't tell if the keyblock was invalid or signed by
   # another key. So the implementation below is using the key hash approach.
   result = shell([futility, 'vbutil_kernel', '--verify', kernel])
-  return result.find(RECOVERY_KERNEL_DATA_KEY_HASH) >= 0
+  return (result.find(RECOVERY_KERNEL_DATA_KEY_HASH) >= 0 or
+          result.find(KERNEL_DATA_KEY_HASH) >= 0)
 
 
 def ResignRecoveryKernel(shell, futility, kernel):

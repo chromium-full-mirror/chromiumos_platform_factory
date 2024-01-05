@@ -2117,7 +2117,7 @@ class ChromeOSFactoryBundle:
       def is_dev(part):
         """Checks if the kernel partition is DEV signed."""
         with part.Map() as kernel:
-          return devkeys.IsRecoveryKernel(SudoOutput, path_futility, kernel)
+          return devkeys.IsDeveloperKernel(SudoOutput, path_futility, kernel)
 
       results = [is_dev(p) for p in gpt.GetValidChromeOSKernelPartitions()]
 
