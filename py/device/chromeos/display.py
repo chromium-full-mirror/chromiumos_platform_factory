@@ -16,7 +16,6 @@ class DisplayError(Exception):
   """Error raised by the display module."""
 
 
-# pylint: disable=abstract-method
 class ChromeOSPortInfo(display.PortInfo):
   """A class for holding relevant display port info.
 
@@ -115,3 +114,10 @@ class ChromeOSDisplay(display.AbstractLinuxDisplay):
       image = Image.eval(image, Downscale)
 
     return image
+
+  def DisplayImage(self, image_path: str):
+    self._device.CheckCall(
+        ['display_manager', 'display', '--image-path', image_path])
+
+  def StopDisplayImage(self):
+    self._device.CheckCall(['display_manager', 'display'])
