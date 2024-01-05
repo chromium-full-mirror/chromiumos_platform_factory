@@ -6,6 +6,7 @@ import collections
 import enum
 import inspect
 import logging
+from typing import Optional
 import uuid
 
 from cros.factory.utils import debug_utils
@@ -160,7 +161,7 @@ class Plugin:
   class RPCInstance:
     pass
 
-  def __init__(self, goofy, used_resources=None):
+  def __init__(self, goofy, used_resources=None) -> None:
     """Constructor
 
     Args:
@@ -172,6 +173,23 @@ class Plugin:
     self.used_resources = used_resources or []
     self._state = self.State.STOPPED
     self._rpc_instance = None
+
+    self.static_dir: Optional[str] = None
+    self.url_base_path: Optional[str] = None
+    self.index_html_name: Optional[str] = None
+
+  def SetRPCArgs(self, static_dir: str, url_base_path: str,
+                 index_html_name: str) -> None:
+    """Set the additional args from the controller.
+
+    Args:
+      static_dir: the static directory path.
+      url_base_path: the url base path to static directory file.
+      index_html_name: the name of the html.
+    """
+    self.static_dir = static_dir
+    self.url_base_path = url_base_path
+    self.index_html_name = index_html_name
 
   def OnStart(self):
     """Called when Goofy starts or resumes the plugin."""

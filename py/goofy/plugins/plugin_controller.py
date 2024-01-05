@@ -4,6 +4,7 @@
 
 import logging
 import os
+from typing import Dict
 
 from jsonrpclib import ProtocolError
 
@@ -60,14 +61,14 @@ def GetPluginRPCProxy(plugin_name, address=None, port=None):
 class PluginController:
   """Controller of Goofy plugins."""
 
-  def __init__(self, config_name, goofy):
+  def __init__(self, config_name, goofy) -> None:
     """Constructor
 
     Args:
       config_name: the name of the config to be loaded for plugins.
       goofy: the goofy instance.
     """
-    self._plugins = {}
+    self._plugins: Dict[str, plugin.Plugin] = {}
     self._menu_items = {}
     self._frontend_configs = []
 
@@ -85,9 +86,17 @@ class PluginController:
       plugin_class = plugin.GetPluginClass(name)
       if plugin_class:
         try:
-          plugin_instance = plugin_class(**args)
           plugin_name = plugin.GetPluginNameFromClass(plugin_class)
+          plugin_paths = plugin_name.split('.')
 
+          plugin_instance = plugin_class(**args)
+          if len(plugin_paths) >= 2:
+            static_dir = os.path.join(paths.FACTORY_PYTHON_DIR, 'goofy',
+                                      'plugins', *plugin_paths[:-1], 'static')
+            if os.path.exists(static_dir):
+              url_base_path = _GetPluginRPCPath(plugin_name)
+              plugin_instance.SetRPCArgs(static_dir, url_base_path,
+                                         f'{plugin_paths[-1]}.html')
           self._plugins[plugin_name] = plugin_instance
         except Exception:
           logging.exception('Failed to load plugin: %s', name)
@@ -108,20 +117,11 @@ class PluginController:
         logging.exception('Failed to get menu items from %s', name)
 
   def _RegisterFrontendPath(self, goofy_server):
-    base = os.path.join(paths.FACTORY_PYTHON_DIR, 'goofy', 'plugins')
     for name, instance in self._plugins.items():
-      plugin_paths = name.split('.')
-      if len(plugin_paths) < 2:
+      if instance.static_dir is None:
         continue
 
-      dirname = os.path.join(*plugin_paths[:-1])
-      full_file_path = os.path.join(base, dirname, 'static')
-
-      if not os.path.exists(full_file_path):
-        continue
-
-      url_base_path = _GetPluginRPCPath(name)
-      goofy_server.RegisterPath(url_base_path, full_file_path)
+      goofy_server.RegisterPath(instance.url_base_path, instance.static_dir)
 
       try:
         location = instance.GetUILocation()
@@ -131,7 +131,7 @@ class PluginController:
           location = 'testlist'
         self._frontend_configs.append({
             'iframe_id': f"{name.replace('.', '-')}-iframe",
-            'url': f'{url_base_path}/{plugin_paths[-1]}.html',
+            'url': f'{instance.url_base_path}/{instance.index_html_name}',
             'location': location
         })
       except Exception:
