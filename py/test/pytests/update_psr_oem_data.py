@@ -74,7 +74,7 @@ class PSROEMData(str, enum.Enum):
 
 class UpdatePSROEMData(test_case.TestCase):
   """Factory Test for updating PSR OEM data"""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.PSR, )
 
 
   ARGS = [

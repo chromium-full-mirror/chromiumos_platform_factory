@@ -220,11 +220,14 @@ def LinkToAVL(component: test_case.TestCategory):
 def GenerateOneTypeOfPyTestsDoc(
     rst: RSTWriter, component: Optional[test_case.TestCategory],
     tests: List[str], pytest_description: Dict[str, str]):
-  if component:
+  if component is None:
+    rst.WriteTitle('Uncategorized pytests', '-')
+  elif component.subtype == 'avl':
     name = LinkToAVL(component) if component.avl_name else component.name
     rst.WriteTitle(f'Tests for {name}', '-')
   else:
-    rst.WriteTitle('Uncategorized pytests', '-')
+    rst.WriteTitle(f'Tests for {component.name} (Device feature component)',
+                   '-')
   rst.WriteParagraph('')
   rst.WriteListTableHeader(widths=(30, 70), header_rows=1)
   rst.WriteListTableRow(('pytest name', 'description'))
@@ -260,10 +263,10 @@ def GeneratePyTestsDoc(pytests_output_dir):
   index_rst = os.path.join(pytests_output_dir, 'index.rst')
   with open(index_rst, 'a', encoding='utf8') as f:
     rst = RSTWriter(f)
-    for component, tests in sorted(component_to_tests.items(),
-                                   key=lambda args: args[0].avl_name):
+    for component, tests in sorted(
+        component_to_tests.items(), key=lambda args:
+        (args[0].subtype, args[0].avl_name or args[0].name)):
       GenerateOneTypeOfPyTestsDoc(rst, component, tests, pytest_description)
-
     GenerateOneTypeOfPyTestsDoc(rst, None, uncategorized_tests,
                                 pytest_description)
 

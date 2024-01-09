@@ -7,8 +7,8 @@ import enum
 from typing import Optional
 
 
-CategoryProperties = collections.namedtuple('CategoryProperties',
-                                            ('avl_name', 'hwid_name'))
+CategoryProperties = collections.namedtuple(
+    'CategoryProperties', ('subtype', 'avl_name', 'hwid_name'))
 
 
 @enum.unique
@@ -24,6 +24,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   go/AVL-HWID-component-mapping.
   """
 
+  # avl test category
   ACCELEROMETER = enum.auto()
   AMBIENTLIGHTSENSOR = enum.auto()
   AUDIOCODEC = enum.auto()
@@ -53,67 +54,77 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   WIFI = enum.auto()
   WWAN = enum.auto()
 
+  # device feature test category
+  PSR = enum.auto()
+
   @property
   def _properties(self):
     return {
         TestCategory.ACCELEROMETER:
-            CategoryProperties('Accelerometer/IMU', None),
+            CategoryProperties('avl', 'Accelerometer/IMU', None),
         TestCategory.AMBIENTLIGHTSENSOR:
-            CategoryProperties('Ambient Light Sensor', None),
+            CategoryProperties('avl', 'Ambient Light Sensor', None),
         TestCategory.AUDIOCODEC:
-            CategoryProperties('Audio Jack Codec', 'audio_codec'),
+            CategoryProperties('avl', 'Audio Jack Codec', 'audio_codec'),
         TestCategory.BATTERY:
-            CategoryProperties('Battery', 'battery'),
+            CategoryProperties('avl', 'Battery', 'battery'),
         TestCategory.BRIDGE_PCIE_EMMC:
-            CategoryProperties('Storage bridge (PCIE-eMMC)', 'storage_bridge'),
+            CategoryProperties('avl', 'Storage bridge (PCIE-eMMC)',
+                               'storage_bridge'),
         TestCategory.CAMERA:
-            CategoryProperties('Camera - USB', 'camera'),
+            CategoryProperties('avl', 'Camera - USB', 'camera'),
         TestCategory.CPU:
-            CategoryProperties('CPU', 'cpu'),
+            CategoryProperties('avl', 'CPU', 'cpu'),
         TestCategory.DRAM:
-            CategoryProperties('Memory', 'dram'),
+            CategoryProperties('avl', 'Memory', 'dram'),
         TestCategory.EC:
-            CategoryProperties('EC', 'ec_flash_chip'),
+            CategoryProperties('avl', 'EC', 'ec_flash_chip'),
         TestCategory.EMR_IC:
-            CategoryProperties('Touch screen controller (EMR Stylus)',
+            CategoryProperties('avl', 'Touch screen controller (EMR Stylus)',
                                'touchscreen'),
         TestCategory.ETHERNET:
-            CategoryProperties('Ethernet controller', 'ethernet'),
+            CategoryProperties('avl', 'Ethernet controller', 'ethernet'),
         TestCategory.FINGERPRINT_SENSOR:
-            CategoryProperties('Fingerprint Sensor', 'fingerprint'),
+            CategoryProperties('avl', 'Fingerprint Sensor', 'fingerprint'),
         TestCategory.HPS:
-            CategoryProperties('HPS (Human Presence Sensor)', 'hps'),
+            CategoryProperties('avl', 'HPS (Human Presence Sensor)', 'hps'),
         TestCategory.LCD:
-            CategoryProperties('Display Panel', 'display_panel'),
+            CategoryProperties('avl', 'Display Panel', 'display_panel'),
         TestCategory.MIPI_CAMERA:
-            CategoryProperties('Camera - MIPI', 'camera'),
+            CategoryProperties('avl', 'Camera - MIPI', 'camera'),
         TestCategory.SAR_SENSOR:
-            CategoryProperties('Proximity(SAR) Sensor', None),
+            CategoryProperties('avl', 'Proximity(SAR) Sensor', None),
         TestCategory.SECURE_ELEMENT:
-            CategoryProperties('Secure Element', 'tpm'),
+            CategoryProperties('avl', 'Secure Element', 'tpm'),
         TestCategory.SMART_SPEAKER_AMPLIFIER:
-            CategoryProperties('Smart Speaker Amplifier', 'audio_codec'),
+            CategoryProperties('avl', 'Smart Speaker Amplifier', 'audio_codec'),
         TestCategory.SPEAKERAMPLIFIER:
-            CategoryProperties('Speaker Amplifier', 'audio_codec'),
+            CategoryProperties('avl', 'Speaker Amplifier', 'audio_codec'),
         TestCategory.SPIFLASH:
-            CategoryProperties('SPI Flash', 'flash_chip'),
+            CategoryProperties('avl', 'SPI Flash', 'flash_chip'),
         TestCategory.STORAGE:
-            CategoryProperties('Storage', 'storage'),
+            CategoryProperties('avl', 'Storage', 'storage'),
         TestCategory.TOUCHCONTROLLER:
-            CategoryProperties('Touch screen Controller (non stylus)',
+            CategoryProperties('avl', 'Touch screen Controller (non stylus)',
                                'touchscreen'),
         TestCategory.TPM:
-            CategoryProperties('TPM', 'tpm'),
+            CategoryProperties('avl', 'TPM', 'tpm'),
         TestCategory.TRACKPAD:
-            CategoryProperties('Touchpad Controller', 'touchpad'),
+            CategoryProperties('avl', 'Touchpad Controller', 'touchpad'),
         TestCategory.USI_CONTROLLER:
-            CategoryProperties('Touch screen controller (USI Stylus)',
+            CategoryProperties('avl', 'Touch screen controller (USI Stylus)',
                                'touchscreen'),
         TestCategory.WIFI:
-            CategoryProperties('Wifi / Bluetooth', 'wireless'),
+            CategoryProperties('avl', 'Wifi / Bluetooth', 'wireless'),
         TestCategory.WWAN:
-            CategoryProperties('WWAN', 'cellular'),
-    }.get(self, CategoryProperties(None, None))
+            CategoryProperties('avl', 'WWAN', 'cellular'),
+        TestCategory.PSR:
+            CategoryProperties('device feature', None, None),
+    }.get(self, CategoryProperties(None, None, None))
+
+  @property
+  def subtype(self) -> str:
+    return self._properties.subtype
 
   @property
   def avl_name(self) -> Optional[str]:
