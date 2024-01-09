@@ -11,7 +11,7 @@ import enum
 import itertools
 import logging
 import re
-from typing import Any, Callable, Collection, Dict, Iterator, Mapping, MutableSequence, NamedTuple, Optional, Sequence, Tuple
+from typing import Any, Callable, Collection, Dict, Iterator, Mapping, MutableSequence, NamedTuple, Optional, Sequence, Tuple, Union
 
 from cros.factory.hwid.service.appengine.data.converter import converter_types
 from cros.factory.hwid.v3 import contents_analyzer
@@ -25,6 +25,7 @@ _ConvertedValueTypeMapping = Mapping[
 
 
 class ProbeValueMatchStatus(enum.IntEnum):
+  UNINITIALIZED = enum.auto()
   INCONVERTIBLE = enum.auto()
   VALUE_IS_NONE = enum.auto()
   KEY_UNMATCHED = enum.auto()
@@ -204,31 +205,158 @@ def _MatchValue(
   return comp_value in converted_values
 
 
+def _MatchConvertedValues(
+    converted_group_list: Collection[_ConvertedValueTypeMapping],
+    comp_values: Mapping[str, Any],
+) -> ProbeValueMatchStatus:
+  """Matches a comp values against a _ConvertedValueTypeMapping collection.
+
+  Args:
+    converted_group_list: A collection of _ConvertedValueTypeMapping.
+    comp_values: The probe value.
+
+  Returns:
+    A ProbeValueMatchStatus enum value as the match status.
+  """
+  for converted_group in converted_group_list:
+    if not converted_group.keys() <= comp_values.keys():
+      return ProbeValueMatchStatus.KEY_UNMATCHED
+    for converted_name, converted_values in converted_group.items():
+      if not _MatchValue(comp_values[converted_name], converted_values):
+        return ProbeValueMatchStatus.VALUE_UNMATCHED
+  return ProbeValueMatchStatus.ALL_MATCHED
+
+
+class _ConversionError(Exception):
+  """Raised when there are no probe values in probe info."""
+
+
+def _ConvertProbeValueToMappings(
+    value_specs: Sequence[ConvertedValueSpec],
+    values: Union[Collection[str], Collection[int]],
+    is_qual_probe_info: bool,
+) -> Optional[Collection[_ConvertedValueTypeMapping]]:
+  """Converts a collection of ConvertedValueSpec and probe info to mappings.
+
+  Args:
+    value_specs: A collection of value specs.
+    values: Extracted probe info values.
+    is_qual_probe_info: A bool indicating that the probe_info is qual
+      specific.
+
+  Returns:
+    A collection of _ConvertedValueTypeMapping as match criteria, or None if
+    this combination does not require a match.
+
+  Raises:
+    _ConversionError if the probe value cannot be converted.
+  """
+
+  # If only one value_spec in value_specs (which means no potentially unexpected
+  # cross-join matches), we could merge the translated values in one map.
+  if len(value_specs) == 1:
+    value_spec = value_specs[0]
+    if value_spec.qual_specific and not is_qual_probe_info:
+      return None
+    if values is None:
+      raise _ConversionError('Probe values of probe info is None')
+    translated_values = []
+    if value_spec.value_factory is not None:
+      for value in values:
+        try:
+          translated_value = value_spec.value_factory(value)
+        except ValueError:
+          continue
+        translated_values.append(translated_value)
+    else:
+      for value in values:
+        translated_value = _ConvertValueWithDefaultTypeFactory(value)
+        if translated_value is None:
+          raise _ConversionError(f'Invalid value ({value!r}).')
+        translated_values.append(translated_value)
+    return [{
+        value_spec.name: translated_values
+    }]
+
+  required_value_specs = [
+      value_spec for value_spec in value_specs
+      if not value_spec.qual_specific or is_qual_probe_info
+  ]
+
+  if values is None:
+    raise _ConversionError('Probe values of probe info is None')
+
+  translated_group: MutableSequence[_ConvertedValueTypeMapping] = []
+  for value in values:
+    translated: _ConvertedValueTypeMapping = {}
+    for value_spec in required_value_specs:
+      if value_spec.value_factory is not None:
+        try:
+          translated[value_spec.name] = [value_spec.value_factory(value)]
+        except ValueError:
+          break
+      else:
+        converted = _ConvertValueWithDefaultTypeFactory(value)
+        if converted is None:
+          break
+        translated[value_spec.name] = [converted]
+    else:
+      translated_group.append(translated)
+  return translated_group
+
+
 class FieldNameConverter(AbstractConverter):
 
-  def __init__(self, identifier: str,
-               field_name_map: Mapping[AVLAttrs, ConvertedValueSpec]):
+  def __init__(
+      self,
+      identifier: str,
+      field_name_map: Mapping[AVLAttrs, Sequence[ConvertedValueSpec]],
+  ):
     super().__init__(identifier)
     self._field_name_map = field_name_map
 
   @classmethod
   def FromFieldMap(
-      cls, identifier: str,
-      field_name_map: Mapping[AVLAttrs,
-                              ConvertedValueSpec]) -> FieldNameConverter:
-    return cls(identifier, field_name_map)
+      cls,
+      identifier: str,
+      field_name_map: Mapping[AVLAttrs, Union[ConvertedValueSpec,
+                                              Sequence[ConvertedValueSpec]]],
+  ) -> FieldNameConverter:
+    return cls(
+        identifier, {
+            avl_attr: [value_spec]
+            if isinstance(value_spec, ConvertedValueSpec) else value_spec
+            for avl_attr, value_spec in field_name_map.items()
+        })
 
   @property
-  def field_name_map(self):
+  def field_name_map(self) -> Mapping[AVLAttrs, Sequence[ConvertedValueSpec]]:
     return self._field_name_map
 
   def _Convert(
       self,
       probe_info: stubby_pb2.ProbeInfo,
       is_qual_probe_info: bool,
-  ) -> Optional[_ConvertedValueTypeMapping]:
-    """Converts a probe info to an optional mapping for matching."""
-    translated: _ConvertedValueTypeMapping = {}
+  ) -> Optional[Collection[Collection[_ConvertedValueTypeMapping]]]:
+    """Converts a probe info to an optional mapping for matching.
+
+    This method takes probe info and their corresponding match criteria from
+    self._field_name_map (including potentially multiple criteria per key) and
+    returns a list of distinct _ConvertedValueTypeMapping collections. Each
+    collection represents a unique match group, ensuring accurate and flexible
+    matching even when key collisions might arise. This approach prevents
+    unintended matches and facilitates reliable identification of intended probe
+    value matches.
+
+    Args:
+      probe_info: An instance of `ProbeInfo` to generate mapping.
+      is_qual_probe_info: A bool indicating that the probe_info is qual
+        specific.
+
+    Returns:
+      A list of _ConvertedValueTypeMapping collections.  None if the probe info
+      is invalid.
+    """
     probe_info_values = collections.defaultdict(list)
 
     for param in probe_info.probe_parameters:
@@ -237,25 +365,21 @@ class FieldNameConverter(AbstractConverter):
       elif param.HasField('int_value'):
         probe_info_values[param.name].append(param.int_value)
 
-    for name, translated_value_spec in self._field_name_map.items():
-      if translated_value_spec.qual_specific and not is_qual_probe_info:
-        continue
+    translated_groups = []
+    for name, value_specs in self._field_name_map.items():
       values = probe_info_values.get(name)
-      if values is None:
+      try:
+        translated_group = _ConvertProbeValueToMappings(value_specs, values,
+                                                        is_qual_probe_info)
+      except _ConversionError:
+        logging.error(
+            'Cannot convert probe info to _ConvertedValueTypeMapping:'
+            '(probe_info: %s, converter: %s)', values, self.identifier)
         return None
-      if translated_value_spec.value_factory is not None:
-        translated_values = list(
-            map(translated_value_spec.value_factory, values))
-      else:
-        translated_values = []
-        for value in values:
-          translated_value = _ConvertValueWithDefaultTypeFactory(value)
-          if translated_value is None:
-            logging.error('Invalid value (%r).', value)
-            return None
-          translated_values.append(translated_value)
-      translated[translated_value_spec.name] = translated_values
-    return translated
+      if translated_group is None:
+        continue
+      translated_groups.append(translated_group)
+    return list(itertools.product(*translated_groups))
 
   def Match(
       self,
@@ -263,17 +387,20 @@ class FieldNameConverter(AbstractConverter):
       probe_info: stubby_pb2.ProbeInfo,
       is_qual_probe_info: bool = True,
   ) -> ProbeValueMatchStatus:
-    converted = self._Convert(probe_info, is_qual_probe_info)
-    if converted is None:
+    converted_groups = self._Convert(probe_info, is_qual_probe_info)
+    if not converted_groups:  # None or empty
       return ProbeValueMatchStatus.INCONVERTIBLE
     if not comp_values:
       return ProbeValueMatchStatus.VALUE_IS_NONE
-    if not converted.keys() <= comp_values.keys():
-      return ProbeValueMatchStatus.KEY_UNMATCHED
-    for converted_name, converted_values in converted.items():
-      if not _MatchValue(comp_values[converted_name], converted_values):
-        return ProbeValueMatchStatus.VALUE_UNMATCHED
-    return ProbeValueMatchStatus.ALL_MATCHED
+    best_match_status = ProbeValueMatchStatus.UNINITIALIZED
+    for converted_group in converted_groups:
+      best_match_status = max(
+          best_match_status,
+          _MatchConvertedValues(converted_group, comp_values),
+      )
+      if best_match_status == ProbeValueMatchStatus.ALL_MATCHED:
+        return ProbeValueMatchStatus.ALL_MATCHED
+    return best_match_status
 
   def ConflictWithExisting(self, other: FieldNameConverter) -> bool:
     """Returns if field_name_map of both converters might create conflict."""

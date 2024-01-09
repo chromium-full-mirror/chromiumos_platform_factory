@@ -83,7 +83,7 @@ class CameraConverterCollectionTest(unittest.TestCase):
 
     self.assertEqual(result.alignment_status, _PVAlignmentStatus.ALIGNED)
 
-  def testMipiFullLengthNotMatch(self):
+  def testMipiFullLengthNotMatch_PID(self):
     comp_values = {
         'mipi_module_id': 'TC1234',
         'mipi_sensor_id': 'OVabcd',
@@ -91,6 +91,22 @@ class CameraConverterCollectionTest(unittest.TestCase):
     probe_info = converter_test_utils.ProbeInfoFromMapping({
         'module_vid': 'TC',
         'module_pid': '0x1235',
+        'sensor_vid': 'OV',
+        'sensor_pid': '0xabcd',
+    })
+
+    result = self._converter_collection.Match(comp_values, probe_info)
+
+    self.assertEqual(result.alignment_status, _PVAlignmentStatus.NOT_ALIGNED)
+
+  def testMipiFullLengthNotMatch_VID(self):
+    comp_values = {
+        'mipi_module_id': 'TC1234',
+        'mipi_sensor_id': 'OVabcd',
+    }
+    probe_info = converter_test_utils.ProbeInfoFromMapping({
+        'module_vid': 'ZZ',
+        'module_pid': '0x1234',
         'sensor_vid': 'OV',
         'sensor_pid': '0xabcd',
     })
