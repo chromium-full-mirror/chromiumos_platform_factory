@@ -15,6 +15,7 @@ from cros.factory.hwid.service.appengine.data.converter import pcie_emmc_storage
 from cros.factory.hwid.service.appengine.data.converter import pcie_emmc_storage_bridge_converter
 from cros.factory.hwid.service.appengine.data.converter import storage_bridge_converter
 from cros.factory.hwid.service.appengine.data.converter import storage_converter
+from cros.factory.hwid.service.appengine.data.converter import wireless_converter
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3 import builder
@@ -46,6 +47,8 @@ _DEFAULT_CONVERTER_COLLECTION_MAP = {
         pcie_emmc_storage_assembly_converter.GetConverterCollection(),
     'pcie_emmc_storage_bridge':
         pcie_emmc_storage_bridge_converter.GetConverterCollection(),
+    'wireless':
+        wireless_converter.GetConverterCollection(),
 }
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
 
