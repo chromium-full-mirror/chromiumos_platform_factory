@@ -188,6 +188,11 @@ def _MatchValue(
     converted_values: Sequence[converter_types.ConvertedValueType]) -> bool:
   if isinstance(comp_value, v3_rule.Value):
     if comp_value.is_re:
+      # Additional check for identical regex patterns.
+      if comp_value.raw_value in {str(val)
+                                  for val in converted_values}:
+        return True
+
       values = _SplitRegexpOfFixedValues(comp_value.raw_value)
       return values is not None and all(v in converted_values for v in values)
 

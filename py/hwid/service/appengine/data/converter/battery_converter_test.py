@@ -245,6 +245,33 @@ class BatteryConverterCollectionTest(unittest.TestCase):
             _PVAlignmentStatus.ALIGNED,
             converter_identifier='prefix_match_length_7'))
 
+  def testFullLength_WithIdenticalRegexProbeInfoAndRegexCompValues_Match(self):
+    comp_values = {
+        'manufacturer': 'manufacturer',
+        'model_name': v3_rule.Value(r'model_[0-9]_[A-Z]_name', is_re=True),
+    }
+    probe_info = converter_test_utils.ProbeInfoFromMapping({
+        'manufacturer': 'manufacturer',
+        'model_name': 'model_[0-9]_[A-Z]_name',
+    })
+
+    result = self._converter_collection.Match(comp_values, probe_info)
+
+    self.assertEqual(result.alignment_status, _PVAlignmentStatus.ALIGNED)
+
+  def testInvalidRegexCompValues_NotMatch(self):
+    comp_values = {
+        'manufacturer': 'manufacturer',
+        'model_name': v3_rule.Value(r'model_[1-5]_[A-E]_name', is_re=True),
+    }
+    probe_info = converter_test_utils.ProbeInfoFromMapping({
+        'manufacturer': 'manufacturer',
+        'model_name': 'model_[0-9]_[A-Z]_name',
+    })
+
+    result = self._converter_collection.Match(comp_values, probe_info)
+
+    self.assertEqual(result.alignment_status, _PVAlignmentStatus.NOT_ALIGNED)
 
 if __name__ == '__main__':
   unittest.main()
