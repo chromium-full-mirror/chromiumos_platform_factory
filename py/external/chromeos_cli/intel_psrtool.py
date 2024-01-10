@@ -102,7 +102,7 @@ class IntelPSRTool:
     pattern = r'NVAR\svalue\s=\s*(\w+)'
     match = re.search(r'NVAR\svalue\s=\s*(\w+)', stdout)
     if not match:
-      raise IntelPSRToolRegexError('PSR OEM NVAR', pattern, stdout)
+      raise IntelPSRToolRegexError('PSR EOM NVAR', pattern, stdout)
     return int(match.group(1))
 
   def CloseManufacturing(self):
