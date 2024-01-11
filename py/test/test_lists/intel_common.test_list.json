@@ -43,7 +43,11 @@
         "SetEOMNVAR",
         {
           "inherit": "FullRebootStep",
-          "run_if": "device.factory.psr_update_need_reboot"
+          "run_if": "device.factory.psr_update_need_reboot and constants.phase != 'PVT'"
+        },
+        {
+          "inherit": "LockIntelDescriptorGroup",
+          "run_if": "(constants.grt.force_write_protect or constants.phase == 'PVT') and device.factory.psr_update_need_reboot"
         },
         {
           "inherit": "SyncFactoryServer",
