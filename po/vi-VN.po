@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-09 18:21+CST\n"
+"PO-Revision-Date: 2024-01-18 15:31+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -2814,12 +2814,12 @@ msgstr ""
 "phím Esc không thành công"
 
 #: ../py/test/pytests/stylus_garage.py
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Remove stylus"
 msgstr ""
 
 #: ../py/test/pytests/stylus_garage.py
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Insert stylus"
 msgstr ""
 
@@ -3856,10 +3856,6 @@ msgid "Stress App Test"
 msgstr "Thử áp lực"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Stylus And Garage"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify TPM state"
 msgstr "Trạng thái TPM"
 
@@ -3886,10 +3882,6 @@ msgstr ""
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ti50 AP RO Verification"
 msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Touchscreen Uniformity"
-msgstr "Kiểm tra tính đồng nhất trên màn hình cảm ứng"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Random Number Generation"
@@ -4238,6 +4230,58 @@ msgstr "Chuyển danh sách kiểm tra: RMA"
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"
 msgstr "Test List for Tast Tests"
+
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
+msgid "Probe Touchscreen"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
+msgid "Stylus And Garage"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
+msgid "References"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
+msgid "Deltas"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen.test_list.json
+msgid "Touchscreen Uniformity"
+msgstr "Kiểm tra tính đồng nhất trên màn hình cảm ứng"
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Stylus Spiral Hover Mode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Stylus Spiral Touch Mode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Stylus Top Left To Bottom Left"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Touchscreen 30x20"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Touchscreen Arbitrary Order"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Touchscreen E2E Mode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Touchscreen Without TimeLimit"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
+msgid "Generic Touchscreen Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"

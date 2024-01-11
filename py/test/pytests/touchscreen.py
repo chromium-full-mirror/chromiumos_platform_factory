@@ -56,44 +56,41 @@ Dependency
 
 Examples
 --------
-To test touchscreen with 30x20 blocks, add this in test list::
+To test touchscreen with 30x20 blocks, add this in test list:
 
-  {
-    "pytest_name": "touchscreen",
-    "args": {
-      "y_segments": 30,
-      "x_segments": 20
-    }
-  }
+.. test_list::
 
-To test touchscreen in end-to-end mode and cancel the time limit::
+  generic_touchscreen_examples:Touchscreen30x20
 
-  {
-    "pytest_name": "touchscreen",
-    "args": {
-      "e2e_mode": true,
-      "timeout_secs": null
-    }
-  }
+To test touchscreen without time limit:
 
-To test touchscreen without spiral order restriction::
+.. test_list::
 
-  {
-    "pytest_name": "touchscreen",
-    "args": {
-      "spiral_mode": false
-    }
-  }
+  generic_touchscreen_examples:TouchscreenWithoutTimeLimit
 
-To test stylus in hover mode::
+To test touchscreen in end-to-end mode:
 
-  {
-    "pytest_name": "touchscreen",
-    "args": {
-      "stylus": true,
-      "hover_mode": true
-    }
-  }
+.. test_list::
+
+  generic_touchscreen_examples:TouchscreenE2EMode
+
+To test touchscreen without spiral order restriction:
+
+.. test_list::
+
+  generic_touchscreen_examples:TouchscreenArbitraryOrder
+
+To test stylus in hover mode:
+
+.. test_list::
+
+  generic_touchscreen_examples:StylusSpiralHoverMode
+
+To test stylus in touch mode:
+
+.. test_list::
+
+  generic_touchscreen_examples:StylusSpiralTouchMode
 
 Trouble Shooting
 ----------------

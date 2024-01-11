@@ -28,17 +28,11 @@ Dependency
 
 Examples
 --------
-Sample test_list entry::
+Sample test_list entry:
 
-  {
-    "pytest_name": "touch_uniformity",
-    "args": {
-      "check_list": [
-        [0, "i18n! References", 23400, 25100, 0, 0],
-        [1, "i18n! Deltas", -30, 40, 0, 0]
-      ]
-    }
-  }
+.. test_list::
+
+  generic_touchscreen_examples:TouchscreenUniformity
 
 """
 

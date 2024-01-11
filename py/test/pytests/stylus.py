@@ -29,24 +29,19 @@ Dependency
 Examples
 --------
 To check stylus functionality by drawing a diagonal line, add this in test
-list::
+list:
 
-  {
-    "pytest_name": "stylus"
-  }
+.. test_list::
+
+  generic_touchscreen_examples:Stylus
 
 To check if the magnet in left side will cause problems, add this in test list
-to draw a line from left-top to left-bottom::
+to draw a line from left-top to left-bottom:
 
-  {
-    "pytest_name": "stylus",
-    "args": {
-      "endpoints_ratio": [
-        [0, 0],
-        [0, 1]
-      ]
-    }
-  }
+.. test_list::
+
+  generic_touchscreen_examples:StylusTopLeftToBottomLeft
+
 """
 
 import threading

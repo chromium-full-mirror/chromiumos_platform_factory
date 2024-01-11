@@ -20,34 +20,18 @@ Dependency
 
 Examples
 --------
-The minimal working example::
+To run default test:
 
-  {
-    "pytest_name": "stylus_garage"
-  }
+.. test_list::
 
-A test group tests both the stylus and the garage. A similar group called
-StylusAndGarage is defined in generic_common.test_list.json::
+  generic_touchscreen_examples:StylusGarage
 
-  {
-    "subtests": [
-      {
-        "pytest_name": "stylus_garage",
-        "args": {
-          "target_state": "ejected"
-        }
-      },
-      {
-        "pytest_name": "stylus"
-      },
-      {
-        "pytest_name": "stylus_garage",
-        "args": {
-          "target_state": "inserted"
-        }
-      }
-    ]
-  }
+To test both of the stylus and the garage with a test group:
+
+.. test_list::
+
+  generic_touchscreen_examples:StylusAndGarage
+
 """
 
 import enum

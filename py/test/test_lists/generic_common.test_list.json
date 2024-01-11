@@ -899,34 +899,6 @@
         "CPU"
       ]
     },
-    "Stylus": {
-      "pytest_name": "stylus",
-      "run_if": "not constants.has_device_data or device.component.has_stylus"
-    },
-    "StylusAndGarage": {
-      "label": "Stylus And Garage",
-      "subtests": [
-        {
-          "inherit": "StylusGarage",
-          "label": "Remove stylus",
-          "args": {
-            "target_state": "ejected"
-          }
-        },
-        "Stylus",
-        {
-          "inherit": "StylusGarage",
-          "label": "Insert stylus",
-          "args": {
-            "target_state": "inserted"
-          }
-        }
-      ]
-    },
-    "StylusGarage": {
-      "pytest_name": "stylus_garage",
-      "run_if": "not constants.has_device_data or device.component.has_stylus_garage"
-    },
     "SuspendResume": {
       "pytest_name": "suspend_resume",
       "exclusive_resources": [
@@ -1138,15 +1110,6 @@
     },
     "Touchpad": {
       "pytest_name": "touchpad"
-    },
-    "Touchscreen": {
-      "pytest_name": "touchscreen",
-      "run_if": "not constants.has_device_data or device.component.has_touchscreen"
-    },
-    "TouchscreenUniformity": {
-      "pytest_name": "touch_uniformity",
-      "label": "Touchscreen Uniformity",
-      "run_if": "not constants.has_device_data or device.component.has_touchscreen"
     },
     "URandom": {
       "pytest_name": "urandom",

@@ -29,16 +29,11 @@ Dependency
 Examples
 --------
 To check touchpad hover with default parameters without calibration, add this
-in test list::
+in test list:
 
-  {
-    "pytest_name": "touch_device_fw_update",
-    "args": {
-      "device_name": "MyTouchDevice",
-      "fw_name": "xxx.bin",
-      "fw_version": "160.0"
-    }
-  }
+.. test_list::
+
+  generic_touchscreen_examples:TouchDeviceFWUpdate
 
 """
 

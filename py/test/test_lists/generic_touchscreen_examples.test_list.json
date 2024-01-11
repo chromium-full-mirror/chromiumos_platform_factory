@@ -1,0 +1,98 @@
+{
+  "__comment": "Examples for testing touchscreen components. touchscreen is called \"Touch screen controller (EMR Stylus)\", \"Touch screen Controller (non stylus)\", or \"Touch screen controller (USI Stylus)\" in AVL.",
+  "inherit": [
+    "generic_touchscreen.test_list"
+  ],
+  "label": "Generic Touchscreen Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "StylusSpiralHoverMode": {
+      "inherit": "Touchscreen",
+      "label": "Stylus Spiral Hover Mode",
+      "args": {
+        "stylus": true,
+        "hover_mode": true
+      }
+    },
+    "StylusSpiralTouchMode": {
+      "inherit": "Touchscreen",
+      "label": "Stylus Spiral Touch Mode",
+      "args": {
+        "stylus": true,
+        "hover_mode": false
+      }
+    },
+    "StylusTopLeftToBottomLeft": {
+      "inherit": "Stylus",
+      "label": "Stylus Top Left To Bottom Left",
+      "args": {
+        "endpoints_ratio": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    "TouchDeviceFWUpdate": {
+      "pytest_name": "touch_device_fw_update",
+      "args": {
+        "device_name": "MyTouchDevice",
+        "fw_name": "xxx.bin",
+        "fw_version": "160.0"
+      }
+    },
+    "Touchscreen30x20": {
+      "inherit": "Touchscreen",
+      "label": "Touchscreen 30x20",
+      "args": {
+        "y_segments": 30,
+        "x_segments": 20
+      }
+    },
+    "TouchscreenArbitraryOrder": {
+      "inherit": "Touchscreen",
+      "label": "Touchscreen Arbitrary Order",
+      "args": {
+        "spiral_mode": false
+      }
+    },
+    "TouchscreenE2EMode": {
+      "inherit": "Touchscreen",
+      "label": "Touchscreen E2E Mode",
+      "args": {
+        "e2e_mode": true
+      }
+    },
+    "TouchscreenWithoutTimeLimit": {
+      "inherit": "Touchscreen",
+      "label": "Touchscreen Without TimeLimit",
+      "args": {
+        "timeout_secs": null
+      }
+    }
+  },
+  "tests": [
+    "ProbeTouchscreen",
+    "Stylus",
+    "StylusTopLeftToBottomLeft",
+    "StylusSpiralHoverMode",
+    "StylusSpiralTouchMode",
+    "StylusGarage",
+    "StylusAndGarage",
+    "Touchscreen",
+    "Touchscreen30x20",
+    "TouchscreenWithoutTimeLimit",
+    "TouchscreenE2EMode",
+    "TouchscreenArbitraryOrder",
+    "TouchscreenUniformity",
+    "TouchDeviceFWUpdate"
+  ]
+}

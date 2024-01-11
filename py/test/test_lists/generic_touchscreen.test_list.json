@@ -1,0 +1,87 @@
+{
+  "__comment": "Predefined touchscreen tests. touchscreen is called \"Touch screen controller (EMR Stylus)\", \"Touch screen Controller (non stylus)\", or \"Touch screen controller (USI Stylus)\" in AVL.",
+  "inherit": [
+    "generic_common.test_list"
+  ],
+  "constants": {
+    "__comment": "has_device_data is defined in generic_common."
+  },
+  "options": {},
+  "definitions": {
+    "ProbeTouchscreen": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Touchscreen",
+      "args": {
+        "component_list": [
+          "touchscreen"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "touchscreen",
+            "==",
+            1
+          ]
+        ]
+      }
+    },
+    "Stylus": {
+      "pytest_name": "stylus",
+      "run_if": "not constants.has_device_data or device.component.has_stylus"
+    },
+    "StylusAndGarage": {
+      "label": "Stylus And Garage",
+      "subtests": [
+        {
+          "inherit": "StylusGarage",
+          "label": "Remove stylus",
+          "args": {
+            "target_state": "ejected"
+          }
+        },
+        "Stylus",
+        {
+          "inherit": "StylusGarage",
+          "label": "Insert stylus",
+          "args": {
+            "target_state": "inserted"
+          }
+        }
+      ]
+    },
+    "StylusGarage": {
+      "pytest_name": "stylus_garage",
+      "run_if": "not constants.has_device_data or device.component.has_stylus_garage"
+    },
+    "Touchscreen": {
+      "pytest_name": "touchscreen",
+      "run_if": "not constants.has_device_data or device.component.has_touchscreen"
+    },
+    "TouchscreenUniformity": {
+      "pytest_name": "touch_uniformity",
+      "label": "Touchscreen Uniformity",
+      "run_if": "not constants.has_device_data or device.component.has_touchscreen",
+      "__comment": "Ask vendor how to calibrate touchscreen if they do not support this test",
+      "args": {
+        "check_list": [
+          [
+            0,
+            "i18n! References",
+            23400,
+            25100,
+            0,
+            0
+          ],
+          [
+            1,
+            "i18n! Deltas",
+            -30,
+            40,
+            0,
+            0
+          ]
+        ]
+      }
+    }
+  }
+}
