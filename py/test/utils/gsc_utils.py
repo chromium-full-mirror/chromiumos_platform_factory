@@ -143,7 +143,7 @@ class GSCUtils:
       # Fail reason, either:
       # - attested_device_id is not set
       # - SN bits has been set differently
-      # cr50-set-sn-bits.sh prints errors on stdout instead of stderr.
+      # gsc_set_sn_bits prints errors on stdout instead of stderr.
       raise GSCUtilsError(stdout)
 
     if 'This device has been RMAed' in stdout:
