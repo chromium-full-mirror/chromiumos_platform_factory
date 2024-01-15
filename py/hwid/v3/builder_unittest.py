@@ -583,8 +583,7 @@ class DatabaseBuilderTest(unittest.TestCase):
             'ro_ec_firmware_field': 5,
             'comp_cls_1_field': 2,
             'comp_cls_23_field': 2,
-            'comp_cls_100_field': 1,
-            'wireless_field': 5
+            'comp_cls_100_field': 1
         })
 
   # TODO (b/212216855)
