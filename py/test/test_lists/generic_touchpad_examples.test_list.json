@@ -1,0 +1,50 @@
+{
+  "__comment": "Examples for testing touchpad components. Touchpad is called \"Touchpad Controller\" in AVL.",
+  "inherit": [
+    "generic_touchpad.test_list"
+  ],
+  "label": "Generic Touchpad Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "Touchpad100Seconds": {
+      "inherit": "Touchpad",
+      "label": "Touchpad 100 Seconds",
+      "args": {
+        "timeout_secs": 100
+      }
+    },
+    "TouchpadCalibrateAndHover": {
+      "label": "Touchpad Calibrate And Hover",
+      "subtests": [
+        {
+          "pytest_name": "scan",
+          "label": "Scan Touchpad Calibration Trigger",
+          "args": {
+            "device_data_key": "component.touchpad.calibration_trigger",
+            "label": "Touchpad Calibration Trigger"
+          }
+        },
+        {
+          "inherit": "TouchpadHover",
+          "label": "Touchpad Calibrate And Hover",
+          "args": {
+            "calibration_trigger": "eval! device.component.touchpad.calibration_trigger"
+          }
+        }
+      ]
+    },
+    "TouchpadHover": {
+      "pytest_name": "touchpad_hover"
+    }
+  },
+  "tests": [
+    "ProbeTouchpad",
+    "Touchpad",
+    "Touchpad100Seconds",
+    "TouchpadCalibrateAndHover",
+    "TouchpadHover"
+  ]
+}

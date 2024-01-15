@@ -4185,6 +4185,30 @@ msgstr "สลับไปใช้รายการทดสอบ RMA"
 msgid "Test List for Tast Tests"
 msgstr "รายการทดสอบสำหรับ Tast ทดสอบ"
 
+#: ../py/test/test_lists/generic_touchpad.test_list.json
+msgid "Probe Touchpad"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad 100 Seconds"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad Calibration Trigger"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Scan Touchpad Calibration Trigger"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad Calibrate And Hover"
+msgstr ""
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Generic Touchpad Factory tests"
+msgstr ""
+
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Probe Touchscreen"
 msgstr ""

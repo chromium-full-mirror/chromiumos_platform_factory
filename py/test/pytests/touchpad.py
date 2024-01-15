@@ -30,20 +30,18 @@ Dependency
 
 Examples
 --------
-To test touchpad with default parameters, add this in test list::
+To test touchpad with default parameters, add this in test list:
 
-  {
-    "pytest_name": "touchpad"
-  }
+.. test_list::
+
+  generic_touchpad_examples:Touchpad
 
 If you want to change the time limit to 100 seconds::
 
-  {
-    "pytest_name": "touchpad",
-    "args": {
-      "timeout_secs": 100
-    }
-  }
+.. test_list::
+
+  generic_touchpad_examples:Touchpad100Seconds
+
 """
 
 import logging

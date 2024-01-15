@@ -49,21 +49,18 @@ Dependency
 Examples
 --------
 To check touchpad hover with default parameters without calibration, add this
-in test list::
+in test list:
 
-  {
-    "pytest_name": "touchpad_hover"
-  }
+.. test_list::
 
-If calibration is required::
+  generic_touchpad_examples:TouchpadHover
 
-  {
-    "pytest_name": "touchpad_hover",
-    "args": {
-      "calibration_trigger":
-        "/sys/bus/i2c/drivers/xxx_i2c/i2c-xxx0000:00/calibrate"
-    }
-  }
+If calibration is required:
+
+.. test_list::
+
+  generic_touchpad_examples:TouchpadCalibrateAndHover
+
 """
 
 import contextlib

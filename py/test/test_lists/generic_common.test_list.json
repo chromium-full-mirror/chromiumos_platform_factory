@@ -1108,9 +1108,6 @@
         }
       ]
     },
-    "Touchpad": {
-      "pytest_name": "touchpad"
-    },
     "URandom": {
       "pytest_name": "urandom",
       "label": "Random Number Generation"

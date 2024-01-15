@@ -4168,6 +4168,30 @@ msgstr "切换至 RMA 测试列表"
 msgid "Test List for Tast Tests"
 msgstr "Test List for Tast Tests"
 
+#: ../py/test/test_lists/generic_touchpad.test_list.json
+msgid "Probe Touchpad"
+msgstr "侦测触控板硬件"
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad 100 Seconds"
+msgstr "触控板(时限 100 秒)"
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad Calibration Trigger"
+msgstr "触控板校正触发器"
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Scan Touchpad Calibration Trigger"
+msgstr "扫描触控板校正触发器"
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Touchpad Calibrate And Hover"
+msgstr "触控板校正和悬浮"
+
+#: ../py/test/test_lists/generic_touchpad_examples.test_list.json
+msgid "Generic Touchpad Factory tests"
+msgstr "一般触控板测试"
+
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Probe Touchscreen"
 msgstr "侦测触控面板硬件"
