@@ -20,10 +20,6 @@ from cros.factory.utils import json_utils
 ProbedValueType = Dict[str, Union[List, None, 'ProbedValueType', bool, float,
                                   int, str]]
 
-# Adding 0 bit length for component classes that don't have too much second
-# source to reduce the total bit length.
-_ZERO_BIT_ESSENNTIAL_COMPONENTS = {'wireless'}
-
 
 class BuilderException(Exception):
   """Raised when the operation of the builder is invalid."""
@@ -1031,10 +1027,9 @@ class DatabaseBuilder:
                                  f'essential component: {comp_cls!r}')
 
         bit_length = 0
-        if comp_cls not in _ZERO_BIT_ESSENNTIAL_COMPONENTS:
-          min_bit_length = max(self._GetMinBitLength(field_name), 1)
-          while bit_length < min_bit_length:
-            bit_length += next(bit_iter)
+        min_bit_length = max(self._GetMinBitLength(field_name), 1)
+        while bit_length < min_bit_length:
+          bit_length += next(bit_iter)
         self._database.AppendEncodedFieldBit(field_name, bit_length)
 
         handled_comp_classes |= set(

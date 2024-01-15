@@ -584,7 +584,7 @@ class DatabaseBuilderTest(unittest.TestCase):
             'comp_cls_1_field': 2,
             'comp_cls_23_field': 2,
             'comp_cls_100_field': 1,
-            'wireless_field': 0,
+            'wireless_field': 5
         })
 
   # TODO (b/212216855)
