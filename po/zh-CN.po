@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-07 17:52+CST\n"
+"PO-Revision-Date: 2024-01-24 16:09+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -315,10 +315,6 @@ msgstr "光棒"
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
 msgstr "项目验证"
-
-#: ../build/pytests_label_generated.json
-msgid "Lock Intel Descriptor"
-msgstr "锁定 Intel 描述符"
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
@@ -4274,6 +4270,10 @@ msgstr "设定 EOM NVAR"
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Start PSR Log"
 msgstr "开始 PSR 记录"
+
+#: ../py/test/test_lists/intel_common.test_list.json
+msgid "Update CSME Locked Firmware"
+msgstr "更新CSME上锁的韧体"
 
 #: ../py/test/test_lists/main_wipe.test_list.json
 msgid "Execute Wipe Test-List"

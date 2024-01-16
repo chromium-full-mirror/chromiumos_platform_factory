@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-12-07 17:52+CST\n"
+"PO-Revision-Date: 2024-01-24 16:09+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -315,10 +315,6 @@ msgstr "Thanh ánh sáng"
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
 msgstr "Xác minh dự án"
-
-#: ../build/pytests_label_generated.json
-msgid "Lock Intel Descriptor"
-msgstr ""
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
@@ -4335,6 +4331,10 @@ msgstr ""
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Start PSR Log"
+msgstr ""
+
+#: ../py/test/test_lists/intel_common.test_list.json
+msgid "Update CSME Locked Firmware"
 msgstr ""
 
 #: ../py/test/test_lists/main_wipe.test_list.json
