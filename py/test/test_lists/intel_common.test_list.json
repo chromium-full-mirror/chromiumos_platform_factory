@@ -3,26 +3,6 @@
     "generic_common.test_list"
   ],
   "definitions": {
-    "LockIntelDescriptor": {
-      "pytest_name": "lock_intel_descriptor"
-    },
-    "LockIntelDescriptorGroup": {
-      "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
-      "subtests": [
-        "LockIntelDescriptor",
-        {
-          "inherit": "FullRebootStep",
-          "run_if": "device.factory.desc_update_need_reboot"
-        },
-        {
-          "inherit": "LockIntelDescriptor",
-          "run_if": "device.factory.desc_update_need_reboot",
-          "args": {
-            "mode": "verify"
-          }
-        }
-      ]
-    },
     "SetEOMNVAR": {
       "pytest_name": "setup_psr_feature",
       "label": "Set EOM NVAR",
@@ -43,17 +23,27 @@
         "SetEOMNVAR",
         {
           "inherit": "FullRebootStep",
-          "run_if": "device.factory.psr_update_need_reboot and constants.phase != 'PVT'"
-        },
-        {
-          "inherit": "LockIntelDescriptorGroup",
-          "run_if": "(constants.grt.force_write_protect or constants.phase == 'PVT') and device.factory.psr_update_need_reboot"
+          "run_if": "device.factory.psr_update_need_reboot"
         },
         {
           "inherit": "SyncFactoryServer",
           "run_if": "device.factory.psr_update_need_reboot"
         },
         "StartPSRLog"
+      ]
+    },
+    "UpdateCSMELockedFirmware": {
+      "label": "Update CSME Locked Firmware",
+      "subtests": [
+        {
+          "pytest_name": "update_firmware",
+          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
+          "args": {
+            "unlock_csme": false
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
       ]
     },
     "UpdatePSROEMData": {

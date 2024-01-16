@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-18 15:31+CST\n"
+"PO-Revision-Date: 2024-01-24 16:09+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -319,10 +319,6 @@ msgstr "แถบไฟ"
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
 msgstr "การตรวจสอบโครงการ"
-
-#: ../build/pytests_label_generated.json
-msgid "Lock Intel Descriptor"
-msgstr "ล็อค Intel Descriptor"
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
@@ -4328,6 +4324,10 @@ msgstr "ตั้งค่า NVAR สิ้นสุดการวัด"
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Start PSR Log"
 msgstr "เริ่มบันทึกข้อมูล PSR"
+
+#: ../py/test/test_lists/intel_common.test_list.json
+msgid "Update CSME Locked Firmware"
+msgstr ""
 
 #: ../py/test/test_lists/main_wipe.test_list.json
 msgid "Execute Wipe Test-List"
