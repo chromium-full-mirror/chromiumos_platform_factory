@@ -92,6 +92,10 @@ class NoUpdatesException(Exception):
   pass
 
 
+class IntelDescriptorHasLockedException(Exception):
+  pass
+
+
 class UpdateFirmwareTest(test_case.TestCase):
   ARGS = [
       Arg('firmware_updater', str, 'Full path of %s.' % _FIRMWARE_UPDATER_NAME,
@@ -106,13 +110,16 @@ class UpdateFirmwareTest(test_case.TestCase):
           default=False),
       Arg('force_update', bool,
           'force to update firmware even if the version is the same.',
-          default=True)
+          default=True),
+      Arg('unlock_csme', bool, 'Unlock the Intel CSME before flashing.',
+          default=True),
   ]
 
   ui_class = test_ui.ScrollableLogUI
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
+    self._is_ti50 = gsc_utils.GSCUtils().IsTi50()
 
   def DownloadFirmware(self, force_update, target_path):
     """Downloads firmware updater from server."""
@@ -136,6 +143,39 @@ class UpdateFirmwareTest(test_case.TestCase):
     updater.PerformUpdate(destination=target_path)
     os.chmod(target_path, 0o755)
     return True
+
+  def IsIntelFirmware(self, fw_image):
+    return fw_image.GetFirmwareImage().has_section(crosfw.IntelLayout.ME.value)
+
+  def VerifyIntelDescriptorLockStatus(self, dut_locked, updater_locked):
+    """Verifies Intel descriptor's lock status.
+
+    Below we summarize the possible descriptor status of the DUT and updater,
+    and raise exception if the status is unexpected.
+
+    L: SI_DESC is locked; U: SI_DESC is unlocked.
+    ---------------------------------------------------------
+    | Updater  | DUT |     Update Result     |   Scenario   |
+    ---------------------------------------------------------
+    |    L     |  L  |       RO* + RW        |     RMA      |
+    ---------------------------------------------------------
+    |    L     |  U  | RO will be locked + RW|    Factory   |
+    ---------------------------------------------------------
+    |    U     |  L  |       Exception       |      X       |
+    ---------------------------------------------------------
+    |    U     |  U  |       RO + RW         |    Factory   |
+    ---------------------------------------------------------
+    *: RO will only be updated if the SI_DESC in the updater and the DUT
+       are the same.
+    """
+    logging.info('Intel descriptor status: %s',
+                 'Locked' if dut_locked else 'Unlocked')
+    logging.info('Updater descriptor status: %s',
+                 'Locked' if updater_locked else 'Unlocked')
+    if not updater_locked and dut_locked:
+      raise IntelDescriptorHasLockedException(
+          'Descriptor has already been locked! Cannot flash unlocked FW. '
+          'Please set argument `unlock_csme` to false.')
 
   def UpdateFirmware(self):
     """Runs firmware updater.
@@ -165,12 +205,17 @@ class UpdateFirmwareTest(test_case.TestCase):
     else:
       command += ['--mode=factory']
 
-    main_fw = crosfw.LoadIntelMainFirmware()
-    _, is_locked = main_fw.GenerateAndCheckLockedDescriptor()
-    if not is_locked:
-      logging.info('Pass `--quirks unlock_csme_nissa` to firmware updater to '
-                   'unlock CSME region.')
-      command += ['--quirks', 'unlock_csme_nissa']
+    # AP RO verification v2 protects RO as a whole, including Intel's SI_DESC.
+    # We thus cannot update the firmware arbitrarily.
+    # Below we verify whether the update is valid or not.
+    if self._is_ti50:
+      fw_image = crosfw.LoadIntelMainFirmware()
+      if self.IsIntelFirmware(fw_image):
+        _, is_locked = fw_image.GenerateAndCheckLockedDescriptor()
+        self.VerifyIntelDescriptorLockStatus(is_locked,
+                                             not self.args.unlock_csme)
+        if self.args.unlock_csme:
+          command += ['--quirks=unlock_csme_nissa']
 
     returncode = self.ui.PipeProcessOutputToUI(command)
 
@@ -183,8 +228,7 @@ class UpdateFirmwareTest(test_case.TestCase):
   def runTest(self):
     # Either download_from_server or from_release can be True.
     self.assertFalse(self.args.download_from_server and self.args.from_release)
-    is_ti50 = gsc_utils.GSCUtils().IsTi50()
-    if is_ti50:
+    if self._is_ti50:
       logging.info('Current RLZ code in RO_GSCVD: %s',
                    futility.Futility().GetRLZFromROGSCVD())
 
@@ -217,7 +261,7 @@ class UpdateFirmwareTest(test_case.TestCase):
     except NoUpdatesException:
       pass
     else:
-      if is_ti50:
+      if self._is_ti50:
         logging.info('New RLZ code in RO_GSCVD: %s',
                      futility.Futility().GetRLZFromROGSCVD())
         Gooftool().VerifyBrandCode()
