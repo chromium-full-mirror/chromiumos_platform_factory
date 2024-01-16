@@ -37,6 +37,9 @@ packaging==20.0
 # 3-Clause BSD License
 protobuf==4.21.9
 
+# 2-Clause BSD License
+pycryptodome==3.7.3
+
 # License: MIT
 PyYaml==3.13
 
