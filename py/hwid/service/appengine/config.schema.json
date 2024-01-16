@@ -42,6 +42,9 @@
                   }
                 }
               ]
+            },
+            "encrypted": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

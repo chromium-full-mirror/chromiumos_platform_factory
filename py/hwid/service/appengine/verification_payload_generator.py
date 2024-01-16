@@ -23,6 +23,7 @@ from cros.factory.hwid.v3 import rule as hwid_rule
 from cros.factory.probe.runtime_probe import generic_probe_statement
 from cros.factory.probe.runtime_probe import probe_config_definition
 from cros.factory.probe.runtime_probe import probe_config_types
+from cros.factory.utils import crypto_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
 
@@ -704,7 +705,8 @@ def GetAllComponentVerificationPayloadPieces(
   return ret
 
 
-def GenerateVerificationPayload(dbs):
+def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
+                                salt: Optional[bytes] = None):
   """Generates the corresponding verification payload from the given HWID DBs.
 
   This function ignores the component categories that no corresponding generator
@@ -714,9 +716,17 @@ def GenerateVerificationPayload(dbs):
   any of the `cpu` component in the given HWID databases, this function raises
   exception to indicate a failure.
 
+  If a model is marked as encrypted, this function will encrypt the probe config
+  to "probe_config.json.enc" with the first key and generate a generic probe
+  config instead.
+
   Args:
     dbs: A list of tuple of the HWID database object and the config for the
         generator.
+    encryption_key: A passphrase used for key generation, which will be used for
+        payload encryption.
+    salt: A string used for better protection from dictionary attacks.  The salt
+        will be computed from the content of payload if None is given.
 
   Returns:
     Instance of `VerificationPayloadGenerationResult`.
@@ -870,6 +880,9 @@ def GenerateVerificationPayload(dbs):
 
     return skip_comp_names
 
+  def _Encrypt(data: str, key: str, salt: Optional[bytes]) -> str:
+    return crypto_utils.AES256Encrypt(data.encode(), key, salt).decode()
+
   error_msgs = []
   generated_file_contents = {}
 
@@ -881,6 +894,7 @@ def GenerateVerificationPayload(dbs):
   for db, vpg_config in dbs:
     model_prefix = db.project.lower()
     probe_config = probe_config_types.ProbeConfigPayload()
+    generic_probe_config = probe_config_types.ProbeConfigPayload()
 
     skip_comp_names = _CollectSkipCompNames(db)
     if skip_comp_names:
@@ -906,7 +920,9 @@ def GenerateVerificationPayload(dbs):
       grouped_primary_comp_name[
           hash_val] = comp_vp_piece.probe_statement.component_name
       comp_category = comp_vp_piece.probe_statement.category_name
-      hw_verification_spec.component_infos.append(comp_vp_piece.component_info)
+      if not vpg_config.encrypted:
+        hw_verification_spec.component_infos.append(
+            comp_vp_piece.component_info)
       if comp_category in multi_exp_categories:
         grouped_merge_vp_piece[comp_category].append(comp_vp_piece)
       else:
@@ -920,9 +936,29 @@ def GenerateVerificationPayload(dbs):
         generic_probe_statement.GetAllGenericProbeStatementInfoRecords()):
       if ps_gen.probe_category not in vpg_config.waived_comp_categories:
         probe_config.AddComponentProbeStatement(ps_gen.GenerateProbeStatement())
+        if vpg_config.encrypted:
+          generic_probe_config.AddComponentProbeStatement(
+              ps_gen.GenerateProbeStatement())
+
+    if vpg_config.encrypted:
+      # Use determined salt from the hash of content to guarantee the encrypted
+      # data is identical and prevent unexpected changes.
+      probe_config_pathname = (
+          f'runtime_probe/{model_prefix}/probe_config.json.enc')
+      probe_config_str = probe_config.DumpToString()
+      probe_config_hash = hashlib.sha1(
+          probe_config_str.encode('utf-8')).digest()
+      probe_config_salt = probe_config_hash[:8] if salt is None else salt
+      generated_file_contents[probe_config_pathname] = _Encrypt(
+          probe_config_str, encryption_key, probe_config_salt)
+      # Generate generic probe configs to make runtime_probe and
+      # hardware_verifier run without failures.  Therefore, the Tast test for
+      # hardware_verifier still works.
+      probe_config = generic_probe_config
 
     probe_config_pathname = f'runtime_probe/{model_prefix}/probe_config.json'
     generated_file_contents[probe_config_pathname] = probe_config.DumpToString()
+
     grouped_comp_vp_piece_per_model[db.project] = grouped_comp_vp_piece
     grouped_primary_comp_name_per_model[db.project] = grouped_primary_comp_name
 
@@ -979,7 +1015,15 @@ def main():
       '--waived_comp_category', nargs='*', default=[], dest='waived_categories',
       help=('Waived component category, must specify in format of '
             '`<model_name>.<category_name>`.'))
+  ap.add_argument('--encrypted_model', nargs='*', default=[],
+                  dest='encrypted_models', help='Encrypted models')
+  ap.add_argument('-k', '--key', help='Encryption key')
+  ap.add_argument('--nosalt', action='store_true',
+                  help='Do not use salt in KDF')
   args = ap.parse_args()
+
+  if args.encrypted_models and args.key is None:
+    ap.error("--encrypted_model requires --key.")
 
   logging.basicConfig(level=logging.INFO)
 
@@ -993,21 +1037,28 @@ def main():
     model_name, unused_sep, category_name = category.partition('.')
     ignore_error[model_name.lower()].append(category_name)
 
+  encrypted_models = {model.lower()
+                      for model in args.encrypted_models}
+
   dbs = []
   for hwid_db_path in args.hwid_db_paths:
     logging.info('Load the HWID database file (%s).', hwid_db_path)
     db = database.Database.LoadFile(hwid_db_path, verify_checksum=False)
+    model = db.project.lower()
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
-        ignore_error=ignore_error[db.project.lower()],
-        waived_comp_categories=waived_categories[db.project.lower()])
+        ignore_error=ignore_error[model],
+        waived_comp_categories=waived_categories[model], encrypted=model
+        in encrypted_models)
     logging.info('Waived component category: %r',
                  vpg_config.waived_comp_categories)
     logging.info('Ignore exception component category: %r',
                  vpg_config.ignore_error)
     dbs.append((db, vpg_config))
 
+  salt = b'' if args.nosalt else None
+
   logging.info('Generate the verification payload data.')
-  result = GenerateVerificationPayload(dbs)
+  result = GenerateVerificationPayload(dbs, args.key, salt)
   for model, mapping in result.primary_identifiers.items():
     logs = [f'Found duplicate probe statements for model {model}:']
     for (category, comp_name), primary_comp_name in mapping.items():

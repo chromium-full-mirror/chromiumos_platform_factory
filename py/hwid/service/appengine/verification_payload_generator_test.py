@@ -5,6 +5,8 @@
 
 import functools
 import os
+import subprocess
+from typing import Optional
 import unittest
 
 from google.protobuf import json_format
@@ -33,6 +35,15 @@ def GetProbeStatementGenerator(category):
   return functools.partial(
       _vp_generator.GenerateProbeStatement,
       _vp_generator.GetAllProbeStatementGenerators()[category])
+
+
+def OpenSSLAES256Decrypt(data: bytes, key: str,
+                         nosalt: Optional[bool] = False) -> bytes:
+  cmd = ['openssl', 'aes-256-cbc', '-d', '-pbkdf2', '-base64', '-k', key]
+  if nosalt:
+    cmd.append('-nosalt')
+  p = subprocess.run(cmd, input=data, capture_output=True, check=True)
+  return p.stdout
 
 
 class GenericBatteryProbeStatementGeneratorTest(unittest.TestCase):
@@ -599,10 +610,8 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
     text_format.Parse(files['hw_verification_spec.prototxt'],
                       hw_verification_spec)
     self.assertEqual(
-        json_utils.DumpStr(
-            json_format.MessageToDict(hw_verification_spec), sort_keys=True),
-        json_utils.DumpStr(expected_outputs['hw_verification_spec.prototxt'],
-                           sort_keys=True))
+        json_format.MessageToDict(hw_verification_spec),
+        expected_outputs['hw_verification_spec.prototxt'])
 
   def testHasUnsupportedComps(self):
     # The database bad_model_db.yaml contains an unknown storage, which is not
@@ -614,6 +623,38 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
                         'bad_model_db.yaml')]
     report = _vp_generator.GenerateVerificationPayload(dbs)
     self.assertEqual(len(report.error_msgs), 1)
+
+  def testWithEncryption(self):
+    dbs = [(database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, name), verify_checksum=False),
+            vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+                encrypted=True))
+           for name in ('model_a_db.yaml', 'model_b_db.yaml', 'model_c_db.yaml',
+                        'model_d_db.yaml', 'model_e_db.yaml', 'model_f_db.yaml',
+                        'model_g_db.yaml')]
+    expected_outputs = json_utils.LoadFile(
+        os.path.join(TESTDATA_DIR, 'expected_model_ab_output.json'))
+
+    files = _vp_generator.GenerateVerificationPayload(
+        dbs, 'testkey').generated_file_contents
+
+    # files should include hw_verification_spec.prototxt.
+    self.assertEqual(len(files), len(dbs) * 2 + 1)
+    self.assertEqual(
+        json_utils.LoadStr(
+            OpenSSLAES256Decrypt(
+                files['runtime_probe/model_a/probe_config.json.enc'].encode(),
+                'testkey')),
+        expected_outputs['runtime_probe/model_a/probe_config.json'])
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_a/probe_config.json']),
+        expected_outputs['runtime_probe/probe_config_generic.json'])
+    hw_verification_spec = hardware_verifier_pb2.HwVerificationSpec()
+    text_format.Parse(files['hw_verification_spec.prototxt'],
+                      hw_verification_spec)
+    self.assertEqual(
+        json_format.MessageToDict(hw_verification_spec),
+        expected_outputs['hw_verification_spec_encrypted.prototxt'])
 
 
 class GenerateProbeStatementWithInformation(unittest.TestCase):

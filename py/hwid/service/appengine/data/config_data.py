@@ -150,6 +150,7 @@ class Config:
     self.vpg_targets = (
         vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate(
             conf.get('vpg_targets', {})))
+    self.vpg_keys = conf.get('vpg_keys', [])
     self.dryrun_upload = conf.get('dryrun_upload', True)
     self.project_region = conf['project_region']
     self.queue_name = conf['queue_name']

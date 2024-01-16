@@ -444,6 +444,12 @@ class VerificationPayloadManager(PayloadManager):
   def _GeneratePayloads(self, board: str,
                         models: Collection[str]) -> Optional[_Payload]:
     """See base class."""
+    key = next(iter(self._config_data.vpg_keys), None)
+    if key is None and any(
+        vpg_target.encrypted
+        for vpg_target in self._config_data.vpg_targets.values()):
+      self._logger.error('Missing encrpytion keys')
+      return None
     db_list = []
     for model in models:
       try:
@@ -451,8 +457,9 @@ class VerificationPayloadManager(PayloadManager):
         db = hwid_action.GetDBV3()
       except (KeyError, ValueError, RuntimeError) as ex:
         self._logger.error('Cannot get model data: %r', ex)
-      db_list.append((db, self._config_data.vpg_targets[model]))
-    result = vpg_module.GenerateVerificationPayload(db_list)
+      vpg_target = self._config_data.vpg_targets[model]
+      db_list.append((db, vpg_target))
+    result = vpg_module.GenerateVerificationPayload(db_list, key)
     return _Payload(result.generated_file_contents, result.payload_hash,
                     {'primary_identifier': result.primary_identifiers})
 
