@@ -24,6 +24,7 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
 from cros.factory.utils import sys_utils
+from cros.factory.utils import type_utils
 
 
 CUTOFF_SCRIPT_DIR = '/usr/local/factory/sh/cutoff'
@@ -475,8 +476,14 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
     return False  # need to check again
 
   # Try to kill processes using stateful partition gracefully.
-  _KillOpeningBySignal(signal.SIGTERM)
-  _KillOpeningBySignal(signal.SIGKILL)
+  try:
+    _KillOpeningBySignal(signal.SIGTERM)
+  except type_utils.MaxRetryError:
+    pass
+  try:
+    _KillOpeningBySignal(signal.SIGKILL)
+  except type_utils.MaxRetryError:
+    pass
 
   proc_list = _ListProcOpening(mount_point_list)
   assert not proc_list, f"processes using stateful partition: {proc_list}"
