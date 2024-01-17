@@ -621,7 +621,14 @@ class Gooftool:
   def VerifyManagementEngineLocked(self):
     """Verify Management Engine is locked."""
     main_fw = self._ifdtool.LoadIntelMainFirmware()
-    management_engine.VerifyMELocked(main_fw, self._util.shell)
+    try:
+      management_engine.VerifyMELocked(main_fw, self._util.shell)
+    except management_engine.ManagementEngineError as error:
+      logging.error(
+          'Fail to verify ME. '
+          'Have you locked the FW using "UpdateMELockedFirmware" factory test?')
+      raise error
+
 
   def VerifyReleaseChannel(self, enforced_channels=None):
     """Verify that release image channel is correct.
