@@ -14,7 +14,7 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 
 
-MTD_PATH = '/sys/kernel/debug/mtd/mtd0/'
+MTD_PATH = '/sys/class/mtd/mtd0/device/spi-nor'
 
 class FlashChipFunction(cached_probe_function.LazyCachedProbeFunction):
   """Get information of flash chips.
@@ -97,7 +97,7 @@ class FlashChipFunction(cached_probe_function.LazyCachedProbeFunction):
     # support it. As a result, we added a debugfs under the MTD_PATH
     # for querying the partid and partname
     if match_list and ('name', 'Opaque flash chip') in match_list:
-      result = sysfs.ReadSysfs(MTD_PATH, ['partid', 'partname'])
+      result = sysfs.ReadSysfs(MTD_PATH, ['jedec_id', 'partname'])
       if result is not None:
         return result
 
