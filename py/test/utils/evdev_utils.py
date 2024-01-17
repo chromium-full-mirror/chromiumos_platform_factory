@@ -121,6 +121,12 @@ def IsStylusDevice(dev):
       evdev.ecodes.BTN_TOOL_PEN]])
 
 
+def IsStylusGarageDevice(dev: evdev.InputDevice):
+  """Check if a device is a stylus garage device."""
+  return evdev.ecodes.SW_PEN_INSERTED in dev.capabilities().get(
+      evdev.ecodes.EV_SW, [])
+
+
 def IsTouchpadDevice(dev):
   """Check if a device is a touchpad device.
 

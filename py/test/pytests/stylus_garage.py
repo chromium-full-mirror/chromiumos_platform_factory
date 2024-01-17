@@ -78,9 +78,8 @@ class StylusGarageTest(test_case.TestCase):
       Arg('timeout_secs', int, 'Timeout value for the test.', default=180),
       Arg('device_filter', (int, str),
           'Event ID or name for evdev. None for auto probe.', default=None),
-      Arg(
-          'garage_is_stylus', bool, 'Some garages are not stylus devices. Set '
-          'this flag to False to skip the check.', default=True),
+      Arg('garage_is_stylus', bool,
+          'Deprecated. No effect. Leave for compatibility.', default=True),
       Arg(
           'target_state', StylusStatus, 'The test passes when reaches the '
           'target state. If not specified, pass after an insertion and then '
@@ -91,8 +90,7 @@ class StylusGarageTest(test_case.TestCase):
     filters = []
     if self.args.device_filter is not None:
       filters.append(self.args.device_filter)
-    if self.args.garage_is_stylus:
-      filters.append(evdev_utils.IsStylusDevice)
+    filters.append(evdev_utils.IsStylusGarageDevice)
     self.event_dev = evdev_utils.FindDevice(*filters)
     self.ui.ToggleTemplateClass('font-large', True)
     self._current_status = None
