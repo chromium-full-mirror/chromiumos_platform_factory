@@ -134,7 +134,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
     cls.PROJECT_WITHOUT_UMPIRE_NAME = 'project_without_umpire'
     cls.PROJECT_WITH_UMPIRE_NAME = 'project_with_umpire'
     cls.PROJECT_WITH_UMPIRE_PORT = 8080
-    cls.MOCK_UMPIRE_VERSION = 8
+    cls.MOCK_UMPIRE_VERSION = 9
 
     models.Project.objects.create(name=cls.PROJECT_WITHOUT_UMPIRE_NAME)
     models.Project.objects.create(name=cls.PROJECT_WITH_UMPIRE_NAME,
@@ -418,7 +418,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
 
   def testActivateBundleUnicode(self):
     response = self._ActivateBundle(self.PROJECT_WITH_UMPIRE_NAME,
-                                    u'testing_bundle_04_with_\u4e2d\u6587')
+                                    'testing_bundle_04_with_\u4e2d\u6587')
 
     self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
     with TestData('umpire_config-activated_unicode.json') as c:
@@ -460,12 +460,10 @@ class DomeAPITest(rest_framework.test.APITestCase):
       self.assertEqual(r, bundle_list)
 
   def testReorderBundles(self):
-    response = self._ReorderBundles(self.PROJECT_WITH_UMPIRE_NAME,
-                                    ['testing_bundle_02',
-                                     'testing_bundle_01',
-                                     'testing_bundle_03',
-                                     'empty_init_bundle',
-                                     u'testing_bundle_04_with_\u4e2d\u6587'])
+    response = self._ReorderBundles(self.PROJECT_WITH_UMPIRE_NAME, [
+        'testing_bundle_02', 'testing_bundle_01', 'testing_bundle_03',
+        'empty_init_bundle', 'testing_bundle_04_with_\u4e2d\u6587'
+    ])
 
     self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
     with TestData('umpire_config-reordered.json') as c:
