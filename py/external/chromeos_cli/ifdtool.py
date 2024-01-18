@@ -25,6 +25,7 @@ class IntelPlatform(str, enum.Enum):
   IceLake = 'icl'
   IFDv2Platform = 'ifd2'
   JasperLake = 'jsl'
+  MetorLake = 'mtl'
   SkyLake = 'sklkbl'
   KabyLake = 'sklkbl'
   TigerLake = 'tgl'
