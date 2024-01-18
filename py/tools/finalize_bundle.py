@@ -1677,14 +1677,11 @@ class FinalizeBundle:
 
   def _DownloadReleaseImage(self, requested_version, target_dir):
     possible_urls = []
-    # Signed recovery image ends with .bin and takes higher priority, so .bin
-    # must be searched first. Unsigned recovery image ends with .tar.xz.
-    for ext in ['.bin', '.tar.xz']:
-      for channel in RESOURCE_CHANNELS:
-        url_prefix = gsutil.BuildResourceBaseURL(
-            channel, self.build_board.gsutil_name, requested_version)
-        url = f'{url_prefix}/*recovery*{ext}'
-        possible_urls.append(url)
+    for channel in RESOURCE_CHANNELS:
+      url_prefix = gsutil.BuildResourceBaseURL(
+          channel, self.build_board.gsutil_name, requested_version)
+      url = f'{url_prefix}/*recovery*.bin'
+      possible_urls.append(url)
     return self._DownloadAndExtractImage('release image', requested_version,
                                          possible_urls, target_dir)
 
