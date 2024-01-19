@@ -21,6 +21,8 @@ from cros.factory.gooftool.common import Shell
 from cros.factory.gooftool import core
 from cros.factory.gooftool.core import CrosConfigIdentity
 from cros.factory.gooftool.core import IdentitySourceEnum
+from cros.factory.gooftool.management_engine import GetFLMSTR
+from cros.factory.gooftool.management_engine import GetFLMSTRError
 from cros.factory.gooftool.management_engine import ManagementEngineError
 from cros.factory.gooftool.management_engine import SKU
 from cros.factory.gooftool import vpd_utils
@@ -218,6 +220,8 @@ class GooftoolTest(unittest.TestCase):
         hwid_version=3, project='chromebook', hwdb_path=_TEST_DATA_PATH)
     self._gooftool._util = mock.Mock(core.Util)
     self._gooftool._util.shell = mock.Mock(Shell)
+    self._gooftool._util.GetTestImageBoardName = mock.Mock()
+
     self._gooftool.futility = mock.Mock(futility.Futility)
 
     self._gooftool._flashrom = mock.Mock(flashrom)
@@ -234,7 +238,6 @@ class GooftoolTest(unittest.TestCase):
     self._gooftool._gsctool = mock.Mock(self._gooftool._gsctool)
     self._gooftool._gsctool.GetFeatureManagementFlags.return_value = (
         FeatureManagementFlags(False, 0))
-
 
   def testLoadHWIDDatabase(self):
     db = self._gooftool.db  # Shouldn't raise any exception.
@@ -343,29 +346,31 @@ class GooftoolTest(unittest.TestCase):
 
     # Raise since it is an unknown SKU
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(SKU.Unknown.flag)
+      MockME().GetMockedCBMEM(SKU.Unknown.value)
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
   def testVerifyManagementEngineLockedConsumerSKU(self):
     consumer = SKU.Consumer
+    board = 'hatch'
     # Read locked ME section + locked cbmem + locked descriptor
     self._gooftool._ifdtool.LoadIntelMainFirmware.return_value = \
       MockIntelMainFirmware(
-        consumer.flmstr,
+        GetFLMSTR(consumer, board),
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.flag)
+      MockME().GetMockedCBMEM(consumer.value)
+    self._gooftool._util.GetTestImageBoardName.return_value = board
     # Pass since everything is fine
     self._gooftool.VerifyManagementEngineLocked()
 
     # Read unlocked ME section + locked cbmem + locked descriptor
     self._gooftool._ifdtool.LoadIntelMainFirmware.return_value = \
       MockIntelMainFirmware(
-        consumer.flmstr,
+        GetFLMSTR(consumer, board),
         MockFirmwareImage(MockME.FW_ME_READ_UNLOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.flag)
+      MockME().GetMockedCBMEM(consumer.value)
     # Raise since the ME section is not 0xff
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -376,27 +381,29 @@ class GooftoolTest(unittest.TestCase):
         MockME().DESCRIPTOR_UNLOCKED,
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.flag)
+      MockME().GetMockedCBMEM(consumer.value)
     # Raise since the descriptor is not locked
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
   def testVerifyManagementEngineLockedLiteSKU(self):
     lite = SKU.Lite
+    board = 'brya'
     # Read locked ME section + locked cbmem + locked descriptor
     self._gooftool._ifdtool.LoadIntelMainFirmware.return_value = \
       MockIntelMainFirmware(
-        lite.flmstr,
+        GetFLMSTR(lite, board),
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag)
+      MockME().GetMockedCBMEM(lite.value)
+    self._gooftool._util.GetTestImageBoardName.return_value = board
     # Pass since everything is fine
     self._gooftool.VerifyManagementEngineLocked()
 
     # Read locked ME section + locked cbmem with invalid manufacturing mode
     # + locked descriptor
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag, mode='YES')
+      MockME().GetMockedCBMEM(lite.value, mode='YES')
     # Raise since Manufacturing Mode is not NO
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -404,7 +411,7 @@ class GooftoolTest(unittest.TestCase):
     # Read locked ME section + locked cbmem with invalid FW partition table
     # + locked descriptor
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag, fw_table='BAD')
+      MockME().GetMockedCBMEM(lite.value, fw_table='BAD')
     # Raise since FW Partition Table is not OK
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -412,7 +419,7 @@ class GooftoolTest(unittest.TestCase):
     # Read locked ME section + locked cbmem with WP in RO not enabled
     # + locked descriptor
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag, wp_ro_enabled='NO')
+      MockME().GetMockedCBMEM(lite.value, wp_ro_enabled='NO')
     # Raise since WP in RO is not YES
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -420,7 +427,7 @@ class GooftoolTest(unittest.TestCase):
     # Read locked ME section + locked cbmem + locked descriptor
     # No RO WP scope.
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag, ro_wp_vals=None)
+      MockME().GetMockedCBMEM(lite.value, ro_wp_vals=None)
     # Raise since there's no RO WP scope.
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -428,10 +435,10 @@ class GooftoolTest(unittest.TestCase):
     # Read unlocked ME section + locked cbmem + locked descriptor
     self._gooftool._ifdtool.LoadIntelMainFirmware.return_value = \
       MockIntelMainFirmware(
-        lite.flmstr,
+        GetFLMSTR(lite, board),
         MockFirmwareImage(MockME.FW_ME_READ_UNLOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag)
+      MockME().GetMockedCBMEM(lite.value)
     # Pass since we don't check the SI_ME content
     self._gooftool.VerifyManagementEngineLocked()
 
@@ -441,7 +448,7 @@ class GooftoolTest(unittest.TestCase):
         MockME().DESCRIPTOR_UNLOCKED,
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
     self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.flag)
+      MockME().GetMockedCBMEM(lite.value)
     # Raise since the descriptor is not locked
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -1025,6 +1032,36 @@ class GooftoolTest(unittest.TestCase):
 
     matched_config = self._gooftool._MatchConfigWithIdentity(configs, identity)
     self.assertDictEqual(matched_config, configs[0])
+
+  def testGetFLMSTR_ValidInputs(self):
+    test_cases = [
+        (SKU.Consumer, 'hatch', {
+            1: 0x00200300,
+            2: 0x00400500,
+            3: 0x00000000,
+            5: 0x00000000
+        }),
+        (SKU.Lite, 'nissa', {
+            1: 0x00200700,
+            2: 0x00400500,
+            3: 0x00000000,
+            5: 0x00000000
+        }),
+        (SKU.Lite, 'rex', {
+            1: 0x00220700,
+            2: 0x00400500,
+            3: 0x00000000,
+            5: 0x00000000
+        }),
+    ]
+
+    for sku, board, expected_output in test_cases:
+      result = GetFLMSTR(sku, board)
+      self.assertDictEqual(result, expected_output)
+
+  def testGetFLMSTR_InvalidSku(self):
+    with self.assertRaises(GetFLMSTRError):
+      GetFLMSTR(SKU.Unknown, 'abc')
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO)
