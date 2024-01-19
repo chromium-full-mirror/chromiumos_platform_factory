@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-10-31 15:01+CST\n"
+"PO-Revision-Date: 2024-01-25 11:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -322,10 +322,6 @@ msgstr "Thanh ánh sáng"
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
 msgstr "Xác minh dự án"
-
-#: ../build/pytests_label_generated.json
-msgid "Lock Intel Descriptor"
-msgstr ""
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
@@ -3621,14 +3617,6 @@ msgid "Enable EC Write Protect"
 msgstr "EC Viết bảo vệ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Enable Intel GPR0"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Verify Intel GPR0 has enabled"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Enable Lid Switch"
 msgstr "Bật chức năng công tắc Nắp"
 
@@ -3909,6 +3897,10 @@ msgstr "Kiểm tra USB TypeC thủ công ngay"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
 msgstr "Cập nhật CBI"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Update CSME Locked Firmware"
+msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Firmware Version"

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2023-10-31 15:01+CST\n"
+"PO-Revision-Date: 2024-01-25 11:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -322,10 +322,6 @@ msgstr "光棒"
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
 msgstr "项目验证"
-
-#: ../build/pytests_label_generated.json
-msgid "Lock Intel Descriptor"
-msgstr "锁定 Intel 描述符"
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
@@ -3552,14 +3548,6 @@ msgid "Enable EC Write Protect"
 msgstr "EC 写入保护"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Enable Intel GPR0"
-msgstr "启用Intel GPR0"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Verify Intel GPR0 has enabled"
-msgstr "验证Intel GPR0 已启用"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Enable Lid Switch"
 msgstr "打开上盖功能"
 
@@ -3840,6 +3828,10 @@ msgstr "手动右 USB TypeC 测试"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
 msgstr "更新 CBI"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Update CSME Locked Firmware"
+msgstr "更新CSME上锁的韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Firmware Version"
