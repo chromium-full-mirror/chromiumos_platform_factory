@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import enum
 import select
 import threading
 
@@ -139,6 +140,32 @@ def IsTouchpadDevice(dev):
   keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])
   return (evdev.ecodes.BTN_TOUCH in keycaps and
           evdev.ecodes.BTN_MOUSE in keycaps)
+
+
+class HoverType(enum.Enum):
+  MultiTouch = enum.auto()
+  SingleTouch = enum.auto()
+  NotSupported = enum.auto()
+
+
+def GetHoverType(dev: evdev.InputDevice) -> HoverType:
+  """Gets the HoverType of a device.
+
+  See EventDevice::HoverSupported() in
+  power_manager/powerd/system/event_device.cc for reference.
+  """
+  caps = dev.capabilities(absinfo=False)
+  absolute = caps.get(evdev.ecodes.EV_ABS, [])
+  if evdev.ecodes.ABS_MT_DISTANCE in absolute:
+    return HoverType.MultiTouch
+
+  keycaps = caps.get(evdev.ecodes.EV_KEY, [])
+  if (evdev.ecodes.ABS_DISTANCE in absolute and
+      evdev.ecodes.BTN_TOUCH in keycaps and
+      evdev.ecodes.BTN_TOOL_FINGER in keycaps):
+    return HoverType.SingleTouch
+
+  return HoverType.NotSupported
 
 
 def IsTouchscreenDevice(dev):

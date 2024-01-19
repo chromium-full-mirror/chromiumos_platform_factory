@@ -85,23 +85,25 @@ class TouchpadHoverTest(test_case.TestCase):
   related_components = (test_case.TestCategory.TRACKPAD, )
   ARGS = [
       Arg('touchpad_filter', (int, str),
-          'Touchpad input event id or evdev name. The test will probe for '
-          'event id if it is not given.', default=None),
+          ('Touchpad input event id or evdev name. The test will probe for '
+           'event id if it is not given.'), default=None),
       Arg('calibration_trigger', str,
-          'The file path of the touchpad calibration trigger. '
-          'If not set, calibration step will be skipped.', default=None),
+          ('The file path of the touchpad calibration trigger. '
+           'If not set, calibration step will be skipped.'), default=None),
       Arg('calibration_sleep_secs', int,
           'Duration to sleep for calibration in seconds.', default=1),
       Arg('repeat_times', int, 'Number of rounds of the test.', default=2),
       Arg('timeout_secs', int,
-          'Timeout to put in or pull out hover-tool in seconds.', default=3),
+          'Timeout to put in or pull out hover-tool in seconds.', default=30),
       Arg('false_positive_check_duration', int,
-          'Duration of false positive check in seconds.', default=5)]
+          'Duration of false positive check in seconds.', default=5)
+  ]
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._touchpad = evdev_utils.FindDevice(self.args.touchpad_filter,
                                             evdev_utils.IsTouchpadDevice)
+    self._hover_type = evdev_utils.GetHoverType(self._touchpad)
 
   @contextlib.contextmanager
   def WithTimer(self, timeout_secs):
@@ -137,6 +139,13 @@ class TouchpadHoverTest(test_case.TestCase):
           self._WaitForValue(val, self.args.timeout_secs), 'Timeout')
 
   def runTest(self):
+    if self._hover_type == evdev_utils.HoverType.NotSupported:
+      self.WaiveTest(f'Touchpad {self._touchpad.name} does not support hover.')
+
+    if self._hover_type == evdev_utils.HoverType.MultiTouch:
+      self.WaiveTest(f'Touchpad {self._touchpad.name} is multi-touch. '
+                     'This test only supports single-touch.')
+
     if self.args.calibration_trigger:
       self.ui.SetState(_('Calibrating touchpad...'))
       with self.WithTimer(self.args.calibration_sleep_secs):
