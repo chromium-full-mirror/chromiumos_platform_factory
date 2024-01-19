@@ -217,18 +217,9 @@ _skip_feature_tiering_steps_cmd_arg = CmdArg(
     help='Skip feature flag provisions for legacy project on features.')
 
 _upload_method_cmd_arg = CmdArg(
-    '--upload_method',
-    metavar='METHOD:PARAM',
-    help=(
-        'How to perform the upload.  METHOD should be one of {'
-        'ftp, factory_server, '
-        # The method `shopfloor` actually uploads the report to the umpire
-        # server, and this method name made some partners confused. Therefore
-        # rename this method to `factory_server`. See b/281573026 and
-        # b/281773658.
-        'shopfloor (deprecated, use factory_server instead; '
-        'see b/281573026 and b/281773658), '
-        'ftps, cpfe, smb}.'))
+    '--upload_method', metavar='METHOD:PARAM',
+    help=('How to perform the upload.  METHOD should be one of {'
+          'ftp, factory_server, ftps, cpfe, smb}.'))
 
 _upload_max_retry_times_arg = CmdArg(
     '--upload_max_retry_times', type=int, default=0,
@@ -1168,13 +1159,6 @@ def UploadReport(options):
     retry_interval = options.upload_retry_interval
   else:
     retry_interval = report_upload.DEFAULT_RETRY_INTERVAL
-
-  if method == 'shopfloor':
-    logging.warning(
-        'The method "shopfloor" has been deprecated and is renamed to '
-        '"factory_server". Now continuing with the method "factory_server". '
-        'See b/281573026 and b/281773658 for more information.')
-    method = 'factory_server'
 
   if method == 'factory_server':
     report_upload.FactoryServerUpload(
