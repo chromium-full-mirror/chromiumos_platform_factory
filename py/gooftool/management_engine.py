@@ -30,35 +30,40 @@ class ManagementEngineError(Error):
   pass
 
 
-class SKU(str, enum.Enum):
-  Consumer = 'Consumer'
-  Lite = 'Lite'
-  Unknown = 'Unknown'
+class GetFLMSTRError(Error):
+  pass
 
-  @property
-  def flag(self):
-    return {
-        SKU.Consumer: 0x20,
-        SKU.Lite: 0x50,
-        SKU.Unknown: 0xff,
-    }[self]
 
-  @property
-  def flmstr(self):
+class SKU(int, enum.Enum):
+  Consumer = 0x20
+  Lite = 0x50
+  Unknown = 0xff
+
+
+def GetFLMSTR(sku: SKU, board: str):
+  # See b/255462682#comment27 for the details of the mapping
+  if sku == SKU.Consumer:
     return {
-        SKU.Consumer: {
-            1: 0x00200300,
-            2: 0x00400500,
-            3: 0x00000000,
-            5: 0x00000000,
-        },
-        SKU.Lite: {
-            1: 0x00200700,
-            2: 0x00400500,
-            3: 0x00000000,
-            5: 0x00000000,
-        }
-    }[self]
+        1: 0x00200300,
+        2: 0x00400500,
+        3: 0x00000000,
+        5: 0x00000000,
+    }
+  if sku == SKU.Lite:
+    if board == 'rex':
+      return {
+          1: 0x00220700,
+          2: 0x00400500,
+          3: 0x00000000,
+          5: 0x00000000,
+      }
+    return {
+        1: 0x00200700,
+        2: 0x00400500,
+        3: 0x00000000,
+        5: 0x00000000,
+    }
+  raise GetFLMSTRError(f'Unknown FLMSTR mapping for SKU {sku}')
 
 
 def _HexStrToInt(hex_str):
@@ -69,15 +74,16 @@ def _HexStrToInt(hex_str):
         f'Hex string {hex_str!r} can not be converted to an integer') from None
   return hex_int
 
+
 def _GetSKUFromHFSTS3(me_flags):
   hfsts3_str = me_flags.get('HFSTS3')
   if hfsts3_str is None:
     raise ManagementEngineError('HFSTS3 is not found')
 
   hfsts3 = _HexStrToInt(hfsts3_str)
-  if (hfsts3 & 0xF0) == SKU.Consumer.flag:
+  if (hfsts3 & 0xF0) == SKU.Consumer.value:
     return SKU.Consumer
-  if (hfsts3 & 0xF0) == SKU.Lite.flag:
+  if (hfsts3 & 0xF0) == SKU.Lite.value:
     return SKU.Lite
   raise ManagementEngineError('HFSTS3 indicates that this is an unknown SKU')
 
@@ -158,15 +164,12 @@ def _ParseDescriptor(descriptor):
     logging.info('FLMSTR%s: %s', idx_str, value_str)
     idx = int(idx_str)
     value = int(value_str, 16)
-    # Mask out the last 8 bits since they don't matter and could vary on
-    # different platform.
-    value &= 0xffffff00
     flmstr[idx] = value
 
   return flmstr
 
 
-def _VerifyDescriptorLocked(sku, main_fw):
+def _VerifyDescriptorLocked(sku, board, main_fw):
   """Verify that flash regions are protected by FLMSTR settings.
 
   Example output of a locked descriptor:
@@ -181,13 +184,14 @@ def _VerifyDescriptorLocked(sku, main_fw):
   """
   descriptor = main_fw.DumpDescriptor()
   actual_flmstr = _ParseDescriptor(descriptor)
-  if actual_flmstr != sku.flmstr:
+  expected_flmstr = GetFLMSTR(sku, board)
+  if actual_flmstr != expected_flmstr:
     raise ManagementEngineError('Unexpected FLMSTR values! '
-                                f'Expected: {sku.flmstr!r}, '
+                                f'Expected: {expected_flmstr!r}, '
                                 f'Actual: {actual_flmstr!r}')
 
 
-def VerifyMELocked(main_fw, shell):
+def VerifyMELocked(main_fw, shell, board):
   """Verify if ME is locked by checking the output of cbmem."""
   fw_image = main_fw.GetFirmwareImage()
   if not fw_image.has_section(ifdtool.IntelLayout.ME.value):
@@ -219,7 +223,8 @@ def VerifyMELocked(main_fw, shell):
   logging.info('ME flags: %r', me_flags)
 
   sku = _GetSKUFromHFSTS3(me_flags)
-  logging.info('CSE SKU: %s', sku.value)
+  logging.info('CSE SKU: %s', sku.name)
   _VerifySIMESection(sku, fw_image)
   _VerifyManufacturingMode(me_flags)
-  _VerifyDescriptorLocked(sku, main_fw)
+  logging.info('Board name: %s', board)
+  _VerifyDescriptorLocked(sku, board, main_fw)

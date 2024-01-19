@@ -620,8 +620,9 @@ class Gooftool:
   def VerifyManagementEngineLocked(self):
     """Verify Management Engine is locked."""
     main_fw = self._ifdtool.LoadIntelMainFirmware()
+    board = self._util.GetReleaseImageBoardName()
     try:
-      management_engine.VerifyMELocked(main_fw, self._util.shell)
+      management_engine.VerifyMELocked(main_fw, self._util.shell, board)
     except management_engine.ManagementEngineError as error:
       logging.error(
           'Fail to verify ME. '
