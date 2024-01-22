@@ -127,13 +127,22 @@ class FeatureComplianceVersionTest(test_case.TestCase):
     logging.info('HW compliance version acquired from checker: %d',
                  checker_hw_compliance_version)
 
+    url = 'https://chromeos.google.com/partner/dlm/docs/factory/factory-setup-chromebook-x.html#troubleshooting'  # pylint: disable=line-too-long
+    error_msg = ('The current computed feature version '
+                 f'({checker_hw_compliance_version}) cannot pass the '
+                 'verification. Check if the X Compatibility of components '
+                 'is Unknown or Compatible in the DLM component list, '
+                 f'or refer to the partner site {url} for troubleshooting.')
+
     # Valid pairs are (False, 0), (False, n), (True, n).
     if branded_chassis_device_data:
       self.assertGreater(checker_hw_compliance_version,
-                         feature_compliance.FEATURE_INCOMPLIANT_VERSION)
+                         feature_compliance.FEATURE_INCOMPLIANT_VERSION,
+                         error_msg)
     else:
       self.assertGreaterEqual(checker_hw_compliance_version,
-                              feature_compliance.FEATURE_INCOMPLIANT_VERSION)
+                              feature_compliance.FEATURE_INCOMPLIANT_VERSION,
+                              error_msg)
 
     # Check feature enablement status. Hard-branded-only projects are not
     # allowed to be shipped without branded chassis, while non-feature
