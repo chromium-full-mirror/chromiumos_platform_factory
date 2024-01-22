@@ -22,8 +22,13 @@ from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.test.l10n import regions
 
 
+_Region = hwid_api_messages_pb2.GetRegionListResponse.Region
+
 GET_REGION_LIST_RESPONSE = hwid_api_messages_pb2.GetRegionListResponse(
-    region_codes=list(regions.REGIONS.keys()))
+    region_codes=list(regions.REGIONS.keys()), regions=[
+        _Region(region_code=r.region_code, description=r.description)
+        for r in regions.REGIONS.values()
+    ])
 
 _ImageVersionType = release_version_utils.ImageVersionType
 _SoftBrandEligibilityMsg = hwid_api_messages_pb2.SoftBrandEligibility

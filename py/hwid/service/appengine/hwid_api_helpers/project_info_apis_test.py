@@ -30,6 +30,7 @@ ComponentMsg = hwid_api_messages_pb2.Component
 FieldMsg = hwid_api_messages_pb2.Field
 StatusMsg = hwid_api_messages_pb2.Status
 SupportStatus = hwid_api_messages_pb2.ComponentSupportStatus.Case
+Region = hwid_api_messages_pb2.GetRegionListResponse.Region
 
 _SoftBrandEligibilityMsg = hwid_api_messages_pb2.SoftBrandEligibility
 _ImageVersionTypeMsg = _SoftBrandEligibilityMsg.ImageVersionType
@@ -319,7 +320,11 @@ class ProtoRPCServiceTest(unittest.TestCase):
   def testGetRegionList_Success(self):
     resp = self.service.GetRegionList(
         hwid_api_messages_pb2.GetRegionListRequest())
-    self.assertCountEqual(resp.region_codes, regions.REGIONS.keys())
+    expected_regions = [
+        Region(region_code=r.region_code, description=r.description)
+        for r in regions.REGIONS.values()
+    ]
+    self.assertCountEqual(resp.regions, expected_regions)
 
   def testGetPotentiallySoftBrandedHwidPrefixes_Success(self):
 

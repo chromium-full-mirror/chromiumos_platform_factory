@@ -1005,7 +1005,13 @@ message GetRegionListRequest {
 
 // The response containing all valid region codes in ChromeOS.
 message GetRegionListResponse {
-  repeated string region_codes = 1;
+  message Region {
+    string region_code = 1;
+    string description = 2;
+  }
+  // TODO(wyuang): The client should use `regions` instead of this field.
+  repeated string region_codes = 1 [deprecated=true];
+  repeated Region regions = 2;
 }
 
 // The request of creating HWID region CL.
