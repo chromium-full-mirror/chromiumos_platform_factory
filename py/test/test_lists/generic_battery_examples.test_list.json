@@ -120,6 +120,7 @@
     "BlockingChargeToCutOffSetting",
     "BlockingChargeTo75",
     "BlockingCharge10PercentMoreIn5Minutes",
+    "BCICGroup",
     "ChargeDischargeCurrent",
     "ChargeDischargeCurrentExpectNoChargeWhenCharging",
     "ChargeDischargeCurrentDifference",

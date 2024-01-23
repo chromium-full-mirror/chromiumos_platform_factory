@@ -3407,6 +3407,18 @@ msgid "Generic Audio Factory tests"
 msgstr "一般音频硬件测试"
 
 #: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Set"
+msgstr "BCIC 设置"
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Check"
+msgstr "BCIC 确认"
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Group"
+msgstr "BCIC 测试群组"
+
+#: ../py/test/test_lists/generic_battery.test_list.json
 msgid "Probe Battery"
 msgstr "侦测电池"
 

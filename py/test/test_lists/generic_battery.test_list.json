@@ -10,6 +10,29 @@
   },
   "options": {},
   "definitions": {
+    "BCIC": {
+      "pytest_name": "bcic"
+    },
+    "BCICGroup": {
+      "label": "BCIC Group",
+      "subtests": [
+        {
+          "inherit": "BCIC",
+          "label": "BCIC Set",
+          "args": {
+            "action": "SET"
+          }
+        },
+        "FullRebootStep",
+        {
+          "inherit": "BCIC",
+          "label": "BCIC Check",
+          "args": {
+            "action": "CHECK"
+          }
+        }
+      ]
+    },
     "Battery": {
       "pytest_name": "battery",
       "run_if": "constants.has_battery"

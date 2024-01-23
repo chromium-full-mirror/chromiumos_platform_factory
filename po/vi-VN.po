@@ -3466,6 +3466,18 @@ msgid "Generic Audio Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Set"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Check"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery.test_list.json
+msgid "BCIC Group"
+msgstr ""
+
+#: ../py/test/test_lists/generic_battery.test_list.json
 msgid "Probe Battery"
 msgstr ""
 
