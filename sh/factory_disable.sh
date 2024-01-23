@@ -11,8 +11,12 @@
 FACTORY_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
 ENABLE_STUB_FILE="${FACTORY_DIR}/enabled"
 POWER_MANAGER_FACTORY_MODE_STUB="/var/lib/power_manager/factory_mode"
+MOJO_POLICY_DIR="/usr/local/etc/mojo/service_manager/policy"
+FACTORY_CROS_HEALTHD_FILE="${MOJO_POLICY_DIR}/factory_cros_healthd.jsonc"
 
-CLEANUP_FILES=("${ENABLE_STUB_FILE}" "${POWER_MANAGER_FACTORY_MODE_STUB}")
+CLEANUP_FILES=("${ENABLE_STUB_FILE}" \
+               "${POWER_MANAGER_FACTORY_MODE_STUB}" \
+               "${FACTORY_CROS_HEALTHD_FILE}")
 
 for file in "${CLEANUP_FILES[@]}"; do
   rm "${file}"
