@@ -31,6 +31,25 @@ class CbiException(Exception):
 #     6: FW_CONFIG
 #     7: PCB_SUPPLIER
 #     8: SSFC
+#     9: REWORK_ID
+#     10: FACTORY_CALIBRATION_DATA
+#     11: COMMON_CONTROL
+#     12: BATTERY_CONFIG (hex)
+#     13: BATTERY_CONFIG_1 (hex)
+#     14: BATTERY_CONFIG_2 (hex)
+#     15: BATTERY_CONFIG_3 (hex)
+#     16: BATTERY_CONFIG_4 (hex)
+#     17: BATTERY_CONFIG_5 (hex)
+#     18: BATTERY_CONFIG_6 (hex)
+#     19: BATTERY_CONFIG_7 (hex)
+#     20: BATTERY_CONFIG_8 (hex)
+#     21: BATTERY_CONFIG_9 (hex)
+#     22: BATTERY_CONFIG_10 (hex)
+#     23: BATTERY_CONFIG_11 (hex)
+#     24: BATTERY_CONFIG_12 (hex)
+#     25: BATTERY_CONFIG_13 (hex)
+#     26: BATTERY_CONFIG_14 (hex)
+#     27: BATTERY_CONFIG_15 (hex)
 #   <value/string> is an integer or a string to be set.
 #   <size> is the size of the data in byte. It should be zero for
 #     string types.
@@ -46,6 +65,27 @@ class CbiDataName(str, enum.Enum):
   FW_CONFIG = 'FW_CONFIG'
   PCB_SUPPLIER = 'PCB_SUPPLIER'
   SSFC = 'SSFC'
+  REWORK_ID = 'REWORK_ID'
+  FACTORY_CALIBRATION_DATA = 'FACTORY_CALIBRATION_DATA'
+  COMMON_CONTROL = 'COMMON_CONTROL'
+  BATTERY_CONFIG = 'BATTERY_CONFIG'
+  BATTERY_CONFIG_1 = 'BATTERY_CONFIG_1'
+  BATTERY_CONFIG_2 = 'BATTERY_CONFIG_2'
+  BATTERY_CONFIG_3 = 'BATTERY_CONFIG_3'
+  BATTERY_CONFIG_4 = 'BATTERY_CONFIG_4'
+  BATTERY_CONFIG_5 = 'BATTERY_CONFIG_5'
+  BATTERY_CONFIG_6 = 'BATTERY_CONFIG_6'
+  BATTERY_CONFIG_7 = 'BATTERY_CONFIG_7'
+  BATTERY_CONFIG_8 = 'BATTERY_CONFIG_8'
+  BATTERY_CONFIG_9 = 'BATTERY_CONFIG_9'
+  BATTERY_CONFIG_10 = 'BATTERY_CONFIG_10'
+  BATTERY_CONFIG_11 = 'BATTERY_CONFIG_11'
+  BATTERY_CONFIG_12 = 'BATTERY_CONFIG_12'
+  BATTERY_CONFIG_13 = 'BATTERY_CONFIG_13'
+  BATTERY_CONFIG_14 = 'BATTERY_CONFIG_14'
+  BATTERY_CONFIG_15 = 'BATTERY_CONFIG_15'
+
+
   def __str__(self):
     return self.name
 
@@ -69,8 +109,26 @@ CbiDataDict = {
     CbiDataName.MODEL_ID: CbiDataAttr(5, int, 1),
     CbiDataName.FW_CONFIG: CbiDataAttr(6, int, 4),
     CbiDataName.PCB_SUPPLIER: CbiDataAttr(7, int, 1),
-    CbiDataName.SSFC: CbiDataAttr(8, int, 2)
-
+    CbiDataName.SSFC: CbiDataAttr(8, int, 2),
+    CbiDataName.REWORK_ID: CbiDataAttr(9, int, 8),
+    CbiDataName.FACTORY_CALIBRATION_DATA: CbiDataAttr(10, str, 4),
+    CbiDataName.COMMON_CONTROL: CbiDataAttr(11, int, 1),
+    CbiDataName.BATTERY_CONFIG: CbiDataAttr(12, int, 0),
+    CbiDataName.BATTERY_CONFIG_1: CbiDataAttr(13, int, 0),
+    CbiDataName.BATTERY_CONFIG_2: CbiDataAttr(14, int, 0),
+    CbiDataName.BATTERY_CONFIG_3: CbiDataAttr(15, int, 0),
+    CbiDataName.BATTERY_CONFIG_4: CbiDataAttr(16, int, 0),
+    CbiDataName.BATTERY_CONFIG_5: CbiDataAttr(17, int, 0),
+    CbiDataName.BATTERY_CONFIG_6: CbiDataAttr(18, int, 0),
+    CbiDataName.BATTERY_CONFIG_7: CbiDataAttr(19, int, 0),
+    CbiDataName.BATTERY_CONFIG_8: CbiDataAttr(20, int, 0),
+    CbiDataName.BATTERY_CONFIG_9: CbiDataAttr(21, int, 0),
+    CbiDataName.BATTERY_CONFIG_10: CbiDataAttr(22, int, 0),
+    CbiDataName.BATTERY_CONFIG_11: CbiDataAttr(23, int, 0),
+    CbiDataName.BATTERY_CONFIG_12: CbiDataAttr(24, int, 0),
+    CbiDataName.BATTERY_CONFIG_13: CbiDataAttr(25, int, 0),
+    CbiDataName.BATTERY_CONFIG_14: CbiDataAttr(26, int, 0),
+    CbiDataName.BATTERY_CONFIG_15: CbiDataAttr(27, int, 0),
 }
 # The error messages of ectool change from time to time.
 AllowedWpErrorMessages = [
