@@ -13,6 +13,7 @@ binaries:
   bft_fixture:       full
   factory:           full
   factory_bug:       full
+  factory_disable:   full
   factory_restart:   full
   factory_uninstall: full
   flash_netboot:     full

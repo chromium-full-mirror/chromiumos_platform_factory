@@ -77,6 +77,10 @@ def Main():
     if not answer or answer[0] not in 'yY':
       sys.exit('Aborting.')
 
+  # Disabling factory software first. This removes `enabled` stub file
+  # and other files created by factory software.
+  process_utils.Spawn(['factory_disable'], check_call=True, log=True)
+
   # To recover the symlinks under /usr/local/bin. We need to re-create the links
   # to factory-mini.par.
   install_symlinks.UninstallSymlinks('/usr/local/bin',
