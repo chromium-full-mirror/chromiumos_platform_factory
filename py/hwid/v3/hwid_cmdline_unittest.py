@@ -5,9 +5,11 @@
 
 import json
 import os
+import textwrap
 import unittest
 from unittest import mock
 
+from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import hwid_cmdline
@@ -526,6 +528,177 @@ class EnumerateHWIDWrapperTest(TestCaseBaseWithFakeOutput):
     hwid_cmdline.EnumerateHWIDWrapper(mock.MagicMock(no_bom=True))
 
     self.assertEqual(hwid_cmdline.Output.data, 'HWID1\nHWID2\n')
+
+
+class PrepareRMAImageIdCommandTest(TestCaseBaseWithFakeOutput):
+
+  def setUp(self):
+    super().setUp()
+    patcher = mock.patch.object(builder, 'PromptAndAsk')
+    self._mock_prompt_and_ask = patcher.start()
+    self._mock_prompt_and_ask.return_value = True
+    self.addCleanup(patcher.stop)
+
+  def _EnterContext(self, cm):
+    # TODO(yhong): Replace this by `TestCase.enterContext` when python runtime
+    #    of all possible environments are upgraded to 3.11+
+    result = cm.__enter__()
+    self.addCleanup(cm.__exit__, None, None, None)
+    return result
+
+  def _PrepareDB(self, options, editable_db_contents):
+    db_dirname = self._EnterContext(file_utils.TempDirectory())
+    project_name = 'ABC'
+    db_file_pathname = os.path.join(db_dirname, project_name)
+    header = '\n'.join(('checksum: None', f'project: {project_name}',
+                        'encoding_patterns: {0: default}'))
+    file_utils.WriteFile(db_file_pathname, f'{header}\n{editable_db_contents}')
+    options.hwid_db_path = db_dirname
+    options.project = project_name
+    options.no_verify_checksum = True
+    return db_file_pathname
+
+  def testAppendSomeEncodedFieldsToRMAImageID(self):
+    options = mock.MagicMock()
+    db_file_pathname = self._PrepareDB(
+        options,
+        textwrap.dedent('''\
+            image_id:
+              0: PVT
+              15: RMA_ALREADY_EXIST
+            pattern:
+            - image_ids: [0]
+              encoding_scheme: base8192
+              fields:
+              - mainboard_field: 3
+              - storage_field: 3
+            - image_ids: [15]
+              encoding_scheme: base8192
+              fields:
+              - mainboard_field: 3
+            encoded_fields:
+              mainboard_field:
+                0: {mainboard: rev0}
+              storage_field:
+                0: {storage: storage_123}
+                1: {storage: storage_456}
+            components:
+              mainboard:
+                items:
+                  rev0: {values: {the_key: the_value}}
+              storage:
+                items:
+                  storage_123: {values: {the_key: the_value1}}
+                  storage_456: {values: {the_key: the_value2}}
+            rules: []
+        '''))
+
+    options.encoded_fields = None
+    options.output_database = None
+    hwid_cmdline.PrepareRMAImageIdCommand(options)
+
+    result_db = database.Database.LoadFile(db_file_pathname,
+                                           verify_checksum=False)
+    self.assertDictEqual(
+        result_db.GetEncodedFieldsBitLength(image_id=result_db.rma_image_id), {
+            'mainboard_field': 3,
+            'storage_field': 1,
+        })
+
+  def testCreateNewRMAImageID(self):
+    options = mock.MagicMock()
+    db_file_pathname = self._PrepareDB(
+        options,
+        textwrap.dedent('''\
+            image_id:
+              0: PVT
+            pattern:
+            - image_ids: [0]
+              encoding_scheme: base8192
+              fields:
+              - mainboard_field: 3
+              - storage_field: 3
+              - camera_field: 3
+            encoded_fields:
+              mainboard_field:
+                0: {mainboard: rev0}
+              storage_field:
+                0: {storage: storage_123}
+                1: {storage: storage_456}
+              camera_field:
+                0: {camera: camera_789}
+            components:
+              mainboard:
+                items:
+                  rev0: {values: {the_key: the_value}}
+              storage:
+                items:
+                  storage_123: {values: {the_key: the_value1}}
+                  storage_456: {values: {the_key: the_value2}}
+              camera:
+                items:
+                  camera_789: {values: {the_key: the_value3}}
+            rules: []
+        '''))
+
+    options.encoded_fields = None
+    options.output_database = None
+    hwid_cmdline.PrepareRMAImageIdCommand(options)
+
+    result_db = database.Database.LoadFile(db_file_pathname,
+                                           verify_checksum=False)
+    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')
+    self.assertDictEqual(
+        result_db.GetEncodedFieldsBitLength(image_id=result_db.rma_image_id), {
+            'mainboard_field': 0,
+            'storage_field': 1,
+        })
+
+  def testCreateNewRMAImageIDWithCustomEncodedFields(self):
+    options = mock.MagicMock()
+    db_file_pathname = self._PrepareDB(
+        options,
+        textwrap.dedent('''\
+            image_id:
+              0: PVT
+            pattern:
+            - image_ids: [0]
+              encoding_scheme: base8192
+              fields:
+              - mainboard_field: 3
+              - storage_field: 3
+              - camera_field: 3
+            encoded_fields:
+              mainboard_field:
+                0: {mainboard: rev0}
+              storage_field:
+                0: {storage: storage_123}
+                1: {storage: storage_456}
+              camera_field:
+                0: {camera: camera_789}
+            components:
+              mainboard:
+                items:
+                  rev0: {values: {the_key: the_value}}
+              storage:
+                items:
+                  storage_123: {values: {the_key: the_value1}}
+                  storage_456: {values: {the_key: the_value2}}
+              camera:
+                items:
+                  camera_789: {values: {the_key: the_value3}}
+            rules: []
+        '''))
+    options.encoded_fields = ['storage_field']
+    options.output_database = None
+    hwid_cmdline.PrepareRMAImageIdCommand(options)
+
+    result_db = database.Database.LoadFile(db_file_pathname,
+                                           verify_checksum=False)
+    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')
+    self.assertDictEqual(
+        result_db.GetEncodedFieldsBitLength(image_id=result_db.rma_image_id),
+        {'storage_field': 1})
 
 
 if __name__ == '__main__':

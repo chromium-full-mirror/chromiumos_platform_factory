@@ -7,17 +7,18 @@
 
 import hashlib
 import logging
-import os
+import os.path
 import shutil
 import sys
-from typing import Dict, List, NamedTuple, Optional
+from typing import Collection, Dict, List, NamedTuple, Optional, Tuple
 
 from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import converter
-from cros.factory.hwid.v3.database import Database
+from cros.factory.hwid.v3 import database as db_module
 from cros.factory.hwid.v3 import hwid_utils
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
+from cros.factory.probe import probe_utils
 from cros.factory.test.rules import phase
 from cros.factory.utils.argparse_utils import CmdArg
 from cros.factory.utils.argparse_utils import Command
@@ -26,6 +27,7 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sys_utils
+from cros.factory.utils import type_utils
 
 
 _COMMON_ARGS = [
@@ -426,13 +428,12 @@ def BuildDatabaseWrapper(options):
   logging.info('Output the database to %s', database_path)
 
 
-@Command('update-database',
-         CmdArg('--image-id', default=None, help="Name of image_id.\n"),
-         CmdArg('--output-database', default=None,
-                help='Write into different file.\n'),
-         *_DATABASE_BUILDER_COMMON_ARGS)
-def UpdateDatabaseWrapper(options):
-  '''Update the HWID database from probed result.'''
+_DATABASE_UPDATE_COMMON_ARGS = (CmdArg('--output-database', default=None,
+                                       help='Write into different file.\n'), )
+
+
+def _PrepareDatabasePathsForUpdate(options) -> Tuple[str, str]:
+  '''Gets the paths that hold source / updated HWID DB from the options.'''
   old_db_path = os.path.join(options.hwid_db_path, options.project.upper())
   if options.output_database is None:
     # If the output path is not assigned, we update the database in place.
@@ -441,13 +442,151 @@ def UpdateDatabaseWrapper(options):
     logging.info('In-place update, backup the database to %s', bak_db_path)
     shutil.copyfile(old_db_path, bak_db_path)
 
-  database_path = options.output_database or old_db_path
+  new_db_path = options.output_database or old_db_path
+  return old_db_path, new_db_path
+
+
+@Command('update-database',
+         CmdArg('--image-id', default=None, help="Name of image_id.\n"),
+         *_DATABASE_UPDATE_COMMON_ARGS, *_DATABASE_BUILDER_COMMON_ARGS)
+def UpdateDatabaseWrapper(options):
+  '''Update the HWID database from probed result.'''
+  old_db_path, new_db_path = _PrepareDatabasePathsForUpdate(options)
 
   database_builder = builder.DatabaseBuilder.FromFilePath(db_path=old_db_path)
   RunDatabaseBuilder(database_builder, options)
-  database_builder.Render(database_path)
+  database_builder.Render(new_db_path)
 
-  logging.info('Output the updated database to %s.', database_path)
+  logging.info('Output the updated database to %s.', new_db_path)
+
+
+@type_utils.CachedGetter
+def _GetRMADefaultEncodedFields() -> Collection[str]:
+  probe_config_file_path = os.path.join(
+      os.path.dirname(os.path.realpath(__file__)),
+      common.SPARE_MLB_PROBE_STATEMENT)
+  probe_statement = probe_utils.GenerateProbeStatement(
+      config_file=probe_config_file_path)
+  return [f'{comp_cls}_field' for comp_cls in probe_statement]
+
+
+def _ExtractEncodedFieldsForRMAImageIdPattern(
+    current_database: db_module.Database,
+    specified_encoded_fields: Optional[Collection[str]]) -> Collection[str]:
+  current_encoded_fields = set(current_database.encoded_fields)
+  if specified_encoded_fields is None:
+    return current_encoded_fields & set(_GetRMADefaultEncodedFields())
+
+  invalid_encoded_fields = set(
+      specified_encoded_fields) - current_encoded_fields
+  if invalid_encoded_fields:
+    raise ValueError(f'Encoded fields {invalid_encoded_fields} do not exist.')
+  return specified_encoded_fields
+
+
+def _EnsureRMAImageIdPatternContainsEncodedFields(
+    database_builder: builder.DatabaseBuilder,
+    encoded_fields: Collection[str]) -> bool:
+  '''Ensures the RMA image ID pattern contains the specified encoded fields.
+
+  Args:
+    database_builder: The builer to access and modify the target HWID DB.  The
+      target HWID DB must already have a RMA image ID.
+    encoded_fields: Encoded fields that should be included in the RMA image ID
+      pattern.
+
+  Returns:
+    A boolean indicates whether it updates the HWID DB successfully or not.
+  '''
+  current_db = database_builder.Build()
+  image_id = current_db.rma_image_id
+  already_included_encoded_fields = set(
+      current_db.GetEncodedFieldsBitLength(image_id=image_id))
+  encoded_fields = set(encoded_fields) - already_included_encoded_fields
+  if not encoded_fields:
+    Output('No encoded fields to add to RMA image ID pattern.')
+    return False
+  should_procceed = builder.PromptAndAsk(
+      f'Proceed to append {encoded_fields} into RMA image ID '
+      f'({image_id}: {current_db.GetImageName(image_id)})?')
+  if not should_procceed:
+    Output('Aborted per the user request.')
+    return False
+
+  target_pattern_idx = current_db.GetPattern(image_id=image_id).idx
+  with database_builder:
+    for encoded_field in encoded_fields:
+      database_builder.FillEncodedFieldBit(encoded_field,
+                                           pattern_idxes=[target_pattern_idx])
+  return True
+
+
+RMA_IMAGE_NAME = 'RMA'
+
+
+def _CreateNewRMAImageId(database_builder: builder.DatabaseBuilder,
+                         encoded_fields: Collection[str]) -> bool:
+  '''Creates a new RMA image ID with a pattern for specific encoded fields.
+
+  Args:
+    database_builder: The builer to access and modify the target HWID DB.  The
+      target HWID DB must not have a RMA image ID.
+    encoded_fields: Encoded fields that should be included in the RMA image ID
+      pattern.
+
+  Returns:
+    A boolean indicates whether it updates the HWID DB successfully or not.
+  '''
+  image_id = db_module.ImageId.RMA_IMAGE_ID
+  should_procceed = builder.PromptAndAsk(
+      f'Proceed to create a new image ID ({image_id}: {RMA_IMAGE_NAME}) with '
+      f'encoded fields {encoded_fields}?')
+  if not should_procceed:
+    Output('Aborted per the user request.')
+    return False
+
+  with database_builder:
+    target_pattern_idx = database_builder.AddImage(image_id, RMA_IMAGE_NAME,
+                                                   new_pattern=True)
+    for encoded_field in encoded_fields:
+      database_builder.FillEncodedFieldBit(encoded_field,
+                                           pattern_idxes=[target_pattern_idx])
+  return True
+
+
+@Command(
+    'prepare-rma-image-id',
+    CmdArg(
+        '--encoded-fields', default=None, nargs='*',
+        help=('A list of encoding fields to be included in the RMA image '
+              'ID. By default, it adds the encoded fields '
+              f'{_GetRMADefaultEncodedFields()} if exists in the DB.')),
+    *_DATABASE_UPDATE_COMMON_ARGS,
+)
+def PrepareRMAImageIdCommand(options):
+  '''Update the HWID database to prepare RMA image ID.'''
+  old_db_path, new_db_path = _PrepareDatabasePathsForUpdate(options)
+
+  database_builder = builder.DatabaseBuilder.FromFilePath(db_path=old_db_path)
+  current_db = database_builder.Build()
+  encoded_fields = _ExtractEncodedFieldsForRMAImageIdPattern(
+      current_db, options.encoded_fields)
+
+  if current_db.rma_image_id is not None:
+    success = _EnsureRMAImageIdPatternContainsEncodedFields(
+        database_builder, encoded_fields)
+
+  else:
+    success = _CreateNewRMAImageId(database_builder, encoded_fields)
+
+  if success:
+    database_builder.Render(new_db_path)
+    Output(f'Successfully update the HWID DB at {new_db_path}. '
+           'Note that if your DB specify the active image ID by `rules` like '
+           '`SetImageId(...)` instead of letting the factory toolkit '
+           'automatically select one, you might need to avoid running that '
+           "rule in RMA mode, like using `when: GetOperationMode() != 'rma'` "
+           ' to make the rule conditionally applied.')
 
 
 @Command(
@@ -678,7 +817,7 @@ def InitializeDefaultOptions(options):
     # Create the Database object here since it's common to all functions.
     logging.debug('Loading database file %s/%s...', options.hwid_db_path,
                   options.project.upper())
-    options.database = Database.LoadFile(
+    options.database = db_module.Database.LoadFile(
         os.path.join(options.hwid_db_path, options.project.upper()),
         verify_checksum=(not options.no_verify_checksum))
 

@@ -8,6 +8,7 @@ import enum
 
 
 DEFAULT_PROBE_STATEMENT = 'default_probe_statement.json'
+SPARE_MLB_PROBE_STATEMENT = 'spare_mlb_probe_statement.json'
 COMMON_PROBE_STATEMENT = 'common_probe_statement.json'
 HEADER_BIT_LENGTH = 5
 IMAGE_ID_BIT_LENGTH = HEADER_BIT_LENGTH - 1
@@ -76,6 +77,28 @@ FORM_FACTOR_COMPS = {
         ESSENTIAL_COMPS,
     FormFactor.CHROMESLATE:
         ESSENTIAL_COMPS + ('display_panel', 'camera', 'touchscreen', 'battery'),
+}
+
+
+RMA_IMAGE_ID_PATTERN_DEFAULT_EXCLUDED_FIELDS = {
+    f'{comp_cls}_field'
+    for comp_cls in (
+        'battery',
+        'camera',
+        'cellular',
+        'display_panel',
+        'feature_management_flags',
+        'fingerprint',
+        'hps',
+        'nfc_reader',
+        'sdcard_reader',
+        'sku_id',
+        'smart_card_reader',
+        'stylus',
+        'touchpad',
+        'touchscreen',
+        'video',
+    )
 }
 
 
