@@ -188,5 +188,59 @@
         }
       }
     }
+  },
+  "ec_component_ppc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "ppc"
+        }
+      }
+    }
+  },
+  "ec_component_tcpc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "tcpc"
+        }
+      }
+    }
+  },
+  "ec_component_bc12": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "bc12"
+        }
+      }
+    }
+  },
+  "ec_component_charger": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "charger"
+        }
+      }
+    }
+  },
+  "ec_component_als": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "als"
+        }
+      }
+    }
+  },
+  "ec_component_accel": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "accel"
+        }
+      }
+    }
   }
 }
