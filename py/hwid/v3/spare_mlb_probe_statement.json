@@ -1,0 +1,268 @@
+{
+  "__comment": "Probe statements for components that can be determined on spare MLBs.",
+  "audio_codec": {
+    "generic": {
+      "eval": "audio_codec",
+      "keys": [
+        "name"
+      ]
+    }
+  },
+  "mainboard": {
+    "generic": {
+      "eval": {
+        "shell": {
+          "command": "get_version --board",
+          "key": "version"
+        }
+      }
+    }
+  },
+  "cellular": {
+    "generic": {
+      "eval": "generic_network_device:cellular",
+      "keys": [
+        "device",
+        "idProduct",
+        "idVendor",
+        "bcdDevice",
+        "vendor",
+        "revision_id"
+      ]
+    }
+  },
+  "cpu": {
+    "generic": {
+      "eval": "generic_cpu",
+      "keys": [
+        "model",
+        "cores"
+      ]
+    }
+  },
+  "dram": {
+    "generic": {
+      "eval": "generic_dram"
+    }
+  },
+  "ec_flash_chip": {
+    "generic": {
+      "eval": "flash_chip:ec"
+    }
+  },
+  "embedded_controller": {
+    "generic": {
+      "eval": "embedded_controller",
+      "keys": [
+        "vendor",
+        "name"
+      ]
+    }
+  },
+  "ethernet": {
+    "generic": {
+      "eval": "generic_network_device:ethernet",
+      "keys": [
+        "idProduct",
+        "idVendor",
+        "bcdDevice",
+        "vendor",
+        "device",
+        "revision_id",
+        "subsystem_device"
+      ]
+    }
+  },
+  "fingerprint": {
+    "generic": {
+      "eval": "generic_fingerprint"
+    }
+  },
+  "flash_chip": {
+    "generic": {
+      "eval": "flash_chip:main"
+    }
+  },
+  "pmic": {
+    "generic": {
+      "eval": {
+        "concat": {
+          "functions": [
+            {
+              "glob_path": {
+                "pathname": "/sys/bus/platform/devices/*-pmic",
+                "filename_only": true
+              }
+            },
+            {
+              "glob_path": {
+                "pathname": "/sys/bus/platform/devices/*.pwrap:*",
+                "filename_only": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "storage": {
+    "generic": {
+      "eval": "generic_storage",
+      "keys":[
+        "type",
+        "sectors",
+        "size",
+        "mmc_hwrev",
+        "mmc_manfid",
+        "mmc_oemid",
+        "mmc_name",
+        "mmc_prv",
+        "pci_vendor",
+        "pci_device",
+        "pci_class",
+        "nvme_model",
+        "ata_vendor",
+        "ata_model",
+        "ufs_vendor",
+        "ufs_model",
+        "mmc_host_bus_type",
+        "mmc_host_pci_class",
+        "mmc_host_pci_device_id",
+        "mmc_host_pci_revision",
+        "mmc_host_pci_subsystem",
+        "mmc_host_pci_vendor_id"
+      ]
+    }
+  },
+  "tpm": {
+    "generic": {
+      "eval": "generic_tpm"
+    }
+  },
+  "usb_hosts": {
+    "generic": {
+      "eval": "generic_usb_hosts",
+      "keys": [
+        "device",
+        "idProduct",
+        "idVendor",
+        "bcdDevice",
+        "vendor",
+        "revision_id"
+      ]
+    }
+  },
+  "wireless": {
+    "generic": {
+      "eval": "generic_network_device:wireless",
+      "keys": [
+        "device",
+        "idProduct",
+        "idVendor",
+        "bcdDevice",
+        "vendor",
+        "revision_id",
+        "subsystem_device"
+      ]
+    }
+  },
+  "tcpc": {
+    "generic": {
+      "eval": "tcpc",
+      "keys": [
+        "device_id",
+        "product_id",
+        "vendor_id"
+      ]
+    }
+  },
+  "gpu": {
+    "generic": {
+      "eval": "gpu",
+      "keys": [
+        "vendor",
+        "device",
+        "subsystem_vendor",
+        "subsystem_device"
+      ]
+    }
+  },
+  "ec_component_ppc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "ppc"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  },
+  "ec_component_tcpc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "tcpc"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  },
+  "ec_component_bc12": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "bc12"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  },
+  "ec_component_charger": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "charger"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  },
+  "ec_component_als": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "als"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  },
+  "ec_component_accel": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "accel"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
+  }
+}

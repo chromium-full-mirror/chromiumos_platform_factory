@@ -1,0 +1,148 @@
+{
+  "__comment": "Probe statements for components that are not mounted on MLB.",
+  "battery": {
+    "generic": {
+      "eval": "generic_battery",
+      "keys": [
+        "manufacturer",
+        "model_name",
+        "technology",
+        "type"
+      ]
+    }
+  },
+  "display_panel": {
+    "generic": {
+      "eval": "edid",
+      "keys": [
+        "vendor",
+        "product_id",
+        "width",
+        "height"
+      ]
+    }
+  },
+  "hps": {
+    "generic": {
+      "eval": "generic_hps"
+    }
+  },
+  "nfc_reader": {
+    "generic": {
+      "eval": "nfc_reader",
+      "keys": [
+        "idVendor",
+        "idProduct",
+        "bcdDevice"
+      ]
+    }
+  },
+  "smart_card_reader": {
+    "generic": {
+      "eval": "smart_card_usb",
+      "keys": [
+        "idVendor",
+        "idProduct",
+        "bcdDevice"
+      ]
+    }
+  },
+  "stylus": {
+    "generic": {
+      "eval": {
+        "input_device": {
+          "device_type": "stylus"
+        }
+      },
+      "expect": {
+        "product": "!re (?!0000)....$",
+        "vendor": "!re (?!0000)....$"
+      },
+      "keys": [
+        "name",
+        "product",
+        "vendor"
+      ]
+    }
+  },
+  "touchpad": {
+    "generic": {
+      "eval": {
+        "input_device": {
+          "device_type": "touchpad"
+        }
+      },
+      "expect": {
+        "product": "!re (?!0000)....$",
+        "vendor": "!re (?!0000)....$"
+      },
+      "keys": [
+        "name",
+        "product",
+        "vendor"
+      ]
+    }
+  },
+  "touchscreen": {
+    "generic": {
+      "eval": {
+        "concat": {
+          "functions": [
+            {
+              "input_device": {
+                "device_type": "touchscreen"
+              }
+            },
+            "touchscreen_i2c"
+          ]
+        }
+      },
+      "expect": {
+        "vendor": "!re (?!0000)....$"
+      },
+      "keys": [
+        "name",
+        "product",
+        "vendor"
+      ]
+    }
+  },
+  "camera": {
+    "generic": {
+      "eval": "generic_camera",
+      "keys": [
+        "bus_type",
+        "mipi_module_id",
+        "mipi_name",
+        "mipi_sensor_id",
+        "mipi_vendor",
+        "usb_bcd_device",
+        "usb_product",
+        "usb_product_id",
+        "usb_vendor_id"
+      ]
+    }
+  },
+  "sdcard_reader": {
+    "generic": {
+      "eval": {
+        "mmc_host": {
+          "is_emmc_attached": false
+        }
+      },
+      "keys": [
+        "bus_type",
+        "pci_class",
+        "pci_vendor_id",
+        "pci_device_id",
+        "pci_revision",
+        "pci_subsystem",
+        "sdio_vendor_id",
+        "sdio_device_id",
+        "usb_vendor_id",
+        "usb_product_id",
+        "usb_bcd_device"
+      ]
+    }
+  }
+}

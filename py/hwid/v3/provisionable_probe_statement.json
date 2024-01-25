@@ -1,0 +1,48 @@
+{
+  "__comment": "Probe statements for components that are on MLB but can be provisioned after assembling.",
+  "feature_management_flags": {
+    "generic": {
+      "eval": "feature_management_flags"
+    }
+  },
+  "firmware_keys": {
+    "generic": {
+      "eval": "chromeos_firmware:firmware_keys"
+    }
+  },
+  "region": {
+    "generic": {
+      "eval": {
+        "vpd": {
+          "fields": ["region"],
+          "key": "region_code"
+        }
+      }
+    }
+  },
+  "ro_main_firmware": {
+    "generic": {
+      "eval": "chromeos_firmware:ro_main_firmware"
+    }
+  },
+  "ro_ec_firmware": {
+    "generic": {
+      "eval": "chromeos_firmware:ro_ec_firmware"
+    }
+  },
+  "ro_fp_firmware": {
+    "generic": {
+      "eval": "chromeos_firmware:ro_fp_firmware"
+    }
+  },
+  "sku_id": {
+    "generic": {
+      "eval": {
+        "shell": {
+          "command": "cros_config /identity sku-id",
+          "key": "sku_id"
+        }
+      }
+    }
+  }
+}

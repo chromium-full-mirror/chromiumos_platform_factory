@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "patternProperties": {
-    "^.+$": {
+    "^(?!__comment).+$": {
       "type": "object",
       "properties": {
         "generic": {
@@ -26,6 +26,10 @@
         "generic"
       ],
       "additionalProperties": false
+    },
+    "^__comment.*$": {
+      "type": "string",
+      "description": "this field will be completely ignored by the probe framework."
     }
   },
   "additionalProperties": false

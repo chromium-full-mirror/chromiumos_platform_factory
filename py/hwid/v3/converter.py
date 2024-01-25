@@ -30,8 +30,9 @@ def ConvertToProbeStatement(database, probe_statement_path):
     return v
 
   probe_statement = probe_utils.GenerateProbeStatement(
-      config_file=probe_statement_path)
-  converted_probe_statement = {}
+      config_file=probe_statement_path, remove_comments=False)
+  converted_probe_statement = probe_utils.ExtractProbeStatementComments(
+      probe_statement)
   for comp_cls, statements in probe_statement.items():
     converted_components = {}
     generic_statement = statements['generic']
