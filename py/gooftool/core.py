@@ -626,7 +626,8 @@ class Gooftool:
     except management_engine.ManagementEngineError as error:
       logging.error(
           'Fail to verify ME. '
-          'Have you locked the FW using "UpdateMELockedFirmware" factory test?')
+          'Have you locked the FW using "UpdateCSMELockedFirmware" factory '
+          'test?')
       raise error
 
 
