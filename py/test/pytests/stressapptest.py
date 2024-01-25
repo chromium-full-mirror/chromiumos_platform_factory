@@ -23,6 +23,10 @@ memory after the calculation of "free memory" is done, causing the test to fail.
 To solve that, increase the argument `wait_secs` so the calculation of "free
 memory" will be done when the memory usage is stabilized.
 
+Internal references
+^^^^^^^^^^^^^^^^^^^
+- go/memory-testing-with-stressapptest
+
 Test Procedure
 --------------
 This is an automated test without user interaction.
@@ -39,21 +43,25 @@ Dependency
 Examples
 --------
 To stress CPU, memory (90% of free memory), and the disk using stateful
-partition for 60 seconds, add this in test list::
+partition for 60 seconds. According to go/memory-testing-with-stressapptest,
+running the tests with disk generates more unusual memory traffic:
 
-  {
-    "pytest_name": "stressapptest"
-  }
+.. test_list::
 
-To stress for one day without accessing disk::
+  generic_dram_examples:StressAppTest
 
-  {
-    "pytest_name": "stressapptest",
-    "args": {
-      "seconds": 86400,
-      "disk_thread": false
-    }
-  }
+To stress CPU and memory (90% of free memory) without disk:
+
+.. test_list::
+
+  generic_dram_examples:StressAppTestOnlyCPUAndMemory
+
+To stress CPU, memory (90% of free memory), and the disk using stateful
+partition for one day:
+
+.. test_list::
+
+  generic_dram_examples:StressAppTestForOneDay
 
 To stress using only two threads, and only run on cpu core 2 and 3::
 

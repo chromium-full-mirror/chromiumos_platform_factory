@@ -325,7 +325,7 @@ msgid "LTE Verify Config"
 msgstr "Cài đặt xác thực LTE"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_dram.test_list.json
 msgid "Memory Size"
 msgstr "Kích thước bộ nhớ"
 
@@ -346,7 +346,7 @@ msgid "Mouse"
 msgstr "Chuột máy tính"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "MRC Cache"
 msgstr "MRC Cache"
@@ -3765,21 +3765,6 @@ msgid "Lid Accelerometers Calibration"
 msgstr "Điều chỉnh gia tốc kế nắp trên"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Create Cache"
-msgstr "Tạo bộ nhớ cache"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Verify Cache Update"
-msgstr "Xác minh Cập nhật bộ nhớ cache"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Verify Cache No Update"
-msgstr "Xác minh Bộ nhớ cache Không có Cập nhật"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
 msgstr "Cấu hình và kiểu (SKU)"
 
@@ -3850,10 +3835,6 @@ msgstr "Dịch vụ Shopfloor (NotifyEnd)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "Dịch vụ Shopfloor (NotifyStart)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Stress App Test"
-msgstr "Thử áp lực"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify TPM state"
@@ -4038,6 +4019,77 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Generic Display Panel Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Create Cache"
+msgstr "Tạo bộ nhớ cache"
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Verify Cache Update"
+msgstr "Xác minh Cập nhật bộ nhớ cache"
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Verify Cache No Update"
+msgstr "Xác minh Bộ nhớ cache Không có Cập nhật"
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+msgid "Probe DRAM"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+msgid "Stress App Test"
+msgstr "Thử áp lực"
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size in GB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Scan Memory Size in GB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size Compare To Device Data"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size Max Diff Ratio 5 Percent"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Stress App Test For One Day"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Stress App Test Only CPU And Memory"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Read DRAM Part Num From CBI"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Scan DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Update DRAM Part Num in CBI"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Update DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Generic DRAM Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fat.test_list.json

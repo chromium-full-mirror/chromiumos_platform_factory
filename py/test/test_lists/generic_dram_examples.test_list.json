@@ -1,0 +1,97 @@
+{
+  "__comment": "Examples for testing DRAM components. DRAM is called \"Memory\" in AVL.",
+  "inherit": [
+    "generic_dram.test_list"
+  ],
+  "label": "Generic DRAM Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "MemorySizeCompareToDeviceData": {
+      "label": "Memory Size Compare To Device Data",
+      "child_action_on_failure": "STOP",
+      "subtests": [
+        {
+          "pytest_name": "scan",
+          "label": "Scan Memory Size in GB",
+          "args": {
+            "device_data_key": "component.memory_size",
+            "label": "Memory Size in GB"
+          }
+        },
+        {
+          "inherit": "MemorySize",
+          "args": {
+            "device_data_key": "component.memory_size"
+          }
+        }
+      ]
+    },
+    "MemorySizeMaxDiffRatio5Percent": {
+      "inherit": "MemorySize",
+      "label": "Memory Size Max Diff Ratio 5 Percent",
+      "args": {
+        "max_diff_ratio": 0.05
+      }
+    },
+    "StressAppTestForOneDay": {
+      "inherit": "StressAppTest",
+      "label": "Stress App Test For One Day",
+      "args": {
+        "seconds": 86400
+      }
+    },
+    "StressAppTestOnlyCPUAndMemory": {
+      "inherit": "StressAppTest",
+      "label": "Stress App Test Only CPU And Memory",
+      "args": {
+        "disk_thread": false
+      }
+    },
+    "UpdateDramPartNum": {
+      "label": "Update DRAM Part Num",
+      "child_action_on_failure": "STOP",
+      "subtests": [
+        {
+          "pytest_name": "exec_shell",
+          "label": "Read DRAM Part Num From CBI",
+          "args": {
+            "commands": [
+              "factory device-data component.dram_part_num=\"$(ectool cbi get 3)\""
+            ]
+          }
+        },
+        {
+          "pytest_name": "scan",
+          "label": "Scan DRAM Part Num",
+          "args": {
+            "device_data_key": "component.dram_part_num",
+            "label": "DRAM Part Num"
+          }
+        },
+        {
+          "pytest_name": "update_cbi",
+          "label": "Update DRAM Part Num in CBI",
+          "args": {
+            "cbi_data_names": [
+              "DRAM_PART_NUM"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "tests": [
+    "ProbeDram",
+    "UpdateDramPartNum",
+    "MemorySize",
+    "MemorySizeMaxDiffRatio5Percent",
+    "MemorySizeCompareToDeviceData",
+    "MRCCache",
+    "StressAppTest",
+    "StressAppTestOnlyCPUAndMemory",
+    "StressAppTestForOneDay"
+  ]
+}

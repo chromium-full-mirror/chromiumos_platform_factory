@@ -634,38 +634,6 @@
     "LidSwitch": {
       "pytest_name": "lid_switch"
     },
-    "MRCCache": {
-      "label": "i18n! MRC Cache",
-      "subtests": [
-        {
-          "pytest_name": "mrc_cache",
-          "label": "i18n! Create Cache",
-          "args": {
-            "mode": "create"
-          }
-        },
-        "RebootStep",
-        {
-          "pytest_name": "mrc_cache",
-          "label": "i18n! Verify Cache Update",
-          "args": {
-            "mode": "verify_update"
-          }
-        },
-        "RebootStep",
-        {
-          "pytest_name": "mrc_cache",
-          "label": "i18n! Verify Cache No Update",
-          "args": {
-            "mode": "verify_no_update"
-          }
-        }
-      ]
-    },
-    "MemorySize": {
-      "pytest_name": "memory_size",
-      "label": "Memory Size"
-    },
     "Message": {
       "pytest_name": "message",
       "allow_reboot": true
@@ -890,13 +858,6 @@
         "SyncFactoryServer",
         "Barrier",
         "ShopfloorNotifyStart"
-      ]
-    },
-    "StressAppTest": {
-      "pytest_name": "stressapptest",
-      "label": "Stress App Test",
-      "exclusive_resources": [
-        "CPU"
       ]
     },
     "SuspendResume": {

@@ -1,0 +1,66 @@
+{
+  "__comment": "Predefined DRAM tests. DRAM is called \"Memory\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {},
+  "options": {},
+  "definitions": {
+    "MRCCache": {
+      "label": "i18n! MRC Cache",
+      "subtests": [
+        {
+          "pytest_name": "mrc_cache",
+          "label": "i18n! Create Cache",
+          "args": {
+            "mode": "create"
+          }
+        },
+        "RebootStep",
+        {
+          "pytest_name": "mrc_cache",
+          "label": "i18n! Verify Cache Update",
+          "args": {
+            "mode": "verify_update"
+          }
+        },
+        "RebootStep",
+        {
+          "pytest_name": "mrc_cache",
+          "label": "i18n! Verify Cache No Update",
+          "args": {
+            "mode": "verify_no_update"
+          }
+        }
+      ]
+    },
+    "MemorySize": {
+      "pytest_name": "memory_size",
+      "label": "Memory Size"
+    },
+    "ProbeDram": {
+      "pytest_name": "probe.probe",
+      "label": "Probe DRAM",
+      "args": {
+        "component_list": [
+          "dram"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "dram",
+            ">",
+            0
+          ]
+        ]
+      }
+    },
+    "StressAppTest": {
+      "pytest_name": "stressapptest",
+      "label": "Stress App Test",
+      "exclusive_resources": [
+        "CPU"
+      ]
+    }
+  }
+}

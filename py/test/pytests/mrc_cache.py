@@ -23,36 +23,12 @@ Dependency
 Examples
 --------
 To run the complete memory training and verification flow described in
-py/tools/mrc_cache.py, add this to test list::
+py/tools/mrc_cache.py, add this to test list:
 
-  {
-    "label": "i18n! MRC Cache",
-    "subtests": [
-      {
-        "pytest_name": "mrc_cache",
-        "label": "i18n! Create Cache",
-        "args": {
-          "mode": "create"
-        }
-      },
-      "RebootStep",
-      {
-        "pytest_name": "mrc_cache",
-        "label": "i18n! Verify Cache Update",
-        "args": {
-          "mode": "verify_update"
-        }
-      },
-      "RebootStep",
-      {
-        "pytest_name": "mrc_cache",
-        "label": "i18n! Verify Cache No Update",
-        "args": {
-          "mode": "verify_no_update"
-        }
-      }
-    ]
-  }
+.. test_list::
+
+  generic_dram_examples:MRCCache
+
 """
 
 import enum

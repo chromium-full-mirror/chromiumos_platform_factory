@@ -325,7 +325,7 @@ msgid "LTE Verify Config"
 msgstr "การยืนยันการกำหนดค่า LTE"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_dram.test_list.json
 msgid "Memory Size"
 msgstr "ขนาดหน่วยความจำ"
 
@@ -346,7 +346,7 @@ msgid "Mouse"
 msgstr "เมาส์"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "MRC Cache"
 msgstr "แคช MRC"
@@ -3723,21 +3723,6 @@ msgid "Lid Accelerometers Calibration"
 msgstr "การสอบเทียบมาตรวัดความเร่งฝาปิด"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Create Cache"
-msgstr "ตรวจสอบการอัปเดตแคช"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Verify Cache Update"
-msgstr ""
-
-#: ../py/test/test_lists/generic_common.test_list.json
-#: ../py/test/test_lists/generic_run_in.test_list.json
-msgid "Verify Cache No Update"
-msgstr "ตรวจสอบแคชไม่มีการอัปเดต"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
 msgstr "รุ่นและ SKU"
 
@@ -3808,10 +3793,6 @@ msgstr "บริการบนชั้นการผลิต (แจ้ง�
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "บริการบนชั้นการผลิต (แจ้งเตือนการเริ่มต้น)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Stress App Test"
-msgstr "การทดสอบแอปความเครียด"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify TPM state"
@@ -3996,6 +3977,77 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Generic Display Panel Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Create Cache"
+msgstr "ตรวจสอบการอัปเดตแคช"
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Verify Cache Update"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+#: ../py/test/test_lists/generic_run_in.test_list.json
+msgid "Verify Cache No Update"
+msgstr "ตรวจสอบแคชไม่มีการอัปเดต"
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+msgid "Probe DRAM"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram.test_list.json
+msgid "Stress App Test"
+msgstr "การทดสอบแอปความเครียด"
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size in GB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Scan Memory Size in GB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size Compare To Device Data"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Memory Size Max Diff Ratio 5 Percent"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Stress App Test For One Day"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Stress App Test Only CPU And Memory"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Read DRAM Part Num From CBI"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Scan DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Update DRAM Part Num in CBI"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Update DRAM Part Num"
+msgstr ""
+
+#: ../py/test/test_lists/generic_dram_examples.test_list.json
+msgid "Generic DRAM Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fat.test_list.json

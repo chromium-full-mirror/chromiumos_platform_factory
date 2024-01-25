@@ -1,6 +1,7 @@
 {
   "inherit": [
     "generic_display_panel.test_list",
+    "generic_dram.test_list",
     "generic_fingerprint.test_list",
     "generic_common.test_list"
   ],

@@ -49,31 +49,26 @@ Dependency
 
 Examples
 --------
-To compare and check only the memory size from ``mosys`` and kernel, add this
-in test list::
+To compare and check the memory size from ``mosys`` and kernel:
 
-  {
-    "pytest_name": "memory_size"
-  }
+.. test_list::
 
-To read device data from Shopfloor Service then compare and check the memory
-size from ``mosys``, kernel, and device data ``component.memory_size``, with
-difference up to 20 percent::
+  generic_dram_examples:MemorySize
 
-  {
-    "pytest_name": "shopfloor_service",
-    "args": {
-      "method": "GetDeviceInfo"
-    }
-  }
+To compare and check the memory size from ``mosys`` and kernel, with difference
+up to 5 percent:
 
-  {
-    "pytest_name": "memory_size",
-    "args": {
-      "device_data_key": "component.memory_size",
-      "max_diff_ratio": 0.2
-    }
-  }
+.. test_list::
+
+  generic_dram_examples:MemorySizeMaxDiffRatio5Percent
+
+To compare and check the memory size from ``mosys``, kernel, and device data
+``component.memory_size``:
+
+.. test_list::
+
+  generic_dram_examples:MemorySizeCompareToDeviceData
+
 """
 
 import re
