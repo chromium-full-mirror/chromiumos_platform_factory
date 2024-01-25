@@ -46,8 +46,7 @@
       "eval": "generic_cpu",
       "keys": [
         "model",
-        "cores",
-        "chip_id"
+        "cores"
       ]
     }
   },

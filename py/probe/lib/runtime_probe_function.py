@@ -45,6 +45,7 @@ def GetAllFunctions():
       ]),
       CreateRuntimeProbeFunction('generic_battery', []),
       CreateRuntimeProbeFunction('generic_camera', []),
+      CreateRuntimeProbeFunction('generic_cpu', []),
       CreateRuntimeProbeFunction('generic_storage', []),
       CreateRuntimeProbeFunction('gpu', []),
       CreateRuntimeProbeFunction('mmc_host', [
