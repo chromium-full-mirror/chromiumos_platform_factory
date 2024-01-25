@@ -2671,6 +2671,10 @@ msgstr "Đang quét{label}"
 msgid "Please scan the {label} and press ENTER."
 msgstr "Vui lòng quét{label}và nhấn ENTER.。"
 
+#: ../py/test/pytests/scan.py
+msgid "<p>original value from {source}: {value}</p>"
+msgstr ""
+
 #: ../py/test/pytests/shopfloor_service.py
 #: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Retry"

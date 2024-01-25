@@ -2629,6 +2629,10 @@ msgstr "扫描{label}"
 msgid "Please scan the {label} and press ENTER."
 msgstr "请扫描{label}后按下 ENTER。"
 
+#: ../py/test/pytests/scan.py
+msgid "<p>original value from {source}: {value}</p>"
+msgstr "<p>来自 {source} 的原始值：{value}</p>"
+
 #: ../py/test/pytests/shopfloor_service.py
 #: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Retry"

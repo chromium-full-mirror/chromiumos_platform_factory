@@ -48,6 +48,7 @@ A regular expression can also be specified to check the validity::
 
 import logging
 import re
+from typing import List, Optional, Tuple, cast
 
 from cros.factory.device import device_utils
 from cros.factory.test import device_data
@@ -243,13 +244,33 @@ class Scan(test_case.TestCase):
       self.fixture.TriggerScanner()
       self.Sleep(self.args.barcode_scan_interval_secs)
 
-  def runTest(self):
+  def _GetOriginalValues(self) -> List[Tuple[str, Optional[str]]]:
+    existed_data_source = {
+        'serial_number_key': (
+            self.args.serial_number_key, device_data.GetSerialNumber),
+        'device_data': (self.args.device_data_key, device_data.GetDeviceData),
+        'ro_vpd': (self.args.ro_vpd_key, self.dut.vpd.ro.get),
+        'rw_vpd': (self.args.rw_vpd_key, self.dut.vpd.rw.get),
+    }
+    return [
+        (f'{display_key_name}={data_key}', cast(Optional[str],
+                                                getter(data_key)))
+        for display_key_name, (data_key, getter) in existed_data_source.items()
+        if data_key
+    ]
+
+  def runTest(self) -> None:
     self.ui.SetTitle(_('Scan {label}', label=self.args.label))
+
+    original_values = self._GetOriginalValues()
 
     self.ui.SetState([
         _('Please scan the {label} and press ENTER.', label=self.args.label),
         '<input id="scan-value" type="text" size="20">'
         '<p id="scan-status">&nbsp;</p>'
+    ] + [
+        _('<p>original value from {source}: {value}</p>', source=source,
+          value=value) for source, value in original_values
     ])
     self.ui.SetFocus('scan-value')
     self.ui.BindKeyJS(
