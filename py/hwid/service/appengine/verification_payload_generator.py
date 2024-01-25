@@ -30,7 +30,13 @@ from cros.factory.utils import type_utils
 
 BATTERY_SYSFS_MANUFACTURER_MAX_LENGTH = 7
 BATTERY_SYSFS_MODEL_NAME_MAX_LENGTH = 7
-COMMON_HWID_TECHNOLOGY = frozenset(['Li-ion', 'Li-poly', 'LION', 'LiP', 'LIP'])
+# Common technology values defined in
+# https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-power
+# and common chemistry values exported by ectool.
+COMMON_HWID_TECHNOLOGY = frozenset([
+    'Li-ion', 'Li-poly', 'LiFe', 'LiMn', 'NiCd', 'NiMH', 'Unknown', 'LION',
+    'LiP', 'LIP'
+])
 
 
 class IValueConverter(abc.ABC):
