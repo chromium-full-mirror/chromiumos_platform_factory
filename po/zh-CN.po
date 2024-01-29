@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-25 11:44+CST\n"
+"PO-Revision-Date: 2024-02-01 11:17+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3619,6 +3619,10 @@ msgid "Lid Accelerometers Calibration"
 msgstr "上盖加速度计校正"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Lock the Intel Descriptor"
+msgstr "锁定Intel描述符"
+
+#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Create Cache"
 msgstr "产生 Cache"
@@ -3660,6 +3664,10 @@ msgstr "侦测硬件"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "QR Scan"
 msgstr "扫描 QR 码"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "RMA Update Intel Firmware"
+msgstr "RMA更新Intel韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Rear Camera Assemble"
@@ -3836,10 +3844,6 @@ msgstr "手动右 USB TypeC 测试"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
 msgstr "更新 CBI"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update CSME Locked Firmware"
-msgstr "更新CSME上锁的韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Firmware Version"

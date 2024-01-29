@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-25 11:44+CST\n"
+"PO-Revision-Date: 2024-02-01 11:17+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3686,6 +3686,10 @@ msgid "Lid Accelerometers Calibration"
 msgstr "Điều chỉnh gia tốc kế nắp trên"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Lock the Intel Descriptor"
+msgstr ""
+
+#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Create Cache"
 msgstr "Tạo bộ nhớ cache"
@@ -3727,6 +3731,10 @@ msgstr "Thăm dò ổ cứng"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "QR Scan"
 msgstr "quét mã QR"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "RMA Update Intel Firmware"
+msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Rear Camera Assemble"
@@ -3903,10 +3911,6 @@ msgstr "Kiểm tra USB TypeC thủ công ngay"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
 msgstr "Cập nhật CBI"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update CSME Locked Firmware"
-msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Firmware Version"

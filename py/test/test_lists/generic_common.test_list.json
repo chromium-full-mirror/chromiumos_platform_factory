@@ -783,6 +783,20 @@
     "LidSwitch": {
       "pytest_name": "lid_switch"
     },
+    "LockIntelDescriptor": {
+      "label": "Lock the Intel Descriptor",
+      "subtests": [
+        {
+          "pytest_name": "update_firmware",
+          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
+          "args": {
+            "unlock_csme": false
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
+      ]
+    },
     "MRCCache": {
       "label": "i18n! MRC Cache",
       "subtests": [
@@ -890,6 +904,19 @@
         "mode": "qr",
         "QR_string": "Hello ChromeOS!"
       }
+    },
+    "RMAUpdateIntelFirmware": {
+      "label": "RMA Update Intel Firmware",
+      "subtests": [
+        {
+          "pytest_name": "update_firmware",
+          "args": {
+            "unlock_csme": false
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
+      ]
     },
     "ReSignReleaseKernel": {
       "pytest_name": "update_kernel",
@@ -1556,20 +1583,6 @@
           "PCB_SUPPLIER"
         ]
       }
-    },
-    "UpdateCSMELockedFirmware": {
-      "label": "Update CSME Locked Firmware",
-      "subtests": [
-        {
-          "pytest_name": "update_firmware",
-          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
-          "args": {
-            "unlock_csme": false
-          }
-        },
-        "Barrier",
-        "FullRebootStep"
-      ]
     },
     "UpdateCr50Firmware": {
       "inherit": "TestGroup",
