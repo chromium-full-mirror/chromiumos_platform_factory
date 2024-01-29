@@ -3,6 +3,33 @@
     "generic_common.test_list"
   ],
   "definitions": {
+    "LockIntelDescriptor": {
+      "label": "Lock the Intel Descriptor",
+      "subtests": [
+        {
+          "pytest_name": "update_firmware",
+          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
+          "args": {
+            "unlock_csme": false
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
+      ]
+    },
+    "RMAUpdateIntelFirmware": {
+      "label": "RMA Update Intel Firmware",
+      "subtests": [
+        {
+          "pytest_name": "update_firmware",
+          "args": {
+            "unlock_csme": false
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
+      ]
+    },
     "SetEOMNVAR": {
       "pytest_name": "setup_psr_feature",
       "label": "Set EOM NVAR",
@@ -30,20 +57,6 @@
           "run_if": "device.factory.psr_update_need_reboot"
         },
         "StartPSRLog"
-      ]
-    },
-    "UpdateCSMELockedFirmware": {
-      "label": "Update CSME Locked Firmware",
-      "subtests": [
-        {
-          "pytest_name": "update_firmware",
-          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
-          "args": {
-            "unlock_csme": false
-          }
-        },
-        "Barrier",
-        "FullRebootStep"
       ]
     },
     "UpdatePSROEMData": {

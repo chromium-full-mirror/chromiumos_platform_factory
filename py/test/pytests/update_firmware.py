@@ -66,6 +66,7 @@ import contextlib
 import logging
 import os
 import tempfile
+from typing import List
 
 from cros.factory.device import device_utils
 from cros.factory.test.env import paths
@@ -75,6 +76,7 @@ from cros.factory.test import test_ui
 from cros.factory.test.utils import gsc_utils
 from cros.factory.test.utils import update_utils
 from cros.factory.utils.arg_utils import Arg
+from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sys_utils
 
@@ -114,7 +116,10 @@ class UpdateFirmwareTest(test_case.TestCase):
       Arg('force_update', bool,
           'force to update firmware even if the version is the same.',
           default=True),
-      Arg('unlock_csme', bool, 'Unlock the Intel CSME before flashing.',
+      Arg(
+          'unlock_csme', bool, 'Unlock the Intel CSME from the updater before '
+          'flashing. Please read the comments in '
+          'UpdateFirmwareForIntelTi50Device for the expected update results.',
           default=True),
   ]
 
@@ -150,35 +155,69 @@ class UpdateFirmwareTest(test_case.TestCase):
   def IsIntelFirmware(self, fw_image):
     return fw_image.GetFirmwareImage().has_section(ifdtool.IntelLayout.ME.value)
 
-  def VerifyIntelDescriptorLockStatus(self, dut_locked, updater_locked):
-    """Verifies Intel descriptor's lock status.
+  def UpdateFirmwareForIntelTi50Device(
+      self, command: List[str], fw_image: ifdtool.IntelMainFirmwareContent):
+    """A special logic for handling FW update on an Intel device with Ti50.
 
     Below we summarize the possible descriptor status of the DUT and updater,
-    and raise exception if the status is unexpected.
+    the update result and the corresponding scenario.
 
-    L: SI_DESC is locked; U: SI_DESC is unlocked.
-    ---------------------------------------------------------
-    | Updater  | DUT |     Update Result     |   Scenario   |
-    ---------------------------------------------------------
-    |    L     |  L  |       RO* + RW        |     RMA      |
-    ---------------------------------------------------------
-    |    L     |  U  | RO will be locked + RW|    Factory   |
-    ---------------------------------------------------------
-    |    U     |  L  |       Exception       |      X       |
-    ---------------------------------------------------------
-    |    U     |  U  |       RO + RW         |    Factory   |
-    ---------------------------------------------------------
-    *: RO will only be updated if the SI_DESC in the updater and the DUT
-       are the same.
+    Terminology:
+    - SI_DESC and SI_ME: Intel specific FW regions, which cannot be modified
+      once SI_DESC is locked unless using servo.
+    - RO: ChromeOS read-only FW, which is protected by the HW write-protection.
+    - RW: ChromeOS read-write FW.
+    - L: SI_DESC is locked; U: SI_DESC is unlocked.
+    -----------------------------------------------------------
+    | Updater  | DUT |      Update Result      |   Scenario   |
+    -----------------------------------------------------------
+    |    L     |  L  |        RO* + RW         |     RMA      |
+    -----------------------------------------------------------
+    |    L     |  U  |        SI_DESC**        |    Factory   |
+    -----------------------------------------------------------
+    |    U     |  L  |        Exception        |      X       |
+    -----------------------------------------------------------
+    |    U     |  U  |SI_DESC + SI_ME + RO + RW|    Factory   |
+    -----------------------------------------------------------
+    *:  RO will only be updated if the SI_DESC in the updater and the DUT
+        are the same.
+    **: To avoid overwriting provisioned data (e.g., PSR) in SI_ME, we lock
+        the firmware by flashing only the SI_DESC region from the updater.
     """
+    _, dut_locked = fw_image.GenerateAndCheckLockedDescriptor()
+    updater_locked = not self.args.unlock_csme
     logging.info('Intel descriptor status: %s',
                  'Locked' if dut_locked else 'Unlocked')
     logging.info('Updater descriptor status: %s',
                  'Locked' if updater_locked else 'Unlocked')
-    if not updater_locked and dut_locked:
+
+    if updater_locked and dut_locked:
+      self.RunUpdaterAndCheckResult(command)
+    elif updater_locked and not dut_locked:
+      logging.info('Locking the descriptor...')
+      with file_utils.TempDirectory() as temp_dir:
+        command += ['--mode=output', f'--output_dir={temp_dir}']
+        self.RunUpdaterAndCheckResult(
+            command, 'Fail to extract firmware from the updater')
+        fw_image.WriteDescriptor(
+            filename=self._dut.path.join(temp_dir, 'bios.bin'))
+    elif not updater_locked and dut_locked:
       raise IntelDescriptorHasLockedException(
           'Descriptor has already been locked! Cannot flash unlocked FW. '
           'Please set argument `unlock_csme` to false.')
+    else:
+      command += ['--quirks=unlock_csme']
+      self.RunUpdaterAndCheckResult(command)
+
+  def RunUpdaterAndCheckResult(self, command: List[str],
+                               error_msg: str = 'Firmware update failed'):
+    returncode = self.ui.PipeProcessOutputToUI(command)
+
+    # Updates system info so EC and Firmware version in system info box
+    # are correct.
+    self.event_loop.PostEvent(event.Event(event.Event.Type.UPDATE_SYSTEM_INFO))
+
+    self.assertEqual(returncode, 0, f'{error_msg}: {int(returncode)}.')
 
   def UpdateFirmware(self):
     """Runs firmware updater.
@@ -210,24 +249,16 @@ class UpdateFirmwareTest(test_case.TestCase):
 
     # AP RO verification v2 protects RO as a whole, including Intel's SI_DESC.
     # We thus cannot update the firmware arbitrarily.
-    # Below we verify whether the update is valid or not.
+    # We use the special logic in UpdateFirmwareForIntelTi50Device to handle
+    # Intel's firmware update.
     if self._is_ti50:
       fw_image = ifdtool.LoadIntelMainFirmware()
       if self.IsIntelFirmware(fw_image):
-        _, is_locked = fw_image.GenerateAndCheckLockedDescriptor()
-        self.VerifyIntelDescriptorLockStatus(is_locked,
-                                             not self.args.unlock_csme)
-        if self.args.unlock_csme:
-          command += ['--quirks=unlock_csme']
+        logging.info('DUT is an Intel device with Ti50.')
+        self.UpdateFirmwareForIntelTi50Device(command, fw_image)
+        return
 
-    returncode = self.ui.PipeProcessOutputToUI(command)
-
-    # Updates system info so EC and Firmware version in system info box
-    # are correct.
-    self.event_loop.PostEvent(event.Event(event.Event.Type.UPDATE_SYSTEM_INFO))
-
-    self.assertEqual(returncode, 0,
-                     f'Firmware update failed: {int(returncode)}.')
+    self.RunUpdaterAndCheckResult(command)
 
   def runTest(self):
     # Either download_from_server or from_release can be True.
