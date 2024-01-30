@@ -203,6 +203,7 @@ set_docker_image_info
 : "${UMPIRE_CONTAINER_DIR:="${HOST_UMPIRE_DIR}/${PROJECT}"}"
 : "${UMPIRE_PORT:="8080"}"  # base port for Umpire
 : "${DOME_PORT:="8000"}"  # port to access Dome
+: "${DOME_HTTPS_PORT:="8001"}"  # port to access Dome via HTTPS
 : "${DOME_DEV_PORT:="18000"}"  # port to access Dome dev server
 : "${GOOFY_PORT:="4012"}"  # port to access Goofy
 : "${OVERLORD_HTTP_PORT:="9000"}"  # port to access Overlord
@@ -914,6 +915,7 @@ do_prepare_dome() {
 
   local docker_db_dir="/var/db/factory/dome"
   local db_filename="db.sqlite3"
+  local ssl_config="ssl.conf"
   local docker_log_dir="/var/log/dome"
   local host_log_dir="${HOST_DOME_DIR}/log"
 
@@ -924,6 +926,13 @@ do_prepare_dome() {
     ensure_dir "${HOST_DOME_DIR}"
     sudo touch "${HOST_DOME_DIR}/${db_filename}"
     ensure_dir_acl "${HOST_SHARED_DIR}"
+  fi
+
+  # make sure ssl.conf file exists or mounting volume will fail
+  if [[ ! -f "${HOST_DOME_DIR}/${ssl_config}" ]]; then
+    echo "Creating docker shared (${ssl_config}) file,"
+    echo "you'll be asked for root permission ..."
+    sudo touch "${HOST_DOME_DIR}/${ssl_config}"
   fi
 
   # Migrate the database if needed (won't remove any data if the database
@@ -991,6 +1000,7 @@ do_run() {
     --env RESOURCE_CROS_DOCKER_URL="" \
     --volume /run \
     --volume "${HOST_DOME_DIR}/${db_filename}:${docker_db_dir}/${db_filename}" \
+    --volume "${HOST_DOME_DIR}/${ssl_config}:${docker_db_dir}/${ssl_config}" \
     --volume "${host_log_dir}:${docker_log_dir}" \
     --volume "${HOST_TFTP_DIR}:${DOCKER_TFTP_DIR_IN_DOME}" \
     --volume "${HOST_UMPIRE_DIR}:${DOCKER_UMPIRE_DIR_IN_DOME}" \
@@ -1007,6 +1017,7 @@ do_run() {
     --name "${DOME_NGINX_CONTAINER_NAME}" \
     --volumes-from "${DOME_UWSGI_CONTAINER_NAME}" \
     --publish "${DOME_PORT}:80" \
+    --publish "${DOME_HTTPS_PORT}:443" \
     --workdir "${DOCKER_DOME_DIR}" \
     "${DOCKER_IMAGE_NAME}" \
     nginx -g "daemon off;"

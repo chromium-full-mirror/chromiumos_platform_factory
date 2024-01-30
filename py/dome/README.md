@@ -52,6 +52,26 @@ since they're normally very large.
 ### Using Dome
 TBD.
 
+
+### How to Enable HTTPS on DOME (Factory Server)
+
+Because Dome is open source, we cannot provide the private key on source code.
+If you want to enable HTTPS on DOME, you can use your certificate files.
+
+Here's a brief instruction to enable HTTPS:
+- Create a `ssl.conf` file under `/cros_docker/dome` folder.
+- Modify this `ssl.conf` file, you need to add these configurations:
+  ```
+  listen  443 ssl;
+
+  ssl_certificate  /var/db/factory/dome/nginx/certificate.crt;
+  ssl_certificate_key  /var/db/factory/dome/nginx/private.key;
+  ```
+- Put your `certificate.crt` and `private.key` files into `/cros_docker/dome/nginx`
+  folder.
+- Run `setup/cros_docker.sh run`.
+- Now you can visit to [https://localhost:8001](https://localhost:8001).
+
 ---
 
 ### Run E2E Testing of Dome
