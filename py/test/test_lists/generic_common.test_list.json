@@ -91,7 +91,7 @@
       }
     },
     "update_firmware": {
-      "reboot_type": "reboot"
+      "reboot_type": "full_reboot"
     },
     "use_prepvt_cr50_firmware": false,
     "__comment_use_prepvt_cr50_firmware": "Set this to true if the prepvt cr50 firmware in release image should be used.",
