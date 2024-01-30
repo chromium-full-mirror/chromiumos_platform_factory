@@ -113,6 +113,11 @@ class VerifyPhaseTest(unittest.TestCase):
     self.assertRaises(common.HWIDException, verifier.VerifyPhase, self.database,
                       bom)
 
+  def testEmptyFirmwareKeysInRMA(self):
+    bom = self._CreateBOM(image_id=15, empty_firmware_keys=True)
+
+    verifier.VerifyPhase(self.database, bom, rma_mode=True)
+
   def testEarlyBuild(self):
     for image_id in [0, 1, 2]:
       for component_name in self.possible_names:

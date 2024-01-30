@@ -121,8 +121,22 @@ def VerifyPhase(database, bom, current_phase=None, rma_mode=False):
         f'In {current_phase} phase, expected an image name beginning with '
         f'{expected_image_name_prefix!r} (but got image ID {image_name!r})')
 
-  # MP-key checking applies only in PVT and above
-  if current_phase >= phase.PVT:
+  # MP-key checking applies only in 1) RMA image ID with firmware_keys
+  # included or 2) PVT and above.
+  should_check_firmware_keys = False
+  if bom.image_id == database.rma_image_id:
+    # The following statement might need to cherry-pick to old factory branches.
+    # Therefore, we prefer not to leverage the simpler statement
+    # `'firmware_keys' in database.GetComponentClasses(image_id=bom.image_id)`
+    # because the argument `image_id` was introduced lately (compare to the
+    # target factory branches).
+    should_check_firmware_keys = any(
+        'firmware_keys' in database.GetComponentClasses(e)
+        for e in database.GetEncodedFieldsBitLength(image_id=bom.image_id))
+  elif current_phase >= phase.PVT:
+    should_check_firmware_keys = True
+
+  if should_check_firmware_keys:
     if not bom.components.get('firmware_keys', []):
       raise common.HWIDException('firmware_keys is required but not found.')
 
