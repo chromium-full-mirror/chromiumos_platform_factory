@@ -147,15 +147,6 @@
         "include_parents": true
       }
     },
-    "BadBlocks": {
-      "pytest_name": "bad_blocks",
-      "__comment": "When run alone, this takes ~.5s/MiB (for four passes).  We'll do a gigabyte, which takes about 9 minutes.",
-      "args": {
-        "timeout_secs": 120,
-        "log_threshold_secs": 10,
-        "max_bytes": 1073741824
-      }
-    },
     "Barrier": {
       "pytest_name": "summary",
       "label": "Barrier",
@@ -1362,12 +1353,6 @@
         "upload_reg_codes": false,
         "upload_zero_touch_ids": true,
         "flush_testlog": false
-      }
-    },
-    "VerifyRootPartition": {
-      "pytest_name": "verify_root_partition",
-      "args": {
-        "max_bytes": 1048576
       }
     },
     "VerifyWidevineKeybox": {

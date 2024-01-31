@@ -23,6 +23,14 @@ stateful partition.'`` will be shown if it cannot find any extra space.
 (If you install the image by ``chromeos-install``, by default, there will be no
 free space after stateful partition.)
 
+Default Behavior
+^^^^^^^^^^^^^^^^
+The test will use 1GB of **unused portion of the stateful partition** for
+testing by default.  On most devices, ``badblocks`` takes ~0.5s/MB (for four
+passes).  So the default setup will take about 9 minutes.
+
+The test skips badblocks and only runs smartctl for SSD storage by default.
+
 Test Procedure
 --------------
 This test does not require operator interaction.  An UI will be shown to
@@ -34,20 +42,23 @@ This pytest depends on ``badblocks(8)``.
 
 Examples
 --------
-This pytest is defined as ``BadBlocks`` in ``generic_common.test_list.json``.
-It will use **unused portion of the stateful partition** for testing.  It will
-test for 1 GB of space.  On most devices, ``badblocks`` takes ~0.5s/MB (for four
-passes).  So the default setup will take about 9 minutes.  Normally you only
-want to override ``max_bytes`` in your test list.  For example, to change it to
-2 GB::
+To run default test:
 
-  "definitions": {
-    "BadBlocks": {
-      "args": {
-        "max_bytes": 2147483648
-      }
-    }
-  }
+.. test_list::
+
+  generic_storage_examples:BadBlocks
+
+To change the portion of disk to 2 GB:
+
+.. test_list::
+
+  generic_storage_examples:BadBlocks2GB
+
+To force running badblocks:
+
+.. test_list::
+
+  generic_storage_examples:BadBlocksForceOnSSD
 
 Troubleshooting
 ---------------

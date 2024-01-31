@@ -32,28 +32,18 @@ Use `/dev/urandom` to generate random data for write.
 
 Examples
 --------
-To test read/write a 10MB file under `/home/root`, add this in test list::
+To test read/write of a 10MB file under `/home/root`:
 
-  {
-    "pytest_name": "storage_simple_stress",
-    "args": {
-      "operations": 1,
-      "dir": "/home/root",
-      "file_size": 10485760
-    }
-  }
+.. test_list:
 
-To test read/write of a 100MB file 3 times for block device 'mmcblk1p1'::
+  generic_storage_examples:StorageSimpleStress
 
-  {
-    "pytest_name": "storage_simple_stress",
-    "args": {
-      "operations": 3,
-      "mount_device": "/dev/block/mmcblk1p1",
-      "dir": ".",
-      "file_size": 104857600
-    }
-  }
+To test read/write of a 10MB file 3 times:
+
+.. test_list:
+
+  generic_storage_examples:StorageSimpleStress3Times
+
 """
 
 import logging

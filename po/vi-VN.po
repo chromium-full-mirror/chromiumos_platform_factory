@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-30 11:00+CST\n"
+"PO-Revision-Date: 2024-02-02 13:12+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -4278,6 +4278,30 @@ msgstr "Thử áp lực"
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Switch to RMA test list"
 msgstr "Chuyển danh sách kiểm tra: RMA"
+
+#: ../py/test/test_lists/generic_storage.test_list.json
+msgid "Probe Storage"
+msgstr ""
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks 2GB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks Force badblocks On SSD"
+msgstr ""
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks Force badblocks On SSD 10MB"
+msgstr ""
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Storage Simple Stress 3 Times"
+msgstr ""
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Generic Storage Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"

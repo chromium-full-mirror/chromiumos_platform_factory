@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-01-30 11:00+CST\n"
+"PO-Revision-Date: 2024-02-02 13:12+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -4219,6 +4219,30 @@ msgstr "压力测试"
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Switch to RMA test list"
 msgstr "切换至 RMA 测试列表"
+
+#: ../py/test/test_lists/generic_storage.test_list.json
+msgid "Probe Storage"
+msgstr "侦测储存装置硬件"
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks 2GB"
+msgstr "毁损扇区(2GB)"
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks Force badblocks On SSD"
+msgstr "毁损扇区(强行对 SSD 跑 badblocks)"
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Bad Blocks Force badblocks On SSD 10MB"
+msgstr "毁损扇区(强行对 SSD 跑 badblocks 10MB)"
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Storage Simple Stress 3 Times"
+msgstr "储存装置压力测试 3 次"
+
+#: ../py/test/test_lists/generic_storage_examples.test_list.json
+msgid "Generic Storage Factory tests"
+msgstr "一般储存装置测试"
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"

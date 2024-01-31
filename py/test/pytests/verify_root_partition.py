@@ -21,14 +21,11 @@ Dependency
 
 Examples
 --------
-An example::
+An example:
 
-  {
-    "pytest_name": "verify_root_partition",
-    "args": {
-      "max_bytes": 1048576
-    }
-  }
+.. test_list::
+
+  generic_storage_examples:VerifyRootPartition
 
 """
 
@@ -39,6 +36,7 @@ import tempfile
 
 from cros.factory.device import device_utils
 from cros.factory.test import test_case
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 
@@ -49,7 +47,7 @@ BLOCK_SIZE = 8 * 1024 * 1024
 
 class VerifyRootPartitionTest(test_case.TestCase):
   """Verifies the integrity of the root partition."""
-  related_components = tuple()
+  related_components = (test_tags.TestCategory.STORAGE, )
 
 
   ARGS = [
