@@ -61,14 +61,17 @@ class RegionsList(Directive):
         row += nodes.entry('', nodes.paragraph(
             '', r.description, classes=['description']))
 
-        # For each of the columns...
-        for value in [r.region_code,
-                      ', '.join(r.keyboards),
+        # region code must properly displayed.
+        row += nodes.entry('', nodes.paragraph(
+            '', r.region_code), classes=['code'])
+
+        # For each of the columns that may go very long...
+        for value in [', '.join(r.keyboards),
                       r.time_zone,
                       ', '.join(r.language_codes),
                       str(r.keyboard_mechanical_layout)]:
           text = nodes.paragraph('', value)
-          row += nodes.entry('', text)
+          row += nodes.entry('', text, classes=['rdata'])
 
         # 'notes' column is very special.
         notes = r.notes or ''

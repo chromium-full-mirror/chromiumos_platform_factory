@@ -14,11 +14,25 @@
 .factory-regions-list {
     font-size: 90%;
     font-family: monospace, courier;
+    hyphens: none;
+}
+
+/* Override basic.css */
+.factory-regions-list p {
+    text-align: left !important;
+    line-height: 100% !important;
 }
 
 .factory-regions-list .description {
     font-family: sans-serif;
-    text-align: left;
+}
+
+.factory-regions-list .code {
+    font-family: monospace, courier;
+}
+
+.factory-regions-list .rdata {
+    font-size: 75%;
 }
 
 .factory-regions-list .row-even {
@@ -36,7 +50,6 @@
 
 .factory-regions-list tr .note {
     font-family: sans-serif;
-    text-align: left;
     font-size: 80%;
     padding: 0px;
     margin: 0px;
