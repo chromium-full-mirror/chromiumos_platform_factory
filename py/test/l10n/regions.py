@@ -23,6 +23,7 @@ from cros.factory.utils import sys_utils
 from cros.factory.utils import type_utils
 
 
+TBR_PATTERN = re.compile(r'^To be reviewed$')
 KEYBOARD_PATTERN = re.compile(r'xkb:\w+:[\w-]*:\w+|'
                               r'(ime|m17n|t13n):[\w:-]+')
 LANGUAGE_CODE_PATTERN = re.compile(r'(\w+)(-[A-Z0-9]+)?')
@@ -150,10 +151,10 @@ class Region:
       assert all(isinstance(x, str) for x in f), (
           f'Expected a list of strings, not {f!r}')
     for f in self.keyboards:
-      assert KEYBOARD_PATTERN.fullmatch(f), (
+      assert KEYBOARD_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (
           f'Keyboard pattern {f!r} does not match {KEYBOARD_PATTERN.pattern!r}')
     for f in self.language_codes:
-      assert LANGUAGE_CODE_PATTERN.fullmatch(f), (
+      assert LANGUAGE_CODE_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (
           f'Language code {f!r} does not match '
           f'{LANGUAGE_CODE_PATTERN.pattern!r}')
 
