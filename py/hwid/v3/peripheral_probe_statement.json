@@ -86,15 +86,8 @@
   "touchscreen": {
     "generic": {
       "eval": {
-        "concat": {
-          "functions": [
-            {
-              "input_device": {
-                "device_type": "touchscreen"
-              }
-            },
-            "touchscreen_i2c"
-          ]
+        "input_device": {
+          "device_type": "touchscreen"
         }
       },
       "expect": {

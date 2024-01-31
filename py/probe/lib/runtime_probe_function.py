@@ -48,6 +48,10 @@ def GetAllFunctions():
       CreateRuntimeProbeFunction('generic_cpu', []),
       CreateRuntimeProbeFunction('generic_storage', []),
       CreateRuntimeProbeFunction('gpu', []),
+      CreateRuntimeProbeFunction('input_device', [
+          arg_utils.Arg('device_type', str, 'Input device type to be probed',
+                        default=None),
+      ]),
       CreateRuntimeProbeFunction('mmc_host', [
           arg_utils.Arg(
               'is_emmc_attached', bool,
