@@ -149,7 +149,7 @@ from cros.factory.device import device_utils
 from cros.factory.device import usb_c
 from cros.factory.goofy.plugins.display_manager import display_manager
 from cros.factory.goofy.plugins import plugin_controller
-from cros.factory.probe.functions import edid
+from cros.factory.probe import function as probe_function
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.i18n import _
 from cros.factory.test.pytests import audio
@@ -312,17 +312,14 @@ class SysfsDisplayInfo:
     self.status = dut.ReadFile(self.status_path).strip()
     if self.status != 'connected':
       return
-    edid_bytes = dut.ReadSpecialFile(self.edid_path, encoding=None)
-    try:
-      edid_data = edid.Parse(edid_bytes)
-    except Exception as err:
-      raise RuntimeError(f'edid.Parse({edid_bytes}) fails for drm_sysfs_path: '
-                         f'{self.sysfs_path}') from err
-    if edid_data is None:
-      raise RuntimeError(f'edid.Parse({edid_bytes}) fails for drm_sysfs_path: '
-                         f'{self.sysfs_path}. See logging.warning for the '
-                         'reason.')
-    self.edid = edid_data.copy()
+    edid_probe_func = probe_function.GetFunctionClass("edid")
+    edid_data = edid_probe_func(
+        edid_patterns=[self.edid_path.strip('/')]).Probe()
+    if len(edid_data) == 0:
+      raise RuntimeError(f"No display found in {self.sysfs_path}")
+    if len(edid_data) > 1:
+      raise RuntimeError(f"Multiple display found in {self.sysfs_path}")
+    self.edid = edid_data[0]
     try:
       self.edid['manufacturerId'] = self.edid.pop('vendor')
       self.edid['productId'] = self.edid.pop('product_id').upper()

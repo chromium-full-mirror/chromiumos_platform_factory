@@ -26,6 +26,8 @@ def GetRegisteredFunctions():
 
 
 def GetFunctionClass(func_name):
+  if not _function_loaded:
+    LoadFunctions()
   return _function_map.get(func_name)
 
 

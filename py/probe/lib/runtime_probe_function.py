@@ -43,6 +43,11 @@ def GetAllFunctions():
           arg_utils.Arg('name', str, 'EC component name to be probed',
                         default=None),
       ]),
+      CreateRuntimeProbeFunction('edid', [
+          arg_utils.Arg('edid_patterns', list,
+                        'The path of target edid files, can contain wildcard.',
+                        default=["sys/class/drm/*/edid"]),
+      ]),
       CreateRuntimeProbeFunction('generic_battery', []),
       CreateRuntimeProbeFunction('generic_camera', []),
       CreateRuntimeProbeFunction('generic_cpu', []),
