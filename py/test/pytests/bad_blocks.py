@@ -94,11 +94,11 @@ class BadBlocksTest(test_case.TestCase):
   ARGS = [
       Arg('mode', _TestModes, 'Specify which operating mode to use.',
           default=_TestModes.stateful_partition_free_space),
-      Arg('device_path', str, 'Override the device path on which to test. '
-          'Also functions as a file path for file and raw modes.',
+      Arg('device_path', str,
+          ('Override the device path on which to test. '
+           'Also functions as a file path for file and raw modes.'),
           default=None),
-      Arg('max_bytes', int, 'Maximum size to test, in bytes.',
-          default=None),
+      Arg('max_bytes', int, 'Maximum size to test, in bytes.', default=None),
       Arg('max_errors', int, 'Stops testing after the given number of errors.',
           default=20),
       Arg('timeout_secs', (int, float), 'Timeout in seconds for progress lines',
@@ -107,21 +107,31 @@ class BadBlocksTest(test_case.TestCase):
           'Extra command to run at start/finish to collect logs.',
           default=None),
       Arg('log_threshold_secs', (int, float),
-          'If no badblocks output is detected for this long, log an error '
-          'but do not fail',
-          default=5),
+          ('If no badblocks output is detected for this long, log an error '
+           'but do not fail'), default=5),
       Arg('log_interval_secs', int,
-          'The interval between progress logs in seconds.',
-          default=60),
+          'The interval between progress logs in seconds.', default=60),
       Arg('drop_caches_interval_secs', int,
-          'The interval between dropping caches in seconds.',
-          default=120),
+          'The interval between dropping caches in seconds.', default=120),
       Arg('destructive', bool,
-          'Do desctructive read / write test. If set to False, '
-          'the data will be kept after testing, but longer testing time is '
-          'expected.',
-          default=True),
+          ('Do desctructive read / write test. If set to False, '
+           'the data will be kept after testing, but longer testing time is '
+           'expected.'), default=True),
+      Arg('force_badblocks_on_ssd', bool,
+          ('SSD will maintain bad blocks on their own and only expose good '
+           'blocks so badblocks is not that useful. smartctl output is still '
+           'useful. Set this to force running badblocks.'), default=False),
   ]
+
+  def IsHDD(self):
+    result = self.dut.CheckOutput(
+        ['lsblk', '-o', 'NAME,ROTA', self.args.device_path])
+    second_line = result.splitlines()[1]
+    if second_line[-1] == '0':
+      return False
+    if second_line[-1] == '1':
+      return True
+    raise ValueError(f'Unable to parse lsblk result:\n{result}')
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
@@ -129,6 +139,7 @@ class BadBlocksTest(test_case.TestCase):
     # A process that monitors /var/log/messages file.
     self.message_monitor = None
 
+    # This function will set self.args.device_path if it's None.
     self.CheckArgs()
 
     # TODO(bhthompson): refactor this for a better device type detection.
@@ -141,6 +152,8 @@ class BadBlocksTest(test_case.TestCase):
     # If 'mmcblk' in self._filesystem assume we are eMMC.
     self._is_mmc = 'mmcblk' in self._filesystem
 
+    self._is_hdd = self.IsHDD()
+
     self.current_phase = 0
 
     # Group checker for Testlog.
@@ -150,10 +163,23 @@ class BadBlocksTest(test_case.TestCase):
     self.sata_link_info_group_checker = testlog.GroupParam(
         'sata_link_info', ['sata_link_speed', 'system_log_message', 'phase'])
 
+    self.AddTask(self._LogSmartctl)
+
+    if self._is_hdd or self.args.force_badblocks_on_ssd:
+      if not self._is_hdd:
+        session.console.info('The storage is not HDD. '
+                             'Run badblocks because "force_badblocks_on_ssd" is'
+                             ' True.')
+      self.AddTask(self._runBadBlock)
+      self.AddTask(self._LogSmartctl)
+    else:
+      session.console.info('The storage is not HDD. '
+                           'Only run smartctl by default. '
+                           'Set "force_badblocks_on_ssd" to true to force it.')
+
   def tearDown(self):
     # Sync, so that any problems (like writing outside of our partition)
     # will show up sooner rather than later.
-    self._LogSmartctl()
     self.dut.Call(['sync'])
     if self.args.mode == _TestModes.file:
       self.dut.Call(['rm', '-f', self.args.device_path])
@@ -265,7 +291,7 @@ class BadBlocksTest(test_case.TestCase):
     return Parameters(first_block, last_block, sector_size,
                       self.args.device_path, self.args.max_errors)
 
-  def runTest(self):
+  def _runBadBlock(self):
     self.assertFalse(sys_utils.InChroot(),
                      'badblocks test may not be run within the chroot')
 
@@ -310,7 +336,6 @@ class BadBlocksTest(test_case.TestCase):
     lines = []
 
     self._UpdateSATALinkSpeed()
-    self._LogSmartctl()
 
     def UpdatePhase():
       event_log.Log('start_phase', current_phase=self.current_phase)
