@@ -36,6 +36,13 @@ class MatchersTest(unittest.TestCase):
                 'operand': ['field_a', '0x1a2b']
             },
         ),
+        (
+            matchers.REMatcher('field_a', 'abc[0-9]+'),
+            {
+                'operator': 'RE',
+                'operand': ['field_a', 'abc[0-9]+']
+            },
+        ),
     ]:
       with self.subTest(matcher=matcher):
         self.assertEqual(statement,
@@ -60,6 +67,11 @@ class MatchersTest(unittest.TestCase):
                 ('hex', '0x1a2b'),
                 ('hex_no_prefix', '1a2b'),
             ],
+        ),
+        (
+            matchers.REMatcher,
+            'abc[0-9]+',
+            [('RE', 'abc123')],
         ),
     ]:
       for test_name, field_value in fields:
@@ -96,6 +108,14 @@ class MatchersTest(unittest.TestCase):
                 ('hex_not_match', '0x3c4d', converters.ConvertedHex('0x3c4d')),
                 ('field_not_found', None, None),
                 ('field_not_hex', 'not_hex', None),
+            ],
+        ),
+        (
+            matchers.REMatcher,
+            'abc[0-9]+',
+            [
+                ('RE_not_match', 'abcdef', 'abcdef'),
+                ('field_not_found', None, None),
             ],
         ),
     ]:

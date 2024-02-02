@@ -4,6 +4,7 @@
 """Defines matchers to match a comoponet or generate matcher statement"""
 
 import abc
+import re
 from typing import Any, Generic, Mapping, NamedTuple, Optional, TypeVar, Union
 
 from cros.factory.probe.runtime_probe import converters
@@ -113,3 +114,33 @@ class IntegerEqualMatcher(_FieldEqualMatcher[int]):
   """See base class."""
   OPERATOR = probe_types.MatherOperator.INTEGER_EQUAL
   CONVERTER = converters.IntegerConverter()
+
+
+class REMatcher(IMatcher):
+  """Matches if the field value pass the regular expression."""
+
+  def __init__(self, field_name: str, regular_expression: str):
+    self._field_name = field_name
+    self._regular_expression = regular_expression
+
+  def Match(self, component: probe_types.Component) -> bool:
+    """See IMatcher."""
+    return self.GetProbeInfoSuggestion(component) is None
+
+  def GenerateProbeConfigMatcherStatement(self) -> Mapping[str, Any]:
+    """See IMatcher."""
+    return {
+        'operator': probe_types.MatherOperator.RE.name,
+        'operand': [self._field_name, self._regular_expression]
+    }
+
+  def GetProbeInfoSuggestion(
+      self,
+      component: probe_types.Component) -> Optional[FieldProbeInfoSuggestion]:
+    """See IMatcher."""
+    got = component.field_values.get(self._field_name)
+    if got is not None and re.fullmatch(self._regular_expression, got):
+      return None
+
+    return FieldProbeInfoSuggestion(field_name=self._field_name,
+                                    expected=self._regular_expression, got=got)
