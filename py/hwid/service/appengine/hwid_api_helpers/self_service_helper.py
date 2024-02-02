@@ -1426,133 +1426,19 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateSplittedHwidDbCls(self, request):
-
-    def _CommitSplittedCL(
-        db: database.Database, msg: str, change_unit_identities: Sequence[str],
-        bot_commit: bool = False, commit_queue: bool = False,
-        include_feature_matcher_source: bool = False) -> Tuple[int, str]:
-
-      warning_commit_msg_list = []
-      has_warning = any(
-          approval_infos[i].warnings for i in change_unit_identities)
-      verified = -1 if has_warning and not bot_commit else 0
-      if verified == -1:
-        warning_commit_msg_list.append('-' * 72)
-        warning_commit_msg_list.append(
-            'This CL is marked as Verified-1 because some warnings are forced\n'
-            'submitted by the requester.\n\n'
-            'Please carefully review the following changes:\n')
-        warning_commit_msg_list.extend(
-            _FormatApprovalStatusWarnings(approval_infos[identity])
-            for identity in change_unit_identities
-            if approval_infos[identity].warnings)
-        warning_commit_msg_list.append('-' * 72)
-
-      warning_commit_msg = '\n'.join(warning_commit_msg_list)
-
-      change_unit_commit_msg = '\n'.join(['Reasons:'] + [
-          _FormatApprovalStatusReasons(approval_infos[identity])
-          for identity in change_unit_identities
-          if approval_infos[identity].reasons
-      ])
-
-      new_hwid_db_editable_section_internal = db.DumpDataWithoutChecksum(
-          suppress_support_status=False, internal=True)
-      new_hwid_db_editable_section_external = db.DumpDataWithoutChecksum(
-          suppress_support_status=False)
-      new_hwid_db_contents_external = action.PatchHeader(
-          new_hwid_db_editable_section_external)
-      new_hwid_db_contents_internal = action.PatchHeader(
-          new_hwid_db_editable_section_internal)
-
-      reviewers = set()
-      ccs = set()
-      for identity in change_unit_identities:
-        ccs.update(approval_infos[identity].ccs)
-        reviewers.update(approval_infos[identity].reviewers)
-
-      if include_feature_matcher_source:
-        build_result = self._feature_matcher_builder_class.Create(
-            db, session_cache.avl_resource).Build()
-        feature_matcher_generation_commit_msg = build_result.commit_message
-        feature_matcher_source = build_result.feature_matcher_source
-      else:
-        feature_matcher_generation_commit_msg = ''
-        feature_matcher_source = None
-
-      commit_msg = '\n\n'.join(
-          filter(None, [
-              msg,
-              warning_commit_msg,
-              feature_matcher_generation_commit_msg,
-              change_unit_commit_msg,
-              f'BUG=b:{request.bug_number}',
-          ]))
-      try:
-        cl_number = live_hwid_repo.CommitHWIDDB(
-            name=project, hwid_db_contents=new_hwid_db_contents_external,
-            commit_msg=commit_msg, reviewers=list(reviewers), cc_list=list(ccs),
-            bot_commit=bot_commit, commit_queue=commit_queue, verified=verified,
-            hwid_db_contents_internal=new_hwid_db_contents_internal,
-            feature_matcher_source=feature_matcher_source)
-      except git_util.GitUtilNoModificationException:
-        return 0, new_hwid_db_contents_external
-      except hwid_repo.HWIDRepoError:
-        logging.exception(
-            'Caught an unexpected exception while uploading a HWID CL.')
-        raise protorpc_utils.ProtoRPCException(
-            protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from None
-      return cl_number, new_hwid_db_contents_external
-
-    # Fetch resources.
-    session_cache = self._GetSessionCache(request.session_token)
-    change_unit_manager = session_cache.change_unit_manager
-    project = session_cache.project
-    live_hwid_repo, action = self._GetRepoAndAction(project)
-    approval_infos = _CollectApprovalInfos(change_unit_manager,
-                                           request.approval_status)
-
-    # Perform change unit related actions.
-    split_result = _SplitIntoDBSnapshots(change_unit_manager,
-                                         request.approval_status)
-
-    auto_mergeable_change_cl_number = review_required_change_cl_number = 0
-    final_hwid_db_content = ''
-    final_cl_number = 0
-
-    commit_msg = textwrap.dedent(f"""\
-        ({int(time.time())}) {project}: (Auto-approved) HWID Config Update
-
-        Requested by: {request.original_requester}
-        Warning: this CL will be automatically merged or abandoned with the
-                 following CL if exists.
-
-        %s
-    """) % request.description
-    auto_mergeable_change_cl_number, final_hwid_db_content = (
-        _CommitSplittedCL(
-            split_result.auto_mergeable_db, commit_msg,
-            split_result.auto_mergeable_change_unit_identities, bot_commit=True,
-            commit_queue=split_result.review_required_noop,
-            include_feature_matcher_source=(split_result.review_required_noop)))
-    final_cl_number = auto_mergeable_change_cl_number
-
-    if not split_result.review_required_noop:
-      commit_msg = textwrap.dedent(f"""\
-          ({int(time.time())}) {project}: HWID Config Update
-
-          Requested by: {request.original_requester}
-          Warning: all posted comments will be sent back to the
-                   requester.
-
-          %s
-      """) % request.description
-      review_required_change_cl_number, final_hwid_db_content = (
-          _CommitSplittedCL(split_result.review_required_db, commit_msg,
-                            split_result.review_required_change_unit_identities,
-                            include_feature_matcher_source=True))
-      final_cl_number = review_required_change_cl_number
-
+    (
+        split_result,
+        auto_mergeable_change_cl_number,
+        review_required_change_cl_number,
+        final_cl_number,
+        final_hwid_db_content,
+    ) = self._CreateOrPatchSplittedCL(
+        request.session_token,
+        request.approval_status,
+        request.original_requester,
+        request.description,
+        request.bug_number,
+    )
     resp = hwid_api_messages_pb2.CreateSplittedHwidDbClsResponse(
         auto_mergeable_change_cl_created=auto_mergeable_change_cl_number != 0,
         auto_mergeable_change_cl_number=auto_mergeable_change_cl_number,
@@ -1668,7 +1554,6 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
     return resp
 
-
   def _GetRepoAndAction(self, project: str) -> hwid_v3_action.HWIDV3Action:
     live_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
     try:
@@ -1745,3 +1630,177 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       )
     except git_util.GitUtilNoModificationException:
       logging.info('Known kernel names unchanged, skipped.')
+
+  def _CreateOrPatchSplittedCL(
+      self,
+      session_token: str,
+      approval_status: Mapping[str, _CLActionMsg],
+      original_requester: str,
+      description: str,
+      bug_number: int,
+  ) -> Tuple[change_unit_utils.ChangeSplitResult, int, int, int, str]:
+    """Create or patch splitted CL.
+
+    Args:
+      session_token: The session token of the CL creation workflow.
+      approval_status: The mapping of identity to approval status.
+      original_requester: The email of original requester.
+      description: The description of the CL.
+      bug_number: The bug number associated with this CL.
+
+    Returns:
+      A tuple of the following result:
+
+      - A ChangeSplitResult instance representing the split result.
+      - An integer as the CL number of auto mergeable CL, 0 means not created.
+      - An integer as the CL number of review required CL, 0 means not created.
+      - An integer as the final cl number.
+      - A str of the final HWID DB content in external format.
+    """
+
+    def _CommitSplittedCL(
+        db: database.Database,
+        msg: str,
+        change_unit_identities: Sequence[str],
+        bot_commit: bool = False,
+        commit_queue: bool = False,
+        include_feature_matcher_source: bool = False,
+    ) -> Tuple[int, str]:
+
+      warning_commit_msg_list = []
+      has_warning = any(
+          approval_infos[i].warnings for i in change_unit_identities)
+      verified = -1 if has_warning and not bot_commit else 0
+      if verified == -1:
+        warning_commit_msg_list.append('-' * 72)
+        warning_commit_msg_list.append(
+            'This CL is marked as Verified-1 because some warnings are forced\n'
+            'submitted by the requester.\n\n'
+            'Please carefully review the following changes:\n')
+        warning_commit_msg_list.extend(
+            _FormatApprovalStatusWarnings(approval_infos[identity])
+            for identity in change_unit_identities
+            if approval_infos[identity].warnings)
+        warning_commit_msg_list.append('-' * 72)
+
+      warning_commit_msg = '\n'.join(warning_commit_msg_list)
+
+      change_unit_commit_msg = '\n'.join(['Reasons:'] + [
+          _FormatApprovalStatusReasons(approval_infos[identity])
+          for identity in change_unit_identities
+          if approval_infos[identity].reasons
+      ])
+
+      new_hwid_db_editable_section_internal = db.DumpDataWithoutChecksum(
+          suppress_support_status=False, internal=True)
+      new_hwid_db_editable_section_external = db.DumpDataWithoutChecksum(
+          suppress_support_status=False)
+      new_hwid_db_contents_external = action.PatchHeader(
+          new_hwid_db_editable_section_external)
+      new_hwid_db_contents_internal = action.PatchHeader(
+          new_hwid_db_editable_section_internal)
+
+      reviewers = set()
+      ccs = set()
+      for identity in change_unit_identities:
+        ccs.update(approval_infos[identity].ccs)
+        reviewers.update(approval_infos[identity].reviewers)
+
+      if include_feature_matcher_source:
+        build_result = self._feature_matcher_builder_class.Create(
+            db, session_cache.avl_resource).Build()
+        feature_matcher_generation_commit_msg = build_result.commit_message
+        feature_matcher_source = build_result.feature_matcher_source
+      else:
+        feature_matcher_generation_commit_msg = ''
+        feature_matcher_source = None
+
+      commit_msg = '\n\n'.join(
+          filter(None, [
+              msg,
+              warning_commit_msg,
+              feature_matcher_generation_commit_msg,
+              change_unit_commit_msg,
+              f'BUG=b:{bug_number}',
+          ]))
+      try:
+        cl_number = live_hwid_repo.CommitHWIDDB(
+            name=project,
+            hwid_db_contents=new_hwid_db_contents_external,
+            commit_msg=commit_msg,
+            reviewers=list(reviewers),
+            cc_list=list(ccs),
+            bot_commit=bot_commit,
+            commit_queue=commit_queue,
+            verified=verified,
+            hwid_db_contents_internal=new_hwid_db_contents_internal,
+            feature_matcher_source=feature_matcher_source,
+        )
+      except git_util.GitUtilNoModificationException:
+        return 0, new_hwid_db_contents_external
+      except hwid_repo.HWIDRepoError:
+        logging.exception(
+            'Caught an unexpected exception while uploading a HWID CL.')
+        raise protorpc_utils.ProtoRPCException(
+            protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from None
+      return cl_number, new_hwid_db_contents_external
+
+    # Fetch resources.
+    session_cache = self._GetSessionCache(session_token)
+    change_unit_manager = session_cache.change_unit_manager
+    project = session_cache.project
+    live_hwid_repo, action = self._GetRepoAndAction(project)
+    approval_infos = _CollectApprovalInfos(change_unit_manager, approval_status)
+
+    # Perform change unit related actions.
+    split_result = _SplitIntoDBSnapshots(change_unit_manager, approval_status)
+
+    auto_mergeable_change_cl_number = review_required_change_cl_number = 0
+    final_hwid_db_content = ''
+    final_cl_number = 0
+
+    commit_msg = textwrap.dedent(f"""\
+        ({int(time.time())}) {project}: (Auto-approved) HWID Config Update
+
+        Requested by: {original_requester}
+        Warning: this CL will be automatically merged or abandoned with the
+                 following CL if exists.
+
+        %s
+    """) % description
+    auto_mergeable_change_cl_number, final_hwid_db_content = (
+        _CommitSplittedCL(
+            split_result.auto_mergeable_db,
+            commit_msg,
+            split_result.auto_mergeable_change_unit_identities,
+            bot_commit=True,
+            commit_queue=split_result.review_required_noop,
+            include_feature_matcher_source=split_result.review_required_noop,
+        ))
+    final_cl_number = auto_mergeable_change_cl_number
+
+    if not split_result.review_required_noop:
+      commit_msg = textwrap.dedent(f"""\
+          ({int(time.time())}) {project}: HWID Config Update
+
+          Requested by: {original_requester}
+          Warning: all posted comments will be sent back to the
+                   requester.
+
+          %s
+      """) % description
+      review_required_change_cl_number, final_hwid_db_content = (
+          _CommitSplittedCL(
+              split_result.review_required_db,
+              commit_msg,
+              split_result.review_required_change_unit_identities,
+              include_feature_matcher_source=True,
+          ))
+      final_cl_number = review_required_change_cl_number
+    return (
+        split_result,
+        auto_mergeable_change_cl_number,
+        review_required_change_cl_number,
+        final_cl_number,
+        final_hwid_db_content,
+    )
