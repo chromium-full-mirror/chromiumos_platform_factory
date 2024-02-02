@@ -67,6 +67,7 @@ import tempfile
 import time
 
 from cros.factory.device import device_utils
+from cros.factory.device import storage
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
 from cros.factory.test import session
@@ -142,6 +143,8 @@ class BadBlocksTest(test_case.TestCase):
     # This function will set self.args.device_path if it's None.
     self.CheckArgs()
 
+    assert isinstance(self.dut.storage, storage.Storage)
+
     # TODO(bhthompson): refactor this for a better device type detection.
     if self.args.mode == _TestModes.file:
       unused_mount_on, self._filesystem = self.dut.storage.GetMountPoint(
@@ -149,8 +152,11 @@ class BadBlocksTest(test_case.TestCase):
     else:
       self._filesystem = self.args.device_path
 
-    # If 'mmcblk' in self._filesystem assume we are eMMC.
-    self._is_mmc = 'mmcblk' in self._filesystem
+    main_storage_type = self.dut.storage.GetMainStorageType()
+
+    self._is_mmc = main_storage_type == storage.MainStorageType.MMC
+
+    self._is_ufs = main_storage_type == storage.MainStorageType.UFS
 
     self._is_hdd = self.IsHDD()
 
@@ -497,6 +503,18 @@ class BadBlocksTest(test_case.TestCase):
     event_log.Log('smartctl', stdout=smartctl_output)
     testlog.LogParam('smartctl', smartctl_output)
 
+    if 'Unavailable - device lacks SMART capability.' in smartctl_output:
+      if self._is_ufs:
+        # Not all ufs supports smartctl.
+        # TODO (cyueh) b/319762690. We need to find a replacement
+        # of smartctl for ufs.
+        session.console.info('The device lacks SMART capability. It is '
+                             'acceptable for ufs storage.')
+        return
+      self.FailTask('The device lacks SMART capability. '
+                    'tast.storage.HealthInfo is an AVL requirement and it '
+                    'requires NVMe devices having SMART capability.')
+
     self.assertTrue(
         'SMART overall-health self-assessment test result: PASSED'
         in smartctl_output,
@@ -508,8 +526,8 @@ class BadBlocksTest(test_case.TestCase):
 
   def _UpdateSATALinkSpeed(self):
     """Updates the current SATA link speed based on /var/log/messages."""
-    # No SATA on mmc.
-    if self._is_mmc:
+    # No SATA on mmc or ufs.
+    if self._is_mmc or self._is_ufs:
       return
 
     first_time = self.message_monitor is None
