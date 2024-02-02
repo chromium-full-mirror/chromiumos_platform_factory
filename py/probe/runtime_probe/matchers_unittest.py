@@ -43,6 +43,46 @@ class MatchersTest(unittest.TestCase):
                 'operand': ['field_a', 'abc[0-9]+']
             },
         ),
+        (
+            matchers.AndMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            {
+                'operator':
+                    'AND',
+                'operand': [
+                    {
+                        'operator': 'STRING_EQUAL',
+                        'operand': ['field_a', 'value_a']
+                    },
+                    {
+                        'operator': 'STRING_EQUAL',
+                        'operand': ['field_b', 'value_b']
+                    },
+                ]
+            },
+        ),
+        (
+            matchers.OrMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            {
+                'operator':
+                    'OR',
+                'operand': [
+                    {
+                        'operator': 'STRING_EQUAL',
+                        'operand': ['field_a', 'value_a']
+                    },
+                    {
+                        'operator': 'STRING_EQUAL',
+                        'operand': ['field_b', 'value_b']
+                    },
+                ]
+            },
+        ),
     ]:
       with self.subTest(matcher=matcher):
         self.assertEqual(statement,
@@ -133,6 +173,111 @@ class MatchersTest(unittest.TestCase):
               matchers.FieldProbeInfoSuggestion(
                   field_name='field_a', expected=expected_value, got=got_value),
               matcher.GetProbeInfoSuggestion(component))
+
+  def testMultipleMatch(self):
+    for matcher, fields in [
+        (
+            matchers.AndMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            [
+                ('all_fields_match', {
+                    'field_a': 'value_a',
+                    'field_b': 'value_b',
+                }),
+            ],
+        ),
+        (
+            matchers.OrMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            [
+                ('all_fields_match', {
+                    'field_a': 'value_a',
+                    'field_b': 'value_b',
+                }),
+                ('one_field_not_match', {
+                    'field_a': 'value_a',
+                    'field_b': 'not_value_b',
+                }),
+            ],
+        ),
+    ]:
+      for test_name, field_value in fields:
+        with self.subTest(test_name=test_name, matcher=matcher):
+          component = probe_types.Component(name='FooComponent',
+                                            field_values=field_value)
+          self.assertTrue(matcher.Match(component))
+          self.assertIsNone(matcher.GetProbeInfoSuggestion(component))
+
+  def testMultipleNotMatch(self):
+    for matcher, fields in [
+        (
+            matchers.AndMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            [
+                (
+                    'one_field_not_match',
+                    {
+                        'field_a': 'value_a',
+                        'field_b': 'not_value_b',
+                    },
+                    matchers.FieldProbeInfoSuggestion(field_name='field_b',
+                                                      expected='value_b',
+                                                      got='not_value_b'),
+                ),
+                (
+                    'all_field_not_match',
+                    {
+                        'field_a': 'not_value_a',
+                        'field_b': 'not_value_b',
+                    },
+                    matchers.AndProbeInfoSuggestion([
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_a', expected='value_a',
+                            got='not_value_a'),
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_b', expected='value_b',
+                            got='not_value_b'),
+                    ]),
+                ),
+            ],
+        ),
+        (
+            matchers.OrMatcher([
+                matchers.StringEqualMatcher('field_a', 'value_a'),
+                matchers.StringEqualMatcher('field_b', 'value_b'),
+            ]),
+            [
+                (
+                    'one_field_not_match',
+                    {
+                        'field_a': 'not_value_a',
+                        'field_b': 'not_value_b',
+                    },
+                    matchers.OrProbeInfoSuggestion([
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_a', expected='value_a',
+                            got='not_value_a'),
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_b', expected='value_b',
+                            got='not_value_b'),
+                    ]),
+                ),
+            ],
+        ),
+    ]:
+      for test_name, field_value, suggestion in fields:
+        with self.subTest(test_name=test_name, matcher=matcher):
+          component = probe_types.Component(name='FooComponent',
+                                            field_values=field_value)
+          self.assertFalse(matcher.Match(component))
+          self.assertEqual(suggestion,
+                           matcher.GetProbeInfoSuggestion(component))
 
 
 if __name__ == '__main__':
