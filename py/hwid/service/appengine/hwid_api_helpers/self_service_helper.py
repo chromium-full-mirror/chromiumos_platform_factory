@@ -1730,7 +1730,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
                    dryrun_upload_info)
       return
     try:
-      git_util.CreateCL(
+      git_util.CreateOrPatchCL(
           git_url=git_url,
           auth_cookie=auth_cookie,
           branch=branch,

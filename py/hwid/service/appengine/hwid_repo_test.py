@@ -38,8 +38,8 @@ class HWIDRepoBaseTest(unittest.TestCase):
     self._mocked_get_gerrit_auth_cookie.return_value = 'cookie'
 
     patcher = mock.patch(
-        'cros.factory.hwid.service.appengine.git_util.CreateCL')
-    self._mocked_create_cl = patcher.start()
+        'cros.factory.hwid.service.appengine.git_util.CreateOrPatchCL')
+    self._mocked_create_patch_cl = patcher.start()
     self.addCleanup(patcher.stop)
 
     patcher = mock.patch(
@@ -164,46 +164,46 @@ class HWIDRepoTest(HWIDRepoBaseTest):
 
     with self.assertRaises(hwid_repo.InvalidProjectError):
       self._hwid_repo.CommitHWIDDB('no_such_board', 'unused_test_str',
-                                   'unused_test_str', [], [], False)
+                                   'unused_test_str', [], [])
 
   def testCommitHWIDDB_FailedToUploadCL(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
-    self._mocked_create_cl.side_effect = git_util.GitUtilException
+    self._mocked_create_patch_cl.side_effect = git_util.GitUtilException
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [], False)
+                                   'unused_test_str', [], [])
 
   def testCommitHWIDDB_FailedToGetCLNumber(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
-    self._mocked_create_cl.return_value = 'Ithis_is_change_id', None
+    self._mocked_create_patch_cl.return_value = 'Ithis_is_change_id', None
     self._mocked_get_cl_info.side_effect = git_util.GitUtilException
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [], False)
+                                   'unused_test_str', [], [])
 
   def testCommitHWIDDB_FailedNoModificationException(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
-    self._mocked_create_cl.side_effect = (
+    self._mocked_create_patch_cl.side_effect = (
         git_util.GitUtilNoModificationException)
 
     with self.assertRaises(git_util.GitUtilNoModificationException):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [], False)
+                                   'unused_test_str', [], [])
 
   def testCommitHWIDDB_Succeed(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
     expected_cl_number = 123
-    self._mocked_create_cl.return_value = ('Ithis_is_change_id',
-                                           expected_cl_number)
+    self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
+                                                 expected_cl_number)
 
     actual_cl_number = self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False, False,
-        None, 'hwid_db_contents_internal')
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        hwid_db_contents_internal='hwid_db_contents_internal')
 
     self.assertEqual(actual_cl_number, expected_cl_number)
-    kwargs = self._mocked_create_cl.call_args[1]
+    kwargs = self._mocked_create_patch_cl.call_args[1]
     self.assertEqual([
         ('SBOARD', 0o100644, b'hwid_db_contents'),
         ('SBOARD.internal', 0o100644, b'hwid_db_contents_internal'),
@@ -212,33 +212,33 @@ class HWIDRepoTest(HWIDRepoBaseTest):
   def testCommitHWIDDB_SucceedWithFeatureMatcher(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
     expected_cl_number = 123
-    self._mocked_create_cl.return_value = ('Ithis_is_change_id',
-                                           expected_cl_number)
+    self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
+                                                 expected_cl_number)
 
     actual_cl_number = self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False, False,
-        None, 'hwid_db_contents_internal',
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        hwid_db_contents_internal='hwid_db_contents_internal',
         feature_matcher_source='feature matcher payload')
 
     self.assertEqual(actual_cl_number, expected_cl_number)
-    kwargs = self._mocked_create_cl.call_args[1]
-    self.assertEqual(
-        [
-            ('SBOARD', 0o100644, b'hwid_db_contents'),
-            ('SBOARD.internal', 0o100644, b'hwid_db_contents_internal'),
-            ('SBOARD.feature_matcher.textproto', 0o100644,
-             b'feature matcher payload'),
-        ],
-        kwargs['new_files'])
+    kwargs = self._mocked_create_patch_cl.call_args[1]
+    self.assertEqual([
+        ('SBOARD', 0o100644, b'hwid_db_contents'),
+        ('SBOARD.internal', 0o100644, b'hwid_db_contents_internal'),
+        ('SBOARD.feature_matcher.textproto', 0o100644,
+         b'feature matcher payload'),
+    ], kwargs['new_files'])
 
   def testCommitHWIDDB_Succeed_RemoveChecksum(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
-    self._mocked_create_cl.return_value = ('unused_change_id', 123)
+    self._mocked_create_patch_cl.return_value = ('unused_change_id', 123)
 
     self._hwid_repo.CommitHWIDDB(
         'SBOARD', 'hwid_db_contents\nchecksum: 12345\n', 'unused_test_str', [],
-        [], False, False, None, 'hwid_db_contents_internal\nchecksum: 12345\n')
-    kwargs = self._mocked_create_cl.call_args[1]
+        [],
+        hwid_db_contents_internal='hwid_db_contents_internal\nchecksum: 12345\n'
+    )
+    kwargs = self._mocked_create_patch_cl.call_args[1]
     self.assertEqual([
         ('SBOARD', 0o100644, b'hwid_db_contents\nchecksum:\n'),
         ('SBOARD.internal', 0o100644,
@@ -247,13 +247,13 @@ class HWIDRepoTest(HWIDRepoBaseTest):
 
   def testCommitHWIDDB_Succeed_UnverifiedChange(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
-    self._mocked_create_cl.return_value = ('Ithis_is_change_id', 123)
+    self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id', 123)
 
-    self._hwid_repo.CommitHWIDDB('SBOARD', 'hwid_db_contents',
-                                 'unused_test_str', [], [], False, False, None,
-                                 'hwid_db_contents_internal', verified=-1)
+    self._hwid_repo.CommitHWIDDB(
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        hwid_db_contents_internal='hwid_db_contents_internal', verified=-1)
 
-    kwargs = self._mocked_create_cl.call_args[1]
+    kwargs = self._mocked_create_patch_cl.call_args[1]
     self.assertCountEqual(['cros-hwid-unverified-change'], kwargs['hashtags'])
     self.assertCountEqual(self._fake_unverified_ccs, kwargs['cc'])
 
@@ -395,7 +395,6 @@ class HWIDRepoManagerTest(HWIDRepoBaseTest):
         git_util.CLReviewStatus.APPROVED, cl_mergeable, cl_created_time,
         [cl_file_comment_thread], None, None, None, None, None)
     self.assertEqual(actual_cl_info, expected_cl_info)
-
 
   @mock.patch('cros.factory.hwid.service.appengine.git_util.PatchCL')
   @mock.patch('cros.factory.hwid.service.appengine.git_util.ReviewCL')

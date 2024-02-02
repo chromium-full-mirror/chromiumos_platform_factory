@@ -264,7 +264,7 @@ class PayloadManager(abc.ABC):
   ) -> Tuple[Optional[str], Optional[int]]:
     """Creates a CL with given options.
 
-    See git_util.CreateCL() for descriptions of other arguments.
+    See git_util.CreateOrPatchCL() for descriptions of other arguments.
 
     Args:
       dryrun: Do everything except actually upload the CL.
@@ -274,7 +274,7 @@ class PayloadManager(abc.ABC):
       Both will be None if the CL is not created.
 
     Raises:
-      See git_util.CreateCL().
+      See git_util.CreateOrPatchCL().
     """
     if dryrun:
       # file_info = (file_path, mode, content)
@@ -294,10 +294,12 @@ class PayloadManager(abc.ABC):
       """)
       self._logger.debug(debug_info)
       return None, None
-    return git_util.CreateCL(git_url, auth_cookie, branch, new_files, author,
-                             committer, commit_msg, reviewers, cc, bot_commit,
-                             commit_queue, repo, topic, verified, auto_submit,
-                             rubber_stamper, hashtags)
+    return git_util.CreateOrPatchCL(
+        git_url, auth_cookie, branch, new_files, author, committer, commit_msg,
+        reviewers=reviewers, cc=cc, bot_commit=bot_commit,
+        commit_queue=commit_queue, repo=repo, topic=topic, verified=verified,
+        auto_submit=auto_submit, rubber_stamper=rubber_stamper,
+        hashtags=hashtags)
 
   def _AbandonCL(self, dryrun: bool, review_host: str, auth_cookie, change_id,
                  reason: Optional[str] = None):

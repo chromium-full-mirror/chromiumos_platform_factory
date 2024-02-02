@@ -243,6 +243,8 @@ class HWIDRepo(HWIDRepoView):
 
   def CommitHWIDDB(self, name: str, hwid_db_contents: str, commit_msg: str,
                    reviewers: Sequence[str], cc_list: Sequence[str],
+                   *,
+                   change_id: Optional[str] = None,
                    bot_commit: bool = False, commit_queue: bool = False,
                    update_metadata: Optional[HWIDDBMetadata] = None,
                    hwid_db_contents_internal: Optional[str] = None,
@@ -257,6 +259,8 @@ class HWIDRepo(HWIDRepoView):
       author: Author in form of "Name <email@domain>".
       reviewers: List of emails of reviewers.
       cc_list: List of emails of CC's.
+      change_id: An optional string of change id for patching to an existing
+          CL.  None for creating a new CL.
       bot_commit: True if this is an auto-approved CL.
       commit_queue: True if this CL is ready to be put into the commit queue.
       update_metadata: A HWIDDBMetadata object to update for the project.
@@ -307,10 +311,11 @@ class HWIDRepo(HWIDRepoView):
       if verified == -1:
         hashtags = [_UNVERIFIED_HASHTAG]
         cc_list.extend(self._unverfied_cl_ccs)
-      change_id, cl_number = git_util.CreateCL(
+      change_id, cl_number = git_util.CreateOrPatchCL(
           git_url=self._repo_url, auth_cookie=git_util.GetGerritAuthCookie(),
           branch=self._repo_branch, new_files=new_files, author=author,
-          committer=author, commit_msg=commit_msg, reviewers=reviewers,
+          committer=author, commit_msg=commit_msg, change_id=change_id,
+          reviewers=reviewers,
           cc=list(set(cc_list)), bot_commit=bot_commit,
           commit_queue=commit_queue, repo=self._repo, verified=verified,
           hashtags=hashtags)

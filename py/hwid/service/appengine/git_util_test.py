@@ -82,7 +82,7 @@ class MemoryRepoTest(unittest.TestCase):
     unused_size, object_id = tree[file_name.encode()]
     new_files = [(file_name, 0o100644, repo[object_id].data)]
     self.assertRaises(
-        git_util.GitUtilNoModificationException, git_util.CreateCL,
+        git_util.GitUtilNoModificationException, git_util.CreateOrPatchCL,
         'https://chromium.googlesource.com/chromiumos/platform/factory', '',
         'stabilize-rust-13562.B', new_files, 'John Doe <no-reply@google.com>',
         'John Doe <no-reply@google.com>', '')
@@ -767,10 +767,10 @@ class GetFileContentTest(unittest.TestCase):
         body=b'')
 
 
-class CreateCLTest(unittest.TestCase):
+class CreateOrPatchCLTest(unittest.TestCase):
 
   @mock.patch('cros.factory.hwid.service.appengine.git_util.porcelain')
-  def testCreateCLOptions(self, mock_porcelain):
+  def testCreateOrPatchCLOptions(self, mock_porcelain):
     file_name = 'README.md'
     url = 'https://chromium.googlesource.com/chromiumos/platform/factory'
     auth_cookie = ''
@@ -780,18 +780,39 @@ class CreateCLTest(unittest.TestCase):
     reviewers = ['reviewer@email.com']
     ccs = ['cc@email.com']
     commit_msg = 'commit msg'
-    repo = git_util.MemoryRepo(auth_cookie='')
-    repo.shallow_clone(url, branch=branch)
     new_files = [(file_name, 0o100644, b'')]
-    git_util.CreateCL(url, auth_cookie, branch, new_files, author, committer,
-                      commit_msg, reviewers, ccs, bot_commit=True,
-                      commit_queue=True, verified=1)
+    git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
+                             committer, commit_msg, reviewers=reviewers, cc=ccs,
+                             bot_commit=True, commit_queue=True, verified=1)
     mock_porcelain.push.assert_called_once_with(
         mock.ANY, url,
         (f'HEAD:refs/for/refs/heads/{branch}%'
          'r=reviewer@email.com,cc=cc@email.com,l=Bot-Commit+1,l=Commit-Queue+2,'
-         'l=Verified+1').encode('UTF-8'), errstream=mock.ANY,
+         'l=Verified+1,l=Auto-Submit+0').encode('UTF-8'), errstream=mock.ANY,
         pool_manager=mock.ANY)
+
+  @mock.patch('cros.factory.hwid.service.appengine.git_util.porcelain')
+  def testPatchCLCommitMsg(self, mock_porcelain):
+    del mock_porcelain
+    file_name = 'README.md'
+    url = 'https://chromium.googlesource.com/chromiumos/platform/factory'
+    auth_cookie = ''
+    branch = 'stabilize-rust-13562.B'
+    author = 'Author <author@email.com>'
+    committer = 'Committer <committer@email.com>'
+    reviewers = ['reviewer@email.com']
+    ccs = ['cc@email.com']
+    commit_msg = 'commit msg'
+    change_id = 'Ithe_change_id'
+    repo = git_util.MemoryRepo(auth_cookie='')
+    repo.shallow_clone(url, branch=branch)
+    new_files = [(file_name, 0o100644, b'')]
+    git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
+                             committer, commit_msg, change_id=change_id,
+                             reviewers=reviewers, cc=ccs, bot_commit=True,
+                             commit_queue=True, repo=repo, verified=1)
+    self.assertEqual(b'commit msg\n\nChange-Id: Ithe_change_id',
+                     repo[repo.head()].message)
 
 
 class GitFilesystemAdapterTest(unittest.TestCase):

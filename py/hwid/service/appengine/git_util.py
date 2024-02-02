@@ -35,7 +35,6 @@ from cros.factory.utils import json_utils
 from cros.factory.utils import schema
 from cros.factory.utils import sync_utils
 
-
 # Constants.
 HEAD = b'HEAD'
 DEFAULT_REMOTE_NAME = b'origin'
@@ -450,7 +449,7 @@ def _GetChangeId(tree_id, parent_commit, author, committer, commit_msg):
   return f'I{hashlib.sha1(change_id_input).hexdigest()}'
 
 
-def CreateCL(
+def CreateOrPatchCL(
     git_url: str,
     auth_cookie: str,
     branch: str,
@@ -458,6 +457,8 @@ def CreateCL(
     author: str,
     committer: str,
     commit_msg: str,
+    *,
+    change_id: Optional[str] = None,
     reviewers: Optional[Sequence[str]] = None,
     cc: Optional[Sequence[str]] = None,
     bot_commit: bool = False,
@@ -469,7 +470,7 @@ def CreateCL(
     rubber_stamper: bool = False,
     hashtags: Optional[Sequence[str]] = None,
 ):
-  """Creates a CL from adding files in specified location.
+  """Creates or patches a CL from adding files in specified location.
 
   Args:
     git_url: HTTPS repo url
@@ -479,6 +480,8 @@ def CreateCL(
     author: Author in form of "Name <email@domain>"
     committer: Committer in form of "Name <email@domain>"
     commit_msg: Commit message
+    change_id: An optional string of change id for patching to an existing
+        CL.  None for creating a new CL.
     reviewers: List of emails of reviewers
     cc: List of emails of cc's
     bot_commit: True if this is an auto-approved CL.
@@ -508,8 +511,9 @@ def CreateCL(
   if updated_tree.id == original_tree_id:
     raise GitUtilNoModificationException
 
-  change_id = _GetChangeId(updated_tree.id, repo.head(), author, committer,
-                           commit_msg)
+  if change_id is None:
+    change_id = _GetChangeId(updated_tree.id, repo.head(), author, committer,
+                             commit_msg)
   repo.do_commit(
       _B(f'{commit_msg}\n\nChange-Id: {change_id}'), author=_B(author),
       committer=_B(committer), tree=updated_tree.id)
@@ -521,14 +525,10 @@ def CreateCL(
     options.append(f'r={_RUBBER_STAMPER_ACCOUNT}')
   if cc:
     options.extend(f'cc={email}' for email in cc)
-  if bot_commit:
-    options.append(f'l={_BOT_COMMIT}+1')
-  if commit_queue:
-    options.append(f'l={_COMMIT_QUEUE}+2')
-  if verified:
-    options.append(f'l={_VERIFIED}{verified:+d}')
-  if auto_submit:
-    options.append(f'l={_AUTO_SUBMIT}+1')
+  options.append(f'l={_BOT_COMMIT}+{1 if bot_commit else 0}')
+  options.append(f'l={_COMMIT_QUEUE}+{2 if commit_queue else 0}')
+  options.append(f'l={_VERIFIED}{verified:+d}')
+  options.append(f'l={_AUTO_SUBMIT}+{1 if auto_submit else 0}')
   if topic:
     options.append(f'topic={topic}')
   if hashtags:

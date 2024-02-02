@@ -2510,12 +2510,12 @@ class SelfServiceShardTest(unittest.TestCase):
         'Allowlist and blocklist should be disjoint, and the '
         "overlapped part: {'common'}.", ex.exception.detail)
 
-  @mock.patch('cros.factory.hwid.service.appengine.git_util.CreateCL')
+  @mock.patch('cros.factory.hwid.service.appengine.git_util.CreateOrPatchCL')
   @mock.patch('cros.factory.hwid.service.appengine.git_util.GetCurrentBranch')
   @mock.patch(
       'cros.factory.hwid.service.appengine.git_util.GetGerritCredentials')
   def testUpdateAudioCodecKernelNames_CreateCL(
-      self, mock_gerrit_cred, mock_get_curr_branch, mock_create_cl):
+      self, mock_gerrit_cred, mock_get_curr_branch, mock_create_patch_cl):
     del mock_get_curr_branch
     # Arrange.
     mock_gerrit_cred.return_value = ('unused_service_account', 'unused_token')
@@ -2528,7 +2528,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self.service.UpdateAudioCodecKernelNames(blocklist_req)
 
     # Assert.
-    unused_args, kwargs = mock_create_cl.call_args
+    unused_args, kwargs = mock_create_patch_cl.call_args
     new_files = kwargs['new_files']
     self.assertEqual(1, len(new_files))
     file_path, unused_mode, file_content = new_files[0]
@@ -2543,15 +2543,15 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertTrue(kwargs['auto_submit'])
     self.assertTrue(kwargs['rubber_stamper'])
 
-  @mock.patch('cros.factory.hwid.service.appengine.git_util.CreateCL')
+  @mock.patch('cros.factory.hwid.service.appengine.git_util.CreateOrPatchCL')
   @mock.patch('cros.factory.hwid.service.appengine.git_util.GetCurrentBranch')
   @mock.patch(
       'cros.factory.hwid.service.appengine.git_util.GetGerritCredentials')
   def testAnalyzeHwidDbEditableSection_ReportAVLSkippableComps(
-      self, mock_gerrit_cred, mock_get_curr_branch, mock_create_cl):
+      self, mock_gerrit_cred, mock_get_curr_branch, mock_create_patch_cl):
     # Arrange.
     del mock_get_curr_branch
-    del mock_create_cl
+    del mock_create_patch_cl
     mock_gerrit_cred.return_value = ('unused_service_account', 'unused_token')
     project = 'CHROMEBOOK'
     old_db_data = file_utils.ReadFile(_HWID_V3_GOLDEN_WITH_AUDIO_CODEC)
