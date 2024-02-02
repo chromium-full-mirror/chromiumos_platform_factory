@@ -967,8 +967,11 @@ message CreateSplittedHwidDbClsRequest {
   string session_token = 1;
   // The mapping of identity to approval status.
   map<string, ClAction> approval_status = 2;
+  // Original requester.
   string original_requester = 3;
+  // Additional description to be commented on CL.
   string description = 4;
+  // ID of related bug.
   int64 bug_number = 5;
 }
 
@@ -1092,6 +1095,43 @@ message GetSoftBrandEligibilityResponse {
   map<string, Error> error_on_checking_eligibility = 2;
 }
 
+// The request of creating or refreshing splitted HWID DB Cls.
+message CreateOrRefreshSplittedHwidDbClsRequest {
+  // The session token of the CL creation workflow.
+  string session_token = 1;
+  // The mapping of identity to approval status.
+  map<string, ClAction> approval_status = 2;
+  // Original requester.
+  string original_requester = 3;
+  // Additional description to be commented on CL.
+  string description = 4;
+  // ID of related bug.
+  int64 bug_number = 5;
+  // The target CL number for refreshing HWID config, 0 for creating new one.
+  int64 cl_number = 6;
+}
+
+// The response of creating or refreshing splitted HWID DB Cls.
+message CreateOrRefreshSplittedHwidDbClsResponse {
+  // A bool indicating whether a CL of the auto-mergeable change is created or
+  // refreshed.
+  bool auto_mergeable_change_cl_created_or_refreshed = 1;
+  // The CL number of the auto-mergeable change.
+  int64 auto_mergeable_change_cl_number = 2;
+  // The identities of auto-mergeable change units.
+  repeated string auto_mergeable_change_unit_identities = 3;
+  // A bool indicating whether a CL of the review-required change is created or
+  // refreshed.
+  bool review_required_change_cl_created_or_refreshed = 4;
+  // The CL number of the review-required change.
+  int64 review_required_change_cl_number = 5;
+  // The identities of review-required change units.
+  repeated string review_required_change_unit_identities = 6;
+  // The final commit of the HWID DB change.  Could be auto-mergeable one if
+  // there is no CL of review-required change units.
+  HwidDbCommit final_hwid_db_commit = 7;
+}
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1211,4 +1251,8 @@ service HwidService {
   // Get soft-brand eligibility in LTS, pushed-stable, and ToT versions.
   rpc GetSoftBrandEligibility(GetSoftBrandEligibilityRequest)
     returns (GetSoftBrandEligibilityResponse);
+
+  // Create or refresh HWID DB CLs by given CL number.
+  rpc CreateOrRefreshSplittedHwidDbCls(CreateOrRefreshSplittedHwidDbClsRequest)
+      returns (CreateOrRefreshSplittedHwidDbClsResponse);
 }

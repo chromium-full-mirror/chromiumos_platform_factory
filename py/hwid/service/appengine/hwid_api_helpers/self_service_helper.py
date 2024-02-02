@@ -1455,6 +1455,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
+  def CreateOrRefreshSplittedHwidDbCls(self, request):
+    raise common_helper.ConvertExceptionToProtoRPCException(
+        NotImplementedError('To be implemented'))
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
   def UpdateAudioCodecKernelNames(self, request):
     allowlist = set(request.allowlisted_kernel_names)
     blocklist = set(request.blocklisted_kernel_names)
