@@ -26,7 +26,11 @@
   },
   "cellular": {
     "generic": {
-      "eval": "generic_network_device:cellular"
+      "eval": {
+        "network": {
+          "device_type": "cellular"
+        }
+      }
     }
   },
   "cpu": {
@@ -56,7 +60,11 @@
   },
   "ethernet": {
     "generic": {
-      "eval": "generic_network_device:ethernet"
+      "eval": {
+        "network": {
+          "device_type": "ethernet"
+        }
+      }
     }
   },
   "feature_management_flags": {
@@ -170,7 +178,11 @@
   },
   "wireless": {
     "generic": {
-      "eval": "generic_network_device:wireless"
+      "eval": {
+        "network": {
+          "device_type": "wifi"
+        }
+      }
     }
   },
   "sdcard_reader": {

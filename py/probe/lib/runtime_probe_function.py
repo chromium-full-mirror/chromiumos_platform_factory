@@ -63,5 +63,9 @@ def GetAllFunctions():
               'Only fetches the devices match the emmc attached state',
               default=None),
       ]),
+      CreateRuntimeProbeFunction('network', [
+          arg_utils.Arg('device_type', str, 'Network type to be probed',
+                        default=None),
+      ]),
       CreateRuntimeProbeFunction('tcpc', []),
   ]
