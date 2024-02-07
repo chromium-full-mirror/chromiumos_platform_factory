@@ -933,7 +933,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   def _AbandonParentCLs(self, cl_info: hwid_repo.HWIDDBCLInfo):
     parent_cl_reject_reason = (f'CL:*{cl_info.cl_number} is rejected by the '
                                'reviewer.')
-    for parent_cl_number in cl_info.parent_cl_numbers:
+    for parent_cl_number, unused_parent_change_id in cl_info.parent_cl_ids:
       parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(parent_cl_number)
       if parent_cl_info.status != hwid_repo.HWIDDBCLStatus.ABANDONED:
         self._hwid_repo_manager.AbandonCL(parent_cl_number,
@@ -947,7 +947,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       put_cq.append(cl_info.cl_number)
 
     # Collect parent CLs which have Bot-Commit+1 votes.
-    for cl_number in cl_info.parent_cl_numbers:
+    for cl_number, unused_change_id in cl_info.parent_cl_ids:
       try:
         parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(cl_number)
         if not _IsCLReadyForCQ(parent_cl_info):

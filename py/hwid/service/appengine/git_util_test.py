@@ -235,6 +235,7 @@ class GetCLInfoTest(unittest.TestCase):
                 'parents': [],
             },
             '_change_number': tot_cl_number or self._THE_CL_NUMBER,
+            'change_id': f'I{tot_cl_number or self._THE_CL_NUMBER}',
         }]
     }
     if parent_cls_info:
@@ -247,6 +248,7 @@ class GetCLInfoTest(unittest.TestCase):
                 'parents': [],
             },
             '_change_number': cl_number,
+            'change_id': f'I{cl_number}',
         })
       # To assert that the order is unimportant.
       random.shuffle(json_obj['changes'])
@@ -600,8 +602,8 @@ class GetCLInfoTest(unittest.TestCase):
 
     self.assertEqual(cl_number, actual_cl_info.cl_number)
     self.assertCountEqual(
-        list(range(cl_number + 1, cl_number + 10)),
-        actual_cl_info.parent_cl_numbers)
+        [(n, f'I{n}') for n in range(cl_number + 1, cl_number + 10)],
+        actual_cl_info.parent_cl_ids)
 
   def testGetCLInfo_WithHashtags(self):
     # Arrange.

@@ -35,6 +35,7 @@ from cros.factory.utils import json_utils
 from cros.factory.utils import schema
 from cros.factory.utils import sync_utils
 
+
 # Constants.
 HEAD = b'HEAD'
 DEFAULT_REMOTE_NAME = b'origin'
@@ -748,7 +749,7 @@ class CLInfo(NamedTuple):
   comment_threads: Optional[Sequence[CLCommentThread]]
   bot_commit: Optional[bool]
   commit_queue: Optional[bool]
-  parent_cl_numbers: Optional[Sequence[int]]
+  parent_cl_ids: Optional[Sequence[Tuple[int, str]]]
   verified: Optional[bool]
   messages: Optional[Sequence[CLMessage]]
 
@@ -826,6 +827,7 @@ _COMMIT_INFO = schema.FixedDict(
 _RELATED_CHANGE_INFO = schema.FixedDict(
     'RelatedChangeInfo', items={
         'commit': _COMMIT_INFO,
+        'change_id': schema.Scalar('change_id', str),
         '_change_number': schema.Scalar('_change_number', int),
     }, allow_undefined_keys=True)
 _RELATED_CHANGES_INFO = schema.FixedDict(
@@ -969,7 +971,7 @@ def GetCLInfo(
     cq_labels = change_info_json.get('labels', {}).get(_COMMIT_QUEUE, {})
     return bool(cq_labels.get('approved'))
 
-  def _GetParentCLNumbers(commit_id: str) -> Optional[Sequence[int]]:
+  def _GetParentCLIDs(commit_id: str) -> Optional[Sequence[Tuple[int, str]]]:
     if not include_review_status:
       return None
     related_cls_info = _GetChangeInfo('/revisions/current/related', [],
@@ -977,25 +979,26 @@ def GetCLInfo(
 
     parent_cids: DefaultDict[str, MutableSequence[str]] = (
         collections.defaultdict(list))
-    related_cl_numbers: MutableMapping = {}
+    related_cl_ids: MutableMapping[str, Tuple[int, str]] = {}
     for related_cl in related_cls_info['changes']:
       commit = related_cl['commit']
-      related_cl_numbers[commit['commit']] = related_cl['_change_number']
+      related_cl_ids[commit['commit']] = (related_cl['_change_number'],
+                                          related_cl['change_id'])
       parent_cids[commit['commit']].extend(
           c['commit'] for c in commit['parents'])
 
     # Use BFS to collect all parent CL numbers from all related CLs.
     q: Deque[str] = collections.deque()
     q.append(commit_id)
-    parent_cl_numbers: MutableSequence[int] = []
+    parent_cl_ids: MutableSequence[Tuple[int, str]] = []
     while q:
       cid = q.popleft()
       for parent_commit_id in parent_cids[cid]:
-        if parent_commit_id in related_cl_numbers:
-          parent_cl_numbers.append(related_cl_numbers[parent_commit_id])
+        if parent_commit_id in related_cl_ids:
+          parent_cl_ids.append(related_cl_ids[parent_commit_id])
           q.append(parent_commit_id)
 
-    return parent_cl_numbers
+    return parent_cl_ids
 
   def _GetCLCommentThread() -> Optional[Sequence[CLCommentThread]]:
     if not include_comment_thread:
@@ -1088,7 +1091,7 @@ def GetCLInfo(
         comment_threads=_GetCLCommentThread(),
         bot_commit=_GetBotApprovalStatus(change_info_json),
         commit_queue=_GetCommitQueueStatus(change_info_json),
-        parent_cl_numbers=_GetParentCLNumbers(commit_id),
+        parent_cl_ids=_GetParentCLIDs(commit_id),
         verified=_GetCLVerified(change_info_json),
         messages=_GetCLMessages(),
     )

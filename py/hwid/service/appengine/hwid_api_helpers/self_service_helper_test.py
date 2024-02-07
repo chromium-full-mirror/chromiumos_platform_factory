@@ -6,7 +6,7 @@ import datetime
 import os
 import re
 import textwrap
-from typing import Mapping, Optional, Sequence, Type
+from typing import Mapping, Optional, Sequence, Tuple, Type
 import unittest
 from unittest import mock
 
@@ -838,6 +838,7 @@ class SelfServiceShardTest(unittest.TestCase):
       self,
       cl_number: int,
       status: hwid_repo.HWIDDBCLStatus,
+      *,
       subject: str = 'subject',
       review_status: Optional[hwid_repo.HWIDDBCLReviewStatus] = (
           hwid_repo.HWIDDBCLReviewStatus.NEUTRAL),
@@ -848,7 +849,7 @@ class SelfServiceShardTest(unittest.TestCase):
       created_time: Optional[datetime.datetime] = None,
       bot_commit: Optional[bool] = None,
       commit_queue: Optional[bool] = None,
-      parent_cl_numbers: Optional[Sequence[int]] = None,
+      parent_cl_ids: Optional[Sequence[Tuple[int, str]]] = None,
       verified: Optional[bool] = None,
       cl_messages: Optional[Sequence[hwid_repo.HWIDDBCLMessage]] = None,
   ) -> hwid_repo.HWIDDBCLInfo:
@@ -862,7 +863,7 @@ class SelfServiceShardTest(unittest.TestCase):
     return hwid_repo.HWIDDBCLInfo(
         change_id, cl_number, subject, status, hashtags, review_status,
         mergeable, created_time, comment_threads, bot_commit, commit_queue,
-        parent_cl_numbers, verified, cl_messages)
+        parent_cl_ids, verified, cl_messages)
 
   def testBatchGetHwidDbEditableSectionChangeClInfo(self):
     all_hwid_commit_infos = {
@@ -920,7 +921,7 @@ class SelfServiceShardTest(unittest.TestCase):
                                                                     9)
     orig_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, mergeable=True,
-        created_time=long_time_ago, parent_cl_numbers=[])
+        created_time=long_time_ago, parent_cl_ids=[])
     abandoned_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.ABANDONED, created_time=long_time_ago)
 
@@ -945,7 +946,7 @@ class SelfServiceShardTest(unittest.TestCase):
     long_time_ago = datetime.datetime.utcnow() - datetime.timedelta(days=35)
     orig_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, mergeable=False,
-        created_time=long_time_ago, parent_cl_numbers=[])
+        created_time=long_time_ago, parent_cl_ids=[])
     abandoned_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.ABANDONED, created_time=long_time_ago)
 
@@ -971,7 +972,7 @@ class SelfServiceShardTest(unittest.TestCase):
     orig_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW,
         review_status=hwid_repo.HWIDDBCLReviewStatus.REJECTED, mergeable=True,
-        created_time=now, parent_cl_numbers=[])
+        created_time=now, parent_cl_ids=[])
     abandoned_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.ABANDONED, created_time=now)
 
@@ -997,16 +998,16 @@ class SelfServiceShardTest(unittest.TestCase):
     cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW,
         review_status=hwid_repo.HWIDDBCLReviewStatus.REJECTED, mergeable=True,
-        created_time=now, parent_cl_numbers=[3, 4])
+        created_time=now, parent_cl_ids=[(3, 'I3'), (4, 'I4')])
     parent_cls_info = [
         self._CreateHWIDDBCLWithDefaults(
             3, hwid_repo.HWIDDBCLStatus.NEW,
             review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-            bot_commit=True, created_time=now, parent_cl_numbers=[4]),
+            bot_commit=True, created_time=now, parent_cl_ids=[(4, 'I4')]),
         self._CreateHWIDDBCLWithDefaults(
             4, hwid_repo.HWIDDBCLStatus.ABANDONED,
             review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-            bot_commit=True, created_time=now, parent_cl_numbers=[]),
+            bot_commit=True, created_time=now, parent_cl_ids=[]),
     ]
     abandoned_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.ABANDONED, created_time=now)
@@ -1053,7 +1054,7 @@ class SelfServiceShardTest(unittest.TestCase):
     now = datetime.datetime.utcnow()
     orig_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, mergeable=False, created_time=now,
-        bot_commit=True, parent_cl_numbers=[])
+        bot_commit=True, parent_cl_ids=[])
     abandoned_cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.ABANDONED, created_time=now)
 
@@ -1084,20 +1085,21 @@ class SelfServiceShardTest(unittest.TestCase):
     cl_info_with_parents = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, created_time=now,
         review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-        parent_cl_numbers=[3, 4, 5], verified=True)
+        parent_cl_ids=[(3, 'I3'), (4, 'I4'), (5, 'I5')], verified=True)
     parent_cls_info = [
         self._CreateHWIDDBCLWithDefaults(
             3, hwid_repo.HWIDDBCLStatus.NEW,
             review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-            bot_commit=True, created_time=now, parent_cl_numbers=[4, 5]),
+            bot_commit=True, created_time=now, parent_cl_ids=[(4, 'I4'),
+                                                              (5, 'I5')]),
         self._CreateHWIDDBCLWithDefaults(
             4, hwid_repo.HWIDDBCLStatus.NEW,
             review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-            bot_commit=True, created_time=now, parent_cl_numbers=[5]),
+            bot_commit=True, created_time=now, parent_cl_ids=[(5, 'I5')]),
         self._CreateHWIDDBCLWithDefaults(
             5, hwid_repo.HWIDDBCLStatus.NEW,
             review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-            bot_commit=True, created_time=now, parent_cl_numbers=[]),
+            bot_commit=True, created_time=now, parent_cl_ids=[]),
     ]
     self._mock_hwid_repo_manager.GetHWIDDBCLInfo.side_effect = [
         cl_info_with_parents,
@@ -1129,8 +1131,8 @@ class SelfServiceShardTest(unittest.TestCase):
     now = datetime.datetime.utcnow()
     cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, created_time=now,
-        review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-        parent_cl_numbers=[], verified=False)
+        review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED, parent_cl_ids=[],
+        verified=False)
     self._mock_hwid_repo_manager.GetHWIDDBCLInfo.side_effect = [cl_info]
     req = (
         hwid_api_messages_pb2.BatchGetHwidDbEditableSectionChangeClInfoRequest(
@@ -2729,8 +2731,8 @@ class SelfServiceShardTest(unittest.TestCase):
     now = datetime.datetime.utcnow()
     cl_info = self._CreateHWIDDBCLWithDefaults(
         2, hwid_repo.HWIDDBCLStatus.NEW, created_time=now,
-        review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED,
-        parent_cl_numbers=[], verified=False, cl_messages=[
+        review_status=hwid_repo.HWIDDBCLReviewStatus.APPROVED, parent_cl_ids=[],
+        verified=False, cl_messages=[
             _CreateCQCLMessageFromTemplate(1),
             _CreateCQCLMessageFromTemplate(2),
             _CreateCQCLMessageFromTemplate(3),
