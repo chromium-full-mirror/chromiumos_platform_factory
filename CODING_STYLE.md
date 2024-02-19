@@ -183,6 +183,17 @@ from x.y import z as abc  # sorting key: 'x.y.z', "as abc" is ignored.
 [sort_import.vim](devtools/vim/ftplugin/python/sort_import.vim) is a Vim plugin
 implementation to sort imports alphabetically.
 
+### Interface naming
+There are three types of class:
+
+* Base class: All methods are implemented.
+* Abstract class: Some methods are implemented, while others are not.
+* Interface: None of the methods are implemented.
+
+In order to clearly differentiate interfaces from concrete classes, interface
+names should be prefixed with a capital "I", while abstract class names should
+be prefixed with "Abstract."
+
 ### Additional requirements
 
 *   Don't write shell scripts for anything except very, very simple scripts. Use
