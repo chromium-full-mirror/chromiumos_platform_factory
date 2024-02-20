@@ -72,6 +72,23 @@ Here's a brief instruction to enable HTTPS:
 - Run `setup/cros_docker.sh run`.
 - Now you can visit to [https://localhost:8001](https://localhost:8001).
 
+### How to Enable HTTPS on Umpire
+
+Here's a brief instruction to enable HTTPS on Umpire side:
+- Create a `protocol.json` file under `/cros_docker/dome` folder.
+- Modify this `protocol.json` file. If you want to use HTTPS on Umpire side,
+  add the json string like following:
+  ```
+  {
+    "use_https": true
+  }
+  ```
+- Put your `selfsigned.crt` and `selfsigned.key` files into `/cros_docker/dome`
+  folder. Note: Please use `selfsigned.crt` and `selfsigned.key` as the filename.
+- Run `setup/cros_docker.sh run`.
+- For the first time we change from HTTP to HTTPS, we need to delete all umpire
+  projects and create them again for now.
+
 ---
 
 ### Run E2E Testing of Dome

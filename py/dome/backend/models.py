@@ -22,6 +22,7 @@ import os
 import re
 import shutil
 import socket
+import ssl
 import subprocess
 import tempfile
 import time
@@ -93,6 +94,7 @@ UMPIRE_BASE_DIR = '/var/db/factory/umpire'
 
 UMPIRED_FILEPATH = '/usr/local/factory/bin/umpired'
 
+PROTOCOL_FILE = '/var/db/factory/dome/protocol.json'
 
 logger = logging.getLogger(f'django.{__name__}')
 
@@ -143,8 +145,20 @@ def UploadedFile(temporary_uploaded_file_id):
         raise
 
 
+def IsHttps():
+  if os.path.exists(PROTOCOL_FILE):
+    protocol_json = json_utils.LoadFile(PROTOCOL_FILE)
+    if 'use_https' in protocol_json:
+      return protocol_json['use_https']
+  return False
+
+
 def GetUmpireServerFromPort(port):
   host = net_utils.GetDockerHostIP()
+  if IsHttps():
+    url = f'https://{host}:{int(port + UMPIRE_RPC_PORT_OFFSET)}'
+    sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    return xmlrpc.client.ServerProxy(url, allow_none=True, context=sslcontext)
   url = f'http://{host}:{int(port + UMPIRE_RPC_PORT_OFFSET)}'
   return xmlrpc.client.ServerProxy(url, allow_none=True)
 

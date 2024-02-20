@@ -38,9 +38,13 @@ CROS_PAYLOAD = os.path.join(
 # Default Umpire base directory relative to root dir.
 DEFAULT_BASE_DIR = os.path.join('var', 'db', 'factory', 'umpire')
 DEFAULT_SERVER_DIR = os.path.join('usr', 'local', 'factory')
+DEFAULT_DOME_DIR = os.path.join('mnt', 'dome')
 
 SESSION_JSON_FILE = 'session.json'
 FACTORY_DRIVE_JSON_FILE = 'factory_drives.json'
+
+# File name under dome_dir.
+PROTOCOL_JSON_FILE = 'protocol.json'
 
 # File name under base_dir
 _ACTIVE_UMPIRE_CONFIG = 'active_umpire.json'
@@ -84,6 +88,7 @@ class UmpireEnv:
 
   def __init__(self, root_dir='/'):
     self.base_dir = os.path.join(root_dir, DEFAULT_BASE_DIR)
+    self.dome_dir = os.path.join(root_dir, DEFAULT_DOME_DIR)
     self.server_toolkit_dir = os.path.join(root_dir, DEFAULT_SERVER_DIR)
     self.config_path = None
     self.config = None
@@ -120,6 +125,10 @@ class UmpireEnv:
   @property
   def properties_dir(self):
     return os.path.join(self.base_dir, _PROPERTIES_DIR)
+
+  @property
+  def protocol_file(self):
+    return os.path.join(self.dome_dir, PROTOCOL_JSON_FILE)
 
   @property
   def active_config_file(self):

@@ -916,6 +916,7 @@ do_prepare_dome() {
   local docker_db_dir="/var/db/factory/dome"
   local db_filename="db.sqlite3"
   local ssl_config="ssl.conf"
+  local protocol_file="protocol.json"
   local docker_log_dir="/var/log/dome"
   local host_log_dir="${HOST_DOME_DIR}/log"
 
@@ -933,6 +934,14 @@ do_prepare_dome() {
     echo "Creating docker shared (${ssl_config}) file,"
     echo "you'll be asked for root permission ..."
     sudo touch "${HOST_DOME_DIR}/${ssl_config}"
+  fi
+
+  # make sure protocol.json file exists or mounting volume will fail
+  local protocol_path="${HOST_DOME_DIR}/${protocol_file}"
+  if [[ ! -f "${protocol_path}" ]]; then
+    echo "Creating docker shared (${protocol_file}) file."
+    echo "you'll be asked for root permission ..."
+    echo '{"use_https":false}' | sudo tee "${protocol_path}" > /dev/null
   fi
 
   # Migrate the database if needed (won't remove any data if the database

@@ -13,10 +13,12 @@ updater.
 """
 
 import logging
+import os
 import signal
 
 from twisted.internet import defer
 from twisted.internet import reactor
+from twisted.internet import ssl
 from twisted.python import failure as twisted_failure
 from twisted.web import server
 from twisted.web import wsgi
@@ -27,6 +29,7 @@ from cros.factory.umpire.server.service import umpire_service
 from cros.factory.umpire.server import utils
 from cros.factory.umpire.server.web import wsgi as umpire_wsgi
 from cros.factory.umpire.server.web import xmlrpc as umpire_xmlrpc
+from cros.factory.utils import json_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils import type_utils
 
@@ -115,6 +118,25 @@ class UmpireDaemon:
     d = self.Deploy()
     d.addErrback(HandleStartError)
 
+  def IsHttps(self):
+    if os.path.exists(self.env.protocol_file):
+      protocol_json = json_utils.LoadFile(self.env.protocol_file)
+      if 'use_https' in protocol_json:
+        return protocol_json['use_https']
+    return False
+
+  def AppendPorts(self, port, factory, interface=''):
+    if self.IsHttps():
+      sslContext = ssl.DefaultOpenSSLContextFactory(
+          '/mnt/dome/selfsigned.key',  # Private Key
+          '/mnt/dome/selfsigned.crt',  # Certificate
+      )
+      self.twisted_ports.append(
+          reactor.listenSSL(port, factory, sslContext, interface=interface))
+    else:
+      self.twisted_ports.append(
+          reactor.listenTCP(port, factory, interface=interface))
+
   def BuildWebAppSite(self, interface=net_utils.LOCALHOST):
     """Builds web application resource and site."""
     if not self.web_applications:
@@ -124,8 +146,7 @@ class UmpireDaemon:
                                      self.web_applications)
     web_site = server.Site(web_resource)
     # Listen to webapp server port.
-    self.twisted_ports.append(reactor.listenTCP(self.env.umpire_webapp_port,
-                                                web_site, interface=interface))
+    self.AppendPorts(self.env.umpire_webapp_port, web_site, interface=interface)
 
   def BuildRPCSite(self, port, rpc_objects, interface=net_utils.LOCALHOST):
     """Builds RPC resource and site.
@@ -144,8 +165,7 @@ class UmpireDaemon:
     xmlrpc.addIntrospection(rpc_resource)
     rpc_site = server.Site(rpc_resource)
     # Listen to rpc server port.
-    self.twisted_ports.append(reactor.listenTCP(port, rpc_site,
-                                                interface=interface))
+    self.AppendPorts(port, rpc_site, interface=interface)
 
   def Run(self):
     """Starts the daemon and event loop."""
