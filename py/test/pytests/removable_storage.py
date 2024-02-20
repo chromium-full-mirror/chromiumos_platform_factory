@@ -173,7 +173,7 @@ class _MediaType(str, enum.Enum):
 
 class RemovableStorageTest(test_case.TestCase):
   """The removable storage factory test."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.CARD_READER, )
 
   ARGS = [
       Arg('media', _MediaType,

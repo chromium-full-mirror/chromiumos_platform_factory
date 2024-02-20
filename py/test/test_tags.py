@@ -31,6 +31,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   BATTERY = enum.auto()
   BRIDGE_PCIE_EMMC = enum.auto()
   CAMERA = enum.auto()
+  CARD_READER = enum.auto()
   CPU = enum.auto()
   DRAM = enum.auto()
   EC = enum.auto()
@@ -73,6 +74,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
                                'storage_bridge'),
         TestCategory.CAMERA:
             CategoryProperties('avl', 'Camera - USB', 'camera'),
+        TestCategory.CARD_READER:
+            CategoryProperties('avl', 'Card Reader', 'sdcard_reader'),
         TestCategory.CPU:
             CategoryProperties('avl', 'CPU', 'cpu'),
         TestCategory.DRAM:
