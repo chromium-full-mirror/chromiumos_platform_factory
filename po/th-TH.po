@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-02-02 13:12+CST\n"
+"PO-Revision-Date: 2024-02-23 15:59+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -305,6 +305,7 @@ msgid "Lid Switch"
 msgstr "สวิตช์ฝาปิด"
 
 #: ../build/pytests_label_generated.json
+#: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Light Sensor"
 msgstr "เซ็นเซอร์วัดแสง"
 
@@ -2330,14 +2331,17 @@ msgid "Close then open the lid"
 msgstr "ปิดแล้วเปิดฝาปิด"
 
 #: ../py/test/pytests/light_sensor.py
+#: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Cover light sensor with finger"
 msgstr "ปิดเซ็นเซอร์แสงด้วยนิ้วมือ"
 
 #: ../py/test/pytests/light_sensor.py
+#: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Remove finger from light sensor"
 msgstr "เปิดเซ็นเซอร์แสงออกจากนิ้วมือ"
 
 #: ../py/test/pytests/light_sensor.py
+#: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Shine light sensor with flashlight"
 msgstr "ส่องไฟฉายใส่เซ็นเซอร์แสง"
 
@@ -4060,6 +4064,14 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Generic DRAM Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
+msgid "Light Sensor Calibration With Mocked Chamber"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
+msgid "Generic Ambient Light Sensor Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fat.test_list.json

@@ -27,53 +27,18 @@ Dependency
 
 Examples
 --------
-Minimum runnable example::
+To perform 3 subtests,
 
-  {
-    "pytest_name": "light_sensor"
-  }
+1. ``'Light sensor dark'`` (below 30)
+2. ``'Light sensor exact'`` (between 60 and 300)
+3. ``'Light sensor light'`` (above 500)
 
-This will read ALS value from ``/sys/bus/iio/devices/*/illuminance0_raw``.
-There will be 3 subtests,
+.. test_list::
 
-1. ``'Light sensor dark'`` (below 4)
-2. ``'Light sensor exact'`` (between 10 and 15)
-3. ``'Light sensor light'`` (above 200)
+  generic_ec_component_als_examples:LightSensor
 
-Unfortunately, in most of the case, this does not work for you, because
-
-* the exposed sysfs file has different name
-* scale of the sensor value is different
-
-For example, the arguments for your board might be::
-
-  {
-    "pytest_name": "light_sensor",
-    "args": {
-      "subtest_list": [
-        "Light sensor dark",
-        "Light sensor exact",
-        "Light sensor light"
-      ],
-      "subtest_cfg": {
-        "Light sensor exact": {
-          "between": [60, 300]
-        },
-        "Light sensor light": {
-          "above": 500
-        },
-        "Light sensor dark": {
-          "below": 30
-        }
-      },
-      "device_input": "in_illuminance_raw",
-      "subtest_instruction": {
-        "Light sensor exact": "i18n! Remove finger from light sensor",
-        "Light sensor light": "i18n! Shine light sensor with flashlight",
-        "Light sensor dark": "i18n! Cover light sensor with finger"
-      }
-    }
-  }
+The sensor value represents in lux. For reference, see
+https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-iio.
 
 Note that you have to specify ``subtest_list``, ``subtests_instruction``,
 ``subtest_cfg`` at the same time.

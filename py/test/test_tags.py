@@ -68,7 +68,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
         TestCategory.ACCELEROMETER:
             CategoryProperties('avl', 'Accelerometer/IMU', None),
         TestCategory.AMBIENTLIGHTSENSOR:
-            CategoryProperties('avl', 'Ambient Light Sensor', None),
+            CategoryProperties('avl', 'Ambient Light Sensor',
+                               'ec_component_als'),
         TestCategory.AUDIOCODEC:
             CategoryProperties('avl', 'Audio Jack Codec', 'audio_codec'),
         TestCategory.BATTERY:

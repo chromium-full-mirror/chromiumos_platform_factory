@@ -1,0 +1,28 @@
+{
+  "__comment": "Examples for testing ec_component_als components. ec_component_als is called \"Ambient Light Sensor\" in AVL.",
+  "inherit": [
+    "generic_ec_component_als.test_list"
+  ],
+  "label": "Generic Ambient Light Sensor Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "LightSensorCalibrationWithMockedChamber": {
+      "inherit": "LightSensorCalibration",
+      "label": "Light Sensor Calibration With Mocked Chamber",
+      "__comment": "The test is used to test the software. You need a real chamber to do the real calibration.",
+      "args": {
+        "assume_chamber_connected": false,
+        "control_chamber": true,
+        "mock_mode": true
+      }
+    }
+  },
+  "tests": [
+    "LightSensor",
+    "LightSensorCalibration",
+    "LightSensorCalibrationWithMockedChamber"
+  ]
+}

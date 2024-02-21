@@ -21,7 +21,7 @@ new driver to ``chamber_conn_params``. You also need to provide the
 ``chamber_cmd`` with which a station can command the light chamber.
 
 Besides the arguments, there are still many configurations in the
-light_sensor_calibration.json. For examples:
+light_sensor_calibration.json. For examples::
 
   {
     "version": "v0.01",
@@ -64,60 +64,17 @@ Dependency
 Examples
 --------
 To automatically calibrate the light_sensor with the given ``chamber_cmd``, add
-this into test list::
+this into test list:
 
-  {
-    "pytest_name": "light_sensor_calibration",
-    "args": {
-      "control_chamber": true,
-      "assume_chamber_connected": true,
-      "chamber_cmd": {
-        "LUX1": [
-          [
-            "LUX1_ON",
-            "LUX1_READY"
-          ]
-        ],
-        "LUX2": [
-          [
-            "LUX2_ON",
-            "LUX2_READY"
-          ]
-        ],
-        "LUX3": [
-          [
-            "LUX3_ON",
-            "LUX3_READY"
-          ]
-        ],
-        "OFF": [
-          [
-            "OFF",
-            "OFF_READY"
-          ]
-        ]
-      }
-    }
-  }
+.. test_list::
 
-To debug and use a mocked light chamber::
+  generic_ec_component_als_examples:LightSensorCalibration
 
-  {
-    "pytest_name": "light_sensor_calibration",
-    "args": {
-      "control_chamber": true,
-      "mock_mode": true
-    }
-  }
+To debug and use a mocked light chamber:
 
-To manually switch chamber light::
+.. test_list::
 
-  {
-    "pytest_name": "light_sensor_calibration",
-    "args": {
-      "control_chamber": false
-    }
-  }
+  generic_ec_component_als_examples:LightSensorCalibrationWithMockedChamber
 
 Trouble Shooting
 ----------------

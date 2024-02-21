@@ -1,0 +1,78 @@
+{
+  "__comment": "Predefined ec_component_als tests. ec_component_als is called \"Ambient Light Sensor\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {
+    "light_sensor_name": "cros-ec-light",
+    "__comment_light_sensor_name": "Used by light_sensor.py. Should always be cros-ec-light for newer ChromeOS device. See go/light-iioservice."
+  },
+  "options": {},
+  "definitions": {
+    "LightSensor": {
+      "pytest_name": "light_sensor",
+      "label": "Light Sensor",
+      "args": {
+        "device_name": "eval! constants.light_sensor_name",
+        "subtest_cfg": {
+          "Light sensor dark": {
+            "below": 30
+          },
+          "Light sensor exact": {
+            "between": [
+              60,
+              300
+            ]
+          },
+          "Light sensor light": {
+            "above": 500
+          }
+        },
+        "subtest_instruction": {
+          "Light sensor dark": "i18n! Cover light sensor with finger",
+          "Light sensor exact": "i18n! Remove finger from light sensor",
+          "Light sensor light": "i18n! Shine light sensor with flashlight"
+        },
+        "subtest_list": [
+          "Light sensor dark",
+          "Light sensor exact",
+          "Light sensor light"
+        ],
+        "timeout_per_subtest": 20
+      }
+    },
+    "LightSensorCalibration": {
+      "pytest_name": "light_sensor_calibration",
+      "args": {
+        "control_chamber": true,
+        "assume_chamber_connected": true,
+        "chamber_cmd": {
+          "LUX1": [
+            [
+              "LUX1_ON",
+              "LUX1_READY"
+            ]
+          ],
+          "LUX2": [
+            [
+              "LUX2_ON",
+              "LUX2_READY"
+            ]
+          ],
+          "LUX3": [
+            [
+              "LUX3_ON",
+              "LUX3_READY"
+            ]
+          ],
+          "OFF": [
+            [
+              "OFF",
+              "OFF_READY"
+            ]
+          ]
+        }
+      }
+    }
+  }
+}
