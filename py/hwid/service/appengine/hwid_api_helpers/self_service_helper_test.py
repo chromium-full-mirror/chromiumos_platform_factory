@@ -2039,7 +2039,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Assert.
     self.assertFalse(split_resp.change_units)
 
-  def testCreateSplittedHwidDbCls_Pass(self):
+  def testCreateOrRefreshSplittedHwidDbCls_Pass(self):
     # Arrange.
     project = 'CHROMEBOOK'
     old_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_BEFORE)
@@ -2061,10 +2061,11 @@ class SelfServiceShardTest(unittest.TestCase):
         self.service, session_token,
         hwid_api_messages_pb2.HwidDbExternalResource())
 
-    create_cl_req = hwid_api_messages_pb2.CreateSplittedHwidDbClsRequest(
-        session_token=session_token,
-        original_requester='requester@notgoogle.com', description='description',
-        bug_number=100)
+    create_cl_req = (
+        hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsRequest(
+            session_token=session_token,
+            original_requester='requester@notgoogle.com',
+            description='description', bug_number=100))
     approval_status = create_cl_req.approval_status
 
     # Act: only set one AddEncodingCombination change unit as
@@ -2095,11 +2096,14 @@ class SelfServiceShardTest(unittest.TestCase):
           f'reason2 of {identity}.',
       ]
 
-    create_cl_resp = self.service.CreateSplittedHwidDbCls(create_cl_req)
+    create_cl_resp = self.service.CreateOrRefreshSplittedHwidDbCls(
+        create_cl_req)
 
     # Assert: both auto-approved and reviewed-required CLs are created.
-    self.assertTrue(create_cl_resp.auto_mergeable_change_cl_created)
-    self.assertTrue(create_cl_resp.review_required_change_cl_created)
+    self.assertTrue(
+        create_cl_resp.auto_mergeable_change_cl_created_or_refreshed)
+    self.assertTrue(
+        create_cl_resp.review_required_change_cl_created_or_refreshed)
 
     # Validate the two CommitHWIDDB calls.
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
@@ -2277,7 +2281,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual('generated feature matcher payload',
                      review_required_call['feature_matcher_source'])
 
-  def testCreateSplittedHwidDbCls_AVLAlignmentChanges(self):
+  def testCreateOrRefreshSplittedHwidDbCls_AVLAlignmentChanges(self):
 
     def CreateMockAVLConverterManager(
         match_result_mapping: Mapping[
@@ -2373,10 +2377,11 @@ class SelfServiceShardTest(unittest.TestCase):
         ])
     split_resp = _SplitHwidDbChange(shard, session_token, db_external_resource)
 
-    create_cl_req = hwid_api_messages_pb2.CreateSplittedHwidDbClsRequest(
-        session_token=session_token,
-        original_requester='requester@notgoogle.com', description='description',
-        bug_number=100)
+    create_cl_req = (
+        hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsRequest(
+            session_token=session_token,
+            original_requester='requester@notgoogle.com',
+            description='description', bug_number=100))
     approval_status = create_cl_req.approval_status
 
     # Act
@@ -2394,7 +2399,7 @@ class SelfServiceShardTest(unittest.TestCase):
       else:
         approval_status[identity].CopyFrom(review_required_cl_action)
 
-    shard.CreateSplittedHwidDbCls(create_cl_req)
+    shard.CreateOrRefreshSplittedHwidDbCls(create_cl_req)
 
     # Assert
     # Validate the two CommitHWIDDB calls.

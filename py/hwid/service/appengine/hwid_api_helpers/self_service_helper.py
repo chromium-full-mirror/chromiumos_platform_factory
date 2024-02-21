@@ -1425,6 +1425,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateSplittedHwidDbCls(self, request):
+    #TODO(b/323484005): Deprecate this API when clients migrate calls.
     (
         split_result,
         auto_mergeable_change_cl_number,
@@ -1455,8 +1456,52 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def CreateOrRefreshSplittedHwidDbCls(self, request):
-    raise common_helper.ConvertExceptionToProtoRPCException(
-        NotImplementedError('To be implemented'))
+    cl_change_id_suggestions = [None, None]
+    if request.cl_number:
+      try:
+        cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(request.cl_number)
+      except hwid_repo.HWIDRepoError:
+        raise protorpc_utils.ProtoRPCException(
+            protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
+            f'Invalid CL number {request.cl_number}') from None
+      cl_change_id_suggestions[1] = cl_info.change_id
+      if len(cl_info.parent_cl_ids) > 1:
+        raise protorpc_utils.ProtoRPCException(
+            protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
+            f'Multiple parent CLs {cl_info.parent_cl_ids} are not supported.'
+        ) from None
+      unused_cl_number, cl_change_id_suggestions[0] = next(
+          iter(cl_info.parent_cl_ids), (None, None))
+
+    (
+        split_result,
+        auto_mergeable_change_cl_number,
+        review_required_change_cl_number,
+        final_cl_number,
+        final_hwid_db_content,
+    ) = self._CreateOrPatchSplittedCL(
+        request.session_token,
+        request.approval_status,
+        request.original_requester,
+        request.description,
+        request.bug_number,
+        cl_change_id_suggestions=tuple(cl_change_id_suggestions),
+    )
+    resp = hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsResponse(
+        auto_mergeable_change_cl_created_or_refreshed=(
+            auto_mergeable_change_cl_number != 0),
+        auto_mergeable_change_cl_number=auto_mergeable_change_cl_number,
+        auto_mergeable_change_unit_identities=(
+            split_result.auto_mergeable_change_unit_identities),
+        review_required_change_cl_created_or_refreshed=(
+            review_required_change_cl_number != 0),
+        review_required_change_cl_number=review_required_change_cl_number,
+        review_required_change_unit_identities=(
+            split_result.review_required_change_unit_identities))
+    if final_cl_number:
+      resp.final_hwid_db_commit.cl_number = final_cl_number
+      resp.final_hwid_db_commit.new_hwid_db_contents = final_hwid_db_content
+    return resp
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -1643,6 +1688,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       original_requester: str,
       description: str,
       bug_number: int,
+      *,
+      cl_change_id_suggestions: Tuple[Optional[str],
+                                      Optional[str]] = (None, None),
   ) -> Tuple[change_unit_utils.ChangeSplitResult, int, int, int, str]:
     """Create or patch splitted CL.
 
@@ -1652,6 +1700,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       original_requester: The email of original requester.
       description: The description of the CL.
       bug_number: The bug number associated with this CL.
+      cl_change_id_suggestions: A tuple of change id suggestions
+        (auto_mergeable_change_id, manual_review_change_id), and None for
+        creating new ones.
 
     Returns:
       A tuple of the following result:
@@ -1662,11 +1713,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       - An integer as the final cl number.
       - A str of the final HWID DB content in external format.
     """
+    auto_mergeable_change_id, manual_review_change_id = cl_change_id_suggestions
 
     def _CommitSplittedCL(
         db: database.Database,
         msg: str,
         change_unit_identities: Sequence[str],
+        change_id: Optional[str],
         bot_commit: bool = False,
         commit_queue: bool = False,
         include_feature_matcher_source: bool = False,
@@ -1735,6 +1788,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             commit_msg=commit_msg,
             reviewers=list(reviewers),
             cc_list=list(ccs),
+            change_id=change_id,
             bot_commit=bot_commit,
             commit_queue=commit_queue,
             verified=verified,
@@ -1773,16 +1827,26 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
         %s
     """) % description
+
+    to_be_abandoned = set()
+
+    if split_result.review_required_noop:
+      to_be_abandoned.add(auto_mergeable_change_id)
+      auto_mergeable_change_id = manual_review_change_id
+
     auto_mergeable_change_cl_number, final_hwid_db_content = (
         _CommitSplittedCL(
             split_result.auto_mergeable_db,
             commit_msg,
             split_result.auto_mergeable_change_unit_identities,
+            change_id=auto_mergeable_change_id,
             bot_commit=True,
             commit_queue=split_result.review_required_noop,
             include_feature_matcher_source=split_result.review_required_noop,
         ))
     final_cl_number = auto_mergeable_change_cl_number
+    if auto_mergeable_change_cl_number == 0:
+      to_be_abandoned.add(auto_mergeable_change_id)
 
     if not split_result.review_required_noop:
       commit_msg = textwrap.dedent(f"""\
@@ -1799,9 +1863,17 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
               split_result.review_required_db,
               commit_msg,
               split_result.review_required_change_unit_identities,
+              change_id=manual_review_change_id,
               include_feature_matcher_source=True,
           ))
       final_cl_number = review_required_change_cl_number
+
+    for to_be_abandoned_change_id in to_be_abandoned:
+      if to_be_abandoned_change_id is not None:
+        self._hwid_repo_manager.AbandonCL(
+            to_be_abandoned_change_id,
+            reason='Obsoleted by refreshing AVL alignment status')
+
     return (
         split_result,
         auto_mergeable_change_cl_number,
