@@ -17,6 +17,11 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 
 
+@contextlib.contextmanager
+def MockDownload(unused_possible_urls, unused_resource_name, unused_version):
+  yield (None, None)
+
+
 class FinalizeBundleTestBase(unittest.TestCase):
 
   def setUp(self):
@@ -59,11 +64,11 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
     # Set by AddFirmwareUpdaterAndImages
     bundle_builder.firmware_bios_names = ['randomName']
 
-    patcher = mock.patch(finalize_bundle.__name__ + '.gsutil.GSUtil.LS')
-    patcher.start().side_effect = lambda url: [url]
-    self.addCleanup(patcher.stop)
+    mock.patch.object(finalize_bundle.gsutil.GSUtil, 'LS',
+                      side_effect=lambda url: [url]).start()
+    self.addCleanup(mock.patch.stopall)
 
-  @mock.patch(finalize_bundle.__name__ + '.Spawn', mock.Mock())
+  @mock.patch.object(finalize_bundle, 'Spawn', mock.Mock())
   def testPrepareNetboot_fromFactoryArchive_verifyFinalLayout(self):
     bundle_builder = finalize_bundle.FinalizeBundle(
         manifest={
@@ -95,19 +100,11 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
                     'da39a3ee5e6b4b0d3255bfef95601890afd80709',
             })
 
-  @mock.patch(file_utils.__name__ + '.ExtractFile', mock.Mock())
-  @mock.patch(finalize_bundle.__name__ + '.FinalizeBundle._DownloadResource')
-  @mock.patch(finalize_bundle.__name__ + '.Spawn', mock.Mock())
-  def testPrepareNetboot_fromFirmwareArchive_verifyFinalLayout(
-      self, download_mock: mock.MagicMock):
-
-    @contextlib.contextmanager
-    def MockDownload(unused_possible_urls, unused_resource_name,
-                     unused_version):
-      yield (None, None)
-
-    download_mock.side_effect = MockDownload
-
+  @mock.patch.object(file_utils, 'ExtractFile', mock.Mock())
+  @mock.patch.object(finalize_bundle.FinalizeBundle, '_DownloadResource',
+                     mock.Mock(side_effect=MockDownload))
+  @mock.patch.object(finalize_bundle, 'Spawn', mock.Mock())
+  def testPrepareNetboot_fromFirmwareArchive_verifyFinalLayout(self):
     bundle_builder = finalize_bundle.FinalizeBundle(
         manifest={
             'board': 'brya',
@@ -667,6 +664,65 @@ class CreateRMAShimTest(FinalizeBundleTestBase):
 
     spawn_mock.assert_not_called()
 
+
+class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
+  default_manifest = {
+      'board': 'brya',
+      'project': 'brya',
+      'bundle_name': '20210107_evt',
+      'toolkit': '15003.0.0',
+      'test_image': '14909.124.0',
+      'release_image': '15003.0.0',
+      'firmware': 'release_image/15004.0.0',
+      'designs': finalize_bundle.BOXSTER_DESIGNS,
+  }
+
+  def setUp(self):
+    super().setUp()
+    self.bundle_builder = finalize_bundle.FinalizeBundle(
+        manifest=self.default_manifest, work_dir=self.temp_dir)
+    self.bundle_builder.ProcessManifest()
+    self.shim_dir = os.path.join(self.bundle_builder.bundle_dir, 'factory_shim')
+    self.toolkit_dir = os.path.join(self.bundle_builder.bundle_dir, 'toolkit')
+    self.extract = mock.patch.object(file_utils, 'ExtractFile',
+                                     autospec=True).start()
+    mock.patch.object(finalize_bundle.FinalizeBundle, '_DownloadResource',
+                      mock.Mock(side_effect=MockDownload)).start()
+    self.addCleanup(mock.patch.stopall)
+
+  def testCorrectPath_Normal(self):
+
+    def CreateMockedNormalBundle(*unused_args, **unused_kwargs):
+      file_utils.TryMakeDirs(self.shim_dir)
+      file_utils.TouchFile(os.path.join(self.shim_dir, 'test_file'))
+      file_utils.TryMakeDirs(self.toolkit_dir)
+      file_utils.TouchFile(os.path.join(self.toolkit_dir, 'test_toolkit'))
+
+    self.extract.side_effect = CreateMockedNormalBundle
+
+    # pylint: disable=protected-access
+    self.bundle_builder._DownloadFactoryToolkit('0.0.0',
+                                                self.bundle_builder.bundle_dir)
+
+    self.assertTrue(os.path.exists(os.path.join(self.shim_dir, 'test_file')))
+
+  def testChangedPath_MoveBackToNormalPath(self):
+    rubik_shim_dir = os.path.join(self.bundle_builder.bundle_dir,
+                                  'R123-0.0.0-factory_shim')
+
+    def CreateMockedChangedBundle(*unused_args, **unused_kwargs):
+      file_utils.TryMakeDirs(rubik_shim_dir)
+      file_utils.TouchFile(os.path.join(rubik_shim_dir, 'test_file'))
+      file_utils.TryMakeDirs(self.toolkit_dir)
+      file_utils.TouchFile(os.path.join(self.toolkit_dir, 'test_toolkit'))
+
+    self.extract.side_effect = CreateMockedChangedBundle
+
+    # pylint: disable=protected-access
+    self.bundle_builder._DownloadFactoryToolkit('0.0.0',
+                                                self.bundle_builder.bundle_dir)
+
+    self.assertTrue(os.path.exists(os.path.join(self.shim_dir, 'test_file')))
 
 if __name__ == '__main__':
   unittest.main()

@@ -1705,6 +1705,23 @@ class FinalizeBundle:
         requested_version) as (downloaded_path, unused_url):
       file_utils.ExtractFile(downloaded_path, target_dir, exclude=['*/README'])
 
+    # Some factory_image.zip are affected by b:239914967. We add this workaround
+    # to support those factory_image.zip.
+    rubik_shim_directories = glob.glob(
+        os.path.join(target_dir, '*-factory_shim'))
+    if rubik_shim_directories:
+      abs_factory_shim_dir = os.path.join(target_dir, FACTORY_SHIM_SEARCH_DIR)
+      logging.info(
+          'rubik factory_shim directories found: %s. '
+          'Move them into %r.', rubik_shim_directories, abs_factory_shim_dir)
+      file_utils.TryMakeDirs(abs_factory_shim_dir)
+      for rubik_shim_directory in rubik_shim_directories:
+        files = glob.glob(os.path.join(rubik_shim_directory, '*'))
+        if files:
+          Spawn(['mv', '-f'] + files + [abs_factory_shim_dir], log=True,
+                check_call=True)
+        Spawn(['rmdir', rubik_shim_directory], log=True, check_call=True)
+
     return self._LocateOneResource(
         'factory toolkit', LOCAL, TOOLKIT_SEARCH_DIRS,
         lambda unused_path, unused_version: True)
