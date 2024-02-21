@@ -370,18 +370,17 @@ def _HasCQCountOverLimitHashtag(cl_info: hwid_repo.HWIDDBCLInfo) -> bool:
 
 def _HasCoveredBundleUUID(db: database.Database, request_uuid: str) -> bool:
   """
-  Check if the added components are covered by any other uuid, which should be a
-  no-op.
+  Check if the added components are covered by any other uuid or no component is
+  added, which should be a no-op.
   """
-  try:
-    covered_bundle_uuids = set.intersection(
-        *(set(comp_info.bundle_uuids)
-          for comp_cls in v3_common.FirmwareComps
-          for comp_info in db.GetComponents(comp_cls).values()
-          if request_uuid in comp_info.bundle_uuids))
-  except TypeError as ex:
-    raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
-  return covered_bundle_uuids > {request_uuid}
+  covered_bundle_uuids = [
+      set(comp_info.bundle_uuids)
+      for comp_cls in v3_common.FirmwareComps
+      for comp_info in db.GetComponents(comp_cls).values()
+      if request_uuid in comp_info.bundle_uuids
+  ]
+  return (not covered_bundle_uuids or
+          set.intersection(*covered_bundle_uuids) > {request_uuid})
 
 
 class FeatureMatcherBuildResult(NamedTuple):

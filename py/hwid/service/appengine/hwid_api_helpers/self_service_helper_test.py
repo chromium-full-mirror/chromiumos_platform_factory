@@ -1739,6 +1739,47 @@ class SelfServiceShardTest(unittest.TestCase):
 
     self.assertEqual(len(resp.commits), 0)
 
+  def testCreateHwidDbFirmwareInfoUpdateCl_EmptyFirmwareRecord(self):
+    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    bundle_record = _FactoryBundleRecord(
+        board='board', firmware_signer='BoardMPKeys-V1',
+        firmware_records=[_FirmwareRecord(model='proj')])
+    req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
+        bundle_record=bundle_record)
+    resp = self.service.CreateHwidDbFirmwareInfoUpdateCl(req)
+
+    self.assertEqual(len(resp.commits), 0)
+
+  def testCreateHwidDbFirmwareInfoUpdateCl_AppendUuidOnly(self):
+    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.return_value = 123
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    bundle_record = _FactoryBundleRecord(
+        board='board', firmware_signer='BoardMPKeys-V1', firmware_records=[
+            _FirmwareRecord(
+                model='proj', ro_main_firmware=[
+                    _FirmwareRecord.FirmwareInfo(version='Google_Proj.1111.1.1')
+                ], sku_id=[_FirmwareRecord.SkuId(sku_id='123')])
+        ])
+    req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
+        bundle_record=bundle_record)
+    resp = self.service.CreateHwidDbFirmwareInfoUpdateCl(req)
+    comps = action.GetComponents(['sku_id'])
+
+    self.assertEqual(len(comps['sku_id']['sku_123'].bundle_uuids), 2)
+    self.assertIn('PROJ', resp.commits)
+    self.assertEqual(resp.commits['PROJ'].cl_number, 123)
+    self.assertEqual(resp.commits['PROJ'].new_hwid_db_contents,
+                     action.GetDBEditableSection())
+
   def testCreateHwidDbFirmwareInfoUpdateCl_FlipStatusOnly(self):
     raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
@@ -1816,12 +1857,12 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_InternalError(self):
-    self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
+    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
-    action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    action.GetDBV3.return_value = mock.MagicMock(spec=database.WritableDatabase)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
