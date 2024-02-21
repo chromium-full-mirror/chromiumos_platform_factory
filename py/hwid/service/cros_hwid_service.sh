@@ -332,6 +332,7 @@ do_build() {
 }
 
 do_test() {
+  local test_files=("$@")
   # Compile proto to *_pb2.py for e2e test.  Note that we run this outside
   # chroot, so the protoc version and protobuf library in host should be
   # compatible with each other.
@@ -348,11 +349,19 @@ ingestion_pb2.py"
   add_temp "${PY_PKG_DIR}/cros/factory/probe_info_service/app_engine/\
 stubby_pb2.py"
 
-  # Runs all executables in the test folder.
-  for test_exec in $(find "${TEST_DIR}" -executable -type f); do
-    echo Running "${test_exec}"
-    "${FACTORY_DIR}/bin/factory_env" "${test_exec}"
-  done
+  if [[ "${#test_files[@]}" != 0 ]]; then
+    echo Running "${test_files[@]}"
+    test_files=("${test_files[@]#*py/hwid/service/appengine/}")
+    "${FACTORY_DIR}/bin/factory_env" "${TEST_DIR}/integration_test.py" \
+      "${test_files[@]}"
+  else
+    # Runs all executables in the test folder.
+    while IFS= read -r -d '' test_exec
+    do
+      echo Running "${test_exec}"
+      "${FACTORY_DIR}/bin/factory_env" "${test_exec}"
+    done < <(find "${TEST_DIR}" -executable -type f -print0)
+  fi
 }
 
 request() {
@@ -398,8 +407,10 @@ commands:
   $0 build
       Builds docker image for AppEngine integration test or local server.
 
-  $0 test
-      Runs all executables in the test directory.
+  $0 test [\${filename1}, \${filename2}, ...]
+      Runs all executables in the test directory. If a list filenames under
+      py/hwid/service/appengine are given, runs the integration tests in the
+      files.
 
 __EOF__
 }
@@ -422,7 +433,8 @@ main() {
       do_build "${@}"
       ;;
     test)
-      do_test
+      shift
+      do_test "${@}"
       ;;
     request)
       shift
