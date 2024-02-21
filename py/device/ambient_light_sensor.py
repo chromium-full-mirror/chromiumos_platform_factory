@@ -99,6 +99,35 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
       logging.exception('Failed to get illuminance value')
       raise AmbientLightSensorException(str(e)) from None
 
+  def GetData(self, capture_count: int = 1, sample_rate: float = 20.0,
+              average: bool = True):
+    """Returns (averaged) sensor data.
+
+    We cannot use iioservice_simpleclient because it often timeouts and the Tast
+    test sensor_iioservice.go also skips light sensors.
+    """
+    buffers: List[int] = []
+    delay = 1.0 / sample_rate
+    # Retry at most 2 * capture_count times to prevent infinite loop.
+    for unused_try_count in range(2 * capture_count):
+      try:
+        value = self.GetLuxValue()
+      except AmbientLightSensorException:
+        time.sleep(delay)
+        continue
+      buffers.append(value)
+      if len(buffers) >= capture_count:
+        break
+      time.sleep(delay)
+    else:
+      raise AmbientLightSensorException(
+          f'Failed to read channel "{self.input_entry}" from sysfs. '
+          f'Expect {capture_count} data, but {len(buffers)} captured.')
+    return {
+        self.signal_names[0]:
+            sum(buffers) // len(buffers) if average else buffers
+    }
+
   def ForceLightInit(self):
     """Froce als to apply the vpd value."""
     try:
