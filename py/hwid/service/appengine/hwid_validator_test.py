@@ -29,6 +29,8 @@ GOLDEN_HWIDV3_DATA_AFTER_GOOD = file_utils.ReadFile(
 SARIEN_MODEL_NAME = 'SARIEN'
 SARIEN_DATA_GOOD = file_utils.ReadFile(
     os.path.join(TESTDATA_PATH, 'sarien-example.yaml'))
+ARCADA_DATA_GOOD = file_utils.ReadFile(
+    os.path.join(TESTDATA_PATH, 'arcada-example.yaml'))
 GOLDEN_HWIDV3_DATA_AFTER_DRAM_BAD = file_utils.ReadFile(
     os.path.join(TESTDATA_PATH, 'v3-golden-after-dram-bad.yaml'))
 GOLDEN_HWIDV3_DATA_AFTER_VALID_NAME_PATTERN = file_utils.ReadFile(
@@ -93,6 +95,10 @@ class HwidValidatorTest(unittest.TestCase):
                            return_value=self.CreateBadVPGResult()):
       hwid_validator.HwidValidator().ValidateChange(
           GOLDEN_HWIDV3_DATA_AFTER_GOOD, GOLDEN_HWIDV3_DATA_BEFORE)
+
+  def testValidateSarien_withEncryption(self):
+    hwid_validator.HwidValidator().ValidateChange(ARCADA_DATA_GOOD,
+                                                  ARCADA_DATA_GOOD)
 
   def testValidateDramChange(self):
     with self.assertRaises(hwid_validator.ValidationError) as ex_ctx:

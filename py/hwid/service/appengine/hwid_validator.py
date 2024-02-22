@@ -15,6 +15,7 @@ from cros.factory.hwid.v3 import database
 
 ErrorCode = contents_analyzer.ErrorCode
 Error = contents_analyzer.Error
+_ENCRYPTION_TEST_KEY = 'TEST_KEY'
 
 
 class ValidationError(Exception):
@@ -92,7 +93,7 @@ class HwidValidator:
     vpg_target = config_data.CONFIG.vpg_targets.get(db.project)
     if vpg_target:
       errors = vpg_module.GenerateVerificationPayload(
-          [(db, vpg_target)]).error_msgs
+          [(db, vpg_target)], encryption_key=_ENCRYPTION_TEST_KEY).error_msgs
       if errors:
         raise ValidationError(
             [Error(ErrorCode.CONTENTS_ERROR, err) for err in errors])
