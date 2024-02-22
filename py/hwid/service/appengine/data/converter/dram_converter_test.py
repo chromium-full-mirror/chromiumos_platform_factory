@@ -47,6 +47,20 @@ class DramConverterCollectionTest(unittest.TestCase):
 
     self.assertEqual(result.alignment_status, _PVAlignmentStatus.NOT_ALIGNED)
 
+  def testSpaceAgnosticMatch(self):
+    comp_values = {
+        'part': 'part  number-with-spaces  ',
+        'size': '12345',
+        'slot': '3',
+    }
+    probe_info = converter_test_utils.ProbeInfoFromMapping({
+        'part': 'partnumber-with-    spaces',
+    })
+
+    result = self._converter_collection.Match(comp_values, probe_info)
+
+    self.assertEqual(result.alignment_status, _PVAlignmentStatus.ALIGNED)
+
 
 if __name__ == '__main__':
   unittest.main()
