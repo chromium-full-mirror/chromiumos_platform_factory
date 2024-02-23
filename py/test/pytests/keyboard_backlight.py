@@ -17,7 +17,7 @@ _SUBTESTS = (
 
 
 class KeyboardBacklightTest(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.KEYBOARD, )
   def setUp(self):
     for instruction, level in _SUBTESTS:
       self.AddTask(self.RunTask, instruction, level)

@@ -152,7 +152,7 @@ class KeyboardTest(test_case.TestCase):
     in order
   - strict_sequential_press: the test failed immediately if a key is skipped.
   """
-  related_components = tuple()
+  related_components = (test_case.TestCategory.KEYBOARD, )
 
   ARGS = [
       Arg(
