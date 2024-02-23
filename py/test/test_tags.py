@@ -56,6 +56,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   WWAN = enum.auto()
 
   # device feature test category
+  FAN = enum.auto()
   HARDWARE_BUTTON = enum.auto()
   KEYBOARD = enum.auto()
   LED = enum.auto()
@@ -124,6 +125,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
             CategoryProperties('avl', 'Wifi / Bluetooth', 'wireless'),
         TestCategory.WWAN:
             CategoryProperties('avl', 'WWAN', 'cellular'),
+        TestCategory.FAN:
+            CategoryProperties('device feature', None, None),
         TestCategory.HARDWARE_BUTTON:
             CategoryProperties('device feature', None, None),
         TestCategory.KEYBOARD:
