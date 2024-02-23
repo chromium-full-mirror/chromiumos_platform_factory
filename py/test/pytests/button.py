@@ -78,7 +78,7 @@ _DEFAULT_TIMEOUT = 30
 
 class ButtonTest(test_case.TestCase):
   """Button factory test."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.HARDWARE_BUTTON, )
 
   ARGS = [
       Arg('timeout_secs', int, 'Timeout value for the test.',

@@ -56,6 +56,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   WWAN = enum.auto()
 
   # device feature test category
+  HARDWARE_BUTTON = enum.auto()
   PSR = enum.auto()
 
   @property
@@ -121,6 +122,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
             CategoryProperties('avl', 'Wifi / Bluetooth', 'wireless'),
         TestCategory.WWAN:
             CategoryProperties('avl', 'WWAN', 'cellular'),
+        TestCategory.HARDWARE_BUTTON:
+            CategoryProperties('device feature', None, None),
         TestCategory.PSR:
             CategoryProperties('device feature', None, None),
     }.get(self, CategoryProperties(None, None, None))
