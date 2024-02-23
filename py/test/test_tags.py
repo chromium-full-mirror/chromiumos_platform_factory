@@ -58,6 +58,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   # device feature test category
   HARDWARE_BUTTON = enum.auto()
   KEYBOARD = enum.auto()
+  LED = enum.auto()
   PSR = enum.auto()
 
   @property
@@ -126,6 +127,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
         TestCategory.HARDWARE_BUTTON:
             CategoryProperties('device feature', None, None),
         TestCategory.KEYBOARD:
+            CategoryProperties('device feature', None, None),
+        TestCategory.LED:
             CategoryProperties('device feature', None, None),
         TestCategory.PSR:
             CategoryProperties('device feature', None, None),
