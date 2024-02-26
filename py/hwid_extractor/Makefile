@@ -29,12 +29,16 @@ UTILS_SOURCES := \
 	time_utils.py \
 	type_utils.py
 
+CSS_SOURCES := \
+	www/style.css
+
 JS_SOURCES := \
 	www/index.js \
 	www/extension.js
 
 HWID_EXTRACTOR_SOURCES := \
 	www/index.html \
+	$(CSS_SOURCES) \
 	$(JS_SOURCES) \
 	$(wildcard *.py)
 

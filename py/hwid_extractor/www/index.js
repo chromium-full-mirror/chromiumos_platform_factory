@@ -129,18 +129,18 @@ const fetchAPI = async (path, data = {}) => {
 /**
  * @param {boolean|undefined} value
  * @param {string} trueText
- * @param {string} trueColor
+ * @param {string} trueClass
  * @param {string} falseText
- * @param {string} falseColor
+ * @param {string} falseClass
  * @return {Node}
  */
-const getBooleanText = (value, trueText, trueColor, falseText, falseColor) => {
+const getBooleanText = (value, trueText, trueClass, falseText, falseClass) => {
   const ele = document.createElement('span');
   if (value === undefined) {
     ele.innerText = 'undefined';
   } else {
     ele.innerText = value ? trueText : falseText;
-    ele.style.color = value ? trueColor : falseColor;
+    ele.classList.add(value ? trueClass : falseClass);
   }
   return ele;
 };
@@ -148,11 +148,14 @@ const getBooleanText = (value, trueText, trueColor, falseText, falseColor) => {
 /**
  * @param {!Node} ele
  * @param {!Object<string,(string|!Node)>} data
+ * @param {boolean=} isError
  */
-const renderTable = (ele, data) => {
+const renderTable = (ele, data, isError = false) => {
   if (!data) return;
   const table = ele.appendChild(document.createElement('table'));
-  table.style = 'border: 1px solid black; margin: 5px';
+  if (isError) {
+    table.classList.add('error-table');
+  }
   for (let key in data) {
     const style = 'border: 1px solid black; padding: 5px';
     const tr = table.appendChild(document.createElement('tr'));
@@ -174,32 +177,51 @@ const renderTable = (ele, data) => {
  * @param {!Node} ele
  * @param {string} text
  * @param {!Function} onclick
+ * @param {string=} className
  */
-const renderButton = (ele, text, onclick) => {
+const renderButton = (ele, text, onclick, className = '') => {
   const btn = ele.appendChild(document.createElement('button'));
   if (state.isLoading) {
     text += ' (Loading...)';
   }
+  if (className) {
+    btn.classList.add(className);
+  }
   btn.innerText = text;
   btn.onclick = onclick;
   btn.disabled = state.isLoading || onclick === undefined;
-  btn.style = 'margin: 5px; padding: 5px';
 };
 
 /**
  * @param {!Node} ele
  * @param {string} text
- * @param {string=} type
+ * @param {string} type
  */
-const renderText = (ele, text, type = 'span') => {
+const renderText = (ele, text, type) => {
   const span = ele.appendChild(document.createElement(type));
   span.innerText = text;
-  if (type[0] == 'h') {
-    const hr = ele.appendChild(document.createElement('hr'));
-    hr.style = 'margin: -10px 0 20px 0;';
-  } else {
-    span.style = 'margin: 5px; padding: 5px;';
-  }
+};
+
+/**
+ * @param {!Node} ele
+ * @param {string} text
+ * @param {string} type
+ */
+const renderInfoText = (ele, text, type) => {
+  const span = ele.appendChild(document.createElement(type));
+  span.innerText = text;
+  span.classList.add('info');
+};
+
+/**
+ * @param {!Node} ele
+ * @param {string} text
+ * @param {string} type
+ */
+const renderErrorText = (ele, text, type) => {
+  const span = ele.appendChild(document.createElement(type));
+  span.innerText = text;
+  span.classList.add('error');
 };
 
 /**
@@ -276,7 +298,7 @@ const renderSelect = (ele, id, label, keys, values, onchange = (() => {})) => {
  */
 const renderCheckBox = (ele, id, label, onchange = (() => {})) => {
   const div = ele.appendChild(document.createElement('div'));
-  div.style = 'margin: 5px; padding: 5px;';
+  div.classList.add('checkbox-group');
   const input = div.appendChild(document.createElement('input'));
   input.id = id;
   const labelTag = div.appendChild(document.createElement('label'));
@@ -321,7 +343,7 @@ const handleScan = async (isTriggeredByUser) => {
  * @param {!Node} ele
  */
 const renderScan = (ele) => {
-  renderText(ele, 'Scan the device', 'h4');
+  renderText(ele, 'Scan the device', 'h3');
   renderButton(ele, 'Scan', () => {
     handleScan(true);
   });
@@ -338,12 +360,12 @@ const renderScan = (ele) => {
     'RLZ Code': rlz,
     'Reference Board': getBooleanText(
         state.supportedBoards.indexOf(referenceBoard) != -1,
-        `${referenceBoard} (Supported)`, 'green',
-        `${referenceBoard} (Not Supported)`, 'red'),
+        `${referenceBoard} (Supported)`, 'success',
+        `${referenceBoard} (Not Supported)`, 'error'),
     'CCD State':
-        getBooleanText(isRestricted, 'Locked', 'red', 'Opened', 'green'),
-    'Testlab State':
-        getBooleanText(isTestlabEnabled, 'Enabled', 'green', 'Disabled', 'red'),
+        getBooleanText(isRestricted, 'Locked', 'error', 'Opened', 'success'),
+    'Testlab State': getBooleanText(
+        isTestlabEnabled, 'Enabled', 'success', 'Disabled', 'error'),
   });
 };
 
@@ -368,7 +390,7 @@ const handleUnlock = async () => {
  * @param {!Node} ele
  */
 const renderUnlock = (ele) => {
-  renderText(ele, 'Unlock the device', 'h4');
+  renderText(ele, 'Unlock the device', 'h3');
   renderLink(
       ele, 'Get RSU Authcode',
       `${challengeURL}?challenge=${state.scanData.challenge}`, 'challenge');
@@ -425,7 +447,7 @@ const handleExtractDataCopied = () => {
  * @param {!Node} ele
  */
 const renderExtract = (ele) => {
-  renderText(ele, 'Extract HWID and Serial No.', 'h4');
+  renderText(ele, 'Extract HWID and Serial No.', 'h3');
   renderButton(ele, 'Extract', handleExtract);
   renderTable(ele, state.extractData);
   if (state.extractData) {
@@ -457,7 +479,7 @@ const handleLock = async () => {
  * @param {!Node} ele
  */
 const renderLock = (ele) => {
-  renderText(ele, 'Lock the device', 'h4');
+  renderText(ele, 'Lock the device', 'h3');
   renderButton(ele, 'Lock', handleLock);
 };
 
@@ -530,7 +552,8 @@ const renderUpdateConfig = (ele) => {
   renderSelect(
       ele, 'config_board', 'Board to be extracted', keys, values,
       handleUpdateConfig);
-  renderText(ele, 'Warning: Choose wrong board may damage the hardware!', 'b');
+  renderErrorText(ele, 'Warning: Choose wrong board may damage the hardware!',
+      'strong');
   renderInput(ele, 'config_hartURL', 'Hart URL', handleUpdateConfig);
 };
 
@@ -574,7 +597,6 @@ const renderUpdateRLZ = (ele) => {
   renderLink(ele, 'all_devices.json', allDevicesJsonUrl, 'all_devices.json');
   const input = ele.appendChild(document.createElement('input'));
   input.type = 'file';
-  input.style = 'margin: 5px; padding: 5px;';
   input.onchange = handleUpdateRLZ;
   input.disabled = state.isLoading;
 };
@@ -586,30 +608,44 @@ const render = (ele) => {
   while (ele.firstChild) {
     ele.removeChild(ele.lastChild);
   }
-  renderText(ele, 'HWID Extractor', 'h2');
+  /* Header */
+  const headerDOM = ele.appendChild(document.createElement('div'));
+  headerDOM.id = 'header';
+  renderText(headerDOM, 'HWID Extractor', 'h2');
+  /* Main */
+  const mainDOM = ele.appendChild(document.createElement('div'));
+  mainDOM.id = 'main';
   if (state.message) {
-    renderText(ele, state.message, 'p');
+    renderInfoText(mainDOM, state.message, 'p');
   }
   if (state.errorData) {
-    renderTable(ele, state.errorData);
+    renderTable(mainDOM, state.errorData, true);
   }
-  renderScan(ele);
+  const boxDOM = mainDOM.appendChild(document.createElement('div'));
+  boxDOM.id = 'box';
+  /* Left Side */
+  const leftSideDOM = boxDOM.appendChild(document.createElement('div'));
+  leftSideDOM.id = 'left-side';
+  renderScan(leftSideDOM);
   if (state.scanData) {
     if (state.scanData.isRestricted) {
-      renderUnlock(ele);
+      renderUnlock(leftSideDOM);
     } else {
-      renderExtract(ele);
+      renderExtract(leftSideDOM);
       if (state.scanData.isTestlabEnabled) {
-        renderTestlab(ele, 'disable');
+        renderTestlab(leftSideDOM, 'disable');
       } else {
-        renderLock(ele);
-        renderTestlab(ele, 'enable');
+        renderLock(leftSideDOM);
+        renderTestlab(leftSideDOM, 'enable');
       }
     }
   }
-  renderText(ele, 'Configuration', 'h3');
-  renderUpdateConfig(ele);
-  renderUpdateRLZ(ele);
+  /* Right Side */
+  const rightSideDOM = boxDOM.appendChild(document.createElement('div'));
+  rightSideDOM.id = 'right-side';
+  renderText(rightSideDOM, 'Configuration', 'h3');
+  renderUpdateConfig(rightSideDOM);
+  renderUpdateRLZ(rightSideDOM);
 };
 
 /**
