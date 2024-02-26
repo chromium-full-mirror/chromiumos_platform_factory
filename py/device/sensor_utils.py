@@ -93,6 +93,29 @@ class BasicSensorController(device_types.DeviceComponent):
     """The unit transformation weight between system and raw values."""
     return 1.0
 
+  def CreateAttrFiltersGenerator(self, name):
+    """Create a generator which generates all possible filters."""
+    # TODO(jimmysun) Remove searching location after all boards are using
+    # kernel 6.1+.
+    for kernel in ('pre_6_1', '6_1+'):
+      if kernel == 'pre_6_1':
+        base_attr_filters = {
+            'name': name,
+            'location': self.location,
+        }
+      else:
+        base_attr_filters = {
+            'name': name,
+            'label': LABEL_FROM_LOCATION.get(self.location),
+        }
+      for suffix in ('_raw', '_input'):
+        attr_filters = base_attr_filters.copy()
+        attr_filters.update({
+            f'{signal_name}{suffix}': None
+            for signal_name in self.signal_names
+        })
+        yield attr_filters
+
   def __init__(self, dut, name, location, signal_names, scale=False):
     """Constructor.
 
@@ -106,16 +129,18 @@ class BasicSensorController(device_types.DeviceComponent):
     super().__init__(dut)
     self.signal_names = signal_names
     self.location = location
-    try:
-      # TODO(jimmysun) Remove searching location after all boards are using
-      # kernel 6.1+.
-      self._iio_path = FindDevice(self._device, IIO_DEVICES_PATTERN, name=name,
-                                  location=location)
-    except device_types.DeviceException:
-      if location not in LABEL_FROM_LOCATION:
-        raise
-      self._iio_path = FindDevice(self._device, IIO_DEVICES_PATTERN, name=name,
-                                  label=LABEL_FROM_LOCATION[location])
+    errors = []
+    for attr_filters in self.CreateAttrFiltersGenerator(name):
+      try:
+        self._iio_path = FindDevice(self._device, IIO_DEVICES_PATTERN,
+                                    **attr_filters)
+      except device_types.DeviceException as err:
+        errors.append(err)
+      else:
+        break
+    else:
+      raise device_types.DeviceException('\n'.join(map(str, errors)))
+
     self.scale = 1.0 if not scale else float(self._GetSysfsValue('scale'))
 
   def CleanUpCalibrationValues(self):
