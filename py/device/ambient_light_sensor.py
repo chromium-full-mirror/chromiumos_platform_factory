@@ -5,12 +5,11 @@
 
 import logging
 import os
+import time
+from typing import List
 
 from cros.factory.device import device_types
 from cros.factory.device import sensor_utils
-
-IN_ILLUMINANCE_BIAS = "in_illuminance_calibbias"
-IN_ILLUMINANCE_SCALE = "in_illuminance_calibscale"
 
 
 class AmbientLightSensorException(Exception):
@@ -22,21 +21,43 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
   def __init__(self, dut, name, location):
     """Constructor.
 
+    According to
+    go/cros-ec-sensor-sysfs-docs-legacy#heading=h.xcok6d92lq03 or
+    https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-iio
+    the unit of _raw data is lux.
+
+    We can get raw data from one of below sysfs:
+    -  /sys/bus/iio/devices/iio:deviceX/in_illuminance_input
+    -  /sys/bus/iio/devices/iio:deviceX/in_illuminance_raw
+    -  /sys/bus/iio/devices/iio:deviceX/in_illuminance0_input
+    -  /sys/bus/iio/devices/iio:deviceX/in_illuminance0_raw
+
     Args:
       dut: The DUT instance.
       name: The name attribute of sensor.
       location: The location attribute of sensor.
     """
-    super().__init__(dut, name, location,
-                     [IN_ILLUMINANCE_BIAS, IN_ILLUMINANCE_SCALE])
-    self.calib_signal_names = [IN_ILLUMINANCE_BIAS, IN_ILLUMINANCE_SCALE]
-    self.location = location
-    for input_entry in ['in_illuminance_input', 'in_illuminance_raw']:
+    possible_signal_names = ('in_illuminance', 'in_illuminance0')
+    errors = []
+    for signal_name in possible_signal_names:
+      try:
+        super().__init__(dut, name, location, signal_names=[signal_name])
+      except Exception as err:
+        errors.append(err)
+      else:
+        break
+    else:
+      errors_str = '\n'.join(map(str, errors))
+      raise AmbientLightSensorException(
+          f'Does not find any valid signal_name in {possible_signal_names!r}. '
+          f'errors: {errors_str}')
+
+    for input_entry_suffix in ('_input', '_raw'):
+      input_entry = f'{signal_name}{input_entry_suffix}'
       if self._device.Glob(self._device.path.join(self._iio_path, input_entry)):
         self.input_entry = input_entry
-        self.signal_names.append(self.input_entry)
         break
-    if not self.input_entry:
+    else:
       raise AmbientLightSensorException('Does not find any input entry.')
 
   def _SetSysfsValue(self, filename, value, check_call=True, path=None):
@@ -57,36 +78,16 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
 
   def CleanUpCalibrationValues(self):
     """Cleans up calibration values."""
-    self._SetSysfsValue(IN_ILLUMINANCE_BIAS, '0.0')
-    self._SetSysfsValue(IN_ILLUMINANCE_SCALE, '1.0')
+    for signal_name in self.signal_names:
+      self.SetCalibrationValue(signal_name, 0.0, 1.0)
 
-  def GetCalibrationValues(self):
-    """Reads the calibration values from sysfs."""
-    vals = {}
-    for signal_name in self.calib_signal_names:
-      vals[signal_name] = float(self._GetSysfsValue(signal_name))
-    return vals
-
-  def SetCalibrationValue(self, signal_name, value):
+  def SetCalibrationValue(self, signal_name, bias, scale):
     """Sets the calibration values to sysfs."""
-    if signal_name not in self.calib_signal_names:
+    if signal_name not in self.signal_names:
       raise KeyError(signal_name)
     try:
-      self._SetSysfsValue(signal_name, value)
-    except Exception as e:
-      raise AmbientLightSensorException(str(e)) from None
-
-  def SetCalibrationIntercept(self, value):
-    """Sets the calibration bias to sysfs."""
-    try:
-      self._SetSysfsValue(IN_ILLUMINANCE_BIAS, str(value))
-    except Exception as e:
-      raise AmbientLightSensorException(str(e)) from None
-
-  def SetCalibrationSlope(self, value):
-    """Sets the calibration scale to sysfs."""
-    try:
-      self._SetSysfsValue(IN_ILLUMINANCE_SCALE, str(value))
+      self._SetSysfsValue(f'{signal_name}_calibbias', str(bias))
+      self._SetSysfsValue(f'{signal_name}_calibscale', str(scale))
     except Exception as e:
       raise AmbientLightSensorException(str(e)) from None
 
@@ -113,7 +114,7 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
 class AmbientLightSensor(device_types.DeviceComponent):
   """AmbientLightSensor (ALS) component module."""
 
-  def GetController(self, name='cros-ec-light', location='lid'):
+  def GetController(self, name='cros-ec-light', location=None):
     """Gets a controller with specified arguments.
 
     See AmbientLightSensorController for more information.

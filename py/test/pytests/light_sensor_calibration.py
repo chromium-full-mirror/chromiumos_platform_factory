@@ -579,8 +579,8 @@ class ALSFixture(test_case.TestCase):
       self.als_controller.ForceLightInit()
     else:
       # The light-init script doesn't act as expected, this is a workaround.
-      self.als_controller.SetCalibrationIntercept(self.bias)
-      self.als_controller.SetCalibrationSlope(self.scale_factor)
+      self.als_controller.SetCalibrationValue(
+          self.als_controller.signal_names[0], self.bias, self.scale_factor)
 
   def tearDown(self):
     self.monitor.Stop()

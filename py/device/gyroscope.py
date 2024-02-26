@@ -23,7 +23,8 @@ class GyroscopeController(sensor_utils.BasicSensorController):
   """Utility class for gyroscope.
 
   According to
-  https://docs.google.com/document/d/1-ZLlS8oJNkFUA0wCNsPukJOZjwVIWOvs9404ihdEm6M/edit#heading=h.2bak5m7fwmoz
+  go/cros-ec-sensor-sysfs-docs-legacy#heading=h.2bak5m7fwmoz or
+  https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-iio
   the unit of (_raw data * scale) is rad/s and the unit of _calibbias is dps.
 
   Attributes:
