@@ -22,6 +22,14 @@ from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
 
 
+def _BuildGitTreeByFiles(files) -> Tuple[git_util.MemoryRepo, dw_objects.Tree]:
+  repo = git_util.MemoryRepo('')
+  tree = dw_objects.Tree()
+  tree = repo.add_files(files, tree)
+  tree.check()
+  return repo, tree
+
+
 class MemoryRepoTest(unittest.TestCase):
 
   def testAddFiles(self):
@@ -57,9 +65,9 @@ class MemoryRepoTest(unittest.TestCase):
     ]
     repo = git_util.MemoryRepo('')
     tree = dw_objects.Tree()
-    with self.assertRaises(git_util.GitUtilException) as ex:
-      repo.add_files(new_files, tree)
-    self.assertEqual(str(ex.exception), "Invalid filepath 'a/b/c/d'.")
+    self.assertRaisesRegex(git_util.GitUtilException,
+                           r"Invalid filepath 'a/b/c/d'\.", repo.add_files,
+                           new_files, tree)
 
   def testInvalidFileStructure2(self):
     new_files = [
@@ -68,9 +76,9 @@ class MemoryRepoTest(unittest.TestCase):
     ]
     repo = git_util.MemoryRepo('')
     tree = dw_objects.Tree()
-    with self.assertRaises(git_util.GitUtilException) as ex:
-      repo.add_files(new_files, tree)
-    self.assertEqual(str(ex.exception), "Invalid filepath 'a/b/c'.")
+    self.assertRaisesRegex(git_util.GitUtilException,
+                           r"Invalid filepath 'a/b/c'\.", repo.add_files,
+                           new_files, tree)
 
   def testNoModification(self):
     file_name = 'README.md'
@@ -93,20 +101,74 @@ class MemoryRepoTest(unittest.TestCase):
         ('///a/b////d', 0o100644, b'content of a/b/d'),
         ('a/b/e/./././f', 0o100644, b'content of a/b/e/f'),
     ]
-    repo = git_util.MemoryRepo('')
-    tree = dw_objects.Tree()
-    try:
-      tree = repo.add_files(new_files, tree)
-      tree.check()
-    except Exception as ex:
-      self.fail(f"testListFiles raise Exception unexpectedly: {ex!r}")
+    repo, tree = _BuildGitTreeByFiles(new_files)
     repo.do_commit(b'Test_commit', tree=tree.id)
 
-    self.assertEqual(
-        sorted(repo.list_files('a/b')),
+    self.assertCountEqual(
+        repo.list_files('a/b'),
         [('c', git_util.NORMAL_FILE_MODE, b'content of a/b/c'),
          ('d', git_util.NORMAL_FILE_MODE, b'content of a/b/d'),
          ('e', git_util.DIR_MODE, None)])
+
+  def testDeleteFiles(self):
+    new_files = [('a/b/c', 0o100644, b'content of a/b/c'),
+                 ('///a/b////d', 0o100644, b'content of a/b/d'),
+                 ('a/b/e/./././f', 0o100644, b'content of a/b/e/f'),
+                 ('a/x/y', 0o100644, b'content of a/x/y'),
+                 ('a/z', 0o100644, b'content of a/z')]
+    repo, tree = _BuildGitTreeByFiles(new_files)
+    repo.do_commit(b'Test_commit', tree=tree.id)
+
+    try:
+      tree = repo.delete_files(['a/b/c', 'a/x/y'])
+      tree.check()
+    except Exception as ex:
+      self.fail(f'testDeleteFiles raise Exception unexpectedly: {ex!r}')
+    repo.do_commit(b'Test_commit_2', tree=tree.id)
+
+    self.assertCountEqual(
+        repo.list_files('a'),
+        [('b', git_util.DIR_MODE, None),
+         ('z', git_util.NORMAL_FILE_MODE, b'content of a/z')])
+    self.assertCountEqual(
+        repo.list_files('a/b'),
+        [('d', git_util.NORMAL_FILE_MODE, b'content of a/b/d'),
+         ('e', git_util.DIR_MODE, None)])
+    self.assertCountEqual(
+        repo.list_files('a/b/e'),
+        [('f', git_util.NORMAL_FILE_MODE, b'content of a/b/e/f')])
+
+    with self.assertRaisesRegex(git_util.GitUtilException,
+                                r"Path 'a/x' not found\."):
+      list(repo.list_files('a/x'))
+
+  def testDeleteFiles_PathIsNotFile_ShouldRaiseException(self):
+    new_files = [('a/b/c', 0o100644, b'content of a/b/c'),
+                 ('///a/b////d', 0o100644, b'content of a/b/d'),
+                 ('a/b/e/./././f', 0o100644, b'content of a/b/e/f'),
+                 ('a/x/y', 0o100644, b'content of a/x/y'),
+                 ('a/z', 0o100644, b'content of a/z')]
+    repo, tree = _BuildGitTreeByFiles(new_files)
+    repo.do_commit(b'Test_commit', tree=tree.id)
+
+    # a/b is a directory.
+    self.assertRaisesRegex(git_util.GitUtilException,
+                           r"Invalid filepath 'a/b'\.", repo.delete_files,
+                           ['a/b'])
+
+  def testDeleteFiles_PathNotExist_ShouldRaiseException(self):
+    new_files = [('a/b/c', 0o100644, b'content of a/b/c'),
+                 ('///a/b////d', 0o100644, b'content of a/b/d'),
+                 ('a/b/e/./././f', 0o100644, b'content of a/b/e/f'),
+                 ('a/x/y', 0o100644, b'content of a/x/y'),
+                 ('a/z', 0o100644, b'content of a/z')]
+    repo, tree = _BuildGitTreeByFiles(new_files)
+    repo.do_commit(b'Test_commit', tree=tree.id)
+
+    # a/b/c/d does not exist.
+    self.assertRaisesRegex(git_util.GitUtilException,
+                           r"Invalid filepath 'a/b/c/d'\.", repo.delete_files,
+                           ['a/b/c/d'])
 
 
 class GetChangeIdTest(unittest.TestCase):

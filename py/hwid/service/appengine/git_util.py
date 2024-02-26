@@ -358,7 +358,7 @@ class MemoryRepo(dw_repo.MemoryRepo):
     else:
       # reach the directory of the target file
       if file_name in cur:
-        unused_mod, sha = cur[file_name]
+        unused_mode, sha = cur[file_name]
         existed_obj = self[sha]
         if not isinstance(existed_obj, dw_objects.Blob):
           # if file_name exists but not a Blob(file)
@@ -390,6 +390,84 @@ class MemoryRepo(dw_repo.MemoryRepo):
       try:
         self.recursively_add_file(tree, paths, _B(filename), mode,
                                   dw_objects.Blob.from_string(_B(content)))
+      except GitUtilException as ex:
+        raise GitUtilException(f'Invalid filepath {file_path!r}.') from ex
+
+    return tree
+
+  def recursively_delete_file(self, cur: dw_objects.Tree,
+                              path_splits: Sequence[str], path_idx: int):
+    """Deletes file and update the modified trees in object store.
+
+    Since we need to collect all tree objects with modified children, a
+    recursively approach is applied
+
+    Args:
+      cur: Current tree obj
+      path_splits: Directories from the starting tree to the target file. The
+          last element is the file name.
+      path_idx: The index of `path_splits` indicates the next directory name to
+          traverse, or the file name to be deleted if it's the last index.
+    """
+    if path_idx < len(path_splits) - 1:
+      child_name = path_splits[path_idx]
+      if child_name in cur:
+        unused_mode, sha = cur[child_name]
+        sub = self[sha]
+        if not isinstance(sub, dw_objects.Tree):
+          # if child_name exists but not a dir
+          path_name = '/'.join(
+              path.decode() for path in path_splits[:path_idx + 1])
+          raise GitUtilException(f'{path_name} is not a directory.')
+      else:
+        raise GitUtilException
+
+      self.recursively_delete_file(sub, path_splits, path_idx + 1)
+      if not sub:
+        # sub is an empty directory after the deletion.
+        del cur[child_name]
+      else:
+        cur.add(child_name, DIR_MODE, sub.id)
+    else:
+      # reach the directory of the target file
+      file_name = path_splits[path_idx]
+      if file_name not in cur:
+        # file_name does not exist
+        path_name = '/'.join(path.decode() for path in path_splits)
+        raise GitUtilException(f'{path_name} does not exist.')
+
+      unused_mode, sha = cur[file_name]
+      existed_obj = self[sha]
+      if not isinstance(existed_obj, dw_objects.Blob):
+        # file_name exists but not a Blob(file)
+        path_name = '/'.join(path.decode() for path in path_splits)
+        raise GitUtilException(f'{path_name} is not a file.')
+      del cur[file_name]
+
+    self.object_store.add_object(cur)
+
+  def delete_files(self, file_paths: Sequence[str],
+                   tree: Optional[dw_objects.Tree] = None) -> dw_objects.Tree:
+    """Deletes files from repository.
+
+    Args:
+      file_paths: paths of files to be deleted
+      tree: Optional tree obj
+    Returns:
+      updated tree
+    """
+    if tree is None:
+      head_commit = self[HEAD]
+      tree = self[head_commit.tree]
+    for file_path in file_paths:
+      # os.path.normpath('') returns '.' which is unexpected
+      paths = [
+          _B(x)
+          for x in os.path.normpath(file_path).split(os.sep)
+          if x and x != '.'
+      ]
+      try:
+        self.recursively_delete_file(tree, paths, 0)
       except GitUtilException as ex:
         raise GitUtilException(f'Invalid filepath {file_path!r}.') from ex
 
