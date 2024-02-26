@@ -1424,37 +1424,6 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
-  def CreateSplittedHwidDbCls(self, request):
-    #TODO(b/323484005): Deprecate this API when clients migrate calls.
-    (
-        split_result,
-        auto_mergeable_change_cl_number,
-        review_required_change_cl_number,
-        final_cl_number,
-        final_hwid_db_content,
-    ) = self._CreateOrPatchSplittedCL(
-        request.session_token,
-        request.approval_status,
-        request.original_requester,
-        request.description,
-        request.bug_number,
-    )
-    resp = hwid_api_messages_pb2.CreateSplittedHwidDbClsResponse(
-        auto_mergeable_change_cl_created=auto_mergeable_change_cl_number != 0,
-        auto_mergeable_change_cl_number=auto_mergeable_change_cl_number,
-        auto_mergeable_change_unit_identities=(
-            split_result.auto_mergeable_change_unit_identities),
-        review_required_change_cl_created=review_required_change_cl_number != 0,
-        review_required_change_cl_number=review_required_change_cl_number,
-        review_required_change_unit_identities=(
-            split_result.review_required_change_unit_identities))
-    if final_cl_number:
-      resp.final_hwid_db_commit.cl_number = final_cl_number
-      resp.final_hwid_db_commit.new_hwid_db_contents = final_hwid_db_content
-    return resp
-
-  @protorpc_utils.ProtoRPCServiceMethod
-  @auth.RpcCheck
   def CreateOrRefreshSplittedHwidDbCls(self, request):
     cl_change_id_suggestions = [None, None]
     if request.cl_number:
