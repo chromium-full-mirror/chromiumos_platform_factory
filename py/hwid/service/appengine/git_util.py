@@ -548,6 +548,7 @@ def CreateOrPatchCL(
     auto_submit: bool = False,
     rubber_stamper: bool = False,
     hashtags: Optional[Sequence[str]] = None,
+    files_to_delete: Optional[Sequence[str]] = None,
 ):
   """Creates or patches a CL from adding files in specified location.
 
@@ -572,6 +573,7 @@ def CreateOrPatchCL(
     auto_submit: True if Auto-Submit vote is set.
     rubber_stamper: True if Rubber Stamper is set as a reviewer.
     hashtags: A list of string of hashtags set for CL.
+    files_to_delete: A list of filepath of files to be deleted.
   Returns:
     A tuple of (change id, cl number).
     cl number will be None if fail to parse git-push output.
@@ -587,6 +589,9 @@ def CreateOrPatchCL(
   head_commit = repo[HEAD]
   original_tree_id = head_commit.tree
   updated_tree = repo.add_files(new_files)
+  if files_to_delete:
+    updated_tree = repo.delete_files(files_to_delete, updated_tree)
+
   if updated_tree.id == original_tree_id:
     raise GitUtilNoModificationException
 

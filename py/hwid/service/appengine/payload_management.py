@@ -9,6 +9,7 @@ import hashlib
 import logging
 import os
 import os.path
+import re
 import textwrap
 from typing import Collection, Mapping, NamedTuple, Optional, Sequence, Tuple, Union
 
@@ -126,6 +127,24 @@ class PayloadManager(abc.ABC):
     """
 
   @abc.abstractmethod
+  def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
+                       repo: git_util.MemoryRepo,
+                       payloads: _Payload) -> Sequence[str]:
+    """Returns name of files that need to be deleted.
+
+    Compare the generated payloads with the existing payload files in the
+    repository, and returns the nonexistent payloads files to be deleted.
+
+    Args:
+      setting: The repository settings.
+      repo: The repository.
+      payloads: The generated payloads.
+
+    Returns:
+      A list of file names indicating files to be deleted.
+    """
+
+  @abc.abstractmethod
   def _GetCLSetting(self, board: str) -> config_data_module.CLSetting:
     """Returns repository settings."""
 
@@ -214,11 +233,16 @@ class PayloadManager(abc.ABC):
         commit_msg = self._GetCLMessage(board, models, payloads,
                                         hwid_live_commit, hwid_prev_commit)
         try:
+          repo = git_util.MemoryRepo(auth_cookie=self._auth_cookie)
+          # only fetches last commit
+          repo.shallow_clone(git_url, branch=branch)
+          files_to_delete = self._GetDeletedFiles(setting, repo, payloads)
           change_id, unused_cl_number = self._CreateCL(
               dryrun, git_url, self._auth_cookie, branch, git_files, author,
               author, commit_msg, reviewers, ccs, topic=setting.topic,
-              bot_commit=self_approval, commit_queue=self_approval,
-              auto_submit=True, hashtags=setting.hashtags)
+              bot_commit=self_approval, commit_queue=self_approval, repo=repo,
+              auto_submit=True, hashtags=setting.hashtags,
+              files_to_delete=files_to_delete)
           self._PostUpdate(board, models, change_id, payloads)
           result[board] = UpdatedResult(payloads.hash_value, change_id)
         except git_util.GitUtilNoModificationException:
@@ -261,6 +285,7 @@ class PayloadManager(abc.ABC):
       auto_submit: bool = False,
       rubber_stamper: bool = False,
       hashtags: Optional[Sequence[str]] = None,
+      files_to_delete: Optional[Sequence[str]] = None,
   ) -> Tuple[Optional[str], Optional[int]]:
     """Creates a CL with given options.
 
@@ -278,7 +303,12 @@ class PayloadManager(abc.ABC):
     """
     if dryrun:
       # file_info = (file_path, mode, content)
-      file_paths = '\n'.join('  ' + file_info[0] for file_info in new_files)
+      updated_file_paths = '\n'.join(
+          '  ' + file_info[0] for file_info in new_files)
+      deleted_file_paths = ''
+      if files_to_delete:
+        deleted_file_paths = '\n'.join('  ' + path for path in files_to_delete)
+
       debug_info = textwrap.dedent(f"""\
           Dryrun create
           git_url: {git_url}
@@ -290,7 +320,8 @@ class PayloadManager(abc.ABC):
           commit_queue: {commit_queue}
           auto_submit: {auto_submit}
           commit msg: \n{textwrap.indent(commit_msg, '          ')}
-          update file paths: \n{textwrap.indent(file_paths, '          ')}
+          update file paths: \n{textwrap.indent(updated_file_paths, '          ')}
+          delete file paths: \n{textwrap.indent(deleted_file_paths, '          ')}
       """)
       self._logger.debug(debug_info)
       return None, None
@@ -299,7 +330,7 @@ class PayloadManager(abc.ABC):
         reviewers=reviewers, cc=cc, bot_commit=bot_commit,
         commit_queue=commit_queue, repo=repo, topic=topic, verified=verified,
         auto_submit=auto_submit, rubber_stamper=rubber_stamper,
-        hashtags=hashtags)
+        hashtags=hashtags, files_to_delete=files_to_delete)
 
   def _AbandonCL(self, dryrun: bool, review_host: str, auth_cookie, change_id,
                  reason: Optional[str] = None):
@@ -374,6 +405,13 @@ class HWIDSelectionPayloadManager(PayloadManager):
             payload_builder.BuildDeviceSelectionSample(),
     }
     return _Payload(payloads, _JSONHash(payloads), {'models': generated_models})
+
+  def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
+                       repo: git_util.MemoryRepo,
+                       payloads: _Payload) -> Sequence[str]:
+    """See base class."""
+    # There are no files to be deleted for this manager.
+    return []
 
   def _GetCLSetting(self, board: str) -> config_data_module.CLSetting:
     """See base class."""
@@ -464,6 +502,46 @@ class VerificationPayloadManager(PayloadManager):
     result = vpg_module.GenerateVerificationPayload(db_list, key)
     return _Payload(result.generated_file_contents, result.payload_hash,
                     {'primary_identifier': result.primary_identifiers})
+
+  def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
+                       repo: git_util.MemoryRepo,
+                       payloads: _Payload) -> Sequence[str]:
+    """See base class."""
+    vps = set()
+    encrypted_vps = set()
+
+    vp_pattern = re.compile(r'runtime_probe/(?P<model>\w+)/'
+                            r'(?P<config_name>probe_config\.json(\.enc)?$)')
+    for filepath in payloads.contents:
+      search_res = vp_pattern.search(filepath)
+      if search_res is None:
+        continue
+
+      if search_res['config_name'].endswith('.enc'):
+        encrypted_vps.add(search_res['model'])
+      else:
+        vps.add(search_res['model'])
+
+    # Search the repository for existing probe config files.
+    delete_files = []
+    for model, mode, unused_data in repo.list_files(
+        f'{setting.prefix}runtime_probe'):
+      if mode != git_util.DIR_MODE:
+        continue
+
+      for file_name, file_mode, unused_data in repo.list_files(
+          f'{setting.prefix}runtime_probe/{model}'):
+        if file_mode != git_util.NORMAL_FILE_MODE:
+          continue
+
+        if ((file_name == 'probe_config.json' and model not in vps) or
+            (file_name == 'probe_config.json.enc' and
+             model not in encrypted_vps)):
+          # The existing file is not generated anymore. Delete it.
+          delete_files.append(
+              f'{setting.prefix}runtime_probe/{model}/{file_name}')
+
+    return delete_files
 
   def _GetCLSetting(self, board: str) -> config_data_module.CLSetting:
     """See base class."""

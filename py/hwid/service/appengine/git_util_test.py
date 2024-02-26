@@ -845,9 +845,11 @@ class CreateOrPatchCLTest(unittest.TestCase):
     ccs = ['cc@email.com']
     commit_msg = 'commit msg'
     new_files = [(file_name, 0o100644, b'')]
+
     git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
                              committer, commit_msg, reviewers=reviewers, cc=ccs,
                              bot_commit=True, commit_queue=True, verified=1)
+
     mock_porcelain.push.assert_called_once_with(
         mock.ANY, url,
         (f'HEAD:refs/for/refs/heads/{branch}%'
@@ -871,13 +873,48 @@ class CreateOrPatchCLTest(unittest.TestCase):
     repo = git_util.MemoryRepo(auth_cookie='')
     repo.shallow_clone(url, branch=branch)
     new_files = [(file_name, 0o100644, b'')]
+
     git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
                              committer, commit_msg, change_id=change_id,
                              reviewers=reviewers, cc=ccs, bot_commit=True,
                              commit_queue=True, repo=repo, verified=1)
+
     self.assertEqual(b'commit msg\n\nChange-Id: Ithe_change_id',
                      repo[repo.head()].message)
 
+  @mock.patch('cros.factory.hwid.service.appengine.git_util.porcelain')
+  def testCreateOrPatchCL_DeleteFile(self, mock_porcelain):
+    delete_file_name = 'README.md'
+    new_file_name = 'new_file'
+    url = 'https://chromium.googlesource.com/chromiumos/platform/factory'
+    auth_cookie = ''
+    branch = 'stabilize-rust-13562.B'
+    author = 'Author <author@email.com>'
+    committer = 'Committer <committer@email.com>'
+    reviewers = ['reviewer@email.com']
+    ccs = ['cc@email.com']
+    commit_msg = 'commit msg'
+    new_files = [(new_file_name, 0o100644, b'')]
+    files_to_delete = [delete_file_name]
+
+    git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
+                             committer, commit_msg, reviewers=reviewers, cc=ccs,
+                             bot_commit=True, commit_queue=True, verified=1,
+                             files_to_delete=files_to_delete)
+
+    mock_porcelain.push.assert_called_once_with(
+        mock.ANY, url,
+        (f'HEAD:refs/for/refs/heads/{branch}%'
+         'r=reviewer@email.com,cc=cc@email.com,l=Bot-Commit+1,l=Commit-Queue+2,'
+         'l=Verified+1,l=Auto-Submit+0').encode('UTF-8'), errstream=mock.ANY,
+        pool_manager=mock.ANY)
+
+    args, unused_kwargs = mock_porcelain.push.call_args
+    repo = args[0]
+    file_names = set(
+        name for name, unused_mode, unused_content in repo.list_files('/'))
+    self.assertIn(new_file_name, file_names)
+    self.assertNotIn(delete_file_name, file_names)
 
 class GitFilesystemAdapterTest(unittest.TestCase):
 
