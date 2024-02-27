@@ -35,13 +35,15 @@ let ActionResult;
 /**
  * @typedef {{
  *  extractAfterUnlocked: boolean,
- *  lockAfterExtracted: boolean,
+ *  uploadAfterExtracted: boolean,
+ *  lockAfterUploaded: boolean,
  *  hartURL: string,
  * }}
  */
 let Config;
 /**
  * @typedef {{
+ *  projects: (!Object|undefined),
  *  supportedBoards: (!Array<string>|undefined),
  *  scanData: (!ScanData|undefined),
  *  extractData: (!ExtractData|undefined),
@@ -49,12 +51,17 @@ let Config;
  *  hasExtractDataCopiedToClipboard: (boolean|undefined),
  *  errorData: (!Object|undefined),
  *  isLoading: (boolean|undefined),
+ *  isDialogOpened: (boolean|undefined),
  *  message: (string|undefined),
  *  input_authcode: (string|undefined),
  *  input_config_board: (string|undefined),
  *  input_config_extractAfterUnlocked: (boolean|undefined),
- *  input_config_lockAfterExtracted: (boolean|undefined),
+ *  input_config_uploadAfterExtracted: (boolean|undefined),
+ *  input_config_lockAfterUploaded: (boolean|undefined),
  *  input_config_hartURL: (string|undefined),
+ *  input_config_projectCode: (string|undefined),
+ *  input_config_GPN: (string|undefined),
+ *  input_config_assetTag: (string|undefined),
  * }}
  */
 let State;
@@ -66,11 +73,19 @@ const allDevicesJsonUrl =
     ('https://storage.cloud.google.com/chromeos-build-release-console/' +
      'all_devices.json');
 const configUpdateTimeout = 3000;
+const defaultProjects = {
+  pkeys: [],
+  pvalues: [],
+};
 const defaultConfig /** Config */ = {
   extractAfterUnlocked: false,
-  lockAfterExtracted: false,
+  uploadAfterExtracted: false,
+  lockAfterUploaded: false,
   hartURL: '',
   board: '',
+  projectCode: '',
+  GPN: '',
+  assetTag: '',
 };
 const state /** State */ = {};
 
@@ -97,6 +112,9 @@ const setStateAndRender = (newState) => {
   }
   if (!('isLoading' in newState)) {
     newState.isLoading = false;
+  }
+  if (!('isDialogOpened' in newState)) {
+    newState.isDialogOpened = false;
   }
   if (!('errorData' in newState)) {
     newState.errorData = undefined;
@@ -342,6 +360,23 @@ const handleScan = async (isTriggeredByUser) => {
 /**
  * @param {!Node} ele
  */
+const renderInputGPN = (ele) => {
+  renderText(ele, 'Input GPN', 'h3');
+  renderInput(ele, 'config_GPN', 'Google Part Number (GPN)',
+      handleUpdateConfig);
+};
+
+/**
+ * @param {!Node} ele
+ */
+const renderInputAssetTag = (ele) => {
+  renderText(ele, 'Input Asset Tag', 'h3');
+  renderInput(ele, 'config_assetTag', 'Asset Tag', handleUpdateConfig);
+};
+
+/**
+ * @param {!Node} ele
+ */
 const renderScan = (ele) => {
   renderText(ele, 'Scan the device', 'h3');
   renderButton(ele, 'Scan', () => {
@@ -416,12 +451,8 @@ const handleExtract = async () => {
       '/extract', {cr50SerialName: state.scanData.cr50SerialName, board}));
   if (!extractData) return;
   setStateAndRender({extractData});
-  const {sn, hwid} = extractData;
-  if (state.input_config_hartURL && sn && hwid) {
-    window.open(state.input_config_hartURL + `?sn=${sn}&hwid=${hwid}`, 'hart');
-  }
-  if (state.input_config_lockAfterExtracted) {
-    await handleLock();
+  if (state.input_config_uploadAfterExtracted) {
+    await handleUpload();
   }
 };
 
@@ -460,6 +491,36 @@ const renderExtract = (ele) => {
 };
 
 /**
+ * handleUpload
+ */
+const handleUpload = async () => {
+  const {sn, hwid} = state.extractData;
+  if (state.input_config_hartURL && sn && hwid && state.input_config_assetTag) {
+    let parameters = `?sn=${sn}&hwid=${hwid}` +
+      `&assetTag=${state.input_config_assetTag}`;
+    if (state.input_config_projectCode) {
+      parameters += `&programName=${state.input_config_projectCode}`
+    }
+    if (state.input_config_GPN) {
+      parameters += `&GPN=${state.input_config_GPN}`
+    }
+    window.open(state.input_config_hartURL + parameters, 'hart');
+  }
+  if (state.input_config_lockAfterUploaded) {
+    await handleLock();
+  }
+};
+
+/**
+ * @param {!Node} ele
+ */
+const renderUpload = (ele) => {
+  renderText(ele, 'Upload project code, GPN, Asset Tag, HWID and Serial No.',
+      'h3');
+  renderButton(ele, 'Upload', handleUpload);
+}
+
+/**
  * handleLock
  */
 const handleLock = async () => {
@@ -470,6 +531,7 @@ const handleLock = async () => {
   if (data.success) {
     /* Re-scan the device */
     await handleScan(false);
+    setStateAndRender({isDialogOpened: true});
   } else {
     setStateAndRender({message: 'Lock failed.'});
   }
@@ -545,7 +607,10 @@ const renderUpdateConfig = (ele) => {
       ele, 'config_extractAfterUnlocked', 'Extract After Unlocked',
       handleUpdateConfig);
   renderCheckBox(
-      ele, 'config_lockAfterExtracted', 'Lock After Extracted',
+      ele, 'config_uploadAfterExtracted', 'Upload After Extracted',
+      handleUpdateConfig);
+  renderCheckBox(
+      ele, 'config_lockAfterUploaded', 'Lock After Uploaded',
       handleUpdateConfig);
   const keys = ['Auto Detect'].concat(state.supportedBoards || []);
   const values = [''].concat(state.supportedBoards || []);
@@ -555,6 +620,11 @@ const renderUpdateConfig = (ele) => {
   renderErrorText(ele, 'Warning: Choose wrong board may damage the hardware!',
       'strong');
   renderInput(ele, 'config_hartURL', 'Hart URL', handleUpdateConfig);
+  const pkeys = ['Please select your project code'].concat(
+      state.projects.pkeys || []);
+  const pvalues = [''].concat(state.projects.pvalues || []);
+  renderSelect(ele, 'config_projectCode', 'Project Code', pkeys, pvalues,
+      handleUpdateConfig);
 };
 
 /**
@@ -602,6 +672,29 @@ const renderUpdateRLZ = (ele) => {
 };
 
 /**
+ * handleCloseDialog
+ */
+const handleCloseDialog = () => {
+  setStateAndRender({
+    isDialogOpened: false,
+    input_config_assetTag: '',
+  });
+  document.getElementById('config_assetTag').focus();
+};
+
+/**
+ * handleCloseDialogWithAnotherGPN
+ */
+const handleCloseDialogWithAnotherGPN = () => {
+  setStateAndRender({
+    isDialogOpened: false,
+    input_config_GPN: '',
+    input_config_assetTag: '',
+  });
+  document.getElementById('config_GPN').focus();
+};
+
+/**
  * @param {!Node} ele
  */
 const render = (ele) => {
@@ -626,12 +719,17 @@ const render = (ele) => {
   /* Left Side */
   const leftSideDOM = boxDOM.appendChild(document.createElement('div'));
   leftSideDOM.id = 'left-side';
+  renderInputGPN(leftSideDOM);
+  renderInputAssetTag(leftSideDOM);
   renderScan(leftSideDOM);
   if (state.scanData) {
     if (state.scanData.isRestricted) {
       renderUnlock(leftSideDOM);
     } else {
       renderExtract(leftSideDOM);
+      if (state.extractData) {
+        renderUpload(leftSideDOM);
+      }
       if (state.scanData.isTestlabEnabled) {
         renderTestlab(leftSideDOM, 'disable');
       } else {
@@ -646,6 +744,50 @@ const render = (ele) => {
   renderText(rightSideDOM, 'Configuration', 'h3');
   renderUpdateConfig(rightSideDOM);
   renderUpdateRLZ(rightSideDOM);
+  /* Dialog */
+  if (state.isDialogOpened) {
+    const dialogDOM = ele.appendChild(document.createElement('div'));
+    dialogDOM.id = 'dialog';
+    const dialogBodyDOM = dialogDOM.appendChild(document.createElement('div'));
+    dialogBodyDOM.id = 'dialog-body';
+    renderText(dialogBodyDOM, 'Alert Dialog', 'h3');
+    renderText(dialogBodyDOM, 'Do you want to continue scan the device with' +
+        'same GPN or set up another GPN?', 'p');
+    const dialogButtonGroupDOM = dialogBodyDOM.appendChild(
+        document.createElement('div'));
+    dialogButtonGroupDOM.id = 'dialog-button-group';
+    renderButton(dialogButtonGroupDOM, 'Continue scan the device',
+        handleCloseDialog, 'btn-continue');
+    renderButton(dialogButtonGroupDOM, 'Set up another GPN',
+        handleCloseDialogWithAnotherGPN, 'btn-another');
+  }
+};
+
+
+/**
+ * GetProjects
+ */
+const GetProjectsAndRender = async () => {
+  const newState = {};
+  // Set ?v= to prevent browser cache.
+  let projects = [];
+  let pkeys = [];
+  let pvalues = [];
+  let resp = await fetch(`/projects.json?v=${Math.random()}`);
+  if (resp.ok) {
+    projects = /** @type{Config} */ (await resp.json());
+  }
+  projects.forEach(project => {
+    pkeys.push(project.displayName);
+    pvalues.push(project.projectCode);
+  });
+  if (projects.length === 0) {
+    newState.projects = defaultProjects;
+  } else {
+    newState.projects = {pkeys, pvalues};
+  }
+
+  setStateAndRender(newState);
 };
 
 /**
@@ -686,5 +828,6 @@ const handleMessage = async (event) => {
  */
 window.onload = async () => {
   window.addEventListener('message', handleMessage, false);
+  await GetProjectsAndRender();
   await GetConfigAndRender();
 };

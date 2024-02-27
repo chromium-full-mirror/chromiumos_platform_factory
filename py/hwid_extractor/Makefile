@@ -36,10 +36,14 @@ JS_SOURCES := \
 	www/index.js \
 	www/extension.js
 
+JSON_SOURCES := \
+	www/projects.json
+
 HWID_EXTRACTOR_SOURCES := \
 	www/index.html \
 	$(CSS_SOURCES) \
 	$(JS_SOURCES) \
+	$(JSON_SOURCES) \
 	$(wildcard *.py)
 
 SOURCES := \
