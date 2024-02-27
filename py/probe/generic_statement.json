@@ -163,7 +163,7 @@
   },
   "tpm": {
     "generic": {
-      "eval": "generic_tpm"
+      "eval": "tpm"
     }
   },
   "usb_hosts": {

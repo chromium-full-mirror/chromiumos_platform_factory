@@ -145,7 +145,12 @@
   },
   "tpm": {
     "generic": {
-      "eval": "generic_tpm"
+      "eval": "tpm",
+      "keys": [
+        "manufacturer",
+        "spec_level",
+        "vendor_specific"
+      ]
     }
   },
   "usb_hosts": {

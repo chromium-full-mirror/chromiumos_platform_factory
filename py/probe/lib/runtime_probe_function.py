@@ -68,4 +68,5 @@ def GetAllFunctions():
                         default=None),
       ]),
       CreateRuntimeProbeFunction('tcpc', []),
+      CreateRuntimeProbeFunction('tpm', []),
   ]
