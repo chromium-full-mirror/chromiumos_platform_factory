@@ -217,12 +217,12 @@ class EnumerateHWIDTest(_HWIDTestCaseBase):
     self.assertEqual(len(results), 0)
 
 
-class GetProbeStatementPathTest(unittest.TestCase):
+class GetProjectProbeStatementPathTest(unittest.TestCase):
   @mock.patch('os.path.exists')
   def testUseDefaultProbeStatementPath(self, os_path_exists_mock):
     project = 'PROJECT'
     os_path_exists_mock.return_value = False
-    probe_statement_path = hwid_utils.GetProbeStatementPath(project)
+    probe_statement_path = hwid_utils.GetProjectProbeStatementPath(project)
 
     self.assertTrue(
         os.path.basename(probe_statement_path).startswith('default_'))
@@ -231,7 +231,7 @@ class GetProbeStatementPathTest(unittest.TestCase):
   def testUseProjectProbeStatementPath(self, os_path_exists_mock):
     project = 'PROJECT'
     os_path_exists_mock.return_value = True
-    probe_statement_path = hwid_utils.GetProbeStatementPath(project)
+    probe_statement_path = hwid_utils.GetProjectProbeStatementPath(project)
 
     self.assertTrue(
         os.path.basename(probe_statement_path).startswith(
@@ -241,7 +241,7 @@ class GetProbeStatementPathTest(unittest.TestCase):
   def testUseCommonProbeStatementPath(self, os_path_exists_mock):
     project = 'PROJECT'
     os_path_exists_mock.side_effect = [True, False]
-    probe_statement_path = hwid_utils.GetProbeStatementPath(project)
+    probe_statement_path = hwid_utils.GetProjectProbeStatementPath(project)
 
     self.assertTrue(
         os.path.basename(probe_statement_path).startswith('common_'))

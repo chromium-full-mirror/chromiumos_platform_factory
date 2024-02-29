@@ -462,11 +462,9 @@ def UpdateDatabaseWrapper(options):
 
 @type_utils.CachedGetter
 def _GetRMADefaultEncodedFields() -> Collection[str]:
-  probe_config_file_path = os.path.join(
-      os.path.dirname(os.path.realpath(__file__)),
-      common.SPARE_MLB_PROBE_STATEMENT)
   probe_statement = probe_utils.GenerateProbeStatement(
-      config_file=probe_config_file_path)
+      config_file=hwid_utils.GetProbeStatementFileFullPath(
+          common.SPARE_MLB_PROBE_STATEMENT))
   return [f'{comp_cls}_field' for comp_cls in probe_statement]
 
 
@@ -775,7 +773,8 @@ def VerifyHWIDDatabase(options):
            help='File name to store the checksum of the converted results'))
 def ConverterCommand(options):
   """Convert the default probe statements to project specific statements."""
-  probe_statement_path = hwid_utils.GetProbeStatementPath(options.project)
+  probe_statement_path = hwid_utils.GetProjectProbeStatementPath(
+      options.project)
   converted_results_obj = converter.ConvertToProbeStatement(
       options.database, probe_statement_path)
   converted_results_data = json_utils.DumpStr(converted_results_obj,

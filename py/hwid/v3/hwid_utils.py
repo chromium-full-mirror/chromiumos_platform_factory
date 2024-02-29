@@ -321,7 +321,7 @@ def GetProbedResults(infile=None, raw_data=None, project=None):
     raise ValueError('Cannot probe components in chroot. Please specify '
                      'probed results with an input file. If you are running '
                      'with command-line, use --probed-results-file')
-  probe_statement_path = GetProbeStatementPath(project)
+  probe_statement_path = GetProjectProbeStatementPath(project)
   return probe.ProbeDUT(probe_statement_path)
 
 
@@ -509,19 +509,24 @@ def GetFormFactor(form_factor=None):
   return form_factor.upper()
 
 
-def GetProbeStatementPath(project=None):
-  path = os.path.join(os.path.dirname(__file__), common.DEFAULT_PROBE_STATEMENT)
+def GetProbeStatementFileFullPath(filename: str) -> str:
+  """Returns the pathname of a probe statement file in HWID v3 folder."""
+  return os.path.join(os.path.dirname(__file__), filename)
 
-  common_path = os.path.join(
-      os.path.dirname(__file__), common.COMMON_PROBE_STATEMENT)
+
+def GetProjectProbeStatementPath(project=None):
+  """Returns the pathname of the project-specific probe statement file."""
+  path = GetProbeStatementFileFullPath(common.DEFAULT_PROBE_STATEMENT)
+
+  common_path = GetProbeStatementFileFullPath(common.COMMON_PROBE_STATEMENT)
   if os.path.exists(common_path):
     path = common_path
 
   try:
     project = project or ProbeProject()
     # We assume that project name is not 'default'.
-    model_probe_statement_path = os.path.join(
-        os.path.dirname(__file__), f'{project.lower()}_probe_statement.json')
+    model_probe_statement_path = GetProbeStatementFileFullPath(
+        f'{project.lower()}_probe_statement.json')
     if os.path.exists(model_probe_statement_path):
       path = model_probe_statement_path
   except Exception:
