@@ -31,7 +31,6 @@ RetryFailureTask = retry_failure_worker.RetryFailureTask
 class UserRequestTest(unittest.TestCase):
 
   def setUp(self):
-    self._creator = 'retry@google.com'
     self._requester = 'requester@google.com'
     self._snapshot = {
         'email': 'foo@bar',
@@ -47,24 +46,26 @@ class UserRequestTest(unittest.TestCase):
 
   def testToCreateBundleRpcRequest_succeed_returnsExpectedValue(self):
     request = UserRequest(self._snapshot).ToCreateBundleRpcRequest(
-        self._creator, self._requester)
+        self._requester)
 
     kwargs = self._snapshot.copy()
-    kwargs['email'] = self._creator
     kwargs['cc_emails'] = self._snapshot['cc_emails'] + [
-        self._snapshot['email'], self._requester
+        config.RETRY_FAILURE_EMAIL, self._requester
     ]
     self.assertEqual(request,
                      factorybundle_pb2.CreateBundleRpcRequest(**kwargs))
 
   def testToCreateBundleRpcRequest_duplicatedCcEmails_verifiesCcEmails(self):
-    duplicated_email = 'foo2@bar'
-    self._snapshot['email'] = duplicated_email
+    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest('foo2@bar')
 
-    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest(
-        self._creator, duplicated_email)
+    self.assertEqual(request.cc_emails,
+                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
-    self.assertEqual(request.cc_emails, [duplicated_email])
+  def testToCreateBundleRpcRequest_duplicatedEmail_verifiesCcEmails(self):
+    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest('foo@bar')
+
+    self.assertEqual(request.cc_emails,
+                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
   def testToCreateBundleRpcRequest_withOptionalFields_verifiesOptionalFields(
       self):
@@ -73,7 +74,7 @@ class UserRequestTest(unittest.TestCase):
     self._snapshot['hwid_related_bug_number'] = 123456789
 
     request = UserRequest(self._snapshot).ToCreateBundleRpcRequest(
-        self._creator, self._requester)
+        self._requester)
 
     self.assertEqual(request.firmware_source, '44444.0.0')
     self.assertEqual(request.update_hwid_db_firmware_info, True)
@@ -81,12 +82,12 @@ class UserRequestTest(unittest.TestCase):
 
   def testToV2CreateBundleRequest_succeed_returnsExpectedValue(self):
     request = UserRequest(self._snapshot).ToV2CreateBundleRequest(
-        self._creator, self._requester)
+        self._requester)
 
     expected_request = factorybundle_v2_pb2.CreateBundleRequest()
-    expected_request.email = self._creator
+    expected_request.email = self._snapshot['email']
     expected_request.cc_emails.extend(self._snapshot['cc_emails'])
-    expected_request.cc_emails.append(self._snapshot['email'])
+    expected_request.cc_emails.append(config.RETRY_FAILURE_EMAIL)
     expected_request.cc_emails.append(self._requester)
     bundle_metadata = expected_request.bundle_metadata
     bundle_metadata.board = self._snapshot['board']
@@ -100,13 +101,16 @@ class UserRequestTest(unittest.TestCase):
     self.assertEqual(request, expected_request)
 
   def testToV2CreateBundleRequest_duplicatedCcEmails_verifiesCcEmails(self):
-    duplicated_email = 'foo2@bar'
-    self._snapshot['email'] = duplicated_email
+    request = UserRequest(self._snapshot).ToV2CreateBundleRequest('foo2@bar')
 
-    request = UserRequest(self._snapshot).ToV2CreateBundleRequest(
-        self._creator, duplicated_email)
+    self.assertEqual(request.cc_emails,
+                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
-    self.assertEqual(request.cc_emails, [duplicated_email])
+  def testToV2CreateBundleRequest_duplicatedEmail_verifiesCcEmails(self):
+    request = UserRequest(self._snapshot).ToV2CreateBundleRequest('foo@bar')
+
+    self.assertEqual(request.cc_emails,
+                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
   def testToV2CreateBundleRequest_withOptionalFields_verifiesOptionalFields(
       self):
@@ -115,7 +119,7 @@ class UserRequestTest(unittest.TestCase):
     self._snapshot['hwid_related_bug_number'] = 123456789
 
     request = UserRequest(self._snapshot).ToV2CreateBundleRequest(
-        self._creator, self._requester)
+        self._requester)
 
     self.assertEqual(request.bundle_metadata.firmware_source, '44444.0.0')
     self.assertEqual(request.hwid_option.update_db_firmware_info, True)
@@ -193,8 +197,9 @@ class RetryFailureWorkerTest(unittest.TestCase):
 
   def setUpExpectedValues(self):
     self._expected_request = factorybundle_pb2.CreateBundleRpcRequest()
-    self._expected_request.email = config.RETRY_FAILURE_EMAIL
-    self._expected_request.cc_emails.extend(['foo@bar', self._requester])
+    self._expected_request.email = 'foo@bar'
+    self._expected_request.cc_emails.extend(
+        [config.RETRY_FAILURE_EMAIL, self._requester])
     self._expected_request.board = 'board'
     self._expected_request.project = 'project'
     self._expected_request.phase = 'proto'
@@ -204,8 +209,8 @@ class RetryFailureWorkerTest(unittest.TestCase):
     self._expected_request.update_hwid_db_firmware_info = False
     self._expected_snapshot = {
         'email':
-            config.RETRY_FAILURE_EMAIL,
-        'cc_emails': ['foo@bar', self._requester],
+            'foo@bar',
+        'cc_emails': [config.RETRY_FAILURE_EMAIL, self._requester],
         'board':
             'board',
         'project':
@@ -227,8 +232,9 @@ class RetryFailureWorkerTest(unittest.TestCase):
     }
 
     self._expected_request_v2 = factorybundle_v2_pb2.CreateBundleRequest()
-    self._expected_request_v2.email = config.RETRY_FAILURE_EMAIL
-    self._expected_request_v2.cc_emails.extend(['foo@bar', self._requester])
+    self._expected_request_v2.email = 'foo@bar'
+    self._expected_request_v2.cc_emails.extend(
+        [config.RETRY_FAILURE_EMAIL, self._requester])
     bundle_metadata = self._expected_request_v2.bundle_metadata
     bundle_metadata.board = 'board'
     bundle_metadata.project = 'project'
@@ -239,8 +245,8 @@ class RetryFailureWorkerTest(unittest.TestCase):
     self._expected_request_v2.hwid_option.update_db_firmware_info = False
     self._expected_snapshot_v2 = {
         'email':
-            config.RETRY_FAILURE_EMAIL,
-        'cc_emails': ['foo@bar', self._requester],
+            'foo@bar',
+        'cc_emails': [config.RETRY_FAILURE_EMAIL, self._requester],
         'board':
             'board',
         'project':
@@ -314,6 +320,13 @@ class RetryFailureWorkerTest(unittest.TestCase):
             'status': firestore_connector.UserRequestStatus.FAILED.name,
             'email': config.RETRY_FAILURE_EMAIL,
             'request_time': self._datetime_now - datetime.timedelta(days=1),
+        }))
+    self._user_requests_col.document('doc_should_not_be_retried_agian_2').set(
+        self._CreateUserRequest({
+            'status': firestore_connector.UserRequestStatus.FAILED.name,
+            'email': 'foo@bar',
+            'request_time': self._datetime_now - datetime.timedelta(days=1),
+            'cc_emails': [config.RETRY_FAILURE_EMAIL],
         }))
     self._PublishRetryFailureMessage()
 

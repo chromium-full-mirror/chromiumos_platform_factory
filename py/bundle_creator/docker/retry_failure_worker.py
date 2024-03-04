@@ -33,12 +33,10 @@ class UserRequest:
   snapshot: Dict
 
   def ToCreateBundleRpcRequest(
-      self, creator: str,
-      requester: str) -> factorybundle_pb2.CreateBundleRpcRequest:
+      self, requester: str) -> factorybundle_pb2.CreateBundleRpcRequest:
     """Converts to v1 create bundle request.
 
     Args:
-      creator: The new creator of the factory bundle.
       requester: The retry failure requester's email to be added into the carbon
           copy list.
 
@@ -46,13 +44,11 @@ class UserRequest:
       A `factorybundle_pb2.CreateBundleRpcRequest` proto message.
     """
     request = factorybundle_pb2.CreateBundleRpcRequest()
-    request.email = creator
+    request.email = self.snapshot.get('email')
 
-    email = self.snapshot.get('email')
     request.cc_emails.extend(self.snapshot.get('cc_emails', []))
-    if email not in request.cc_emails:
-      request.cc_emails.append(email)
-    if requester not in request.cc_emails:
+    request.cc_emails.append(config.RETRY_FAILURE_EMAIL)
+    if requester not in request.cc_emails and requester != request.email:
       request.cc_emails.append(requester)
 
     request.board = self.snapshot.get('board')
@@ -73,12 +69,10 @@ class UserRequest:
     return request
 
   def ToV2CreateBundleRequest(
-      self, creator: str,
-      requester: str) -> factorybundle_v2_pb2.CreateBundleRequest:
+      self, requester: str) -> factorybundle_v2_pb2.CreateBundleRequest:
     """Converts to v2 create bundle request.
 
     Args:
-      creator: The new creator of the factory bundle.
       requester: The retry failure requester's email to be added into the carbon
           copy list.
 
@@ -86,13 +80,11 @@ class UserRequest:
       A `factorybundle_v2_pb2.CreateBundleRequest` proto message.
     """
     request = factorybundle_v2_pb2.CreateBundleRequest()
-    request.email = creator
+    request.email = self.snapshot.get('email')
 
-    email = self.snapshot.get('email')
     request.cc_emails.extend(self.snapshot.get('cc_emails', []))
-    if email not in request.cc_emails:
-      request.cc_emails.append(email)
-    if requester not in request.cc_emails:
+    request.cc_emails.append(config.RETRY_FAILURE_EMAIL)
+    if requester not in request.cc_emails and requester != request.email:
       request.cc_emails.append(requester)
 
     metadata = request.bundle_metadata
@@ -154,7 +146,9 @@ class RetryFailureWorker(worker.AbstractWorker):
             self._firestore_connector.GetLatestUserRequestsByStatus(
                 firestore_connector.UserRequestStatus.FAILED,
                 task.within_days)):
-          if snapshot.get('email') == config.RETRY_FAILURE_EMAIL:
+          # The first statement is for backward compatibility.
+          if (snapshot.get('email') == config.RETRY_FAILURE_EMAIL or
+              config.RETRY_FAILURE_EMAIL in snapshot.get('cc_emails', [])):
             continue
           self._ProcessSnapshot(snapshot, task.requester)
     except RetryFailureException as e:
@@ -162,8 +156,7 @@ class RetryFailureWorker(worker.AbstractWorker):
 
   def _ProcessSnapshot(self, snapshot: Dict, requester: str):
     if snapshot.get('request_from', '') == 'v2':
-      request = UserRequest(snapshot).ToV2CreateBundleRequest(
-          config.RETRY_FAILURE_EMAIL, requester)
+      request = UserRequest(snapshot).ToV2CreateBundleRequest(requester)
       message = factorybundle_v2_pb2.CreateBundleMessage()
       message.doc_id = self._firestore_connector.CreateUserRequest(
           firestore_connector.CreateBundleRequestInfo.FromV2CreateBundleRequest(
@@ -174,8 +167,7 @@ class RetryFailureWorker(worker.AbstractWorker):
                                                 'request_from': 'v2',
                                             })
     else:
-      request = UserRequest(snapshot).ToCreateBundleRpcRequest(
-          config.RETRY_FAILURE_EMAIL, requester)
+      request = UserRequest(snapshot).ToCreateBundleRpcRequest(requester)
       message = factorybundle_pb2.CreateBundleMessage()
       message.doc_id = self._firestore_connector.CreateUserRequest(
           firestore_connector.CreateBundleRequestInfo
