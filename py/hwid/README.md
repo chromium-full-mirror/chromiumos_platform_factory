@@ -74,7 +74,7 @@ details.
 
 Originally it was tedious to convert the probe result to HWID database. Most of
 the time we copy and paste it from an existing project and modify the probe
-value. In addition, there are many implict rules and relations between each
+value. In addition, there are many implicit rules and relations between each
 section. For example, the number of bits in the field of the pattern should be
 large enough to contain all items in the encoded field.
 
@@ -133,6 +133,11 @@ Below, we will list some common use cases of HWID database change, and provide
 the recommendation way to do it.
 
 ### 1. Create a Minimal HWID Database
+
+**Deprecation note**: This use case is deprecated, please find the minimal
+HWID database from the HWID bundle downloaded from ChromeOS Device Lifecycle
+Management (DLM) page.  For HWID repository owners, please follow project
+tracker instructions to create the minimal HWID database on DLM directly.
 
 At the beginning of the project, we need to create a new HWID database.  Since
 Jan 2022, one is encouraged to create a minimal HWID DB and add probed
@@ -213,6 +218,12 @@ $ hwid update-database \
     --add-default-component battery \
     --add-null-component cellular
 ```
+
+**Note**: Depends on project settings, some components might require
+factory device data ready to be probed correctly.  Therefore, it's
+highly suggested to run `hwid collect-material` on DUT with factory
+toolkit ready when preparing the HWID database for on-going
+manufacturing builds.
 
 ### 3. Add a Default Item {#add_default_item}
 When we bring up a device, the probing code for some hardware components might
@@ -738,7 +749,7 @@ item. The feature of the default component item is:
 
 - **duplicate**
 
-  The component is a subset of another comopnent, so it should not be matched
+  The component is a subset of another component, so it should not be matched
   while encoding.  For example:
 
 ```

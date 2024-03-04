@@ -344,6 +344,10 @@ def GetDeviceInfo(infile=None):
 
   try:
     from cros.factory.test import device_data
+    from cros.factory.utils import sys_utils
+
+    if sys_utils.InFactoryPythonArchive():
+      return {}
     return device_data.GetAllDeviceData()
 
   except ImportError:

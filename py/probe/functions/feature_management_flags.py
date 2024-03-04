@@ -5,6 +5,7 @@
 from cros.factory.probe.lib import probe_function
 from cros.factory.test import device_data
 from cros.factory.test.utils import gsc_utils
+from cros.factory.utils import sys_utils
 
 from cros.factory.external.chromeos_cli import gsctool as gsctool_module
 
@@ -29,7 +30,7 @@ class FeatureManagementFlagsFunction(probe_function.AbstractProbeFunction):
       feature_flags_gsc = self._gsctool.GetFeatureManagementFlags()
       chassis_branded = feature_flags_gsc.is_chassis_branded
       hw_compliance_version = feature_flags_gsc.hw_compliance_version
-    else:
+    elif not sys_utils.InFactoryPythonArchive():
       chassis_branded_device_data = device_data.GetDeviceData(
           device_data.KEY_FM_CHASSIS_BRANDED)
       hw_compliance_version_device_data = device_data.GetDeviceData(
