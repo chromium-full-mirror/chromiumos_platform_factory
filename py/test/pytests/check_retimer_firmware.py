@@ -46,8 +46,10 @@ The minimal working example::
 
 from distutils import version
 import logging
+import os
 
 from cros.factory.device import device_utils
+from cros.factory.device import sensor_utils
 from cros.factory.test.i18n import _
 from cros.factory.test.rules import phase
 from cros.factory.test import test_case
@@ -155,14 +157,21 @@ class RetimerFirmwareTest(test_case.TestCase):
     self.ui.SetInstruction('')
 
   def _RetimerSwitcher(self, controller_port_prefix, mode):
-    retimer_switcher_path = (
-        f'/sys/bus/thunderbolt/devices/{controller_port_prefix}/usb4_port1')
+    retimer_switcher_path = self._GetRetimerSwitcherPath(controller_port_prefix)
     if mode == 'ON':
       self.ui.SetState(_('Enumerating Retimer...'))
       self._dut.CheckCall(f'echo 1 > {retimer_switcher_path}/offline')
       self._dut.CheckCall(f'echo 1 > {retimer_switcher_path}/rescan')
     else:
       self._dut.CheckCall(f'echo 0 > {retimer_switcher_path}/offline')
+
+  def _GetRetimerSwitcherPath(self, controller_port_prefix):
+    pattern = (f'/sys/bus/thunderbolt/devices/{controller_port_prefix}'
+               '/usb4_port?/offline')
+    path = sensor_utils.FindDevice(self._dut, pattern, allow_multiple=False)
+    retimer_switcher_path = os.path.dirname(path)
+    logging.info('Found retimer switcher path at %s.', retimer_switcher_path)
+    return retimer_switcher_path
 
   def runTest(self):
     errors = {}
