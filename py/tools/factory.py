@@ -309,12 +309,10 @@ class TestsCommand(Subcommand):
     output_csv = []
 
     for t in tests:
-      if not t['test_categories']:
+      if not t['related_components']:
         uncategorized_tests.append(t)
-      for test_category in t['test_categories']:
-        if test_category not in report:
-          report[test_category] = []
-        report[test_category].append(t)
+      for test_category in t['related_components']:
+        report.setdefault(test_category, []).append(t)
 
     output_csv += self._GetHeader(readiness=True)
     for category, categorized_tests in report.items():
@@ -322,11 +320,11 @@ class TestsCommand(Subcommand):
                                  for t in categorized_tests) else 'Not Ready'
       output_csv.append([category.name, readiness])
       for t in categorized_tests:
-        output_csv.append(['', ''] + self._GetCSVLabelFromPath(t["path"]) +
-                          [t["status"]])
+        output_csv.append(['', ''] + self._GetCSVLabelFromPath(t['path']) +
+                          [t['status']])
     output_csv.append(['Uncategorized Tests'])
     for t in uncategorized_tests:
-      output_csv.append(self._GetCSVLabelFromPath(t["path"]) + [t["status"]])
+      output_csv.append(self._GetCSVLabelFromPath(t['path']) + [t['status']])
 
     if self.args.output:
       with open(csv_filename, 'w', encoding='utf-8') as csv_file:

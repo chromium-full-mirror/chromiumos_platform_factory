@@ -15,12 +15,13 @@ import json
 import logging
 import os
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from cros.factory.test import i18n
 from cros.factory.test.i18n import _
 from cros.factory.test.i18n import translation
 from cros.factory.test.state import TestState
+from cros.factory.test import test_tags
 from cros.factory.test.utils import pytest_utils
 from cros.factory.utils import type_utils
 
@@ -72,10 +73,26 @@ class FactoryTest:
 
   # Fields of test_object defined by test_list.schema.json
   TEST_OBJECT_FIELDS = [
-      'action_on_failure', 'args', 'disable_abort', 'disable_services',
-      'enable_services', 'exclusive_resources', 'id', 'iterations',
-      'label', 'allow_reboot', 'parallel', 'pytest_name', 'retries',
-      'run_if', 'subtests', 'teardown', 'inherit', 'locals', ]
+      'action_on_failure',
+      'args',
+      'disable_abort',
+      'disable_services',
+      'enable_services',
+      'exclusive_resources',
+      'id',
+      'iterations',
+      'label',
+      'allow_reboot',
+      'parallel',
+      'pytest_name',
+      'retries',
+      'related_components',
+      'run_if',
+      'subtests',
+      'teardown',
+      'inherit',
+      'locals',
+  ]
 
   _PYTEST_LABEL_MAP = {
       'ac': 'AC',
@@ -100,31 +117,33 @@ class FactoryTest:
     def __str__(self):
       return self.name
 
-  def __init__(self,
-               label=None,
-               has_automator=False,
-               pytest_name=None,
-               dargs=None,
-               locals_=None,
-               dut_options=None,
-               subtests=None,
-               teardown=False,
-               id=None,  # pylint: disable=redefined-builtin
-               no_host=False,
-               allow_reboot=None,
-               disable_abort=None,
-               exclusive_resources=None,
-               enable_services=None,
-               disable_services=None,
-               require_run=None,
-               run_if=None,
-               iterations=1,
-               retries=0,
-               waived=False,
-               parallel=False,
-               layout=None,
-               action_on_failure=None,
-               _root=None):
+  def __init__(
+      self,
+      label=None,
+      has_automator=False,
+      pytest_name=None,
+      dargs=None,
+      locals_=None,
+      dut_options=None,
+      subtests=None,
+      teardown=False,
+      id=None,  # pylint: disable=redefined-builtin
+      no_host=False,
+      allow_reboot=None,
+      disable_abort=None,
+      exclusive_resources=None,
+      enable_services=None,
+      disable_services=None,
+      require_run=None,
+      run_if=None,
+      iterations=1,
+      retries=0,
+      waived=False,
+      parallel=False,
+      layout=None,
+      action_on_failure=None,
+      related_components: Optional[List[str]] = None,
+      _root=None):
     """Constructor.
 
     Args:
@@ -184,6 +203,9 @@ class FactoryTest:
         If it's 0, then no retries are allowed (the usual case). If, for
         example, iterations=60 and retries=2, then the test would be run up to
         62 times and could fail up to twice.
+      related_components (Optional[List[str]]): A list containing related
+        components for this test. The string in the list must be defined in
+        test_tags.TestCategory.
       _root: True only if this is the root node (for internal use
         only).
     """
@@ -250,6 +272,7 @@ class FactoryTest:
     self._SetIterations(iterations)
     self.default_iterations = self.iterations
     self.default_retries = self.retries
+    self.related_components = []
 
     if allow_reboot is not None:
       self.allow_reboot = allow_reboot
@@ -284,18 +307,39 @@ class FactoryTest:
           f'id {self.id!r} does not match regexp {ID_REGEXP.pattern}')
       # Note that we check ID uniqueness in _init.
 
-    self.test_categories = []
     if pytest_name:
-      if os.path.exists(pytest_utils.GetPytestSourcePath(pytest_name)):
-        try:
-          pytest = pytest_utils.LoadPytest(pytest_name)()
-          self.test_categories.extend(getattr(pytest, 'related_components', []))
-        except Exception as e:
-          logging.warning(
-              'Failed to obtain test categories of the pytest(%s) due to %s',
-              pytest_name, e)
+      if related_components:
+        self._GetRelatedComponentFromTestList(related_components)
+      elif os.path.exists(pytest_utils.GetPytestSourcePath(pytest_name)):
+        self._GetRelatedComponentFromPytest(pytest_name)
       else:
         logging.warning('Failed to find the source of pytest(%s)', pytest_name)
+
+  def _GetRelatedComponentFromTestList(self, related_components):
+    for related_component in related_components:
+      try:
+        module_name, class_name, component_name = related_component.split('.')
+        if f'{module_name}.{class_name}' != 'test_tags.TestCategory':
+          logging.warning('module or class name are incorrect.')
+        self.related_components.append(
+            getattr(test_tags.TestCategory, component_name))
+      except AttributeError:
+        logging.warning('component: %s is not defined in test_tags.',
+                        related_component)
+      except IndexError:
+        logging.warning(
+            'component: %s is not in the valid form: '
+            '`test_tags.TestCategory.<component_name>`', related_component)
+
+  def _GetRelatedComponentFromPytest(self, pytest_name):
+    try:
+      pytest = pytest_utils.LoadPytest(pytest_name)()
+      tmp = getattr(pytest, 'related_components', [])
+      self.related_components.extend(tmp)
+    except Exception as e:
+      logging.warning(
+          'Failed to obtain related components of the pytest(%s) due to %s',
+          pytest_name, e)
 
   def _SetIterations(self, iterations, set_default=False):
     if not isinstance(iterations, int) or iterations == 0 or iterations < -1:
@@ -381,6 +425,7 @@ class FactoryTest:
       struct['retries'] = -1
 
     # Fields that need extra processing
+    struct['related_components'] = list(map(str, struct['related_components']))
     if recursive:
       struct['subtests'] = [
           subtest.ToStruct(extra_fields) for subtest in struct['subtests']]

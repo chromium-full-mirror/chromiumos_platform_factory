@@ -384,7 +384,7 @@ class GoofyRPC:
       test_state = states.get(t.path)
       ret.append(
           dict(path=t.path, parent=(t.subtests != []), pending=t.path
-               in paths_to_run, test_categories=t.test_categories,
+               in paths_to_run, related_components=t.related_components,
                **test_state.__dict__))
     return ret
 

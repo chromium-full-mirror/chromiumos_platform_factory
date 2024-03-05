@@ -149,6 +149,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "related_components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "patternProperties": {
