@@ -154,7 +154,11 @@ require_remove_ac() {
 
 charge_control() {
   if [ "${EC_PRESENT}" = "1" ]; then
-    ectool chargecontrol "$1" >/dev/null
+    if [ -n "$(find_ac_path)" ]; then
+      ectool chargecontrol "$1" >/dev/null
+    else
+      echo "Not support charge_control without AC."
+    fi
   else
     echo "Not support charge_control without EC."
   fi
@@ -227,7 +231,7 @@ check_battery_value() {
   fi
 
   if [ -n "${stressapptest_pid}" ]; then
-    kill -9 "${stressapptest_pid}"
+    kill -9 "${stressapptest_pid}" || pkill stressapptest
   fi
 }
 
@@ -248,6 +252,20 @@ process_end() {
   clear
   charge_control "idle"
   check_ac_state "${CUTOFF_AC_STATE}"
+
+  # Some devices still charge even in idle mode, so we need to wait for discharging.
+  local battery_path
+  battery_path="$(find_battery_path)"
+  if [ -n "${CUTOFF_BATTERY_MIN_PERCENTAGE}" ] ||
+      [ -n "${CUTOFF_BATTERY_MAX_PERCENTAGE}" ]; then
+    check_battery_value \
+      "${CUTOFF_BATTERY_MIN_PERCENTAGE}" "${CUTOFF_BATTERY_MAX_PERCENTAGE}" \
+      "get_ectool_battery_percentage" "" ||
+    check_battery_value \
+      "${CUTOFF_BATTERY_MIN_PERCENTAGE}" "${CUTOFF_BATTERY_MAX_PERCENTAGE}" \
+      "get_battery_percentage" "${battery_path}" ||
+    cutoff_failed
+  fi
 
   local frecon_pid
   frecon_pid="$(cat /run/frecon/pid)"
