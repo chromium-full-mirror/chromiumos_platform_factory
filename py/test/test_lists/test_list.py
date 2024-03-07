@@ -966,7 +966,7 @@ class TestList(AbstractTestList):
   def _ConstructFactoryTestList(self):
     subtests = []
     cache = {}
-    for test_object in self._config['tests']:
+    for test_object in self._config.get('tests', []):
       subtests.append(self.MakeTest(test_object, cache))
 
     # this might cause recursive call if self.options is not implemented
@@ -975,14 +975,13 @@ class TestList(AbstractTestList):
 
     self._cached_test_list = FactoryTestList(
         subtests, self._state_instance, options,
-        test_list_id=self._config.test_list_id,
-        label=MayTranslate(self._config['label'], force=True),
-        finish_construction=True,
-        constants=self.constants)
+        test_list_id=self._config.test_list_id, label=MayTranslate(
+            self._config.get('label', ''),
+            force=True), finish_construction=True, constants=self.constants)
 
     # Handle override_args
     if 'override_args' in self._config:
-      for key, override in self._config['override_args'].items():
+      for key, override in self._config.get('override_args', {}).items():
         test = self._cached_test_list.LookupPath(key)
         if test:
           config_utils.OverrideConfig(test.dargs, override)

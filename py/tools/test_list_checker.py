@@ -114,8 +114,24 @@ def CheckTestList(manager_: manager.Manager,
     logging.exception('Failed to load test list: %s.', test_list_id)
     return ERROR_LEVEL.FATAL <= waived_level
 
+  factory_test_list = test_list.ToFactoryTestList()
+
+  # Check the type of line break.
+  # Read the 'test_list' file in binary mode to prevent Python from
+  # automatically converting line endings.
+  with open(factory_test_list.source_path, 'rb') as f:
+    lines_with_crlf = []
+    for idx, line in enumerate(f.readlines()):
+      if line.endswith(b'\r\n'):
+        lines_with_crlf.append(idx + 1)
+    if lines_with_crlf:
+      logging.error(
+          'The following lines contain CRLF, '
+          'which should be replaced by LF: %s', lines_with_crlf)
+      return False
+
   if dump:
-    print(test_list.ToFactoryTestList().__repr__(recursive=True))
+    print(factory_test_list.__repr__(recursive=True))
     return True
 
   _DEFINITIONS = 'definitions'
@@ -160,7 +176,7 @@ def CheckTestList(manager_: manager.Manager,
     cache[child_test_list_id] = {}
     _test_list = all_test_lists[child_test_list_id]
     _config = _test_list.ToTestListConfig()
-    for _test_object in _config['tests']:
+    for _test_object in _config.get('tests', []):
       _test_list.MakeTest(_test_object, cache[child_test_list_id])
 
   for test_object_name in raw_definitions:
@@ -276,13 +292,21 @@ def main(args):
     all_test_lists = {}
   else:
     all_test_lists, unused_failed_test_lists = manager_.BuildAllTestLists()
-  success = True
-  for test_list_id in options.test_list_id:
-    success &= CheckTestList(manager_, all_test_lists,
-                             ERROR_LEVEL_SHORT[options.waived], test_list_id,
-                             options.dump)
 
-  sys.exit(not success)
+  wrong_test_lists = []
+  for test_list_id in options.test_list_id:
+    if not CheckTestList(manager_, all_test_lists,
+                         ERROR_LEVEL_SHORT[options.waived], test_list_id,
+                         options.dump):
+      wrong_test_lists.append(test_list_id)
+
+  if wrong_test_lists:
+    logging.error('There are some errors in the following test lists: %s',
+                  wrong_test_lists)
+    sys.exit(1)
+  else:
+    logging.info('All of the test lists looks good!')
+    sys.exit(0)
 
 if __name__ == '__main__':
   main(sys.argv[1:])
