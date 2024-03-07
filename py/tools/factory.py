@@ -14,6 +14,7 @@ To add a subcommand, just add a new Subcommand subclass to this file.
 
 import argparse
 import csv
+import functools
 import inspect
 import json
 import logging
@@ -240,6 +241,7 @@ class TestsCommand(Subcommand):
       ])
     return header
 
+  @functools.lru_cache(maxsize=1000)
   def _GetLabel(self, path):
     test_object = self.goofy.test_list.LookupPath(path)
     if self.args.label and 'en-US' in test_object.label:
