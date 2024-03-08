@@ -1048,6 +1048,65 @@ message CreateOrRefreshSplittedHwidDbClsResponse {
   HwidDbCommit final_hwid_db_commit = 7;
 }
 
+// The product data from DLM.
+message DlmProduct {
+  enum ProductStatus {
+    UNKNOWN = 0;
+
+    APPROVED = 1;
+    DEVELOPMENT = 2;
+    CANCELED = 3;
+    COMPLETED = 4;
+    SHIPPED = 5;
+    ON_HOLD = 6;
+  }
+
+  // The product id.
+  int64 id = 1;
+  // The board name of the device to which the product belongs.
+  string board = 2;
+  // The model name of the device to which the product belongs.
+  string model = 3;
+  // The status of the product.
+  ProductStatus product_status = 4;
+  // The id of the device to which the product belongs.
+  int64 device_id = 5;
+}
+
+// The request of updating or creating product with DLM product data.
+message UpdateDlmProductRequest {
+  // The DLM product data used to update or create product.
+  DlmProduct product = 1;
+}
+
+// The response of updating or creating product with DLM product data.
+message UpdateDlmProductResponse {
+  // The id of the requested product.
+  int64 product_id = 1;
+}
+
+// The device data from DLM.
+message DlmDevice {
+  // The device id.
+  int64 id = 1;
+  // The board name of the device.
+  string board = 2;
+  // The model name of the device.
+  string model = 3;
+}
+
+// The request of updating product with DLM device data.
+message UpdateDlmDeviceRequest {
+  // The DLM device data used to update product.
+  DlmDevice device = 1;
+}
+
+// The response of updating product with DLM device data.
+message UpdateDlmDeviceResponse {
+  // The id of the requested device.
+  int64 device_id = 1;
+}
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1147,4 +1206,12 @@ service HwidService {
   // Create or refresh HWID DB CLs by given CL number.
   rpc CreateOrRefreshSplittedHwidDbCls(CreateOrRefreshSplittedHwidDbClsRequest)
       returns (CreateOrRefreshSplittedHwidDbClsResponse);
+
+  // Update or create DLM product data with DLM product data.
+  rpc UpdateDlmProduct(UpdateDlmProductRequest)
+    returns (UpdateDlmProductResponse);
+
+  // Update DLM product data with DLM device data.
+  rpc UpdateDlmDevice(UpdateDlmDeviceRequest)
+    returns (UpdateDlmDeviceResponse);
 }

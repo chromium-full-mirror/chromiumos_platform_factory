@@ -12,6 +12,7 @@ from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
+from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import hwid_action as hwid_action_module
 from cros.factory.hwid.service.appengine import hwid_action_manager
@@ -117,6 +118,8 @@ class FakeModuleCollection:
     self.fake_avl_metadata_manager = avl_metadata_util.AVLMetadataManager(
         self._ndb_connector,
         config_data.AVLMetadataSetting.CreateInstance(True, '', '', []))
+    self.fake_dlm_product_manager = dlm_product_data.DLMProductManager(
+        self._ndb_connector)
 
   @property
   def ndb_connector(self):
@@ -126,6 +129,7 @@ class FakeModuleCollection:
     self.fake_decoder_data_manager.CleanAllForTest()
     self.fake_hwid_db_data_manager.CleanAllForTest()
     self.fake_avl_metadata_manager.CleanAllForTest()
+    self.fake_dlm_product_manager.CleanAllForTest()
     self._tmpdir_for_hwid_db_data.cleanup()
 
   def ConfigHWID(

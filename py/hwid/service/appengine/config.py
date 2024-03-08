@@ -10,6 +10,7 @@ from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
+from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import payload_data
 from cros.factory.hwid.service.appengine import hwid_action_manager
@@ -55,6 +56,8 @@ class _Config:
     avl_metadata_manager: A AVLMetadataManager instance responsible for
         collecting/uploading AVL related attrs for customized the validation
         process.
+    dlm_product_manager: A DLMProductManager instance responsible for operations
+        on DLM product data.
   """
 
   def __init__(self, config_path=config_data.PATH_TO_APP_CONFIGURATIONS_FILE):
@@ -114,6 +117,7 @@ class _Config:
     latest_push_sql = release_version_setting.get('latest_push_sql', '')
     self.release_version_manager = release_version_utils.ReleaseVersionManager(
         bigquery_cloud_project, latest_push_sql, ndb_connector)
+    self.dlm_product_manager = dlm_product_data.DLMProductManager(ndb_connector)
 
 
 CONFIG = type_utils.LazyObject(_Config)

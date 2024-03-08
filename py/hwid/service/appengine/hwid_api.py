@@ -11,6 +11,7 @@ from typing import Collection
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
 from cros.factory.hwid.service.appengine.hwid_api_helpers import decoding_apis
+from cros.factory.hwid.service.appengine.hwid_api_helpers import dlm_product_apis
 from cros.factory.hwid.service.appengine.hwid_api_helpers import project_info_apis
 from cros.factory.hwid.service.appengine.hwid_api_helpers import self_service_helper as ss_helper
 from cros.factory.hwid.service.appengine.hwid_api_helpers import sku_helper as sku_helper_module
@@ -52,10 +53,14 @@ def GetAllHWIDServiceShards(
       ss_helper.FeatureMatcherBuilderImpl,
       config_data.cq_count_over_limit_cl_reviewers)
 
+  dlm_product_shard = dlm_product_apis.DLMProductShard(
+      config.dlm_product_manager)
+
   return [
       project_info_shard,
       get_bom_shard,
       get_sku_shard,
       get_dut_label_shard,
       self_service_shard,
+      dlm_product_shard,
   ]
