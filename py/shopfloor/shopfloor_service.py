@@ -10,6 +10,7 @@ import argparse
 import enum
 import logging
 import socket
+import ssl
 import sys
 from typing import TYPE_CHECKING
 
@@ -38,6 +39,10 @@ def main():
   parser.add_argument('--protocol', type=WebServiceProtocol,
                       default=WebServiceProtocol.xmlrpc,
                       help='Use for different output protocol.')
+  parser.add_argument('--keyfile', type=str, default=None,
+                      help='Use this for ssl.')
+  parser.add_argument('--certfile', type=str, default=None,
+                      help='Use this for ssl.')
   args = parser.parse_args()
 
   log_format = '%(asctime)s %(levelname)s %(message)s'
@@ -52,6 +57,17 @@ def main():
 
   socket.getfqdn = GetFQDNWithoutDNS
 
+  keyfile = args.keyfile
+  certfile = args.certfile
+  use_https = False
+  context = None
+  if keyfile or certfile:
+    if not keyfile or not certfile:
+      raise ValueError(f'keyfile={keyfile}, certfile={certfile}')
+    use_https = True
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile=certfile, keyfile=keyfile)
+
   try:
     if args.protocol == WebServiceProtocol.xmlrpc:
       if TYPE_CHECKING:
@@ -63,6 +79,8 @@ def main():
           address=args.address,
           port=args.port,
           logRequest=args.verbose,
+          use_https=use_https,
+          context=context,
       )
       # pylint: enable=used-before-assignment
     elif args.protocol == WebServiceProtocol.soap:
@@ -78,6 +96,8 @@ def main():
       soap_shopfloor_service.RunAsSoapServer(
           address=args.address,
           port=args.port,
+          use_https=use_https,
+          context=context,
       )
       # pylint: enable=used-before-assignment
     else:
@@ -93,6 +113,8 @@ def main():
       json_soap_shopfloor_service.RunAsSoapServer(
           address=args.address,
           port=args.port,
+          use_https=use_https,
+          context=context,
       )
       # pylint: enable=used-before-assignment
   finally:

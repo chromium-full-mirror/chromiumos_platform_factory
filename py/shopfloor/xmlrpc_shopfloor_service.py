@@ -5,6 +5,8 @@
 
 import logging
 import socketserver
+import ssl
+from typing import Optional
 import xmlrpc.server
 
 
@@ -122,7 +124,8 @@ class ThreadedXMLRPCServer(socketserver.ThreadingMixIn,
   """A threaded XML RPC Server."""
 
 
-def RunAsServer(address, port, logRequest):
+def RunAsServer(address, port, logRequest, use_https: bool,
+                context: Optional[ssl.SSLContext]):
   """Starts a XML-RPC server in given address and port.
 
   Args:
@@ -130,14 +133,19 @@ def RunAsServer(address, port, logRequest):
     port: Port for server to listen.
     instance: Server instance for incoming XML RPC requests.
     logRequests: Boolean to indicate if we should log requests.
+    use_https: Use https or not.
+    context: The context of the https connection.
 
   Returns:
     Never returns if the server is started successfully, otherwise some
     exception will be raised.
   """
+  del context
   instance = ShopfloorService()
   server = ThreadedXMLRPCServer((address, port), allow_none=True,
                                 logRequests=logRequest)
+  if use_https:
+    raise RuntimeError('https for xmlrpc server is not yet implemented.')
   server.register_introspection_functions()
   server.register_instance(instance)
   logging.info('Server started: http://%s:%s "%s" version %s', address, port,

@@ -4,6 +4,8 @@
 """Implementation of ChromeOS Factory Soap Shopfloor Service"""
 
 import logging
+import ssl
+from typing import Optional
 
 import spyne
 from spyne.protocol import soap
@@ -183,15 +185,20 @@ class SoapShopfloorService(spyne.ServiceBase):
     return EmptyFactoryDeviceData()
 
 
-def RunAsSoapServer(address, port):
+def RunAsSoapServer(address, port, use_https: bool,
+                    context: Optional[ssl.SSLContext]):
   from wsgiref.simple_server import make_server
   application = spyne.Application([SoapShopfloorService], SHOPFLOOR_TNS,
                                   in_protocol=soap.Soap11(validator='lxml'),
                                   out_protocol=soap.Soap11())
   wsgi_application = wsgi.WsgiApplication(application)
 
-  logging.info('listening to http://%s:%d', address, port)
+  protocol = 'https' if use_https else 'http'
+
+  logging.info('listening to %s://%s:%d', protocol, address, port)
   server = make_server(address, port, wsgi_application)  # type:ignore
-  logging.info("wsdl is at: http://%s:%d/?wsdl", address, port)
-  logging.info("Url to use in DOME: http://%s:%d/?wsdl", address, port)
+  if use_https and context is not None:
+    server.socket = context.wrap_socket(server.socket, server_side=True)
+  logging.info("wsdl is at: %s://%s:%d/?wsdl", protocol, address, port)
+  logging.info("Url to use in DOME: %s://%s:%d/?wsdl", protocol, address, port)
   server.serve_forever()
