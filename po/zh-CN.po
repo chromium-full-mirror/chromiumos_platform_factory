@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-02-01 11:17+CST\n"
+"PO-Revision-Date: 2024-03-15 16:14+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -262,8 +262,12 @@ msgid "Flash Netboot"
 msgstr "烧录 netboot 韧体"
 
 #: ../build/pytests_label_generated.json
+msgid "Get Intel Desc Status"
+msgstr "获取 Intel 描述符状态"
+
+#: ../build/pytests_label_generated.json
 msgid "GPS"
-msgstr "GPS"
+msgstr ""
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
@@ -3666,10 +3670,6 @@ msgid "QR Scan"
 msgstr "扫描 QR 码"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "RMA Update Intel Firmware"
-msgstr "RMA更新Intel韧体"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Rear Camera Assemble"
 msgstr "后相机组装"
 
@@ -3856,6 +3856,10 @@ msgstr "更新 CR50 韧体"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update Fingerprint Firmware"
 msgstr "更新指纹韧体"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Update Intel Firmware"
+msgstr "更新Intel韧体"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json

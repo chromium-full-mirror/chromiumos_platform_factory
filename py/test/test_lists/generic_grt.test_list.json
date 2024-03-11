@@ -75,6 +75,7 @@
         "UploadZeroTouchIds",
         "VerifyWidevineKeybox",
         "VerifyUFSAndISHConfig",
+        "GetIntelDescriptorStatus",
         "LockIntelDescriptor",
         "Ti50APROVerification"
       ]

@@ -697,6 +697,10 @@
         "method": "GetDeviceInfo"
       }
     },
+    "GetIntelDescriptorStatus": {
+      "pytest_name": "get_intel_desc_status",
+      "__comment": "Get the status of Intel Descriptor (locked/unlocked). This test item should be run before LockIntelDescriptor test group."
+    },
     "Gyroscope": {
       "pytest_name": "gyroscope",
       "label": "Gyroscope",
@@ -785,10 +789,10 @@
     },
     "LockIntelDescriptor": {
       "label": "Lock the Intel Descriptor",
+      "run_if": "(constants.grt.force_write_protect or constants.phase == 'PVT') and not device.factory.intel_desc_locked",
       "subtests": [
         {
           "pytest_name": "update_firmware",
-          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
           "args": {
             "unlock_csme": false
           }
@@ -904,19 +908,6 @@
         "mode": "qr",
         "QR_string": "Hello ChromeOS!"
       }
-    },
-    "RMAUpdateIntelFirmware": {
-      "label": "RMA Update Intel Firmware",
-      "subtests": [
-        {
-          "pytest_name": "update_firmware",
-          "args": {
-            "unlock_csme": false
-          }
-        },
-        "Barrier",
-        "FullRebootStep"
-      ]
     },
     "ReSignReleaseKernel": {
       "pytest_name": "update_kernel",
@@ -1630,6 +1621,21 @@
             "operation": "eval! constants.update_firmware.reboot_type"
           }
         }
+      ]
+    },
+    "UpdateIntelFirmware": {
+      "label": "Update Intel Firmware",
+      "__comment": "Depending on the current descriptor status, DUT will be updated with lock/unlocked FW.",
+      "subtests": [
+        "GetIntelDescriptorStatus",
+        {
+          "pytest_name": "update_firmware",
+          "args": {
+            "unlock_csme": "eval! not device.factory.intel_desc_locked"
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
       ]
     },
     "UpdateSKUID": {
