@@ -16,9 +16,11 @@ import random
 import re
 import socket
 import socketserver
+import ssl
 import struct
 import time
 from typing import NamedTuple, Optional, Sequence
+import urllib.parse
 import xmlrpc.client
 
 from cros.factory.utils import sys_interface
@@ -168,26 +170,50 @@ def Ifconfig(devname, enable, sleep_time_secs=1):
 class TimeoutXMLRPCTransport(xmlrpc.client.Transport):
   """Transport subclass supporting timeout."""
 
-  def __init__(self, *args, timeout=DEFAULT_TIMEOUT, **kwargs):
+  def __init__(self, *args, timeout=DEFAULT_TIMEOUT, context=None,
+               use_https=False, **kwargs):
     super().__init__(*args, **kwargs)
     self.timeout = timeout
+    self.use_https = use_https
+    self.context = context
 
   def make_connection(self, host):
     if self._connection and self._connection[0]:
       self.close()
-    self._connection = (host,
-                        http.client.HTTPConnection(host, timeout=self.timeout))
+
+    if self.use_https:
+      # The following code is modified from xmlrpc.client.SafeTransport
+      if not hasattr(http.client, 'HTTPSConnection'):
+        raise NotImplementedError(
+            "your version of http.client doesn't support HTTPS")
+      # create a HTTPS connection object from a host descriptor
+      # host may be a string, or a (host, x509-dict) tuple
+      chost, self._extra_headers, x509 = self.get_host_info(host)
+      self._connection = (host,
+                          http.client.HTTPSConnection(chost, None,
+                                                      timeout=self.timeout,
+                                                      context=self.context,
+                                                      **(x509 or {})))
+    else:
+      self._connection = (host,
+                          http.client.HTTPConnection(host,
+                                                     timeout=self.timeout))
     return self._connection[1]
 
 
 class TimeoutXMLRPCServerProxy(xmlrpc.client.ServerProxy):
   """XML/RPC ServerProxy supporting timeout."""
 
-  def __init__(self, uri, *args, timeout=10, **kwargs):
+  def __init__(self, uri, timeout=10, **kwargs):
     if timeout:
+      p = urllib.parse.urlsplit(uri)
+      use_https = p.scheme == 'https'
+      context = kwargs.get('context')
+      if context is None and use_https:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
       kwargs['transport'] = TimeoutXMLRPCTransport(
-          timeout=timeout)
-    super().__init__(uri, *args, **kwargs)
+          timeout=timeout, use_https=use_https, context=context)
+    super().__init__(uri, **kwargs)
 
 
 def FindUsableEthDevice(raise_exception=False,
