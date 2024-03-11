@@ -56,6 +56,17 @@ There are few options you can set:
 
  - `CUTOFF_METHOD`: What to do for cut-off. Available options: `shutdown`,
      `reboot`, `ectool_cutoff`, `battery_cutoff` and `ec_hibernate`.
+     - `shutdown` & `reboot`: are commonly used on devices without battery.
+     (e.g. Chromeboxes)
+     - `ectool_cutoff`: notifies EC to do cutoff immediately without waiting
+     for disk to write the cached data back to storage. This might corrupt the
+     file system, and thus, `battery_cutoff` is more preferred if supported.
+     - `battery_cutoff`: uses nvdata (via crossystem) to schedule an EC cutoff
+     in the AP firmware stage of the next boot. No storage cache issues because
+     the kernel is not started yet.
+     - `ec_hibernate`: puts the device in a very low power mode (if supported)
+     to allow users to turn on the device by pressing the power button without
+     having to plug in a power adapter for a better OOBE experience.
  - `CUTOFF_AC_STATE`: Should AC be removed of not. Available options:
      `connect_ac`, `remove_ac`.
  - `CUTOFF_BATTERY_MIN_PERCENTAGE`: Minimal allowed value for battery charging
