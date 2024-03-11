@@ -39,6 +39,8 @@ KEY_FACTORY = 'factory'
 
 KEY_CROS_CONFIG = 'cros_config'
 
+KEY_INTEL_DESC_LOCKED = JoinKeys(KEY_FACTORY, 'intel_desc_locked')
+
 # Feature Management sections
 KEY_FM = 'feature_management'
 NAME_CHASSIS_BRANDED = 'chassis_branded'
