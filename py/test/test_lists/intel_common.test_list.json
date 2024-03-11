@@ -3,22 +3,13 @@
     "generic_common.test_list"
   ],
   "definitions": {
+    "GetIntelDescriptorStatus": {
+      "pytest_name": "get_intel_desc_status",
+      "__comment": "Get the status of Intel Descriptor (locked/unlocked). This test item should be run before LockIntelDescriptor and PSR test groups."
+    },
     "LockIntelDescriptor": {
       "label": "Lock the Intel Descriptor",
-      "subtests": [
-        {
-          "pytest_name": "update_firmware",
-          "run_if": "constants.grt.force_write_protect or constants.phase == 'PVT'",
-          "args": {
-            "unlock_csme": false
-          }
-        },
-        "Barrier",
-        "FullRebootStep"
-      ]
-    },
-    "RMAUpdateIntelFirmware": {
-      "label": "RMA Update Intel Firmware",
+      "run_if": "(constants.grt.force_write_protect or constants.phase == 'PVT') and not device.factory.intel_desc_locked",
       "subtests": [
         {
           "pytest_name": "update_firmware",
@@ -45,6 +36,7 @@
       }
     },
     "StartPSRLogGroup": {
+      "run_if": "not device.factory.intel_desc_locked",
       "__comment": "Put this test right before GRTFinalize to minimize logging",
       "subtests": [
         "SetEOMNVAR",
@@ -59,8 +51,24 @@
         "StartPSRLog"
       ]
     },
+    "UpdateIntelFirmware": {
+      "label": "Update Intel Firmware",
+      "__comment": "Depending on the current descriptor status, DUT will be updated with lock/unlocked FW.",
+      "subtests": [
+        "GetIntelDescriptorStatus",
+        {
+          "pytest_name": "update_firmware",
+          "args": {
+            "unlock_csme": "eval! not device.factory.intel_desc_locked"
+          }
+        },
+        "Barrier",
+        "FullRebootStep"
+      ]
+    },
     "UpdatePSROEMData": {
       "pytest_name": "update_psr_oem_data",
+      "run_if": "not device.factory.intel_desc_locked",
       "args": {
         "update_from_config": false,
         "oem_data_value": {

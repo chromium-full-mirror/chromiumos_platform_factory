@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-02-23 15:59+CST\n"
+"PO-Revision-Date: 2024-03-12 11:58+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -260,6 +260,10 @@ msgstr ""
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
 msgstr "烧录 netboot 韧体"
+
+#: ../build/pytests_label_generated.json
+msgid "Get Intel Desc Status"
+msgstr "获取 Intel 描述符状态"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
@@ -4433,16 +4437,16 @@ msgid "Lock the Intel Descriptor"
 msgstr "锁定Intel描述符"
 
 #: ../py/test/test_lists/intel_common.test_list.json
-msgid "RMA Update Intel Firmware"
-msgstr "RMA更新Intel韧体"
-
-#: ../py/test/test_lists/intel_common.test_list.json
 msgid "Set EOM NVAR"
 msgstr "设定 EOM NVAR"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Start PSR Log"
 msgstr "开始 PSR 记录"
+
+#: ../py/test/test_lists/intel_common.test_list.json
+msgid "Update Intel Firmware"
+msgstr "更新Intel韧体"
 
 #: ../py/test/test_lists/main_wipe.test_list.json
 msgid "Execute Wipe Test-List"
