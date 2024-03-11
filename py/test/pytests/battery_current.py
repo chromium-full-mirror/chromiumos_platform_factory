@@ -100,7 +100,8 @@ def _GetPromptText(current, target):
 
 class BatteryCurrentTest(test_case.TestCase):
   """A factory test to test battery charging/discharging current."""
-  related_components = (test_case.TestCategory.BATTERY, )
+  related_components = (test_case.TestCategory.BATTERY,
+                        test_case.TestCategory.USB_INTEGRATED)
   ARGS = [
       Arg('min_charging_current', int, 'minimum allowed charging current',
           default=None),

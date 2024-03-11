@@ -6,7 +6,7 @@
 
 Description
 -----------
-Verify the external display is functional.
+Verify the external display (HDMI, DP, USB to HDMI or USB to DP) is functional.
 
 The test is defined by a list ``[display_label, display_id,
 audio_info, usbpd_spec]``. Each item represents an external port:
@@ -400,7 +400,7 @@ class TestAbortedByOperator(_ExternalDisplayBaseException):
 
 class ExtDisplayTest(test_case.TestCase):
   """Main class for external display test."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.USB_INTEGRATED, )
 
   ARGS = [
       Arg('display_info', list,

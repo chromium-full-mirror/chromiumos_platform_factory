@@ -51,6 +51,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   TOUCHCONTROLLER = enum.auto()
   TPM = enum.auto()
   TRACKPAD = enum.auto()
+  USB_INTEGRATED = enum.auto()
   USI_CONTROLLER = enum.auto()
   WIFI = enum.auto()
   WWAN = enum.auto()
@@ -119,6 +120,9 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
             CategoryProperties('avl', 'TPM', 'tpm'),
         TestCategory.TRACKPAD:
             CategoryProperties('avl', 'Touchpad Controller', 'touchpad'),
+        TestCategory.USB_INTEGRATED:
+            CategoryProperties('avl', 'USB Composite Integrated Component',
+                               None),
         TestCategory.USI_CONTROLLER:
             CategoryProperties('avl', 'Touch screen controller (USI Stylus)',
                                'touchscreen'),

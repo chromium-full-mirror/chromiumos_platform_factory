@@ -744,6 +744,9 @@
     "SDPerformance": {
       "inherit": "RemovableStorage",
       "label": "SD Performance",
+      "related_components": [
+        "test_tags.TestCategory.CARD_READER"
+      ],
       "run_if": "constants.sd.sysfs_path != ''",
       "args": {
         "media": "SD",
@@ -1067,6 +1070,9 @@
     "USBPerformance": {
       "inherit": "RemovableStorage",
       "label": "USB Performance",
+      "related_components": [
+        "test_tags.TestCategory.USB_INTEGRATED"
+      ],
       "args": {
         "media": "USB"
       }
