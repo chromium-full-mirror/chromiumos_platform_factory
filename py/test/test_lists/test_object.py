@@ -425,7 +425,9 @@ class FactoryTest:
       struct['retries'] = -1
 
     # Fields that need extra processing
-    struct['related_components'] = list(map(str, struct['related_components']))
+    struct['related_components'] = [
+        f'test_tags.{c}' for c in struct['related_components']
+    ]
     if recursive:
       struct['subtests'] = [
           subtest.ToStruct(extra_fields) for subtest in struct['subtests']]
