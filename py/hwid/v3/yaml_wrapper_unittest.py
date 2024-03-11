@@ -7,6 +7,7 @@ import os
 import textwrap
 import unittest
 
+from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import rule
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
@@ -372,6 +373,44 @@ class FlowStyleForMultiLineDataTest(unittest.TestCase):
     # The loaded value loaded['key'] by folded flow style will be
     # f"firstline\n {'x' * 80} \nremaining\n" which is inconsistent.
     self.assertDictEqual(data, loaded)
+
+
+class FirmwareCompsRepresentationTest(unittest.TestCase):
+
+  def testFirmwareCompsInRepresentation(self):
+    data = {
+        comp_type: {
+            f'{comp_type}_comp1': {
+                'status': 'supported',
+                'values': {
+                    'key1': 'val1',
+                    'key2': 'val2',
+                }
+            }
+        }
+        for comp_type in common.ESSENTIAL_COMPS
+    }
+
+    dumped = yaml.safe_dump(data)
+
+    firmware_keys_comps = textwrap.dedent('''\
+        firmware_keys:
+          firmware_keys_comp1:
+            status: supported
+            values:
+              key1: val1
+              key2: val2
+    ''')
+    ro_ec_firmware_comps = textwrap.dedent('''\
+        ro_ec_firmware:
+          ro_ec_firmware_comp1:
+            status: supported
+            values:
+              key1: val1
+              key2: val2
+    ''')
+    self.assertIn(firmware_keys_comps, dumped)
+    self.assertIn(ro_ec_firmware_comps, dumped)
 
 
 if __name__ == '__main__':

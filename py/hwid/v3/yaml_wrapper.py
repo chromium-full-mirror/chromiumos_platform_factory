@@ -81,6 +81,7 @@ add_constructor = functools.partial(add_constructor, Loader=V3Loader)
 safe_dump = _RemoveDummyStringWrapper(_OptionalInternalDumpers(dump))
 safe_dump_all = _RemoveDummyStringWrapper(_OptionalInternalDumpers(dump_all))
 add_representer = _OptionalInternalDumpers(add_representer)
+add_multi_representer = _OptionalInternalDumpers(add_multi_representer)
 
 
 # Override existing YAML tags to disable some auto type conversion.
@@ -112,12 +113,14 @@ add_constructor('tag:yaml.org,2002:bool', RestrictedBoolConstructor)
 # Override existing YAML representer for strings to switch the representing
 # style automatically.
 def _HWIDStrPresenter(yaml_dumper, data):
-  return yaml_dumper.represent_scalar('tag:yaml.org,2002:str', data,
+  return yaml_dumper.represent_scalar('tag:yaml.org,2002:str', str(data),
                                       style='|' if '\n' in data else None)
 
 
 add_representer(str, _HWIDStrPresenter)
 add_representer(str, _HWIDStrPresenter, internal=True)
+add_multi_representer(str, _HWIDStrPresenter)
+add_multi_representer(str, _HWIDStrPresenter, internal=True)
 
 
 # The following register customized YAML tags.
