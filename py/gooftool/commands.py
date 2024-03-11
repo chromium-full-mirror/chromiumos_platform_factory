@@ -559,7 +559,10 @@ def VerifyWPSwitch(options):
   GetGooftool(options).VerifyWPSwitch(options.has_ectool)
 
 
-@Command('verify_vpd', *GetGooftool.__args__)
+@Command(
+    'verify_vpd',
+    _factory_process_cmd_arg,  # this
+    *GetGooftool.__args__)
 def VerifyVPD(options):
   """Verify that VPD values are properly set.
 
@@ -570,7 +573,9 @@ def VerifyVPD(options):
   rw_vpd = GetGooftool(options).vpd.GetAllData(
       partition=vpd.VPD_READWRITE_PARTITION_NAME)
   event_log.Log('vpd', ro=FilterDict(ro_vpd), rw=FilterDict(rw_vpd))
-  return GetGooftool(options).vpd_utils.VerifyVPD()
+  return GetGooftool(options).vpd_utils.VerifyVPD(
+      # We do not need to check registration code in RMA mode. See b/268297589.
+      options.factory_process == FactoryProcessEnum.RMA)
 
 
 @Command(

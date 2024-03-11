@@ -237,7 +237,7 @@ class VPDUtils:
       return custom_label_tag
     return project
 
-  def VerifyVPD(self):
+  def VerifyVPD(self, skip_check_reg_code=False):
     """Verify that VPD values are set properly."""
 
     required_vpd_ro_data = vpd_data.REQUIRED_RO_DATA.copy()
@@ -265,18 +265,19 @@ class VPDUtils:
     if region not in regions.REGIONS:
       raise VPDError(f'Unknown region: "{region}".')
 
-    device_name = self._GetDeviceNameForRegistrationCode(self._project)
+    if not skip_check_reg_code:
+      device_name = self._GetDeviceNameForRegistrationCode(self._project)
 
-    for type_prefix in ['UNIQUE', 'GROUP']:
-      vpd_field_name = type_prefix[0].lower() + 'bind_attribute'
-      type_name = getattr(RegistrationCode.Type, type_prefix + '_CODE')
-      try:
-        # RegCode should be ready since PVT
-        registration_codes.CheckRegistrationCode(
-            rw_vpd[vpd_field_name], type=type_name, device=device_name,
-            allow_dummy=(phase.GetPhase() < phase.PVT_DOGFOOD))
-      except registration_codes.RegistrationCodeException as e:
-        raise VPDError(f'{vpd_field_name} is invalid: {e!r}') from None
+      for type_prefix in ['UNIQUE', 'GROUP']:
+        vpd_field_name = type_prefix[0].lower() + 'bind_attribute'
+        type_name = getattr(RegistrationCode.Type, type_prefix + '_CODE')
+        try:
+          # RegCode should be ready since PVT
+          registration_codes.CheckRegistrationCode(
+              rw_vpd[vpd_field_name], type=type_name, device=device_name,
+              allow_dummy=(phase.GetPhase() < phase.PVT_DOGFOOD))
+        except registration_codes.RegistrationCodeException as e:
+          raise VPDError(f'{vpd_field_name} is invalid: {e!r}') from None
 
   def VerifyCacheForIdentity(self):
     """Verifies if the identity fields in vpd are synced with the boot cache.
