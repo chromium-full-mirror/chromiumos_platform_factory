@@ -14,7 +14,8 @@ This pytest executes the motion sensor setup and main gyro test in sequence.
 
 Test Procedure
 --------------
-This test supports and enables auto start by default.  In this case::
+This test supports and enables auto start by default.  In this case:
+
 1. Put the device (base/lid) on a static plane then press space.
 2. Wait for completion.
 
@@ -27,16 +28,12 @@ Dependency
 
 Examples
 --------
-To run the test on base gyroscope::
+To run the test on base gyroscope:
 
-  {
-    "pytest_name": "gyroscope_angle",
-    "args": {
-      "rotation_threshold": 90,
-      "stop_threshold": 0.1,
-      "location": "base"
-    }
-  }
+.. test_list::
+
+  generic_ec_component_accel_examples:GyroscopeAngle
+
 """
 
 import collections
@@ -61,7 +58,7 @@ _DEFAULT_POLL_INTERVAL = 0
 
 
 class Gyroscope(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.ACCELEROMETER, )
 
   ARGS = [
       Arg('rotation_threshold', int,

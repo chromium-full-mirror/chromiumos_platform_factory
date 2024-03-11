@@ -38,20 +38,18 @@ Dependency
 
 Examples
 --------
-To run horizontal calibration on base accelerometer::
+To run horizontal calibration on base accelerometer:
 
-  {
-    "pytest_name": "accelerometers_calibration",
-    "args": {
-      "orientation": {
-        "in_accel_z": 1,
-        "in_accel_y": 0,
-        "in_accel_x": 0
-      },
-      "spec_offset": [0.5, 0.5],
-      "location": "base"
-    }
-  }
+.. test_list::
+
+  generic_ec_component_accel_examples:BaseAccelerometersCalibration
+
+To run horizontal calibration on lid accelerometer:
+
+.. test_list::
+
+  generic_ec_component_accel_examples:LidAccelerometersCalibration
+
 """
 
 import enum

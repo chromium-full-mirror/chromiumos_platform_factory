@@ -1,0 +1,165 @@
+{
+  "__comment": "Examples for testing ec_component_accel components. ec_component_accel is called \"Accelerometer/IMU\" in AVL.",
+  "inherit": [
+    "generic_ec_component_accel.test_list"
+  ],
+  "label": "Generic Accelerometer/IMU Factory tests",
+  "constants": {
+    "has_device_data": true
+  },
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {
+    "BaseAccelerometersCalibrationByEC": {
+      "pytest_name": "spatial_sensor_calibration",
+      "label": "Base Accelerometers Calibration By EC",
+      "args": {
+        "device_name": "cros-ec-accel",
+        "device_location": "base",
+        "raw_entry_template": "in_accel_%s_raw",
+        "calibbias_entry_template": "in_accel_%s_calibbias",
+        "vpd_entry_template": "in_accel_%s_base_calibbias"
+      }
+    },
+    "BaseAccelerometersLooserLimits": {
+      "inherit": "BaseAccelerometers",
+      "label": "Base Accelerometers Test With Looser Limits",
+      "args": {
+        "limits": {
+          "x": [
+            -1.0,
+            1.0
+          ],
+          "y": [
+            -1.0,
+            1.0
+          ],
+          "z": [
+            8.0,
+            11.0
+          ]
+        }
+      }
+    },
+    "GoToTabletModeAndGoBack": {
+      "inherit": "TabletMode",
+      "label": "Go To Tablet Mode And Go Back",
+      "args": {
+        "prompt_flip_tablet": true,
+        "prompt_flip_notebook": true
+      }
+    },
+    "GoToTabletModeAndGoBackSetLid": {
+      "inherit": "GoToTabletModeAndGoBack",
+      "label": "Go To Tablet Mode And Go Back With Specific Lid",
+      "args": {
+        "lid_filter": "Lid Switch"
+      }
+    },
+    "GyroscopeCalibrationByEC": {
+      "pytest_name": "spatial_sensor_calibration",
+      "label": "Gyroscope Calibration By EC",
+      "args": {
+        "device_name": "cros-ec-gyro",
+        "device_location": "base",
+        "raw_entry_template": "in_anglvel_%s_raw",
+        "calibbias_entry_template": "in_anglvel_%s_calibbias",
+        "vpd_entry_template": "in_anglvel_%s_base_calibbias"
+      }
+    },
+    "LidAccelerometersCalibrationByEC": {
+      "pytest_name": "spatial_sensor_calibration",
+      "label": "Lid Accelerometers Calibration By EC",
+      "args": {
+        "device_name": "cros-ec-accel",
+        "device_location": "lid",
+        "raw_entry_template": "in_accel_%s_raw",
+        "calibbias_entry_template": "in_accel_%s_calibbias",
+        "vpd_entry_template": "in_accel_%s_lid_calibbias"
+      }
+    },
+    "SetHasBaseAccelerometer": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Base Accelerometer",
+      "args": {
+        "commands": "factory device-data component.has_base_accelerometer=1"
+      }
+    },
+    "SetHasBaseGyroscope": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Base Gyroscope",
+      "args": {
+        "commands": "factory device-data component.has_base_gyroscope=1"
+      }
+    },
+    "SetHasLidAccelerometer": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Lid Accelerometer",
+      "args": {
+        "commands": "factory device-data component.has_lid_accelerometer=1"
+      }
+    },
+    "SetHasTabletmode": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Tabletmode",
+      "args": {
+        "commands": "factory device-data component.has_tabletmode=1"
+      }
+    },
+    "UnsetHasBaseAccelerometer": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Base Accelerometer",
+      "args": {
+        "commands": "factory device-data component.has_base_accelerometer=0"
+      }
+    },
+    "UnsetHasBaseGyroscope": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Base Gyroscope",
+      "args": {
+        "commands": "factory device-data component.has_base_gyroscope=0"
+      }
+    },
+    "UnsetHasLidAccelerometer": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Lid Accelerometer",
+      "args": {
+        "commands": "factory device-data component.has_lid_accelerometer=0"
+      }
+    },
+    "UnsetHasTabletmode": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Tabletmode",
+      "args": {
+        "commands": "factory device-data component.has_tabletmode=0"
+      }
+    }
+  },
+  "tests": [
+    "SetHasBaseAccelerometer",
+    "UnsetHasBaseAccelerometer",
+    "SetHasLidAccelerometer",
+    "UnsetHasLidAccelerometer",
+    "SetHasBaseGyroscope",
+    "UnsetHasBaseGyroscope",
+    "SetHasTabletmode",
+    "UnsetHasTabletmode",
+    "BaseAccelerometersCalibration",
+    "BaseAccelerometersCalibrationByEC",
+    "BaseAccelerometers",
+    "BaseAccelerometersLooserLimits",
+    "LidAccelerometersCalibration",
+    "LidAccelerometersCalibrationByEC",
+    "LidAccelerometers",
+    "AccelerometersLidAngle",
+    "GyroscopeCalibration",
+    "GyroscopeCalibrationByEC",
+    "Gyroscope",
+    "GyroscopeAngle",
+    "GoToTabletModeAndGoBack",
+    "GoToTabletModeAndGoBackSetLid",
+    "ScreenRotation",
+    "TabletRotation"
+  ]
+}

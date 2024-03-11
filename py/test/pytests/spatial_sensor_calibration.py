@@ -26,15 +26,27 @@ The step for calibration is as follows:
 
 Dependency
 ----------
-- A spatial_sensor.
+- A spatial sensor whose driver implements `perform_calib`_ of accelgyro_drv in
+  `accelgyro.h <https://source.chromium.org/search?q=accelgyro.h>`_.
+
+.. _perform_calib: \
+  https://source.chromium.org/search?q=perform_calib%20f:platform%2Fec%2Fdriver
 
 Examples
 --------
-To run this test, add this into test list::
+To run this test, add this into test list:
 
-  {
-    "pytest_name": "spatial_sensor",
-  }
+.. test_list::
+
+  generic_ec_component_accel_examples:GyroscopeCalibrationByEC
+
+.. test_list::
+
+  generic_ec_component_accel_examples:BaseAccelerometersCalibrationByEC
+
+.. test_list::
+
+  generic_ec_component_accel_examples:LidAccelerometersCalibrationByEC
 
 """
 

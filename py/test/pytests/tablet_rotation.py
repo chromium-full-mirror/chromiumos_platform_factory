@@ -27,76 +27,25 @@ more information.
 
 Examples
 --------
-To test screen rotation for Chrome, add this in test list::
+To test screen rotation, and have a timeout of an hour:
 
-  {
-    "pytest_name": "tablet_rotation"
-  }
+.. test_list::
 
-To test screen rotation, and have a timeout of 10 minutes::
+  generic_ec_component_accel_examples:TabletRotation
 
-  {
-    "pytest_name": "tablet_rotation",
-    "args": {
-      "timeout_secs": 600
-    }
-  }
+To provide more parameters for accelerometer when testing:
 
-To provide more parameters for accelerometer when testing::
+.. test_list::
 
-  {
-    "pytest_name": "tablet_rotation",
-    "args": {
-      "spec_offset": [0.5, 0.5],
-      "degrees_to_orientations": {
-        "base": {
-          "0": {
-            "in_accel_x": 0,
-            "in_accel_y": 1,
-            "in_accel_z": 0
-          },
-          "90": {
-            "in_accel_x": 1,
-            "in_accel_y": 0,
-            "in_accel_z": 0
-          },
-          "180": {
-            "in_accel_x": 0,
-            "in_accel_y": -1,
-            "in_accel_z": 0
-          },
-          "270": {
-            "in_accel_x": -1,
-            "in_accel_y": 0,
-            "in_accel_z": 0
-          }
-        }
-      }
-    }
-  }
+  generic_ec_component_accel_examples:ScreenRotation.TabletRotationAll
 
 To test screen rotation for Chrome and prompt operator to flip before and after
-the test::
+the test, we can combine the test with `tablet_mode.py <./tablet_mode.html>`_:
 
-  {
-    "subtests": [
-      {
-        "pytest_name": "tablet_mode",
-        "args": {
-          "prompt_flip_tablet": true
-        }
-      },
-      {
-        "pytest_name": "tablet_rotation"
-      },
-      {
-        "pytest_name": "tablet_mode",
-        "args": {
-          "prompt_flip_notebook": true
-        }
-      }
-    ]
-  }
+.. test_list::
+
+  generic_ec_component_accel_examples:ScreenRotation
+
 """
 
 import enum

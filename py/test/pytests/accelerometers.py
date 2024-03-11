@@ -22,7 +22,7 @@ Test Procedure
 --------------
 1. The test will auto start unless argument `autostart` is false, otherwise, it
    will wait for operators to press `SPACE`.
-2. Check if values are within the threashold, pass / fail automatically.
+2. Check if values are within the threshold, pass / fail automatically.
 
 Dependency
 ----------
@@ -31,24 +31,21 @@ Dependency
 Examples
 --------
 If the device is expected to be place horizontally on desk, this test can be
-added as simple as::
+added as simple as:
 
-  {
-    "pytest_name": "accelerometers"
-  }
+.. test_list::
 
-You can also change the limits of each axis to loose the criteria::
+  generic_ec_component_accel_examples:BaseAccelerometers
 
-  {
-    "pytest_name": "accelerometers"
-    "args": {
-      "limits": {
-        "x": [-1.0, 1.0],
-        "y": [-1.0, 1.0],
-        "z": [8.0, 11.0]
-      }
-    }
-  }
+.. test_list::
+
+  generic_ec_component_accel_examples:LidAccelerometers
+
+You can also change the limits of each axis to loose the criteria:
+
+.. test_list::
+
+  generic_ec_component_accel_examples:BaseAccelerometersLooserLimits
 
 """
 

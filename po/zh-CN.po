@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-03-12 11:58+CST\n"
+"PO-Revision-Date: 2024-04-02 13:55+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -266,17 +266,17 @@ msgid "Get Intel Desc Status"
 msgstr "获取 Intel 描述符状态"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope"
 msgstr "陀螺仪"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope Angle"
 msgstr "陀螺仪角度"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope Calibration"
 msgstr "陀螺仪校正"
 
@@ -3591,10 +3591,6 @@ msgid "Barrier"
 msgstr "检查关卡"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Base Accelerometers Calibration"
-msgstr "基底加速度计校正"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "HDMI1 CEC Test"
 msgstr "HDMI1 CEC 测试"
 
@@ -3722,16 +3718,8 @@ msgid "Idle"
 msgstr "闲置等待"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Lid Accelerometers Calibration"
-msgstr "上盖加速度计校正"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
 msgstr "组态与样式(SKU)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Notebook Mode"
-msgstr "笔电模式"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Notify Overlord to track connection"
@@ -3770,10 +3758,6 @@ msgid "SD Performance"
 msgstr "SD 效能"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Screen Rotation"
-msgstr "屏幕旋转"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Set Cr50 AP RO Hash"
 msgstr "写入 Cr50 AP RO Hash"
 
@@ -3800,18 +3784,6 @@ msgstr "Shopfloor 服务 (NotifyStart)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify TPM state"
 msgstr "TPM 状态"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Tablet Rotation Accelerometers"
-msgstr "平版旋转-加速度计"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Tablet Rotation Base-Accel"
-msgstr "平版旋转-主板加速度计"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Tablet Rotation Lid-Accel"
-msgstr "平版旋转-上盖加速度计"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ti50 AP RO Verification (PVT)"
@@ -4052,6 +4024,102 @@ msgstr "更新 DRAM 零件号"
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Generic DRAM Factory tests"
 msgstr "一般记忆体测试"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Base Accelerometers Test"
+msgstr "基底加速度计测试"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Base Accelerometers Calibration"
+msgstr "基底加速度计校正"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Lid Accelerometers Test"
+msgstr "上盖加速度计测试"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Lid Accelerometers Calibration"
+msgstr "上盖加速度计校正"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Notebook Mode"
+msgstr "笔电模式"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Screen Rotation"
+msgstr "屏幕旋转"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Tablet Rotation Accelerometers"
+msgstr "平版旋转-加速度计"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Tablet Rotation Base-Accel"
+msgstr "平版旋转-主板加速度计"
+
+#: ../py/test/test_lists/generic_ec_component_accel.test_list.json
+msgid "Tablet Rotation Lid-Accel"
+msgstr "平版旋转-上盖加速度计"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Base Accelerometers Calibration By EC"
+msgstr "基底加速度计校正(使用 EC)"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Base Accelerometers Test With Looser Limits"
+msgstr "基底加速度计校正(限制更宽松)"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Go To Tablet Mode And Go Back"
+msgstr "进入平板模式并返回"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Go To Tablet Mode And Go Back With Specific Lid"
+msgstr "使用特定的上盖进入平板模式并返回"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Gyroscope Calibration By EC"
+msgstr "陀螺仪校正(使用 EC)"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Lid Accelerometers Calibration By EC"
+msgstr "上盖加速度计校正(使用 EC)"
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Set Has Base Accelerometer"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Set Has Base Gyroscope"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Set Has Lid Accelerometer"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Set Has Tabletmode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Unset Has Base Accelerometer"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Unset Has Base Gyroscope"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Unset Has Lid Accelerometer"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Unset Has Tabletmode"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
+msgid "Generic Accelerometer/IMU Factory tests"
+msgstr "一般加速度计/IMU测试"
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Light Sensor Calibration With Mocked Chamber"

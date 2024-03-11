@@ -22,16 +22,12 @@ Dependency
 
 Examples
 --------
-Usage examples::
+Usage examples:
 
-    {
-      "pytest_name": "accelerometers_lid_angle",
-      "args": {
-        "angle": 180,
-        "tolerance": 5,
-        "spec_offset": [0.5, 0.5]
-      }
-    }
+.. test_list::
+
+  generic_ec_component_accel_examples:AccelerometersLidAngle
+
 """
 
 import logging

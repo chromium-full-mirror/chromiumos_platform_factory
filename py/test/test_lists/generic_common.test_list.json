@@ -106,33 +106,6 @@
       "inherit": "Cr50APROVerificationGroup",
       "__comment": "Make old definition as an alias of the new definition for backward compatibility"
     },
-    "Accelerometers": {
-      "pytest_name": "accelerometers"
-    },
-    "AccelerometersCalibration": {
-      "pytest_name": "accelerometers_calibration",
-      "args": {
-        "orientation": {
-          "in_accel_x": 0,
-          "in_accel_y": 0,
-          "in_accel_z": 1
-        },
-        "spec_offset": [
-          0.5,
-          0.5
-        ]
-      }
-    },
-    "AccelerometersLidAngle": {
-      "pytest_name": "accelerometers_lid_angle",
-      "run_if": "not constants.has_device_data or (device.component.has_lid_accelerometer and device.component.has_base_accelerometer)",
-      "args": {
-        "spec_offset": [
-          0.5,
-          0.5
-        ]
-      }
-    },
     "ActivateRegCode": {
       "inherit": "ShopfloorService",
       "label": "Activate Registration Code",
@@ -157,14 +130,6 @@
         "disable_input_on_fail": true,
         "pass_without_prompt": true,
         "accessibility": true
-      }
-    },
-    "BaseAccelerometersCalibration": {
-      "inherit": "AccelerometersCalibration",
-      "label": "Base Accelerometers Calibration",
-      "run_if": "not constants.has_device_data or device.component.has_base_accelerometer",
-      "args": {
-        "location": "base"
       }
     },
     "BrandedChassis": {
@@ -530,29 +495,6 @@
         "method": "GetDeviceInfo"
       }
     },
-    "Gyroscope": {
-      "pytest_name": "gyroscope",
-      "label": "Gyroscope",
-      "run_if": "not constants.has_device_data or device.component.has_base_gyroscope",
-      "args": {
-        "rotation_threshold": 1.0,
-        "stop_threshold": 0.1
-      }
-    },
-    "GyroscopeAngle": {
-      "pytest_name": "gyroscope_angle",
-      "label": "Gyroscope Angle",
-      "run_if": "not constants.has_device_data or device.component.has_base_gyroscope",
-      "args": {
-        "rotation_threshold": 90,
-        "stop_threshold": 0.1
-      }
-    },
-    "GyroscopeCalibration": {
-      "pytest_name": "gyroscope_calibration",
-      "label": "Gyroscope Calibration",
-      "run_if": "not constants.has_device_data or device.component.has_base_gyroscope"
-    },
     "HPS": {
       "pytest_name": "hps",
       "run_if": "device.component.has_hps",
@@ -614,14 +556,6 @@
         "challenge": true
       }
     },
-    "LidAccelerometersCalibration": {
-      "inherit": "AccelerometersCalibration",
-      "label": "Lid Accelerometers Calibration",
-      "run_if": "not constants.has_device_data or device.component.has_lid_accelerometer",
-      "args": {
-        "location": "lid"
-      }
-    },
     "LidSwitch": {
       "pytest_name": "lid_switch"
     },
@@ -645,14 +579,6 @@
     },
     "Mouse": {
       "pytest_name": "mouse"
-    },
-    "NotebookMode": {
-      "pytest_name": "tablet_mode",
-      "label": "Notebook Mode",
-      "args": {
-        "timeout_secs": 3600,
-        "prompt_flip_notebook": true
-      }
     },
     "NotifyOverlordTrackConnection": {
       "pytest_name": "exec_shell",
@@ -756,17 +682,6 @@
     },
     "Scan": {
       "pytest_name": "scan"
-    },
-    "ScreenRotation": {
-      "label": "Screen Rotation",
-      "run_if": "not constants.has_device_data or device.component.has_tabletmode",
-      "subtests": [
-        "TabletMode",
-        "TabletRotationAll",
-        "TabletRotationBase",
-        "TabletRotationLid",
-        "NotebookMode"
-      ]
     },
     "SetAPROHash": {
       "inherit": "SetCr50APROHash",
@@ -890,147 +805,6 @@
     },
     "TPMVerifyEK": {
       "pytest_name": "tpm_verify_ek"
-    },
-    "TabletMode": {
-      "pytest_name": "tablet_mode",
-      "run_if": "not constants.has_device_data or device.component.has_tabletmode",
-      "args": {
-        "timeout_secs": 3600,
-        "prompt_flip_tablet": true
-      }
-    },
-    "TabletRotation": {
-      "pytest_name": "tablet_rotation"
-    },
-    "TabletRotationAll": {
-      "pytest_name": "tablet_rotation",
-      "label": "Tablet Rotation Accelerometers",
-      "run_if": "not constants.has_device_data or (device.component.has_base_accelerometer and device.component.has_lid_accelerometer)",
-      "args": {
-        "spec_offset": [
-          1.5,
-          1.5
-        ],
-        "timeout_secs": 3600,
-        "degrees_to_orientations": {
-          "base": {
-            "0": {
-              "in_accel_x": 0,
-              "in_accel_y": -1,
-              "in_accel_z": 0
-            },
-            "90": {
-              "in_accel_x": 1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            },
-            "180": {
-              "in_accel_x": 0,
-              "in_accel_y": 1,
-              "in_accel_z": 0
-            },
-            "270": {
-              "in_accel_x": -1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            }
-          },
-          "lid": {
-            "0": {
-              "in_accel_x": 0,
-              "in_accel_y": 1,
-              "in_accel_z": 0
-            },
-            "90": {
-              "in_accel_x": 1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            },
-            "180": {
-              "in_accel_x": 0,
-              "in_accel_y": -1,
-              "in_accel_z": 0
-            },
-            "270": {
-              "in_accel_x": -1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            }
-          }
-        }
-      }
-    },
-    "TabletRotationBase": {
-      "pytest_name": "tablet_rotation",
-      "label": "Tablet Rotation Base-Accel",
-      "run_if": "constants.has_device_data and device.component.has_base_accelerometer and not device.component.has_lid_accelerometer",
-      "args": {
-        "spec_offset": [
-          1.5,
-          1.5
-        ],
-        "timeout_secs": 3600,
-        "degrees_to_orientations": {
-          "base": {
-            "0": {
-              "in_accel_x": 0,
-              "in_accel_y": -1,
-              "in_accel_z": 0
-            },
-            "90": {
-              "in_accel_x": 1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            },
-            "180": {
-              "in_accel_x": 0,
-              "in_accel_y": 1,
-              "in_accel_z": 0
-            },
-            "270": {
-              "in_accel_x": -1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            }
-          }
-        }
-      }
-    },
-    "TabletRotationLid": {
-      "pytest_name": "tablet_rotation",
-      "label": "Tablet Rotation Lid-Accel",
-      "run_if": "constants.has_device_data and not device.component.has_base_accelerometer and device.component.has_lid_accelerometer",
-      "args": {
-        "spec_offset": [
-          1.5,
-          1.5
-        ],
-        "timeout_secs": 3600,
-        "degrees_to_orientations": {
-          "lid": {
-            "0": {
-              "in_accel_x": 0,
-              "in_accel_y": 1,
-              "in_accel_z": 0
-            },
-            "90": {
-              "in_accel_x": 1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            },
-            "180": {
-              "in_accel_x": 0,
-              "in_accel_y": -1,
-              "in_accel_z": 0
-            },
-            "270": {
-              "in_accel_x": -1,
-              "in_accel_y": 0,
-              "in_accel_z": 0
-            }
-          }
-        }
-      }
     },
     "ThermalSensors": {
       "pytest_name": "thermal_sensors"

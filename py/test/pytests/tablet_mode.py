@@ -32,29 +32,26 @@ Dependency
 
 Examples
 --------
-To run the test, add this in test list::
+To run the test, add this in test list:
 
-  {
-    "pytest_name": "tablet_mode",
-    "args": {
-      "prompt_flip_tablet": true,
-      "prompt_flip_notebook": true
-    }
-  }
+.. test_list::
 
-Set lid_filter to choose the lid sensor explicitly::
+  generic_ec_component_accel_examples:GoToTabletModeAndGoBack
 
-  {
-    "pytest_name": "tablet_mode",
-    "args": {
-      "prompt_flip_tablet": true,
-      "prompt_flip_notebook": true,
-      "lid_filter": "Lid Switch"
-    }
-  }
+Set lid_filter to choose the lid sensor explicitly:
 
-You can also use the `ScreenRotation`, which is defined in
-generic_common.test_list.json.
+.. test_list::
+
+  generic_ec_component_accel_examples:GoToTabletModeAndGoBackSetLid
+
+To test screen rotation for Chrome and prompt operator to flip before and after
+the test, we can combine the test with
+`tablet_rotation.py <./tablet_rotation.html>`_:
+
+.. test_list::
+
+  generic_ec_component_accel_examples:ScreenRotation
+
 """
 
 import logging
