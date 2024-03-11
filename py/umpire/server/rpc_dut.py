@@ -175,6 +175,17 @@ class UmpireDUTCommands(umpire_rpc.UmpireRPC):
     del x_umpire_dut  # Unused.
     bundle = self.env.config.GetActiveBundle()
     ip, port = GetServerIpPortFromRequest(request, self.env)
+
+    def IsHttps():
+      if os.path.exists(self.env.protocol_file):
+        protocol_json = json_utils.LoadFile(self.env.protocol_file)
+        if 'use_https' in protocol_json:
+          return protocol_json['use_https']
+      return False
+
+    if IsHttps():
+      return f'https://{ip}:{port:d}/res/{bundle["payloads"]}' if bundle else ''
+
     return f'http://{ip}:{port:d}/res/{bundle["payloads"]}' if bundle else ''
 
 

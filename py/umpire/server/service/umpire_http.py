@@ -9,6 +9,7 @@ import shutil
 
 from cros.factory.umpire.server.service import umpire_service
 from cros.factory.utils import file_utils
+from cros.factory.utils import json_utils
 
 
 HTTP_BIN = '/usr/sbin/nginx'
@@ -63,7 +64,10 @@ http {
   }
 
   server {
-    listen %(http_port)s;
+    listen %(http_port)s %(ssl)s;
+
+    %(ssl_certificate)s
+    %(ssl_certificate_key)s
 
     server_name localhost;
     charset utf-8;
@@ -83,7 +87,7 @@ http {
 
 NGINX_PROXY_TEMPLATE = """
 location %(location_rule)s {
-  proxy_pass http://localhost:%(port)d%(changed_path)s;
+  proxy_pass %(protocol)s://localhost:%(port)d%(changed_path)s;
   proxy_set_header Host $http_host;
 }
 """
@@ -169,6 +173,13 @@ class HTTPService(umpire_service.UmpireService):
     def _append_to_handlers(location_rule, port, changed_path=''):
       umpire_proxy_handlers.append((location_rule, port, changed_path))
 
+    def _is_https():
+      if os.path.exists(env.protocol_file):
+        protocol_json = json_utils.LoadFile(env.protocol_file)
+        if 'use_https' in protocol_json:
+          return protocol_json['use_https']
+      return False
+
     http_config = umpire_config['services']['umpire_http']
     httpd_port = int(env.umpire_base_port)
 
@@ -191,7 +202,8 @@ class HTTPService(umpire_service.UmpireService):
         NGINX_PROXY_TEMPLATE % {
             'location_rule': location_rule,
             'port': port,
-            'changed_path': changed_path
+            'changed_path': changed_path,
+            'protocol': 'https' if _is_https() else 'http'
         } for location_rule, port, changed_path in umpire_proxy_handlers
     ]
 
@@ -205,6 +217,14 @@ class HTTPService(umpire_service.UmpireService):
             NGINX_REVERSE_PROXY_TEMPLATE %
             {'reverse_proxy_ip_index': idx, 'proxy_addr': proxy['proxy_addr']})
 
+    ssl = ''
+    ssl_certificate = ''
+    ssl_certificate_key = ''
+    if _is_https():
+      ssl = 'ssl'
+      ssl_certificate = 'ssl_certificate  /mnt/dome/selfsigned.crt;'
+      ssl_certificate_key = 'ssl_certificate_key  /mnt/dome/selfsigned.key;'
+
     config_str = NGINX_CONFIG_TEMPLATE % {
         'pid_file': os.path.join(env.pid_dir, 'httpd.pid'),
         'http_port': httpd_port,
@@ -213,6 +233,9 @@ class HTTPService(umpire_service.UmpireService):
         'resources_dir': env.resources_dir,
         'reverse_proxy_ips': '\n'.join(reverse_proxy_ips),
         'http_proxies': '\n'.join(config_proxies_str),
-        'reverse_proxies': '\n'.join(reverse_proxies_str)
+        'reverse_proxies': '\n'.join(reverse_proxies_str),
+        'ssl': ssl,
+        'ssl_certificate': ssl_certificate,
+        'ssl_certificate_key': ssl_certificate_key
     }
     file_utils.WriteFile(config_path, config_str)
