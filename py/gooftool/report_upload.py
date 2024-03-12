@@ -16,6 +16,7 @@ import xmlrpc.client
 
 from cros.factory.gooftool.common import Shell
 from cros.factory.utils import file_utils
+from cros.factory.utils import net_utils
 from cros.factory.utils.string_utils import ParseUrl
 from cros.factory.utils.type_utils import Error
 
@@ -84,8 +85,8 @@ def FactoryServerUpload(
   (server_url, _, serial_number) = remote_spec.partition('#')
   logging.debug('%s: [%s].UploadReport(%s, %s)', FactoryServerUpload.__name__,
                 server_url, serial_number, source_path)
-  instance = xmlrpc.client.ServerProxy(server_url, allow_none=True,
-                                       verbose=False)
+  instance = net_utils.TimeoutXMLRPCServerProxy(server_url, allow_none=True,
+                                                verbose=False, timeout=None)
   blob = xmlrpc.client.Binary(file_utils.ReadFile(source_path, encoding=None))
   cros_config = cros_config_module.CrosConfig()
   model = cros_config.GetModelName()

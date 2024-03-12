@@ -205,12 +205,13 @@ class TimeoutXMLRPCServerProxy(xmlrpc.client.ServerProxy):
   """XML/RPC ServerProxy supporting timeout."""
 
   def __init__(self, uri, timeout=10, **kwargs):
+    p = urllib.parse.urlsplit(uri)
+    use_https = p.scheme == 'https'
+    context = kwargs.get('context')
+    if context is None and use_https:
+      context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+      kwargs['context'] = context
     if timeout:
-      p = urllib.parse.urlsplit(uri)
-      use_https = p.scheme == 'https'
-      context = kwargs.get('context')
-      if context is None and use_https:
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
       kwargs['transport'] = TimeoutXMLRPCTransport(
           timeout=timeout, use_https=use_https, context=context)
     super().__init__(uri, **kwargs)
