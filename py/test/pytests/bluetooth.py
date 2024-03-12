@@ -285,7 +285,8 @@ class BluetoothTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.bt_manager = cast(bluetooth.BluetoothManager, self.dut.bluetooth)
+    self.bt_manager = cast(bluetooth.AbstractBluetoothManager,
+                           self.dut.bluetooth)
     bluetooth_utils.VerifyAltSetting()
     self.ui.ToggleTemplateClass('font-large', True)
 
@@ -621,9 +622,9 @@ class BluetoothTest(test_case.TestCase):
   def ScanDevices(self):
     """Scan bluetooth devices around.
 
-    In this task, the test will control the first adapter from BluetoothManager
-    and scan devices around for timeout_secs. The task passed if there is at
-    least one device.
+    In this task, the test will control the first adapter from
+    AbstractBluetoothManager and scan devices around for timeout_secs. The task
+    passed if there is at least one device.
 
     If target_addresses is provided, the test will also check if it can find
     at least one device specified in target_addresses list.
@@ -803,7 +804,7 @@ class BluetoothTest(test_case.TestCase):
     """Detect the RSSI strength at a given target MAC address.
 
     In this task, a generic test host uses the first adapter from
-    BluetoothManager and scans devices around for timeout_secs. The task
+    AbstractBluetoothManager and scans devices around for timeout_secs. The task
     passed if it can detect the RSSI strength at the target MAC.
 
     Note: this task is intended to be executed on a generic test host to test
