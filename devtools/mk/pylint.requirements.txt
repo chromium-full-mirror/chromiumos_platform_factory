@@ -623,7 +623,9 @@ python-dateutil==2.9.0.post0 \
 pytz==2024.1 \
     --hash=sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812 \
     --hash=sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319
-    # via google-cloud-ndb
+    # via
+    #   google-cloud-ndb
+    #   spyne
 redis==3.3.11 \
     --hash=sha256:3613daad9ce5951e426f460deddd5caf469e08a3af633e9578fc77d362becf62 \
     --hash=sha256:8d0fc278d3f5e1249967cba2eb4a5632d19e45ce5c09442b8422d15ee2c22cc2
@@ -648,6 +650,9 @@ six==1.16.0 \
     #   google-api-python-client
     #   packaging
     #   python-dateutil
+spyne==2.14.0 \
+    --hash=sha256:063e950e179a7d5b06b577c9f2c9091a70d40217f1a853076b3709caa2bf3a16
+    # via -r pylint.requirements.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f

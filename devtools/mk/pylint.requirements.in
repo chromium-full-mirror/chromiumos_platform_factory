@@ -12,3 +12,4 @@ packaging==20.0
 pylint==2.13.9
 pycryptodome==3.7.3
 redis==3.3.11
+spyne==2.14.0
