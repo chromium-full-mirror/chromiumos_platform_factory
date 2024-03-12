@@ -33,6 +33,7 @@ import json
 import logging
 import os
 import re
+import ssl
 from typing import Union
 import urllib.request
 
@@ -110,7 +111,12 @@ class Updater:
     dut_info = umpire_client.UmpireClientInfo().GetDUTInfoComponents()
     url = proxy.GetCROSPayloadURL(dut_info['x_umpire_dut'])
     if url:
-      with urllib.request.urlopen(url) as resp:
+      p = urllib.parse.urlsplit(url)
+      sslcontext = None
+      if p.scheme == 'https':  # Load payloads via HTTPS
+        sslcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+
+      with urllib.request.urlopen(url, context=sslcontext) as resp:
         payloads = json.loads(resp.read())
     self._url = url
     self._payload = payloads.get(GetParentComponent(self._component), {})
