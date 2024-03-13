@@ -37,12 +37,6 @@ def GetAllFunctions():
   """
   return [
       CreateRuntimeProbeFunction('audio_codec', []),
-      CreateRuntimeProbeFunction('ec_component', [
-          arg_utils.Arg('type', str, 'EC component type to be probed',
-                        default=None),
-          arg_utils.Arg('name', str, 'EC component name to be probed',
-                        default=None),
-      ]),
       CreateRuntimeProbeFunction('generic_battery', []),
       CreateRuntimeProbeFunction('generic_camera', []),
       CreateRuntimeProbeFunction('generic_storage', []),
