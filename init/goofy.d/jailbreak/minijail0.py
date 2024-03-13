@@ -63,7 +63,7 @@ def minijail(argv: List[str]):
     uid = pwd.getpwnam(user).pw_uid
     os.seteuid(uid)
 
-  if '-i' in opts and os.fork() == 0:
+  if '-i' in opts and os.fork() != 0:
     sys.exit()
 
   os.execvp(args[0], args)

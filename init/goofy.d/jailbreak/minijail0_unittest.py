@@ -76,8 +76,8 @@ class Minijail0Test(unittest.TestCase):
       '-F/etc/sslh.conf',
   ]
 
-  def testAllowedProgram_Fork_ParentJailbreak(self):
-    self.fork.return_value = 1
+  def testAllowedProgram_Fork_ChildJailbreak(self):
+    self.fork.return_value = 0
 
     minijail0.Main(self.shared_allowed_program_input)
 
@@ -85,8 +85,8 @@ class Minijail0Test(unittest.TestCase):
     self.execvp.assert_called_once_with(
         '/usr/sbin/sslh-fork', ['/usr/sbin/sslh-fork', '-F/etc/sslh.conf'])
 
-  def testAllowedProgram_Fork_ChildExit(self):
-    self.fork.return_value = 0
+  def testAllowedProgram_Fork_ParentExit(self):
+    self.fork.return_value = 1
 
     minijail0.Main(self.shared_allowed_program_input)
 
@@ -104,7 +104,7 @@ class Minijail0Test(unittest.TestCase):
         '/usr/sbin/sslh-fork', ['/usr/sbin/sslh-fork', '-F/etc/sslh.conf'])
 
   def testAllowedProgram_UnknownException_exit1(self):
-    self.fork.return_value = 1
+    self.fork.return_value = 0
     self.execvp.side_effect = Exception('OSError')
 
     minijail0.Main(self.shared_allowed_program_input)
