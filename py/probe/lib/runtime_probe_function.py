@@ -37,12 +37,6 @@ def GetAllFunctions():
   """
   return [
       CreateRuntimeProbeFunction('audio_codec', []),
-      CreateRuntimeProbeFunction('ec_component', [
-          arg_utils.Arg('type', str, 'EC component type to be probed',
-                        default=None),
-          arg_utils.Arg('name', str, 'EC component name to be probed',
-                        default=None),
-      ]),
       CreateRuntimeProbeFunction('edid', [
           arg_utils.Arg('edid_patterns', list,
                         'The path of target edid files, can contain wildcard.',
