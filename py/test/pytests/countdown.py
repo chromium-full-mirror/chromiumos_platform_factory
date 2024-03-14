@@ -57,7 +57,6 @@ import threading
 import time
 from typing import Dict, List
 
-from cros.factory.device import device_types
 from cros.factory.device import device_utils
 from cros.factory.device import wifi
 from cros.factory.goofy.plugins import plugin_controller
@@ -350,7 +349,7 @@ class CountDownTest(test_case.TestCase):
     try:
       self._als_controller = self._dut.ambient_light_sensor.GetController(
           location=_ALS_LOCATION)
-    except device_types.DeviceException:
+    except Exception:
       # Disable the ALS scanning if the device does not support ALS.
       self.ui.HideElement(PanelID.ALS)
       self.args.als_update_interval = 0
