@@ -139,7 +139,7 @@ _EVIOCGKEYCODE_V2 = ((2 << 30) | (struct.calcsize(_INPUT_KEYMAP_ENTRY) << 16) |
 _DEFAULT_FN_KEYCODES_IN_FIRST_ROW = [59, 60, 61, 62, 63, 64, 65, 66, 67, 68]
 _ESC_KEY_CODE = 1
 _POWER_KEY_CODE = 116
-_LOCK_KEY_CODE = 142
+_LAST_FN_KEYCODES = [116, 142, 183]
 
 
 class KeyboardTest(test_case.TestCase):
@@ -186,6 +186,9 @@ class KeyboardTest(test_case.TestCase):
       Arg(
           'fn_keycodes', list, 'The keycodes in the first row, esc and '
           'power/lock key are excluded.', default=None),
+      Arg(
+          'last_fn_keycode', int, 'The keycode of the last fn key in the first '
+          'row. Note that it should be a lock or a power key', default=142),
       Arg('replacement_keymap', dict, 'Deprecated, please use fn_keycodes',
           default={}),
       Arg(
@@ -340,7 +343,10 @@ class KeyboardTest(test_case.TestCase):
     else:
       fn_keycodes = _DEFAULT_FN_KEYCODES_IN_FIRST_ROW
 
-    last_key = _POWER_KEY_CODE if self.args.has_power_key else _LOCK_KEY_CODE
+    last_key = (
+        _POWER_KEY_CODE
+        if self.args.has_power_key else self.args.last_fn_keycode)
+    self.assertIn(last_key, _LAST_FN_KEYCODES)
     return [_ESC_KEY_CODE] + fn_keycodes + [last_key]
 
   def _GetKeyboardMapping(self):

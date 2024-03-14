@@ -30,6 +30,7 @@ class FakeArgs:
     self.fn_keycodes = []
     self.key_order = []
     self.has_power_key = True
+    self.last_fn_keycode = 142
     self.key_combinations = []
 
 
@@ -238,6 +239,19 @@ class KeyboardUnitTest(unittest.TestCase):
   def testDefaultHasPowerKey(self):
     self.assertEqual(self.test.GetKeycodesInFirstRow(),
                      [1, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 116])
+
+  def testValidLastKey(self):
+    self.test.args.has_power_key = False
+    self.test.args.last_fn_keycode = 116
+
+    self.test.GetKeycodesInFirstRow()
+
+  def testInvalidLastKey(self):
+    self.test.args.has_power_key = False
+    self.test.args.last_fn_keycode = 1
+
+    with self.assertRaises(AssertionError):
+      self.test.GetKeycodesInFirstRow()
 
 
 if __name__ == '__main__':
