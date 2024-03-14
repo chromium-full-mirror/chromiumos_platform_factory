@@ -245,9 +245,8 @@ class VPDUtils:
     required_vpd_ro_data.update(audio_vpd_ro_data)
 
     # Update PVS required field
-    # ARM-based platforms are not suppprted by PVS yet, therefore should be
+    # ARM-based platforms are not supported by PVS yet, therefore should be
     # ruled out.
-    arch = self._util.shell('crossystem arch').stdout.strip()
     if phase.GetPhase() <= phase.DVT and self._util.shell(
         'crossystem arch').stdout.strip() != 'arm':
       required_vpd_ro_data.update(vpd_data.PVS_REQUIRED_RO_DATA.copy())
