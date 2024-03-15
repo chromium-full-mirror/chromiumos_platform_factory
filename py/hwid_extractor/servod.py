@@ -121,7 +121,8 @@ class Servod:
     with open(stdout_file, 'w', encoding='utf8') as stdout, open(
         stderr_file, 'w', encoding='utf8') as stderr:
       servod_process = process_utils.Spawn(self._servod_cmd, stdout=stdout,
-                                           stderr=stderr)
+                                           stderr=stderr,
+                                           env={"I_NEED_SERVOD", "1"})
     self._exit_stack.callback(process_utils.TerminateOrKillProcess,
                               servod_process, SERVOD_KILL_TIMEOUT_SEC)
 
