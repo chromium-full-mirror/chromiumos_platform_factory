@@ -7,6 +7,8 @@
 import abc
 import json
 import logging
+import ssl
+import urllib.parse
 import xmlrpc.client
 
 
@@ -101,7 +103,12 @@ class XMLRPCProxy(AbstractWebServiceProxy):
     self._url = url
 
   def callRemote(self, method, *args, **kargs):
-    proxy = xmlrpc.client.ServerProxy(self._url, allow_none=True)
+    context = None
+    p = urllib.parse.urlsplit(self._url)
+    if p.scheme == 'https':
+      context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    proxy = xmlrpc.client.ServerProxy(self._url, allow_none=True,
+                                      context=context)
     return getattr(proxy, method)(*args, **kargs)
 
 
@@ -153,6 +160,7 @@ class ZeepProxy(AbstractWebServiceProxy):
 
   def callRemote(self, method, *args, **kargs):
     transport = zeep.transports.Transport(cache=self._cache)
+    transport.session.verify = False
     proxy = zeep.Client(self._url, transport=transport).service
     result = proxy[method](*args, **kargs)
     # By default zeep returns collections.OrderedDict.
