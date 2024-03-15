@@ -280,9 +280,11 @@ class KeyboardTest(test_case.TestCase):
     flatten_main_keys = [
         key for keys_in_row in main_keys for key in keys_in_row
     ]
+    numpad_layout = ('strauss_numpad'
+                     if self.args.layout == 'STRAUSS' else 'numpad')
     numpad_keys = []
     if self.args.has_numpad:
-      numpad_keys = self.GetLayoutKeycodes('numpad')
+      numpad_keys = self.GetLayoutKeycodes(numpad_layout)
     else:
       self.ui.HideElement('instruction-sequential-numpad')
     flatten_numpad_keys = [

@@ -1,0 +1,8 @@
+# This is the list of keycodes from left to right in a row
+# on a strauss numpad.
+[[98, 55, 116],
+ [74, 78, 111],
+ [71, 72, 73],
+ [75, 76, 77],
+ [79, 80, 81],
+ [82, 83, 96]]

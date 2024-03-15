@@ -182,7 +182,8 @@ window.KEY_CONFIG = {
     'STRAUSS': { 'width': 2.45 }
   },
   '55': {
-    'default': { 'text': '*' }
+    'default': { 'text': '*' },
+    'STRAUSS': { 'height': 0.5 }
   },
   '56': {
     'default': { 'text': 'alt', 'width': 2 },
@@ -216,7 +217,8 @@ window.KEY_CONFIG = {
     'default': { 'text': '6' }
   },
   '78': {
-    'default': { 'text': '+', 'height': 2.1 }
+    'default': { 'text': '+', 'height': 2.1 },
+    'STRAUSS': { 'height': 1 }
   },
   '79': {
     'default': { 'text': '1' }
@@ -228,7 +230,8 @@ window.KEY_CONFIG = {
     'default': { 'text': '3' }
   },
   '82': {
-    'default': { 'text': '0', 'width': 2.1 }
+    'default': { 'text': '0', 'width': 2.1 },
+    'STRAUSS': { 'width': 1 }
   },
   '83': {
     'default': { 'text': '.' }
@@ -249,13 +252,15 @@ window.KEY_CONFIG = {
     'default': { 'text': '⊕', 'width': 1.8 }
   },
   '96': {
-    'default': { 'text': 'enter', 'height': 2.1 }
+    'default': { 'text': 'enter', 'height': 2.1 },
+    'STRAUSS': { 'height': 1 }
   },
   '97': {
     'default': { 'text': 'ctrl' }
   },
   '98': {
-    'default': { 'text': '/' }
+    'default': { 'text': '/' },
+    'STRAUSS': { 'height': 0.5 }
   },
   '100': {
     'default': { 'text': 'alt' },
@@ -334,6 +339,10 @@ window.KeyboardTest = class {
       }
     }
 
+    let numpad_width = 225;
+    if (layout === 'STRAUSS') {
+      numpad_width = 175;
+    }
     if (numpadKeycodes.length > 0) {
       for (let i = 0; i < numpadKeycodes.length; i++) {
         const row = document.getElementById('numpad' + i)
@@ -344,6 +353,7 @@ window.KeyboardTest = class {
         }
       }
       document.getElementById('numpad').style.display = 'block';
+      document.getElementById('numpad').style.width = numpad_width + 'px';
     }
 
     window.adjustSize();
