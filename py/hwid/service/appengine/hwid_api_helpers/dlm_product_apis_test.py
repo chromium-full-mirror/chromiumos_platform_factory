@@ -54,17 +54,17 @@ class DLMProductShardTest(unittest.TestCase):
 
     product = products[0]
     self.assertEqual(product.id, 1)
-    self.assertEqual(product.board, 'test_board')
-    self.assertEqual(product.model, 'test_model')
+    self.assertEqual(product.board, 'TEST_BOARD')
+    self.assertEqual(product.model, 'TEST_MODEL')
     self.assertEqual(product.product_status, _DlmProduct.SHIPPED)
     self.assertEqual(product.device_id, 1)
 
   def testUpdateDlmProduct_UpdateExistingProduct(self):
     p1 = self._CreateDLMProduct(
-        id=1, board='test_board_1', model='test_model_1',
+        id=1, board='TEST_BOARD_1', model='TEST_MODEL_1',
         product_status=_DlmProduct.APPROVED, device_id=1)
-    p2 = self._CreateDLMProduct(id=2, board='test_board_2',
-                                model='test_model_2',
+    p2 = self._CreateDLMProduct(id=2, board='TEST_BOARD_2',
+                                model='TEST_MODEL_2',
                                 product_status=_DlmProduct.SHIPPED, device_id=2)
     product = _DlmProduct(id=1, board='test_board_3', model='test_model_3',
                           product_status=_DlmProduct.DEVELOPMENT, device_id=3)
@@ -81,14 +81,14 @@ class DLMProductShardTest(unittest.TestCase):
       self.assertCountEqual(res, [p1, p2])
 
     self.assertEqual(p1.id, 1)
-    self.assertEqual(p1.board, 'test_board_3')
-    self.assertEqual(p1.model, 'test_model_3')
+    self.assertEqual(p1.board, 'TEST_BOARD_3')
+    self.assertEqual(p1.model, 'TEST_MODEL_3')
     self.assertEqual(p1.product_status, _DlmProduct.DEVELOPMENT)
     self.assertEqual(p1.device_id, 3)
 
     self.assertEqual(p2.id, 2)
-    self.assertEqual(p2.board, 'test_board_2')
-    self.assertEqual(p2.model, 'test_model_2')
+    self.assertEqual(p2.board, 'TEST_BOARD_2')
+    self.assertEqual(p2.model, 'TEST_MODEL_2')
     self.assertEqual(p2.product_status, _DlmProduct.SHIPPED)
     self.assertEqual(p2.device_id, 2)
 
@@ -109,14 +109,14 @@ class DLMProductShardTest(unittest.TestCase):
     self.assertEqual(products, [])
 
   def testUpdateDlmDevice(self):
-    p1 = self._CreateDLMProduct(id=1, board='test_board_1',
-                                model='test_model_1', product_status=1,
+    p1 = self._CreateDLMProduct(id=1, board='TEST_BOARD_1',
+                                model='TEST_MODEL_1', product_status=1,
                                 device_id=1)
-    p2 = self._CreateDLMProduct(id=2, board='test_board_2',
-                                model='test_model_2', product_status=2,
+    p2 = self._CreateDLMProduct(id=2, board='TEST_BOARD_2',
+                                model='TEST_MODEL_2', product_status=2,
                                 device_id=2)
-    p3 = self._CreateDLMProduct(id=3, board='test_board_2',
-                                model='test_model_2', product_status=3,
+    p3 = self._CreateDLMProduct(id=3, board='TEST_BOARD_2',
+                                model='TEST_MODEL_2', product_status=3,
                                 device_id=2)
     device = _DlmDevice(id=2, board='test_board_3', model='test_model_3')
     req = _UpdateDlmDeviceRequest(device=device)
@@ -134,20 +134,20 @@ class DLMProductShardTest(unittest.TestCase):
       self.assertCountEqual(res, [p1, p2, p3])
 
     self.assertEqual(p1.id, 1)
-    self.assertEqual(p1.board, 'test_board_1')
-    self.assertEqual(p1.model, 'test_model_1')
+    self.assertEqual(p1.board, 'TEST_BOARD_1')
+    self.assertEqual(p1.model, 'TEST_MODEL_1')
     self.assertEqual(p1.product_status, 1)
     self.assertEqual(p1.device_id, 1)
 
     self.assertEqual(p2.id, 2)
-    self.assertEqual(p2.board, 'test_board_3')
-    self.assertEqual(p2.model, 'test_model_3')
+    self.assertEqual(p2.board, 'TEST_BOARD_3')
+    self.assertEqual(p2.model, 'TEST_MODEL_3')
     self.assertEqual(p2.product_status, 2)
     self.assertEqual(p2.device_id, 2)
 
     self.assertEqual(p3.id, 3)
-    self.assertEqual(p3.board, 'test_board_3')
-    self.assertEqual(p3.model, 'test_model_3')
+    self.assertEqual(p3.board, 'TEST_BOARD_3')
+    self.assertEqual(p3.model, 'TEST_MODEL_3')
     self.assertEqual(p3.product_status, 3)
     self.assertEqual(p3.device_id, 2)
 

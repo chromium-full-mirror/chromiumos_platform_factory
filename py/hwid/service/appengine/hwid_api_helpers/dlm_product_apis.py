@@ -37,7 +37,8 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):
 
     try:
       self._dlm_product_manager.UpdateDLMProduct(
-          product.id, board=product.board, model=product.model or None,
+          product.id, board=product.board.upper(),
+          model=product.model.upper() or None,
           product_status=product.product_status, device_id=product.device_id)
     except dlm_product_data.InvalidProductError as e:
       raise protorpc_utils.ProtoRPCException(
@@ -58,6 +59,7 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):
             f'Got invalid device data: missing required field {field!r}')
 
     self._dlm_product_manager.UpdateDLMProductByDeviceId(
-        device.id, device.board, device.model or None)
+        device.id, device.board.upper(),
+        device.model.upper() or None)
 
     return _UpdateDlmDeviceResponse(device_id=device.id)
