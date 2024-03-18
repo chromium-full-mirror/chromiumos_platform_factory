@@ -39,6 +39,7 @@ class ApprovalMethod(str, enum.Enum):
     return self.value
 
 
+# TODO(b/308306344): Migrate to `cl_upload_config.CLUploadConfig`
 class Config(ndb.Model):
   """A config for payload generation which can be modified on Datastore.
 
