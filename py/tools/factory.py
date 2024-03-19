@@ -242,11 +242,14 @@ class TestsCommand(Subcommand):
     return header
 
   @functools.lru_cache(maxsize=1000)
-  def _GetLabel(self, path):
+  def _GetLabelInner(self, path, label):
     test_object = self.goofy.test_list.LookupPath(path)
-    if self.args.label and 'en-US' in test_object.label:
+    if label and 'en-US' in test_object.label:
       return test_object.label['en-US']
     return path
+
+  def _GetLabel(self, path):
+    return self._GetLabelInner(path, self.args.label)
 
   def _GetCSVLabelFromPath(self, path: str) -> list:
     """Returns the test object path in a CSV label format.
@@ -348,16 +351,13 @@ class TestsCommand(Subcommand):
                          for t in scheduled_tests}
       tests = [t for t in tests if t['path'] in scheduled_tests]
 
-    for t in tests:
-      t['label'] = self._GetLabel(t['path'])
-
     if self.args.csv:
       self._GenerateFactoryTestStatusSheet(tests)
     elif self.args.readiness:
       self._GenerateFactoryReadinessReport(tests)
     else:
       for t in tests:
-        sys.stdout.write(t['label'])
+        sys.stdout.write(self._GetLabel(t['path']))
         if self.args.status:
           if t['status'] != TestState.UNTESTED:
             sys.stdout.write(f": {t['status']}")
