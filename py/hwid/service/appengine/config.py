@@ -7,6 +7,7 @@ import yaml
 
 from cros.factory.hwid.service.appengine import cloudstorage_adapter
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
+from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
@@ -40,6 +41,8 @@ class _Config:
         reading/writing HWID selection payload related metadata.
     vp_data_manager: A PayloadDataManager instance responsible for
         reading/writing verification payload related metadata.
+    vpg_config_cl_upload_manager: A CLUploadManager instance responsible for
+        uploading CL to update verification payload generator config file.
     decoder_data_manager: A DecoderDataManager instance responsible for
         reading/writing decode-related configs (e.g. AVL names from DLM and
         PrimaryIdentifier).
@@ -72,12 +75,15 @@ class _Config:
     self.hwid_filesystem = cloudstorage_adapter.CloudStorageAdapter(
         conf['bucket'])
     ndb_connector = ndbc_module.NDBConnector()
+    self.dlm_product_manager = dlm_product_data.DLMProductManager(ndb_connector)
     self.hsp_data_manager = (
         payload_data.PayloadDataManager(
             ndb_connector, payload_data.PayloadType.HWID_SELECTION))
     self.vp_data_manager = (
         payload_data.PayloadDataManager(ndb_connector,
                                         payload_data.PayloadType.VERIFICATION))
+    self.vpg_config_cl_upload_manager = cl_upload_config.CLUploadManager(
+        ndb_connector, cl_upload_config.CLType.VPG_TARGETS)
     self.decoder_data_manager = decoder_data.DecoderDataManager(ndb_connector)
     self.hwid_db_data_manager = hwid_db_data.HWIDDBDataManager(
         ndb_connector, self.hwid_filesystem)
@@ -117,7 +123,6 @@ class _Config:
     latest_push_sql = release_version_setting.get('latest_push_sql', '')
     self.release_version_manager = release_version_utils.ReleaseVersionManager(
         bigquery_cloud_project, latest_push_sql, ndb_connector)
-    self.dlm_product_manager = dlm_product_data.DLMProductManager(ndb_connector)
 
 
 CONFIG = type_utils.LazyObject(_Config)

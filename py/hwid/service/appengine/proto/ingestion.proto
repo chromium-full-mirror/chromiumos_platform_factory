@@ -25,6 +25,12 @@ message SyncNameMappingRequest {
 message SyncNameMappingResponse {
 }
 
+message IngestVpgTargetsRequest {
+}
+
+message IngestVpgTargetsResponse {
+}
+
 service HwidIngestion {
   rpc IngestHwidDb(IngestHwidDbRequest) returns (IngestHwidDbResponse);
 
@@ -32,4 +38,7 @@ service HwidIngestion {
       returns (IngestDevicesVariantsResponse);
 
   rpc SyncNameMapping(SyncNameMappingRequest) returns (SyncNameMappingResponse);
+
+  rpc IngestVpgTargets(IngestVpgTargetsRequest)
+      returns (IngestVpgTargetsResponse);
 }

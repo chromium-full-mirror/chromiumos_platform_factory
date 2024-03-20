@@ -8,6 +8,7 @@ import unittest
 from unittest import mock
 
 from cros.factory.hwid.service.appengine import config as config_module
+from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import payload_data
@@ -38,6 +39,9 @@ def _CreateMockConfig(fake_modules: test_utils.FakeModuleCollection):
   mock_config.hwid_data_cachers = [
       mock.create_autospec(hwid_action_manager.IHWIDDataCacher, instance=True),
   ]
+  mock_config.dlm_product_manager = fake_modules.fake_dlm_product_manager
+  mock_config.vpg_config_cl_upload_manager = mock.create_autospec(
+      cl_upload_config.CLUploadManager, instance=True)
   return mock_config
 
 

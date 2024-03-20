@@ -10,10 +10,12 @@ from typing import Collection, Mapping
 
 from cros.factory.hwid.service.appengine import api_connector
 from cros.factory.hwid.service.appengine import auth
+from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine import payload_management
 from cros.factory.hwid.service.appengine.proto import ingestion_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.service.appengine import vpg_config_manager
 from cros.factory.hwid.v3 import filesystem_adapter
 from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.probe_info_service.app_engine import protorpc_utils
@@ -130,6 +132,8 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
         self.decoder_data_manager)
     self.hsp_manager = payload_management.HWIDSelectionPayloadManager(
         config.hsp_data_manager, self.hwid_action_manager, config_data)
+    self.vpg_config_manager = vpg_config_manager.VPGConfigManager(
+        config.dlm_product_manager, config.vpg_config_cl_upload_manager)
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
                       dryrun: bool, limit_models: bool, force_update: bool,
@@ -260,3 +264,21 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
           detail='Missing all_devices.json file during refresh.') from None
 
     return ingestion_pb2.IngestDevicesVariantsResponse()
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
+  def IngestVpgTargets(
+      self, request: ingestion_pb2.IngestVpgTargetsRequest
+  ) -> ingestion_pb2.IngestVpgTargetsResponse:
+    """Update vpg_targets.yaml."""
+    del request  # unused
+
+    # Only upload CL for production.
+    dryrun_upload = self._config_data.env != 'prod'
+
+    try:
+      self.vpg_config_manager.Update(dryrun_upload)
+    except vpg_config_manager.VPGConfigGenerationException as ex:
+      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+
+    return ingestion_pb2.IngestVpgTargetsResponse()
