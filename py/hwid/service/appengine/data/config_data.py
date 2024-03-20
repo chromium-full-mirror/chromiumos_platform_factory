@@ -118,6 +118,19 @@ def CreateHWIDSelectionPayloadSettings(board: str) -> CLSetting:
                    hashtags=[f'hwid-selection-payload-{board.lower()}'])
 
 
+def CreateVPGTargetsSettings() -> CLSetting:
+  """Create a repo setting of verification payload generator configuration file.
+
+  Returns:
+    A CLSetting instance with corresponding settings.
+  """
+  return CLSetting(review_host=hwid_repo.INTERNAL_REPO_REVIEW_URL,
+                   repo_host=hwid_repo.INTERNAL_REPO_URL,
+                   project='chromeos/platform/factory-private',
+                   prefix='config/hwid/service/appengine/', branch=None,
+                   topic='vpg-targets-automated-sync', hashtags=None)
+
+
 class Config:
   """Config for AppEngine environment.
 

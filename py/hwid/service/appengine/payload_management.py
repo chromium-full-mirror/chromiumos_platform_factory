@@ -469,6 +469,7 @@ class VerificationPayloadManager(PayloadManager):
       live_hwid_repo: hwid_repo.HWIDRepo) -> Mapping[str, Collection[str]]:
     """See base class."""
     board_models = collections.defaultdict(list)
+    # TODO(b/308306344): Migrate to vpg_targets.yaml.
     models = set(self._config_data.vpg_targets)
     if limit_models:
       models &= set(limit_models)

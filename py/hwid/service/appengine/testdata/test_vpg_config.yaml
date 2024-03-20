@@ -1,0 +1,18 @@
+boards_vp_on:
+  BOARD1:
+    waived_comp_categories:
+      - dram
+  BOARD2: {}
+
+models_force_vp_on:
+  BOARD1:
+    MODEL1:
+      ignore_error:
+        - stylus
+    MODEL2: {}
+    MODEL7:
+      encrypted: true
+
+models_force_vp_off:
+  BOARD2:
+    - MODEL8
