@@ -42,6 +42,20 @@ def _ProbeECComponent(args: dict, manifest_path: str):
 
 
 class ECComponent(probe_function.AbstractProbeFunction):
+  """Probe EC Component.
+
+  Probe EC components recorded in the EC component manifest. By default, this
+  probe function will load the manifest from
+  `/usr/share/cme/{image_name}/component_manifest.json` in the release image
+  partition, where `image_name` can be obtained from
+  `cros_config /firmware image-name`.
+
+  If you are probing EC component with a local build EC firmware that the
+  release component manifest doesn't match the active EC firmware, you can
+  override the manifest by setting
+  `/usr/local/factory/cme/{image_name}/component_manifest.json`. The probe
+  function will load the override manifest if this path exists.
+  """
   FUNCTION_NAME = 'ec_component'
   ARGS = [
       arg_utils.Arg('type', str, 'EC component type to be probed',
