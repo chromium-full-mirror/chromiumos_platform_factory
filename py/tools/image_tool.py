@@ -3970,9 +3970,8 @@ class EditToolkitConfigCommand(AbstractSubCommand):
     self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,
                                 required=True,
                                 help='Path to the factory_install image.')
-    self.subparser.add_argument(
-        '--board', type=str, default=None,
-        help='Board to edit lsb file.')
+    self.subparser.add_argument('--board', type=str, default=None,
+                                help='Board to edit toolkit config.')
 
   def Update(self, key, value):
     self.config_wip.update({key: value})
