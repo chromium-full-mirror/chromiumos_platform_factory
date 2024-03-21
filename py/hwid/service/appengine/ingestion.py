@@ -137,9 +137,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
                       dryrun: bool, limit_models: bool, force_update: bool,
-                      live_hwid_repo: hwid_repo.HWIDRepo) -> Mapping[str, str]:
+                      live_hwid_repo: hwid_repo.HWIDRepo,
+                      skip_model_check: bool = False) -> Mapping[str, str]:
     board_result = payload_manager.Update(dryrun, limit_models, force_update,
-                                          live_hwid_repo)
+                                          live_hwid_repo, skip_model_check)
     change_ids = {
         board: result.change_id
         for board, result in board_result.items()
@@ -166,6 +167,13 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
     interactive requests.  Using a task process extends this deadline to 10
     minutes which should be more than enough headroom for the next few years.
     """
+    # Force use of limit_models and limit_boards without any model support
+    # check. (e2e test only)
+    skip_model_check = request.skip_model_check
+    if skip_model_check and self._config_data.env == 'prod':
+      raise protorpc_utils.ProtoRPCException(
+          protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
+          detail='skip_model_check can not be True in production.')
 
     # Limit projects for ingestion (e2e test only).
     limit_models = set(request.limit_models)
@@ -212,10 +220,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
     force_update = do_limit
     vp_payload_hash = self._UpdatePayloads(self.vp_manager, dryrun_upload,
                                            limit_models, force_update,
-                                           live_hwid_repo)
+                                           live_hwid_repo, skip_model_check)
     hsp_payload_hash = self._UpdatePayloads(self.hsp_manager, dryrun_upload,
                                             limit_models, force_update,
-                                            live_hwid_repo)
+                                            live_hwid_repo, skip_model_check)
     if force_update:
       # Reply payload hash (e2e test only).
       response.payload_hash.update(vp_payload_hash)

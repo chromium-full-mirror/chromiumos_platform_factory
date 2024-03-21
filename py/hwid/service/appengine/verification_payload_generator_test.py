@@ -813,5 +813,8 @@ class GetAllProbeStatementGeneratorsTest(unittest.TestCase):
     self.assertSetEqual(all_categories, generic_categories)
 
 
+# TODO(b/308306344): Add a test case to generate payloads with the ToT
+# vpg_targets.yaml just to make sure there's no unepxected error.
+
 if __name__ == '__main__':
   unittest.main()
