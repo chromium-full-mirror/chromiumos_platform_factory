@@ -39,6 +39,7 @@ To run this test, add this into test list::
 """
 
 from cros.factory.device import device_utils
+from cros.factory.device import sensor_utils
 from cros.factory.test.i18n import _
 from cros.factory.test.i18n import arg_utils as i18n_arg_utils
 from cros.factory.test import session
@@ -93,20 +94,15 @@ class SpatialSensorCalibration(test_case.TestCase):
 
     self.ui.ToggleTemplateClass('font-large', True)
 
-    for path in self._dut.Glob('/sys/bus/iio/devices/iio:device*'):
-      try:
-        name = self._dut.ReadFile(self._dut.path.join(path, 'name')).strip()
-        location = self._dut.ReadFile(
-            self._dut.path.join(path, 'location')).strip()
-      except Exception:
-        continue
-      if (name == self.args.device_name and
-          location == self.args.device_location):
-        self._device_path = path
-
-    self.assertIsNotNone(
-        self._device_path,
-        f'{self.args.device_name} at {self.args.device_location} not found')
+    try:
+      self._device_path = sensor_utils.FindDevice(
+          self._dut, sensor_utils.IIO_DEVICES_PATTERN,
+          name=self.args.device_name, location=self.args.device_location)
+    except Exception:
+      self._device_path = sensor_utils.FindDevice(
+          self._dut, sensor_utils.IIO_DEVICES_PATTERN,
+          name=self.args.device_name,
+          label=sensor_utils.LABEL_FROM_LOCATION[self.args.device_location])
 
   def runTest(self):
     previous_fail = False
