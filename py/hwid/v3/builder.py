@@ -877,11 +877,20 @@ class DatabaseBuilder:
           add_default = True
         else:
           # Ask user to add a default item.
-          add_default = PromptAndAsk(
-              f'Component [{comp_cls}] is essential but the probe result is '
-              'missing. Do you want to add a default item?\n'
-              'If the probed code is not ready yet, please enter "Y".\n',
-              default_answer=False)
+          if common.FirmwareComps.has_value(comp_cls):
+            add_default = PromptAndAsk(
+                f'Firmware component [{comp_cls}] is missing. Please add '
+                'firmware components on DLM before updating HWID DB.\n'
+                'https://chromeos.google.com/partner/dlm/docs/factory/'
+                'updatingHWID.html#hwid-firmware-components\n'
+                'If the probed code is not ready yet, please enter "Y" to '
+                'add a default component.\n', default_answer=False)
+          else:
+            add_default = PromptAndAsk(
+                f'Component [{comp_cls}] is essential but the probe result is '
+                'missing. Do you want to add a default item?\n'
+                'If the probed code is not ready yet, please enter "Y".\n',
+                default_answer=False)
 
         if add_default:
           self.AddDefaultComponent(comp_cls)
