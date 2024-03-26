@@ -104,7 +104,6 @@ CLOSURE_OUTPUT_FILENAMES = js/goofy.js css/closure.css
 CLOSURE_OUTPUT_DIR ?= \
   $(abspath $(if $(OUTOFTREE_BUILD),$(BUILD_DIR)/closure,$(CLOSURE_DIR)))
 
-CROS_REGIONS_DATABASE ?= $(SYSROOT)/usr/share/misc/cros-regions.json
 TEST_RUNNER = bin/run_unittests
 
 # External dependency.
@@ -269,8 +268,6 @@ endef
 check-overlay-dependency: .phony
 	@rm -f $(TEMP_DIR)/reinstall
 	@$(info Checking region database...)
-	@$(call func-check-package,chromeos-regions, \
-	  [ -e "$(CROS_REGIONS_DATABASE)" ] )
 	@$(if $(FROM_EBUILD),,$(call func-check-overlay-package,BASEBOARD))
 	@$(if $(FROM_EBUILD),,$(call func-check-overlay-package,BOARD))
 	@if [ -e "$(TEMP_DIR)/reinstall" ] ; then \
@@ -298,9 +295,6 @@ resource: closure po
 	$(if $(OUTOFTREE_BUILD),\
 	  tar -rf $(RESOURCE_PATH) --transform 's"^"./py/goofy/static/"' \
 	    -C "$(CLOSURE_OUTPUT_DIR)" $(CLOSURE_OUTPUT_FILENAMES))
-	$(if $(wildcard $(CROS_REGIONS_DATABASE)),\
-	  tar -rf $(RESOURCE_PATH) --transform 's"^"./py/test/l10n/"' \
-	  -C $(dir $(CROS_REGIONS_DATABASE)) $(notdir $(CROS_REGIONS_DATABASE)))
 	$(foreach file,\
 	  $(wildcard $(BOARD_RESOURCES_DIR)/$@-*.tar \
 	             $(BOARD_RESOURCES_DIR)/factory-*.tar),\
@@ -454,8 +448,7 @@ linkcheck: $(DOC_TEMP_DIR)
 
 # Publishes doc to https://storage.googleapis.com/chromeos-factory-docs/sdk/
 publish-docs: clean
-	# Force using an empty database to load whole region set from source
-	CROS_REGIONS_DATABASE="/dev/null" $(MAKE) doc
+	$(MAKE) doc
 	gsutil -h "Cache-Control:public, max-age=3600" -m rsync -c -d -r \
 	  $(DOC_OUTPUT_DIR) $(DOC_PUBLISH_URL)
 

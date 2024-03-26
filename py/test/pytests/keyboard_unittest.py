@@ -181,8 +181,9 @@ class KeyboardUnitTest(unittest.TestCase):
 
     self.assertEqual('layout', self.test.GetKeyboardLayout())
 
-  @mock.patch('cros.factory.utils.process_utils.CheckOutput')
-  def testLayoutVPD(self, mock_output):
+  @mock.patch.object(keyboard, 'process_utils', autospec=True)
+  def testLayoutVPD(self, mock_process_utils):
+    mock_output = mock_process_utils.CheckOutput
     # The mapping is defined in platform2/regions/regions.py
     for param, expect in {
         'us': 'ANSI',

@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 
+from cros.factory.device import device_utils
 from cros.factory.test.env import paths
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
@@ -28,7 +29,7 @@ KEYBOARD_PATTERN = re.compile(r'xkb:\w+:[\w-]*:\w+|'
                               r'(ime|m17n|t13n):[\w:-]+')
 LANGUAGE_CODE_PATTERN = re.compile(r'(\w+)(-[A-Z0-9]+)?')
 
-CROS_REGIONS_DATABASE_DEFAULT_PATH = '/usr/share/misc/cros-regions.json'
+CROS_REGIONS_DATABASE_DEFAULT_PATH = 'usr/share/misc/cros-regions.json'
 CROS_REGIONS_DATABASE_ENV_NAME = 'CROS_REGIONS_DATABASE'
 CROS_REGIONS_DATABASE_GENERATOR_PATH = os.path.join(
     paths.FACTORY_DIR, '..', '..', 'platform2', 'regions', 'regions.py')
@@ -89,6 +90,7 @@ class Region:
 
   This was used for legacy VPD ``keyboard_layouts`` value."""
 
+  # pylint: disable=line-too-long
   time_zone = None
   """A `tz database time zone
   <http://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_
@@ -104,6 +106,7 @@ class Region:
   for supported languages.
 
   This was used for legacy VPD ``initial_locale`` value."""
+  # pylint: enable=line-too-long
 
   keyboard_mechanical_layout = None
   """The keyboard's mechanical layout (``ANSI`` [US-like], ``ISO``
@@ -217,7 +220,7 @@ def LoadRegionDatabase(path=None):
      1. Path from environment variable (CROS_REGIONS_DATABASE_ENV_NAME).
      2. File in same folder where current module lives.
      3. File in sys.argv[0] (backward compatibility)
-     4. Default file path (CROS_REGIONS_DATABASE_DEFAULT_PATH).
+     4. Default file path (CROS_REGIONS_DATABASE_DEFAULT_PATH) in release image.
 
     Returns:
      Contents of database file.
@@ -237,14 +240,15 @@ def LoadRegionDatabase(path=None):
     if os.path.exists(path):
       return file_utils.ReadFile(path)
 
-    if (sys_utils.InChroot() and
-        os.path.isfile(CROS_REGIONS_DATABASE_GENERATOR_PATH)):
-      return process_utils.CheckOutput(
-          [CROS_REGIONS_DATABASE_GENERATOR_PATH, '--format', 'json', '--all'])
-
-    path = CROS_REGIONS_DATABASE_DEFAULT_PATH
-    if os.path.exists(path):
-      return file_utils.ReadFile(path)
+    if sys_utils.InChroot():
+      if os.path.isfile(CROS_REGIONS_DATABASE_GENERATOR_PATH):
+        return process_utils.CheckOutput(
+            [CROS_REGIONS_DATABASE_GENERATOR_PATH, '--format', 'json', '--all'])
+    elif sys_utils.InCrOSDevice():
+      dut = device_utils.CreateDUTInterface()
+      release_rootfs = dut.partitions.RELEASE_ROOTFS.path
+      return sys_utils.MountDeviceAndReadFile(
+          release_rootfs, CROS_REGIONS_DATABASE_DEFAULT_PATH, dut=dut)
 
     return None
 
@@ -275,13 +279,13 @@ def LoadRegionDatabase(path=None):
   return [confirmed, unconfirmed]
 
 
-REGIONS_LIST = []
+_REGIONS_LIST = None
 """A list of :py:class:`cros.factory.l10n.regions.Region` objects for
 all **confirmed** regions.  A confirmed region is a region whose
 properties are known to be correct and may be used to launch a device."""
 
 
-UNCONFIRMED_REGIONS_LIST = []
+_UNCONFIRMED_REGIONS_LIST = None
 """A list of :py:class:`cros.factory.l10n.regions.Region` objects for
 **unconfirmed** regions. These are believed to be correct but
 unconfirmed, and all fields should be verified (and the row moved into
@@ -299,9 +303,21 @@ items to :py:data:`cros.factory.l10n.regions.Region.REGIONS_LIST`.
 """
 
 
-REGIONS = {}
+_REGIONS = None
 """A dict maps the region code to the
 :py:class:`cros.factory.l10n.regions.Region` object."""
+
+
+def __getattr__(name):
+  if _REGIONS is None:
+    InitialSetup()
+  if name == 'REGIONS_LIST':
+    return _REGIONS_LIST
+  if name == 'UNCONFIRMED_REGIONS_LIST':
+    return _UNCONFIRMED_REGIONS_LIST
+  if name == 'REGIONS':
+    return _REGIONS
+  raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _ConsolidateRegions(regions):
@@ -350,9 +366,11 @@ def BuildRegionsDict(include_all=False):
   A region may only appear in one of the above lists, or this function
   will (deliberately) fail.
   """
-  regions = list(REGIONS_LIST)
+  if _REGIONS_LIST is None or _UNCONFIRMED_REGIONS_LIST is None:
+    InitialSetup()
+  regions = list(_REGIONS_LIST)
   if include_all:
-    regions += UNCONFIRMED_REGIONS_LIST
+    regions += _UNCONFIRMED_REGIONS_LIST
 
   # Build dictionary of region code to list of regions with that
   # region code.  Check manually for duplicates, since the region may
@@ -362,14 +380,11 @@ def BuildRegionsDict(include_all=False):
 
 def InitialSetup(region_database_path=None, include_all=False):
   # pylint: disable=global-statement
-  global REGIONS_LIST, UNCONFIRMED_REGIONS_LIST, REGIONS
+  global _REGIONS_LIST, _UNCONFIRMED_REGIONS_LIST, _REGIONS
 
-  REGIONS_LIST, UNCONFIRMED_REGIONS_LIST = LoadRegionDatabase(
+  _REGIONS_LIST, _UNCONFIRMED_REGIONS_LIST = LoadRegionDatabase(
       path=region_database_path)
-  REGIONS = BuildRegionsDict(include_all=include_all)
-
-
-InitialSetup()
+  _REGIONS = BuildRegionsDict(include_all=include_all)
 
 
 def main(args=None, out=sys.stdout):
