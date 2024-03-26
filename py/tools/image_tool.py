@@ -121,6 +121,7 @@ LSB_FACTORY_WARNING_MESSAGE = (
 TOOLKIT_SUBCONFIG_ACTIVE_TEST_LIST = 'active_test_list'
 TOOLKIT_SUBCONFIG_TEST_LIST_CONSTANTS = 'test_list_constants'
 TOOLKIT_SUBCONFIG_CUTOFF = 'cutoff'
+TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS = 'custom_reset_process'
 # Split line for separating outputs.
 SPLIT_LINE = '=' * 72
 # Command line namespaces.
@@ -3957,7 +3958,6 @@ class EditLSBCommand(AbstractSubCommand):
                     self.EditCompletePrompt, self.EditRMAAutorun,
                     self.EditCutoff, self.EditDisplayQrcode, w=Write, q=Quit)
 
-
 class EditToolkitConfigCommand(AbstractSubCommand):
   """Edit toolkit config payload for factory_install image or RMA shim."""
   name = 'edit_toolkit_config'
@@ -4110,6 +4110,20 @@ class EditToolkitConfigCommand(AbstractSubCommand):
         'in the different QR code', optional=True)
     self.toolkit_config[TOOLKIT_SUBCONFIG_CUTOFF]['QRCODE_INFO'] = display_info
 
+  def EditCustomResetProcess(self):
+    """Modify the config to perform customized reset process."""
+
+    path = UserInput.GetString('Enter the path of the config file.',
+                               optional=True)
+    if not path:
+      del self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS]
+      return
+    if not os.path.exists(path):
+      print('QUIT. File not exist.')
+      return
+    with open(path, encoding='utf-8') as f:
+      self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS] = json.load(f)
+
   def DoMenu(self, *args, **kargs):
     while True:
       Shell(['clear'])
@@ -4198,8 +4212,7 @@ class EditToolkitConfigCommand(AbstractSubCommand):
 
         self.DoMenu(self.EditActiveTestList, self.EditTestListConstants,
                     self.EditCutoff, self.EditContinueKey, self.EditQrcodeInfo,
-                    w=Write, q=Quit)
-
+                    self.EditCustomResetProcess, w=Write, q=Quit)
 
 def main():
   # Support `cros_payload` in bin/ folder, so that we can run
