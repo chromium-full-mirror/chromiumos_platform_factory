@@ -128,7 +128,6 @@ factory_init() {
   factory_install
 
   execute_rules init.d
-  execute_rules iptables.d
 
   # See factory_main for the path of tag that may disable Goofy.
   local goofy_rule="${INIT_BASE}/main.d/goofy.sh"
@@ -152,6 +151,11 @@ factory_main() {
   log "All main programs started, waiting to finish..."
   wait
   log "Finished all main programs. Factory job stopped."
+}
+
+factory_iptables() {
+  log "Running ChromeOS factory iptables jobs..."
+  execute_rules iptables.d
 }
 
 main() {
@@ -179,6 +183,9 @@ main() {
       # Developers may try to start factory main several times so we want to
       # append the logs.
       factory_main 2>&1 | tee -a "${log_file}"
+      ;;
+    iptables )
+      factory_iptables 2>&1 | tee -a "${log_file}"
       ;;
     * )
       log "Unknown mode: ${mode}." | tee -a "${log_file}"

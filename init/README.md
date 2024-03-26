@@ -45,7 +45,9 @@ Now, when everything is set, we will have a new and unified boot flow:
     (upstart) boot_services ->
     (upstart) factory -> [factory/init/startup main] -> [goofy_control start] ->
     (upstart) ui (Chrome) -> [goofy] ->
-    [emit login-prompt-visible] -> (upstart) other system services ...
+    [emit login-prompt-visible] -> (upstart) other system services ... ->
+    (upstart) patchpanel -> (upstart) factory-iptables ->
+    [factory/init/startup iptables]
 
 And when developers run `factory_restart`, it brings up these services in same
 flow (first factory then chrome).

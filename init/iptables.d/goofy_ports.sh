@@ -6,6 +6,4 @@
 # Ports used by goofy
 GOOFY_UI_PORT="4012"
 
-for port in $GOOFY_UI_PORT; do
-  iptables -A INPUT -p tcp --dport ${port} -j ACCEPT
-done
+iptables -A INPUT -p tcp --dport "${GOOFY_UI_PORT}" -j ACCEPT -w
