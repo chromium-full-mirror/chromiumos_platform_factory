@@ -102,14 +102,14 @@ def _GetFPReferenceFirmware(firmware_dir, fingerprint_board_name):
   """Gets full path of the reference fingreprint firmware.
 
   Searches the firmware under ROOTFS_FP_FIRMWARE_DIR. The firmware is in the
-  form of <fingerprint_board_name>_<RO version>-RO_<RW version>-RW.bin. The
-  <RO version> and <RW version> need not to be strictly matched.
+  form of <fingerprint_board_name>_<RO version>-RO_<RW version>-RW.bin or
+  <fingerprint_board_name>_<version>.bin if the RO and RW have the same version.
 
   Raises:
     FPReferenceFirmwareError: if there are multiple files or no file matched.
   """
   firmware_files = glob.glob(
-      f'{firmware_dir}/{fingerprint_board_name}_*-RO_*-RW.bin')
+      f'{firmware_dir}/{fingerprint_board_name}_*.bin')
   if len(firmware_files) != 1:
     raise FPReferenceFirmwareError(
         f'No firmware found under {firmware_dir}' if not firmware_files else
