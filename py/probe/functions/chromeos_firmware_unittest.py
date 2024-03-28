@@ -135,6 +135,13 @@ class ChromeosFirmwareTest(unittest.TestCase):
   @mock.patch('cros.factory.utils.fmap.FirmwareImage')
   @mock.patch('cros.factory.utils.process_utils.CheckCall', mock.Mock())
   def testDumpFPFirmware_Succeed(self, mock_fmap_fw_image):
+    self._CreateFakeFPFirmware('board_1111.bin')
+    mock_fmap_fw_image.return_value.get_section_area.return_value = (0, 1)
+    chromeos_firmware.DumpFPFirmware()
+
+  @mock.patch('cros.factory.utils.fmap.FirmwareImage')
+  @mock.patch('cros.factory.utils.process_utils.CheckCall', mock.Mock())
+  def testDumpFPFirmware_DifferentRORWSucceed(self, mock_fmap_fw_image):
     self._CreateFakeFPFirmware('board_1111-RO_1111-RW.bin')
     mock_fmap_fw_image.return_value.get_section_area.return_value = (0, 1)
     chromeos_firmware.DumpFPFirmware()
