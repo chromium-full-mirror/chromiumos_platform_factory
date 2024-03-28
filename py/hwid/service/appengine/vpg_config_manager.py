@@ -196,7 +196,9 @@ class VPGConfigManager:
         models_vp_on[board][model] = model_config
 
     # Sort the result to avoid flakiness.
-    models_vp_on = _ToSortedDict(models_vp_on)
+    models_vp_on = {
+        'models_vp_on': _ToSortedDict(models_vp_on)
+    }
     vpg_targets_content = self._VPG_TARGETS_HEADER + yaml.safe_dump(
         models_vp_on, default_flow_style=False)
     self._CreateCL(dryrun, vpg_targets_content)
