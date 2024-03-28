@@ -9,5 +9,5 @@ cron:
   url: /cron/HwidIngestion.SyncNameMapping
   schedule: every 1 hours
 - description: "Refresh vpg_targets.yaml."
-  url: /cron/HwidIngestion.ingestVpgTargets
+  url: /cron/HwidIngestion.IngestVpgTargets
   schedule: every 1 hours
