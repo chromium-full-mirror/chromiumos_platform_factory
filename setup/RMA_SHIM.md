@@ -458,7 +458,8 @@ default action of the shim menu (listed from high priority to low priority).
 ### Edit toolkit config in an RMA shim.
 
 `image_tool edit_toolkit_config` command can modify toolkit config, such as
-active test list and cutoff config (after version 12162.0.0).
+active test list and cutoff config (after version 12162.0.0) and the config of
+customized reset process.
 
     $ setup/image_tool edit_toolkit_config -i rma_image.bin
 
@@ -481,6 +482,9 @@ active test list and cutoff config (after version 12162.0.0).
     (1) Modify active test list.
     (2) Modify test list constants.
     (3) Modify cutoff config.
+    (4) Enable or disable a confirmation before battery cutoff.
+    (5) Enable or disable qrcode right before cutoff.
+    (6) Modify the config to perform customized reset process.
     (q) Quit without saving changes.
     (w) Apply changes and exit.
     Please select an option [1-3, q, w]:
@@ -492,7 +496,9 @@ or
 |Flags|Description|Option to modify|
 |-|-|-|
 |active_test_list.id|The default test list when starting toolkit.|(1)|
-|cutoff|Cutoff process is at the end of factory reset. Check [cutoff README](https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/sh/cutoff/README.md) for more information.|(2)|
+|test_list_constants|The constant variables in test list.|(2)|
+|cutoff|Cutoff process is at the end of factory reset. Check [cutoff README](https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/sh/cutoff/README.md) for more information.|(3), (4), (5)|
+|custom_reset_process|The config to perform customized reset process. Check [CUSTOM_RESET_PROCESS](./CUSTOM_RESET_PROCESS.md) for more information.|(6)|
 
 ### Unpack and repack toolkit in an RMA shim.
 
