@@ -66,9 +66,6 @@ class PSRToolTest(test_case.TestCase):
     self._intel_psr_tool = intel_psrtool.IntelPSRTool()
 
   def runTest(self):
-    if not self._intel_psr_tool.IsPSRSupported():
-      self.PassTask()
-
     action = self.args.action
     if action == EnumAction.set:
       self._intel_psr_tool.CloseManufacturing()
@@ -78,4 +75,5 @@ class PSRToolTest(test_case.TestCase):
       self.assertEqual(
           1, EOM_NVAR, f'Current EOM NVAR value is {EOM_NVAR}. But it should '
           'be 1 after closing manufacturing and reboot')
-      self._intel_psr_tool.StartPSREventLog()
+      if self._intel_psr_tool.IsPSRSupported():
+        self._intel_psr_tool.StartPSREventLog()
