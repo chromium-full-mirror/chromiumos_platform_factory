@@ -3,7 +3,7 @@
 [TOC]
 
 ## Overview
-The factory reset is the standard process that will be run in the [reset shim](go/cros-factory-reset-shim).
+The factory reset is the standard process that will be run in the [reset shim](https://docs.google.com/document/d/1TMLcsOpz0EeokAhMrWBEO1sNH_NTltc0EIoyElUGjtU/edit?tab=t.0#heading=h.lw60tlfrbrqw).
 The process of factory reset is quite different between factories, since it
 depends on how partners wants to control the factory flow.
 
