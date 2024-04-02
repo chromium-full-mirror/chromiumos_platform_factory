@@ -123,7 +123,9 @@ class _CardState(str, enum.Enum):
     return self.name
 
 
-_TDTL_PATH = os.path.join(paths.FACTORY_DIR, 'tdtl-master')
+_TDTL_PATH = os.path.join(paths.FACTORY_DIR, 'tdtl-main')
+if not os.path.exists(_TDTL_PATH):
+  _TDTL_PATH = os.path.join(paths.FACTORY_DIR, 'tdtl-master')
 
 
 class ThunderboltLoopbackTest(test_case.TestCase):
