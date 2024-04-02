@@ -301,6 +301,7 @@ class TestsCommand(Subcommand):
       writer.writerows(output_csv)
 
   def _GenerateFactoryReadinessReport(self, tests):
+    pytest_to_skip = ['shutdown', 'summary']
     if self.args.output:
       csv_filename = self.args.output
       if os.path.exists(csv_filename):
@@ -314,6 +315,8 @@ class TestsCommand(Subcommand):
     output_csv = []
 
     for t in tests:
+      if t['pytest_name'] in pytest_to_skip:
+        continue
       if not t['related_components']:
         uncategorized_tests.append(t)
       for test_category in t['related_components']:

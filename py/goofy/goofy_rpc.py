@@ -385,7 +385,7 @@ class GoofyRPC:
       ret.append(
           dict(path=t.path, parent=(t.subtests != []), pending=t.path
                in paths_to_run, related_components=t.related_components,
-               **test_state.__dict__))
+               pytest_name=t.pytest_name, **test_state.__dict__))
     return ret
 
   def IsReadyForUIConnection(self):
