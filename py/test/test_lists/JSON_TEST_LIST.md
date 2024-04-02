@@ -149,6 +149,23 @@ teardown tests as well.  We assume that teardowns will never fail. If a teardown
 test fails, Goofy will ignore the failure and continue on the next teardown test.
 Therefore, for teardown tests, `action_on_failure` will always be set to `NEXT`.
 
+### Related Components
+A list of strings indicating the components potentially assessed by this test.
+This information is primarily for reporting and analysis purposes. Elements in
+related_components must reference valid members of the TestCategory class within
+the test_tags module.
+
+```json
+  {
+    "label": "Wifi Device Check",
+    "inherit": "ExecShell",
+    "related_components": ["test_tags.TestCategory.WIFI"],
+    "args": {
+      "commands": "ifconfig | grep wlan0 -q"
+    }
+  }
+```
+
 ### Additional Fields
 Test list manager will process these fields, they are not directly used by
 `FactoryTest`.
