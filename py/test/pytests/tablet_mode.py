@@ -168,6 +168,7 @@ class TabletModeTest(test_case.TestCase):
     self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
 
   def SetUIImage(self, image):
+    self.ui.SetView('main')
     self.ui.RunJS(
         'document.getElementById("image").className = args.image;', image=image)
 
