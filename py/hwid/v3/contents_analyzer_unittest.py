@@ -37,6 +37,8 @@ DB_FORM_FACTOR_COMP_PATH = os.path.join(
     _TEST_DATA_PATH, 'test_database_db_form_factor_comp.yaml')
 DB_ADD_COMP_WITH_NAME_INFO = os.path.join(
     _TEST_DATA_PATH, 'test_database_db_add_comp_with_name_info.yaml')
+DB_INTERNAL_COMP_WITH_NULL_VALUE = os.path.join(
+    _TEST_DATA_PATH, 'test_database_db_internal_comp_with_null_value.yaml')
 
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
 _HWIDCompAnalysisResult = contents_analyzer.HWIDComponentAnalysisResult
@@ -348,6 +350,15 @@ class ContentsAnalyzerTest(unittest.TestCase):
             skip_avl_check=False,
             marked_untracked=True,
         ), analysis.hwid_components.values())
+
+  def test_AnalyzeChange_InternalNoneValue(self):
+    prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
+    curr_db_contents = file_utils.ReadFile(DB_INTERNAL_COMP_WITH_NULL_VALUE)
+
+    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
+                                              prev_db_contents)
+    inst.AnalyzeChange(None, False)
+
 
   def _ReadTestData(self, test_data_name: str) -> str:
     return file_utils.ReadFile(os.path.join(_TEST_DATA_PATH, test_data_name))
