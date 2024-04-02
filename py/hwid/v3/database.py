@@ -1814,8 +1814,10 @@ class Components:
     """
     if comp_cls == common.REGION_CLS:
       raise common.HWIDException('Region component class is not modifiable.')
+    external_values = yaml.safe_load(
+        yaml.safe_dump(values, default_flow_style=False))
     self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(
-        values)
+        external_values)
     self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'status'].Validate(support_status)
     self._SCHEMA.value_type.items['items'].value_type.optional_items[

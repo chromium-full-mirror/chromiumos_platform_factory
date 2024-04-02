@@ -206,6 +206,21 @@ class DatabaseTest(unittest.TestCase):
                           'field2': 'value2'
                       }, 'deprecated')
 
+  def testUpdateComponentWithNullAVLProbeValue(self):
+    # Arrange.
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    # Act & Assert.
+    db.UpdateComponent(
+        'cls3', 'comp5', 'comp5',
+        rule.AVLProbeValue(
+            identifier='converter-identifier',
+            probe_value_matched=False,
+            values=None,
+        ), 'supported')
+
   def testReplaceRules(self):
     db = database.WritableDatabase.LoadFile(
         os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
