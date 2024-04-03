@@ -62,6 +62,12 @@ config_file.json
 #### Display QRcodes
 This action displays multiple qrcodes with specific size in specific location.
 If `position` is not given, the qrcode will be displayed in the center.
+If the content contains the pattern `<ARGUMENT>`, then it will be replaced by the information of the DUT.
+- `<hwid>` will be replaced by the hwid string.
+- `<serial_number>` will be replaced by the serial_number in vpd.
+- `<mlb_serial_number>` will be replaced by the mlb_serial_number in vpd.
+- `<wifi_mac0>` will be replaced by the wifi_mac0 in vpd.
+- `<service_tag>` will be replaced by the service_tag in vpd.
 ```
 config_file.json
 [
