@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 main() {
-  echo 1 > "/var/lib/modemfwd/disable_auto_update"
+  printf "1" > "/var/lib/modemfwd/disable_auto_update"
 }
 
 main
