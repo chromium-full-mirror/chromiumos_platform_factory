@@ -93,7 +93,8 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 RUN pip3 install --no-cache-dir \
       -r "${umpire_dir}/requirements.txt" \
       -r "${dome_dir}/requirements.txt" \
-      -r "${instalog_dir}/requirements_for_docker.txt"
+      -r "${instalog_dir}/requirements_for_docker.txt" \
+      --require-hashes
 
 # Create Umpire mount point. Normally we should mount this (and Docker will
 # create it for us) when calling the run command, but that's not the case for

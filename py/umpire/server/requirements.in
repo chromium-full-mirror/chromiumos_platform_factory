@@ -1,0 +1,12 @@
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+jsonschema==2.6.0
+jsonrpclib-pelix==0.4.1
+python-gnupg==0.4.3
+PyYAML==5.3.1
+zeep==2.3.0
+txJSON-RPC==0.5
+pyOpenSSL===23.3.0
+requests==2.24.0
