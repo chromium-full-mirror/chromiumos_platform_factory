@@ -97,11 +97,21 @@ class CbiUtilsTest(unittest.TestCase):
         stderr=subprocess.PIPE)
 
   def testProbePresent(self):
-    self.dut.Popen = _CreatePopenMock(0)
+    port = '1'
+    address = '0x1a2b'
+    self.dut.Popen = _CreatePopenMock(0, f'Port: {port}, Address: {address}',
+                                      'fake stderr')
     self.assertEqual(cbi_utils.CheckCbiEepromPresent(self.dut), True)
-    self.dut.Popen.assert_called_once_with(
-        command=['ectool', 'locatechip', '0', '0'], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+
+    expected_calls = [
+        mock.call(command=['ectool', 'locatechip', '0', '0'],
+                  stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+        mock.call().communicate(),
+        mock.call(command=['ectool', 'i2cxfer', port, address, '1', '0x0'],
+                  stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+        mock.call().communicate()
+    ]
+    self.dut.Popen.assert_has_calls(expected_calls)
 
   def testProbeAbsent(self):
     self.dut.Popen = _CreatePopenMock(10, 'fake stdout', 'fake stderr')
