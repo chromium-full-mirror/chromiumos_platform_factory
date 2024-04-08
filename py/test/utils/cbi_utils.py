@@ -190,6 +190,24 @@ def CheckCbiEepromPresent(dut):
   Returns:
     True if the CBI EEPROM chip is present otherwise False.
   """
+  try:
+    chip_info = _GetEEPROMChipLocation(dut)
+  except CbiException:
+    return False
+  command = [
+      'ectool', 'i2cxfer',
+      str(chip_info['Port']),
+      str(chip_info['Address']), '1', '0x0'
+  ]
+  process = dut.Popen(command=command, stdout=subprocess.PIPE,
+                      stderr=subprocess.PIPE)
+  stdout, stderr = process.communicate()
+  logging.debug('command=%r, returncode=%d, stdout=%r, stderr=%r', command,
+                process.returncode, stdout, stderr)
+  return process.returncode == 0
+
+
+def _GetEEPROMChipLocation(dut):
   CBI_EEPROM_EC_CHIP_TYPE = 0
   CBI_EEPROM_EC_CHIP_INDEX = 0
   command = [
@@ -202,8 +220,23 @@ def CheckCbiEepromPresent(dut):
   stdout, stderr = process.communicate()
   logging.debug('command=%r, returncode=%d, stdout=%r, stderr=%r', command,
                 process.returncode, stdout, stderr)
-  return process.returncode == 0
+  patterns = {
+      'Port': r'Port: (\d+)',
+      'Address': r'Address: (0x[0-9a-fA-F]+)'
+  }
+  chip_info = {}
+  errors = []
 
+  for name, pattern in patterns.items():
+    match = re.search(pattern, stdout)
+    if match:
+      chip_info[name] = match.group(1)
+    else:
+      errors.append(f'{name} not found in the stdout: `{stdout}`')
+
+  if errors:
+    raise CbiException('\n'.join(errors))
+  return chip_info
 
 def VerifyCbiEepromWpStatus(dut, cbi_eeprom_wp_status):
   """Verify CBI EEPROM status.
