@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y \
     zip
 
 COPY docker/requirements.txt /root/
-RUN pip install -r /root/requirements.txt
+RUN pip install --require-hashes -r /root/requirements.txt
 
 # Install gcloud command.
 ARG gcloud_archive_name="google-cloud-sdk-363.0.0-linux-x86_64.tar.gz"
@@ -41,13 +41,6 @@ RUN cd /usr/src/ && \
   rm "${gcloud_archive_name}" && \
   ln -s /usr/src/google-cloud-sdk/bin/gcloud /usr/bin/gcloud && \
   ln -s /usr/src/google-cloud-sdk/bin/gsutil /usr/bin/gsutil
-
-# The `crcmod` module is required for the `gsutil` command to download composite
-# objects.
-RUN pip install crcmod==1.7
-
-# The `jsonschema` module is required for installing factory toolkit.
-RUN pip install jsonschema==4.17.3
 
 # Use `docker/factory.zip*` here to prevent the interruption when the file
 # doesn't exist.

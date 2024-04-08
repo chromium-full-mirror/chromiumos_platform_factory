@@ -1,0 +1,13 @@
+# The `crcmod` module is required for the `gsutil` command to download composite
+# objects.
+crcmod==1.7
+PyYAML==5.3.1
+google-cloud==0.34.0
+google-cloud-firestore==1.8.1
+google-cloud-logging==1.15.0
+google-cloud-pubsub==1.6.0
+google-cloud-storage==1.29.0
+google-auth-httplib2==0.0.3
+google-api-python-client==1.9.3
+# The `jsonschema` module is required for installing factory toolkit.
+jsonschema==4.17.3
