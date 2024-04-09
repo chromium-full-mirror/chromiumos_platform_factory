@@ -5,8 +5,8 @@
 
 import unittest
 
-from cros.factory.hwid.service.appengine.data.converter import wireless_converter
 from cros.factory.hwid.service.appengine.data.converter import converter_test_utils
+from cros.factory.hwid.service.appengine.data.converter import wireless_converter
 from cros.factory.hwid.v3 import contents_analyzer
 
 
@@ -20,7 +20,13 @@ class WirelessConverterCollectionTest(unittest.TestCase):
     self._converter_collection = wireless_converter.GetConverterCollection()
 
   def testMatch(self):
-    for test_name, comp_values, probe_info_mapping, align_status in [
+    for (
+        test_name,
+        comp_values,
+        probe_info_mapping,
+        align_status,
+        expected_identifier,
+    ) in [
         (
             'match_without_subsystem',
             {
@@ -31,6 +37,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xbb22',
             },
             _PVAlignmentStatus.ALIGNED,
+            'match_without_subsystem',
         ),
         (
             'unmatch_without_subsystem',
@@ -42,6 +49,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xcc33',
             },
             _PVAlignmentStatus.NOT_ALIGNED,
+            None,
         ),
         (
             'match_with_extra_subsystem_comp_value',
@@ -54,6 +62,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xbb22',
             },
             _PVAlignmentStatus.ALIGNED,
+            'match_without_subsystem',
         ),
         (
             'match_with_subsystem',
@@ -66,6 +75,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xbb22, 0x1234',
             },
             _PVAlignmentStatus.ALIGNED,
+            'match_with_subsystem',
         ),
         (
             'unmatch_with_subsystem',
@@ -78,6 +88,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xbb22, 0x1235',
             },
             _PVAlignmentStatus.NOT_ALIGNED,
+            None,
         ),
         (
             'unmatch_missing_probe_values',
@@ -89,6 +100,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 'wifi_probe_attributes': '0xaa11, 0xbb22, 0x1234',
             },
             _PVAlignmentStatus.NOT_ALIGNED,
+            None,
         ),
         (
             'unmatch_not_cross_join_attributes',
@@ -104,6 +116,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 ],
             },
             _PVAlignmentStatus.NOT_ALIGNED,
+            None,
         ),
         (
             'unmatch_with_and_without_subsystem',
@@ -119,6 +132,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 ],
             },
             _PVAlignmentStatus.NOT_ALIGNED,
+            None,
         ),
         (
             'match_without_subsystem_both_provided',
@@ -134,6 +148,7 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 ],
             },
             _PVAlignmentStatus.ALIGNED,
+            'match_without_subsystem',
         ),
         (
             'match_with_subsystem_both_provided',
@@ -149,6 +164,45 @@ class WirelessConverterCollectionTest(unittest.TestCase):
                 ],
             },
             _PVAlignmentStatus.ALIGNED,
+            'match_with_subsystem',
+        ),
+        (
+            'match_without_subsystem_with_prefix',
+            {
+                'pci_vendor_id': '0xaa11',
+                'pci_device_id': '0xbb22',
+            },
+            {
+                'wifi_probe_attributes': '0xaa11, 0xbb22',
+            },
+            _PVAlignmentStatus.ALIGNED,
+            'match_without_subsystem_with_prefix',
+        ),
+        (
+            'match_with_extra_subsystem_comp_value_with_prefix',
+            {
+                'pci_vendor_id': '0xaa11',
+                'pci_device_id': '0xbb22',
+                'pci_subsystem': '0x1234',
+            },
+            {
+                'wifi_probe_attributes': '0xaa11, 0xbb22',
+            },
+            _PVAlignmentStatus.ALIGNED,
+            'match_without_subsystem_with_prefix',
+        ),
+        (
+            'match_with_subsystem_with_prefix',
+            {
+                'pci_vendor_id': '0xaa11',
+                'pci_device_id': '0xbb22',
+                'pci_subsystem': '0x1234',
+            },
+            {
+                'wifi_probe_attributes': '0xaa11, 0xbb22, 0x1234',
+            },
+            _PVAlignmentStatus.ALIGNED,
+            'match_with_subsystem_with_prefix',
         ),
     ]:
       with self.subTest(test_name):
@@ -156,6 +210,8 @@ class WirelessConverterCollectionTest(unittest.TestCase):
             probe_info_mapping)
         result = self._converter_collection.Match(comp_values, probe_info)
         self.assertEqual(result.alignment_status, align_status)
+        if result.alignment_status == _PVAlignmentStatus.ALIGNED:
+          self.assertEqual(result.converter_identifier, expected_identifier)
 
 
 if __name__ == '__main__':

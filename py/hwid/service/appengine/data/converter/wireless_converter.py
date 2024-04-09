@@ -9,6 +9,7 @@ from typing import Sequence
 from cros.factory.hwid.service.appengine.data.converter import converter
 from cros.factory.hwid.service.appengine.data.converter import converter_types
 
+
 # Shorter identifiers.
 _ConvertedValueSpec = converter.ConvertedValueSpec
 
@@ -70,6 +71,37 @@ _WIRELESS_CONVERTERS: Sequence[converter.FieldNameConverter] = (
                                                      with_subsystem=False)),
                 _ConvertedValueSpec(
                     'device',
+                    _ExtractWirelessAttributeFactory(_WirelessAttrIndex.DEVICE,
+                                                     with_subsystem=False)),
+            ],
+        }),
+    converter.FieldNameConverter.FromFieldMap(
+        'match_with_subsystem_with_prefix', {
+            _WirelessAVLAttrs.JOINED_PROBE_ATTRIBUTE: [
+                _ConvertedValueSpec(
+                    'pci_vendor_id',
+                    _ExtractWirelessAttributeFactory(_WirelessAttrIndex.VENDOR,
+                                                     with_subsystem=True)),
+                _ConvertedValueSpec(
+                    'pci_device_id',
+                    _ExtractWirelessAttributeFactory(_WirelessAttrIndex.DEVICE,
+                                                     with_subsystem=True)),
+                _ConvertedValueSpec(
+                    'pci_subsystem',
+                    _ExtractWirelessAttributeFactory(
+                        _WirelessAttrIndex.SUBSYSTEM_DEVICE,
+                        with_subsystem=True)),
+            ],
+        }),
+    converter.FieldNameConverter.FromFieldMap(
+        'match_without_subsystem_with_prefix', {
+            _WirelessAVLAttrs.JOINED_PROBE_ATTRIBUTE: [
+                _ConvertedValueSpec(
+                    'pci_vendor_id',
+                    _ExtractWirelessAttributeFactory(_WirelessAttrIndex.VENDOR,
+                                                     with_subsystem=False)),
+                _ConvertedValueSpec(
+                    'pci_device_id',
                     _ExtractWirelessAttributeFactory(_WirelessAttrIndex.DEVICE,
                                                      with_subsystem=False)),
             ],
