@@ -1,6 +1,8 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+#
+# TODO(b/308306344): Migrate to cl_upload_config.
 """Payload generation related data models and their manager."""
 
 import enum
@@ -39,7 +41,6 @@ class ApprovalMethod(str, enum.Enum):
     return self.value
 
 
-# TODO(b/308306344): Migrate to `cl_upload_config.CLUploadConfig`
 class Config(ndb.Model):
   """A config for payload generation which can be modified on Datastore.
 

@@ -33,7 +33,7 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._modules = test_utils.FakeModuleCollection()
     self._ndb_connector = self._modules.ndb_connector
     self._mock_cl_upload_manager = mock.create_autospec(
-        cl_upload_config.CLUploadManager, instance=True)
+        cl_upload_config.VPGTargetsCLUploadManager, instance=True)
     self._vpg_config_manager = vpg_config_manager.VPGConfigManager(
         self._modules.fake_dlm_product_manager, self._mock_cl_upload_manager)
 
@@ -63,6 +63,8 @@ class VPGConfigManagerTest(unittest.TestCase):
 
   def testUpdate(self):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
+    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
+    self._mock_cl_upload_manager.ShouldCreateCL.return_value = True
     # None of MODEL3 products are shipped. Generate encrypted payload.
     self._CreateDLMProduct(id=1, board='BOARD1', model='MODEL3',
                            product_status=_DlmProduct.APPROVED, device_id=1)
@@ -95,6 +97,27 @@ class VPGConfigManagerTest(unittest.TestCase):
           _TEST_VPG_TARGETS_DATA)], mock.ANY, mock.ANY,
         'vpg_targets: Update the list of model to generate payloads',
         topic='vpg-targets-automated-sync', auto_submit=True, hashtags=None)
+    self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_called_with(
+        '36f5209b029355fec53071c7c5063297bdcc6e4c')
+
+  def testUpdate_ShouldNotCreateCL_ShouldNotCreateCL(self):
+    self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
+    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
+    self._mock_cl_upload_manager.ShouldCreateCL.return_value = False
+
+    self._vpg_config_manager.Update(True)
+
+    self._mock_cl_upload_manager.CreateCL.assert_not_called()
+    self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_not_called()
+
+  def testUpdate_ShouldNotGenerateContent_ShouldNotCreateCL(self):
+    self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
+    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = False
+
+    self._vpg_config_manager.Update(True)
+
+    self._mock_cl_upload_manager.CreateCL.assert_not_called()
+    self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_not_called()
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import abc
 import enum
 import logging
 import textwrap
@@ -66,11 +67,30 @@ class CLUploadConfig(ndb.Model):
   ccs = ndb.StringProperty(repeated=True)
 
 
-class CLUploadManager:
+class CLUploadFactor(ndb.Model):
+  """Factors that influences whether to upload the CL or not.
 
-  def __init__(self, ndb_connector: ndbc_module.NDBConnector, cl_type: CLType):
+  The factors will be used to decide whether to upload the CL or not. Different
+  factors will be used based on the cl_type.
+
+  Attributes:
+    cl_type: The type of CL content. See also CLType.
+    latest_content_hash: The hash value of the latest CL content.
+    board: The board that the CL corresponds to. Used only for
+        verification_payload and hwid_selection_payload CL types.
+  """
+
+  cl_type = ndb.StringProperty(choices=set(CLType))
+  latest_content_hash = ndb.StringProperty()
+  board = ndb.StringProperty()
+
+
+class AbstractCLUploadManager(abc.ABC):
+  """Abstract CL upload manager."""
+  _cl_type: CLType
+
+  def __init__(self, ndb_connector: ndbc_module.NDBConnector):
     self._ndb_connector = ndb_connector
-    self._cl_type = cl_type
     self._logger = logging.getLogger(
         f'{self.__class__.__name__}.{self._cl_type}')
 
@@ -122,12 +142,6 @@ class CLUploadManager:
       See also git_util.CreateOrPatchCL().
     """
     config = self.cl_upload_config
-    if config.disabled:
-      self._logger.info(
-          'The generation for %s is disabled, skip generating '
-          'CL.', config.cl_type)
-      return None, None
-
     if config.approval_method == ApprovalMethod.BOT:
       if not config.bot_reviewer:
         self._logger.warning('"bot_reviewer" config is empty')
@@ -179,3 +193,241 @@ class CLUploadManager:
         commit_queue=self_approval, repo=repo, topic=topic, verified=verified,
         auto_submit=auto_submit, rubber_stamper=rubber_stamper,
         hashtags=hashtags, files_to_delete=files_to_delete)
+
+  def _GetLatestContentHash(self, board: Optional[str] = None) -> Optional[str]:
+    """Gets the latest content hash.
+
+    Args:
+      board: See CLUploadFactor.board.
+
+    Returns:
+      None if the entity does not exist. Otherwise, the latest content hash
+      string.
+    """
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      q = CLUploadFactor.query(CLUploadFactor.cl_type == self._cl_type)
+      if board is not None:
+        q = q.filter(CLUploadFactor.board == board)
+
+      entity = q.get()
+      return entity.latest_content_hash if entity is not None else None
+
+  def _SetLatestContentHash(self, content_hash: str,
+                            board: Optional[str] = None):
+    """Sets the latest content hash.
+
+    Args:
+      content_hash: The hash value to set.
+      board: See CLUploadFactor.board.
+    """
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      q = CLUploadFactor.query(CLUploadFactor.cl_type == self._cl_type)
+      if board is not None:
+        q = q.filter(CLUploadFactor.board == board)
+
+      entity = q.get()
+      if entity is None:
+        entity = CLUploadFactor(cl_type=self._cl_type, board=board)
+      entity.latest_content_hash = content_hash
+      entity.put()
+
+  @abc.abstractmethod
+  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
+                            force_generate: bool = False) -> bool:
+    """Checks if the content should be generated.
+
+    This function is called before the generation of contents begins to avoid
+    unnecessary generation as the process may take a long time.
+
+    Args:
+      hwid_live_commit: The latest commit of the HWID repo.
+      force_generate: Set to True when force to generate the content.
+
+    Raises:
+      ValueError: If any mandatory parameters are not specified.
+    """
+
+  @abc.abstractmethod
+  def ShouldCreateCL(self, content_hash: str,
+                     board: Optional[str] = None) -> bool:
+    """Checks if the CL should be created.
+
+    This function is called after the generation of contents is completed to
+    avoid creating duplicate CLs with the same content.
+
+    Args:
+      content_hash: See CLUploadFactor.latest_content_hash.
+      board: See CLUploadFactor.board.
+
+    Raises:
+      ValueError: If any mandatory parameters are not specified.
+    """
+
+
+class VPGTargetsCLUploadManager(AbstractCLUploadManager):
+  """CL upload manager for VPG targets."""
+  _cl_type = CLType.VPG_TARGETS
+
+  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
+                            force_generate: bool = False) -> bool:
+    """See base class."""
+    del hwid_live_commit  # unused.
+
+    config = self.cl_upload_config
+    if force_generate:
+      self._logger.info('Force to generate content for %s.', config.cl_type)
+      return True
+    if config.disabled:
+      self._logger.info(
+          'The generation for %s is disabled, skip generating '
+          'the content.', config.cl_type)
+      return False
+    return True
+
+  def ShouldCreateCL(self, content_hash: str,
+                     board: Optional[str] = None) -> bool:
+    """See base class."""
+    del board  # unused.
+
+    latest_vpg_targets_hash = self.GetLatestVPGTargetsHash()
+    if content_hash == latest_vpg_targets_hash:
+      self._logger.info('%s hash value is not changed (%s), skip creating CL',
+                        self._cl_type, content_hash)
+      return False
+    return True
+
+  def GetLatestVPGTargetsHash(self) -> Optional[str]:
+    """Gets the latest VPG targets content hash.
+
+    Returns:
+      See AbstractCLUploadManager._GetLatestContentHash().
+    """
+    return self._GetLatestContentHash(board=None)
+
+  def SetLatestVPGTargetsHash(self, vpg_targets_hash: str):
+    """Sets the latest VPG targets content hash.
+
+    Args:
+      vpg_targets_hash: The hash value to set.
+    """
+    self._SetLatestContentHash(content_hash=vpg_targets_hash, board=None)
+
+
+class LatestHWIDMainCommit(ndb.Model):
+  """The latest processed commit of the HWID repo.
+
+  This is used to check if the payload content should be regenerated.
+
+  Attributes:
+    payload_type: The type of CL content. See also CLType.
+    commit: The latest processed commit of the HWID repo.
+  """
+
+  payload_type = ndb.StringProperty()
+  commit = ndb.StringProperty()
+
+
+class PayloadCLUploadManager(AbstractCLUploadManager):
+  """Base CL upload manager for payloads."""
+
+  def __init__(self, ndb_connector: ndbc_module.NDBConnector):
+    if self._cl_type not in [
+        CLType.HWID_SELECTION_PAYLOAD, CLType.VERIFICATION_PAYLOAD
+    ]:
+      raise ValueError(
+          f'Invalid CL type for PayloadCLUploadManager, got: {self._cl_type}')
+    super().__init__(ndb_connector)
+
+  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
+                            force_generate: bool = False) -> bool:
+    """See base class."""
+    if hwid_live_commit is None:
+      raise ValueError('hwid_live_commit must be specified')
+
+    config = self.cl_upload_config
+    if force_generate:
+      self._logger.info('Force to generate content for %s.', config.cl_type)
+      return True
+    if config.disabled:
+      self._logger.info(
+          'The generation for %s is disabled, skip generating '
+          'the content.', config.cl_type)
+      return False
+    hwid_prev_commit = self.GetLatestHWIDMainCommit()
+    if hwid_live_commit == hwid_prev_commit:
+      self._logger.info('The HWID live commit %s is already processed, skipped',
+                        hwid_live_commit)
+      return False
+    return True
+
+  def ShouldCreateCL(self, content_hash: str,
+                     board: Optional[str] = None) -> bool:
+    """See base class."""
+    if board is None:
+      raise ValueError('board must be specified')
+
+    latest_payload_hash = self.GetLatestPayloadHash(board)
+    if content_hash == latest_payload_hash:
+      self._logger.info('%s hash value is not changed (%s), skip creating CL',
+                        self._cl_type, content_hash)
+      return False
+    return True
+
+  def GetLatestHWIDMainCommit(self) -> Optional[str]:
+    """Gets the latest processed commit of HWID repo.
+
+    Returns:
+      None if the entity does not exist. Otherwise, the latest processed commit
+      of HWID repo.
+    """
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      entity = LatestHWIDMainCommit.query(
+          LatestHWIDMainCommit.payload_type == self._cl_type).get()
+      return entity.commit if entity is not None else None
+
+  def SetLatestHwidMainCommit(self, commit: str):
+    """Sets the latest processed commit of HWID repo.
+
+    Args:
+      commit: See LatestHWIDMainCommit.commit.
+    """
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      entity = LatestHWIDMainCommit.query(
+          LatestHWIDMainCommit.payload_type == self._cl_type).get()
+      if entity is None:
+        entity = LatestHWIDMainCommit(payload_type=self._cl_type)
+      entity.commit = commit
+      entity.put()
+
+  def GetLatestPayloadHash(self, board: str) -> Optional[str]:
+    """Gets the latest payload content hash.
+
+    Args:
+      board: See CLUploadFactor.board.
+
+    Returns:
+      See AbstractCLUploadManager._GetLatestContentHash().
+    """
+    return self._GetLatestContentHash(board=board)
+
+  def SetLatestPayloadHash(self, payload_hash: str, board: str):
+    """Sets the latest payload content hash.
+
+    Args:
+      payload_hash: The hash value to set.
+      board: See CLUploadFactor.board.
+
+    Returns:
+      See AbstractCLUploadManager._GetLatestContentHash().
+    """
+    self._SetLatestContentHash(content_hash=payload_hash, board=board)
+
+
+class VerificationPayloadCLUploadManager(PayloadCLUploadManager):
+  """CL upload manager for verification payloads."""
+  _cl_type = CLType.VERIFICATION_PAYLOAD
+
+
+class HWIDSelectionPayloadCLUploadManager(PayloadCLUploadManager):
+  """CL upload manager for HWID selection payloads."""
+  _cl_type = CLType.HWID_SELECTION_PAYLOAD

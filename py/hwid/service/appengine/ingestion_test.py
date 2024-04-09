@@ -41,7 +41,7 @@ def _CreateMockConfig(fake_modules: test_utils.FakeModuleCollection):
   ]
   mock_config.dlm_product_manager = fake_modules.fake_dlm_product_manager
   mock_config.vpg_config_cl_upload_manager = mock.create_autospec(
-      cl_upload_config.CLUploadManager, instance=True)
+      cl_upload_config.VPGTargetsCLUploadManager, instance=True)
   return mock_config
 
 

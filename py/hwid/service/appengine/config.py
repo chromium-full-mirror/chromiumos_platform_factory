@@ -41,8 +41,9 @@ class _Config:
         reading/writing HWID selection payload related metadata.
     vp_data_manager: A PayloadDataManager instance responsible for
         reading/writing verification payload related metadata.
-    vpg_config_cl_upload_manager: A CLUploadManager instance responsible for
-        uploading CL to update verification payload generator config file.
+    vpg_config_cl_upload_manager: A VPGTargetsCLUploadManager instance
+        responsible for uploading CL to update verification payload generator
+        config file.
     decoder_data_manager: A DecoderDataManager instance responsible for
         reading/writing decode-related configs (e.g. AVL names from DLM and
         PrimaryIdentifier).
@@ -82,8 +83,8 @@ class _Config:
     self.vp_data_manager = (
         payload_data.PayloadDataManager(ndb_connector,
                                         payload_data.PayloadType.VERIFICATION))
-    self.vpg_config_cl_upload_manager = cl_upload_config.CLUploadManager(
-        ndb_connector, cl_upload_config.CLType.VPG_TARGETS)
+    self.vpg_config_cl_upload_manager = (
+        cl_upload_config.VPGTargetsCLUploadManager(ndb_connector))
     self.decoder_data_manager = decoder_data.DecoderDataManager(ndb_connector)
     self.hwid_db_data_manager = hwid_db_data.HWIDDBDataManager(
         ndb_connector, self.hwid_filesystem)
