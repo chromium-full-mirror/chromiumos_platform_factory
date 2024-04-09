@@ -1,0 +1,49 @@
+{
+  "__comment": "Predefined cellular tests. wireless is called \"WWAN\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {},
+  "options": {},
+  "definitions": {
+    "ModemSecurity": {
+      "pytest_name": "modem_security",
+      "disable_services": []
+    },
+    "ProbeCellular": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Cellular",
+      "args": {
+        "component_list": [
+          "cellular"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "cellular",
+            "==",
+            1
+          ]
+        ]
+      }
+    },
+    "ProbeImei": {
+      "pytest_name": "probe_cellular_info",
+      "args": {
+        "probe_imei": true,
+        "probe_meid": false,
+        "probe_lte_imei": false,
+        "probe_lte_iccid": false,
+        "fields": {
+          "imei": "EquipmentIdentifier"
+        }
+      }
+    },
+    "ProbeSim": {
+      "pytest_name": "probe_sim",
+      "args": {
+        "enable_modem_reset": false
+      }
+    }
+  }
+}

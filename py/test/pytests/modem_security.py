@@ -28,12 +28,12 @@ Dependency
 
 Examples
 --------
-To verify and set modem access level to 0::
+To verify and set modem access level to 0:
 
-  {
-    "pytest_name": "modem_security",
-    "disable_services": []
-  }
+.. test_list::
+
+  generic_cellular_examples:ModemSecurity
+
 """
 
 import logging

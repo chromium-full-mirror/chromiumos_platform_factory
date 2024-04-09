@@ -1,0 +1,18 @@
+{
+  "__comment": "Examples for testing cellular components. cellular is called \"WWAN\" in AVL.",
+  "inherit": [
+    "generic_cellular.test_list"
+  ],
+  "label": "Generic Cellular Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {},
+  "tests": [
+    "ProbeCellular",
+    "ModemSecurity",
+    "ProbeImei",
+    "ProbeSim"
+  ]
+}

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-11 13:26+UTC\n"
+"PO-Revision-Date: 2024-04-18 15:03+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -344,7 +344,7 @@ msgstr "组态与样式(SKU)"
 
 #: ../build/pytests_label_generated.json
 msgid "Modem Security"
-msgstr "调解器安全"
+msgstr "数据机安全"
 
 #: ../build/pytests_label_generated.json
 msgid "Mouse"
@@ -3577,6 +3577,14 @@ msgstr "手动后相机测试 OpenCV"
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Generic Camera Factory tests"
 msgstr "一般相机测试"
+
+#: ../py/test/test_lists/generic_cellular.test_list.json
+msgid "Probe Cellular"
+msgstr "侦测数据机"
+
+#: ../py/test/test_lists/generic_cellular_examples.test_list.json
+msgid "Generic Cellular Factory tests"
+msgstr "一般数据机测试"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Activate Registration Code"

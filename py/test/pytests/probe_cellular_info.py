@@ -38,34 +38,24 @@ to specify the ``fields`` argument.
 
 Examples
 --------
-The following argument will probe imei from field ``EquipmentIdentifier``::
+The following argument will probe imei from field ``EquipmentIdentifier``:
 
-  {
-    "pytest_name": "probe_cellular_info",
-    "args": {
-      "probe_imei": True,
-      "probe_meid": False,
-      "fields": {
-        "imei": "EquipmentIdentifier"
-      }
-    }
-  }
+.. test_list::
 
+  generic_cellular_examples:ProbeImei
 
 Example output::
 
-  # "modem status" output
-  output = \"\"\"Modem /org/freedesktop/ModemManager1/Modem/7:
-    GetStatus:
-    Properties:
-      EquipmentIdentifier: 862227050001326
-      ...
-    3GPP:
-    CDMA:
-  \"\"\"
+  # "factory device-data" output before this test
+  serials:
+    serial_number: 12345678
 
-  # device_data
-  data = {'imei': '862227050001326'}
+  # "factory device-data" output after this test
+  component:
+    cellular:
+      imei: '862227050001326'
+  serials:
+    serial_number: 12345678
 
 """
 

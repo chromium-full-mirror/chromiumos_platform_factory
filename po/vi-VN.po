@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-11 13:26+UTC\n"
+"PO-Revision-Date: 2024-04-18 15:03+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3635,6 +3635,14 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Generic Camera Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_cellular.test_list.json
+msgid "Probe Cellular"
+msgstr ""
+
+#: ../py/test/test_lists/generic_cellular_examples.test_list.json
+msgid "Generic Cellular Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json

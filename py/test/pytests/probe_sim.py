@@ -29,11 +29,11 @@ Dependency
 
 Examples
 --------
-An example::
+An example:
 
-  {
-    "pytest_name": "probe_sim"
-  }
+.. test_list::
+
+  generic_cellular_examples:ProbeSim
 
 """
 
