@@ -44,6 +44,10 @@ class ECComponentTest(unittest.TestCase):
     patcher = mock.patch.object(json_utils, 'LoadFile', autospec=True)
     self._mock_load_file = patcher.start()
 
+    patcher = mock.patch.object(os.path, 'exists', autospec=True)
+    self._mock_exists = patcher.start()
+    self._mock_exists.side_effect = [False, True]
+
     self.addCleanup(mock.patch.stopall)
 
   @mock.patch.object(sys_utils, 'MountPartition', autospec=True)
@@ -70,11 +74,18 @@ class ECComponentTest(unittest.TestCase):
     with self.assertRaises(ec_component.ECVersionNotMatchError):
       ec_component.ECComponent().Probe()
 
-  @mock.patch.object(os.path, 'exists', autospec=True, return_value=True)
-  def testProbe_SuccessWithLocalManifest(self, unused_mocK_exists):
+  @mock.patch.object(sys_utils, 'MountPartition', autospec=True)
+  def testProbe_ManifestNotFound(self, mock_mount):
+    mock_mount.return_value.__enter__.return_value = self.MOUNT_POINT
+    self._mock_exists.side_effect = [False, False]
+    with self.assertRaises(ec_component.ECManifestNotFoundError):
+      ec_component.ECComponent().Probe()
+
+  def testProbe_SuccessWithLocalManifest(self):
     self._mock_load_file.return_value = {
         'ec_version': self.ACTIVE_VERSION
     }
+    self._mock_exists.side_effect = [True, True]
 
     ec_component.ECComponent().Probe()
 
