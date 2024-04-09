@@ -170,6 +170,8 @@ class AbstractFunction(abc.ABC):
 
     try:
       return self.Apply(data)
+    except FunctionException:
+      raise
     except Exception:
       logging.exception('Error occurred while applying function "%s.%s"',
                         self.__class__.__module__, self.__class__.__name__)

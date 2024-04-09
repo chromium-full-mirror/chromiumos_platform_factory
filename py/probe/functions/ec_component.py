@@ -7,6 +7,7 @@ import os
 
 from cros.factory.device import device_utils
 from cros.factory.gooftool import common as gooftool_common
+from cros.factory.probe import function
 from cros.factory.probe.lib import probe_function
 from cros.factory.probe.runtime_probe import runtime_probe_adapter
 from cros.factory.utils import arg_utils
@@ -21,12 +22,18 @@ RELEASE_CME_PATH = 'usr/share/cme/'
 MANIFEST_NAME = 'component_manifest.json'
 
 
-class ECVersionNotMatchError(Exception):
+class ECVersionNotMatchError(function.FunctionException):
+  pass
+
+
+class ECManifestNotFoundError(function.FunctionException):
   pass
 
 
 def _CheckManifestVersion(manifest_path: str):
   active_version = device_utils.CreateDUTInterface().ec.GetActiveVersion()
+  if not os.path.exists(manifest_path):
+    raise ECManifestNotFoundError(f'{manifest_path} not exist.')
   manifest = json_utils.LoadFile(manifest_path)
   manifest_version = manifest.get('ec_version')
   if active_version != manifest_version:
