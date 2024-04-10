@@ -15,7 +15,6 @@ import re
 import subprocess
 import sys
 
-from cros.factory.device import device_utils
 from cros.factory.test.env import paths
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
@@ -245,6 +244,7 @@ def LoadRegionDatabase(path=None):
         return process_utils.CheckOutput(
             [CROS_REGIONS_DATABASE_GENERATOR_PATH, '--format', 'json', '--all'])
     elif sys_utils.InCrOSDevice():
+      from cros.factory.device import device_utils
       dut = device_utils.CreateDUTInterface()
       release_rootfs = dut.partitions.RELEASE_ROOTFS.path
       return sys_utils.MountDeviceAndReadFile(
