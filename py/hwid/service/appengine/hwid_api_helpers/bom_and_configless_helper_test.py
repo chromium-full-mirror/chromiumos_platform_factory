@@ -17,6 +17,9 @@ from cros.factory.hwid.v3 import database
 GOLDEN_HWIDV3_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '..', 'testdata',
     'v3-golden.yaml')
+GOLDEN_HWIDV3_FILE_NULL_AVL_PROBE_VALUE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', 'testdata',
+    'v3-golden-internal-with-null-values.yaml')
 
 TEST_MODEL = 'FOO'
 TEST_HWID = 'Foo ABC'
@@ -122,6 +125,55 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                             _FieldMsg(name='name', value='Camera')
                         ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
                         has_avl=True),
+                    _ComponentMsg(
+                        name='cpu_0', component_class='cpu', fields=[
+                            _FieldMsg(name='cores', value='4'),
+                            _FieldMsg(name='name', value='CPU @ 1.80GHz')
+                        ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
+                        has_avl=True),
+                    _ComponentMsg(
+                        name='cpu_1', component_class='cpu', fields=[
+                            _FieldMsg(name='cores', value='4'),
+                            _FieldMsg(name='name', value='CPU @ 2.00GHz')
+                        ], avl_info=_AvlInfoMsg(cid=1, avl_name=''),
+                        has_avl=True)
+                ], '', '', _Status.SUCCESS, ''),
+        })
+
+  def testBatchGetBOMEntry_WithVerboseFlagAndNullAVLProbeValue(self):
+    bom = hwid_action.BOM()
+    bom.AddAllComponents(
+        {
+            'battery': 'battery_small',
+            'cpu': ['cpu_0', 'cpu_1'],
+            'camera': 'camera_0',
+        }, comp_db=database.Database.LoadFile(
+            GOLDEN_HWIDV3_FILE_NULL_AVL_PROBE_VALUE, verify_checksum=False),
+        verbose=True)
+    configless = None
+    with self._PatchBatchGetBOMAndConfigless() as patch_method:
+      patch_method.return_value = {
+          TEST_HWID: _BOMAndConfigless(bom, configless, None),
+      }
+
+      results = self._bc_helper.BatchGetBOMEntry(self._fake_hwid_action_manager,
+                                                 [TEST_HWID], verbose=True)
+
+    self.assertEqual(
+        results, {
+            TEST_HWID:
+                bc_helper_module.BOMEntry([
+                    _ComponentMsg(
+                        name='battery_small', component_class='battery',
+                        fields=[
+                            _FieldMsg(name='manufacturer',
+                                      value='manufacturer1'),
+                            _FieldMsg(name='model_name', value='model1'),
+                            _FieldMsg(name='technology', value='Battery Li-ion')
+                        ]),
+                    _ComponentMsg(name='camera_0', component_class='camera',
+                                  fields=[], avl_info=_AvlInfoMsg(
+                                      cid=0, avl_name=''), has_avl=True),
                     _ComponentMsg(
                         name='cpu_0', component_class='cpu', fields=[
                             _FieldMsg(name='cores', value='4'),
