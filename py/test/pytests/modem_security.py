@@ -9,6 +9,11 @@ Description
 This test verifies the modem access level. If the access level is not 0,
 this test will try to set it to 0.
 
+Internal references
+-------------------
+
+- b/120004153#comment23
+
 Test Procedure
 --------------
 This is an automatic test that doesn't need any user interaction.
@@ -27,39 +32,41 @@ To verify and set modem access level to 0::
 
   {
     "pytest_name": "modem_security",
-    "disable_services": ["modemmanager"]
+    "disable_services": []
   }
 """
 
+import logging
 import re
 
+from cros.factory.device import device_utils
 from cros.factory.test import test_case
-from cros.factory.test.utils import serial_utils
 
 
-MODEM_SERIAL_PORT = '/dev/ttyACM0'
 ACCESS_LEVEL_RE = re.compile('^access_level = [0-9]', re.MULTILINE)
+RESPONSE_RE = re.compile('^response: \'(.*)\'$', re.DOTALL)
 
 
 class ModemSecurity(test_case.TestCase):
 
   related_components = (test_case.TestCategory.WWAN, )
   def setUp(self):
-    self._serial_dev = serial_utils.SerialDevice(
-        send_receive_interval_secs=1, log=True)
-    self._serial_dev.Connect(port=MODEM_SERIAL_PORT, timeout=1, writeTimeout=1)
+    self._dut = device_utils.CreateDUTInterface()
 
-  def tearDown(self):
-    if self._serial_dev:
-      self._serial_dev.Disconnect()
+  def RunATCommand(self, command: str):
+    response = self._dut.CheckOutput(
+        ['mmcli', '-m', 'any', '--command', command], log=True)
+    match = RESPONSE_RE.search(response)
+    if not match:
+      self.FailTask(f'Bad response: {response}')
 
-  def RunATCommand(self, command):
-    response = self._serial_dev.SendReceive(command + '\r\n', size=0)
-    if 'OK' not in response:
-      self.FailTask('Bad response')
-    return response
+    return match.group(1)
 
   def runTest(self):
+    response = self._dut.CheckOutput(['mmcli', '-L'], log=True)
+    if 'L850' not in response:
+      logging.info('Modem is %r', response)
+      self.WaiveTest('Modem is not L850 waived.')
     # Check whether access authority is closed already first.
     response = self.RunATCommand('AT@sec:status_info()')
     if ACCESS_LEVEL_RE.search(response).group(0) == 'access_level = 0':
