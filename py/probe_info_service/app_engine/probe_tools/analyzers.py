@@ -184,6 +184,7 @@ _IProbeDataSource = probe_info_analytics.IProbeDataSource
 _PayloadInvalidError = probe_info_analytics.PayloadInvalidError
 _ProbeParameterSuggestion = probe_info_analytics.ProbeParameterSuggestion
 _ProbeParamValues = Sequence[Union[str, int]]
+_IComponentName = probe_info_analytics.IComponentName
 
 CollectedProbeParams = Mapping[str, _ProbeParamValues]
 
@@ -281,13 +282,13 @@ class _ProbeDataSourceImpl(_IProbeDataSource):
   Instances of this class are the source for generating the final probe bundle.
 
   Attributes:
-    component_name: A string of the name of the component.
+    component_name: An instance of `_IComponentName`.
     probe_info: An instance of `_ProbeInfo`.
     fingerprint: A string of fingerprint of this instance, like a kind of
         unique identifier.
   """
 
-  def __init__(self, component_name: str, probe_info: _ProbeInfo):
+  def __init__(self, component_name: _IComponentName, probe_info: _ProbeInfo):
     self.component_name = component_name
     self.probe_info = probe_info
 
@@ -384,7 +385,7 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
                                               allow_missing_params)
     return parse_result.probe_info_parsed_result
 
-  def CreateProbeDataSource(self, component_name: str,
+  def CreateProbeDataSource(self, component_name: _IComponentName,
                             probe_info: _ProbeInfo) -> _IProbeDataSource:
     """See base class."""
     return _ProbeDataSourceImpl(component_name, probe_info)
@@ -410,7 +411,7 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
                                               reference_probe_data_source)
     return json_utils.DumpStr({
         '<unknown_component_category>': {
-            reference_probe_data_source.component_name: {
+            reference_probe_data_source.component_name.GetName(): {
                 'eval': {
                     'unknown_probe_function': {},
                 },
@@ -461,7 +462,7 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     # Add component probe statements to probe config.
     for i, probe_data_source in enumerate(probe_data_sources):
       ps_metadata = metadata.probe_statement_metadatas.add(
-          component_name=probe_data_source.component_name,
+          component_name=probe_data_source.component_name.GetName(),
           fingerprint=probe_data_source.fingerprint)
       for comp_ps in comp_probe_statements_list[i]:
         ps_metadata.component_part_names.append(comp_ps.component_name)
@@ -504,8 +505,11 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
           f'Incorrect number of probe statements: {num_ps_metadatas}.')
 
     ps_metadata = preproc_conclusion.probed_outcome.probe_statement_metadatas[0]
-    if ps_metadata.component_name != probe_data_source.component_name:
-      raise _PayloadInvalidError('Probe statement component name mismatch.')
+
+    name_match, error_message = probe_data_source.component_name.CompareName(
+        ps_metadata.component_name)
+    if not name_match:
+      raise _PayloadInvalidError(error_message)
 
     if ps_metadata.fingerprint != probe_data_source.fingerprint:
       return _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.LEGACY)
@@ -543,8 +547,10 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
                                      probe_data_sources)
     preproc_conclusion = self._PreprocessProbeResultPayload(
         probe_result_payload)
-    pds_of_comp_name = {pds.component_name: pds
-                        for pds in probe_data_sources}
+    pds_of_comp_name = {
+        pds.component_name.GetName(): pds
+        for pds in probe_data_sources
+    }
     ps_metadata_of_comp_name = {
         m.component_name: m
         for m in preproc_conclusion.probed_outcome.probe_statement_metadatas
@@ -562,7 +568,7 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     probed_components = set(preproc_conclusion.probed_components)
     for pds in probe_data_sources:
       pi_test_res = _ProbeInfoTestResult()
-      comp_name = pds.component_name
+      comp_name = pds.component_name.GetName()
       ps_metadata = ps_metadata_of_comp_name.get(comp_name, None)
       if ps_metadata is None:
         pi_test_res.result_type = _ProbeInfoTestResult.NOT_INCLUDED
@@ -619,9 +625,10 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
         probe_data_source.probe_info.probe_function_name)
     if not converter:
       return _ProbeInfoArtifact(probe_info_parsed_result, None)
+    comp_name = probe_data_source.component_name.GetName()
     return converter.ParseProbeParams(
         probe_data_source.probe_info.probe_parameters, False,
-        comp_name_for_probe_statement=probe_data_source.component_name)
+        comp_name_for_probe_statement=comp_name)
 
   def _PreprocessProbeResultPayload(
       self, probe_result_payload: bytes) -> _ProbedOutcomePreprocessConclusion:

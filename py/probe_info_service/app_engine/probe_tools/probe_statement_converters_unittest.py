@@ -279,7 +279,6 @@ class BatteryConverterTest(ConverterTestCase):
     self.assertCountEqual(actual, expected_probe_params)
 
   def testGetNormalizedProbeParams_WithRegexParams_CanGetParamsCorrectly(self):
-    self.maxDiff = None
     probe_params = [
         _CreateStrProbeParam('manufacturer', 'abc[0-9]'),
         _CreateStrProbeParam('model_name', 'def[0-9]'),

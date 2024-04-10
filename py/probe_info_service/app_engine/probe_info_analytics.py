@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Generic, NamedTuple, Optional, Sequence, TypeVar
+from typing import Generic, NamedTuple, Optional, Sequence, Tuple, TypeVar
 
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 
@@ -29,6 +29,27 @@ class PayloadInvalidError(Exception):
 
 class IProbeDataSource(abc.ABC):
   """Base type of classes for a source of probe statement and its metadata."""
+
+
+class IComponentName(abc.ABC):
+  """The component name used in the probe test bundles."""
+
+  @abc.abstractmethod
+  def GetName(self) -> str:
+    """Returns the component name."""
+
+  @abc.abstractmethod
+  def CompareName(self, target: str) -> Tuple[bool, Optional[str]]:
+    """Compares whether the component name and `target` are the same.
+
+    Args:
+      target: The target name to compare with the component name.
+
+    Returns:
+      A tuple containing the followings:
+        1. True if the two are the same. False otherwise.
+        2. The mismatch error message if the two names are different.
+    """
 
 
 _T = TypeVar('_T')
@@ -102,7 +123,7 @@ class IProbeInfoAnalyzer(abc.ABC):
     """
 
   @abc.abstractmethod
-  def CreateProbeDataSource(self, component_name: str,
+  def CreateProbeDataSource(self, component_name: IComponentName,
                             probe_info: ProbeInfo) -> IProbeDataSource:
     """Creates the probe data source from the given probe_info."""
 

@@ -6,6 +6,7 @@ import os
 import os.path
 import tempfile
 import typing
+from typing import Optional, Tuple
 import unittest
 
 from google.protobuf import text_format
@@ -22,16 +23,20 @@ from cros.factory.utils import json_utils
 from cros.factory.utils import process_utils
 
 
-def _LoadProbeInfoAndCompName(testdata_name):
+def _LoadProbeInfoAndCompName(
+    testdata_name: str
+) -> Tuple[stubby_pb2.ProbeInfo, probe_info_analytics.IComponentName]:
   comp_probe_info = unittest_utils.LoadComponentProbeInfo(testdata_name)
-  comp_name = stubby_handler.GetProbeDataSourceComponentName(
+  comp_name = stubby_handler.ComponentNameImpl.Create(
       comp_probe_info.component_identity)
   return comp_probe_info.probe_info, comp_name
 
 
-def _LoadProbeInfoAndCompNameFromPayload(proto_payload):
+def _LoadProbeInfoAndCompNameFromPayload(
+    proto_payload: str
+) -> Tuple[stubby_pb2.ProbeInfo, probe_info_analytics.IComponentName]:
   comp_probe_info = unittest_utils.LoadComponentProbeInfoPayload(proto_payload)
-  comp_name = stubby_handler.GetProbeDataSourceComponentName(
+  comp_name = stubby_handler.ComponentNameImpl.Create(
       comp_probe_info.component_identity)
   return comp_probe_info.probe_info, comp_name
 
@@ -142,12 +147,18 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     #     `AnalyzeQualProbeTestResultPayload()` reports `LEGACY`) instead of
     #     directly checks the internal data structure.
     # pylint: disable=protected-access
-    s1 = typing.cast(analyzers._ProbeDataSourceImpl,
-                     self._LoadProbeDataSource('1-valid', comp_name='aaa'))
-    s2 = typing.cast(analyzers._ProbeDataSourceImpl,
-                     self._LoadProbeDataSource('2-valid', comp_name='aaa'))
-    s3 = typing.cast(analyzers._ProbeDataSourceImpl,
-                     self._LoadProbeDataSource('1-valid', comp_name='bbb'))
+    s1 = typing.cast(
+        analyzers._ProbeDataSourceImpl,
+        self._LoadProbeDataSource(
+            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))
+    s2 = typing.cast(
+        analyzers._ProbeDataSourceImpl,
+        self._LoadProbeDataSource(
+            '2-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))
+    s3 = typing.cast(
+        analyzers._ProbeDataSourceImpl,
+        self._LoadProbeDataSource(
+            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=2)))
     # pylint: enable=protected-access
     self.assertNotEqual(s1.fingerprint, s2.fingerprint)
     self.assertEqual(s1.fingerprint, s3.fingerprint)
@@ -239,7 +250,6 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         }''')
 
   def testGenerateRawProbeStatement_WithConcatParams(self):
-    self.maxDiff = None
     probe_info, comp_name = _LoadProbeInfoAndCompNameFromPayload('''
         component_identity: {
           qual_id: 1
@@ -275,7 +285,6 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
 
   def testGenerateRawProbeStatement_WithConcatParamsAndMultipleProbeValues(
       self):
-    self.maxDiff = None
     probe_info, comp_name = _LoadProbeInfoAndCompNameFromPayload('''
         component_identity: {
           qual_id: 1
@@ -480,7 +489,8 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     s1 = self._LoadProbeDataSource('1-valid')
     s2 = self._LoadProbeDataSource('2-valid')
     s3 = self._LoadProbeDataSource('3-valid')
-    s4 = self._LoadProbeDataSource('1-valid', comp_name='yet_another_component')
+    s4 = self._LoadProbeDataSource(
+        '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=10000))
     result = self._pi_analyzer.AnalyzeDeviceProbeResultPayload(
         [s1, s2, s3, s4], unittest_utils.LoadRawProbedOutcome('1_2_3-valid'))
     self.assertIsNone(result.intrivial_error_msg)
@@ -494,7 +504,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
   def _AssertJSONStringEqual(self, lhs, rhs):
     self.assertEqual(json_utils.LoadStr(lhs), json_utils.LoadStr(rhs))
 
-  def _LoadProbeDataSource(self, testdata_name, comp_name=None):
+  def _LoadProbeDataSource(
+      self, testdata_name: str,
+      comp_name: Optional[probe_info_analytics.IComponentName] = None):
     probe_info, default_comp_name = _LoadProbeInfoAndCompName(testdata_name)
     return self._pi_analyzer.CreateProbeDataSource(
         comp_name or default_comp_name, probe_info)

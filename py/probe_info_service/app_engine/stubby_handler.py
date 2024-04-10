@@ -17,12 +17,6 @@ from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: dis
 _ProbeInfoParsedResult = stubby_pb2.ProbeInfoParsedResult
 
 
-def GetProbeDataSourceComponentName(component_identity):
-  if component_identity.qual_id:
-    return f'AVL_QUAL_{component_identity.qual_id}'
-  return f'AVL_COMP_{component_identity.component_id}'
-
-
 def _DeriveSortableValueFromProbeParameter(probe_parameter):
   value_type = probe_parameter.WhichOneof('value')
   if value_type is None:
@@ -50,6 +44,53 @@ class _ProbeDataSourceLookupResult(NamedTuple):
   probe_data_source: probe_info_analytics.IProbeDataSource
   is_tested: bool
   preview_generator: Callable[[], str]
+
+
+class ComponentNameImpl(probe_info_analytics.IComponentName):
+
+  _UNKNOWN_MISMATCH = 'Probe statement component name mismatch.'
+  _MISMATCH_TEMPLATE = (
+      '{id_type_cap} ID mismatches. The test result is for {id_type} ID '
+      '{target_id}, but it is uploaded to the {id_type} with ID {pd_id}. '
+      'Please download the probe bundle specific to the {id_type} you are'
+      ' testing, and run the test again.')
+
+  def __init__(self, cid: Optional[str] = None, qid: Optional[str] = None):
+    self._cid = cid
+    self._qid = qid
+
+  def GetName(self) -> str:
+    if self._qid is not None and self._qid != 0:
+      return f'AVL_QUAL_{self._qid}'
+    return f'AVL_COMP_{self._cid}'
+
+  def CompareName(self, target: str) -> Tuple[bool, Optional[str]]:
+    if target == self.GetName():
+      return True, None
+
+    name_split = target.split('_')
+    if len(name_split) < 3:
+      return False, self._UNKNOWN_MISMATCH
+
+    id_type, target_id = name_split[-2], name_split[-1]
+    if id_type == 'COMP' and self._cid:
+      return False, self._MISMATCH_TEMPLATE.format(
+          id_type_cap='Component', id_type='component', target_id=target_id,
+          pd_id=self._cid)
+    if id_type == 'QUAL' and self._qid:
+      return False, self._MISMATCH_TEMPLATE.format(
+          id_type_cap='Qualification', id_type='qualification',
+          target_id=target_id, pd_id=self._qid)
+
+    return False, self._UNKNOWN_MISMATCH
+
+  @classmethod
+  def Create(cls, component_identity: stubby_pb2.ComponentIdentity):
+    if not component_identity.qual_id and not component_identity.component_id:
+      raise ValueError('ComponentIdentity must have either CID or QID.')
+
+    return cls(cid=component_identity.component_id,
+               qid=component_identity.qual_id)
 
 
 ProbeInfoServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
@@ -254,7 +295,7 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):
     # Try to generate a default overridden probe statement from the given
     # probe info.
     data_source = self._pi_analyzer.CreateProbeDataSource(
-        GetProbeDataSourceComponentName(comp_identity), probe_info)
+        ComponentNameImpl.Create(comp_identity), probe_info)
     unused_pi_parsed_result, ps = (
         self._pi_analyzer.DumpProbeDataSource(data_source))
     if ps is None:
@@ -380,7 +421,7 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):
     Raises:
       `protorpc_utils.ProtoRPCException`: If no probe info for the given AVL ID.
     """
-    component_name = GetProbeDataSourceComponentName(component_identity)
+    component_name = ComponentNameImpl.Create(component_identity)
 
     overridden_lookup_result = self._LookupOverriddenProbeDataSource(
         component_identity.qual_id, component_identity.device_id,
@@ -411,8 +452,11 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):
         'Invalid AVL ID.')
 
   def _LookupOverriddenProbeDataSource(
-      self, qual_id: int, device_id: str,
-      component_name: str) -> Optional[_ProbeDataSourceLookupResult]:
+      self,
+      qual_id: int,
+      device_id: str,
+      component_name: probe_info_analytics.IComponentName,
+  ) -> Optional[_ProbeDataSourceLookupResult]:
     overridden_data = self._ps_storage_connector.TryLoadOverriddenProbeData(
         qual_id, device_id)
     if not overridden_data:

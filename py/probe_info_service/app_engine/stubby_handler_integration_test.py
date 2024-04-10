@@ -169,14 +169,23 @@ class StubbyHandlerTest(unittest.TestCase):
     self.assertEqual(resp.status, resp.SUCCEED)
     qual_probe_info = req.qual_probe_info
 
-    # 3. The user gets a differnet test bundle from a different probe info.
+    # 3. The user gets a different test bundle from a different probe info for
+    #    the same qualification.
     req = stubby_pb2.GetQualProbeTestBundleRequest(
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('1-valid_v2'))
     resp = self._stubby_handler.GetQualProbeTestBundle(req)
     self.assertEqual(resp.status, resp.SUCCEED)
     qual_probe_info_v2 = req.qual_probe_info
 
-    # 4. The user uploads a positive result for the first bundle, get "LEGACY"
+    # 4. The user gets a different test bundle from a different probe info for
+    #    a different qualification.
+    req = stubby_pb2.GetQualProbeTestBundleRequest(
+        qual_probe_info=unittest_utils.LoadComponentProbeInfo('3-valid'))
+    resp = self._stubby_handler.GetQualProbeTestBundle(req)
+    self.assertEqual(resp.status, resp.SUCCEED)
+    qual_probe_info_another = req.qual_probe_info
+
+    # 5. The user uploads a positive result for the first bundle, get "LEGACY"
     #    notification.
     req = stubby_pb2.UploadQualProbeTestResultRequest(
         qual_probe_info=qual_probe_info_v2,
@@ -191,7 +200,30 @@ class StubbyHandlerTest(unittest.TestCase):
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertFalse(resp.probe_metadatas[0].is_tested)
 
-    # 5. The user then uploads the second positive test bundle and get
+    # 6. The user uploads a positive result for the third bundle, get an error
+    #    message.
+    req = stubby_pb2.UploadQualProbeTestResultRequest(
+        qual_probe_info=qual_probe_info_v2,
+        test_result_payload=unittest_utils.LoadRawProbedOutcome('3-passed'))
+    resp = self._stubby_handler.UploadQualProbeTestResult(req)
+    self.assertFalse(resp.is_uploaded_payload_valid)
+    self.assertEqual(
+        resp.uploaded_payload_error_msg,
+        'Qualification ID mismatches. The test result is for qualification ID 3'
+        ', but it is uploaded to the qualification with ID 1. Please download '
+        'the probe bundle specific to the qualification you are testing, and '
+        'run the test again.')
+
+    req = stubby_pb2.GetProbeMetadataRequest(
+        component_probe_infos=[qual_probe_info_another])
+    resp = self._stubby_handler.GetProbeMetadata(req)
+    self.assertFalse(resp.probe_metadatas[0].is_tested)
+    req = stubby_pb2.GetProbeMetadataRequest(
+        component_probe_infos=[qual_probe_info_v2])
+    resp = self._stubby_handler.GetProbeMetadata(req)
+    self.assertFalse(resp.probe_metadatas[0].is_tested)
+
+    # 7. The user then uploads the second positive test bundle and get
     #    "PASSED".  Now the qual probe info become "tested".
     req = stubby_pb2.UploadQualProbeTestResultRequest(
         qual_probe_info=qual_probe_info_v2,
@@ -206,7 +238,7 @@ class StubbyHandlerTest(unittest.TestCase):
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertTrue(resp.probe_metadatas[0].is_tested)
 
-    # 6. The user modifies the probe info again.  Now the qual probe info
+    # 8. The user modifies the probe info again.  Now the qual probe info
     #    becomes "untested" again.
     req = stubby_pb2.GetProbeMetadataRequest(
         component_probe_infos=[qual_probe_info])

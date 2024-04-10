@@ -7,7 +7,7 @@ import collections
 import os
 import shlex
 import tempfile
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence, Tuple
 import unittest
 
 from google.protobuf import text_format
@@ -148,6 +148,24 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
     return analyzers.ProbeResultMatchResult(param_name_to_category)
 
 
+class FakeComponentName(probe_info_analytics.IComponentName):
+  FAKE_MISMATCH = 'Fake mismatch message.'
+
+  def __init__(self, component_name: str):
+    self._component_name = component_name
+
+  def GetName(self) -> str:
+    """See base class."""
+    return self._component_name
+
+  def CompareName(self, target: str) -> Tuple[bool, Optional[str]]:
+    """See base class."""
+    if self._component_name == target:
+      return True, None
+
+    return False, self.FAKE_MISMATCH
+
+
 class ProbeInfoAnalyzerTest(unittest.TestCase):
   # Most test cases are still live in `../probe_tool_utils_unittest.py`.
   # However, developers should put newly test cases (especially for features
@@ -169,7 +187,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
 
     # Act.
     actual = pi_analyzer.DumpProbeDataSource(
-        pi_analyzer.CreateProbeDataSource('comp_name', pi))
+        pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi))
 
     # Assert.
     self.assertEqual(actual.probe_info_parsed_result.result_type,
@@ -201,7 +219,8 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     # Assert, check if the loaded probe info is valid by verifying if it can
     # be dumped to the expected probe statement.
     generation_result = pi_analyzer.GenerateRawProbeStatement(
-        pi_analyzer.CreateProbeDataSource('comp_name', actual))
+        pi_analyzer.CreateProbeDataSource(
+            FakeComponentName('comp_name'), actual))
     self.assertEqual(generation_result.probe_info_parsed_result.result_type,
                      _ProbeInfoParsedResult.PASSED)
     expect_probe_statement = '''
@@ -224,7 +243,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
 
     # Act, dump the probe info and load back.
     actual = pi_analyzer.GenerateDummyProbeStatement(
-        pi_analyzer.CreateProbeDataSource('comp_name', pi))
+        pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi))
 
     # Assert, by checking if the loaded probe info can generate the probe
     # statement.
@@ -247,7 +266,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
 
     # Act, dump the probe info and load back.
     actual = pi_analyzer.GenerateRawProbeStatement(
-        pi_analyzer.CreateProbeDataSource('comp_name', pi))
+        pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi))
 
     # Assert.
     self.assertEqual(actual.probe_info_parsed_result.result_type,
@@ -304,7 +323,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         _ProbeInfo())
 
     # Act, generate the probe bundle.
-    pds = pi_analyzer.CreateProbeDataSource('comp_name', pi)
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
     actual = pi_analyzer.GenerateProbeBundlePayload([pds])
 
     # Assert, the bundle is generated.
@@ -433,11 +452,25 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
               } }''')
 
       result = pi_analyzer.AnalyzeQualProbeTestResultPayload(
-          pi_analyzer.CreateProbeDataSource('comp_name', updated_pi),
-          bundle_output)
+          pi_analyzer.CreateProbeDataSource(
+              FakeComponentName('comp_name'), updated_pi), bundle_output)
 
       self.assertEqual(
           result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.LEGACY))
+
+    with self.subTest('ComponentNameCIDMismatch'):
+      # Arrange, invoke the probe bundle.
+      wrong_pds = pi_analyzer.CreateProbeDataSource(
+          FakeComponentName('another_comp_name'), pi)
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "the_category": [ {"name": "comp_name-for_param1"},
+                                  {"name": "comp_name-for_param2"} ] }''')
+
+      self.assertRaisesRegex(probe_info_analytics.PayloadInvalidError,
+                             FakeComponentName.FAKE_MISMATCH,
+                             pi_analyzer.AnalyzeQualProbeTestResultPayload,
+                             wrong_pds, bundle_output)
 
   def testWithMultiProbeStatementProbeInfo_ThenCanTestByDeviceBundle(self):
     # Arrange.
@@ -449,7 +482,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         _ProbeInfo())
 
     # Act, generate the device probe bundle.
-    pds = pi_analyzer.CreateProbeDataSource('comp_name', pi)
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
     actual = pi_analyzer.GenerateProbeBundlePayload([pds])
 
     # Assert, the bundle is generated.
@@ -499,7 +532,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
            }''', _ProbeInfo())
 
     # Act, generate the probe bundle.
-    pds = pi_analyzer.CreateProbeDataSource('comp_name', pi)
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
     actual = pi_analyzer.GenerateProbeBundlePayload([pds])
 
     # Assert, the bundle is generated.
@@ -595,7 +628,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
            }''', _ProbeInfo())
 
     # Act, generate the probe bundle.
-    pds = pi_analyzer.CreateProbeDataSource('comp_name', pi)
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
     actual = pi_analyzer.GenerateProbeBundlePayload([pds])
 
     # Assert, the bundle is generated.
