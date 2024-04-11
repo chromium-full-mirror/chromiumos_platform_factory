@@ -85,7 +85,7 @@ local_deployment_prepare() {
       PACK_DEST_DIR="${LOCAL_DEPLOYMENT_PROJECT_ROOT_PATH}" _pack
 
   info "Install dependent package/modules."
-  local_deployment_run_venv_python -m pip install -r \
+  local_deployment_run_venv_python -m pip install --require-hashes -r \
       "${LOCAL_DEPLOYMENT_PROJECT_ROOT_PATH}/requirements.txt"
 
   info "Start the dependent services."

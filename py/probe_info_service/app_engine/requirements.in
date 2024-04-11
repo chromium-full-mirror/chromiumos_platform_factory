@@ -1,0 +1,23 @@
+# 3-Clause BSD License
+flask==2.3.3
+
+# License: Apache License 2.0
+google-auth==2.8.0
+
+# License: Apache License 2.0
+google-cloud-datastore==2.7.1
+
+# License: Apache License 2.0
+google-cloud-logging==3.1.2
+
+# License: MIT
+gunicorn==20.0.4
+
+# 3-Clause BSD License
+protobuf==3.19.0
+
+# License: MIT
+PyYAML==5.3.1
+
+# License: MIT
+urllib3==1.26.9
