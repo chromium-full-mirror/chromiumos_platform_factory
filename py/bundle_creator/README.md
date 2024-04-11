@@ -34,10 +34,10 @@ sudo apt-get install protobuf-compiler google-cloud-sdk
 
 ### Build & Deploy
 
-To deploy the app engine, run:
+To deploy the app engines, run:
 
 ```
-(factory-repo)$ ./deploy/bundle_creator.sh deploy-appengine ${deployment_type}
+(factory-repo)$ ./deploy/bundle_creator.sh deploy-appengine-v2 ${deployment_type}
 (factory-repo)$ ./deploy/bundle_creator.sh deploy-appengine-legancy ${deployment_type}
 ```
 
@@ -55,7 +55,7 @@ compute engine, run:
 
 To access the VM, run:
 ```
-# SSH ino the VM
+# SSH into the VM
 (factory-repo)$ ./deploy/bundle_creator.sh ssh-vm ${deployment_type}
 
 # Login the docker
@@ -71,8 +71,13 @@ Bundle Creation. Instead, developers should trigger the tests by the helper
 script as follow:
 
 ```
+(factory-repo)$ ./deploy/bundle_creator.sh test-appengine-v2
 (factory-repo)$ ./deploy/bundle_creator.sh test-docker
 ```
+
+The `test-test-appengine-v2` command trigger the tests under
+`./py/bundle_creator/app_engine_v2` and some scripts under
+`./py/bundle_creator/connector`.
 
 The `test-docker` command trigger the tests under `./py/bundle_creator/docker`
 and `./py/bundle_creator/connector`.
@@ -88,13 +93,18 @@ To run `docker/worker.py` in local, run:
 
 ```
 (factory-repo)$ cat > /tmp/create_bundle.txt << EOF
-board: "cherry"
-project: "tomato"
-phase: "pvt"
-toolkit_version: "14195.0.0"
-test_image_version: "14195.0.0"
-release_image_version: "14195.0.0"
 email: "$(whoami)@google.com"
+bundle_metadata {
+  board: "cherry"
+  project: "tomato"
+  phase: "pvt"
+  toolkit_version: "14195.0.0"
+  test_image_version: "14195.0.0"
+  release_image_version: "14195.0.0"
+}
+hwid_option {
+  update_db_firmware_info: 0
+}
 EOF
 (factory-repo)$ ./deploy/bundle_creator.sh request ${deployment_type} < /tmp/create_bundle.txt
 ```

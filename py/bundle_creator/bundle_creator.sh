@@ -112,11 +112,7 @@ prepare_docker_files() {
 
 prepare_appengine_files() {
   local destination_dir="$1"
-  local version_name="$2"
-  local appengine_source_name="app_engine_${version_name}"
-  if [ -z "${version_name}" ]; then
-    appengine_source_name="app_engine"
-  fi
+  local appengine_source_name="app_engine_v2"
 
   local package_dir="${destination_dir}/cros/factory/bundle_creator"
   mkdir -p "${package_dir}"
@@ -390,20 +386,14 @@ run_tests() {
   stop_all_emulators
 }
 
-do_deploy_appengine() {
+do_deploy_appengine_v2() {
   load_config_by_deployment_type "$1"
-  local version_name="$2"
-  local description_name
-  if [ -z "${version_name}" ]; then
-    description_name="App Engine"
-  else
-    description_name="App Engine ${version_name}"
-  fi
+  local description_name="App Engine v2"
 
   info "Prepare files for deploying ${description_name}."
   local temp_dir
   temp_dir="$(create_temp_dir)"
-  prepare_appengine_files "${temp_dir}" "${version_name}"
+  prepare_appengine_files "${temp_dir}"
 
   info "Start deploying the ${description_name}."
   gcloud --project="${GCLOUD_PROJECT}" app deploy "${temp_dir}/app.yaml" --quiet
@@ -492,7 +482,7 @@ do_request() {
   load_config_by_deployment_type "$1"
 
   send_request "${APPENGINE_ID}" \
-    "${FACTORY_DIR}/py/bundle_creator/proto/factorybundle.proto"
+    "${FACTORY_DIR}/py/bundle_creator/proto/factorybundle_v2.proto"
 }
 
 do_test_docker() {
@@ -529,7 +519,7 @@ do_test_appengine_v2() {
   PUBSUB_TOPIC="fake-topic"
   FW_INFO_EXTRACTOR_TOPIC="fake-fw-info-extractor-topic"
   BUNDLE_BUCKET="fake-bundle-bucket"
-  prepare_appengine_files "${LOCAL_DEPLOYMENT_SOURCE_DIR}" "v2"
+  prepare_appengine_files "${LOCAL_DEPLOYMENT_SOURCE_DIR}"
   prepare_python_venv "${TEST_APPENGINE_V2_NAME}" \
     "${SOURCE_DIR}/app_engine_v2/requirements.txt"
 
@@ -575,10 +565,6 @@ print_usage() {
 Easy Bundle Creation Service Deployment Script
 
 commands
-  $0 deploy-appengine [prod|staging|dev|dev2]
-      Deploys the code and configuration under \`py/bundle_creator/app_engine\`
-      to App Engine.
-
   $0 deploy-appengine-v2 [prod|staging|dev|dev2]
       Deploys the code and configuration under
       \`py/bundle_creator/app_engine_v2\` to App Engine.
@@ -592,8 +578,8 @@ commands
       creates a compute engine instance which uses the docker image.
 
   $0 deploy-all [prod|staging|dev|dev2]
-      Does \`create-pubsub\`, \`deploy-appengine\`, \`deploy-appengine-v2\`,
-      \`deploy-appengine-legacy\` and \`deploy-docker\` commands.
+      Does \`deploy-appengine-v2\`, \`deploy-appengine-legacy\` and
+      \`deploy-docker\` commands.
 
   $0 create-pubsub [prod|staging|dev|dev2]
       Creates Pub/Sub topic and subscription used by the appengine and docker.
@@ -607,7 +593,7 @@ commands
       Ssh connect to the compute engine instance.
 
   $0 request [prod|staging|dev|dev2]
-      Sends \`CreateBundleAsync\` request to the app engine.
+      Sends \`CreateBundle\` request to the app engine.
 
   $0 test-docker
       Run all tests under \`py/bundler_creator/connector\` and
@@ -628,11 +614,8 @@ main() {
     print_usage
   else
     case "${subcmd}" in
-      deploy-appengine)
-        do_deploy_appengine "$2"
-        ;;
       deploy-appengine-v2)
-        do_deploy_appengine "$2" "v2"
+        do_deploy_appengine_v2 "$2"
         ;;
       deploy-appengine-legacy)
         do_deploy_appengine_legacy "$2"
@@ -641,8 +624,7 @@ main() {
         do_deploy_docker "$2"
         ;;
       deploy-all)
-        do_deploy_appengine "$2"
-        do_deploy_appengine "$2" "v2"
+        do_deploy_appengine_v2 "$2"
         do_deploy_appengine_legacy "$2"
         do_deploy_docker "$2"
         ;;
