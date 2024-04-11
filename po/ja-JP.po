@@ -7,7 +7,7 @@ msgstr ""
 "PO-Revision-Date: 2024-04-11 13:26+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
-"Language: vi-VN\n"
+"Language: ja-JP\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,274 +15,274 @@ msgstr ""
 
 #: ../build/pytests_label_generated.json
 msgid "AC Power"
-msgstr "nguồn điện AC"
+msgstr "AC 電源"
 
 #: ../build/pytests_label_generated.json
 msgid "Accelerometers"
-msgstr "Gia tốc kế"
+msgstr "加速度計"
 
 #: ../build/pytests_label_generated.json
 msgid "Accelerometers Calibration"
-msgstr "Điều chỉnh gia tốc kế"
+msgstr "加速度計のキャリブレーション"
 
 #: ../build/pytests_label_generated.json
 msgid "Accelerometers Lid Angle"
-msgstr "Góc gia tốc kế"
+msgstr "加速度計の蓋の角度"
 
 #: ../build/pytests_label_generated.json
 msgid "Audio"
-msgstr "âm thanh"
+msgstr "オーディオ"
 
 #: ../build/pytests_label_generated.json
 msgid "Audio Basic"
-msgstr "Nguồn âm thanh cơ bản"
+msgstr "オーディオ基本"
 
 #: ../build/pytests_label_generated.json
 msgid "Audio Diagnostic"
-msgstr "Chẩn đoán âm thanh"
+msgstr "オーディオ診断"
 
 #: ../build/pytests_label_generated.json
 msgid "Audio Loop"
-msgstr "Phát lại nguồn âm thanh"
+msgstr "オーディオループ"
 
 #: ../build/pytests_label_generated.json
 msgid "Audio Quality"
-msgstr "Chất lượng âm thanh"
+msgstr "オーディオ品質"
 
 #: ../build/pytests_label_generated.json
 msgid "Backlight"
-msgstr "Độ sáng đèn nền"
+msgstr "バックライト"
 
 #: ../build/pytests_label_generated.json
 msgid "Bad Blocks"
-msgstr "khu bị hư hại"
+msgstr "不良ブロック"
 
 #: ../build/pytests_label_generated.json
 msgid "Battery"
-msgstr "Pin"
+msgstr "バッテリー"
 
 #: ../build/pytests_label_generated.json
 msgid "Battery Basic"
-msgstr "Kiểm tra pin đơn giản"
+msgstr "バッテリー基本"
 
 #: ../build/pytests_label_generated.json
 msgid "Battery Current"
-msgstr "phí và xả hiện tại"
+msgstr "バッテリー電流"
 
 #: ../build/pytests_label_generated.json
 msgid "Battery Cycle"
-msgstr "Sạc và xả pin"
+msgstr "バッテリーサイクル"
 
 #: ../build/pytests_label_generated.json
 msgid "Battery Sysfs"
-msgstr "pin  Sysfs"
+msgstr "バッテリーSysfs"
 
 #: ../build/pytests_label_generated.json
 msgid "Bcic"
-msgstr ""
+msgstr "BCIC"
 
 #: ../build/pytests_label_generated.json
 msgid "BFT Fixture"
-msgstr "BFT lịch thi đấu"
+msgstr "BFTフィクスチャ"
 
 #: ../build/pytests_label_generated.json
 msgid "Blocking Charge"
-msgstr "sạc"
+msgstr "ブロッキングチャージ"
 
 #: ../build/pytests_label_generated.json
 msgid "Bluetooth"
-msgstr "Bluetooth"
+msgstr "ブルートゥース"
 
 #: ../build/pytests_label_generated.json
 msgid "Bluetooth Host"
-msgstr "Bluetooth"
+msgstr "Bluetoothホスト"
 
 #: ../build/pytests_label_generated.json
 msgid "Branded Chassis"
-msgstr "khung gầm có thương hiệu"
+msgstr "ブランドシャーシ"
 
 #: ../build/pytests_label_generated.json
 msgid "Brightness"
-msgstr "Độ sáng"
+msgstr "明るさ"
 
 #: ../build/pytests_label_generated.json
 msgid "Brightness LCD Backlight"
-msgstr "Độ sáng đèn nền màn hình"
+msgstr "LCDバックライトの明るさ"
 
 #: ../build/pytests_label_generated.json
 msgid "Brightness LED"
-msgstr "Độ sáng LED"
+msgstr "LEDの明るさ"
 
 #: ../build/pytests_label_generated.json
 msgid "Button"
-msgstr "Nút"
+msgstr "ボタン"
 
 #: ../build/pytests_label_generated.json
 msgid "Buzzer"
-msgstr "Buzzer"
+msgstr "ブザー"
 
 #: ../build/pytests_label_generated.json
 msgid "Camera"
-msgstr "Máy ảnh"
+msgstr "カメラ"
 
 #: ../build/pytests_label_generated.json
 msgid "Cec"
-msgstr ""
+msgstr "CEC"
 
 #: ../build/pytests_label_generated.json
 msgid "Cellular Switch Firmware"
-msgstr "Chuyển đổi phần mềm xử lý dữ liệu"
+msgstr "セルラースイッチファームウェア"
 
 #: ../build/pytests_label_generated.json
 msgid "Charger"
-msgstr "Bộ sạc"
+msgstr "充電器"
 
 #: ../build/pytests_label_generated.json
 msgid "Check CR50 Board ID"
-msgstr ""
+msgstr "CR50ボードIDの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Check Image Version"
-msgstr "Kiểm tra phiên bản hình ảnh"
+msgstr "イメージバージョンの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Check Release LVM Stateful"
-msgstr "Kiểm tra hệ thống nhà máy"
+msgstr "リリースLVMステートフルの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Check Retimer Firmware"
-msgstr ""
+msgstr "リタイマーファームウェアの確認"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Secdata Version"
-msgstr "Kiểm tra phiên bản secdata"
+msgstr "Secdataバージョンの確認"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Serial Number"
-msgstr "kiểm tra số serial VPD serial number"
+msgstr "シリアルナンバーの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Check Test List"
-msgstr "Kiểm tra danh sách kiểm tra"
+msgstr "テストリストの確認"
 
 #: ../build/pytests_label_generated.json
 msgid "Clear Inactive GSC Slot"
-msgstr ""
+msgstr "非アクティブなGSCスロットのクリア"
 
 #: ../build/pytests_label_generated.json
 msgid "Compass"
-msgstr "La bàn"
+msgstr "コンパス"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Copy Minios"
-msgstr ""
+msgstr "Miniosのコピー"
 
 #: ../build/pytests_label_generated.json
 msgid "Countdown"
-msgstr "Đếm ngược"
+msgstr "カウントダウン"
 
 #: ../build/pytests_label_generated.json
 msgid "CR50 Ap Ro Hash"
-msgstr ""
+msgstr "CR50 AP ROハッシュ"
 
 #: ../build/pytests_label_generated.json
 msgid "CR50 Ap Ro Verification"
-msgstr ""
+msgstr "CR50 AP RO 検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Display"
-msgstr "Hiển thị"
+msgstr "ディスプレイ"
 
 #: ../build/pytests_label_generated.json
 msgid "Display Images"
-msgstr "Hiển thị hình ảnh"
+msgstr "画像の表示"
 
 #: ../build/pytests_label_generated.json
 msgid "Display Interactive"
-msgstr "Màn hình thử nghiệm tương tác"
+msgstr "インタラクティブ表示"
 
 #: ../build/pytests_label_generated.json
 msgid "Display Point"
-msgstr "Các điểm hiển thị"
+msgstr "ポイント表示"
 
 #: ../build/pytests_label_generated.json
 msgid "Download From Factory Drive"
-msgstr ""
+msgstr "ファクトリドライブからのダウンロード"
 
 #: ../build/pytests_label_generated.json
 msgid "DSM Calibration"
-msgstr "DSM Hiệu chỉnh"
+msgstr "DSMキャリブレーション"
 
 #: ../build/pytests_label_generated.json
 msgid "Edp Panel Timing"
-msgstr ""
+msgstr "EDPパネルタイミング"
 
 #: ../build/pytests_label_generated.json
 msgid "Ethernet"
-msgstr "Mạng"
+msgstr "イーサネット"
 
 #: ../build/pytests_label_generated.json
 msgid "Exec Python"
-msgstr "Thi hành Python"
+msgstr "Pythonの実行"
 
 #: ../build/pytests_label_generated.json
 msgid "Exec Shell"
-msgstr "Thi hành các hướng dẫn"
+msgstr "シェルの実行"
 
 #: ../build/pytests_label_generated.json
 msgid "External Display"
-msgstr "Màn hình ngoài"
+msgstr "外部ディスプレイ"
 
 #: ../build/pytests_label_generated.json
 msgid "Factory State"
-msgstr "Tình trạng kiểm tra nhà máy"
+msgstr "ファクトリ状態"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Fan Speed"
-msgstr "Tốc độ quạt"
+msgstr "ファン速度"
 
 #: ../build/pytests_label_generated.json
 msgid "Feature Compliance Version"
-msgstr "Phiên bản Công cụ Kiểm tra"
+msgstr "機能準拠バージョン"
 
 #: ../build/pytests_label_generated.json
 msgid "Finalize"
-msgstr "Trình tự cuối cùng"
+msgstr "ファイナライズ"
 
 #: ../build/pytests_label_generated.json
 msgid "Fingerprint Mcu"
-msgstr ""
+msgstr "指紋MCU"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
-msgstr "Đốt firmware netboot"
+msgstr "ネットブートのフラッシュ"
 
 #: ../build/pytests_label_generated.json
 msgid "Get Intel Desc Status"
-msgstr ""
+msgstr "Intel記述子ステータスの取得"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope"
-msgstr "Con quay hồi chuyển"
+msgstr "ジャイロスコープ"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope Angle"
-msgstr "Góc con quay hồi chuyển"
+msgstr "ジャイロスコープの角度"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Gyroscope Calibration"
-msgstr "Hiệu chuẩn con quay hồi chuyển"
+msgstr "ジャイロスコープのキャリブレーション"
 
 #: ../build/pytests_label_generated.json
 msgid "HPS"
-msgstr ""
+msgstr "HPS"
 
 #: ../build/pytests_label_generated.json
 msgid "HWID"
@@ -290,15 +290,15 @@ msgstr "HWID"
 
 #: ../build/pytests_label_generated.json
 msgid "Keyboard"
-msgstr "Bàn phím"
+msgstr "キーボード"
 
 #: ../build/pytests_label_generated.json
 msgid "Keyboard Backlight"
-msgstr "Đèn nền bàn phím"
+msgstr "キーボードバックライト"
 
 #: ../build/pytests_label_generated.json
 msgid "Keyboard SMT"
-msgstr "SMT Bàn phím"
+msgstr "キーボードSMT"
 
 #: ../build/pytests_label_generated.json ../py/test/pytests/led.py
 msgid "LED"
@@ -306,357 +306,357 @@ msgstr "LED"
 
 #: ../build/pytests_label_generated.json
 msgid "Lid Switch"
-msgstr "Công tắc nắp trên"
+msgstr "蓋スイッチ"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Light Sensor"
-msgstr "Cảm biến ánh sáng"
+msgstr "光センサー"
 
 #: ../build/pytests_label_generated.json
 msgid "Light Sensor Calibration"
-msgstr "Hiệu chỉnh cảm biến ánh sáng"
+msgstr "光センサーのキャリブレーション"
 
 #: ../build/pytests_label_generated.json
 msgid "Lightbar"
-msgstr "Thanh ánh sáng"
+msgstr "ライトバー"
 
 #: ../build/pytests_label_generated.json
 msgid "Line Check Item"
-msgstr "Xác minh dự án"
+msgstr "ラインチェック項目"
 
 #: ../build/pytests_label_generated.json
 msgid "LTE Verify Config"
-msgstr "Cài đặt xác thực LTE"
+msgstr "LTE設定の確認"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_dram.test_list.json
 msgid "Memory Size"
-msgstr "Kích thước bộ nhớ"
+msgstr "メモリサイズ"
 
 #: ../build/pytests_label_generated.json
 msgid "Message"
-msgstr "Thư"
+msgstr "メッセージ"
 
 #: ../build/pytests_label_generated.json
 msgid "Model Sku"
-msgstr "Cấu hình và kiểu (SKU)"
+msgstr "モデルSKU"
 
 #: ../build/pytests_label_generated.json
 msgid "Modem Security"
-msgstr "Cấu hình và kiểu (SKU)"
+msgstr "モデムセキュリティ"
 
 #: ../build/pytests_label_generated.json
 msgid "Mouse"
-msgstr "Chuột máy tính"
+msgstr "マウス"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "MRC Cache"
-msgstr "MRC Cache"
+msgstr "MRCキャッシュ"
 
 #: ../build/pytests_label_generated.json
 msgid "Network Setup"
-msgstr "Cài đặt mạng"
+msgstr "ネットワーク設定"
 
 #: ../build/pytests_label_generated.json
 msgid "Nop"
-msgstr "Không có hành động"
+msgstr "NOP"
 
 #: ../build/pytests_label_generated.json
 msgid "Partition Table"
-msgstr "Bảng phân vùng"
+msgstr "パーティションテーブル"
 
 #: ../build/pytests_label_generated.json
 msgid "PD FW Min Version"
-msgstr ""
+msgstr "PD FW最小バージョン"
 
 #: ../build/pytests_label_generated.json
 msgid "Ping Test"
-msgstr "Kiểm tra kết nối"
+msgstr "Pingテスト"
 
 #: ../build/pytests_label_generated.json
 msgid "Plankton CC2 Pull Test"
-msgstr "Kiểm tra điện áp sinh vật phù du CC2"
+msgstr "プランクトンCC2プルテスト"
 
 #: ../build/pytests_label_generated.json
 msgid "Plankton CC Flip Check"
-msgstr "Kiểm tra sinh vật phù du CC Flip"
+msgstr "プランクトンCCフリップチェック"
 
 #: ../build/pytests_label_generated.json
 msgid "Plankton Charge"
-msgstr "Sạc Plankton"
+msgstr "プランクトンチャージ"
 
 #: ../build/pytests_label_generated.json
 msgid "Plankton Display"
-msgstr "hiển thị Plankton"
+msgstr "プランクトンディスプレイ"
 
 #: ../build/pytests_label_generated.json
 msgid "Privacy Screen"
-msgstr ""
+msgstr "プライバシースクリーン"
 
 #: ../build/pytests_label_generated.json
 msgid "Probe"
-msgstr "Phát hiện"
+msgstr "プローブ"
 
 #: ../build/pytests_label_generated.json
 msgid "Probe Cellular Info"
-msgstr "Thông tin máy dữ liệu"
+msgstr "セルラー情報のプローブ"
 
 #: ../build/pytests_label_generated.json
 msgid "Probe Device Info"
-msgstr "Phát hiện thông tin máy"
+msgstr "デバイス情報のプローブ"
 
 #: ../build/pytests_label_generated.json
 msgid "Probe SIM"
-msgstr "Thử thẻ SIM"
+msgstr "SIMのプローブ"
 
 #: ../build/pytests_label_generated.json
 msgid "Probe SIM Card Tray"
-msgstr "Tra thử đầu dò thẻ SIM"
+msgstr "SIMカードトレイのプローブ"
 
 #: ../build/pytests_label_generated.json
 msgid "Provision DRM Key"
-msgstr "Cung cấp khóa DRM"
+msgstr "DRMキーのプロビジョニング"
 
 #: ../build/pytests_label_generated.json
 msgid "Proximity Sensor"
-msgstr ""
+msgstr "近接センサー"
 
 #: ../build/pytests_label_generated.json
 msgid "Read Device Data From Cros Config"
-msgstr "Đọc dữ liệu máy từ Cros Config"
+msgstr "Cros設定からデバイスデータを読み取る"
 
 #: ../build/pytests_label_generated.json
 msgid "Read Device Data From VPD"
-msgstr "Đọc dữ liệu máy từ VPD"
+msgstr "VPDからデバイスデータを読み取る"
 
 #: ../build/pytests_label_generated.json
 msgid "Record CSV Entry Example"
-msgstr "Ghi ví dụ về mục nhập CSV"
+msgstr "CSVエントリの記録例"
 
 #: ../build/pytests_label_generated.json
 msgid "Removable Storage"
-msgstr "Thiết bị lưu trữ di động"
+msgstr "リムーバブルストレージ"
 
 #: ../build/pytests_label_generated.json
 msgid "Retrieve Config"
-msgstr "Tải cài đặt"
+msgstr "設定の取得"
 
 #: ../build/pytests_label_generated.json
 msgid "RF Graphyte"
-msgstr "RF Graphyte"
+msgstr "RFグラファイト"
 
 #: ../build/pytests_label_generated.json
 msgid "Robot Movement"
-msgstr ""
+msgstr "ロボットの動き"
 
 #: ../build/pytests_label_generated.json
 msgid "Sample Customized Test"
-msgstr "Kiểm tra tùy chỉnh mẫu"
+msgstr "カスタマイズされたテストのサンプル"
 
 #: ../build/pytests_label_generated.json
 msgid "Scan"
-msgstr "Số máy quét"
+msgstr "スキャン"
 
 #: ../build/pytests_label_generated.json
 msgid "Select For Sampling"
-msgstr "Tùy chọn lấy mẫu"
+msgstr "サンプリングの選択"
 
 #: ../build/pytests_label_generated.json
 msgid "Serial Echo"
-msgstr ""
+msgstr "シリアルエコー"
 
 #: ../build/pytests_label_generated.json
 msgid "Setup PSR Feature"
-msgstr ""
+msgstr "PSR機能の設定"
 
 #: ../build/pytests_label_generated.json
 msgid "Shopfloor Service"
-msgstr "Shopfloor"
+msgstr "ショップフロアサービス"
 
 #: ../build/pytests_label_generated.json
 msgid "Shutdown"
-msgstr "Tắt máy"
+msgstr "シャットダウン"
 
 #: ../build/pytests_label_generated.json
 msgid "Spatial Sensor Calibration"
-msgstr "Hiệu chuẩn cảm biến"
+msgstr "空間センサーのキャリブレーション"
 
 #: ../build/pytests_label_generated.json
 msgid "Start"
-msgstr "bắt đầu"
+msgstr "開始"
 
 #: ../build/pytests_label_generated.json
 msgid "Station Entry"
-msgstr "Trạm thử bắt đầu"
+msgstr "ステーションエントリ"
 
 #: ../build/pytests_label_generated.json
 msgid "Station Setup"
-msgstr "Tên trạm"
+msgstr "ステーション設定"
 
 #: ../build/pytests_label_generated.json
 msgid "Storage Simple Stress"
-msgstr "Thử áp lực cài đặt lưu trữ "
+msgstr "ストレージシンプルストレス"
 
 #: ../build/pytests_label_generated.json
 msgid "Stressapptest"
-msgstr "Thử áp lực"
+msgstr "ストレスアプリテスト"
 
 #: ../build/pytests_label_generated.json
 msgid "Stylus"
-msgstr "đường vẽ khống chế "
+msgstr "スタイラス"
 
 #: ../build/pytests_label_generated.json
 msgid "Stylus Garage"
-msgstr ""
+msgstr "スタイラスガレージ"
 
 #: ../build/pytests_label_generated.json
 msgid "Summary"
-msgstr "Tổng kết"
+msgstr "サマリー"
 
 #: ../build/pytests_label_generated.json
 msgid "Suspend Resume"
-msgstr "Dừng/ Khôi phục"
+msgstr "サスペンド/レジューム"
 
 #: ../build/pytests_label_generated.json
 msgid "Suspend Stress"
-msgstr "Đình chỉ căng thẳng"
+msgstr "サスペンドストレス"
 
 #: ../build/pytests_label_generated.json
 msgid "Switch Test List"
-msgstr "Chuyển danh sách kiểm tra"
+msgstr "テストリストの切り替え"
 
 #: ../build/pytests_label_generated.json
 msgid "Sync Factory Server"
-msgstr "Máy chủ đồng bộ"
+msgstr "ファクトリサーバーとの同期"
 
 #: ../build/pytests_label_generated.json
 msgid "Sync Time"
-msgstr "Thời gian đồng bộ hóa"
+msgstr "時刻同期"
 
 #: ../build/pytests_label_generated.json
 msgid "Tablet Mode"
-msgstr "Chế độ máy tính bảng"
+msgstr "タブレットモード"
 
 #: ../build/pytests_label_generated.json
 msgid "Tablet Rotation"
-msgstr "Xoay vòng phẳng"
+msgstr "タブレットの回転"
 
 #: ../build/pytests_label_generated.json
 msgid "Thermal Load"
-msgstr "Áp suất nhiệt độ"
+msgstr "熱負荷"
 
 #: ../build/pytests_label_generated.json
 msgid "Thermal Sensors"
-msgstr "Cảm biến nhiệt độ"
+msgstr "熱センサー"
 
 #: ../build/pytests_label_generated.json
 msgid "Thermal Slope"
-msgstr "Tốc độ tăng và giảm nhiệt độ"
+msgstr "熱傾斜"
 
 #: ../build/pytests_label_generated.json
 msgid "Thunderbolt Loopback"
-msgstr ""
+msgstr "Thunderboltループバック"
 
 #: ../build/pytests_label_generated.json
 msgid "TI50 Ap Ro Verification"
-msgstr ""
+msgstr "TI50 AP RO検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Touch Device FW Update"
-msgstr "Chạm vào cập nhật  thay đổi"
+msgstr "タッチデバイスFWアップデート"
 
 #: ../build/pytests_label_generated.json
 msgid "Touch Uniformity"
-msgstr "chạm đồng nhất"
+msgstr "タッチ均一性"
 
 #: ../build/pytests_label_generated.json
 msgid "Touchpad"
-msgstr "bàn di chuột"
+msgstr "タッチパッド"
 
 #: ../build/pytests_label_generated.json
 msgid "Touchpad Hover"
-msgstr "Tạm dừng bàn di chuột"
+msgstr "タッチパッドホバー"
 
 #: ../build/pytests_label_generated.json
 msgid "Touchscreen"
-msgstr "Bảng cảm ứng"
+msgstr "タッチスクリーン"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM Clear Owner"
-msgstr "TPMXóa TPM"
+msgstr "TPMオーナーのクリア"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM Diagnosis"
-msgstr "Chẩn đoán TPM"
+msgstr "TPM診断"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM State"
-msgstr "Trạng thái TPM"
+msgstr "TPM状態"
 
 #: ../build/pytests_label_generated.json
 msgid "TPM Verify EK"
-msgstr "Chứng chỉ TPM"
+msgstr "TPM EKの検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Cbi"
-msgstr "Cập nhật CBI"
+msgstr "CBIの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update CR50 Firmware"
-msgstr "Cập nhật firmware CR50"
+msgstr "CR50ファームウェアの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Detachable Base"
-msgstr "Cập nhật cơ sở có thể tháo rời"
+msgstr "着脱式ベースの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Device Data"
-msgstr "Cập nhật thông tin máy"
+msgstr "デバイスデータの更新"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Update Firmware"
-msgstr "Cập nhật firmware"
+msgstr "ファームウェアの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Fpmcu Firmware"
-msgstr "Cập nhật firmware Fpmcu"
+msgstr "FPMCUファームウェアの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Kernel"
-msgstr "KernelCập nhật Kernel"
+msgstr "カーネルの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Plugin Firmware"
-msgstr ""
+msgstr "プラグインファームウェアの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Update PSR Oem Data"
-msgstr ""
+msgstr "PSR OEMデータの更新"
 
 #: ../build/pytests_label_generated.json
 msgid "Urandom"
-msgstr "Số ngẫu nhiên"
+msgstr "Urandom"
 
 #: ../build/pytests_label_generated.json
 msgid "Verify Component"
-msgstr "Xác minh bộ nhớ cache"
+msgstr "コンポーネントの検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Verify Keybox"
-msgstr ""
+msgstr "キーボックスの検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Verify Root Partition"
-msgstr "Xác minh vùng gốc"
+msgstr "ルートパーティションの検証"
 
 #: ../build/pytests_label_generated.json
 msgid "Video Playback"
-msgstr "Phát lại nguồn"
+msgstr "ビデオ再生"
 
 #: ../build/pytests_label_generated.json
 msgid "VSWR"
@@ -664,475 +664,473 @@ msgstr "VSWR"
 
 #: ../build/pytests_label_generated.json
 msgid "Vsync"
-msgstr ""
+msgstr "Vsync"
 
 #: ../build/pytests_label_generated.json
 msgid "Wait External Test"
-msgstr "Đang đợi thử nghiệm bên ngoài"
+msgstr "外部テストの待機"
 
 #: ../build/pytests_label_generated.json
 msgid "Wait Fixture Ready"
-msgstr ""
+msgstr "フィクスチャの準備完了を待つ"
 
 #: ../build/pytests_label_generated.json
 msgid "Webgl Aquarium"
-msgstr "WebGL"
+msgstr "WebGLアクアリウム"
 
 #: ../build/pytests_label_generated.json
 msgid "Whale Check Voltage"
-msgstr ""
+msgstr "ホエール電圧チェック"
 
 #: ../build/pytests_label_generated.json
 msgid "Whale Cover"
-msgstr ""
+msgstr "ホエールカバー"
 
 #: ../build/pytests_label_generated.json
 msgid "Wifi Throughput"
-msgstr "Băng thông không dây"
+msgstr "WiFiスループット"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wireless Antenna"
-msgstr "Ăng ten không dây"
+msgstr "無線アンテナ"
 
 #: ../build/pytests_label_generated.json
 msgid "Wireless Charge"
-msgstr "sạc không dây"
+msgstr "ワイヤレス充電"
 
 #: ../build/pytests_label_generated.json
 msgid "Wireless Connect"
-msgstr "Kết nối không dây"
+msgstr "ワイヤレス接続"
 
 #: ../build/pytests_label_generated.json
 msgid "Write Device Data To VPD"
-msgstr "Dữ liệu máy được ghi vào VPD"
+msgstr "VPDにデバイスデータを書き込む"
 
 #: ../build/pytests_label_generated.json
 msgid "Write Protect Switch"
-msgstr "Viết công tắc bảo vệ"
+msgstr "書き込み保護スイッチ"
 
 #: ../py/goofy/js/diagnosis_tool.js
 msgid "State:"
-msgstr "Trạng thái :"
+msgstr "状態："
 
 #: ../py/goofy/js/diagnosis_tool.js
 msgid "Description:"
-msgstr "giải thích  / Mô tả::"
+msgstr "説明："
 
 #: ../py/goofy/js/diagnosis_tool.js
 msgid "Input:"
-msgstr "Nhập:"
+msgstr "入力："
 
 #: ../py/goofy/js/diagnosis_tool.js
 msgid "Time remaining: "
-msgstr "Thời gian còn lại: "
+msgstr "残り時間："
 
 #: ../py/goofy/js/goofy.js
 msgid "Enter"
-msgstr "ENTER"
+msgstr "Enterキー"
 
 #: ../py/goofy/js/goofy.js
 msgid "ESC"
-msgstr "ESC"
+msgstr "ESCキー"
 
 #: ../py/goofy/js/goofy.js
 msgid "Space"
-msgstr "trống"
+msgstr "スペースキー"
 
 #: ../py/goofy/js/goofy.js
 msgid "Factory tests stopped"
-msgstr "Kiểm tra nhà máy đã ngừng"
+msgstr "工場テストが停止しました"
 
 #: ../py/goofy/js/goofy.js
 msgid "{label} ({iterations} times)"
-msgstr "{label} ({iterations} lần)"
+msgstr "{label}（{iterations}回）"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "An error occurred while starting the factory test system\n"
 "Factory testing cannot proceed."
 msgstr ""
-"Đã xảy ra lỗi khi mở hệ thống kiểm tra nhà máy..\n"
-"Không có cách nào để tiếp tục thử nghiệm.."
+"工場テストシステムの起動中にエラーが発生しました\n"
+"工場テストを続行できません。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Iterations"
-msgstr "Lặp lại nhiều lần"
+msgstr "反復回数"
 
 #: ../py/goofy/js/goofy.js
 msgid "Retries"
-msgstr "Số lần lặp lại nếu thất bại"
+msgstr "再試行回数"
 
 #: ../py/goofy/js/goofy.js
 msgid "Set iterations and retries of test \"{test}\""
-msgstr "Đặt số lần lặp lại cho {test}"
+msgstr "テスト「{test}」の反復回数と再試行回数を設定"
 
 #: ../py/goofy/js/goofy.js
 msgid "Iterations must be a positive integer or -1."
-msgstr "Lặp lại phải là một số nguyên dương hoặc -1."
+msgstr "反復回数は正の整数または-1である必要があります。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Retries must be a positive integer, 0, or -1."
-msgstr "Retries phải là một số nguyên dương, 0 hoặc -1."
+msgstr "再試行回数は正の整数、0、または-1である必要があります。"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "Iterations or retries is too large.\n"
 "Please use -1 to represent infinity."
 msgstr ""
-"Lặp lại hoặc thử lại là quá lớn.\n"
-"Vui lòng sử dụng -1 để thể hiện vô hạn."
+"反復回数または再試行回数が大きすぎます。\n"
+"無限大を表すには-1を使用してください。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Press OK to shutdown"
-msgstr ""
+msgstr "シャットダウンするにはOKを押してください"
 
 #: ../py/goofy/js/goofy.js
 msgid "Rebooting"
-msgstr "Khởi động lại"
+msgstr "再起動中"
 
 #: ../py/goofy/js/goofy.js
 msgid "Shutting down"
-msgstr "Tắt máy"
+msgstr "シャットダウン中"
 
 #: ../py/goofy/js/goofy.js
 msgid "once"
-msgstr "1 lần"
+msgstr "1回"
 
 #: ../py/goofy/js/goofy.js
 msgid "{count} of {total} times"
-msgstr "{count} lần trong {total} lần kiểm tra"
+msgstr "{total}回のうち{count}回"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "{action} in {seconds_left} seconds ({times_text}).\n"
 "To cancel, press the Escape key."
 msgstr ""
-"Sẽ là {action} ({times_text}) sau {seconds_left} giây.\n"
-"Nhấn ESC để hủy."
+"{seconds_left}秒後に{action}（{times_text}）。\n"
+"キャンセルするには、Escapeキーを押してください。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Shutting down..."
-msgstr "Đang tắt máy..."
+msgstr "シャットダウンしています..."
 
 #: ../py/goofy/js/goofy.js ../py/test/pytests/sync_factory_server.py
 msgid "Cancel"
-msgstr "Hủy"
+msgstr "キャンセル"
 
 #: ../py/goofy/js/goofy.js
 msgid "Critical factory note; cannot run tests"
-msgstr "Thử nghiệm nhà máy đã ngừng"
+msgstr "重要な工場メモ。テストを実行できません"
 
 #: ../py/goofy/js/goofy.js
 msgid "Not in engineering mode; cannot skip tests"
-msgstr "Chế độ kỹ thuật có thể bỏ qua thử nghiệm"
+msgstr "エンジニアリングモードではありません。テストをスキップできません"
 
 #: ../py/goofy/js/goofy.js
 msgid "Run all {count} tests in \"{test}\""
-msgstr "Thực thi tất cả {count} kiểm tra trong {test}"
+msgstr "「{test}」の{count}個のテストをすべて実行"
 
 #: ../py/goofy/js/goofy.js
 msgid "Run test \"{test}\""
-msgstr "Thực hiện kiểm tra「{test}」"
+msgstr "テスト「{test}」を実行"
 
 #: ../py/goofy/js/goofy.js
 msgid "Restart all {count} tests in \"{test}\""
-msgstr "Chạy lại tất cả {count} kiểm tra trong {test}"
+msgstr "「{test}」の{count}個のテストをすべて再起動"
 
 #: ../py/goofy/js/goofy.js
 msgid "Restart test \"{test}\""
-msgstr "Chạy lại kiểm tra 「{test}」"
+msgstr "テスト「{test}」を再起動"
 
 #: ../py/goofy/js/goofy.js
 msgid "Restart {count} tests in \"{test}\" that have not passed"
-msgstr "Chạy lại {count} các thử nghiệm không thành công trong {test}"
+msgstr "「{test}」の合格していない{count}個のテストを再起動"
 
 #: ../py/goofy/js/goofy.js
 msgid "Clear status of {count} tests in \"{test}\""
-msgstr "Xóa trạng thái của {count} kiểm tra trong「{test}」"
+msgstr "「{test}」の{count}個のテストのステータスをクリア"
 
 #: ../py/goofy/js/goofy.js
 msgid "Clear status of test \"{test}\""
-msgstr "Xóa trạng thái của thử nghiệm {test}"
+msgstr "テスト「{test}」のステータスをクリア"
 
 #: ../py/goofy/js/goofy.js
 msgid "All the running tests will be stopped for clearing status."
-msgstr "Tất cả các bài kiểm tra đang chạy sẽ bị dừng để xóa trạng thái."
+msgstr "ステータスをクリアするために、実行中のすべてのテストが停止します。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Run {count} untested tests in \"{test}\""
-msgstr "Thực thi {count} kiểm tra chưa được kiểm tra trong {test}"
+msgstr "「{test}」の未テストの{count}個のテストを実行"
 
 #: ../py/goofy/js/goofy.js
 msgid "Set {count} tests in \"{test}\" to run multiple times"
-msgstr "Đặt các bài kiểm tra {count} trong 「{test}」 để chạy nhiều lần"
+msgstr "「{test}」の{count}個のテストを複数回実行するように設定"
 
 #: ../py/goofy/js/goofy.js
 msgid "Set test \"{test}\" to run multiple times"
-msgstr "Đặt kiểm tra 「{test}」 để chạy nhiều lần"
+msgstr "テスト「{test}」を複数回実行するように設定"
 
 #: ../py/goofy/js/goofy.js
 msgid "Stop all tests"
-msgstr "Dừng tất cả các bài kiểm tra"
+msgstr "すべてのテストを停止"
 
 #: ../py/goofy/js/goofy.js
 msgid "Abort {count} active tests in \"{test}\" and continue testing"
-msgstr "Hủy {count}kiểm tra trong thực thi trong「{test}」và tiếp tục"
+msgstr "「{test}」のアクティブな{count}個のテストを中止してテストを続行"
 
 #: ../py/goofy/js/goofy.js
 msgid "Abort active test \"{test}\" and continue testing"
-msgstr "Hủy thử nghiệm đang chạy{test}」và tiếp tục"
+msgstr "アクティブなテスト「{test}」を中止してテストを続行"
 
 #: ../py/goofy/js/goofy.js
 msgid "Show test UI"
-msgstr "Màn hình kiểm tra hiển thị"
+msgstr "テストUIを表示"
 
 #: ../py/goofy/js/goofy.js
 msgid "System time: "
-msgstr "Thời gian hệ thống:"
+msgstr "システム時刻："
 
 #: ../py/goofy/js/goofy.js
 msgid "Your Name"
-msgstr "tên của bạn"
+msgstr "あなたの名前"
 
 #: ../py/goofy/js/goofy.js
 msgid "Note Content"
-msgstr "Ghi chú"
+msgstr "メモの内容"
 
 #: ../py/goofy/js/goofy.js
 msgid "Severity"
-msgstr "Mức độ nghiêm trọng"
+msgstr "重大度"
 
 #: ../py/goofy/js/goofy.js
 msgid "Add Note"
-msgstr "Thêm ghi chú mới "
+msgstr "メモを追加"
 
 #: ../py/goofy/js/goofy.js
 msgid "Uploading factory logs..."
-msgstr "Tải lên hồ sơ nhà máy ..."
+msgstr "工場ログをアップロードしています..."
 
 #: ../py/goofy/js/goofy.js
 msgid "Uploading factory logs.  Please wait..."
-msgstr "Bản ghi nhà máy đang được tải lên. Vui lòng chờ một lát ..."
+msgstr "工場ログをアップロードしています。しばらくお待ちください..."
 
 #: ../py/goofy/js/goofy.js
 msgid "Serial Number"
-msgstr "số thứ tự"
+msgstr "シリアル番号"
 
 #: ../py/goofy/js/goofy.js
 msgid "Bug Description"
-msgstr "Mô tả lỗi"
+msgstr "バグの説明"
 
 #: ../py/goofy/js/goofy.js
 msgid "Upload Factory Logs"
-msgstr "Tải lên bản ghi nhà máy"
+msgstr "工場ログをアップロード"
 
 #: ../py/goofy/js/goofy.js
 msgid "Save Factory Logs to USB"
-msgstr "Lưu bản ghi nhà máy vào ổ flash USB"
+msgstr "工場ログをUSBに保存"
 
 #: ../py/goofy/js/goofy.js
 msgid "Saving factory logs to USB drive..."
-msgstr "Lưu hồ sơ nhà máy vào đĩa U ..."
+msgstr "工場ログをUSBドライブに保存しています..."
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "Success! Saved factory logs ({size}) bytes) to {dev} as\n"
 "{filename}. The drive has been unmounted."
 msgstr ""
-"Hồ sơ Lưu Factory ({size} bytes) vào đĩa U {dev} đã thành công, các tập tin "
-"có tên là \n"
-"{filename}. U đĩa đã được gỡ bỏ."
+"成功！工場ログ（{size}バイト）を{dev}に{filename}として保存しました。\n"
+"ドライブはアンマウントされました。"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "Success! Saved factory logs ({size}) bytes) to {dev} as\n"
 "{filename}."
-msgstr ""
-"Hồ sơ Lưu Factory  ({size} bytes) vào đĩa U {dev} đã thành công, các tập "
-"tin \n"
-"{filename}。"
+msgstr "成功！工場ログ（{size}バイト）を{dev}に{filename}として保存しました。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Enter an optional identifier for the archive (or press Enter for none):"
 msgstr ""
-"Vui lòng nhập số nhận dạng cho tệp hồ sơ nhà máy hoặc nhấn phím Enter để "
-"không chọn:"
+"アーカイブのオプションの識別子を入力してください（または何も入力せずにEnter"
+"キーを押してください）："
 
 #: ../py/goofy/js/goofy.js
 msgid "Include probe result (takes longer time)"
-msgstr ""
+msgstr "プローブ結果を含める（時間がかかります）"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "Please insert a formatted USB stick and wait a moment for it to be mounted."
-msgstr "Vui lòng lắp ổ flash USB và đợi gắn"
+msgstr ""
+"フォーマットされたUSBスティックを挿入して、マウントされるまでしばらくお待ちく"
+"ださい。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Update factory software"
-msgstr "Cập nhật phần mềm nhà máy"
+msgstr "工場ソフトウェアを更新"
 
 #: ../py/goofy/js/goofy.js
 msgid "Save note on device"
-msgstr "Ghi chú"
+msgstr "デバイスにメモを保存"
 
 #: ../py/goofy/js/goofy.js
 msgid "View notes"
-msgstr "Xem ghi chú"
+msgstr "メモを表示"
 
 #: ../py/goofy/js/goofy.js
 msgid "Clear notes"
-msgstr "Xóa ghi chú"
+msgstr "メモをクリア"
 
 #: ../py/goofy/js/goofy.js
 msgid "Diagnosis Tool"
-msgstr "Công cụ chẩn đoán"
+msgstr "診断ツール"
 
 #: ../py/goofy/js/goofy.js
 msgid "Save factory logs to USB drive..."
-msgstr "Lưu bản ghi nhà máy vào ổ flash USB"
+msgstr "工場ログをUSBドライブに保存しています..."
 
 #: ../py/goofy/js/goofy.js
 msgid "Upload factory logs..."
-msgstr "Tải lên hồ sơ nhà máy"
+msgstr "工場ログをアップロードしています..."
 
 #: ../py/goofy/js/goofy.js
 msgid "DUT Shutdown"
-msgstr "Tắt máy"
+msgstr "DUTシャットダウン"
 
 #: ../py/goofy/js/goofy.js
 msgid "Reload Test List"
-msgstr "Danh sách kiểm tra quá tải"
+msgstr "テストリストを再読み込み"
 
 #: ../py/goofy/js/goofy.js
 msgid "Toggle engineering mode"
-msgstr "Chuyển chế độ kỹ thuật"
+msgstr "エンジニアリングモードを切り替え"
 
 #: ../py/goofy/js/goofy.js
 msgid "Switch test list"
-msgstr "Chuyển danh sách kiểm tra"
+msgstr "テストリストを切り替え"
 
 #: ../py/goofy/js/goofy.js
 msgid "Switch Test List: {test_list}"
-msgstr "Chuyển danh sách kiểm tra：{test_list}"
+msgstr "テストリストの切り替え：{test_list}"
 
 #: ../py/goofy/js/goofy.js
 msgid ""
 "Warning: Switching to test list \"{test_list}\" will clear all test state.\n"
 "Are you sure you want to proceed?"
 msgstr ""
-"Thận trọng: Việc chuyển sang danh sách kiểm tra {test_list} sẽ xóa tất cả "
-"trạng. \n"
-"thái kiểm tra. Bạn có chắc chắn muốn tiếp tục không?"
+"警告：テストリスト「{test_list}」に切り替えると、すべてのテスト状態がクリアさ"
+"れます。\n"
+"続行してもよろしいですか？"
 
 #: ../py/goofy/js/goofy.js
 msgid "Yes, clear state and restart"
-msgstr "Xác định, trạng thái kiểm tra rõ ràng và khởi động lại"
+msgstr "はい、状態をクリアして再起動します"
 
 #: ../py/goofy/js/goofy.js
 msgid "Switching test list. Please wait..."
-msgstr "danh sách kiểm tra, xin vui lòng chờ ..."
+msgstr "テストリストを切り替えています。しばらくお待ちください..."
 
 #: ../py/goofy/js/goofy.js
 msgid "Software update"
-msgstr "Cập nhật phần mềm nhà máy"
+msgstr "ソフトウェアアップデート"
 
 #: ../py/goofy/js/goofy.js
 msgid "Updating factory software. Please wait..."
-msgstr "Đang cập nhật phần mềm của nhà máy, vui lòng chờ ..."
+msgstr "工場ソフトウェアを更新しています。しばらくお待ちください..."
 
 #: ../py/goofy/js/goofy.js
 msgid "Update succeeded. Restarting."
-msgstr "Bản cập nhật đã thành công và sẽ khởi động lại sau vài giây."
+msgstr "アップデートに成功しました。再起動しています。"
 
 #: ../py/goofy/js/goofy.js
 msgid "No update is currently necessary."
-msgstr "Hiện tại không cần cập nhật phần mềm của nhà máy"
+msgstr "現在、アップデートは必要ありません。"
 
 #: ../py/goofy/js/goofy.js
 msgid "Update failed:"
-msgstr "Cập nhật không thành công:"
+msgstr "アップデートに失敗しました："
 
 #: ../py/goofy/js/i18n.js
 msgid "currentLocaleName#en-US#English"
-msgstr "currentLocaleName#vi-VN#Tiếng việt"
+msgstr "currentLocaleName#ja-JP#日本語"
 
 #: ../py/goofy/plugins/device_manager.py
 msgid "View /var/log/messages"
-msgstr "Xem /var/log/messages"
+msgstr "/var/log/messagesを表示"
 
 #: ../py/goofy/plugins/device_manager.py
 msgid "View /var/log/messages before last reboot"
-msgstr "/var/log/messages trước khi khởi động lại lần cuối"
+msgstr "前回の再起動前の/var/log/messagesを表示"
 
 #: ../py/goofy/plugins/device_manager.py
 msgid "View dmesg"
-msgstr "dmesg"
+msgstr "dmesgを表示"
 
 #: ../py/goofy/plugins/device_manager.py
 msgid "Device manager"
-msgstr "Xem phần cứng"
+msgstr "デバイスマネージャー"
 
 #: ../py/goofy/plugins/station_setup/static/station_setup.js
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "Update Station Properties"
-msgstr "Cập nhật thông tin trạm"
+msgstr "ステーションのプロパティを更新"
 
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "Station Name"
-msgstr "Tên trạm"
+msgstr "ステーション名"
 
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "Manufacture Line Number"
-msgstr "Số dây chuyền sản xuất"
+msgstr "製造ライン番号"
 
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "Station Number"
-msgstr "Mã số trạm"
+msgstr "ステーション番号"
 
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "{key} can't be empty!"
-msgstr "{key} không được để trống!"
+msgstr "{key}は空にできません！"
 
 #: ../py/goofy/plugins/station_setup/station_setup.py
 msgid "Station with same {keys!r} found."
-msgstr "Trạm {keys!r}  đã tồn tại. "
+msgstr "同じ{keys!r}を持つステーションが見つかりました。"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "MLB S/N"
-msgstr "Số sêri bo mạch chủ"
+msgstr "MLB S/N"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "S/N"
-msgstr "Số sê-ri"
+msgstr "S/N"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Stage"
-msgstr "Giai đoạn"
+msgstr "ステージ"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "IP Address"
-msgstr "Địa chỉ IP"
+msgstr "IPアドレス"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Test Image"
-msgstr "Hệ thống kiểm tra"
+msgstr "テストイメージ"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Release Image"
-msgstr "Hệ thống nhà máy"
+msgstr "リリースイメージ"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Main Firmware"
-msgstr "Thân chính"
+msgstr "メインファームウェア"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Kernel"
-msgstr "Phiên bản hạt nhân"
+msgstr "カーネル"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Architecture"
-msgstr "kiến trúc "
+msgstr "アーキテクチャ"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "EC"
@@ -1144,233 +1142,226 @@ msgstr "PD"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Root Device"
-msgstr "Thiết bị gốc"
+msgstr "ルートデバイス"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Device ID"
-msgstr "Mã nhận dạng thiết bị"
+msgstr "デバイスID"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Factory Toolkit Version"
-msgstr "Phiên bản Công cụ Kiểm tra"
+msgstr "ファクトリーツールキットバージョン"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "(no update)"
-msgstr "(không có cập nhật)"
+msgstr "(更新なし)"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "HWID Database Version"
-msgstr "Phiên bản cơ sở dữ liệu HWID"
+msgstr "HWIDデータベースバージョン"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "Unknown"
-msgstr "Không xác định"
+msgstr "不明"
 
 #: ../py/goofy/plugins/status_monitor/static/status_monitor.js
 msgid "System time"
-msgstr "Thời gian hệ thống"
+msgstr "システム時間"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Test Path"
-msgstr "Đo đường dẫn"
+msgstr "テストパス"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Test Label"
-msgstr "Nhãn thử nghiệm"
+msgstr "テストラベル"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Invocation ID"
-msgstr "ID thử nghiệm Thi hành dịch vụ Shop floor"
+msgstr "呼び出しID"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Elapsed Time"
-msgstr "Thời gian trải qua"
+msgstr "経過時間"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Test Name"
-msgstr "Tên thử nghiệm"
+msgstr "テスト名"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Test Arguments"
-msgstr "Thông số đo"
+msgstr "テスト引数"
 
 #: ../py/goofy/static/default_test_ui.html
 msgid "Show Original"
-msgstr "Hiển thị bản gốc"
+msgstr "オリジナルを表示"
 
 #: ../py/goofy/static/index.html
 msgid "Engineering mode"
-msgstr "Chế độ kỹ thuật"
+msgstr "エンジニアリングモード"
 
 #: ../py/goofy/static/js/default_test_ui.js
 msgid "{seconds} seconds"
-msgstr "{seconds}giây"
+msgstr "{seconds}秒"
 
 #: ../py/goofy/static/templates.html
 #: ../py/test/pytests/countdown_static/countdown.html
 msgid "Elapsed time:"
-msgstr "Thời gian trải qua："
+msgstr "経過時間:"
 
 #: ../py/goofy/static/templates.html
 msgid "Time remaining:"
-msgstr "Thời gian còn lại: "
+msgstr "残り時間:"
 
 #: ../py/goofy/static/templates.html
 msgid "Test Progress:"
-msgstr "Tiến độ kiểm tra:"
+msgstr "テストの進捗状況:"
 
 #: ../py/goofy/static/templates.html
 msgid "Screenshot (Press Ctrl+S)"
-msgstr ""
+msgstr "スクリーンショット (Ctrl+Sを押す)"
 
 #: ../py/goofy/static/templates.html
 msgid "Mark Failed"
-msgstr "Không đánh dấu được"
+msgstr "失敗とマーク"
 
 #: ../py/test/fixture/touchscreen_calibration/fixture.py
 msgid "Pull the lever down."
-msgstr "Kéo tay cầm xuống"
+msgstr "レバーを下に引いてください。"
 
 #: ../py/test/fixture/touchscreen_calibration/fixture.py
 msgid "Pull the lever up."
-msgstr "Kéo tay cầm lên"
+msgstr "レバーを上に引いてください。"
 
 #: ../py/test/pytests/ac_power.py
 msgid "Unplug the charger."
-msgstr "Vui lòng tháo bộ sạc"
+msgstr "充電器を抜いてください。"
 
 #: ../py/test/pytests/ac_power.py
 msgid "Plug in the charger ({type})"
-msgstr "Vui lòng kết nối bộ sạc ({type})"
+msgstr "充電器({type})を接続してください"
 
 #: ../py/test/pytests/ac_power.py
 msgid "Plug in the charger"
-msgstr "Vui lòng kết nối bộ sạc"
+msgstr "充電器を接続してください"
 
 #: ../py/test/pytests/ac_power.py
 msgid ""
 "Detected power {watt} W, required power range ({min_watt} W, {max_watt} W)"
-msgstr ""
-"Nguồn điện được phát hiện {watt}watt，phạm vi cung cấp điện yêu cầu "
-"({min_watt}watt, {max_watt}watt)"
+msgstr "検出された電力{watt} W、必要な電力範囲（{min_watt} W、{max_watt} W）"
 
 #: ../py/test/pytests/ac_power.py
 msgid "Probed {times} / {total}"
-msgstr "Số lần phát hiện {times} / {total}"
+msgstr "{times} / {total}回プローブしました"
 
 #: ../py/test/pytests/ac_power.py
 msgid "No AC adapter"
-msgstr "Không sạc"
+msgstr "ACアダプターがありません"
 
 #: ../py/test/pytests/ac_power.py
 msgid "Identifying AC adapter..."
-msgstr "Nhận dạng mô hình sạc ..."
+msgstr "ACアダプターを識別しています..."
 
 #: ../py/test/pytests/ac_power.py
 msgid "AC adapter type: {type}"
-msgstr "Mô hình bộ sạc: {type}"
+msgstr "ACアダプターの種類: {type}"
 
 #: ../py/test/pytests/accelerometers.py ../py/test/pytests/probe/probe.py
 msgid "Press SPACE to continue"
-msgstr "Nhấn nút trống để tiếp tục"
+msgstr "続行するにはスペースキーを押してください"
 
 #: ../py/test/pytests/accelerometers.py ../py/test/pytests/gyroscope.py
 msgid ""
 "Test will be started within {secs} seconds. Please do not move the device."
-msgstr ""
-"Chương trình thử nghiệm sẽ bắt đầu sau {secs} giây.Không di chuyển đối tượng "
-"đang được kiểm tra."
+msgstr "テストは{secs}秒以内に開始されます。デバイスを動かさないでください。"
 
 #: ../py/test/pytests/accelerometers.py
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Test is in progress, please do not move the device."
-msgstr ""
-"Không di chuyển đối tượng đang được kiểm tra trong khi đang thực hiện quy "
-"trình hiệu chuẩn."
+msgstr "テスト実行中です。デバイスを動かさないでください。"
 
 #: ../py/test/pytests/accelerometers_calibration.py
 msgid ""
 "Please put device on a horizontal plane then press space to start "
 "calibration."
 msgstr ""
-"Đặt đối tượng cần thử nghiệm trên bề mặt nằm ngang và nhấn nút trắng để bắt "
-"đầu hiệu chuẩn"
+"デバイスを水平面に置き、スペースキーを押してキャリブレーションを開始してくだ"
+"さい。"
 
 #: ../py/test/pytests/accelerometers_calibration.py
 msgid "Please put device on a horizontal plane."
-msgstr ""
+msgstr "デバイスを水平面に置いてください。"
 
 #: ../py/test/pytests/accelerometers_calibration.py
 msgid ""
 "Calibration will be started within {time} seconds.Please do not move device."
 msgstr ""
-"Quy trình hiệu chuẩn sẽ bắt đầu sau {time} giây, không được di chuyển đối "
-"tượng đang thử."
+"キャリブレーションは{time}秒以内に開始されます。デバイスを動かさないでくださ"
+"い。"
 
 #: ../py/test/pytests/accelerometers_calibration.py
 msgid "Calibration is in progress, please do not move device."
-msgstr ""
-"Không di chuyển đối tượng đang được kiểm tra trong khi đang thực hiện quy "
-"trình hiệu chuẩn."
+msgstr "キャリブレーション実行中です。デバイスを動かさないでください。"
 
 #: ../py/test/pytests/accelerometers_lid_angle.py
 msgid "Please open the lid to {angle} degrees."
-msgstr ""
+msgstr "蓋を{angle}度開けてください。"
 
 #: ../py/test/pytests/accelerometers_lid_angle.py
 msgid "Checking angle..."
-msgstr "Góc được xác nhận"
+msgstr "角度を確認しています..."
 
 #: ../py/test/pytests/accelerometers_lid_angle.py
 msgid "Please open the lid to {angle} degrees and press SPACE."
-msgstr "Vui lòng mở nắp trên lên  {angle} và nhấn nút trống."
+msgstr "蓋を{angle}度開けて、スペースキーを押してください。"
 
 #: ../py/test/pytests/audio.py
 msgid "Left Channel"
-msgstr "Kênh bên trái"
+msgstr "左チャンネル"
 
 #: ../py/test/pytests/audio.py
 msgid "Right Channel"
-msgstr "Kênh phải"
+msgstr "右チャンネル"
 
 #: ../py/test/pytests/audio.py
 msgid "Please wait for the {device} playback to finish."
-msgstr "{device} Phát giọng nói ···"
+msgstr "{device}の再生が終わるまでお待ちください。"
 
 #: ../py/test/pytests/audio.py
 msgid ""
 "Press the number you hear from {device} to pass the test.<br>Press \"R\" to "
 "replay."
 msgstr ""
-"Nhấn R để phát lại giọng nói theo số bạn nghe từ đầu ra {device} <br> R "
+"{device}から聞こえる数字を押してテストを合格にします。<br>再生するには「R」を"
+"押します。"
 
 #: ../py/test/pytests/audio.py
 msgid "Internal Speaker"
-msgstr "Loa tích hợp"
+msgstr "内蔵スピーカー"
 
 #: ../py/test/pytests/audio.py ../py/test/pytests/audio_basic.py
 msgid "Please plug headphone in."
-msgstr "Vui lòng kết nối tai nghe"
+msgstr "ヘッドフォンを接続してください。"
 
 #: ../py/test/pytests/audio.py
 msgid "Please unplug headphone."
-msgstr "Vui lòng rút phích cắm tai nghe"
+msgstr "ヘッドフォンを抜いてください。"
 
 #: ../py/test/pytests/audio_basic.py
 msgid "Headset"
-msgstr "Tai nghe bên ngoài"
+msgstr "ヘッドセット"
 
 #: ../py/test/pytests/audio_basic.py
 msgid "Start recording"
-msgstr "Bắt đầu ghi âm"
+msgstr "録音開始"
 
 #: ../py/test/pytests/audio_basic.py
 msgid "Playback sound (Mic channel {channel})"
-msgstr "Phát lại âm thanh đã ghi(kênh micrô{channel})"
+msgstr "再生音 (マイクチャンネル {channel})"
 
 #: ../py/test/pytests/audio_basic.py
 msgid "Playback sound to channel {channel}"
-msgstr "Phát mẫu tới kênh{channel}"
+msgstr "チャンネル {channel} に音を再生する"
 
 #: ../py/test/pytests/audio_basic.py
 msgid ""
@@ -1378,157 +1369,161 @@ msgid ""
 "works.<br>Press 'R' to record {record_sec} seconds, Playback will follow."
 "<br>Press space to mark pass."
 msgstr ""
-"Bấm 'P' chìa khóa chơi dụ bấm<br> chìa khóa để bắt đầu ghi 'R' {record_sec}"
-"chìa khóa để bắt đầu ghi<br>record_sec giây, sau đó tái hiện lại ghi âm "
-"thanh để chỉ giảm thành công trống"
+"オーディオ出力が機能することを確認するために、最初に各チャンネルのサンプルを"
+"再生するには「P」を押します。<br> {record_sec} 秒間録音するには「R」を押しま"
+"す。再生が続きます。<br>合格とマークするにはスペースを押します。"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Tone generator"
-msgstr "Bộ tạo tín hiệu âm thanh"
+msgstr "トーンジェネレーター"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Tone off"
-msgstr "Tắt âm thanh"
+msgstr "トーンオフ"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Tone On"
-msgstr "Phát âm thanh"
+msgstr "トーンオン"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Manual record"
-msgstr "Ghi thủ công"
+msgstr "手動録音"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Stop record"
-msgstr "Dừng ghi âm"
+msgstr "録音停止"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Start record"
-msgstr "Bắt đầu ghi âm"
+msgstr "録音開始"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Stop playback"
-msgstr "Dừng phát"
+msgstr "再生停止"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Start playback"
-msgstr "Bắt đầu phát âm"
+msgstr "再生開始"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Audio loopback"
-msgstr "Phát lại âm thanh"
+msgstr "オーディオループバック"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Loopback off"
-msgstr "Dừng phát lại"
+msgstr "ループバックオフ"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Loopback on"
-msgstr "Bắt đầu phát lại"
+msgstr "ループバックオン"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Output Nodes"
-msgstr "Thiết bị đầu ra"
+msgstr "出力ノード"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Input Nodes"
-msgstr "Thiết bị đầu vào"
+msgstr "入力ノード"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Pass"
-msgstr "thông qua"
+msgstr "合格"
 
 #: ../py/test/pytests/audio_diagnostic_static/audio_diagnostic.html
 msgid "Fail"
-msgstr "Thất bại"
+msgstr "失敗"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.html
 msgid "Plug in audio jack dongle"
-msgstr "Vui lòng đặt vật cố định lỗ nguồn âm thanh"
+msgstr "オーディオジャックドングルを差し込む"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.html
 msgid "Hit s to start loopback test"
-msgstr "Bắt đầu kiểm tra phát lại nguồn âm thanh"
+msgstr "ループバックテストを開始するにはsを押します"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid ""
 "Loopback testing...\n"
 "Success Rate: {successRate}"
 msgstr ""
-"Kiểm tra phát lại nguồn...\n"
-"Tỷ lệ thành công:: {successRate}"
+"ループバックテスト中...\n"
+"成功率: {successRate}"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid "Loopback testing..."
-msgstr "Trong thử nghiệm phát lại nguồn âm thanh ..."
+msgstr "ループバックテスト中..."
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid ""
 "Testing Result: Fail\n"
 "Success Rate: {successRate}"
 msgstr ""
-"Kiểm tra phát lại nguồn...\n"
-"Tỷ lệ thành công:: {successRate}"
+"テスト結果: 失敗\n"
+"成功率: {successRate}"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid "Testing Result: Success!"
-msgstr "Kết quả kiểm tra: Thành công!"
+msgstr "テスト結果: 成功!"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid ""
 "Running Conformance test....\n"
 " Input dev: {input_device}"
 msgstr ""
+"適合性テスト実行中....\n"
+" 入力デバイス: {input_device}"
 
 #: ../py/test/pytests/audio_loop_static/audio_loop.js
 msgid ""
 "Running Conformance test....\n"
 " Output dev: {output_device}"
 msgstr ""
+"適合性テスト実行中....\n"
+" 出力デバイス: {output_device}"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Press 'Space' to start test"
-msgstr "Nhấn nút trống để bắt đầu kiểm tra"
+msgstr "テストを開始するには「スペース」を押します"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Connected"
-msgstr "Đã kết nối"
+msgstr "接続済み"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Waiting for command"
-msgstr "Đang chờ hướng dẫn"
+msgstr "コマンドを待っています"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Audio looping"
-msgstr "Phát lại nguồn âm thanh"
+msgstr "オーディオのループバック"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Speaker on"
-msgstr "Bật loa"
+msgstr "スピーカーオン"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "LCD Dmic on"
-msgstr "Micrô LCD đang bật"
+msgstr "LCD Dmicオン"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "MLB Dmic on"
-msgstr "MLB mic mở"
+msgstr "MLB Dmicオン"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Playing tone to left channel"
-msgstr "Phát sóng sang kênh bên trái"
+msgstr "左チャンネルにトーンを再生しています"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Playing tone to right channel"
-msgstr "Phát sóng đến đúng kênh bên phải"
+msgstr "右チャンネルにトーンを再生しています"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Waiting for IP address"
-msgstr "Đang đợi cài đặt IP"
+msgstr "IPアドレスを待っています"
 
 #: ../py/test/pytests/audio_quality.py
 msgid "Ready for connection"
-msgstr "Sẵn sàng hoàn thành, chờ liên kết"
+msgstr "接続の準備ができました"
 
 #: ../py/test/pytests/backlight.py
 msgid ""
@@ -1537,53 +1532,54 @@ msgid ""
 "the backlight to be brighter;<br>Enter L if pressing Space changes the "
 "backlight to be dimmer.<br>This test will be executed twice."
 msgstr ""
-"Ấn nút trắng để điều chỉnh độ sáng;<br>ấn Esc phục hồi độ sáng;<br>au khi "
-"kiểm tra nếu nhấn H để tăng độ sáng,; ếu giảm độ sáng nhập LL<br>hãy nhập "
-"kiểm tra hai lần"
+"スペースキーを押してバックライトの明るさを変更します。<br>Escキーを押してバッ"
+"クライトの明るさを元に戻します。<br>確認後、スペースキーを押してバックライト"
+"が明るくなった場合はHを入力します。<br>スペースキーを押してバックライトが暗く"
+"なった場合はLを入力します。<br>このテストは2回実行されます。"
 
 #: ../py/test/pytests/bad_blocks.py
 msgid "Testing {test_size_mb} region of storage"
-msgstr "Kiểm tra bộ nhớ cho {test_size_mb}"
+msgstr "{test_size_mb}領域のストレージをテストしています"
 
 #: ../py/test/pytests/bad_blocks.py
 msgid "Phase {current_phase}/{total_phases}: "
-msgstr "Giai đoạn {current_phase}/{total_phases}: "
+msgstr "フェーズ {current_phase}/{total_phases}: "
 
 #: ../py/test/pytests/battery_basic.py
 msgid "Plug AC to proceed"
-msgstr "Cắm nguồn điện AC "
+msgstr "続行するにはACを接続してください"
 
 #: ../py/test/pytests/battery_basic.py
 msgid "Testing battery charge..."
-msgstr "Thử sạc pin ..."
+msgstr "バッテリー充電をテストしています..."
 
 #: ../py/test/pytests/battery_basic.py
 msgid "Unplug AC to proceed"
-msgstr "Rút phích cắm nguồn AC"
+msgstr "続行するにはACを抜いてください"
 
 #: ../py/test/pytests/battery_basic.py
 msgid "Testing battery discharge..."
-msgstr "Kiểm tra xả pin ..."
+msgstr "バッテリー放電をテストしています..."
 
 #: ../py/test/pytests/battery_current.py
 msgid ""
 "Waiting for {target_status} current to meet {target_current} mA. (Currently "
 "{status} at {current} mA)"
 msgstr ""
-"Chờ {target_status} hiện tại lớn hơn {target_current} mA. (Hiện tại "
-"{status}: {current} mA)"
+"{target_status}電流が{target_current}mAに達するのを待っています。 (現在"
+"{status} {current}mA)"
 
 #: ../py/test/pytests/battery_current.py
 msgid "charging"
-msgstr "nạp điện"
+msgstr "充電中"
 
 #: ../py/test/pytests/battery_current.py
 msgid "discharging"
-msgstr "phát điện"
+msgstr "放電中"
 
 #: ../py/test/pytests/battery_current.py
 msgid "Insert power to {prompt}({voltage}mV)"
-msgstr "Vui lòng cắm dây nguồn vào{prompt}({voltage}mV)"
+msgstr "{prompt}({voltage}mV)に電源を挿入してください"
 
 #: ../py/test/pytests/battery_current.py
 msgid ""
@@ -1591,1184 +1587,1209 @@ msgid ""
 "discharging mode is {discharging_current}<br>Target current difference is "
 "{target}, but present current difference is {present_difference}"
 msgstr ""
+"充電モードの平均電流は{charging_current}です。<br>放電モードの平均電流は"
+"{discharging_current}です。<br>目標電流差は{target}ですが、現在の電流差は"
+"{present_difference}です"
 
 #: ../py/test/pytests/battery_current.py
 msgid ""
 "Calculating the current difference between charging mode and discharging "
 "mode."
-msgstr ""
+msgstr "充電モードと放電モードの電流差を計算しています。"
 
 #: ../py/test/pytests/battery_current.py
 msgid "CheckCurrentDifference failed. This is the {times} try"
-msgstr ""
+msgstr "CheckCurrentDifferenceに失敗しました。これは{times}回目の試行です"
 
 #: ../py/test/pytests/blocking_charge.py
 msgid ""
 "Charging to {target}% (Start: {start}%. Current: {current}%.)<br>Time "
 "elapsed: {elapsed} Time remaining: {remaining}"
 msgstr ""
-"Tính phí {target}% (phí bắt đầu: {start}%. Khoản phí hiện tại: "
-"{current}%.)<br>Thời gian đã trôi qua: {elapsed} Thời gian còn lại: "
-"{remaining}"
+"{target}%まで充電中(開始: {start}%。現在: {current}%。)<br>経過時間: "
+"{elapsed} 残り時間: {remaining}"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Enable the connection ability of bluetooth device and press Enter"
-msgstr "Bật chức năng kết nối của thiết bị Bluetooth và bấm phím enter"
+msgstr "Bluetoothデバイスの接続機能を有効にして、Enterキーを押してください"
 
 #: ../py/test/pytests/bluetooth.py
 msgid ""
 "Place the base into the fixture, and press the space key on the test host."
 msgstr ""
-"Vui lòng đặt bàn phím thử nghiệm vào công cụ kiểm tra và nhấn phím cách của "
-"máy tính"
+"ベースをフィクスチャに入れ、テストホストのスペースキーを押してください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Please re-attach the magnet, and press the space key on the test host."
-msgstr "Vui lòng kết nối lại nam châm và nhấn phím cách của máy tính"
+msgstr "マグネットを再度取り付け、テストホストのスペースキーを押してください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid ""
 "Turn on charging by pressing the green button, take the keyboard out and put "
 "it back, and press the space key on the test host."
 msgstr ""
-"Nhấn nút màu xanh lá cây để bắt đầu sạc, sau đó lấy nó ra và đặt nó trở lại "
-"trên bàn phím, sau đó nhấn nút không gian trên máy tính."
+"緑色のボタンを押して充電を開始し、キーボードを取り出して戻し、テストホストの"
+"スペースキーを押してください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid ""
 "Press the green button again to stop charging, and press the space key on "
 "the test host."
-msgstr "Nhấn nút màu xanh lá cây để ngừng sạc, sau đó nhấn nút space"
+msgstr ""
+"緑色のボタンをもう一度押して充電を停止し、テストホストのスペースキーを押して"
+"ください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Read firmware revision string."
-msgstr "Đọc phiên bản phần mềm bàn phím"
+msgstr "ファームウェアのリビジョン文字列を読み取ります。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Check if the battery has charged to a higher percentage"
-msgstr "Kiểm tra xem phí có tăng sau khi sạc không"
+msgstr ""
+"バッテリーがより高いパーセンテージまで充電されているかどうかを確認します"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Read battery level for the 1st time."
-msgstr "Đọc pin lần đầu tiên"
+msgstr "バッテリーレベルを初めて読み取ります。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Read battery level for the 2nd time."
-msgstr "Đọc pin lần thứ hai"
+msgstr "バッテリーレベルを2回目に読み取ります。"
 
 #: ../py/test/pytests/bluetooth.py
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Detect bluetooth adapter"
-msgstr "Phát hiện bộ điều hợp Bluetooth"
+msgstr "Bluetoothアダプターを検出します"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Unpairing"
-msgstr "Hủy ghép nối"
+msgstr "ペアリング解除中"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Scanning..."
-msgstr "Đang quét ..."
+msgstr "スキャン中..."
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Press shift-p-a-i-r simultaneously on the base."
-msgstr "shift-p-a-i-rTrong khi giữ phím shift-p-a-i-r trên bàn phím thử nghiệm"
+msgstr "ベースのshift-p-a-i-rを同時に押してください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Detect RSSI (count {count}/{total})"
-msgstr "Phát hiện RSSI (số {count}/{total} lần)"
+msgstr "RSSIを検出します（カウント {count}/{total}）"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Enter passkey {key} then press enter on the base."
-msgstr "Nhấn phím {key} và nhấn Enter"
+msgstr "パスキー {key} を入力し、ベースのEnterキーを押してください。"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Authentication failed, retrying..."
-msgstr "Xác minh không thành công, thử lại"
+msgstr "認証に失敗しました。再試行しています..."
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Pairing to input device now..."
-msgstr "Ghép nối với thiết bị đầu vào Bluetooth..."
+msgstr "入力デバイスとペアリングしています..."
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Connecting to input device now..."
-msgstr "Kết nối với thiết bị đầu vào Bluetoot..."
+msgstr "入力デバイスに接続しています..."
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Please test input. Press Escape to fail and Enter to pass"
 msgstr ""
-"Vui lòng kiểm tra đầu vào.Nếu không thành công, nhấn phím Esc, nếu thành "
-"công, nhấn phím Enter."
+"入力をテストしてください。失敗するにはEscapeキーを、合格するにはEnterキーを押"
+"してください"
 
 #: ../py/test/pytests/branded_chassis.py
 msgid "Verify branded chassis"
-msgstr "Xác minh khung xe có thương hiệu"
+msgstr "ブランド付きシャーシの確認"
 
 #: ../py/test/pytests/branded_chassis.py
 msgid ""
 "Please verify if the chassis has ChromeBook Plus label on it.If Yes, press "
 "\"Y\". If not, press \"N\""
 msgstr ""
-"Vui lòng xác minh xem khung xe có nhãn ChromeBook Plus hay không. Nếu có, "
-"hãy nhấn \"Y\". Nếu không, nhấn \"N\""
+"シャーシにChromeBook Plusラベルが付いているかどうかを確認してください。はいの"
+"場合は「Y」を、いいえの場合は「N」を押してください"
 
 #: ../py/test/pytests/branded_chassis.py
 msgid "The DUT is a branded chassis"
-msgstr "DUT là một khung gầm có thương hiệu"
+msgstr "DUTはブランド付きシャーシです"
 
 #: ../py/test/pytests/branded_chassis.py
 msgid "The DUT is NOT branded chassis"
-msgstr "DUT KHÔNG phải là khung có thương hiệu"
+msgstr "DUTはブランド付きシャーシではありません"
 
 #: ../py/test/pytests/branded_chassis.py
 msgid "Data is inconsistent, please double check!"
-msgstr "Dữ liệu không nhất quán, vui lòng kiểm tra lại!"
+msgstr "データに矛盾があります。再確認してください。"
 
 #: ../py/test/pytests/brightness/lcd_backlight.py
 msgid "Please check if backlight brightness is changing from dark to bright."
-msgstr "Vui lòng kiểm tra độ sáng của màn hình có tối không"
+msgstr ""
+"バックライトの明るさが暗から明に変化しているかどうかを確認してください。"
 
 #: ../py/test/pytests/button.py
 msgid "Press the {name} button"
-msgstr "Nhấn nút{name}"
+msgstr "{name}ボタンを押してください"
 
 #: ../py/test/pytests/button.py
 msgid "Press the {name} button ({count}/{total})"
-msgstr "Nhấn nút {name} ({count}/{total})"
+msgstr "{name}ボタンを押してください（{count}/{total}）"
 
 #: ../py/test/pytests/button.py
 msgid "Release the button"
-msgstr "Nhả nút"
+msgstr "ボタンを離してください"
 
 #: ../py/test/pytests/buzzer.py
 msgid "How many beeps do you hear? <br>Press space to start."
-msgstr ""
-"Bạn nghe thấy bao nhiêu tiếng ngáy? Nhấn nút trống để bắt đầu thử nghiệm"
+msgstr "ビープ音が何回聞こえますか？<br>スペースキーを押して開始します。"
 
 #: ../py/test/pytests/buzzer.py
 msgid ""
 "How many beeps do you hear? <br>Press the number you hear to pass the test."
 "<br>Press 'r' to play again."
 msgstr ""
-"Bạn nghe thấy bao nhiêu tiếng ngáy? <br>Vui lòng nhấn số để cho biết bạn "
-"nghe thấy một vài <br>tiếng  bíp và bấm 'r' để phát lại"
+"ビープ音が何回聞こえますか？<br>聞こえた回数を押すとテストに合格します。"
+"<br>「r」を押すともう一度再生します。"
 
 #: ../py/test/pytests/camera.py
 msgid "Press ENTER to pass or ESC to fail."
-msgstr ""
-"Nếu máy ảnh hoạt động bình thường, vui lòng nhấn ENTER.Nếu không bình "
-"thường, vui lòng nhấn ESC"
+msgstr "合格するにはEnterキー、不合格にするにはEscキーを押してください。"
 
 #: ../py/test/pytests/camera.py
 msgid "Running the camera until timeout."
-msgstr "Chạy máy ảnh cho đến khi hết thời gian chờ"
+msgstr "タイムアウトになるまでカメラを実行しています。"
 
 #: ../py/test/pytests/camera.py
 msgid "Running the camera until expected number of frames captured."
-msgstr "Chạy máy ảnh cho đến khi số lượng được đặt"
+msgstr "期待されるフレーム数がキャプチャされるまでカメラを実行しています。"
 
 #: ../py/test/pytests/camera.py
 msgid ""
 "Cover the field of view of the camera with a white paper. The red grids "
 "represent which region is too dark."
 msgstr ""
+"カメラの視野を白い紙で覆ってください。赤いグリッドは、どの領域が暗すぎるかを"
+"示しています。"
 
 #: ../py/test/pytests/camera.py
 msgid "Scanning QR code..."
-msgstr "Phát hiện mã QR ..."
+msgstr "QRコードをスキャンしています..."
 
 #: ../py/test/pytests/camera.py
 msgid ""
 "Place QR code in the frame and cover the field of view of the camera with a "
 "white paper. The red grids represent which region is too dark."
 msgstr ""
+"QRコードをフレーム内に配置し、カメラの視野を白い紙で覆ってください。赤いグ"
+"リッドは、どの領域が暗すぎるかを示しています。"
 
 #: ../py/test/pytests/camera.py
 msgid "Detecting faces..."
-msgstr "Phát hiện khuôn mặt ..."
+msgstr "顔を検出しています..."
 
 #: ../py/test/pytests/camera.py
 msgid "Checking brightness..."
-msgstr "Kiểm tra độ sáng ... "
+msgstr "明るさを確認しています..."
 
 #: ../py/test/pytests/camera.py
 msgid ""
 "Press 0 if LED is constantly lit, 1 if LED is flickering,\n"
 "or ESC to fail."
 msgstr ""
-"LED đã được thắp sáng, nhấn 0, nhấp nháy bấm 1, nhấn ESC trước khi bình minh"
+"LEDが常に点灯している場合は0を、LEDが点滅している場合は1を、\n"
+"不合格にする場合はEscキーを押してください。"
 
 #: ../py/test/pytests/camera.py
 msgid "Scanned QR code: \"{text}\""
-msgstr "Đã phát hiện mã QR:  \"{text}\""
+msgstr "スキャンされたQRコード: \"{text}\""
 
 #: ../py/test/pytests/camera.py ../py/test/pytests/compass_static/compass.html
 #: ../py/test/pytests/tablet_mode.py
 #: ../py/test/pytests/tablet_rotation_static/tablet_rotation.html
 msgid "Success!"
-msgstr "Thành công"
+msgstr "成功！"
 
 #: ../py/test/pytests/camera.py ../py/test/pytests/tablet_mode.py
 msgid "Failure"
-msgstr "Thất bại"
+msgstr "失敗"
 
 #: ../py/test/pytests/camera.py
 msgid ""
 "Camera assemble: {camera_well_assembled}, QR code: {qr_code_scan_success}"
 msgstr ""
+"カメラの組み立て: {camera_well_assembled}、QRコード: {qr_code_scan_success}"
 
 #: ../py/test/pytests/camera_static/camera.js
 msgid ""
 "Muted frame count: {count}\n"
 "Total frame count: {total}"
 msgstr ""
+"ミュートされたフレーム数: {count}\n"
+"合計フレーム数: {total}"
 
 #: ../py/test/pytests/cellular_switch_firmware.py
 msgid "Switching firmware to {target!r}"
-msgstr "máy cưa số lần đổi cắt đến {target!r}"
+msgstr "ファームウェアを{target!r}に切り替えています"
 
 #: ../py/test/pytests/charger.py
 msgid "Discharging"
-msgstr "Xả"
+msgstr "放電中"
 
 #: ../py/test/pytests/charger.py
 msgid "Charging"
-msgstr "Sạc"
+msgstr "充電中"
 
 #: ../py/test/pytests/charger.py
 msgid ""
 "{action} to {target} (Current charge: {charge}, battery current: "
 "{battery_current} mA) under load {load}."
 msgstr ""
-"{load}.{action} đến {target} (khoản phí hiện tại là {charge}, tải "
-"{battery_current} mA) hiệntại {load}."
+"{action}から{target}へ（現在の充電量: {charge}、バッテリー電流: "
+"{battery_current} mA）負荷{load}下。"
 
 #: ../py/test/pytests/charger.py
 msgid "Time remaining: {timeout:.0f} sec."
-msgstr "Thời gian còn lại: {timeout: .0f} giây.."
+msgstr "残り時間: {timeout:.0f}秒"
 
 #: ../py/test/pytests/charger.py
 msgid "Testing discharge"
-msgstr "Kiểm tra xả"
+msgstr "放電テスト"
 
 #: ../py/test/pytests/charger.py
 msgid "Testing charger"
-msgstr "Thử sạc"
+msgstr "充電器テスト"
 
 #: ../py/test/pytests/charger.py
 msgid "OK! Meet {target}"
-msgstr "OK! Đã đạt đến {target}"
+msgstr "OK！{target}を満たしています"
 
 #: ../py/test/pytests/check_image_version.py
 msgid "Please connect to ethernet."
-msgstr "Vui lòng kết nối với Ethernet."
+msgstr "イーサネットに接続してください。"
 
 #: ../py/test/pytests/check_image_version.py
 msgid "{reason}. Press space to reinstall."
-msgstr "{reason}. Vui lòng nhấn nút trống để cài đặt lại."
+msgstr "{reason}。スペースキーを押して再インストールします。"
 
 #: ../py/test/pytests/check_image_version.py
 msgid "Flashing {component}..."
-msgstr ".Đốt  {component}..."
+msgstr "{component}をフラッシュしています..."
 
 #: ../py/test/pytests/check_image_version.py
 msgid "Updating {component}...."
-msgstr "Đang cập nhật {component} ..."
+msgstr "{component}を更新しています...."
 
 #: ../py/test/pytests/check_retimer_firmware.py
 msgid "Checking the retimer firmware version..."
-msgstr ""
+msgstr "リタイマーのファームウェアバージョンを確認しています..."
 
 #: ../py/test/pytests/check_retimer_firmware.py
 msgid "Please remove USB type-C cable from port {port}"
-msgstr ""
+msgstr "ポート{port}からUSB type-Cケーブルを取り外してください"
 
 #: ../py/test/pytests/check_retimer_firmware.py
 msgid "Enumerating Retimer..."
-msgstr ""
+msgstr "リタイマーを列挙しています..."
 
 #: ../py/test/pytests/check_serial_number.py
 msgid "Checking Device State"
-msgstr ""
+msgstr "デバイスの状態を確認しています"
 
 #: ../py/test/pytests/compass.py
 msgid "north"
-msgstr "bắc"
+msgstr "北"
 
 #: ../py/test/pytests/compass.py
 msgid "south"
-msgstr "nam"
+msgstr "南"
 
 #: ../py/test/pytests/compass.py
 msgid "Put the DUT towards {direction}"
-msgstr "Hướng máy về phía{direction}"
+msgstr "DUTを{direction}に向けてください"
 
 #: ../py/test/pytests/countdown_static/countdown.html
 msgid "Remaining time:"
-msgstr "Thời gian còn lại:"
+msgstr "残り時間:"
 
 #: ../py/test/pytests/countdown_static/countdown.html
 msgid "Load:"
-msgstr "Tải hệ thống:"
+msgstr "負荷:"
 
 #: ../py/test/pytests/cr50_ap_ro_verification.py
 msgid "Please press POWER and (REFRESH*3) in {seconds} seconds."
-msgstr ""
+msgstr "{seconds}秒以内に電源ボタンと（更新* 3）を押してください。"
 
 #: ../py/test/pytests/display.py
 msgid "solid-gray-170"
-msgstr "màu xám 170"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-gray-127"
-msgstr "màu xám 127"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-gray-63"
-msgstr "màu xám 63"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-red"
-msgstr "màu hồng"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-green"
-msgstr "xanh lục"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-blue"
-msgstr "xanh lam"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-white"
-msgstr "màu trắng"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-gray"
-msgstr "xám"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "solid-black"
-msgstr "màu đen"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "grid"
-msgstr "Khung"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "rectangle"
-msgstr "Hình chữ nhật"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "gradient-red"
-msgstr "hồng nhạt"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "gradient-green"
-msgstr "xanh lục nhạt"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "gradient-blue"
-msgstr "Màu xanh lam nhạt"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "gradient-white"
-msgstr "trắng nhạt"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-complex"
-msgstr "Hình ảnh –phức tạp"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-black"
-msgstr "Hình ảnh - Đen"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-white"
-msgstr "Hình ảnh –trắng"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-crosstalk-black"
-msgstr "Hình ảnh - Hình vuông - Đen"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-crosstalk-white"
-msgstr "Hình ảnh - Hình vuông - Trắng"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-gray-63"
-msgstr "Hình ảnh - Màu xám 63"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-gray-127"
-msgstr "Hình ảnh - Xám 127"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-gray-170"
-msgstr "Hình ảnh - Xám 170"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-horizontal-rgbw"
-msgstr "hình ảnh- bình quân"
+msgstr ""
 
 #: ../py/test/pytests/display.py
 msgid "image-vertical-rgbw"
-msgstr "Hình ảnh - Dọc"
+msgstr ""
 
 #: ../py/test/pytests/display_images.py
 msgid "Display Test"
-msgstr "Kiểm tra hiển thị"
+msgstr "ディスプレイテスト"
 
 #: ../py/test/pytests/display_images.py
 msgid "({index}/{total}) Uploading images {name}"
-msgstr "({index}/{total}) Tải lên hình ảnh {name}"
+msgstr "({index}/{total}) 画像 {name} をアップロードしています"
 
 #: ../py/test/pytests/display_images.py
 msgid "All images uploaded."
-msgstr "Tất cả hình ảnh được tải lên"
+msgstr "すべての画像がアップロードされました。"
 
 #: ../py/test/pytests/display_images_static/display_images.html
 msgid "Press space to show each image on display."
-msgstr "Nhấn nút trống để phát hình ảnh trên màn hình"
+msgstr "スペースキーを押して、各画像をディスプレイに表示します。"
 
 #: ../py/test/pytests/display_images_static/display_images.html
 msgid "Press Enter to PASS after showing all images."
-msgstr ""
-"Sau khi tất cả các hình ảnh đã được phát, nhấn Enter để cho biết thành công"
+msgstr "すべての画像を表示した後、Enterキーを押して合格にします。"
 
 #: ../py/test/pytests/display_interactive/static/display_interactive.html
 msgid ""
 "Display Interactive Test;<br>After checking, test will automatically pass."
 msgstr ""
+"ディスプレイインタラクティブテスト;<br>確認後、テストは自動的に合格になりま"
+"す。"
 
 #: ../py/test/pytests/display_point_static/display_point.html
 msgid ""
 "Press Space to display;<br>After checking, Enter number of points to pass."
 msgstr ""
-"ấm phím  để hiển thị, sau khi kiểm tra, bấm số phím chính xác để chuyển."
+"スペースキーを押して表示します;<br>確認後、ポイント数を入力して合格にします。"
 
 #: ../py/test/pytests/display_static/display.html
 msgid "Press Space to display;<br>After checking, Enter to pass; Esc to fail."
 msgstr ""
-"Nhấn phím trống để hiển thị,;<br>检nhấn Enter sau khi kiểm tra để chuyển, "
-"nhấn Esc thất bại"
+"スペースキーを押して表示します;<br>確認後、Enterキーを押して合格、Escキーを押"
+"して不合格にします。"
 
 #: ../py/test/pytests/display_static/display.html
 msgid ""
 "Press Space to display;<br>After checking, Click the symptom if it is "
 "observed, Enter to pass."
 msgstr ""
+"スペースキーを押して表示します;<br>確認後、症状が観察された場合はクリックし、"
+"Enterキーを押して合格にします。"
 
 #: ../py/test/pytests/display_static/display.js
 msgid "Untested"
-msgstr "Không được kiểm tra"
+msgstr "未テスト"
 
 #: ../py/test/pytests/display_static/display.js
 msgid "Passed"
-msgstr "thông qua"
+msgstr "合格"
 
 #: ../py/test/pytests/display_static/display.js
 msgid "Failed"
-msgstr "Thất bại"
+msgstr "不合格"
 
 #: ../py/test/pytests/ethernet.py
 msgid ""
 "Please plug ethernet cable into built-in ethernet port<br>Press space to "
 "start."
 msgstr ""
-"Vui lòng chèn tuyến mạng vào mạng tích hợp và nhấn nút trống để bắt đầu kiểm "
-"tra"
+"イーサネットケーブルを内蔵イーサネットポートに接続してください<br>スペース"
+"キーを押して開始します。"
 
 #: ../py/test/pytests/exec_shell.py
 msgid "Running shell commands..."
-msgstr "Thực hiện các hướng dẫn hệ thống ..."
+msgstr "シェルコマンドを実行しています..."
 
 #: ../py/test/pytests/external_display.py
 msgid "{display_label} Audio"
-msgstr " Âm thanh {display_label}"
+msgstr "{display_label} オーディオ"
 
 #: ../py/test/pytests/external_display.py
 msgid "Connect external display and wait until it becomes primary."
-msgstr ""
-"Vui lòng kết nối màn hình ngoài và đợi cho nó trở thành màn hình chính."
+msgstr "外部ディスプレイを接続し、プライマリになるまで待ちます。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Please connect to one external display only."
-msgstr ""
+msgstr "外部ディスプレイには1つだけ接続してください。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Do you see video on {display}?"
-msgstr "Màn hình bên ngoài {display} Có ảnh không?"
+msgstr "{display}にビデオが表示されていますか？"
 
 #: ../py/test/pytests/external_display.py
 msgid "Press {key} to pass the test."
-msgstr "thông qua vui lòng nhấn phím <span id=pass_key>{key}</span> "
+msgstr "テストに合格するには{key}を押してください。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Fixture is checking if video is displayed on {display}?"
-msgstr "Lịch thi đấu đang kiểm tra màn hình ngoài {display} Có ảnh không?"
+msgstr ""
+"フィクスチャが{display}にビデオが表示されているかどうかを確認しています。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Connect external display: {display} and wait until it becomes primary."
 msgstr ""
-"Vui lòng kết nối màn hình ngoài: {display} và đợi cho nó trở thành màn hình "
-"chính."
+"外部ディスプレイを接続してください: {display}、プライマリになるまで待ちます。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Disconnect external display: {display}"
-msgstr "Tháo màn hình ngoài: {display}"
+msgstr "外部ディスプレイを切断してください: {display}"
 
 #: ../py/test/pytests/external_display.py
 #: ../py/test/pytests/removable_storage.py
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Wrong USB side, please flip over {media}."
-msgstr "Định hướng USB sai, vui lòng đảo ngược hướng của {media} ..."
+msgstr "間違ったUSB側です。{media}を裏返してください。"
 
 #: ../py/test/pytests/external_display.py
 msgid "Wrong MUX information: {messages}."
-msgstr ""
+msgstr "間違ったMUX情報: {messages}。"
 
 #: ../py/test/pytests/fan_speed.py
 msgid "{fan_spin_direction}: {observed_rpm} -> {target_rpm} RPM."
-msgstr "{fan_spin_direction}: {observed_rpm} -> {target_rpm} RPM."
+msgstr "{fan_spin_direction}: {observed_rpm} -> {target_rpm} RPM。"
 
 #: ../py/test/pytests/fan_speed.py
 msgid "Spin up fan"
-msgstr "Tăng tốc quạt"
+msgstr "ファンをスピンアップします"
 
 #: ../py/test/pytests/fan_speed.py
 msgid "Spin down fan"
-msgstr "Giảm tốc quạt"
+msgstr "ファンをスピンダウンします"
 
 #: ../py/test/pytests/fan_speed_static/fan_speed.html
 msgid "Fan speed (RPM):"
-msgstr "Tốc độ quạt(RPM):"
+msgstr "ファン速度（RPM）:"
 
 #: ../py/test/pytests/finalize.py
 msgid "Build Phase"
-msgstr "Giai đoạn sản xuất"
+msgstr "ビルドフェーズ"
 
 #: ../py/test/pytests/finalize.py
 msgid "Write Protection"
-msgstr "Viết bảo vệ"
+msgstr "書き込み保護"
 
 #: ../py/test/pytests/finalize.py
 msgid "Factory Server"
-msgstr "Máy chủ nhà máy"
+msgstr "ファクトリーサーバー"
 
 #: ../py/test/pytests/finalize.py
 msgid "Enabled"
-msgstr "Bật"
+msgstr "有効"
 
 #: ../py/test/pytests/finalize.py
 msgid "Disabled"
-msgstr "Hủy kích hoạt"
+msgstr "無効"
 
 #: ../py/test/pytests/finalize.py
 msgid "Running preflight tasks to prepare for finalization, please wait..."
-msgstr "Hệ thống đang được chuẩn bị để thực hiện thủ tục cuối cùng ..."
+msgstr ""
+"最終処理の準備のためのプレフライトタスクを実行しています。しばらくお待ちくだ"
+"さい..."
 
 #: ../py/test/pytests/finalize.py
 msgid ""
 "Finalizing, please wait.<br>Do not restart the device or terminate this test,"
 "<br>or the device may become unusable."
 msgstr ""
-"Bắt đầu trình tự cuối cùng, vui lòng đợi.<br>Không khởi động lại máy hoặc "
-"ngừng thử nghiệm.<br>Nếu không, máy sẽ không khởi động"
+"最終処理中です。しばらくお待ちください。<br>デバイスを再起動したり、このテス"
+"トを終了したりしないでください。<br>そうしないと、デバイスが使用できなくなる"
+"可能性があります。"
 
 #: ../py/test/pytests/fingerprint_mcu.py
 msgid "Fingerprint Manual Test"
-msgstr ""
+msgstr "Fingerprintマニュアルテスト"
 
 #: ../py/test/pytests/fingerprint_mcu.py
 msgid "Touch fingerprint sensor"
-msgstr ""
+msgstr "指紋センサーに触れてください"
 
 #: ../py/test/pytests/fingerprint_mcu.py
 msgid "Fingerprint MQT Test"
-msgstr ""
+msgstr "Fingerprint MQTテスト"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""
 "Please put device on a horizontal plane then press space to start testing."
 msgstr ""
-"Đặt đối tượng cần thử nghiệm trên bề mặt nằm ngang và nhấn nút trắng để bắt "
-"đầu hiệu chuẩn"
+"デバイスを水平な面に置いてからスペースキーを押してテストを開始してください。"
 
 #: ../py/test/pytests/gyroscope.py ../py/test/pytests/gyroscope_calibration.py
 msgid "Please do not move the device."
-msgstr "Không di chuyển đối tượng đang thử."
+msgstr "デバイスを動かさないでください。"
 
 #: ../py/test/pytests/gyroscope.py
 msgid "Please rotate the device."
-msgstr "Vui lòng biến đối tượng cần kiểm tra"
+msgstr "デバイスを回転させてください。"
 
 #: ../py/test/pytests/gyroscope_calibration.py
 msgid ""
 "Please put device on a static plane then press space to start calibration."
 msgstr ""
-"Đặt đối tượng cần thử nghiệm trên bề mặt nằm ngang và nhấn nút trắng để bắt "
-"đầu hiệu chuẩn"
+"デバイスを静止した面に置いてからスペースキーを押してキャリブレーションを開始"
+"してください。"
 
 #: ../py/test/pytests/gyroscope_calibration.py
 msgid ""
 "Calibration will be started within {secs} seconds.Please do not move the "
 "device."
 msgstr ""
-"Chương trình thử nghiệm sẽ bắt đầu sau {secs} giây.Không di chuyển đối tượng "
-"đang được kiểm tra."
+"{secs}秒以内にキャリブレーションが開始されます。デバイスを動かさないでくださ"
+"い。"
 
 #: ../py/test/pytests/hwid.py
 msgid "Collecting DUT materials..."
-msgstr "Khám phá DUT..."
+msgstr "DUTの材料を収集しています..."
 
 #: ../py/test/pytests/hwid.py
 msgid "Generating HWID (v3)..."
-msgstr "Tạo HWID HWID (v3)..."
+msgstr "HWID（v3）を生成しています..."
 
 #: ../py/test/pytests/hwid.py
 msgid "Verifying HWID (v3): {encoded_string}..."
-msgstr "Đang xác minh HWID (v3): {encoded_string} ..."
+msgstr "HWID（v3）を検証しています: {encoded_string}..."
 
 #: ../py/test/pytests/hwid.py
 msgid "(unchanged)"
-msgstr "(không đổi)"
+msgstr "(変更なし)"
 
 #: ../py/test/pytests/hwid.py
 msgid "Setting HWID (v3): {encoded_string}..."
-msgstr "Ghi vào HWID (v3): {encoded_string}..."
+msgstr "HWID（v3）を設定しています: {encoded_string}..."
 
 #: ../py/test/pytests/keyboard_backlight.py
 msgid "If the keyboard backlight lights up, press ENTER. "
-msgstr "Kiểm tra xem đèn nền bàn phím có sáng không, nhấn ENTER"
+msgstr ""
+"キーボードのバックライトが点灯している場合は、Enterキーを押してください。"
 
 #: ../py/test/pytests/keyboard_backlight.py
 msgid "If the keyboard backlight is off, press ENTER. "
-msgstr "Kiểm tra xem đèn nền bàn phím có tắt hay  không Nhấn ENTER."
+msgstr ""
+"キーボードのバックライトが消灯している場合は、Enterキーを押してください。"
 
 #: ../py/test/pytests/keyboard_smt_static/keyboard_smt.html
 msgid "Expected keycode sequence:"
-msgstr "Trình tự khóa đích:"
+msgstr "予想されるキーコードシーケンス:"
 
 #: ../py/test/pytests/keyboard_static/keyboard.html
 msgid "Press keys sequentially from top-left to bottom-right."
-msgstr "Nhấn nút từ trên trái sang phải dưới cùng"
+msgstr "左上から右下に向かって順番にキーを押してください。"
 
 #: ../py/test/pytests/keyboard_static/keyboard.html
 msgid "Press main keyboards first before pressing the number pad keys."
-msgstr "Nhấn các bàn phím chính trước khi nhấn các phím trên bàn phím số"
+msgstr "数字キーを押す前に、まずメインキーボードを押してください。"
 
 #: ../py/test/pytests/keyboard_static/keyboard.html
 msgid "Press one key at a time."
-msgstr "Mỗi lần chỉ được ấn nút một lần"
+msgstr "1回に1つのキーを押してください。"
 
 #: ../py/test/pytests/led.py
 msgid "yellow"
-msgstr "màu vàng"
+msgstr ""
 
 #: ../py/test/pytests/led.py ../py/test/pytests/lightbar.py
 msgid "green"
-msgstr "xanh lục"
+msgstr ""
 
 #: ../py/test/pytests/led.py ../py/test/pytests/lightbar.py
 msgid "red"
-msgstr "màu hồng"
+msgstr ""
 
 #: ../py/test/pytests/led.py ../py/test/pytests/lightbar.py
 msgid "white"
-msgstr "màu trắng"
+msgstr ""
 
 #: ../py/test/pytests/led.py ../py/test/pytests/lightbar.py
 msgid "blue"
-msgstr "màu xanh"
+msgstr ""
 
 #: ../py/test/pytests/led.py
 msgid "amber"
-msgstr "Amber"
+msgstr ""
 
 #: ../py/test/pytests/led.py
 msgid "off"
-msgstr "đóng"
+msgstr ""
 
 #: ../py/test/pytests/led.py
 msgid "power LED"
-msgstr "nguồn điện LED"
+msgstr "電源LED"
 
 #: ../py/test/pytests/led.py
 msgid "battery LED"
-msgstr "nguồn điện LED"
+msgstr "バッテリーLED"
 
 #: ../py/test/pytests/led.py
 msgid "adapter LED"
-msgstr "LEDĐèn LED bộ nguồn"
+msgstr "アダプターLED"
 
 #: ../py/test/pytests/led.py
 msgid "left LED"
-msgstr ""
+msgstr "左LED"
 
 #: ../py/test/pytests/led.py
 msgid "right LED"
-msgstr "Độ sáng LED"
+msgstr "右LED"
 
 #: ../py/test/pytests/led.py
 msgid "recovery hwreinit LED"
-msgstr ""
+msgstr "リカバリhwreinit LED"
 
 #: ../py/test/pytests/led.py
 msgid "sysrq debug LED"
-msgstr ""
+msgstr "sysrqデバッグLED"
 
 #: ../py/test/pytests/led.py
 msgid "If the <strong>{name}</strong> is <strong>off</strong>, press ENTER."
 msgstr ""
-"Vui lòng kiểm tra xem <strong>{name}</strong> có bị tắt hay không "
-"<strong>nhấn</strong> nhấn ENTER。"
+"<strong>{name}</strong> が <strong>消灯</strong> している場合は、Enterキーを"
+"押してください。"
 
 #: ../py/test/pytests/led.py
 msgid ""
 "If the <strong>{name}</strong> lights up in <strong>{color}</strong>, press "
 "ENTER."
 msgstr ""
-"Vui lòng kiểm tra xem <strong>{name}</strong> có được sáng <strong>{color}</"
-"strong> không, vui lòng nhấn ENTER。"
+"<strong>{name}</strong> が <strong>{color}</strong> に点灯したら、Enterキーを"
+"押してください。"
 
 #: ../py/test/pytests/led.py
 msgid "Test {test_id}"
-msgstr "Kiểm tra {test_id}"
+msgstr "テスト {test_id}"
 
 #: ../py/test/pytests/led.py
 msgid "Please press number key according to the <strong>{name}</strong> color"
-msgstr "Nhấn phím số theo màu của <strong>{name}</strong> "
+msgstr "<strong>{name}</strong> の色に応じて数字キーを押してください"
 
 #: ../py/test/pytests/led.py
 msgid "Result: "
-msgstr "Kết quả kiểm tra:"
+msgstr "結果: "
 
 #: ../py/test/pytests/led.py
 msgid ""
 "Plug power into ports: {plug_ports}<br>Unplug power from ports: "
 "{unplug_ports}<br>Current power status: {status}"
 msgstr ""
+"電源を接続するポート: {plug_ports}<br>電源を取り外すポート: {unplug_ports}"
+"<br>現在の電源状態: {status}"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Demagnetizing lid sensor"
-msgstr "Cảm biến cảm biến"
+msgstr "蓋センサーの消磁"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Open the lid"
-msgstr "Vui lòng mở nắp trên"
+msgstr "蓋を開ける"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Magnetizing lid sensor"
-msgstr "Cảm biến nắp trên từ hóa"
+msgstr "蓋センサーの着磁"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Close then open the lid"
-msgstr "Đóng và sau đó mở nắp trên"
+msgstr "蓋を閉じてから開ける"
 
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Cover light sensor with finger"
-msgstr "Bao gồm cảm biến ánh sáng"
+msgstr "指で光センサーを覆う"
 
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Remove finger from light sensor"
-msgstr "Xóa bóng"
+msgstr "指を光センサーから離す"
 
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Shine light sensor with flashlight"
-msgstr "Chiếu sáng cảm biến ánh sáng với ánh sáng mạnh"
+msgstr "懐中電灯で光センサーを照らす"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "ALS Sensor Calibration"
-msgstr "Hiệu chỉnh cảm biến ánh sáng"
+msgstr "ALSセンサーのキャリブレーション"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Cleaning up calibration values"
-msgstr "Xóa giá trị hiệu chỉnh"
+msgstr "キャリブレーション値のクリーンアップ"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Sampling {name}"
-msgstr "Đọc {name}"
+msgstr "{name} をサンプリングしています"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Checking ALS ordering"
-msgstr "Xác nhận trình tự  ALS"
+msgstr "ALSの順序を確認しています"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Calculating calibration coefficients"
-msgstr "Tính toán các thông số hiệu chuẩn"
+msgstr "キャリブレーション係数を計算しています"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Saving calibration coefficients to VPD"
-msgstr "Viết các tham số hiệu chuẩn vào VPD"
+msgstr "キャリブレーション係数をVPDに保存しています"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Validating ALS"
-msgstr "Xác minh ALS"
+msgstr "ALSを検証しています"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Fixture Connected"
-msgstr "Lịch thi đấu đã được kết nối"
+msgstr "フィクスチャが接続されました"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Fixture Disconnected"
-msgstr "Ngắt kết nối cố định"
+msgstr "フィクスチャが取り外されました"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Switching to lighting {name}"
-msgstr "Chuyển sang {name}"
+msgstr "照明を {name} に切り替えています"
 
 #: ../py/test/pytests/light_sensor_static/light_sensor.html
 msgid "Use indicated light source to pass each subtest."
-msgstr "Vui lòng chuyển từng subtest theo chỉ dẫn"
+msgstr "指示された光源を使用して、各サブテストに合格してください。"
 
 #: ../py/test/pytests/light_sensor_static/light_sensor.html
 msgid "Hit \"space\" to begin..."
-msgstr "Nhấn phím trống để bắt đầu kiểm tra..."
+msgstr "スペースキーを押して開始..."
 
 #: ../py/test/pytests/lightbar.py
 msgid "dark"
-msgstr "toàn âm"
+msgstr "暗い"
 
 #: ../py/test/pytests/lightbar.py
 msgid "Is the lightbar {color}?<br>Press SPACE if yes, \"F\" if no."
 msgstr ""
-"Thanh ánh sáng có phải là {color} không?<br>Có, vui lòng nhấn  phím trống, "
-"không nhấn F 。"
+"ライトバーは {color} ですか？<br>はいの場合はスペースキーを、いいえの場合は"
+"「F」を押してください。"
 
 #: ../py/test/pytests/memory_size.py
 msgid "Checking memory info..."
-msgstr "Kiểm tra dung lượng bộ nhớ..."
+msgstr "メモリ情報をチェックしています..."
 
 #: ../py/test/pytests/message.py
 msgid ""
 "<div>Press <strong>Enter</strong> to continue, or <strong>ESC</strong> if "
 "things are not going right.</div>"
 msgstr ""
-"<div>Nhấn<strong>Enter</strong>để tiếp tục, nếu không, nhấn <strong>ESC</"
-"strong></div>"
+"<div>続行するには <strong>Enter</strong> を押してください。問題が発生した場合"
+"は <strong>ESC</strong> を押してください。</div>"
 
 #: ../py/test/pytests/message.py
 msgid "<div>Press <strong>Enter</strong> to continue.</div>"
-msgstr "<div>Nhấn<strong>Enter</strong>để tiếp tục</div>"
+msgstr "<div>続行するには <strong>Enter</strong> を押してください。</div>"
 
 #: ../py/test/pytests/model_sku.py
 msgid "Please confirm following values"
-msgstr "Vui lòng xác nhận các kết quả sau"
+msgstr "以下の値を確認してください"
 
 #: ../py/test/pytests/network_setup/network_setup.py
 msgid "Interface {interface} not found"
-msgstr "Không tìm thấy giao diện mạng {interface}"
+msgstr "インターフェース {interface} が見つかりません"
 
 #: ../py/test/pytests/network_setup/network_setup.py
 msgid "Interface {interface} not initialized"
-msgstr "Giao diện mạng {interface} không được khởi tạo thành công"
+msgstr "インターフェース {interface} が初期化されていません"
 
 #: ../py/test/pytests/network_setup/network_setup.py
 msgid "Unknown Error on {interface}"
-msgstr "Giao diện mạng {interface} có lỗi không xác định"
+msgstr "{interface} で不明なエラーが発生しました"
 
 #: ../py/test/pytests/network_setup/network_setup.py
 msgid "Setting up interface {interface}"
-msgstr "Thiết lập giao diện web {interface}"
+msgstr "インターフェース {interface} を設定しています"
 
 #: ../py/test/pytests/network_setup/network_setup.py
 msgid "Press space to continue"
-msgstr "Vui lòng bấm phím trống để tiếp tục"
+msgstr "スペースキーを押して続行"
 
 #: ../py/test/pytests/plankton_cc2_pull_test.py
 msgid "Please remove USB type-C cable in {secs:.1f} seconds"
-msgstr "Vui lòng tháo cáp USB loại C trong vòng {secs:.1f} giây"
+msgstr "{secs:.1f} 秒以内にUSB type-Cケーブルを取り外してください"
 
 #: ../py/test/pytests/plankton_cc2_pull_test.py
 msgid "USB type-C port is disconnected in {secs:.1f} seconds"
-msgstr "Cổng USB loại C mất kết nối {secs: .1f} giây"
+msgstr "{secs:.1f} 秒以内にUSB type-Cポートが取り外されます"
 
 #: ../py/test/pytests/plankton_cc2_pull_test.py
 msgid "Please attach USB type-C cable in {secs:.1f} seconds"
-msgstr "Vui lòng kết nối cáp USB loại C trong vòng {secs:.1f} giây"
+msgstr "{secs:.1f} 秒以内にUSB type-Cケーブルを接続してください"
 
 #: ../py/test/pytests/plankton_cc_flip_check.py
 msgid "Wait DUT to reconnect"
-msgstr "Chờ cho DUT kết nối lại"
+msgstr "DUTが再接続されるまで待機"
 
 #: ../py/test/pytests/plankton_cc_flip_check.py
 msgid "Flip USB type-C cable and plug in again..."
-msgstr "Đảo ngược đầu cắm USB loại C và cắmlại vào máy..."
+msgstr "USB type-Cケーブルを裏返して再度挿入してください..."
 
 #: ../py/test/pytests/plankton_cc_flip_check.py
 msgid "And press Enter key to continue..."
-msgstr "Nhấn Enter để tiếp tục..."
+msgstr "そしてEnterキーを押して続行してください..."
 
 #: ../py/test/pytests/plankton_charge.py
 msgid "Waiting for ADB device connection..."
-msgstr "Đang đợi máy kết nối ..."
+msgstr "ADBデバイスの接続を待機しています..."
 
 #: ../py/test/pytests/plankton_charge.py
 msgid "Checking Plankton INA current for protection..."
-msgstr "Kiểm tra bảo vệ hiện tại..."
+msgstr "保護のためのPlankton INA電流をチェックしています..."
 
 #: ../py/test/pytests/plankton_charge.py
 msgid "Testing battery {voltage}V charging..."
-msgstr "Kiểm tra pin {voltage} V sạc ..."
+msgstr "バッテリー{voltage}Vの充電テストを実行しています..."
 
 #: ../py/test/pytests/plankton_charge.py
 msgid "Testing battery discharging..."
-msgstr "Kiểm tra xả pin ..."
+msgstr "バッテリーの放電テストを実行しています..."
 
 #: ../py/test/pytests/plankton_display.py
 msgid "Connecting BFT display: {device}"
-msgstr "Kết nối với màn hình BFT: {device}"
+msgstr "接続中: BFTディスプレイ: {device}"
 
 #: ../py/test/pytests/plankton_display.py
 msgid "Disconnecting BFT display: {device}"
-msgstr "Loại bỏ màn hình BFT: {device}"
+msgstr "切断中: BFTディスプレイ: {device}"
 
 #: ../py/test/pytests/plankton_display.py
 msgid "BFT display {device} is connected. Sending image..."
-msgstr "Màn hình BFT được kết nối: {device}, màn hình truyền"
+msgstr "BFTディスプレイ {device} が接続されました。画像を送信しています..."
 
 #: ../py/test/pytests/plankton_display_static/plankton_display.html
 msgid "Caution: monitor may turn black for a short time."
-msgstr "Lưu ý: Màn hình có thể có màn hình đen ngắn."
+msgstr "注意: モニターが一時的に黒くなる場合があります。"
 
 #: ../py/test/pytests/privacy_screen.py
 msgid "Running diagnostics privacy screen routine..."
-msgstr ""
+msgstr "診断プライバシースクリーンルーチンを実行しています..."
 
 #: ../py/test/pytests/privacy_screen.py
 msgid ""
 "Diagnostics privacy screen routine failed. Expected state: {expected_state}, "
 "current state: {current_state}"
 msgstr ""
+"診断プライバシースクリーンルーチンに失敗しました。期待される状態: "
+"{expected_state}、現在の状態: {current_state}"
 
 #: ../py/test/pytests/privacy_screen.py
 msgid "Privacy screen state \"{state}\" verified."
-msgstr ""
+msgstr "プライバシースクリーンの状態「{state}」が確認されました。"
 
 #: ../py/test/pytests/probe_sim.py
 msgid "Please insert the SIM card"
-msgstr "Vui lòng lắp thẻ SIM"
+msgstr "SIMカードを挿入してください"
 
 #: ../py/test/pytests/probe_sim.py
 msgid "Detected! Please remove the SIM card"
-msgstr "Thẻ SIM đã được phát hiện, vui lòng tháo thẻ SIM"
+msgstr "検出されました！SIMカードを取り外してください"
 
 #: ../py/test/pytests/probe_sim.py
 msgid "Checking SIM card is present or not..."
-msgstr "Kiểm tra xem thẻ SIM có tồn tại không"
+msgstr "SIMカードが存在するかどうかを確認しています..."
 
 #: ../py/test/pytests/probe_sim_card_tray.py
 msgid "Please insert the SIM card tray"
-msgstr "Vui lòng lắp ngăn chứa thẻ SIM"
+msgstr "SIMカードトレイを挿入してください"
 
 #: ../py/test/pytests/probe_sim_card_tray.py
 msgid "Detected! Please remove the SIM card tray"
-msgstr "Hộp mực SIM đã được phát hiện Vui lòng tháo hộp đựng thẻ SIM"
+msgstr "検出されました！SIMカードトレイを取り外してください"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Please cover the sensor by hand"
-msgstr ""
+msgstr "センサーを手で覆ってください"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Please un-cover the sensor"
-msgstr ""
+msgstr "センサーを覆いを取り除いてください"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Setting the sensor"
-msgstr ""
+msgstr "センサーを設定しています"
 
 #: ../py/test/pytests/read_device_data_from_vpd.py
 msgid "Reading device data from {vpd_section} VPD..."
-msgstr "Đọc dữ liệu máy từ VPD {vpd_section} ..."
+msgstr "{vpd_section} VPDからデバイスデータを読み取っています..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Testing {device}..."
-msgstr "{device} Đang kiểm tra ..."
+msgstr "{device} をテストしています..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Performing r/w test on {count} {bsize}-byte random blocks..."
-msgstr "Thực thi {count}  {bsize} khối byte liên tục đọc và viết thử nghiệm..."
+msgstr ""
+"{count}個の{bsize}バイトのランダムブロックに対するr/wテストを実行していま"
+"す..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Performing sequential r/w test of {bsize} bytes..."
-msgstr "Thực thi {bsize} khối byte liên tục đọc và viết thử nghiệm..."
+msgstr "{bsize}バイトのシーケンシャルr/wテストを実行しています..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid ""
 "Insert {media} drive for read/write test... {extra}<br>WARNING: DATA ON "
 "INSERTED MEDIA WILL BE LOST!"
 msgstr ""
-"Chèn {media} bộ nhớ cho các bài kiểm tra đọc và viết... {extra}<br>ưu ý: Dữ "
-"liệu được chèn vào thiết bị sẽ bị xóa!!"
+"読み書きテスト用に{media}ドライブを挿入してください... {extra}<br>警告: 挿入"
+"されたメディアのデータは失われます！"
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Remove {media} drive..."
-msgstr " Trích xuất {media} lưu trữ ..."
+msgstr "{media}ドライブを取り外してください..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Toggle lock switch and insert {media} drive again..."
-msgstr "Chuyển khóa bảo vệ ghi và chèn lại {media} lần nữa ..."
+msgstr "ロックスイッチを切り替えて、再度{media}ドライブを挿入してください..."
 
 #: ../py/test/pytests/removable_storage.py
 msgid "Remove {media} drive and toggle lock switch..."
-msgstr "Giải nén {media} lưu trữ và tắt công tắc chống ghi ..."
+msgstr "{media}ドライブを取り外して、ロックスイッチを切り替えてください..."
 
 #: ../py/test/pytests/rf_graphyte/rf_graphyte.py
 msgid "Executing Graphyte"
-msgstr "Thi hành Graphyte"
+msgstr "Graphyteを実行しています"
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Initializing Robot..."
-msgstr "Khởi tạo cánh tay robot..."
+msgstr "ロボットを初期化しています..."
 
 #: ../py/test/pytests/robot_movement.py
 msgid ""
 "Please load DUT onto the robot, connect all cables, and press <b>SPACE</b> "
 "to continue."
 msgstr ""
-"Đặt DUT trên cánh tay robot và kết nối đường dây và nhấn nút trống để bắt đầu"
+"DUTをロボットにロードし、すべてのケーブルを接続し、続行するには<b>SPACE</b>を"
+"押してください。"
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Prepare for movement."
-msgstr "Sẵn sàng bắt đầu di chuyển."
+msgstr "移動の準備をしています。"
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Moving to start position..."
-msgstr "Di chuyển đến vị trí bắt đầu."
+msgstr "開始位置に移動しています..."
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Moving to LOAD / UNLOAD position..."
-msgstr "Di chuyển đến vị trí gỡ cài đặt"
+msgstr "LOAD / UNLOAD位置に移動しています..."
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Computing..."
-msgstr "Sửa chữa..."
+msgstr "計算中..."
 
 #: ../py/test/pytests/robot_movement.py
 msgid "Pushing the result..."
-msgstr ".Lưu kết quả..."
+msgstr "結果をプッシュしています..."
 
 #: ../py/test/pytests/scan.py
 msgid "The scanned value is empty."
-msgstr "Số quét là trống."
+msgstr "スキャンされた値が空です。"
 
 #: ../py/test/pytests/scan.py
 msgid "The scanned value \"{value}\" does not match the expected format."
-msgstr "Số quét「{value}」không đúng định dạng."
+msgstr "スキャンされた値「{value}」が期待される形式と一致しません。"
 
 #: ../py/test/pytests/scan.py
 msgid ""
 "The scanned value \"{value}\" does not match the expected value <span "
 "class=test-engineering-mode-only>\"{expected_value}\"</span>."
 msgstr ""
-"Số được quét「{value}」không khớp với số được mong đợi <span class=test-"
+"スキャンされた値「{value}」が期待される値と一致しません<span class=test-"
 "engineering-mode-only>「{expected_value}」</span>。"
 
 #: ../py/test/pytests/scan.py
 msgid "Writing to VPD. Please wait..."
-msgstr "Viết cho VPD, vui lòng chờ ..."
+msgstr "VPDに書き込んでいます。しばらくお待ちください..."
 
 #: ../py/test/pytests/scan.py
 msgid "Scan {label}"
-msgstr "Đang quét{label}"
+msgstr "{label}をスキャン"
 
 #: ../py/test/pytests/scan.py
 msgid "Please scan the {label} and press ENTER."
-msgstr "Vui lòng quét{label}và nhấn ENTER.。"
+msgstr "{label}をスキャンしてEnterキーを押してください。"
 
 #: ../py/test/pytests/scan.py
 msgid "<p>original value from {source}: {value}</p>"
-msgstr ""
+msgstr "<p>{source}からの元の値: {value}</p>"
 
 #: ../py/test/pytests/shopfloor_service.py
 #: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Retry"
-msgstr "Thử lại"
+msgstr "再試行"
 
 #: ../py/test/pytests/shopfloor_service.py
 #: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Shopfloor exception:"
-msgstr "Lỗi cửa hàng:"
+msgstr "製造現場の例外:"
 
 #: ../py/test/pytests/shopfloor_service.py
 #: ../py/test/pytests/shopfloor_service_unittest.py
 msgid "Invoking shopfloor service"
-msgstr "Thực hiện dịch vụ Shopfloor"
+msgstr "製造現場サービスを呼び出しています"
 
 #: ../py/test/pytests/shutdown.py
 msgid "reboot"
-msgstr "khởi động lại"
+msgstr "再起動"
 
 #: ../py/test/pytests/shutdown.py
 msgid "full reboot"
-msgstr "Khởi động lại sâu"
+msgstr "完全再起動"
 
 #: ../py/test/pytests/shutdown.py
 msgid "halt"
-msgstr "tắt máy"
+msgstr "停止"
 
 #: ../py/test/pytests/shutdown.py
 msgid "direct ec reboot"
-msgstr "EC Khởi động lại lạnh"
+msgstr "EC直接再起動"
 
 #: ../py/test/pytests/shutdown.py
 msgid "Shutdown Test ({operation})"
-msgstr "thử Tắt máy ({operation})"
+msgstr "シャットダウンテスト（{operation}）"
 
 #: ../py/test/pytests/shutdown.py
 msgid "Warming up the system for {delay} seconds."
-msgstr ""
+msgstr "{delay}秒間、システムをウォームアップしています。"
 
 #: ../py/test/pytests/shutdown.py
 msgid "Remote DUT is performing {operation}, timeout in {delay} seconds."
-msgstr "Đơn vị kiểm tra từ xa sẽ là {operation} trong vòng {delay} giây."
+msgstr ""
+"リモートDUTが{operation}を実行しています。タイムアウトは{delay}秒です。"
 
 #: ../py/test/pytests/shutdown.py
 msgid "Verifying system state after {operation}"
-msgstr "Xác minh trạng thái hệ thống sau {operation}"
+msgstr "{operation}後のシステム状態を確認しています"
 
 #: ../py/test/pytests/shutdown.py
 msgid "System is going to {operation} in {delay} seconds."
-msgstr "Hệ thống sẽ là {operation} sau {delay} giây.."
+msgstr "システムは{delay}秒後に{operation}します。"
 
 #: ../py/test/pytests/spatial_sensor_calibration.py
 msgid "Accelerometer"
-msgstr "Gia tốc kế"
+msgstr "加速度計"
 
 #: ../py/test/pytests/spatial_sensor_calibration.py
 msgid "Calibrating {sensor_name}..."
-msgstr "Hiệu chỉnh {sensor_name}..."
+msgstr "{sensor_name}を調整しています..."
 
 #: ../py/test/pytests/spatial_sensor_calibration.py
 msgid "Device not in position"
-msgstr "Vị trí thiết bị không chính xác"
+msgstr "デバイスが正しい位置にありません"
 
 #: ../py/test/pytests/spatial_sensor_calibration.py
 msgid "Please put the device in face-up position (press Enter to continue)"
-msgstr "Hãy đối mặt với thiết bị (nhấn Enter để tiếp tục)"
+msgstr ""
+"デバイスを画面を上にして置いてください（続けるにはEnterキーを押してください）"
 
 #: ../py/test/pytests/spatial_sensor_calibration.py ../py/test/pytests/vsync.py
 msgid "Waiting for device..."
-msgstr "Đang chờ thiết bị ..."
+msgstr "デバイスを待っています..."
 
 #: ../py/test/pytests/spatial_sensor_calibration.py
 msgid "Writing calibration data..."
-msgstr "Viết kết quả chỉnh sửa..."
+msgstr "調整データを書き込んでいます..."
 
 #: ../py/test/pytests/start.py
 msgid "Hit SPACE to start testing..."
-msgstr "Nhấn nút trống để bắt đầu kiểm tra..."
+msgstr "テストを開始するにはスペースキーを押してください..."
 
 #: ../py/test/pytests/start.py
 msgid "Hit {name} to start testing..."
-msgstr "Nhấn vào {name} để bắt đầu thử nghiệm..."
+msgstr "テストを開始するには{name}を押してください..."
 
 #: ../py/test/pytests/start.py
 msgid "Plug in external power to continue."
-msgstr "Vui lòng cắm nguồn cấp điện bên ngoài để tiếp tục"
+msgstr "続けるには外部電源を接続してください。"
 
 #: ../py/test/pytests/start.py
 msgid ""
@@ -2776,299 +2797,300 @@ msgid ""
 "<br><br>Please install the factory test image using factory server<br>rather "
 "than booting from a USB drive.<br>"
 msgstr ""
-"Thất bại trong quá trình cài đặt, dừng kiểm tra tự động<br><br>Vui lòng sử "
-"dụng máy chủ nhà máy đầy đủ để cài đặt chương trình thử nghiệm,<br>không "
-"khởi động trực tiếp từ đĩa USB.。<br>"
+"工場出荷時インストールプロセスが完了しませんでした。自動テストが停止しまし"
+"た。<br><br>USBドライブから起動するのではなく、工場サーバーを使用して工場出荷"
+"時テストイメージをインストールしてください。<br>"
 
 #: ../py/test/pytests/start.py
 msgid "Initialize some shared data..."
-msgstr "Đặt lại dữ liệu được chia sẻ cũ..."
+msgstr "共有データを初期化しています..."
 
 #: ../py/test/pytests/station_entry.py
 msgid "Start Station Test"
-msgstr "Bắt đầu thử nghiệm"
+msgstr "ステーションテストを開始"
 
 #: ../py/test/pytests/station_entry.py
 msgid "End Station Test"
-msgstr "Kết thúc bài kiểm tra"
+msgstr "ステーションテストを終了"
 
 #: ../py/test/pytests/station_entry.py
 msgid "Please attach DUT."
-msgstr "INSERT Vui lòng lắp thiết bị kiểm tra。"
+msgstr "DUTを接続してください。"
 
 #: ../py/test/pytests/station_entry.py
 msgid "Press SPACE to start the test."
-msgstr "Đề nghị ấnphím trống để thử mở"
+msgstr "テストを開始するにはスペースキーを押してください。"
 
 #: ../py/test/pytests/station_entry.py
 msgid "Sending test results to shopfloor..."
-msgstr "SENDING truyền kết quả kiểm tra đến máy chủ ..."
+msgstr "テスト結果を製造現場に送信しています..."
 
 #: ../py/test/pytests/station_entry.py
 msgid "Please remove DUT."
-msgstr "XÓA Hãy tháo bộ kiểm tra ra。"
+msgstr "DUTを取り外してください。"
 
 #: ../py/test/pytests/station_entry.py
 msgid "Press SPACE to end the test."
-msgstr "Đề nghị ấn phím trống thử kết thúc"
+msgstr "テストを終了するにはスペースキーを押してください。"
 
 #: ../py/test/pytests/stylus.py
 msgid ""
 "Please extend the green line with stylus to the other end.<br>Stay between "
 "the two red lines.<br>Press SPACE to start; Esc to fail."
 msgstr ""
-"Sử dụng bút stylus để mở rộng đoạn đường màu xanh lá cây đến đầu kia,"
-"<br>không vượt quá vùng vạch đỏ. <br>Nhấn phím trống để bắt đầu kiểm tra, "
-"phím Esc không thành công"
+"スタイラスペンで緑の線を反対側まで伸ばしてください。<br>2本の赤い線の間に留め"
+"てください。<br>開始するにはスペースキーを、失敗するにはEscキーを押してくださ"
+"い。"
 
 #: ../py/test/pytests/stylus_garage.py
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Remove stylus"
-msgstr ""
+msgstr "スタイラスペンを取り外す"
 
 #: ../py/test/pytests/stylus_garage.py
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Insert stylus"
-msgstr ""
+msgstr "スタイラスペンを挿入する"
 
 #: ../py/test/pytests/stylus_garage.py
 msgid "Insert or Remove stylus"
-msgstr ""
+msgstr "スタイラスペンを挿入または取り外し"
 
 #: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Click or press SPACE to continue"
-msgstr "Nhấp hoặc nhấn nút trống để tiếp tục"
+msgstr "クリックするかスペースキーを押して続行"
 
 #: ../py/test/pytests/summary.py ../py/test/pytests/summary_unittest.py
 msgid "Unable to proceed, since some previous tests have not passed."
-msgstr "Tất cả các bài kiểm tra trước đó phải vượt qua để vượt qua dự án này"
+msgstr "以前のテストの一部が合格していないため、続行できません。"
 
 #: ../py/test/pytests/summary_static/summary.html
 msgid "Click or press any key to continue..."
-msgstr "Nhấp hoặc nhấn nút trống để tiếp tục"
+msgstr "クリックするか、いずれかのキーを押して続行..."
 
 #: ../py/test/pytests/summary_static/summary.js
 msgid "passed"
-msgstr "tốt"
+msgstr "合格"
 
 #: ../py/test/pytests/summary_static/summary.js
 msgid "failed"
-msgstr "không đạt"
+msgstr "失敗"
 
 #: ../py/test/pytests/summary_static/summary.js
 msgid "active"
-msgstr "đang thử"
+msgstr "アクティブ"
 
 #: ../py/test/pytests/summary_static/summary.js
 msgid "untested"
-msgstr "Không được kiểm tra"
+msgstr "未テスト"
 
 #: ../py/test/pytests/summary_static/summary.js
 msgid "Test Status for {testName}:"
-msgstr "{testName} Danh sách kết quả kiểm tra:"
+msgstr "{testName}のテストステータス："
 
 #: ../py/test/pytests/suspend_resume.py
 msgid "Suspend/Resume: {run} of {cycle}"
-msgstr "Dừng/ Khôi phục: {run} / {cycle}"
+msgstr "サスペンド/レジューム：{cycle}の{run}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Change URL"
-msgstr "Thay đổi URL"
+msgstr "URLを変更"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Please wait few seconds to edit..."
-msgstr "Vui lòng đợi vài giây để chỉnh sửa..."
+msgstr "編集するには数秒お待ちください..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "No factor server URL configured."
-msgstr "URL máy chủ của máy chủ gốc không được chỉ định."
+msgstr "ファクトリーサーバーのURLが設定されていません。"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid ""
 "For debugging or development, enter engineering mode to start individual "
 "tests."
 msgstr ""
-"Nếu bạn muốn gỡ lỗi hoặc thực hiện một số kiểm tra, vui lòng nhập chế độ kỹ "
-"thuật."
+"デバッグや開発のために、エンジニアリングモードに入って個々のテストを開始して"
+"ください。"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Change server URL: "
-msgstr " Thay đổi URL máy chủ: "
+msgstr "サーバーURLを変更: "
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Set"
-msgstr "Cài đặt"
+msgstr "設定"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Please connect to network..."
-msgstr "Vui lòng kết nối với mạng..."
+msgstr "ネットワークに接続してください..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Expected network: {networks}"
-msgstr "Mạng dự kiến: {networks}"
+msgstr "期待されるネットワーク: {networks}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Current networks: {networks}"
-msgstr "Mạng hiện tại: {networks}"
+msgstr "現在のネットワーク: {networks}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Trying to reach server..."
-msgstr "Cố gắng liên lạc với máy chủ của nhà máy"
+msgstr "サーバーに接続しようとしています..."
 
 #: ../py/test/pytests/sync_factory_server.py
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Trying to check server protocol..."
-msgstr "Kiểm tra máy chủ của nhà máy ..."
+msgstr "サーバープロトコルを確認しようとしています..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Server URL: {server_url}"
-msgstr "URL máy chủ: {server_url}"
+msgstr "サーバーURL: {server_url}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Flush Test Log: Progress = <br>{progress}"
-msgstr "Bảng hi thử nghiệm đồng bộ hóa (TestLog): Progress = <br>{progress}"
+msgstr "テストログをフラッシュ: 進行状況 = <br>{progress}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Collecting report data..."
-msgstr "Thu thập tài liệu báo cáo..."
+msgstr "レポートデータを収集しています..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Getting serial number..."
-msgstr "Đọc số sê-ri ..."
+msgstr "シリアル番号を取得しています..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "A software update is available. Press SPACE to update."
-msgstr "Có sẵn các bản cập nhật. Bấm phím trống để cập nhật"
+msgstr ""
+"ソフトウェアの更新が利用可能です。スペースキーを押して更新してください。"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Preparing..."
-msgstr "Đang chuẩn bị..."
+msgstr "準備中..."
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Ping"
-msgstr "Kiểm tra kết nối"
+msgstr "Ping"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Detect Server URL"
-msgstr "Phát hiện URL máy chủ "
+msgstr "サーバーURLを検出"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Sync time"
-msgstr "Thời gian đồng bộ hóa"
+msgstr "時刻を同期"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Flush Event Logs"
-msgstr "Ghi nhật ký sự kiện đồng bộ hóa"
+msgstr "イベントログをフラッシュ"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Flush Test Log"
-msgstr "Bảng hi thử nghiệm đồng bộ(TestLog)"
+msgstr "テストログをフラッシュ"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Create Report"
-msgstr "Sản xuất báo cáo"
+msgstr "レポートを作成"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Upload report"
-msgstr "Tải lên báo cáo sản xuất"
+msgstr "レポートをアップロード"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Upload Reg Codes"
-msgstr "Tải lên mã đăng ký"
+msgstr "登録コードをアップロード"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Upload Serial Number for auditing"
-msgstr "Số sêri bo mạch chủ(MLB)"
+msgstr "監査用のシリアル番号をアップロード"
 
 #: ../py/test/pytests/sync_factory_server.py
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Upload Zero Touch Ids"
-msgstr "Tải lên Zero Touch Ids"
+msgstr "ゼロタッチIDをアップロード"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Upload CSV Entries"
-msgstr "Tải lên các mục nhập CSV"
+msgstr "CSVエントリをアップロード"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Update Toolkit"
-msgstr "Cập nhật thủ tục kiểm tra"
+msgstr "ツールキットを更新"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Running task: {label}"
-msgstr "Thực hiện tác vụ: {label}"
+msgstr "タスクを実行中: {label}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Server Task Finished: {label}"
-msgstr "Hoàn thành tác vụ: {label}"
+msgstr "サーバータスクが完了しました: {label}"
 
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Task <b>{label}</b> failed, retry in {time_left} seconds..."
 msgstr ""
-"<b>Tác vụ{label}</b>không thành công và sẽ thử lại sau {time_left} giây ..."
+"タスク <b>{label}</b> が失敗しました。{time_left} 秒後に再試行します..."
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Flip the lid into tablet mode"
-msgstr "Mở nắp trên cho đến khi nó vừa với nắp dướ"
+msgstr "蓋をタブレットモードに折り曲げてください"
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Confirm tablet mode"
-msgstr "Xác nhận chế độ máy tính bảng"
+msgstr "タブレットモードを確認してください"
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Open the lid back to notebook mode"
-msgstr "Mở nắp cho đến khi chế độ máy tính xách tay bình thường"
+msgstr "蓋をノートブックモードに戻してください"
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Press SPACE to confirm notebook mode"
-msgstr "Vui lòng bấm phím trống để xác nhận chế độ sổ ghi chép."
+msgstr "スペースキーを押してノートブックモードを確認してください"
 
 #: ../py/test/pytests/tablet_rotation.py
 msgid ""
 "Rotate the tablet to correctly align the picture, holding it at an upright "
 "90-degree angle."
 msgstr ""
-"Lắp máy tính bảng sao cho nó vuông góc với màn hình nền và bắt đầu xoay để "
-"căn chỉnh hình ảnh."
+"タブレットを回転して、画像を正しく合わせてください。垂直な90度の角度で保持し"
+"てください。"
 
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Please unplug and replug."
-msgstr ""
+msgstr "抜いてから再挿入してください。"
 
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Do not insert more than one loopback card."
-msgstr ""
+msgstr "ループバックカードを1枚以上挿入しないでください。"
 
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "The loopback card is inserted into the wrong port."
-msgstr ""
+msgstr "ループバックカードが間違ったポートに挿入されています。"
 
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Insert the loopback card."
-msgstr ""
+msgstr "ループバックカードを挿入してください。"
 
 #: ../py/test/pytests/thunderbolt_loopback.py
 msgid "Remove the loopback card."
-msgstr ""
+msgstr "ループバックカードを取り外してください。"
 
 #: ../py/test/pytests/touch_uniformity.py
 msgid "PASS"
-msgstr "Thành công"
+msgstr "合格"
 
 #: ../py/test/pytests/touch_uniformity.py
 msgid "FAIL"
-msgstr "Thất bại"
+msgstr "失敗"
 
 #: ../py/test/pytests/touch_uniformity.py
 msgid "ERROR: Touch device not found"
-msgstr "Không tìm thấy thiết bị cảm ứng"
+msgstr "エラー: タッチデバイスが見つかりません"
 
 #: ../py/test/pytests/touch_uniformity.py
 msgid "Calibrating Touch device"
-msgstr "Hiệu chỉnh thiết bị cảm ứng"
+msgstr "タッチデバイスをキャリブレーションしています"
 
 #: ../py/test/pytests/touch_uniformity.py
 msgid "Testing {item}..."
-msgstr "Thử nghiệm trong {item} ... "
+msgstr "テスト中: {item}..."
 
 #: ../py/test/pytests/touchpad.py
 msgid ""
@@ -3076,191 +3098,192 @@ msgid ""
 "If you didn't do that,\n"
 "treat this touch panel as a problematic one!!"
 msgstr ""
-" Không đặt ngón tay thứ ba trên bàn di chuột.\n"
-"Nếu bạn không làm điều đó,\n"
-"hãy sử dụng trackpad này như một vấn đề! "
+"タッチパッドに第3の指を置かないでください。\n"
+"もし置いていない場合は、\n"
+"このタッチパネルを問題のあるものとして扱ってください！！"
 
 #: ../py/test/pytests/touchpad.py
 msgid ""
 "Ghost finger detected!!\n"
 "Please treat this touch panel as a problematic one!!"
 msgstr ""
-"Một ngón tay ma được phát hiện!\n"
-"Vui lòng sử dụng bảng cả mứng này như một sự cố! !"
+"幽霊指が検出されました！！\n"
+"このタッチパネルを問題のあるものとして扱ってください！！"
 
 #: ../py/test/pytests/touchpad_hover.py
 msgid "Calibrating touchpad..."
-msgstr "Chỉnh sửa màn hình cảm ứng ..."
+msgstr "タッチパッドをキャリブレーションしています..."
 
 #: ../py/test/pytests/touchpad_hover.py
 msgid "Please put the hover-tool into the holder."
-msgstr "Đặt bộ kiểm tra di chuột vào ngăn chứa"
+msgstr "ホバーツールをホルダーに入れてください。"
 
 #: ../py/test/pytests/touchpad_hover.py
 msgid "Please pull out the hover-tool from the holder."
-msgstr "Vui lòng tháo công cụ kiểm tra di chuột ra khỏi giá đỡ"
+msgstr "ホバーツールをホルダーから引き抜いてください。"
 
 #: ../py/test/pytests/touchpad_hover.py
 msgid "Checking for false positive..."
-msgstr "Thực hiện kiểm tra dương tính giả..."
+msgstr "誤検知をチェックしています..."
 
 #: ../py/test/pytests/touchpad_static/touchpad.html
 msgid "Please take off your fingers and then press SPACE to start testing..."
-msgstr ""
-"Vui lòng giữ ngón tay tránh xa màn hình cảm ứng và nhấn nút trống để bắt đầu "
-"kiểm tra ..."
+msgstr "指を離してからスペースキーを押してテストを開始してください..."
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Please start drawing from upper-left corner."
-msgstr "Vui lòng bắt đầu vẽ lưới từ góc trên bên trái"
+msgstr "左上の角から描画を開始してください。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Please leave your finger and restart from upper-left block."
-msgstr "Vui lòng tháo ngón tay của bạn và bắt đầu vẽ lại từ góc trên bên trái"
+msgstr "指を離して、左上のブロックから再開してください。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Fails to draw blocks in sequence. Please try again."
-msgstr "Không vẽ lưới theo thứ tự! Vui lòng quay lại"
+msgstr "ブロックを順番に描画できませんでした。もう一度お試しください。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Test failed! Please test this panel carefully with Gods Touch test."
 msgstr ""
-"Kiểm tra bảng điều khiển cảm ứng không thành công. Vui lòng xác minh nó bằng "
-"phần mềm kiểm tra Gods Touch."
+"テストに失敗しました！このパネルを神のタッチテストで注意深くテストしてくださ"
+"い。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Finger leaving too early. Please try again."
-msgstr "Ngón tay rời quá sớm! Vui lòng quay lại"
+msgstr "指が早すぎるため、もう一度お試しください。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Draw blocks from upper-left corner in sequence; Esc to fail."
 msgstr ""
-"Vẽ lưới theo thứ tự từ góc trên cùng bên trái, nhấn Esc để đánh dấu sự thất "
-"bại"
+"ブロックを左上から順に描画してください。失敗するにはEscキーを押してください。"
 
 #: ../py/test/pytests/touchscreen_static/touchscreen.js
 msgid "Draw blocks in any order; Esc to fail."
 msgstr ""
-"Vẽ tất cả các lưới theo thứ tự bất kỳ, nhấn Esc để đánh dấu sự thất bại"
+"ブロックを任意の順序で描画してください。失敗するにはEscキーを押してください。"
 
 #: ../py/test/pytests/update_detachable_base.py
 msgid "Updating base firmware. Do not remove the base."
-msgstr "Cập nhật firmware. Không loại bỏ cơ sở."
+msgstr "ベースファームウェアを更新しています。ベースを取り外さないでください。"
 
 #: ../py/test/pytests/update_detachable_base.py
 msgid "Verifying detachable base information..."
-msgstr "Xác minh thông tin..."
+msgstr "デタッチャブルベース情報を確認しています..."
 
 #: ../py/test/pytests/update_detachable_base.py
 msgid "Please connect the detachable base."
-msgstr "Vui lòng kết nối cơ sở có thể tháo rời."
+msgstr "デタッチャブルベースを接続してください。"
 
 #: ../py/test/pytests/update_device_data.py
 msgid "Device Serial Number"
-msgstr "Số máy"
+msgstr "デバイスシリアル番号"
 
 #: ../py/test/pytests/update_device_data.py
 msgid "Mainboard Serial Number"
-msgstr "Số sêri bo mạch chủ(MLB)"
+msgstr "メインボードシリアル番号"
 
 #: ../py/test/pytests/update_device_data.py
 msgid "VPD Region Code"
-msgstr "Mã vùng VPD (Vùng)"
+msgstr "VPDリージョンコード"
 
 #: ../py/test/pytests/update_device_data.py
 msgid "User Registration Code"
-msgstr "Mã đăng ký người dùng (Người dùng ECHO)"
+msgstr "ユーザー登録コード"
 
 #: ../py/test/pytests/update_device_data.py
 msgid "Group Registration Code"
-msgstr "Mã đăng ký nhóm(Group ECHO)"
+msgstr "グループ登録コード"
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "No valid data on machine for {label}."
-msgstr "Thiếu dữ liệu thiết bị: {label}"
+msgstr "{label}に有効なデータがありません。"
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "Invalid value for {label}."
-msgstr "đã nhập không chính xác{label}"
+msgstr "無効な値です。{label}を確認してください。"
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select {label}:"
-msgstr "Chọn {label}:"
+msgstr "{label}を選択:"
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "Select with ENTER"
-msgstr "Nhấn ENTER để chọn"
+msgstr "Enterキーで選択"
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "Enter {label}: "
-msgstr "Nhập{label}: "
+msgstr "Enterキーを押して{label}を入力してください: "
 
 #: ../py/test/pytests/update_device_data.py
 #: ../py/test/pytests/update_device_data_unittest.py
 msgid "(ESC to keep current value)"
-msgstr "(ESC giữ nguyên giá trị ban đầu)"
+msgstr "（現在の値を保持するにはESCキーを押してください）"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Probing components..."
-msgstr "Khám phá các bộ phận..."
+msgstr "コンポーネントをプローブしています..."
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Unable to pass verify component test."
-msgstr ""
+msgstr "コンポーネントの検証テストに合格できませんでした。"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Number mismatch component classes"
-msgstr ""
+msgstr "コンポーネントクラスの数が一致しません"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Not supported components"
-msgstr ""
+msgstr "サポートされていないコンポーネント"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Component"
-msgstr ""
+msgstr "コンポーネント"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Name"
-msgstr "Tên thử nghiệm"
+msgstr "名前"
 
 #: ../py/test/pytests/verify_component_static/verify_component.html
 msgid "Status"
-msgstr "Trạng thái :"
+msgstr "ステータス"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Loading parameters from local disk..."
-msgstr "Tải các thông số kiểm tra từ ổ cứng cục bộ..."
+msgstr "ローカルディスクからパラメータを読み込んでいます..."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Setting up network..."
-msgstr "Thiết lập môi trường mạng ..."
+msgstr "ネットワークを設定しています..."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Connecting with the ENA..."
-msgstr " Kết nối với ENA (E5071C) ..."
+msgstr "ENAと接続しています..."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid ""
 "Please fully disconnect all the cable.<br> Then press ENTER to continue."
-msgstr "Sau khi tháo ăng-ten hoàn toàn, nhấn ENTER để tiếp tục"
+msgstr ""
+"すべてのケーブルを完全に取り外してください。<br>続行するにはEnterキーを押して"
+"ください。"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Checking its calibration status..."
-msgstr "Xác minh tình trạng hiệu chỉnh thiết bị..."
+msgstr "キャリブレーション状態を確認しています..."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "The ENA needs to be calibrated.<br> Please press ENTER to continue."
-msgstr "Sửa ENA và nhấn ENTER để khởi động lại thử nghiệm."
+msgstr ""
+"ENAをキャリブレーションする必要があります。<br>続行するにはEnterキーを押して"
+"ください。"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Please place the LCD panel into the fixture and then press ENTER."
-msgstr "Vui lòng đặt thân máy LCD trên vật cố định và nhấn ENTER"
+msgstr "LCDパネルをフィクスチャにセットしてからEnterキーを押してください。"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid ""
@@ -3268,386 +3291,387 @@ msgid ""
 "main WLAN antennta is connected to Port 2<br> Then press key \"A\" to next "
 "stage."
 msgstr ""
-"Kết nối anten WWAN chính với Cổng 1 Kết nối anten WLAN chính với Cổng 2 Nhấn "
-"A khi hoàn tất"
+"メインWWANアンテナがポート1に接続されていることを確認してください<br>メイン"
+"WLANアンテナがポート2に接続されていることを確認してください<br>次に、「A」"
+"キーを押して次のステージに進みます。"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Testing..."
-msgstr "Thử nghiệm ..."
+msgstr "テスト中..."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Writing log...."
-msgstr "Đang ghi ..."
+msgstr "ログを書き込んでいます...."
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Results are listed below:"
-msgstr "Kết quả kiểm tra được trình bày dưới đây:"
+msgstr "結果は以下に示されています:"
 
 #: ../py/test/pytests/vswr/static/vswr.html
 msgid "Please disconnect the panel and press ENTER to write log."
-msgstr "Vui lòng tháo Bảng AB và nhấn ENTER để hoàn tất kiểm tra"
+msgstr "パネルを外してEnterキーを押してログを書き込んでください。"
 
 #: ../py/test/pytests/vswr/vswr.py
 msgid "Make sure the {name} antennta is connected to port {port}<br>"
-msgstr "Kết nối ăng-ten {name} với cổng {port}<br>"
+msgstr "{name}アンテナがポート{port}に接続されていることを確認してください<br>"
 
 #: ../py/test/pytests/vswr/vswr.py
 msgid "Then press key \"{key}\" to next stage."
-msgstr "Nhấn phím {key} khi hoàn tất."
+msgstr "次に「{key}」キーを押して次のステージに進みます。"
 
 #: ../py/test/pytests/vsync.py
 msgid "Verifying VSync pin... ({count}/{total})"
-msgstr ""
+msgstr "VSyncピンを確認しています... ({count}/{total})"
 
 #: ../py/test/pytests/wait_external_test.py
 msgid "Please run external test: {name}"
-msgstr "Vui lòng thực hiện kiểm tra bên ngoài: {name}"
+msgstr "外部テストを実行してください: {name}"
 
 #: ../py/test/pytests/whale_check_voltage.py
 msgid "Power rail"
-msgstr ""
+msgstr "電源レール"
 
 #: ../py/test/pytests/whale_check_voltage.py
 msgid "voltage (mV)"
-msgstr "mVĐiện áp: voltage mV"
+msgstr "電圧 (mV)"
 
 #: ../py/test/pytests/whale_check_voltage.py
 msgid "expected"
-msgstr ""
+msgstr "期待値"
 
 #: ../py/test/pytests/whale_check_voltage.py
 msgid "status"
-msgstr ""
+msgstr "状態"
 
 #: ../py/test/pytests/whale_cover.py
 msgid "Please open the cover!"
-msgstr "Vui lòng biến đối tượng cần kiểm tra"
+msgstr "カバーを開けてください!"
 
 #: ../py/test/pytests/whale_cover.py
 msgid "Please close the cover!"
-msgstr "Vui lòng biến đối tượng cần kiểm tra"
+msgstr "カバーを閉じてください!"
 
 #: ../py/test/pytests/whale_cover.py
 msgid "Checking The Cover"
-msgstr "Xác nhận trình tự  ALS"
+msgstr "カバーを確認しています"
 
 #: ../py/test/pytests/wifi_throughput.py
 msgid "Running, please wait..."
-msgstr "Vui lòng kiểm tra sau."
+msgstr "実行中です、しばらくお待ちください..."
 
 #: ../py/test/pytests/wifi_throughput.py
 msgid ""
 "Please wait for other DUTs to finish WiFiThroughput test, and press spacebar "
 "to continue."
 msgstr ""
-"Vui lòng chờ cho các thiết bị khác hoàn tất kiểm tra và nhấn nút trống để "
-"tiếp tục"
+"他のDUTがWiFiThroughputテストを終了するのを待って、スペースキーを押して続行し"
+"てください。"
 
 #: ../py/test/pytests/wireless_antenna.py
 msgid "Scanning on device {device} frequency {freq}..."
-msgstr "Tần suất quét {freq} trên thiết bị {device} ..."
+msgstr "デバイス{device}の周波数{freq}をスキャンしています..."
 
 #: ../py/test/pytests/wireless_antenna.py
 msgid "Done scanning on device {device} frequency {freq}..."
-msgstr "Tần suất quét {freq} {device} trên thiết bị {freq} đã hoàn tất"
+msgstr "デバイス{device}の周波数{freq}のスキャンが完了しました..."
 
 #: ../py/test/pytests/wireless_antenna.py
 msgid "Detecting wifi chip type..."
-msgstr "Phát hiện loại chip wifi..."
+msgstr "Wi-Fiチップの種類を検出しています..."
 
 #: ../py/test/pytests/wireless_antenna.py
 msgid "Checking frequencies..."
-msgstr "Kiểm tra tần số..."
+msgstr "周波数をチェックしています..."
 
 #: ../py/test/pytests/wireless_antenna.py
 msgid "Press space to start scanning."
-msgstr "Bấm phím trống để bắt đầu quét"
+msgstr "スキャンを開始するにはスペースキーを押してください。"
 
 #: ../py/test/pytests/wireless_charge.py
 msgid "Wireless Charge Port testing..."
-msgstr "Kiểm tra sạc không dây..."
+msgstr "ワイヤレス充電ポートのテスト中..."
 
 #: ../py/test/pytests/wireless_charge.py
 msgid "{instruction} then hit SPACE"
-msgstr "{instruction} sau nhấn nút trống để tiếp tục"
+msgstr "{instruction} の後、スペースキーを押します"
 
 #: ../py/test/pytests/write_device_data_to_vpd.py
 #: ../py/test/pytests/write_device_data_to_vpd_unittest.py
 msgid "Writing device data to {vpd_section} VPD..."
-msgstr "Dữ liệu máy đang được ghi vào VPD {vpd_section} ..."
+msgstr "{vpd_section} VPD にデバイスデータを書き込み中..."
 
 #: ../py/test/test_lists/base.test_list.json
 msgid "Full Reboot"
-msgstr "Khởi động lại sâu"
+msgstr "完全再起動"
 
 #: ../py/test/test_lists/base.test_list.json
 msgid "Halt"
-msgstr "Tắt máy"
+msgstr "停止"
 
 #: ../py/test/test_lists/base.test_list.json
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Reboot"
-msgstr "Khởi động lại"
+msgstr "再起動"
 
 #: ../py/test/test_lists/disable_factory_server.test_list.json
 msgid "Has Cellular"
-msgstr "Có một máy dữ liệu"
+msgstr "セルラー機能あり"
 
 #: ../py/test/test_lists/disable_factory_server.test_list.json
 msgid "Has LTE"
-msgstr "Với LTE"
+msgstr "LTE 機能あり"
 
 #: ../py/test/test_lists/disable_factory_server.test_list.json
 msgid "Has Touchscreen"
-msgstr "Với bảng điều khiển cảm ứng"
+msgstr "タッチスクリーンあり"
 
 #: ../py/test/test_lists/disable_factory_server.test_list.json
 msgid "Set DeviceInfo"
-msgstr "Cài đặt thông tin máy"
+msgstr "DeviceInfoの設定"
 
 #: ../py/test/test_lists/empty.test_list.json
 msgid "Empty Test List"
-msgstr "Danh sách kiểm tra quá tải"
+msgstr "空のテストリスト"
 
 #: ../py/test/test_lists/generic_audio.test_list.json
 msgid "Audio Jack"
-msgstr "Lỗ nguồn âm thanh"
+msgstr "オーディオジャック"
 
 #: ../py/test/test_lists/generic_audio.test_list.json
 msgid "Audio Jack Conformance"
-msgstr ""
+msgstr "オーディオジャック適合性"
 
 #: ../py/test/test_lists/generic_audio.test_list.json
 msgid "Probe Audio Codec"
-msgstr ""
+msgstr "オーディオコーデックのプローブ"
 
 #: ../py/test/test_lists/generic_audio.test_list.json
 msgid "Speaker/Microphone"
-msgstr "Loa / micrô"
+msgstr "スピーカー/マイク"
 
 #: ../py/test/test_lists/generic_audio.test_list.json
 msgid "Speaker/Microphone Conformance"
-msgstr ""
+msgstr "スピーカー/マイク適合性"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Headphone Manual Test"
-msgstr ""
+msgstr "ヘッドホン手動テスト"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Audio Card Name"
-msgstr ""
+msgstr "オーディオカード名"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Scan Audio Card Name"
-msgstr ""
+msgstr "オーディオカード名のスキャン"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker (Only Channel 0)/Microphone"
-msgstr ""
+msgstr "スピーカー（チャンネル0のみ）/マイク"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker/Rear Microphone"
-msgstr ""
+msgstr "スピーカー/リアマイク"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker/Microphone Manual Test"
-msgstr ""
+msgstr "スピーカー/マイク手動テスト"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker/Microphone Noise Test"
-msgstr ""
+msgstr "スピーカー/マイクノイズテスト"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker/Microphone Sine Wave Test"
-msgstr ""
+msgstr "スピーカー/マイク正弦波テスト"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker/External Microphone"
-msgstr ""
+msgstr "スピーカー/外部マイク"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Speaker Manual Test"
-msgstr ""
+msgstr "スピーカー手動テスト"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Generic Audio Factory tests"
-msgstr ""
+msgstr "汎用オーディオファクトリーテスト"
 
 #: ../py/test/test_lists/generic_battery.test_list.json
 msgid "BCIC Set"
-msgstr ""
+msgstr "BCIC設定"
 
 #: ../py/test/test_lists/generic_battery.test_list.json
 msgid "BCIC Check"
-msgstr ""
+msgstr "BCICチェック"
 
 #: ../py/test/test_lists/generic_battery.test_list.json
 msgid "BCIC Group"
-msgstr ""
+msgstr "BCICグループ"
 
 #: ../py/test/test_lists/generic_battery.test_list.json
 msgid "Probe Battery"
-msgstr ""
+msgstr "バッテリーのプローブ"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Battery Basic Cycle Count At Most 5"
-msgstr ""
+msgstr "バッテリーの基本サイクル数は最大5"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Battery Capacity"
-msgstr ""
+msgstr "バッテリー容量"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Battery Capacity Between 4000 And 5000"
-msgstr ""
+msgstr "バッテリー容量 4000 から 5000 の間"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Blocking Charge 10 Percent More In 5 Minutes"
-msgstr ""
+msgstr "5 分で 10% 多く充電をブロック"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Blocking Charge To 75"
-msgstr ""
+msgstr "75%までの充電をブロック"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Blocking Charge To Cut Off Setting"
-msgstr ""
+msgstr "カットオフ設定までの充電をブロック"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Charge Discharge Current Difference"
-msgstr ""
+msgstr "充放電電流差"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Charge Discharge Current Expect No Charge When Charging"
-msgstr ""
+msgstr "充電時の充電電流なしを想定"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "USB TypeC"
-msgstr ""
+msgstr "USB Type-C"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Charger 15V In Port 0"
-msgstr ""
+msgstr "ポート0の充電器15V"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Generic Battery Factory tests"
-msgstr ""
+msgstr "汎用バッテリー工場テスト"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera without camera_characteristics.conf"
-msgstr ""
+msgstr "camera_characteristics.confのないカメラ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Camera Tests"
-msgstr "Máy ảnh"
+msgstr "カメラテスト"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera"
-msgstr ""
+msgstr "フロントカメラ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera Assemble"
-msgstr ""
+msgstr "フロントカメラアセンブリ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera Assemble QR"
-msgstr ""
+msgstr "フロントカメラアセンブリQR"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera Face"
-msgstr ""
+msgstr "フロントカメラ顔認識"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera LED"
-msgstr ""
+msgstr "フロントカメラLED"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera Manual"
-msgstr ""
+msgstr "フロントカメラ手動"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Front Camera QR Scan"
-msgstr ""
+msgstr "フロントカメラQRスキャン"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Probe Camera"
-msgstr ""
+msgstr "プローブカメラ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "QR Scan"
-msgstr "quét mã QR"
+msgstr "QRスキャン"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera"
-msgstr ""
+msgstr "リアカメラ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera Assemble"
-msgstr ""
+msgstr "リアカメラアセンブリ"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera Assemble QR"
-msgstr ""
+msgstr "リアカメラアセンブリQR"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera Face"
-msgstr ""
+msgstr "リアカメラ顔認識"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera LED"
-msgstr ""
+msgstr "リアカメラLED"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera Manual"
-msgstr ""
+msgstr "リアカメラ手動"
 
 #: ../py/test/test_lists/generic_camera.test_list.json
 msgid "Rear Camera QR Scan"
-msgstr ""
+msgstr "リアカメラQRスキャン"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera Assemble 07"
-msgstr ""
+msgstr "フロントカメラアセンブリ07"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera Brightness"
-msgstr ""
+msgstr "フロントカメラの明るさ"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera Frames"
-msgstr ""
+msgstr "フロントカメラフレーム"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera Manual OpenCV"
-msgstr ""
+msgstr "フロントカメラ手動OpenCV"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera QR Scan 1920x1080"
-msgstr ""
+msgstr "フロントカメラQRスキャン1920x1080"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Front Camera Stress"
-msgstr ""
+msgstr "フロントカメラストレステスト"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Rear Camera Manual OpenCV"
-msgstr ""
+msgstr "リアカメラ手動OpenCV"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Generic Camera Factory tests"
-msgstr ""
+msgstr "汎用カメラ工場テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Activate Registration Code"
-msgstr "Kích hoạt mã đăng ký(ECHO Code)"
+msgstr "登録コードを有効化"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point for All Tests"
-msgstr "Xác nhận cuối cùng của cấp"
+msgstr "すべてのテストのチェックポイント"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Barrier"
-msgstr "Kiểm tra mức độ"
+msgstr "バリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "HDMI1 CEC Test"
@@ -3659,87 +3683,87 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Back USB TypeC"
-msgstr ""
+msgstr "背面 USB Type-C"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Type C HDMI CEC Test"
-msgstr ""
+msgstr "Type C HDMI CEC テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Charge Discharge Current"
-msgstr "phí và xả hiện tại kiểm tra"
+msgstr "充放電電流"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Charger Type Detection"
-msgstr "Nhận dạng mô hình bộ sạc"
+msgstr "充電器タイプの検出"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Board ID Not Set"
-msgstr ""
+msgstr "Cr50 ボード ID 未設定の確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Display Connection"
-msgstr ""
+msgstr "ディスプレイ接続の確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Point"
-msgstr "Mức xác nhận"
+msgstr "チェックポイント"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Release Image"
-msgstr "Kiểm tra hệ thống nhà máy"
+msgstr "リリースイメージの確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear Cr50 AP RO Hash"
-msgstr ""
+msgstr "Cr50 AP RO ハッシュのクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear factory VPD entries"
-msgstr "Xóa thông tin VPD nhà máy"
+msgstr "工場出荷時 VPD エントリのクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear Unknown RW VPD"
-msgstr ""
+msgstr "不明な RW VPD のクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "EC Cold Reset"
-msgstr "EC Khởi động lại lạnh"
+msgstr "EC コールドリセット"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Cold Reset"
-msgstr "Khởi động nguội"
+msgstr "コールドリセット"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Cr50 AP RO Verification"
-msgstr ""
+msgstr "Cr50 AP RO 検証"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Cr50 AP RO Verification Group"
-msgstr ""
+msgstr "Cr50 AP RO 検証グループ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Deprovision CBI"
-msgstr "từ chối CBI"
+msgstr "CBI のプロビジョニング解除"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Disable Lid Switch"
-msgstr "Tắt chức năng công tắc Nắp"
+msgstr "蓋スイッチの無効化"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Enable EC Write Protect"
-msgstr "EC Viết bảo vệ"
+msgstr "EC 書き込み保護の有効化"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Enable Lid Switch"
-msgstr "Bật chức năng công tắc Nắp"
+msgstr "蓋スイッチの有効化"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ethernet Test"
-msgstr ""
+msgstr "イーサネットテスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
-msgstr "Trình tự cuối cùng MLB"
+msgstr "MLB のファイナライズ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_fat.test_list.json
@@ -3750,447 +3774,447 @@ msgstr "Trình tự cuối cùng MLB"
 #: ../py/test/test_lists/generic_smt.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Finish"
-msgstr "Kết thúc"
+msgstr "完了"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (GetDeviceInfo)"
-msgstr "Dịch vụ Shopfloor (GetDeviceInfo)"
+msgstr "ショップフロアサービス (GetDeviceInfo)"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Volume Down"
-msgstr "Giảm âm lượng"
+msgstr "音量ダウン"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Volume Up"
-msgstr "tăng âm lượng"
+msgstr "音量アップ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Power Button"
-msgstr "Nút nguồn"
+msgstr "電源ボタン"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Hardware Button"
-msgstr "Kiểm tra nút"
+msgstr "ハードウェアボタン"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Idle"
-msgstr "Chờ đợi nhàn rỗi"
+msgstr "アイドル"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
-msgstr "Cấu hình và kiểu (SKU)"
+msgstr "モデルと SKU"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Notify Overlord to track connection"
-msgstr ""
+msgstr "Overlord に接続の追跡を通知"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Notify Overlord not to track connection"
-msgstr ""
+msgstr "Overlord に接続を追跡しないように通知"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Placeholder"
-msgstr "Kiểm tra không xác định"
+msgstr "プレースホルダー"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Probe Hardware"
-msgstr "Thăm dò ổ cứng"
+msgstr "ハードウェアのプローブ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Unload Driver"
-msgstr ""
+msgstr "ドライバーのアンロード"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button"
-msgstr ""
+msgstr "リカバリボタン"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Load Driver"
-msgstr ""
+msgstr "ドライバーのロード"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button Group"
-msgstr ""
+msgstr "リカバリーボタン グループ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "SD Performance"
-msgstr "Hiệu suất SD"
+msgstr "SD パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Set Cr50 AP RO Hash"
-msgstr ""
+msgstr "Cr50 AP RO ハッシュの設定"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Set Widevine Keybox"
-msgstr ""
+msgstr "Widevine キーボックスの設定"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Reset Widevine keyboxes"
-msgstr ""
+msgstr "Widevine キーボックスのリセット"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Widevine Keybox provisioning Test Group"
-msgstr ""
+msgstr "Widevine キーボックス プロビジョニング テスト グループ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyEnd)"
-msgstr "Dịch vụ Shopfloor (NotifyEnd)"
+msgstr "ショップフロアサービス (NotifyEnd)"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
-msgstr "Dịch vụ Shopfloor (NotifyStart)"
+msgstr "ショップフロアサービス (NotifyStart)"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify TPM state"
-msgstr "Trạng thái TPM"
+msgstr "TPM 状態の確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ti50 AP RO Verification (PVT)"
-msgstr ""
+msgstr "Ti50 AP RO 検証 (PVT)"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ti50 AP RO Verification (pre-PVT)"
-msgstr ""
+msgstr "Ti50 AP RO 検証 (pre-PVT)"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Ti50 AP RO Verification"
-msgstr ""
+msgstr "Ti50 AP RO 検証"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Random Number Generation"
-msgstr "Tạo ngẫu nhiên"
+msgstr "乱数生成"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB Performance"
-msgstr "Hiệu suất USB"
+msgstr "USB パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB2 TypeA Performance"
-msgstr "Kiểm tra hiệu năng USB2 TypeA"
+msgstr "USB2 TypeA パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB3 TypeA Performance"
-msgstr "Kiểm tra hiệu năng USB3 TypeA"
+msgstr "USB3 TypeA パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Left USB TypeA"
-msgstr "Kiểm tra USB TypeA bằng tay trái"
+msgstr "左 USB TypeA の手動テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Right USB TypeA"
-msgstr "Kiểm tra USB TypeA thủ công ngay"
+msgstr "右 USB TypeA の手動テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB3 CC1 Performance"
-msgstr "Kiểm tra hiệu năng USB3.0 CC1"
+msgstr "USB3 CC1 パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB3 CC2 Performance"
-msgstr "Kiểm tra hiệu năng USB3.0 CC2"
+msgstr "USB3 CC2 パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB2 Performance"
-msgstr "Kiểm tra hiệu năng USB2"
+msgstr "USB2 パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "20V Charging"
-msgstr "20V Sạc pin"
+msgstr "20V充電"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "5V Charging"
-msgstr "5V Sạc pin"
+msgstr "5V充電"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "USB3 External Display Test"
-msgstr "Màn hình ngoài"
+msgstr "USB3外部ディスプレイテスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Left USB TypeC"
-msgstr "Cổng USB TypeC bên trái"
+msgstr "左USB TypeC"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Left USB TypeC"
-msgstr "Kiểm tra USB TypeC bằng tay trái"
+msgstr "左USB TypeC手動テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Right USB TypeC"
-msgstr "PortCổng USB trái TypeC phù hợp"
+msgstr "右USB TypeC"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Right USB TypeC"
-msgstr "Kiểm tra USB TypeC thủ công ngay"
+msgstr "右USB TypeC手動テスト"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
-msgstr "Cập nhật CBI"
+msgstr "CBIアップデート"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Cr50 Firmware Version"
-msgstr "Xác nhận phiên bản firmware"
+msgstr "Cr50ファームウェアバージョン確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update Cr50 Firmware"
-msgstr "Cập nhật firmware CR50"
+msgstr "Cr50ファームウェアアップデート"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
-msgstr "Cập nhật SKU ID"
+msgstr "SKU IDアップデート"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update Ti50 Firmware"
-msgstr "Cập nhật firmware Ti50"
+msgstr "Ti50ファームウェアアップデート"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Ti50 Firmware Version"
-msgstr "Xác nhận phiên bản firmware"
+msgstr "Ti50ファームウェアバージョン確認"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear Inactive Ti50 Slot"
-msgstr ""
+msgstr "非アクティブなTi50スロットをクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Upload Reg (ECHO) Codes to activate"
-msgstr "Tải lên mã đăng ký (ECHO) để kích hoạt"
+msgstr "有効化のためにReg (ECHO)コードをアップロード"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Verify Widevine Keybox"
-msgstr ""
+msgstr "Widevine Keyboxの検証"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Attach peripheral to charging port"
-msgstr "Kết nối các phụ kiện với khu vực sạc"
+msgstr "周辺機器を充電ポートに接続"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Remove peripheral from charging port"
-msgstr "Tháo phụ kiện khu vực sạc"
+msgstr "周辺機器を充電ポートから取り外し"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Wireless Charger"
-msgstr "Sạc không dây"
+msgstr "ワイヤレス充電器"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write HWID"
-msgstr "Viết HWID"
+msgstr "HWID書き込み"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write RMA HWID"
-msgstr "Viết RMA HWID"
+msgstr "RMA HWID書き込み"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Write Test HWID"
-msgstr "Viết Test HWID"
+msgstr "テストHWID書き込み"
 
 #: ../py/test/test_lists/generic_display_panel.test_list.json
 msgid "Probe Display Panel"
-msgstr ""
+msgstr "ディスプレイパネルのプローブ"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Backlight (Smaller Adjust Level)"
-msgstr ""
+msgstr "バックライト（微調整レベル）"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Display Gray For An Hour"
-msgstr ""
+msgstr "1時間グレー表示"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Enter Front Of Screen Test Interactive Mode"
-msgstr ""
+msgstr "画面テスト対話モードに入る"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Front Of Screen Test (More Images)"
-msgstr ""
+msgstr "画面テスト（詳細画像）"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Front Of Screen Test Station"
-msgstr ""
+msgstr "画面テストステーション"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Front Of Screen Test (Symptom mode)"
-msgstr ""
+msgstr "画面テスト（症状モード）"
 
 #: ../py/test/test_lists/generic_display_panel_examples.test_list.json
 msgid "Generic Display Panel Factory tests"
-msgstr ""
+msgstr "汎用ディスプレイパネル工場テスト"
 
 #: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Create Cache"
-msgstr "Tạo bộ nhớ cache"
+msgstr "キャッシュを作成"
 
 #: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Verify Cache Update"
-msgstr "Xác minh Cập nhật bộ nhớ cache"
+msgstr "キャッシュの更新を検証"
 
 #: ../py/test/test_lists/generic_dram.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Verify Cache No Update"
-msgstr "Xác minh Bộ nhớ cache Không có Cập nhật"
+msgstr "キャッシュの更新なしを検証"
 
 #: ../py/test/test_lists/generic_dram.test_list.json
 msgid "Probe DRAM"
-msgstr ""
+msgstr "DRAMをプローブ"
 
 #: ../py/test/test_lists/generic_dram.test_list.json
 msgid "Stress App Test"
-msgstr "Thử áp lực"
+msgstr "ストレスアプリテスト"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Memory Size in GB"
-msgstr ""
+msgstr "メモリサイズ（GB）"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Scan Memory Size in GB"
-msgstr ""
+msgstr "メモリサイズ（GB）をスキャン"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Memory Size Compare To Device Data"
-msgstr ""
+msgstr "メモリサイズをデバイスデータと比較"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Memory Size Max Diff Ratio 5 Percent"
-msgstr ""
+msgstr "メモリサイズの最大差分率5%"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Stress App Test For One Day"
-msgstr ""
+msgstr "1日間のストレスアプリテスト"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Stress App Test Only CPU And Memory"
-msgstr ""
+msgstr "CPUとメモリのみのストレスアプリテスト"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Read DRAM Part Num From CBI"
-msgstr ""
+msgstr "CBIからDRAM部品番号を読み取る"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "DRAM Part Num"
-msgstr ""
+msgstr "DRAM部品番号"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Scan DRAM Part Num"
-msgstr ""
+msgstr "DRAM部品番号をスキャン"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Update DRAM Part Num in CBI"
-msgstr ""
+msgstr "CBIのDRAM部品番号を更新"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Update DRAM Part Num"
-msgstr ""
+msgstr "DRAM部品番号を更新"
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
 msgid "Generic DRAM Factory tests"
-msgstr ""
+msgstr "汎用DRAMファクトリーテスト"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Base Accelerometers Test"
-msgstr ""
+msgstr "ベースアクセルロメータテスト"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Base Accelerometers Calibration"
-msgstr "Điều chỉnh gia tốc kế"
+msgstr "ベースアクセルロメータのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Lid Accelerometers Test"
-msgstr ""
+msgstr "蓋アクセルロメータテスト"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Lid Accelerometers Calibration"
-msgstr "Điều chỉnh gia tốc kế nắp trên"
+msgstr "蓋アクセルロメータのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Notebook Mode"
-msgstr "Chế độ máy tính xách tay"
+msgstr "ノートブックモード"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Screen Rotation"
-msgstr "Xoay màn hình"
+msgstr "画面回転"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Tablet Rotation Accelerometers"
-msgstr ""
+msgstr "タブレット回転アクセルロメータ"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Tablet Rotation Base-Accel"
-msgstr "Máy tính bảng gia tốc xoay-bo mạch chủ"
+msgstr "タブレット回転ベースアクセル"
 
 #: ../py/test/test_lists/generic_ec_component_accel.test_list.json
 msgid "Tablet Rotation Lid-Accel"
-msgstr "Máy đo tốc độ quay đầu"
+msgstr "タブレット回転蓋アクセル"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Base Accelerometers Calibration By EC"
-msgstr ""
+msgstr "ECによるベースアクセルロメータのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Base Accelerometers Test With Looser Limits"
-msgstr ""
+msgstr "緩い制限を持つベースアクセルロメータテスト"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Go To Tablet Mode And Go Back"
-msgstr ""
+msgstr "タブレットモードに移行して戻る"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Go To Tablet Mode And Go Back With Specific Lid"
-msgstr ""
+msgstr "特定の蓋でタブレットモードに移行して戻る"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Gyroscope Calibration By EC"
-msgstr ""
+msgstr "ECによるジャイロスコープのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Lid Accelerometers Calibration By EC"
-msgstr ""
+msgstr "ECによる蓋アクセルロメータのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Set Has Base Accelerometer"
-msgstr ""
+msgstr "ベースアクセルロメータありに設定"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Set Has Base Gyroscope"
-msgstr ""
+msgstr "ベースジャイロスコープありに設定"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Set Has Lid Accelerometer"
-msgstr ""
+msgstr "蓋アクセルロメータありに設定"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Set Has Tabletmode"
-msgstr ""
+msgstr "タブレットモードありに設定"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Unset Has Base Accelerometer"
-msgstr ""
+msgstr "ベースアクセルロメータの設定を解除"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Unset Has Base Gyroscope"
-msgstr ""
+msgstr "ベースジャイロスコープの設定を解除"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Unset Has Lid Accelerometer"
-msgstr ""
+msgstr "蓋アクセルロメータの設定を解除"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Unset Has Tabletmode"
-msgstr ""
+msgstr "タブレットモードの設定を解除"
 
 #: ../py/test/test_lists/generic_ec_component_accel_examples.test_list.json
 msgid "Generic Accelerometer/IMU Factory tests"
-msgstr ""
+msgstr "汎用アクセルロメータ/IMUファクトリーテスト"
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Light Sensor Calibration With Mocked Chamber"
-msgstr ""
+msgstr "模擬チャンバーによる光センサーのキャリブレーション"
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Generic Ambient Light Sensor Factory tests"
-msgstr ""
+msgstr "汎用環境光センサーファクトリーテスト"
 
 #: ../py/test/test_lists/generic_fat.test_list.json
 msgid "FAT (Final Assembly Test)"
-msgstr "FAT (Final Assembly Test)"
+msgstr "FAT（最終組立テスト）"
 
 #: ../py/test/test_lists/generic_fat.test_list.json
 #: ../py/test/test_lists/generic_fft.test_list.json
@@ -4199,105 +4223,105 @@ msgstr "FAT (Final Assembly Test)"
 #: ../py/test/test_lists/generic_smt.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Prepare"
-msgstr "Thủ tục chuẩn bị"
+msgstr "準備"
 
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
-msgstr "FFT (Kiểm tra chức năng cuối cùng)"
+msgstr "FFT（最終機能テスト）"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Check Fingerprint Firmware"
-msgstr ""
+msgstr "指紋ファームウェアの確認"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Fingerprint Test Group"
-msgstr ""
+msgstr "指紋テストグループ"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Fingerprint Sensor test"
-msgstr ""
+msgstr "指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Update Fingerprint Firmware"
-msgstr ""
+msgstr "指紋ファームウェアの更新"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Fingerprint Sensor test plus manual test"
-msgstr ""
+msgstr "指紋センサーテストと手動テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
-msgstr ""
+msgstr "指紋センサーテストとBloonchipperのピクセル中央値テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
-msgstr ""
+msgstr "指紋センサーテストとDartmonkeyのピクセル中央値テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Fingerprint Sensor test plus rubber stamper test"
-msgstr ""
+msgstr "指紋センサーテストとゴムスタンプテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Probe Fingerprint Sensor"
-msgstr ""
+msgstr "指紋センサーのプローブ"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Set Has Fingerprint"
-msgstr ""
+msgstr "指紋ありに設定"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Unset Has Fingerprint"
-msgstr ""
+msgstr "指紋の設定を解除"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Update Fingerprint Firmware with local build firmware"
-msgstr ""
+msgstr "ローカルビルドのファームウェアで指紋ファームウェアを更新"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Generic Fingerprint Sensor Factory tests"
-msgstr ""
+msgstr "汎用指紋センサー工場テスト"
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json
 msgid "GRT (Google Required Tests)"
-msgstr "GRT (Dự án thử nghiệm bắt buộc của Google)"
+msgstr "GRT（Google必須テスト）"
 
 #: ../py/test/test_lists/generic_main.test_list.json
 msgid "Generic Chromebook"
-msgstr "Kiểm tra Chromebook chung"
+msgstr "汎用Chromebook"
 
 #: ../py/test/test_lists/generic_rf_station.test_list.json
 msgid "Generic RF Station"
-msgstr "Trạm kiểm tra chung RF"
+msgstr "汎用RFステーション"
 
 #: ../py/test/test_lists/generic_rma.test_list.json
 msgid "FFT"
-msgstr ""
+msgstr "FFT"
 
 #: ../py/test/test_lists/generic_rma.test_list.json
 msgid "Generic RMA"
-msgstr "RMA chung"
+msgstr "汎用RMA"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Dozing Stress"
-msgstr "Kiểm tra căng thẳng bộ nhớ ngủ"
+msgstr "スリープ状態のストレス"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "Check WLAN"
-msgstr "Kiểm tra mạng không dây"
+msgstr "WLANの確認"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "Check Bluetooth"
-msgstr "Kiểm tra Bluetooth"
+msgstr "Bluetoothの確認"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "Stress Group"
-msgstr "Thử áp lực tập trung"
+msgstr "ストレステストグループ"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "Warm Cold Reboot"
-msgstr "Khởi động lại nóng và lạnh"
+msgstr "ウォームコールドリブート"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "RRT"
@@ -4305,328 +4329,328 @@ msgstr "RRT"
 
 #: ../py/test/test_lists/generic_rrt.test_list.json
 msgid "Generic Rolling Reliability"
-msgstr "Kiểm tra ổn định chung (RRT)"
+msgstr "汎用ローリング信頼性"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Run-In Test"
-msgstr "Chạy thử"
+msgstr "ランインテスト"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Stress Group With Front Camera"
-msgstr "Camera phía trước Thử áp lực tập trung"
+msgstr "フロントカメラを使用したストレステストグループ"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Stress Group With Rear Camera"
-msgstr "Camera phía sau Thử áp lực tập trung"
+msgstr "リアカメラを使用したストレステストグループ"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Suspend Stress Memory Check"
-msgstr ""
+msgstr "サスペンドストレステストメモリチェック"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Webgl Aquarium 1000"
-msgstr ""
+msgstr "Webgl Aquarium 1000"
 
 #: ../py/test/test_lists/generic_run_in.test_list.json
 msgid "Webgl Aquarium 50"
-msgstr ""
+msgstr "Webgl Aquarium 50"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Check RMA test list"
-msgstr "Kiểm tra danh sách kiểm tra: RMA"
+msgstr "RMAテストリストの確認"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "SMT (SA Test)"
-msgstr "SMT (SA Test)"
+msgstr "SMT（SAテスト）"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Parallel Test"
-msgstr "Nhóm thử nghiệm song song"
+msgstr "並列テスト"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "MLB Serial Number"
-msgstr "Số sêri bo mạch chủ"
+msgstr "MLBシリアル番号"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Scan MLB"
-msgstr "Quét số sêri bo mạch chủ"
+msgstr "MLBのスキャン"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Operator ID"
-msgstr "ID người vận hành"
+msgstr "オペレーターID"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Scan Operator ID"
-msgstr "ID người vận hành quét"
+msgstr "オペレーターIDのスキャン"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Station ID"
-msgstr "TRạm thử ID"
+msgstr "ステーションID"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "ScanStationID"
-msgstr "IDID trạm quét"
+msgstr "ステーションIDのスキャン"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Stress Test"
-msgstr "Thử áp lực"
+msgstr "ストレステスト"
 
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Switch to RMA test list"
-msgstr "Chuyển danh sách kiểm tra: RMA"
+msgstr "RMAテストリストに切り替え"
 
 #: ../py/test/test_lists/generic_storage.test_list.json
 msgid "Probe Storage"
-msgstr ""
+msgstr "ストレージのプローブ"
 
 #: ../py/test/test_lists/generic_storage_examples.test_list.json
 msgid "Bad Blocks 2GB"
-msgstr ""
+msgstr "不良ブロック2GB"
 
 #: ../py/test/test_lists/generic_storage_examples.test_list.json
 msgid "Bad Blocks Force badblocks On SSD"
-msgstr ""
+msgstr "SSDで不良ブロックを強制的に検出"
 
 #: ../py/test/test_lists/generic_storage_examples.test_list.json
 msgid "Bad Blocks Force badblocks On SSD 10MB"
-msgstr ""
+msgstr "不良ブロック SSD 10MB で badblocks を強制実行"
 
 #: ../py/test/test_lists/generic_storage_examples.test_list.json
 msgid "Storage Simple Stress 3 Times"
-msgstr ""
+msgstr "ストレージ簡易ストレス 3 回"
 
 #: ../py/test/test_lists/generic_storage_examples.test_list.json
 msgid "Generic Storage Factory tests"
-msgstr ""
+msgstr "汎用ストレージファクトリーテスト"
 
 #: ../py/test/test_lists/generic_tast.test_list.json
 msgid "Test List for Tast Tests"
-msgstr "Test List for Tast Tests"
+msgstr "Tast テスト用テストリスト"
 
 #: ../py/test/test_lists/generic_touchpad.test_list.json
 msgid "Probe Touchpad"
-msgstr ""
+msgstr "タッチパッドのプローブ"
 
 #: ../py/test/test_lists/generic_touchpad_examples.test_list.json
 msgid "Touchpad 100 Seconds"
-msgstr ""
+msgstr "タッチパッド 100 秒"
 
 #: ../py/test/test_lists/generic_touchpad_examples.test_list.json
 msgid "Touchpad Calibration Trigger"
-msgstr ""
+msgstr "タッチパッドキャリブレーショントリガー"
 
 #: ../py/test/test_lists/generic_touchpad_examples.test_list.json
 msgid "Scan Touchpad Calibration Trigger"
-msgstr ""
+msgstr "タッチパッドキャリブレーショントリガースキャン"
 
 #: ../py/test/test_lists/generic_touchpad_examples.test_list.json
 msgid "Touchpad Calibrate And Hover"
-msgstr ""
+msgstr "タッチパッドのキャリブレーションとホバー"
 
 #: ../py/test/test_lists/generic_touchpad_examples.test_list.json
 msgid "Generic Touchpad Factory tests"
-msgstr ""
+msgstr "汎用タッチパッドファクトリーテスト"
 
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Probe Touchscreen"
-msgstr ""
+msgstr "タッチスクリーンのプローブ"
 
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Stylus And Garage"
-msgstr ""
+msgstr "スタイラスとガレージ"
 
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "References"
-msgstr ""
+msgstr "参照"
 
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Deltas"
-msgstr ""
+msgstr "デルタ"
 
 #: ../py/test/test_lists/generic_touchscreen.test_list.json
 msgid "Touchscreen Uniformity"
-msgstr "Kiểm tra tính đồng nhất trên màn hình cảm ứng"
+msgstr "タッチスクリーンの均一性"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Stylus Spiral Hover Mode"
-msgstr ""
+msgstr "スタイラススパイラルホバーモード"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Stylus Spiral Touch Mode"
-msgstr ""
+msgstr "スタイラススパイラルタッチモード"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Stylus Top Left To Bottom Left"
-msgstr ""
+msgstr "スタイラス左上から左下へ"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Touchscreen 30x20"
-msgstr ""
+msgstr "30x20 タッチスクリーン"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Touchscreen Arbitrary Order"
-msgstr ""
+msgstr "任意の順序のタッチスクリーン"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Touchscreen E2E Mode"
-msgstr ""
+msgstr "E2E モードのタッチスクリーン"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Touchscreen Without TimeLimit"
-msgstr ""
+msgstr "時間制限なしのタッチスクリーン"
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Generic Touchscreen Factory tests"
-msgstr ""
+msgstr "汎用タッチスクリーン工場テスト"
 
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"
-msgstr ""
+msgstr "SKU ID で Chromebook をプロビジョニングする"
 
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Probe Wireless"
-msgstr ""
+msgstr "ワイヤレスをプローブする"
 
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wifi"
-msgstr "Mạng không dây"
+msgstr "無線LAN"
 
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wireless Antenna (radiotap only)"
-msgstr "Ăng ten không dây (radiotap only)"
+msgstr "ワイヤレスアンテナ (radiotap のみ)"
 
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Wireless Antenna (switch antenna only)"
-msgstr "Ăng ten không dây (switch antenna only)"
+msgstr "ワイヤレスアンテナ (アンテナ切り替えのみ)"
 
 #: ../py/test/test_lists/generic_wireless.test_list.json
 msgid "Disconnect from wireless networks"
-msgstr ""
+msgstr "ワイヤレスネットワークから切断する"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Bluetooth Device Name"
-msgstr ""
+msgstr "Bluetooth デバイス名"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Scan Bluetooth Device Name"
-msgstr ""
+msgstr "Bluetooth デバイス名をスキャンする"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Pair With Bluetooth Device"
-msgstr ""
+msgstr "Bluetooth デバイスとペアリングする"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Scan for Bluetooth device named Chromebook"
-msgstr ""
+msgstr "Chromebook という名前の Bluetooth デバイスをスキャンする"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Scan for Bluetooth devices with a specific strength threshold"
-msgstr ""
+msgstr "特定の強度しきい値を持つ Bluetooth デバイスをスキャンする"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example WifiSSIDList"
-msgstr ""
+msgstr "WifiSSIDList の例"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example Wireless Connect 2G"
-msgstr "Example Kết nối không dây 2G"
+msgstr "2G ワイヤレス接続の例"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example Wireless Connect 5G"
-msgstr "Example Kết nối không dây 5G"
+msgstr "5G ワイヤレス接続の例"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Intel Wireless Antenna"
-msgstr "Intel Ăng ten không dây"
+msgstr "Intel ワイヤレスアンテナ"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Mediatek Wireless Antenna"
-msgstr "Mediatek Ăng ten không dây"
+msgstr "Mediatek ワイヤレスアンテナ"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Qualcomm Atheros Wireless Antenna"
-msgstr "Qualcomm Atheros Ăng ten không dây"
+msgstr "Qualcomm Atheros ワイヤレスアンテナ"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Realtek Wireless Antenna"
-msgstr "Realtek Ăng ten không dây"
+msgstr "Realtek ワイヤレスアンテナ"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Wireless Antenna With Specific Frequency"
-msgstr "Ăng ten không dây (with specific frequency)"
+msgstr "特定の周波数を持つワイヤレスアンテナ"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Generic Wireless Factory tests"
-msgstr ""
+msgstr "汎用ワイヤレス工場テスト"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Lock the Intel Descriptor"
-msgstr ""
+msgstr "Intel 記述子をロックする"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Set EOM NVAR"
-msgstr ""
+msgstr "EOM NVAR を設定する"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Start PSR Log"
-msgstr ""
+msgstr "PSR ログを開始する"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Update Intel Firmware"
-msgstr ""
+msgstr "Intel ファームウェアを更新する"
 
 #: ../py/test/test_lists/main_wipe.test_list.json
 msgid "Execute Wipe Test-List"
-msgstr ""
+msgstr "ワイプテストリストを実行する"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Connect Device"
-msgstr "Gắn thiết bị"
+msgstr "デバイスを接続する"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Disconnect Device"
-msgstr "Loại bỏ thiết bị"
+msgstr "デバイスを切断する"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Copy Factory State From DUT"
-msgstr "Sao chép trạng thái thử nghiệm từ thiết bị"
+msgstr "DUT から工場出荷時の状態をコピーする"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Copy Factory State To DUT"
-msgstr "Sao chép trạng thái kiểm tra sang thiết bị"
+msgstr "DUT に工場出荷時の状態をコピーする"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Merge Factory State On DUT"
-msgstr "Tình trạng kiểm tra nhà máy hợp nhất"
+msgstr "DUTの工場出荷状態をマージ"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Pop Factory State On Station"
-msgstr "Xóa trạng thái thử nghiệm dàn dựng"
+msgstr "ステーション上の工場出荷状態をポップ"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Placeholder: AfterDisconnection"
-msgstr "Kiểm tra ngoại tuyến (không xác định)"
+msgstr "プレースホルダー：切断後"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Placeholder: BeforeConnection"
-msgstr "Kiểm tra trước khi kết nối (không xác định)"
+msgstr "プレースホルダー：接続前"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Placeholder: Main"
-msgstr "Mục kiểm tra chính (không xác định)"
+msgstr "プレースホルダー：メイン"
 
 #: ../py/test/test_lists/station_based.test_list.json
 msgid "Station-Based Test Template"
-msgstr "Các thử nghiệm trạm mẫu"
+msgstr "ステーションベースのテストテンプレート"
 
 #: ../py/test/test_lists/test_object.py
 msgid "Test Group"
-msgstr "Nhóm thử nghiệm"
+msgstr "テストグループ"
 
 #: ../py/test/test_ui.py
 msgid "Press Enter to pass."
-msgstr "Nhấn ENTER "
+msgstr "合格するにはEnterキーを押してください。"
 
 #: ../py/test/test_ui.py
 msgid "Press ESC to fail."
-msgstr "Nếu bạn thất bại, nhấn phím ESC"
+msgstr "失敗するにはESCキーを押してください。"
