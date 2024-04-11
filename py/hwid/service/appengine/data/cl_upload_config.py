@@ -194,6 +194,29 @@ class AbstractCLUploadManager(abc.ABC):
         auto_submit=auto_submit, rubber_stamper=rubber_stamper,
         hashtags=hashtags, files_to_delete=files_to_delete)
 
+  def AbandonCL(self, dryrun: bool, review_host: str, auth_cookie: str,
+                change_id: str, reason: Optional[str] = None):
+    """Abandons a CL.
+
+    See git_util.AbandonCL() for descriptions of other arguments.
+
+    Args:
+      dryrun: Do everything except actually upload the CL.
+
+    Raises:
+      See git_util.AbandonCL().
+    """
+    if dryrun:
+      debug_info = textwrap.dedent(f"""\
+          Dryrun abandon
+          review_host: {review_host}
+          change_id: {change_id}
+      """)
+      self._logger.debug(debug_info)
+      return
+
+    git_util.AbandonCL(review_host, auth_cookie, change_id, reason)
+
   def _GetLatestContentHash(self, board: Optional[str] = None) -> Optional[str]:
     """Gets the latest content hash.
 
@@ -248,8 +271,8 @@ class AbstractCLUploadManager(abc.ABC):
     """
 
   @abc.abstractmethod
-  def ShouldCreateCL(self, content_hash: str,
-                     board: Optional[str] = None) -> bool:
+  def ShouldCreateCL(self, content_hash: str, board: Optional[str] = None,
+                     force_create: bool = False) -> bool:
     """Checks if the CL should be created.
 
     This function is called after the generation of contents is completed to
@@ -258,6 +281,7 @@ class AbstractCLUploadManager(abc.ABC):
     Args:
       content_hash: See CLUploadFactor.latest_content_hash.
       board: See CLUploadFactor.board.
+      force_create: Set to True when force to create the CL.
 
     Raises:
       ValueError: If any mandatory parameters are not specified.
@@ -284,11 +308,15 @@ class VPGTargetsCLUploadManager(AbstractCLUploadManager):
       return False
     return True
 
-  def ShouldCreateCL(self, content_hash: str,
-                     board: Optional[str] = None) -> bool:
+  def ShouldCreateCL(self, content_hash: str, board: Optional[str] = None,
+                     force_create: bool = False) -> bool:
     """See base class."""
     del board  # unused.
 
+    if force_create:
+      self._logger.info('Force to create CL for %s.',
+                        self.cl_upload_config.cl_type)
+      return True
     latest_vpg_targets_hash = self.GetLatestVPGTargetsHash()
     if content_hash == latest_vpg_targets_hash:
       self._logger.info('%s hash value is not changed (%s), skip creating CL',
@@ -360,12 +388,16 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
       return False
     return True
 
-  def ShouldCreateCL(self, content_hash: str,
-                     board: Optional[str] = None) -> bool:
+  def ShouldCreateCL(self, content_hash: str, board: Optional[str] = None,
+                     force_create: bool = False) -> bool:
     """See base class."""
     if board is None:
       raise ValueError('board must be specified')
 
+    if force_create:
+      self._logger.info('Force to create CL for %s.',
+                        self.cl_upload_config.cl_type)
+      return True
     latest_payload_hash = self.GetLatestPayloadHash(board)
     if content_hash == latest_payload_hash:
       self._logger.info('%s hash value is not changed (%s), skip creating CL',
@@ -385,7 +417,7 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
           LatestHWIDMainCommit.payload_type == self._cl_type).get()
       return entity.commit if entity is not None else None
 
-  def SetLatestHwidMainCommit(self, commit: str):
+  def SetLatestHWIDMainCommit(self, commit: str):
     """Sets the latest processed commit of HWID repo.
 
     Args:

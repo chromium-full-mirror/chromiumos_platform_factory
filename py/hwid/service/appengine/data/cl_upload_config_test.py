@@ -297,7 +297,7 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     self.assertEqual(vp_commit, 'fake-commit')
     self.assertEqual(selection_commit, 'fake-commit2')
 
-  def testSetLatestHwidMainCommit(self):
+  def testSetLatestHWIDMainCommit(self):
     vp_manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
     selection_manager = cl_upload_config.HWIDSelectionPayloadCLUploadManager(
@@ -306,8 +306,8 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     selection_commit = self._SetLatestHWIDMainCommit(selection_manager,
                                                      commit='fake-commit2')
 
-    vp_manager.SetLatestHwidMainCommit('new-commit')
-    selection_manager.SetLatestHwidMainCommit('new-commit2')
+    vp_manager.SetLatestHWIDMainCommit('new-commit')
+    selection_manager.SetLatestHWIDMainCommit('new-commit2')
 
     with self._ndb_connector.CreateClientContext():
       vp_commit = vp_commit.key.get()

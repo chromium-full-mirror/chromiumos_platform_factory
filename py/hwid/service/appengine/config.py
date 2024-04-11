@@ -13,7 +13,6 @@ from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
-from cros.factory.hwid.service.appengine.data import payload_data
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine import hwid_repo
@@ -37,10 +36,10 @@ class _Config:
         on CloudStorage.
     hwid_filesystem: An IFileSystemAdapter object, the HWID filesystem on
         CloudStorage.
-    hsp_data_manager: A PayloadDataManager instance responsible for
-        reading/writing HWID selection payload related metadata.
-    vp_data_manager: A PayloadDataManager instance responsible for
-        reading/writing verification payload related metadata.
+    hsp_cl_upload_manager: A HWIDSelectionPayloadCLUploadManager instance
+        responsible for reading/writing HWID selection payload related metadata.
+    vp_cl_upload_manager: A VerificationPayloadCLUploadManager instance
+        responsible for reading/writing verification payload related metadata.
     vpg_config_cl_upload_manager: A VPGTargetsCLUploadManager instance
         responsible for uploading CL to update verification payload generator
         config file.
@@ -77,12 +76,10 @@ class _Config:
         conf['bucket'])
     ndb_connector = ndbc_module.NDBConnector()
     self.dlm_product_manager = dlm_product_data.DLMProductManager(ndb_connector)
-    self.hsp_data_manager = (
-        payload_data.PayloadDataManager(
-            ndb_connector, payload_data.PayloadType.HWID_SELECTION))
-    self.vp_data_manager = (
-        payload_data.PayloadDataManager(ndb_connector,
-                                        payload_data.PayloadType.VERIFICATION))
+    self.hsp_cl_upload_manager = (
+        cl_upload_config.HWIDSelectionPayloadCLUploadManager(ndb_connector))
+    self.vp_cl_upload_manager = (
+        cl_upload_config.VerificationPayloadCLUploadManager(ndb_connector))
     self.vpg_config_cl_upload_manager = (
         cl_upload_config.VPGTargetsCLUploadManager(ndb_connector))
     self.decoder_data_manager = decoder_data.DecoderDataManager(ndb_connector)

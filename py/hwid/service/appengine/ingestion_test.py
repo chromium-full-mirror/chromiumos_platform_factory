@@ -11,7 +11,6 @@ from cros.factory.hwid.service.appengine import config as config_module
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import hwid_db_data
-from cros.factory.hwid.service.appengine.data import payload_data
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine import hwid_repo
@@ -26,10 +25,10 @@ def _CreateMockConfig(fake_modules: test_utils.FakeModuleCollection):
       spec=config_module._Config,  # pylint: disable=protected-access
       wraps=config_module.CONFIG)
   mock_config.hwid_action_manager = fake_modules.fake_hwid_action_manager
-  mock_config.vp_data_manager = mock.create_autospec(
-      payload_data.PayloadDataManager, instance=True)
-  mock_config.hsp_data_manager = mock.create_autospec(
-      payload_data.PayloadDataManager, instance=True)
+  mock_config.vp_cl_upload_manager = mock.create_autospec(
+      cl_upload_config.VerificationPayloadCLUploadManager, instance=True)
+  mock_config.hsp_cl_upload_manager = mock.create_autospec(
+      cl_upload_config.HWIDSelectionPayloadCLUploadManager, instance=True)
   mock_config.hwid_db_data_manager = mock.create_autospec(
       hwid_db_data.HWIDDBDataManager, instance=True)
   mock_config.decoder_data_manager = fake_modules.fake_decoder_data_manager
