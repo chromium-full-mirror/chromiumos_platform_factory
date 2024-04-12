@@ -111,11 +111,10 @@ class StubbyHandlerTest(unittest.TestCase):
     expected_message.doc_id = self._doc_id
     expected_message.request.MergeFrom(self._create_bundle_request)
     self._mock_firestore_connector.CreateUserRequest.assert_called_once_with(
-        firestore_connector.CreateBundleRequestInfo.FromV2CreateBundleRequest(
+        firestore_connector.CreateBundleRequestInfo.FromCreateBundleRequest(
             self._create_bundle_request), 'v2')
     self._mock_pubsub_connector.PublishMessage.assert_called_once_with(
-        'fake-topic', expected_message.SerializeToString(),
-        {'request_from': 'v2'})
+        'fake-topic', expected_message.SerializeToString())
 
   def testGetBundleInfo_succeed_returnsExpectedResponse(self):
     base_timestamp_sec = 1672750600

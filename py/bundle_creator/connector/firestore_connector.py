@@ -15,7 +15,6 @@ from google.cloud import firestore
 
 # isort: split
 
-from cros.factory.bundle_creator.proto import factorybundle_pb2  # pylint: disable=no-name-in-module
 from cros.factory.bundle_creator.proto import factorybundle_v2_pb2  # pylint: disable=no-name-in-module
 
 
@@ -60,25 +59,7 @@ class CreateBundleRequestInfo:
   hwid_related_bug_number: Optional[int] = None
 
   @classmethod
-  def FromCreateBundleRpcRequest(
-      cls, request: factorybundle_pb2.CreateBundleRpcRequest
-  ) -> 'CreateBundleRequestInfo':
-    info = cls(
-        email=request.email, board=request.board, project=request.project,
-        phase=request.phase, toolkit_version=request.toolkit_version,
-        test_image_version=request.test_image_version,
-        release_image_version=request.release_image_version,
-        update_hwid_db_firmware_info=request.update_hwid_db_firmware_info,
-        cc_emails=list(request.cc_emails))
-    info.firmware_source = request.firmware_source if request.HasField(
-        'firmware_source') else None
-    info.hwid_related_bug_number = (
-        request.hwid_related_bug_number
-        if request.HasField('hwid_related_bug_number') else None)
-    return info
-
-  @classmethod
-  def FromV2CreateBundleRequest(
+  def FromCreateBundleRequest(
       cls, request: factorybundle_v2_pb2.CreateBundleRequest
   ) -> 'CreateBundleRequestInfo':
     metadata = request.bundle_metadata

@@ -88,8 +88,6 @@ class CreateBundleTask(IWorkerTask):
     firmware_source: The firmware source, `None` if it isn't set.
     hwid_related_bug_number: The bug number to create a HWID CL, `None` if it
         isn't set.
-    request_from: A string value which represents the version of the message is
-        from, `None` if it is from `py/bundle_creator/app_engine`.
   """
   doc_id: str
   email: str
@@ -103,46 +101,24 @@ class CreateBundleTask(IWorkerTask):
   cc_emails: List[str]
   firmware_source: Optional[str] = None
   hwid_related_bug_number: Optional[int] = None
-  request_from: Optional[str] = None
 
   @classmethod
   def FromPubSubMessage(
       cls,
       pubsub_message: pubsub_connector.PubSubMessage) -> 'CreateBundleTask':
-    if pubsub_message.attributes.get('request_from') == 'v2':
-      message = factorybundle_v2_pb2.CreateBundleMessage.FromString(
-          pubsub_message.data)
-      metadata = message.request.bundle_metadata
-      hwid_option = message.request.hwid_option
-      return cls(
-          doc_id=message.doc_id, email=message.request.email,
-          board=metadata.board, project=metadata.project, phase=metadata.phase,
-          toolkit_version=metadata.toolkit_version,
-          test_image_version=metadata.test_image_version,
-          release_image_version=metadata.release_image_version,
-          update_hwid_db_firmware_info=hwid_option.update_db_firmware_info,
-          cc_emails=list(message.request.cc_emails),
-          firmware_source=metadata.firmware_source or None,
-          hwid_related_bug_number=hwid_option.related_bug_number or None,
-          request_from='v2')
-
-    message = factorybundle_pb2.CreateBundleMessage.FromString(
+    message = factorybundle_v2_pb2.CreateBundleMessage.FromString(
         pubsub_message.data)
-    request = message.request
-    task = cls(
-        doc_id=message.doc_id, email=request.email, board=request.board,
-        project=request.project, phase=request.phase,
-        toolkit_version=request.toolkit_version,
-        test_image_version=request.test_image_version,
-        release_image_version=request.release_image_version,
-        update_hwid_db_firmware_info=request.update_hwid_db_firmware_info,
-        cc_emails=list(request.cc_emails))
-    task.firmware_source = request.firmware_source if request.HasField(
-        'firmware_source') else None
-    task.hwid_related_bug_number = (
-        request.hwid_related_bug_number
-        if request.HasField('hwid_related_bug_number') else None)
-    return task
+    metadata = message.request.bundle_metadata
+    hwid_option = message.request.hwid_option
+    return cls(doc_id=message.doc_id, email=message.request.email,
+               board=metadata.board, project=metadata.project,
+               phase=metadata.phase, toolkit_version=metadata.toolkit_version,
+               test_image_version=metadata.test_image_version,
+               release_image_version=metadata.release_image_version,
+               update_hwid_db_firmware_info=hwid_option.update_db_firmware_info,
+               cc_emails=list(message.request.cc_emails),
+               firmware_source=metadata.firmware_source or None,
+               hwid_related_bug_number=hwid_option.related_bug_number or None)
 
   def ToOriginalRequest(self) -> factorybundle_pb2.CreateBundleRpcRequest:
     request = factorybundle_pb2.CreateBundleRpcRequest()
@@ -221,9 +197,7 @@ class EasyBundleCreationWorker(AbstractWorker):
           worker_result.status = (
               factorybundle_pb2.WorkerResult.CREATE_CL_FAILED)
           worker_result.error_message = str(cl_error_msg)
-        worker_result.download_link_format = (
-            config.DOWNLOAD_LINK_FORMAT_V2
-            if task.request_from == 'v2' else config.DOWNLOAD_LINK_FORMAT)
+        worker_result.download_link_format = config.DOWNLOAD_LINK_FORMAT
         self._cloudtasks_connector.ResponseWorkerResult(worker_result)
       except CreateBundleException as e:
         self._logger.error(e)

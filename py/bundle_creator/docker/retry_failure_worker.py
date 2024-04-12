@@ -12,7 +12,6 @@ from cros.factory.bundle_creator.connector import firestore_connector
 from cros.factory.bundle_creator.connector import pubsub_connector
 from cros.factory.bundle_creator.docker import config
 from cros.factory.bundle_creator.docker import worker
-from cros.factory.bundle_creator.proto import factorybundle_pb2  # pylint: disable=no-name-in-module
 from cros.factory.bundle_creator.proto import factorybundle_v2_pb2  # pylint: disable=no-name-in-module
 
 
@@ -32,43 +31,7 @@ class UserRequest:
   """
   snapshot: Dict
 
-  def ToCreateBundleRpcRequest(
-      self, requester: str) -> factorybundle_pb2.CreateBundleRpcRequest:
-    """Converts to v1 create bundle request.
-
-    Args:
-      requester: The retry failure requester's email to be added into the carbon
-          copy list.
-
-    Returns:
-      A `factorybundle_pb2.CreateBundleRpcRequest` proto message.
-    """
-    request = factorybundle_pb2.CreateBundleRpcRequest()
-    request.email = self.snapshot.get('email')
-
-    request.cc_emails.extend(self.snapshot.get('cc_emails', []))
-    request.cc_emails.append(config.RETRY_FAILURE_EMAIL)
-    if requester not in request.cc_emails and requester != request.email:
-      request.cc_emails.append(requester)
-
-    request.board = self.snapshot.get('board')
-    request.project = self.snapshot.get('project')
-    request.phase = self.snapshot.get('phase')
-    request.toolkit_version = self.snapshot.get('toolkit_version')
-    request.test_image_version = self.snapshot.get('test_image_version')
-    request.release_image_version = self.snapshot.get('release_image_version')
-    firmware_source = self.snapshot.get('firmware_source', '')
-    if firmware_source:
-      request.firmware_source = firmware_source
-
-    request.update_hwid_db_firmware_info = self.snapshot.get(
-        'update_hwid_db_firmware_info', False)
-    if request.update_hwid_db_firmware_info:
-      request.hwid_related_bug_number = self.snapshot.get(
-          'hwid_related_bug_number')
-    return request
-
-  def ToV2CreateBundleRequest(
+  def ToCreateBundleRequest(
       self, requester: str) -> factorybundle_v2_pb2.CreateBundleRequest:
     """Converts to v2 create bundle request.
 
@@ -155,25 +118,13 @@ class RetryFailureWorker(worker.AbstractWorker):
       self._logger.error(e)
 
   def _ProcessSnapshot(self, snapshot: Dict, requester: str):
-    if snapshot.get('request_from', '') == 'v2':
-      request = UserRequest(snapshot).ToV2CreateBundleRequest(requester)
-      message = factorybundle_v2_pb2.CreateBundleMessage()
-      message.doc_id = self._firestore_connector.CreateUserRequest(
-          firestore_connector.CreateBundleRequestInfo.FromV2CreateBundleRequest(
-              request), 'v2')
-      message.request.MergeFrom(request)
-      self._pubsub_connector.PublishMessage(config.PUBSUB_TOPIC,
-                                            message.SerializeToString(), {
-                                                'request_from': 'v2',
-                                            })
-    else:
-      request = UserRequest(snapshot).ToCreateBundleRpcRequest(requester)
-      message = factorybundle_pb2.CreateBundleMessage()
-      message.doc_id = self._firestore_connector.CreateUserRequest(
-          firestore_connector.CreateBundleRequestInfo
-          .FromCreateBundleRpcRequest(request))
-      message.request.MergeFrom(request)
-      self._pubsub_connector.PublishMessage(config.PUBSUB_TOPIC,
-                                            message.SerializeToString())
+    request = UserRequest(snapshot).ToCreateBundleRequest(requester)
+    message = factorybundle_v2_pb2.CreateBundleMessage()
+    message.doc_id = self._firestore_connector.CreateUserRequest(
+        firestore_connector.CreateBundleRequestInfo.FromCreateBundleRequest(
+            request), 'v2')
+    message.request.MergeFrom(request)
+    self._pubsub_connector.PublishMessage(config.PUBSUB_TOPIC,
+                                          message.SerializeToString())
 
     self._logger.info('Processed the failed request:\n%s', str(request))

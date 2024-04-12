@@ -84,37 +84,20 @@ class CreateBundleTaskTest(unittest.TestCase):
     self._cc_emails = ['foo.cc@bar']
     self._hwid_related_bug_number = 123
 
-    self._request = factorybundle_pb2.CreateBundleRpcRequest()
-    self._request.board = self._board
-    self._request.project = self._project
-    self._request.phase = self._phase
-    self._request.toolkit_version = self._toolkit_version
-    self._request.test_image_version = self._test_image_version
-    self._request.release_image_version = self._release_image_version
-    self._request.email = self._email
-    self._request.update_hwid_db_firmware_info = False
-    self._request.cc_emails.extend(self._cc_emails)
-    self._message = factorybundle_pb2.CreateBundleMessage()
-    self._message.doc_id = self._doc_id
-    self._message.request.MergeFrom(self._request)
-
-    request_v2 = factorybundle_v2_pb2.CreateBundleRequest()
-    request_v2.email = self._email
-    request_v2.cc_emails.extend(self._cc_emails)
-    request_v2.bundle_metadata.board = self._board
-    request_v2.bundle_metadata.project = self._project
-    request_v2.bundle_metadata.phase = self._phase
-    request_v2.bundle_metadata.toolkit_version = self._toolkit_version
-    request_v2.bundle_metadata.test_image_version = self._test_image_version
-    request_v2.bundle_metadata.release_image_version = (
+    request = factorybundle_v2_pb2.CreateBundleRequest()
+    request.email = self._email
+    request.cc_emails.extend(self._cc_emails)
+    request.bundle_metadata.board = self._board
+    request.bundle_metadata.project = self._project
+    request.bundle_metadata.phase = self._phase
+    request.bundle_metadata.toolkit_version = self._toolkit_version
+    request.bundle_metadata.test_image_version = self._test_image_version
+    request.bundle_metadata.release_image_version = (
         self._release_image_version)
-    request_v2.hwid_option.update_db_firmware_info = False
-    self._message_v2 = factorybundle_v2_pb2.CreateBundleMessage()
-    self._message_v2.doc_id = self._doc_id
-    self._message_v2.request.MergeFrom(request_v2)
-    self._attributes = {
-        'request_from': 'v2',
-    }
+    request.hwid_option.update_db_firmware_info = False
+    self._message = factorybundle_v2_pb2.CreateBundleMessage()
+    self._message.doc_id = self._doc_id
+    self._message.request.MergeFrom(request)
 
     self._task = CreateBundleTask(
         doc_id=self._doc_id, email=self._email, board=self._board,
@@ -124,41 +107,17 @@ class CreateBundleTaskTest(unittest.TestCase):
         release_image_version=self._release_image_version,
         update_hwid_db_firmware_info=False, cc_emails=self._cc_emails)
 
-  def testFromPubSubMessage_isV2_returnsExpectedValue(self):
-    task = CreateBundleTask.FromPubSubMessage(
-        pubsub_connector.PubSubMessage(
-            data=self._message_v2.SerializeToString(),
-            attributes=self._attributes))
-
-    self._task.request_from = 'v2'
-    self.assertEqual(task, self._task)
-
-  def testFromPubSubMessage_isV2WithOptionalFields_verifiesOptionalFields(self):
-    self._message_v2.request.bundle_metadata.firmware_source = (
-        self._firmware_source)
-    self._message_v2.request.hwid_option.related_bug_number = (
-        self._hwid_related_bug_number)
-
-    task = CreateBundleTask.FromPubSubMessage(
-        pubsub_connector.PubSubMessage(
-            data=self._message_v2.SerializeToString(),
-            attributes=self._attributes))
-
-    self.assertEqual(task.firmware_source, self._firmware_source)
-    self.assertEqual(task.hwid_related_bug_number,
-                     self._hwid_related_bug_number)
-
-  def testFromPubSubMessage_isNotV2_returnsExpectedValue(self):
+  def testFromPubSubMessage_withoutOptionalFields_returnsExpectedValue(self):
     task = CreateBundleTask.FromPubSubMessage(
         pubsub_connector.PubSubMessage(data=self._message.SerializeToString(),
                                        attributes={}))
 
     self.assertEqual(task, self._task)
 
-  def testFromPubSubMessage_isNotV2WithOptionalFields_verifiesOptionalFields(
-      self):
-    self._message.request.firmware_source = self._firmware_source
-    self._message.request.hwid_related_bug_number = (
+  def testFromPubSubMessage_withOptionalFields_verifiesOptionalFields(self):
+    self._message.request.bundle_metadata.firmware_source = (
+        self._firmware_source)
+    self._message.request.hwid_option.related_bug_number = (
         self._hwid_related_bug_number)
 
     task = CreateBundleTask.FromPubSubMessage(
@@ -172,7 +131,17 @@ class CreateBundleTaskTest(unittest.TestCase):
   def testToOriginalRequest_succeed_returnsExpectedValue(self):
     request = self._task.ToOriginalRequest()
 
-    self.assertEqual(request, self._request)
+    original_request = factorybundle_pb2.CreateBundleRpcRequest()
+    original_request.board = self._board
+    original_request.project = self._project
+    original_request.phase = self._phase
+    original_request.toolkit_version = self._toolkit_version
+    original_request.test_image_version = self._test_image_version
+    original_request.release_image_version = self._release_image_version
+    original_request.email = self._email
+    original_request.update_hwid_db_firmware_info = False
+    original_request.cc_emails.extend(self._cc_emails)
+    self.assertEqual(request, original_request)
 
   def testToOriginalRequest_withOptionalFields_verifiesOptionalFields(self):
     self._task.firmware_source = self._firmware_source
@@ -246,26 +215,27 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     mock_read_file.side_effect = _MockReadFile
     self.addCleanup(patcher.stop)
 
-    self._message = factorybundle_pb2.CreateBundleMessage()
-    self._message.request.board = 'board'
-    self._message.request.project = 'project'
-    self._message.request.phase = 'proto'
-    self._message.request.toolkit_version = '11111.0.0'
-    self._message.request.test_image_version = '22222.0.0'
-    self._message.request.release_image_version = '33333.0.0'
+    self._message = factorybundle_v2_pb2.CreateBundleMessage()
     self._message.request.email = 'foo@bar'
-    self._message.request.update_hwid_db_firmware_info = False
+    bundle_metadata = self._message.request.bundle_metadata
+    bundle_metadata.board = 'board'
+    bundle_metadata.project = 'project'
+    bundle_metadata.phase = 'proto'
+    bundle_metadata.toolkit_version = '11111.0.0'
+    bundle_metadata.test_image_version = '22222.0.0'
+    bundle_metadata.release_image_version = '33333.0.0'
+    self._message.request.hwid_option.update_db_firmware_info = False
     self._firestore_connector.ClearCollection('user_requests')
     self._firestore_connector.ClearCollection('has_firmware_settings')
     info = firestore_connector.CreateBundleRequestInfo(
-        email=self._message.request.email, board=self._message.request.board,
-        project=self._message.request.project,
-        phase=self._message.request.phase,
-        toolkit_version=self._message.request.toolkit_version,
-        test_image_version=self._message.request.test_image_version,
-        release_image_version=self._message.request.release_image_version,
+        email=self._message.request.email, board=bundle_metadata.board,
+        project=bundle_metadata.project, phase=bundle_metadata.phase,
+        toolkit_version=bundle_metadata.toolkit_version,
+        test_image_version=bundle_metadata.test_image_version,
+        release_image_version=bundle_metadata.release_image_version,
         update_hwid_db_firmware_info=False, cc_emails=[])
-    self._message.doc_id = self._firestore_connector.CreateUserRequest(info)
+    self._message.doc_id = self._firestore_connector.CreateUserRequest(
+        info, 'v2')
     self._pubsub_connector.CreateSubscription(self._TOPIC_NAME,
                                               config.PUBSUB_SUBSCRIPTION)
 
@@ -295,7 +265,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     doc = self._firestore_connector.GetUserRequestDocument(self._message.doc_id)
     expected_worker_result = factorybundle_pb2.WorkerResult()
     expected_worker_result.status = factorybundle_pb2.WorkerResult.NO_ERROR
-    expected_worker_result.original_request.MergeFrom(self._message.request)
+    expected_worker_result.original_request.MergeFrom(
+        self._GetOriginalRequest())
     expected_worker_result.gs_path = self._GS_PATH
     expected_worker_result.download_link_format = self._DOWNLOAD_LINK_FORMAT
     mock_method = self._mock_cloudtasks_connector.ResponseWorkerResult
@@ -318,7 +289,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     doc = self._firestore_connector.GetUserRequestDocument(self._message.doc_id)
     expected_worker_result = factorybundle_pb2.WorkerResult()
     expected_worker_result.status = factorybundle_pb2.WorkerResult.FAILED
-    expected_worker_result.original_request.MergeFrom(self._message.request)
+    expected_worker_result.original_request.MergeFrom(
+        self._GetOriginalRequest())
     expected_worker_result.error_message = error_message
     mock_method = self._mock_cloudtasks_connector.ResponseWorkerResult
     self.assertEqual(doc['status'],
@@ -331,8 +303,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
   def testTryProcessRequest_createHWIDCLSucceed_verifiesResultHandling(self):
     cl_url = ['https://fake_cl_url']
     self._mock_hwid_api_connector.CreateHWIDFirmwareInfoCL.return_value = cl_url
-    self._message.request.update_hwid_db_firmware_info = True
-    self._message.request.hwid_related_bug_number = 123456789
+    self._message.request.hwid_option.update_db_firmware_info = True
+    self._message.request.hwid_option.related_bug_number = 123456789
     self._PublishCreateBundleMessage()
 
     self._worker.TryProcessRequest()
@@ -340,7 +312,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     doc = self._firestore_connector.GetUserRequestDocument(self._message.doc_id)
     expected_worker_result = factorybundle_pb2.WorkerResult()
     expected_worker_result.status = factorybundle_pb2.WorkerResult.NO_ERROR
-    expected_worker_result.original_request.MergeFrom(self._message.request)
+    expected_worker_result.original_request.MergeFrom(
+        self._GetOriginalRequest())
     expected_worker_result.gs_path = self._GS_PATH
     expected_worker_result.cl_url.extend(cl_url)
     expected_worker_result.download_link_format = self._DOWNLOAD_LINK_FORMAT
@@ -352,8 +325,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     error_message = '{"fake_error": "fake_message"}'
     self._mock_hwid_api_connector.CreateHWIDFirmwareInfoCL.side_effect = (
         hwid_api_connector.HWIDAPIRequestException(error_message))
-    self._message.request.update_hwid_db_firmware_info = True
-    self._message.request.hwid_related_bug_number = 123456789
+    self._message.request.hwid_option.update_db_firmware_info = True
+    self._message.request.hwid_option.related_bug_number = 123456789
     self._PublishCreateBundleMessage()
 
     self._worker.TryProcessRequest()
@@ -362,7 +335,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     expected_worker_result = factorybundle_pb2.WorkerResult()
     expected_worker_result.status = (
         factorybundle_pb2.WorkerResult.CREATE_CL_FAILED)
-    expected_worker_result.original_request.MergeFrom(self._message.request)
+    expected_worker_result.original_request.MergeFrom(
+        self._GetOriginalRequest())
     expected_worker_result.gs_path = self._GS_PATH
     expected_worker_result.error_message = error_message
     expected_worker_result.download_link_format = self._DOWNLOAD_LINK_FORMAT
@@ -375,20 +349,21 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
 
     self._worker.TryProcessRequest()
 
+    bundle_metadata = self._message.request.bundle_metadata
     expected_manifest = {
-        'board': self._message.request.board,
-        'project': self._message.request.project,
+        'board': bundle_metadata.board,
+        'project': bundle_metadata.project,
         'designs': 'boxster_designs',
-        'bundle_name': f'20220608_{self._message.request.phase}',
-        'toolkit': self._message.request.toolkit_version,
-        'test_image': self._message.request.test_image_version,
-        'release_image': self._message.request.release_image_version,
+        'bundle_name': f'20220608_{bundle_metadata.phase}',
+        'toolkit': bundle_metadata.toolkit_version,
+        'test_image': bundle_metadata.test_image_version,
+        'release_image': bundle_metadata.release_image_version,
         'firmware': 'release_image',
     }
     self.assertEqual(self._ReadManifest(), expected_manifest)
 
   def testTryProcessRequest_hasFirmwareSource_verifiesManifest(self):
-    self._message.request.firmware_source = '44444.0.0'
+    self._message.request.bundle_metadata.firmware_source = '44444.0.0'
     self._PublishCreateBundleMessage()
 
     self._worker.TryProcessRequest()
@@ -400,8 +375,9 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     has_firmware_setting_value = ['BIOS']
     firestore_client = firestore.Client(project=config.GCLOUD_PROJECT)
     firestore_client.collection('has_firmware_settings').document(
-        self._message.request.project).set(
-            {'has_firmware': has_firmware_setting_value})
+        self._message.request.bundle_metadata.project).set({
+            'has_firmware': has_firmware_setting_value
+        })
     self._PublishCreateBundleMessage()
 
     self._worker.TryProcessRequest()
@@ -414,25 +390,25 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
 
     self._worker.TryProcessRequest()
 
+    bundle_metadata = self._message.request.bundle_metadata
     args = self._mock_storage_connector.UploadCreatedBundle.call_args.args
     self.assertTrue(os.path.exists(args[0]))
     self.assertEqual(
         args[1],
         storage_connector.StorageBundleMetadata(
             doc_id=self._message.doc_id, email=self._message.request.email,
-            board=self._message.request.board,
-            project=self._message.request.project,
-            phase=self._message.request.phase,
-            toolkit_version=self._message.request.toolkit_version,
-            test_image_version=self._message.request.test_image_version,
-            release_image_version=self._message.request.release_image_version))
+            board=bundle_metadata.board, project=bundle_metadata.project,
+            phase=bundle_metadata.phase,
+            toolkit_version=bundle_metadata.toolkit_version,
+            test_image_version=bundle_metadata.test_image_version,
+            release_image_version=bundle_metadata.release_image_version))
 
   def testTryProcessRequest_succeed_verifiesCallingHWIDAPIConnector(self):
     self._mock_hwid_api_connector.CreateHWIDFirmwareInfoCL.return_value = [
         'https://fake_cl_url'
     ]
-    self._message.request.update_hwid_db_firmware_info = True
-    self._message.request.hwid_related_bug_number = 123456789
+    self._message.request.hwid_option.update_db_firmware_info = True
+    self._message.request.hwid_option.related_bug_number = 123456789
     self._PublishCreateBundleMessage()
 
     self._worker.TryProcessRequest()
@@ -440,38 +416,9 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     mock_method = self._mock_hwid_api_connector.CreateHWIDFirmwareInfoCL
     mock_method.assert_called_once_with(
         _BUNDLE_RECORD, self._message.request.email,
-        self._message.request.hwid_related_bug_number,
-        self._message.request.phase,
+        self._message.request.hwid_option.related_bug_number,
+        self._message.request.bundle_metadata.phase,
         'Firmware info extracted from factory_bundle_project_20220608_proto')
-
-  def testTryProcessRequest_createBundleMessageV2_verifiesWorkerResult(self):
-    message_v2 = factorybundle_v2_pb2.CreateBundleMessage()
-    message_v2.doc_id = self._message.doc_id
-    message_v2.request.email = self._message.request.email
-    bundle_metadata = message_v2.request.bundle_metadata
-    bundle_metadata.board = self._message.request.board
-    bundle_metadata.project = self._message.request.project
-    bundle_metadata.phase = self._message.request.phase
-    bundle_metadata.toolkit_version = self._message.request.toolkit_version
-    bundle_metadata.test_image_version = (
-        self._message.request.test_image_version)
-    bundle_metadata.release_image_version = (
-        self._message.request.release_image_version)
-    message_v2.request.hwid_option.update_db_firmware_info = False
-    self._pubsub_connector.PublishMessage(self._TOPIC_NAME,
-                                          message_v2.SerializeToString(),
-                                          {'request_from': 'v2'})
-    sleep(1)  # Ensure the message is published.
-
-    self._worker.TryProcessRequest()
-
-    expected_worker_result = factorybundle_pb2.WorkerResult()
-    expected_worker_result.status = factorybundle_pb2.WorkerResult.NO_ERROR
-    expected_worker_result.original_request.MergeFrom(self._message.request)
-    expected_worker_result.gs_path = self._GS_PATH
-    expected_worker_result.download_link_format = self._DOWNLOAD_LINK_FORMAT_V2
-    mock_method = self._mock_cloudtasks_connector.ResponseWorkerResult
-    mock_method.assert_called_once_with(expected_worker_result)
 
   def _MockDatetime(self, module_name: str):
     mock_datetime_patcher = mock.patch(f'{module_name}.datetime')
@@ -494,6 +441,11 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
   def _ReadManifest(self) -> Dict:
     manifest_path = os.path.join(self._temp_dir_path, 'MANIFEST.yaml')
     return yaml.safe_load(file_utils.ReadFile(manifest_path))
+
+  def _GetOriginalRequest(self) -> factorybundle_pb2.CreateBundleRpcRequest:
+    return CreateBundleTask.FromPubSubMessage(
+        pubsub_connector.PubSubMessage(self._message.SerializeToString(),
+                                       {})).ToOriginalRequest()
 
 
 if __name__ == '__main__':

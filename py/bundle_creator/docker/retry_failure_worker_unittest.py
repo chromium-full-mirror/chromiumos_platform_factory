@@ -19,7 +19,6 @@ from cros.factory.bundle_creator.connector import firestore_connector
 from cros.factory.bundle_creator.connector import pubsub_connector
 from cros.factory.bundle_creator.docker import config
 from cros.factory.bundle_creator.docker import retry_failure_worker
-from cros.factory.bundle_creator.proto import factorybundle_pb2  # pylint: disable=no-name-in-module
 from cros.factory.bundle_creator.proto import factorybundle_v2_pb2  # pylint: disable=no-name-in-module
 
 
@@ -44,45 +43,8 @@ class UserRequestTest(unittest.TestCase):
         'update_hwid_db_firmware_info': False,
     }
 
-  def testToCreateBundleRpcRequest_succeed_returnsExpectedValue(self):
-    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest(
-        self._requester)
-
-    kwargs = self._snapshot.copy()
-    kwargs['cc_emails'] = self._snapshot['cc_emails'] + [
-        config.RETRY_FAILURE_EMAIL, self._requester
-    ]
-    self.assertEqual(request,
-                     factorybundle_pb2.CreateBundleRpcRequest(**kwargs))
-
-  def testToCreateBundleRpcRequest_duplicatedCcEmails_verifiesCcEmails(self):
-    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest('foo2@bar')
-
-    self.assertEqual(request.cc_emails,
-                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
-
-  def testToCreateBundleRpcRequest_duplicatedEmail_verifiesCcEmails(self):
-    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest('foo@bar')
-
-    self.assertEqual(request.cc_emails,
-                     ['foo2@bar', config.RETRY_FAILURE_EMAIL])
-
-  def testToCreateBundleRpcRequest_withOptionalFields_verifiesOptionalFields(
-      self):
-    self._snapshot['firmware_source'] = '44444.0.0'
-    self._snapshot['update_hwid_db_firmware_info'] = True
-    self._snapshot['hwid_related_bug_number'] = 123456789
-
-    request = UserRequest(self._snapshot).ToCreateBundleRpcRequest(
-        self._requester)
-
-    self.assertEqual(request.firmware_source, '44444.0.0')
-    self.assertEqual(request.update_hwid_db_firmware_info, True)
-    self.assertEqual(request.hwid_related_bug_number, 123456789)
-
-  def testToV2CreateBundleRequest_succeed_returnsExpectedValue(self):
-    request = UserRequest(self._snapshot).ToV2CreateBundleRequest(
-        self._requester)
+  def testToCreateBundleRequest_succeed_returnsExpectedValue(self):
+    request = UserRequest(self._snapshot).ToCreateBundleRequest(self._requester)
 
     expected_request = factorybundle_v2_pb2.CreateBundleRequest()
     expected_request.email = self._snapshot['email']
@@ -100,26 +62,24 @@ class UserRequestTest(unittest.TestCase):
     expected_request.hwid_option.update_db_firmware_info = False
     self.assertEqual(request, expected_request)
 
-  def testToV2CreateBundleRequest_duplicatedCcEmails_verifiesCcEmails(self):
-    request = UserRequest(self._snapshot).ToV2CreateBundleRequest('foo2@bar')
+  def testToCreateBundleRequest_duplicatedCcEmails_verifiesCcEmails(self):
+    request = UserRequest(self._snapshot).ToCreateBundleRequest('foo2@bar')
 
     self.assertEqual(request.cc_emails,
                      ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
-  def testToV2CreateBundleRequest_duplicatedEmail_verifiesCcEmails(self):
-    request = UserRequest(self._snapshot).ToV2CreateBundleRequest('foo@bar')
+  def testToCreateBundleRequest_duplicatedEmail_verifiesCcEmails(self):
+    request = UserRequest(self._snapshot).ToCreateBundleRequest('foo@bar')
 
     self.assertEqual(request.cc_emails,
                      ['foo2@bar', config.RETRY_FAILURE_EMAIL])
 
-  def testToV2CreateBundleRequest_withOptionalFields_verifiesOptionalFields(
-      self):
+  def testToCreateBundleRequest_withOptionalFields_verifiesOptionalFields(self):
     self._snapshot['firmware_source'] = '44444.0.0'
     self._snapshot['update_hwid_db_firmware_info'] = True
     self._snapshot['hwid_related_bug_number'] = 123456789
 
-    request = UserRequest(self._snapshot).ToV2CreateBundleRequest(
-        self._requester)
+    request = UserRequest(self._snapshot).ToCreateBundleRequest(self._requester)
 
     self.assertEqual(request.bundle_metadata.firmware_source, '44444.0.0')
     self.assertEqual(request.hwid_option.update_db_firmware_info, True)
@@ -196,54 +156,19 @@ class RetryFailureWorkerTest(unittest.TestCase):
         self._CREATE_BUNDLE_REQUEST_SUBSCRIPTION)
 
   def setUpExpectedValues(self):
-    self._expected_request = factorybundle_pb2.CreateBundleRpcRequest()
+    self._expected_request = factorybundle_v2_pb2.CreateBundleRequest()
     self._expected_request.email = 'foo@bar'
     self._expected_request.cc_emails.extend(
         [config.RETRY_FAILURE_EMAIL, self._requester])
-    self._expected_request.board = 'board'
-    self._expected_request.project = 'project'
-    self._expected_request.phase = 'proto'
-    self._expected_request.toolkit_version = '11111.0.0'
-    self._expected_request.test_image_version = '22222.0.0'
-    self._expected_request.release_image_version = '33333.0.0'
-    self._expected_request.update_hwid_db_firmware_info = False
-    self._expected_snapshot = {
-        'email':
-            'foo@bar',
-        'cc_emails': [config.RETRY_FAILURE_EMAIL, self._requester],
-        'board':
-            'board',
-        'project':
-            'project',
-        'phase':
-            'proto',
-        'toolkit_version':
-            '11111.0.0',
-        'test_image_version':
-            '22222.0.0',
-        'release_image_version':
-            '33333.0.0',
-        'update_hwid_db_firmware_info':
-            False,
-        'status':
-            firestore_connector.UserRequestStatus.NOT_STARTED.name,
-        'request_time':
-            DatetimeWithNanoseconds(2023, 4, 11, 0, 0, tzinfo=pytz.UTC),
-    }
-
-    self._expected_request_v2 = factorybundle_v2_pb2.CreateBundleRequest()
-    self._expected_request_v2.email = 'foo@bar'
-    self._expected_request_v2.cc_emails.extend(
-        [config.RETRY_FAILURE_EMAIL, self._requester])
-    bundle_metadata = self._expected_request_v2.bundle_metadata
+    bundle_metadata = self._expected_request.bundle_metadata
     bundle_metadata.board = 'board'
     bundle_metadata.project = 'project'
     bundle_metadata.phase = 'proto'
     bundle_metadata.toolkit_version = '11111.0.0'
     bundle_metadata.test_image_version = '22222.0.0'
     bundle_metadata.release_image_version = '33333.0.0'
-    self._expected_request_v2.hwid_option.update_db_firmware_info = False
-    self._expected_snapshot_v2 = {
+    self._expected_request.hwid_option.update_db_firmware_info = False
+    self._expected_snapshot = {
         'email':
             'foo@bar',
         'cc_emails': [config.RETRY_FAILURE_EMAIL, self._requester],
@@ -270,12 +195,6 @@ class RetryFailureWorkerTest(unittest.TestCase):
     }
 
   def testTryProcessRequest_succeed_verifiesNewlyCreatedRequests(self):
-    self._user_requests_col.document('doc_failed_v2').set(
-        self._CreateUserRequest({
-            'status': firestore_connector.UserRequestStatus.FAILED.name,
-            'request_time': self._datetime_now - datetime.timedelta(days=1),
-            'request_from': 'v2',
-        }))
     self._user_requests_col.document('doc_failed').set(
         self._CreateUserRequest({
             'status': firestore_connector.UserRequestStatus.FAILED.name,
@@ -288,17 +207,11 @@ class RetryFailureWorkerTest(unittest.TestCase):
 
     pubsub_message = self._pubsub_connector.PullFirstMessage(
         self._CREATE_BUNDLE_REQUEST_SUBSCRIPTION)
-    create_bundle_message = factorybundle_pb2.CreateBundleMessage.FromString(
-        pubsub_message.data)
+    create_bundle_message = (
+        factorybundle_v2_pb2.CreateBundleMessage.FromString(
+            pubsub_message.data))
     snapshot = self._firestore_connector.GetUserRequestDocument(
         create_bundle_message.doc_id)
-    pubsub_message_v2 = self._pubsub_connector.PullFirstMessage(
-        self._CREATE_BUNDLE_REQUEST_SUBSCRIPTION)
-    create_bundle_message_v2 = (
-        factorybundle_v2_pb2.CreateBundleMessage.FromString(
-            pubsub_message_v2.data))
-    snapshot_v2 = self._firestore_connector.GetUserRequestDocument(
-        create_bundle_message_v2.doc_id)
     self.assertEqual(pubsub_message.attributes, {})
     self.assertEqual(create_bundle_message.request, self._expected_request)
     # Verify the existence of `id` field in `snapshot`, but exclude its value
@@ -306,12 +219,6 @@ class RetryFailureWorkerTest(unittest.TestCase):
     self.assertIn('id', snapshot)
     del snapshot['id']
     self.assertEqual(snapshot, self._expected_snapshot)
-    self.assertEqual(pubsub_message_v2.attributes, {'request_from': 'v2'})
-    self.assertEqual(create_bundle_message_v2.request,
-                     self._expected_request_v2)
-    self.assertIn('id', snapshot_v2)
-    del snapshot_v2['id']
-    self.assertEqual(snapshot_v2, self._expected_snapshot_v2)
 
   def testTryProcessRequest_failureRequestedFromThisWorker_verifiesNoMessages(
       self):

@@ -43,16 +43,11 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
   ) -> factorybundle_v2_pb2.CreateBundleResponse:
     message = factorybundle_v2_pb2.CreateBundleMessage()
     message.doc_id = self._firestore_connector.CreateUserRequest(
-        firestore_connector.CreateBundleRequestInfo.FromV2CreateBundleRequest(
+        firestore_connector.CreateBundleRequestInfo.FromCreateBundleRequest(
             request), self._REQUEST_FROM_VALUE)
     message.request.MergeFrom(request)
-
-    attributes = {
-        'request_from': self._REQUEST_FROM_VALUE,
-    }
     self._pubsub_connector.PublishMessage(config.PUBSUB_TOPIC,
-                                          message.SerializeToString(),
-                                          attributes)
+                                          message.SerializeToString())
 
     response = factorybundle_v2_pb2.CreateBundleResponse()
     response.status = response.Status.NO_ERROR
