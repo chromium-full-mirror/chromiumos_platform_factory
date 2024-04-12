@@ -13,7 +13,8 @@ the config file, and the process to enable this feature.
 
 ### Steps
 - Prepare a config json file.
-- In the factory repo, `setup/image_tool edit_custom_process -i shim.bin -f config_file.json`.
+- In the factory repo, `setup/image_tool edit_toolkit_config -i shim.bin`.
+- Press 6 and input the path of the config file.
 - Boot the factory shim and perform `action_p`.
 
 Note:
