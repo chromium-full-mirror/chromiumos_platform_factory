@@ -94,6 +94,10 @@ def main():
       'files', metavar='FILE', nargs='*', help='File or directory to check.')
   args = parser.parse_args()
 
+  # pip install is not thread-safe, we first launch a placeholder script to
+  # ensure that the venv is built.
+  subprocess.run([YAPF_VENV_SCRIPT, 'python', '--version'], check=True)
+
   with open(args.rules_file, encoding='utf8') as f:
     rules = json.load(f)
   exclude_patterns = set(rules['exclude_patterns'])
