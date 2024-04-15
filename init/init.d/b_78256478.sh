@@ -12,16 +12,17 @@
 
 LSM_INODE_POLICIES="/sys/kernel/security/chromiumos/inode_security_policies"
 
-unmount_security_fs() {
-  umount /sys/kernel/security || true
+remount_security_fs() {
+  mount -n -o nodev,noexec,nosuid,remount,"${1}" \
+    securityfs /sys/kernel/security
 }
 
 main() {
-  local need_umount=""
-  if [ ! -e "${LSM_INODE_POLICIES}" ]; then
-    mount -n -t securityfs -o nodev,noexec,nosuid securityfs \
-      /sys/kernel/security && trap unmount_security_fs EXIT
-  fi
+  # After CL:5082410, /sys/kernel/security was mounted readonly.
+  # So we remount it for allowing write operation.
+  # See b/330451195 for the details.
+  remount_security_fs rw
+  trap 'remount_security_fs ro' EXIT
 
   if [ -e "${LSM_INODE_POLICIES}" ]; then
     # /var/factory may be already covered by /var, but we do want to allow it
