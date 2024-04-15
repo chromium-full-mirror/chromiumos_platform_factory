@@ -43,18 +43,9 @@ load_venv() {
 
   source "${venv_path}/bin/activate"
 
-  # pip freeze --local -r REQUIREMENTS.txt outputs something like:
-  #   required_package_1==A.a
-  #   required_package_2==B.b
-  #   ## The following requirements were added by pip freeze:
-  #   added_package_1==C.c
-  #   added_package_2==D.d
-  #   ...
-  #
-  #   required_pacakge_x are packages listed in REQUIREMENTS.txt,
-  #   which are packages we really care about.
-  if ! diff <(pip freeze --local -r "${venv_requirements}" | \
-      sed -n '/^##/,$ !p') "${venv_requirements}" ; then
-    pip install --force-reinstall -r "${venv_requirements}"
+  if ! [ -e "${venv_path}"/hash ] || \
+     ! diff <(md5sum "${venv_requirements}") "${venv_path}"/hash ; then
+    pip install --require-hashes -r "${venv_requirements}" --quiet
+    md5sum "${venv_requirements}" > "${venv_path}"/hash
   fi
 }

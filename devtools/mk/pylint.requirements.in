@@ -1,0 +1,14 @@
+dulwich==0.20.3
+Flask==1.1.1
+google-api-python-client==1.9.3
+google-cloud-bigquery==3.13.0
+google-cloud-firestore==2.13.1
+google-cloud-logging==3.6.0
+google-cloud-ndb==2.2.0
+google-cloud-pubsub==1.6.0
+google-cloud-storage==2.10.0
+google-cloud-tasks==2.14.1
+packaging==20.0
+pylint==2.13.9
+pycryptodome==3.7.3
+redis==3.3.11

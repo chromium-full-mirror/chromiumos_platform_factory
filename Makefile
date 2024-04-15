@@ -139,6 +139,7 @@ PRESUBMIT_FILES := \
     $(shell realpath $$PRESUBMIT_FILES | sed "s'^$$(realpath $$(pwd))/''g"))
 
 PRESUBMIT_TARGETS := \
+  presubmit-venv-requirements \
   presubmit-deps \
   presubmit-format \
   presubmit-lint \
@@ -488,6 +489,14 @@ smartlint smart_lint:
 # the given overlay.
 smart_lint-%: .phony
 	bin/smart_lint --overlay $(@:smart_lint-%=%)
+
+presubmit-venv-requirements:
+	$(info Running "make $@" ...)
+	$(MAKE) -C ./devtools/mk -q requirements ||\
+	  $(MK_DIR)/die.sh \
+	    "Some ./devtools/mk/*.requirements.in is modified. "\
+	    "Run 'cros_sdk --working-dir=. $(MAKE) -C ./devtools/mk requirements'."
+	$(info "make $@" passed)
 
 presubmit-lint:
 	@$(MAKE) lint LINT_FILES="$(filter %.py,$(PRESUBMIT_FILES))" 2>/dev/null
