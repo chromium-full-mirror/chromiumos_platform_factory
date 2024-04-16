@@ -156,6 +156,27 @@ class HWIDDBDataManager:
       logging.info('Missing feature matcher data file: %r.', path)
       return None
 
+  def _LivePathForBundleMetadata(self, file_id: str) -> str:
+    return f'{self._LivePath(file_id)}.bundle_metadata.textproto'
+
+  def LoadBundleMetadataSource(self, metadata: HWIDDBMetadata) -> Optional[str]:
+    """Loads HWID bundle metadata from the filesystem.
+
+    Args:
+      metadata: The HWIDDBMetadata object of the target HWID DB.
+
+    Returns:
+      The raw HWID bundle metadata or `None` if not exist.
+    """
+    logging.debug('Reading bundle metadata file of project %s from live path.',
+                  metadata.project)
+    path = self._LivePathForBundleMetadata(metadata.path)
+    try:
+      return self._fs_adapter.ReadFile(path)
+    except Exception:
+      logging.info('Missing bundle metadata data file: %r.', path)
+      return None
+
   def UpdateProjectContent(self,
                            gerrit_cl_hwid_repo: hwid_repo.GerritCLHWIDRepo,
                            repo_metadata: hwid_repo.HWIDDBMetadata):
@@ -311,10 +332,14 @@ class HWIDDBDataManager:
     if hwid_metadata.version == '3':
       project_data = hwid_repo_view.LoadV3HWIDDBByName(hwid_db_name)
       return {
-          self._LivePath(live_file_id): project_data.external_db,
-          self._LivePath(live_file_id, internal=True): project_data.internal_db,
+          self._LivePath(live_file_id):
+              project_data.external_db,
+          self._LivePath(live_file_id, internal=True):
+              project_data.internal_db,
           self._LivePathForFeatureMatcher(live_file_id):
               project_data.feature_matcher_source,
+          self._LivePathForBundleMetadata(live_file_id):
+              project_data.bundle_metadata_source
       }
     raise AssertionError('Unexpected call path.')
 

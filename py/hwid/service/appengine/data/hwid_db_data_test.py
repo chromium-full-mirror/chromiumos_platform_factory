@@ -168,6 +168,26 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         self.hwid_db_data_manager.LoadFeatureMatcherData(created_metadata),
         'the feature matcher payload')
 
+  def testUpdateProjectContent_WithBundleMetadata(self):
+    repo_metadata = hwid_repo.HWIDDBMetadata(
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
+    repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
+    repo.commit_id = 'UNUSED-NEW-COMMIT-ID'
+    repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
+        external_db='unused updated data',
+        internal_db='unused updated data (internal)',
+        feature_matcher_source='unused data (feature matcher)',
+        bundle_metadata_source='the bundle metadata',
+    )
+    self.hwid_db_data_manager.UpdateProjectContent(repo, repo_metadata)
+
+    created_metadata = self.hwid_db_data_manager.GetHWIDDBMetadataOfProject(
+        project='PROJECTA')
+
+    self.assertEqual(
+        self.hwid_db_data_manager.LoadBundleMetadataSource(created_metadata),
+        'the bundle metadata')
+
   def testUpdateProjectContent_CreateNewMetadata(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
         name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
@@ -214,6 +234,8 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         """).encode('utf-8')),
         ('v3/PROJECTA', 0o100644, b'updated data'),
         ('v3/PROJECTA.internal', 0o100644, b'updated data (internal)'),
+        ('v3/PROJECTA.bundle_metadata.textproto', 0o100644,
+         b'the bundle metadata'),
         ('v3/PROJECTC', 0o100644, b'newly added data'),
         ('v3/PROJECTC.internal', 0o100644, b'newly added data (internal)'),
         ('v3/PROJECTC.feature_matcher.textproto', 0o100644,
@@ -246,6 +268,9 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         'updated data (internal)')
     self.assertIsNone(
         self.hwid_db_data_manager.LoadFeatureMatcherData(metadata_a))
+    self.assertEqual(
+        self.hwid_db_data_manager.LoadBundleMetadataSource(metadata_a),
+        'the bundle metadata')
     self.assertEqual(
         self.hwid_db_data_manager.LoadHWIDDB(metadata_c), 'newly added data')
     self.assertEqual(
