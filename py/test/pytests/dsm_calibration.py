@@ -59,7 +59,8 @@ _VPD_KEY = 'dsm_calib'
 
 
 class DSMCalibrationTest(unittest.TestCase):
-  related_components = (test_tags.TestCategory.SMART_SPEAKER_AMPLIFIER, )
+  related_components = (test_tags.TestCategory.SMART_SPEAKER_AMPLIFIER,
+                        test_tags.TestCategory.VPD)
   ARGS = [
       Arg('output_dev', list,
           'Output ALSA device. [card_name, sub_device].'

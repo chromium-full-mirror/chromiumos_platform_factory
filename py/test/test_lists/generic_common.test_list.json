@@ -316,6 +316,9 @@
         {
           "inherit": "ExecShell",
           "label": "Clear factory VPD entries",
+          "related_components": [
+            "test_tags.TestCategory.VPD"
+          ],
           "args": {
             "commands": "gooftool clear_factory_vpd_entries"
           }
@@ -329,6 +332,9 @@
     "ClearUnknownRWVPD": {
       "inherit": "ExecShell",
       "label": "Clear Unknown RW VPD",
+      "related_components": [
+        "test_tags.TestCategory.VPD"
+      ],
       "args": {
         "commands": "gooftool clear_unknown_vpd_entries"
       }

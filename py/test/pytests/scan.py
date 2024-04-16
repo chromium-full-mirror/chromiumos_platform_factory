@@ -67,7 +67,7 @@ from cros.factory.utils import debug_utils
 
 class Scan(test_case.TestCase):
   """The main class for this pytest."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.VPD, )
 
   ARGS = [
       i18n_arg_utils.I18nArg(

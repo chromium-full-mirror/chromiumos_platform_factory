@@ -70,7 +70,7 @@ def GetDeviceSerial(device_info):
 
 
 class ProvisionDRMKey(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.VPD, )
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()

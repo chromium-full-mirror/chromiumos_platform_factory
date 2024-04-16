@@ -92,7 +92,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class ReadDeviceDataFromVPD(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.VPD, )
   ARGS = [
       Arg('ro_key_map', dict,
           'Mapping of (VPD_NAME, DEVICE_DATA_KEY) to read from RO VPD.',

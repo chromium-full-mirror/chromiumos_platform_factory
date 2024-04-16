@@ -45,7 +45,8 @@ from cros.factory.external.py_lib import numpy as np
 
 
 class AccelerometersLidAngleTest(test_case.TestCase):
-  related_components = (test_case.TestCategory.ACCELEROMETER, )
+  related_components = (test_case.TestCategory.ACCELEROMETER,
+                        test_case.TestCategory.VPD)
   ARGS = [
       Arg('angle', int, 'The target lid angle in degree to test.', default=180),
       Arg('tolerance', int, 'The tolerance in degree.', default=5),

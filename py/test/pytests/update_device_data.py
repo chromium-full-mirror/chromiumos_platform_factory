@@ -195,7 +195,7 @@ _KNOWN_KEY_LABELS = {
 _SELECTION_PER_PAGE = 10
 
 class UpdateDeviceData(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.VPD, )
   ARGS = [
       Arg('manual_input', bool,
           'Set to False to silently updating all values. Otherwise each value '
