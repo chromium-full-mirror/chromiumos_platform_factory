@@ -400,12 +400,13 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
         self.assertIsNotNone(checker)
 
   def _LoadPreprocDataAndSSHelper(self, testdata_name, commit_id='COMMIT-ID',
-                                  feature_matcher_source: Optional[str] = None):
+                                  feature_matcher_source: Optional[str] = None,
+                                  bundle_metadata_source: Optional[str] = None):
     preproc_data = hwid_preproc_data.HWIDV3PreprocData(
-        'CHROMEBOOK',
+        'CHROMEBOOK', 'CHROMEBOOK',
         file_utils.ReadFile(os.path.join(_TESTDATA_PATH, testdata_name)),
         file_utils.ReadFile(os.path.join(_TESTDATA_PATH, testdata_name)),
-        commit_id, feature_matcher_source)
+        commit_id, feature_matcher_source, bundle_metadata_source)
     helper_inst = ss_helper.HWIDV3SelfServiceActionHelper(preproc_data)
     return preproc_data, helper_inst
 

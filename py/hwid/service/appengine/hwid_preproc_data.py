@@ -6,8 +6,11 @@
 import hashlib
 from typing import Optional
 
+from google.protobuf import text_format
+
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import features
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v2 import yaml_datastore as v2_yaml_datastore
 from cros.factory.hwid.v3 import common as v3_common
 from cros.factory.hwid.v3 import database as v3_database
@@ -26,7 +29,7 @@ def NetstringHash(*args: Optional[str]) -> str:
 
 
 class HWIDPreprocData:
-  """Base class of versioned HWID proprocessed data."""
+  """Base class of versioned HWID preprocessed data."""
 
   # A version value for identifying out-of-date cached data.
   #
@@ -104,7 +107,7 @@ class HWIDV2PreprocData(HWIDPreprocData):
 class HWIDV3PreprocData(HWIDPreprocData):
   """Holds preprocessed HWIDv3 data."""
 
-  CACHE_VERSION = '9'
+  CACHE_VERSION = '10'
   HWID_FEATURE_MATCHER_BUILDER = feature_matching.HWIDFeatureMatcherBuilder()
 
   @classmethod
@@ -131,24 +134,45 @@ class HWIDV3PreprocData(HWIDPreprocData):
       raise PreprocHWIDError(
           f'Failed to load the feature matcher: {ex}.') from ex
 
-  def __init__(self, project: str, raw_hwid_yaml: str,
+  @classmethod
+  def DumpBundleMetadata(cls,
+                         bundle_metadata: bundles_pb2.BundleMetadata) -> str:
+    return text_format.MessageToString(bundle_metadata)
+
+  @classmethod
+  def _ParseBundleMetadataSource(
+      cls, bundle_metadata_source: Optional[str]) -> bundles_pb2.BundleMetadata:
+    if bundle_metadata_source is None:
+      return bundles_pb2.BundleMetadata()
+    try:
+      return text_format.Parse(bundle_metadata_source,
+                               bundles_pb2.BundleMetadata())
+    except text_format.ParseError as ex:
+      raise PreprocHWIDError(
+          f'Failed to load the bundle metadata: {ex}.') from ex
+
+  def __init__(self, board: str, project: str, raw_hwid_yaml: str,
                raw_hwid_yaml_internal: str, hwid_db_commit_id: str,
-               feature_matcher_source: Optional[str]):
+               feature_matcher_source: Optional[str],
+               bundle_metadata_source: Optional[str]):
     """Constructor.
 
     Requires one of hwid_file, hwid_yaml or hwid_data.
 
     Args:
+      board: The board name
       project: The project name
       raw_hwid_yaml: the raw YAML string of HWID data.
       raw_hwid_yaml_internal: the internal format of HWID data.
       hwid_db_commit_id: the commit id of the HWIDB data.
       feature_matcher_source: The raw string of the feature matcher data source.
+      bundle_metadata_source: The raw string of the bundle metadata source.
 
     Raises:
       PreprocHWIDError: Fails to load the given HWIDv3 DB contents.
     """
     super().__init__(project)
+    self._board = board
     self._raw_database = raw_hwid_yaml
     self._raw_database_internal = raw_hwid_yaml_internal
     self._hwid_db_commit_id = hwid_db_commit_id
@@ -156,12 +180,19 @@ class HWIDV3PreprocData(HWIDPreprocData):
     self._database = self._ParseDatabase(self._raw_database_internal)
     self._feature_matcher = self._ParseFeatureMatcherSource(
         self._database, feature_matcher_source)
+    self._bundle_metadata = self._ParseBundleMetadataSource(
+        bundle_metadata_source)
     self._hash_value = NetstringHash(
         project,
         raw_hwid_yaml,
         raw_hwid_yaml_internal,
         feature_matcher_source,
+        bundle_metadata_source,
     )
+
+  @property
+  def board(self) -> str:
+    return self._board
 
   @property
   def hwid_db_commit_id(self):
@@ -182,6 +213,10 @@ class HWIDV3PreprocData(HWIDPreprocData):
   @property
   def database(self):
     return self._database
+
+  @property
+  def bundle_metadata(self) -> bundles_pb2.BundleMetadata:
+    return self._bundle_metadata
 
 
 def _NormalizeString(string):

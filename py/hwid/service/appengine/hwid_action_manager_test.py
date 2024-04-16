@@ -17,14 +17,15 @@ class HWIDPreprocDataForTest(hwid_preproc_data.HWIDPreprocData):
   CACHE_VERSION = '1'
 
   def __init__(self, project, raw_db, raw_db_internal, feature_matcher_source,
-               hwid_action_inst):
+               hwid_action_inst, bundle_metadata_source):
     super().__init__(project)
     self.raw_db = raw_db
     self.raw_db_internal = raw_db_internal
     self.feature_matcher_source = feature_matcher_source
     self.hwid_action = hwid_action_inst
-    self._hash_value = hwid_preproc_data.NetstringHash(raw_db, raw_db_internal,
-                                                       feature_matcher_source)
+    self.bundle_metadata_source = bundle_metadata_source
+    self._hash_value = hwid_preproc_data.NetstringHash(
+        raw_db, raw_db_internal, feature_matcher_source, bundle_metadata_source)
 
   @classmethod
   def FlipCacheVersion(cls):
@@ -57,13 +58,15 @@ class InstanceFactoryForTest(hwid_action_manager.IInstanceFactory):
 
   def CreateHWIDPreprocData(self, metadata, raw_db,
                             raw_db_internal: Optional[str] = None,
-                            feature_matcher_source: Optional[str] = None):
+                            feature_matcher_source: Optional[str] = None,
+                            bundle_metadata_source: Optional[str] = None):
     try:
       hwid_action_inst = self._known_project_to_hwid_action[metadata.project]
     except KeyError:
       raise hwid_action_manager.ProjectNotSupportedError from None
     return HWIDPreprocDataForTest(metadata.project, raw_db, raw_db_internal,
-                                  feature_matcher_source, hwid_action_inst)
+                                  feature_matcher_source, hwid_action_inst,
+                                  bundle_metadata_source)
 
   def CreateHWIDAction(self, hwid_data):
     hwid_action_inst = (

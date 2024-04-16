@@ -50,7 +50,8 @@ class IInstanceFactory(abc.ABC):
   def CreateHWIDPreprocData(
       self, metadata: _HWIDDBMetadata, raw_db: _HWIDDBData,
       raw_db_internal: Optional[_HWIDDBData] = None,
-      feature_matcher_source: Optional[str] = None) -> _HWIDPreprocData:
+      feature_matcher_source: Optional[str] = None,
+      bundle_metadata_source: Optional[str] = None) -> _HWIDPreprocData:
     """Creates the correct instance of `HWIDPreprocData` for the given DB info.
 
     Args:
@@ -58,6 +59,7 @@ class IInstanceFactory(abc.ABC):
       raw_db: The raw string of the HWID DB contents.
       raw_db_internal: The internal version of the HWID DB contents.
       feature_matcher_source: The source payload of the HWID feature matcher.
+      bundle_metadata_source: The raw string of the bundle metadata source.
 
     Returns:
       An instance of `hwid_preproc_data.HWIDPreprocData`.
@@ -90,7 +92,8 @@ class InstanceFactoryImpl(IInstanceFactory):
   def CreateHWIDPreprocData(
       self, metadata: _HWIDDBMetadata, raw_db: _HWIDDBData,
       raw_db_internal: Optional[_HWIDDBData] = None,
-      feature_matcher_source: Optional[str] = None) -> _HWIDPreprocData:
+      feature_matcher_source: Optional[str] = None,
+      bundle_metadata_source: Optional[str] = None) -> _HWIDPreprocData:
     if metadata.version == '2':
       logging.debug('Processing as version 2 file.')
       return hwid_preproc_data.HWIDV2PreprocData(metadata.project, raw_db)
@@ -98,8 +101,8 @@ class InstanceFactoryImpl(IInstanceFactory):
     if metadata.version == '3':
       logging.debug('Processing as version 3 file.')
       return hwid_preproc_data.HWIDV3PreprocData(
-          metadata.project, raw_db, raw_db_internal, metadata.commit,
-          feature_matcher_source)
+          metadata.board, metadata.project, raw_db, raw_db_internal,
+          metadata.commit, feature_matcher_source, bundle_metadata_source)
 
     raise ProjectNotSupportedError(
         f'Project {metadata.project!r} has invalid version '
@@ -236,11 +239,13 @@ class HWIDActionManager(IHWIDActionGetter):
       raw_hwid_yaml_internal = raw_hwid_yaml
     feature_matcher_source = (
         self._hwid_db_data_manager.LoadFeatureMatcherData(metadata))
+    bundle_metadata_source = (
+        self._hwid_db_data_manager.LoadBundleMetadataSource(metadata))
 
     try:
       return self._instance_factory.CreateHWIDPreprocData(
           metadata, raw_hwid_yaml, raw_hwid_yaml_internal,
-          feature_matcher_source)
+          feature_matcher_source, bundle_metadata_source)
     except hwid_preproc_data.PreprocHWIDError as ex:
       raise ProjectUnavailableError(str(ex)) from ex
 

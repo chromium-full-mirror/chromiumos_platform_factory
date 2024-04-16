@@ -31,8 +31,8 @@ class HWIDV3ActionWithoutFeatureMatcherTextTest(unittest.TestCase):
     super().setUp()
 
     self.preproc_data = hwid_preproc_data.HWIDV3PreprocData(
-        'CHROMEBOOK', file_utils.ReadFile(GOLDEN_HWIDV3_FILE),
-        file_utils.ReadFile(GOLDEN_HWIDV3_FILE), 'COMMIT-ID', None)
+        'CHROMEBOOK', 'CHROMEBOOK', file_utils.ReadFile(GOLDEN_HWIDV3_FILE),
+        file_utils.ReadFile(GOLDEN_HWIDV3_FILE), 'COMMIT-ID', None, None)
     self.action = hwid_v3_action.HWIDV3Action(self.preproc_data)
 
   def testGetBOM(self):
@@ -158,8 +158,8 @@ class HWIDV3ActionWithFeatureMatcherTextTest(unittest.TestCase):
                                      bit_string_prerequisites=[])
         ])
     preproc_data = hwid_preproc_data.HWIDV3PreprocData(
-        'CHROMEBOOK', file_utils.ReadFile(GOLDEN_HWIDV3_FILE),
-        file_utils.ReadFile(GOLDEN_HWIDV3_FILE), 'COMMIT-ID', raw_source)
+        'CHROMEBOOK', 'CHROMEBOOK', file_utils.ReadFile(GOLDEN_HWIDV3_FILE),
+        file_utils.ReadFile(GOLDEN_HWIDV3_FILE), 'COMMIT-ID', raw_source, None)
     action = hwid_v3_action.HWIDV3Action(preproc_data)
 
     for hwid, expected_label in (

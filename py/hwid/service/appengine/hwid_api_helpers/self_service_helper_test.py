@@ -2646,10 +2646,12 @@ class SelfServiceShardTest(unittest.TestCase):
     ], skippable_comps)
 
   @classmethod
-  def _CreateFakeHWIDBAction(cls, project: str, raw_db: str):
+  def _CreateFakeHWIDBAction(cls, project: str, raw_db: str,
+                             board: Optional[str] = None):
     return hwid_v3_action.HWIDV3Action(
-        hwid_preproc_data.HWIDV3PreprocData(project, raw_db, raw_db,
-                                            'TEST-COMMIT-ID', None))
+        hwid_preproc_data.HWIDV3PreprocData(board or project, project, raw_db,
+                                            raw_db, 'TEST-COMMIT-ID', None,
+                                            None))
 
   @classmethod
   def _CreateBundleRecord(cls, projects, supported=False):
