@@ -10,7 +10,7 @@ import hashlib
 import itertools
 import logging
 import re
-from typing import DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Set, Tuple, Union
+from typing import DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Set, Tuple, Union
 
 from google.protobuf import text_format
 import hardware_verifier_pb2  # pylint: disable=import-error
@@ -991,13 +991,87 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
       generated_file_contents, error_msgs, payload_hash, primary_identifiers)
 
 
-def main():
-  # only import the required modules while running this module as a program
-  import argparse
+def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
+               ignore_errors: Sequence[str], waived_categories: Sequence[str],
+               encrypted_models: Sequence[str],
+               encryption_key: Optional[str] = None, nosalt: bool = False,
+               for_testing: bool = False):
+  """Executes the generator from command line.
+
+  See main() for descriptions of other parameters.
+
+  Args:
+    for_testing: Set to True for unit tests. When this is True, the generated
+        payloads will not be written into `output_dir`.
+
+  Raises:
+    Exception: When any error is raised during the generation process.
+  """
   import os
   import sys
 
   from cros.factory.utils import file_utils
+
+  logging.basicConfig(level=logging.INFO)
+
+  waived_categories = collections.defaultdict(list)
+  for waived_category in waived_categories:
+    model_name, unused_sep, category_name = waived_category.partition('.')
+    waived_categories[model_name.lower()].append(category_name)
+
+  ignore_error = collections.defaultdict(list)
+  for category in ignore_errors:
+    model_name, unused_sep, category_name = category.partition('.')
+    ignore_error[model_name.lower()].append(category_name)
+
+  encrypted_models = {model.lower()
+                      for model in encrypted_models}
+
+  dbs = []
+  for hwid_db_path in hwid_db_paths:
+    logging.info('Load the HWID database file (%s).', hwid_db_path)
+    db = database.Database.LoadFile(hwid_db_path, verify_checksum=False)
+    model = db.project.lower()
+    vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+        ignore_error=ignore_error[model],
+        waived_comp_categories=waived_categories[model], encrypted=model
+        in encrypted_models)
+    logging.info('Waived component category: %r',
+                 vpg_config.waived_comp_categories)
+    logging.info('Ignore exception component category: %r',
+                 vpg_config.ignore_error)
+    dbs.append((db, vpg_config))
+
+  salt = b'' if nosalt else None
+
+  logging.info('Generate the verification payload data.')
+  result = GenerateVerificationPayload(dbs, encryption_key, salt)
+  for model, mapping in result.primary_identifiers.items():
+    logs = [f'Found duplicate probe statements for model {model}:']
+    for (category, comp_name), primary_comp_name in mapping.items():
+      logs.append(f'  {category}/{comp_name} will be mapped to '
+                  f'{category}/{primary_comp_name}.')
+    logging.info('\n'.join(logs))
+
+  if result.error_msgs:
+    for error_msg in result.error_msgs:
+      logging.error(error_msg)
+    if for_testing:
+      raise Exception(f'Got error messages: {result.error_msgs}')
+    sys.exit(1)
+
+  if not for_testing:
+    for pathname, content in result.generated_file_contents.items():
+      logging.info('Output the verification payload file (%s).', pathname)
+      fullpath = os.path.join(output_dir, pathname)
+      file_utils.TryMakeDirs(os.path.dirname(fullpath))
+      file_utils.WriteFile(fullpath, content)
+  logging.info('Payload hash: %s', result.payload_hash)
+
+
+def main():
+  # only import the required modules while running this module as a program
+  import argparse
 
   ap = argparse.ArgumentParser(
       description=('Generate the verification payload source files from the '
@@ -1031,58 +1105,9 @@ def main():
   if args.encrypted_models and args.key is None:
     ap.error("--encrypted_model requires --key.")
 
-  logging.basicConfig(level=logging.INFO)
-
-  waived_categories = collections.defaultdict(list)
-  for waived_category in args.waived_categories:
-    model_name, unused_sep, category_name = waived_category.partition('.')
-    waived_categories[model_name.lower()].append(category_name)
-
-  ignore_error = collections.defaultdict(list)
-  for category in args.ignore_error:
-    model_name, unused_sep, category_name = category.partition('.')
-    ignore_error[model_name.lower()].append(category_name)
-
-  encrypted_models = {model.lower()
-                      for model in args.encrypted_models}
-
-  dbs = []
-  for hwid_db_path in args.hwid_db_paths:
-    logging.info('Load the HWID database file (%s).', hwid_db_path)
-    db = database.Database.LoadFile(hwid_db_path, verify_checksum=False)
-    model = db.project.lower()
-    vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
-        ignore_error=ignore_error[model],
-        waived_comp_categories=waived_categories[model], encrypted=model
-        in encrypted_models)
-    logging.info('Waived component category: %r',
-                 vpg_config.waived_comp_categories)
-    logging.info('Ignore exception component category: %r',
-                 vpg_config.ignore_error)
-    dbs.append((db, vpg_config))
-
-  salt = b'' if args.nosalt else None
-
-  logging.info('Generate the verification payload data.')
-  result = GenerateVerificationPayload(dbs, args.key, salt)
-  for model, mapping in result.primary_identifiers.items():
-    logs = [f'Found duplicate probe statements for model {model}:']
-    for (category, comp_name), primary_comp_name in mapping.items():
-      logs.append(f'  {category}/{comp_name} will be mapped to '
-                  f'{category}/{primary_comp_name}.')
-    logging.info('\n'.join(logs))
-
-  if result.error_msgs:
-    for error_msg in result.error_msgs:
-      logging.error(error_msg)
-    sys.exit(1)
-
-  for pathname, content in result.generated_file_contents.items():
-    logging.info('Output the verification payload file (%s).', pathname)
-    fullpath = os.path.join(args.output_dir, pathname)
-    file_utils.TryMakeDirs(os.path.dirname(fullpath))
-    file_utils.WriteFile(fullpath, content)
-  logging.info('Payload hash: %s', result.payload_hash)
+  RunCommand(args.output_dir, args.hwid_db_paths, args.ignore_error,
+             args.waived_categories, args.encrypted_models,
+             encryption_key=args.key, nosalt=args.nosalt, for_testing=False)
 
 
 if __name__ == '__main__':

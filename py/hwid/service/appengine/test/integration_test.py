@@ -13,13 +13,22 @@ import sys
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 
+
 HOST_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 HOST_APPENGINE_DIR = os.path.dirname(HOST_TEST_DIR)
 APPENGINE_MODULE_PREFIX = 'cros.factory.hwid.service.appengine.'
 HOST_FACTORY_DIR = os.path.abspath(
     os.path.join(HOST_APPENGINE_DIR, '../../../../../..'))
+HOST_FACTORY_PRIVATE_DIR = os.path.abspath(
+    os.path.join(HOST_FACTORY_DIR, '../factory-private'))
+HOST_VPG_TARGETS_FILE = os.path.abspath(
+    os.path.join(HOST_FACTORY_PRIVATE_DIR,
+                 'config/hwid/service/appengine/vpg_targets.yaml'))
+HOST_CHROMEOS_HWID_DIR = os.path.abspath(
+    os.path.join(HOST_FACTORY_DIR, '../chromeos-hwid'))
 HOST_DEPLOY_DIR = os.path.join(HOST_FACTORY_DIR, 'deploy')
 GUEST_FACTORY_DIR = '/usr/src/cros/factory'
+GUEST_PRIVATE_TESTDATA_DIR = '/usr/src/hwid/private_testdata'
 DEPLOY_SCRIPT = os.path.join(HOST_DEPLOY_DIR, 'cros_hwid_service.sh')
 DEFAULT_DOCKER_IMAGE_NAME = 'hwid_service:latest'
 
@@ -78,8 +87,13 @@ def RunTest(image, test_names):
   Returns:
     True if all tests pass.
   """
-  container_id = process_utils.CheckOutput(
-      ['docker', 'run', '-d', '-it', '--rm', image], log=True).strip()
+  container_id = process_utils.CheckOutput([
+      'docker', 'run', '-d', '-it', '--rm', '--volume',
+      f'{HOST_VPG_TARGETS_FILE}:'
+      f'{GUEST_PRIVATE_TESTDATA_DIR}/vpg_targets.yaml:ro', '--volume',
+      f'{HOST_CHROMEOS_HWID_DIR}:'
+      f'{GUEST_PRIVATE_TESTDATA_DIR}/chromeos-hwid:ro', image
+  ], log=True).strip()
 
   p = process_utils.Spawn(
       ['docker', 'exec', container_id, '/usr/src/check_datastore_status.sh'],

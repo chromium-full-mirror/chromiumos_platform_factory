@@ -17,8 +17,10 @@ from cros.factory.hwid.service.appengine import verification_payload_generator
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common as hwid_common
 from cros.factory.hwid.v3 import database
+from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.probe.runtime_probe import generic_probe_statement
 from cros.factory.probe.runtime_probe import probe_config_types
+from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 
 
@@ -29,6 +31,9 @@ ProbeStatementConversionError = _vp_generator.ProbeStatementConversionError
 
 TESTDATA_DIR = os.path.join(
     os.path.dirname(__file__), 'testdata', 'verification_payload_generator')
+PRIVATE_TESTDATA_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', '..', '..',
+    'private_testdata')
 
 
 def GetProbeStatementGenerator(category):
@@ -813,8 +818,39 @@ class GetAllProbeStatementGeneratorsTest(unittest.TestCase):
     self.assertSetEqual(all_categories, generic_categories)
 
 
-# TODO(b/308306344): Add a test case to generate payloads with the ToT
-# vpg_targets.yaml just to make sure there's no unepxected error.
+class GenerateVerificationPayloadCmdTest(unittest.TestCase):
+
+  def testGeneratePayloads_WithLatestVpgTargets_ShouldNotRaiseException(self):
+    vpg_targets_path = os.path.join(PRIVATE_TESTDATA_DIR, 'vpg_targets.yaml')
+    vpg_targets = yaml.safe_load(file_utils.ReadFile(vpg_targets_path))
+
+    boards_models = vpg_targets['models_vp_on']
+    for model_list in boards_models.values():
+      for model, setting in model_list.items():
+        hwid_db_paths = [
+            os.path.join(PRIVATE_TESTDATA_DIR, 'chromeos-hwid/v3', model)
+        ]
+        encrypted_models = [model] if setting.get('encrypted', False) else []
+        ignore_errors = [
+            f'{model}.{category}'
+            for category in setting.get('ignore_error', [])
+        ]
+        waived_categories = [
+            f'{model}.{category}'
+            for category in setting.get('waived_comp_categories', [])
+        ]
+
+        with self.subTest(f'GenerateFor{model}'):
+          try:
+            verification_payload_generator.RunCommand(
+                'dont care', hwid_db_paths, ignore_errors, waived_categories,
+                encrypted_models, encryption_key='TEST_KEY', nosalt=False,
+                for_testing=True)
+          except Exception as e:
+            self.fail(
+                'Verification payload generator fails to generate payloads: '
+                f'{e}')
+
 
 if __name__ == '__main__':
   unittest.main()
