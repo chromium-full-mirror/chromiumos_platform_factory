@@ -72,6 +72,7 @@ class V3DBContents(NamedTuple):
   internal_db: str
   external_db: str
   feature_matcher_source: Optional[str]
+  bundle_metadata_source: Optional[str]
 
 
 class HWIDRepoView(abc.ABC):
@@ -79,6 +80,7 @@ class HWIDRepoView(abc.ABC):
 
   _INTERNAL_DB_NAME_SUFFIX = '.internal'
   _FEATURE_MATCHER_SOURCE_SUFFIX = '.feature_matcher.textproto'
+  _BUNDLE_METADATA_PREFIX = '.bundle_metadata.textproto'
 
   @abc.abstractmethod
   def _LoadMandatoryTextFile(self, path: str) -> str:
@@ -117,6 +119,10 @@ class HWIDRepoView(abc.ABC):
   @classmethod
   def _GetV3FeatureMatcherSourcePath(cls, path: str) -> str:
     return f'{path}{cls._FEATURE_MATCHER_SOURCE_SUFFIX}'
+
+  @classmethod
+  def _GetV3BundleMetadataPath(cls, path: str) -> str:
+    return f'{path}{cls._BUNDLE_METADATA_PREFIX}'
 
   @functools.cached_property
   def hwid_db_metadata_of_name(self) -> Mapping[str, HWIDDBMetadata]:
@@ -198,7 +204,10 @@ class HWIDRepoView(abc.ABC):
         internal_db=self._LoadMandatoryTextFile(
             self._GetV3InternalDBPath(metadata.path)),
         feature_matcher_source=self._LoadOptionalTextFile(
-            self._GetV3FeatureMatcherSourcePath(metadata.path)))
+            self._GetV3FeatureMatcherSourcePath(metadata.path)),
+        bundle_metadata_source=self._LoadOptionalTextFile(
+            self._GetV3BundleMetadataPath(metadata.path)),
+    )
 
 
 class HWIDRepo(HWIDRepoView):
@@ -249,6 +258,7 @@ class HWIDRepo(HWIDRepoView):
                    update_metadata: Optional[HWIDDBMetadata] = None,
                    hwid_db_contents_internal: Optional[str] = None,
                    feature_matcher_source: Optional[str] = None,
+                   bundle_metadata_source: Optional[str] = None,
                    verified: int = 0):
     """Commit an HWID DB to the repo.
 
@@ -268,6 +278,7 @@ class HWIDRepo(HWIDRepoView):
       feature_matcher_source: Uses a string to represent the feature matcher
         source contents to push.  `None` to instruct this method not to update
         the contents.
+      bundle_metadata_source: The HWID bundle metadata to store.
       verified: Vote Verified. The score should be {-1, 0, 1}.
 
     Returns:
@@ -303,6 +314,10 @@ class HWIDRepo(HWIDRepoView):
       feature_matcher_source_path = self._GetV3FeatureMatcherSourcePath(path)
       new_files.append((feature_matcher_source_path, git_util.NORMAL_FILE_MODE,
                         feature_matcher_source.encode('utf-8')))
+    if bundle_metadata_source is not None:
+      bundle_metadata_path = self._GetV3BundleMetadataPath(path)
+      new_files.append((bundle_metadata_path, git_util.NORMAL_FILE_MODE,
+                        bundle_metadata_source.encode('utf-8')))
 
     try:
       author_email, unused_token = git_util.GetGerritCredentials()

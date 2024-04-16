@@ -125,6 +125,7 @@ class HWIDRepoTest(HWIDRepoBaseTest):
             external_db='sboard data',
             internal_db='sboard data (internal)',
             feature_matcher_source=None,
+            bundle_metadata_source=None,
         ))
 
   def testLoadV3HWIDDBByName_SuccessWithFeatureMatcherSource(self):
@@ -136,13 +137,21 @@ class HWIDRepoTest(HWIDRepoBaseTest):
     })
 
     actual_contents = self._hwid_repo.LoadV3HWIDDBByName('SBOARD')
-    self.assertEqual(
-        actual_contents,
-        hwid_repo.V3DBContents(
-            external_db='sboard data',
-            internal_db='sboard data (internal)',
-            feature_matcher_source='sboard feature matcher payload',
-        ))
+    self.assertEqual(actual_contents.feature_matcher_source,
+                     'sboard feature matcher payload')
+
+  def testLoadV3HWIDDBByName_SuccessWithBundleMetadata(self):
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA,
+        'SBOARD': b'sboard data',
+        'SBOARD.internal': b'sboard data (internal)',
+        'SBOARD.bundle_metadata.textproto': b'the bundle metadata',
+    })
+
+    actual_contents = self._hwid_repo.LoadV3HWIDDBByName('SBOARD')
+
+    self.assertEqual(actual_contents.bundle_metadata_source,
+                     'the bundle metadata')
 
   def testLoadV3HWIDDBByName_InvalidName(self):
     self._AddFilesToFakeRepo({
@@ -228,6 +237,23 @@ class HWIDRepoTest(HWIDRepoBaseTest):
         ('SBOARD.feature_matcher.textproto', 0o100644,
          b'feature matcher payload'),
     ], kwargs['new_files'])
+
+  def testCommitHWIDDB_SucceedWithBundleMetadata(self):
+    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    expected_cl_number = 123
+    self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
+                                                 expected_cl_number)
+
+    actual_cl_number = self._hwid_repo.CommitHWIDDB(
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        hwid_db_contents_internal='hwid_db_contents_internal',
+        bundle_metadata_source='the bundle metadata')
+
+    self.assertEqual(actual_cl_number, expected_cl_number)
+    kwargs = self._mocked_create_patch_cl.call_args[1]
+    self.assertIn(
+        ('SBOARD.bundle_metadata.textproto', 0o100644, b'the bundle metadata'),
+        kwargs['new_files'])
 
   def testCommitHWIDDB_Succeed_RemoveChecksum(self):
     self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})

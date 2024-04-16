@@ -131,6 +131,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         external_db='updated data',
         internal_db='updated data(internal)',
         feature_matcher_source=None,
+        bundle_metadata_source=None,
     )
 
     self.hwid_db_data_manager.UpdateProjectContent(repo, repo_metadata)
@@ -156,6 +157,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         external_db='unused updated data',
         internal_db='unused updated data (internal)',
         feature_matcher_source='the feature matcher payload',
+        bundle_metadata_source=None,
     )
     self.hwid_db_data_manager.UpdateProjectContent(repo, repo_metadata)
 
@@ -176,6 +178,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         external_db='updated data',
         internal_db='updated data(internal)',
         feature_matcher_source=None,
+        bundle_metadata_source=None,
     )
     self.hwid_db_data_manager.UpdateProjectContent(repo, repo_metadata)
 

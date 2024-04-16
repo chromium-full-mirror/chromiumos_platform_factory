@@ -2688,6 +2688,7 @@ class SelfServiceShardTest(unittest.TestCase):
         internal_db=db_contents_internal or db_contents,
         external_db=db_contents,
         feature_matcher_source=None,
+        bundle_metadata_source=None,
     )
     live_hwid_repo.hwid_db_commit_id = commit_id
 
@@ -2706,6 +2707,7 @@ class SelfServiceShardTest(unittest.TestCase):
             internal_db=db_contents_internal,
             external_db=db_contents,
             feature_matcher_source=None,
+            bundle_metadata_source=None,
         ))
 
   def testGetHwidDbEditableSection_ProjectNotFound(self):
