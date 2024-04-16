@@ -114,7 +114,8 @@ POWER_SAMPLES = 3
 
 
 class ThermalSlopeTest(unittest.TestCase):
-  related_components = (test_tags.TestCategory.CPU, )
+  related_components = (test_tags.TestCategory.CPU,
+                        test_tags.TestCategory.THERMAL_SENSOR)
   ARGS = [
       Arg('cool_down_fan_rpm', (int, float, str),
           'Fan RPM during cool_down, or the string "auto".', default=10000),

@@ -43,12 +43,13 @@ import logging
 import unittest
 
 from cros.factory.device import device_utils
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 
 class BoardTempSensorsTest(unittest.TestCase):
   """Tests communication with temperature sensors."""
-  related_components = tuple()
+  related_components = (test_tags.TestCategory.THERMAL_SENSOR, )
 
   ARGS = [
       Arg('temp_sensor_to_test', (str, list),

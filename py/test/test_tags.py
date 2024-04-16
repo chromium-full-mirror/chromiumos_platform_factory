@@ -62,6 +62,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   KEYBOARD = enum.auto()
   LED = enum.auto()
   PSR = enum.auto()
+  THERMAL_SENSOR = enum.auto()
 
   @property
   def _properties(self):
@@ -139,6 +140,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
         TestCategory.LED:
             CategoryProperties('device feature', None, None),
         TestCategory.PSR:
+            CategoryProperties('device feature', None, None),
+        TestCategory.THERMAL_SENSOR:
             CategoryProperties('device feature', None, None),
     }.get(self, CategoryProperties(None, None, None))
 

@@ -50,7 +50,8 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class ThermalLoadTest(unittest.TestCase):
-  related_components = (test_tags.TestCategory.CPU, )
+  related_components = (test_tags.TestCategory.CPU,
+                        test_tags.TestCategory.THERMAL_SENSOR)
   ARGS = [
       Arg('load', int,
           ('Number of threads stressapptest uses.  If None is '
