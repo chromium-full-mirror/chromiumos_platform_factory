@@ -42,7 +42,7 @@ from cros.factory.external.chromeos_cli.gsctool import GSCTool
 
 class FeatureComplianceVersionTest(test_case.TestCase):
   """Factory test for verifying feature compliance version."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.HARDWARE_ID, )
 
 
   # This test is depending on HWID string so we need to pass these flags here.

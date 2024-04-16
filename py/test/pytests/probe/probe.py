@@ -178,7 +178,7 @@ def EvaluateRule(a, op_str, b):
 
 
 class ProbeTest(test_case.TestCase):
-  related_components = tuple()
+  related_components = (test_case.TestCategory.HARDWARE_ID, )
 
   ARGS = [
       Arg('config_file', str,

@@ -1177,6 +1177,9 @@
     "WriteTestHWID": {
       "pytest_name": "exec_shell",
       "label": "Write Test HWID",
+      "related_components": [
+        "test_tags.TestCategory.HARDWARE_ID"
+      ],
       "args": {
         "commands": [
           "hwid read",
