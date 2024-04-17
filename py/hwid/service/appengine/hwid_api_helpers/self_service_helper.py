@@ -670,6 +670,19 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
         feature_matcher_source=feature_matcher_source)
 
 
+class EmptyBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
+  """An implementation that behaves as no any battery config exists."""
+
+  def FetchContents(self, board: str, project: str,
+                    version: str) -> Optional[bytes]:
+    """See base class."""
+    return None
+
+  def GetLastVersion(self, board: str, project: str) -> Optional[str]:
+    """See base class."""
+    return None
+
+
 class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
   def __init__(
@@ -1206,7 +1219,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     try:
       # TODO(b/209362238): pass request.bundle_resource into BundleHWIDDB to
       # validate if the AVL link still holds.
-      bundle_info = action.BundleHWIDDB()
+      bundle_info = action.BundleHWIDDB(EmptyBatteryConfigFetcher())
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 

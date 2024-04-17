@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 """Defines available actions upon a specific HWID DB."""
 
+import abc
 import collections
 import copy
 from typing import Collection, Dict, List, Mapping, NamedTuple, Optional, Set
@@ -11,6 +12,7 @@ from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import feature_matching
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import verification_payload_generator as vpg_module
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
@@ -204,6 +206,43 @@ class BundleInfo(NamedTuple):
   bundle_file_ext: str
 
 
+class IBatteryConfigFetcher(abc.ABC):
+  """Interface for accessing battery config from upstream."""
+
+  @abc.abstractmethod
+  def FetchContents(self, board: str, project: str,
+                    version: str) -> Optional[bytes]:
+    """Fetches a versioned remote file associated with the given board, project.
+
+    Args:
+      board: The board name.
+      project: The project name.
+      version: The version string of the remote file.
+
+    Returns:
+      The file contents if exists, or `None`.
+
+    Raises:
+      .git_util.GitUtilException: Underlying fetch process encountered errors.
+    """
+
+  @abc.abstractmethod
+  def GetLastVersion(self, board: str, project: str) -> Optional[str]:
+    """Queries the remote host to identify the latest version of the file.
+
+    Args:
+      board: The board name.
+      project: The project name.
+
+    Returns:
+      `None` if such remote file.  Otherwise it returns a string that can
+      further be used to fetch the versioned file contents.
+
+    Raises:
+      .git_util.GitUtilException: Underlying fetch process encountered errors.
+    """
+
+
 class HWIDAction:
   HWID_VERSION: int
 
@@ -392,8 +431,13 @@ class HWIDAction:
         '`GetHWIDBundleResourceInfo` is not supported in HWID '
         f'v{self.HWID_VERSION}')
 
-  def BundleHWIDDB(self) -> BundleInfo:
+  def BundleHWIDDB(self,
+                   battery_config_fetcher: IBatteryConfigFetcher) -> BundleInfo:
     """Bundles the HWID DB.
+
+    Args:
+      battery_config_fetcher: The remote file fetcher that can provide the
+        battery config.
 
     Returns:
       An instance of `BundleInfo` that contains the payload in bytes as well
@@ -466,3 +510,11 @@ class HWIDAction:
     """Gets the feature matcher of the current project."""
     raise NotSupportedError(
         f'`GetFeatureMatcher` is not supported in HWID v{self.HWID_VERSION}')
+
+  def GenerateBatteryConfigMetadata(
+      self, battery_config_fetcher: IBatteryConfigFetcher
+  ) -> Optional[bundles_pb2.BundleMetadata.BatteryConfig]:
+    """Generates the battery config metadata."""
+    raise NotSupportedError(
+        f'`GenerateBatteryConfigMetadata` is not supported in HWID '
+        f'v{self.HWID_VERSION}')

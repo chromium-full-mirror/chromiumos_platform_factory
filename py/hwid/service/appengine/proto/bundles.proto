@@ -6,4 +6,11 @@ syntax = "proto3";
 
 // Defines the metadata for building a HWID bundle.
 message BundleMetadata {
+  // Battery config related metadata.
+  message BatteryConfig {
+    // The CL commit that contains the battery config file to bundle.
+    string change_commit = 1;
+  }
+
+  optional BatteryConfig battery_config = 1;
 }

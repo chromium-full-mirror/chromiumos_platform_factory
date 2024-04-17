@@ -19,12 +19,14 @@ from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import hwid_validator
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3 import battery_config_bundle
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import feature_compliance
-from cros.factory.probe_info_service.app_engine import bundle_builder
+from cros.factory.probe_info_service.app_engine import bundle_builder as bundle_builder_module
 from cros.factory.utils import schema
 
 
@@ -218,29 +220,64 @@ class HWIDV3SelfServiceActionHelper:
       return hwid_action.BundleResourceInfo(fingerprint, None)
     return hwid_action.BundleResourceInfo(fingerprint, {})
 
-  def BundleHWIDDB(self):
-    builder = bundle_builder.BundleBuilder()
+  def _PutExternalDBIntoHWIDBundle(
+      self, bundle_builder: bundle_builder_module.BundleBuilder):
     internal_db = self._preproc_data.database
     tag_trimmed_raw_db = internal_db.DumpDataWithoutChecksum(
         suppress_support_status=True, internal=False)
     external_raw_db = self.PatchHeader(tag_trimmed_raw_db)
     checksum = database.Database.ChecksumForText(external_raw_db)
 
-    builder.AddRegularFile(internal_db.project, external_raw_db.encode('utf-8'))
-    feature_matcher = self._preproc_data.feature_matcher
-    payload = feature_matcher.GenerateHWIDFeatureRequirementPayload()
-    file_name = feature_compliance.GetFeatureRequirementSpecFileName(
-        internal_db.project)
-    builder.AddRegularFile(file_name, payload.encode('utf-8'))
-    builder.AddExecutableFile(_HWID_BUNDLE_INSTALLER_NAME,
-                              _HWID_BUNDLE_INSTALLER_SCRIPT.encode('utf-8'))
-    builder.SetRunnerFilePath(_HWID_BUNDLE_INSTALLER_NAME)
+    bundle_builder.AddRegularFile(internal_db.project,
+                                  external_raw_db.encode('utf-8'))
 
     # TODO(b/211957606) remove this stopgap which shows the HWID DB checksum for
     # cros_payload.sh to parse.
     # pylint: disable=protected-access
-    builder._SetStopGapHWIDDBChecksum(checksum)
+    bundle_builder._SetStopGapHWIDDBChecksum(checksum)
     # pylint: enable=protected-access
+
+  def _PutFeatureRequirementSpecIntoHWIDBundle(
+      self, bundle_builder: bundle_builder_module.BundleBuilder):
+    internal_db = self._preproc_data.database
+    feature_matcher = self._preproc_data.feature_matcher
+    payload = feature_matcher.GenerateHWIDFeatureRequirementPayload()
+    file_name = feature_compliance.GetFeatureRequirementSpecFileName(
+        internal_db.project)
+    bundle_builder.AddRegularFile(file_name, payload.encode('utf-8'))
+
+  def _PutBatteryConfig(
+      self, battery_config_fetcher: hwid_action.IBatteryConfigFetcher,
+      bundle_builder: bundle_builder_module.BundleBuilder):
+    bundle_metadata = self._preproc_data.bundle_metadata
+    if not bundle_metadata.HasField('battery_config'):
+      return
+
+    battery_config_contents = battery_config_fetcher.FetchContents(
+        self._preproc_data.board, self._preproc_data.project,
+        bundle_metadata.battery_config.change_commit)
+    if battery_config_contents is None:
+      return
+
+    filename_in_bundle, file_content_in_bundle = (
+        battery_config_bundle.PackBatteryConfigContents(
+            self._preproc_data.project, battery_config_contents.decode('utf-8'),
+            bundle_metadata.battery_config.change_commit))
+    bundle_builder.AddRegularFile(filename_in_bundle,
+                                  file_content_in_bundle.encode('utf-8'))
+
+  def BundleHWIDDB(self,
+                   battery_config_fetcher: hwid_action.IBatteryConfigFetcher):
+    builder = bundle_builder_module.BundleBuilder()
+
+    self._PutExternalDBIntoHWIDBundle(builder)
+    self._PutFeatureRequirementSpecIntoHWIDBundle(builder)
+    self._PutBatteryConfig(battery_config_fetcher, builder)
+
+    builder.AddExecutableFile(_HWID_BUNDLE_INSTALLER_NAME,
+                              _HWID_BUNDLE_INSTALLER_SCRIPT.encode('utf-8'))
+    builder.SetRunnerFilePath(_HWID_BUNDLE_INSTALLER_NAME)
+
     builder.hwid_db_commit_id = self._preproc_data.hwid_db_commit_id
     return hwid_action.BundleInfo(builder.Build(), builder.FILE_NAME_EXT[1:])
 
@@ -270,3 +307,13 @@ class HWIDV3SelfServiceActionHelper:
         hwid_db_editable_contents_with_avl)
     return self.PatchFirmwareBundleUUIDs(
         new_hwid_db_contents_internal_without_bundle)
+
+  def GenerateBatteryConfigMetadata(
+      self, battery_config_fetcher: hwid_action.IBatteryConfigFetcher
+  ) -> Optional[bundles_pb2.BundleMetadata.BatteryConfig]:
+    """Generates the battery config metadata that pins to TOT contents."""
+    last_commit = battery_config_fetcher.GetLastVersion(
+        self._preproc_data.board, self._preproc_data.project)
+    if last_commit is None:
+      return None
+    return bundles_pb2.BundleMetadata.BatteryConfig(change_commit=last_commit)

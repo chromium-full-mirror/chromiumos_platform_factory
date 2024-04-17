@@ -13,6 +13,7 @@ from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine.hwid_action_helpers import v3_self_service_helper as ss_helper_module
 from cros.factory.hwid.service.appengine import hwid_preproc_data
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common
@@ -78,8 +79,9 @@ class HWIDV3Action(hwid_action.HWIDAction):
   def GetHWIDBundleResourceInfo(self, fingerprint_only=False):
     return self._ss_helper.GetHWIDBundleResourceInfo(fingerprint_only)
 
-  def BundleHWIDDB(self):
-    return self._ss_helper.BundleHWIDDB()
+  def BundleHWIDDB(self,
+                   battery_config_fetcher: hwid_action.IBatteryConfigFetcher):
+    return self._ss_helper.BundleHWIDDB(battery_config_fetcher)
 
   def RemoveHeader(self, hwid_db_contents):
     return self._ss_helper.RemoveHeader(hwid_db_contents)
@@ -116,3 +118,9 @@ class HWIDV3Action(hwid_action.HWIDAction):
   def GetFeatureMatcher(self) -> feature_matching.HWIDFeatureMatcher:
     """See base class."""
     return self._preproc_data.feature_matcher
+
+  def GenerateBatteryConfigMetadata(
+      self, battery_config_fetcher: hwid_action.IBatteryConfigFetcher
+  ) -> Optional[bundles_pb2.BundleMetadata.BatteryConfig]:
+    """See base class."""
+    return self._ss_helper.GenerateBatteryConfigMetadata(battery_config_fetcher)

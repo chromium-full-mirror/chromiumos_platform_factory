@@ -20,13 +20,16 @@ from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine.hwid_action_helpers import v3_self_service_helper as ss_helper
 from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3 import battery_config_bundle
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import feature_compliance
 from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
+from cros.factory.utils import sys_interface
 
 
 _TESTDATA_PATH = os.path.join(
@@ -292,7 +295,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     data, helper_inst = self._LoadPreprocDataAndSSHelper(
         'v3-golden-no-internal-tags.yaml')
 
-    payload = helper_inst.BundleHWIDDB().bundle_contents
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     # Verify the created bundle payload by trying to install it.
     with file_utils.UnopenedTemporaryFile() as bundle_path:
@@ -309,7 +313,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     trimmed_data, unused_helper_inst = self._LoadPreprocDataAndSSHelper(
         'v3-golden-no-internal-tags.yaml')
 
-    payload = helper_inst.BundleHWIDDB().bundle_contents
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     # Verify the created bundle payload by trying to install it.
     with file_utils.UnopenedTemporaryFile() as bundle_path:
@@ -327,7 +332,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     data, helper_inst = self._LoadPreprocDataAndSSHelper(
         'v3-golden-no-internal-tags.yaml')
 
-    payload = helper_inst.BundleHWIDDB().bundle_contents
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     checksum_pattern = re.compile(f'^checksum: {data.database.checksum}$',
                                   re.MULTILINE)
@@ -339,7 +345,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     unused_data, helper_inst = self._LoadPreprocDataAndSSHelper(
         'v3-golden-no-internal-tags.yaml', 'SHOW_THIS_COMMIT')
 
-    payload = helper_inst.BundleHWIDDB().bundle_contents
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     self.assertIn('hwid_commit_id: SHOW_THIS_COMMIT', payload.decode('utf-8'))
 
@@ -349,7 +356,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     tot_data, helper_inst_tot = self._LoadPreprocDataAndSSHelper(
         'v3-golden-internal-tags.yaml')  # with tot format
 
-    payload_legacy = helper_inst_legacy.BundleHWIDDB().bundle_contents
+    payload_legacy = helper_inst_legacy.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     with file_utils.UnopenedTemporaryFile() as bundle_path:
       os.chmod(bundle_path, 0o755)
@@ -361,7 +369,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
         self.assertIn('board', legacy_yaml)
         self.assertNotIn('project', legacy_yaml)
 
-    payload_tot = helper_inst_tot.BundleHWIDDB().bundle_contents
+    payload_tot = helper_inst_tot.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     with file_utils.UnopenedTemporaryFile() as bundle_path:
       os.chmod(bundle_path, 0o755)
@@ -387,7 +396,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     preproc_data, helper_inst = self._LoadPreprocDataAndSSHelper(
         'v3-golden.yaml', feature_matcher_source=feature_matcher_source)
 
-    payload = helper_inst.BundleHWIDDB().bundle_contents
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher()).bundle_contents
 
     with file_utils.UnopenedTemporaryFile() as bundle_path:
       os.chmod(bundle_path, 0o755)
@@ -398,6 +408,55 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
         checker = feature_compliance.LoadChecker(dest_dir, preproc_data.project)
 
         self.assertIsNotNone(checker)
+
+  def _CreateStubBatteryConfigFetcher(
+      self, *, battery_config_contents: Optional[bytes] = None,
+      last_version: Optional[str] = None) -> hwid_action.IBatteryConfigFetcher:
+
+    class StubBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
+
+      def FetchContents(self, board, project, version):
+        return battery_config_contents
+
+      def GetLastVersion(self, board, project):
+        return last_version
+
+    return StubBatteryConfigFetcher()
+
+  def testBundleHWIDDB_ContainsBatteryConfig(self):
+    bundle_metadata = bundles_pb2.BundleMetadata()
+    bundle_metadata.battery_config.change_commit = '12345'
+    bundle_metadata_source = (
+        hwid_preproc_data.HWIDV3PreprocData.DumpBundleMetadata(bundle_metadata))
+    preproc_data, helper_inst = self._LoadPreprocDataAndSSHelper(
+        'v3-golden.yaml', bundle_metadata_source=bundle_metadata_source)
+
+    payload = helper_inst.BundleHWIDDB(
+        self._CreateStubBatteryConfigFetcher(
+            battery_config_contents=b'{\n  ...\n}\n')).bundle_contents
+
+    with file_utils.UnopenedTemporaryFile() as bundle_path:
+      os.chmod(bundle_path, 0o755)
+      file_utils.WriteFile(bundle_path, payload, encoding=None)
+      with tempfile.TemporaryDirectory() as dest_dir:
+        process_utils.CheckCall([bundle_path, dest_dir])
+
+        actual_battery_config = (
+            battery_config_bundle.UnpackBatteryConfigContents(
+                dest_dir, preproc_data.project,
+                sys_interface.SystemInterface()))
+
+        self.assertEqual(actual_battery_config, '{\n  ...\n}\n')
+
+  def testGenerateBatteryConfigMetadata_SuccessWithCommit(self):
+    unused_preproc_data, helper_inst = self._LoadPreprocDataAndSSHelper(
+        'v3-golden.yaml')
+
+    actual = helper_inst.GenerateBatteryConfigMetadata(
+        self._CreateStubBatteryConfigFetcher(last_version='12345'))
+
+    self.assertEqual(
+        actual, bundles_pb2.BundleMetadata.BatteryConfig(change_commit='12345'))
 
   def _LoadPreprocDataAndSSHelper(self, testdata_name, commit_id='COMMIT-ID',
                                   feature_matcher_source: Optional[str] = None,
