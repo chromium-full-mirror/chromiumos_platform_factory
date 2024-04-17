@@ -192,6 +192,17 @@ class UCMConfigManagerTest(unittest.TestCase):
     return_value = config_mgr.GetDefaultInputGain('2')
     self.assertEqual(return_value, 0)
 
+  def testAlsaUCMGetPattern(self):
+    for test_in, test_out in (
+        ('  CapturePCM/Mic=hw:sofrt5682,1\n', '1'),
+        ('  CapturePCM/Internal Mic=hw:sofhdadsp,7\n', '7'),
+        ('  CapturePCM/Internal Mic=_ucm0001.hw:sofhdadsp,6\n', '6'),
+        ('Invalid\n', None),
+    ):
+      match = config_manager.ALSAUCM_GET_PATTERN.search(test_in)
+      result = match and match.group(2)
+
+      self.assertEqual(result, test_out)
 
 if __name__ == '__main__':
   unittest.main()

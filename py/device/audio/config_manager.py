@@ -26,6 +26,8 @@ _SCRIPT_CARD_INDEX = '999'
 
 DEFAULT_JSON_CONFIG_NAME = 'audio'
 
+ALSAUCM_GET_PATTERN = re.compile(r'^(.+)=.*hw:.+,(\d+)$', re.MULTILINE)
+
 
 class MicJackType(str, enum.Enum):
   none = 'none'
@@ -742,7 +744,7 @@ class UCMConfigManager(IConfigManager):
     device_name = self._GetDeviceName(card, device)
     identity = f'{category}/{device_name}'
     output = self._InvokeDeviceCommands(card, f'get "{identity}"')
-    match = re.search(r'^(.+)=hw:.+,(\d+)$', output, re.MULTILINE)
+    match = ALSAUCM_GET_PATTERN.search(output)
     if match and match.group(1).strip() == identity:
       return match.group(2)
     raise ValueError(
