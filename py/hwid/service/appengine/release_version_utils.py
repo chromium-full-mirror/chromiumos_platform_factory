@@ -173,7 +173,7 @@ class ReleaseVersionManager:
         return entity.commit
     try:
       buildspec_content = git_util.GetFileContent(
-          git_url_prefix=hwid_repo.INTERNAL_REPO_REVIEW_URL,
+          gerrit_review_url=hwid_repo.INTERNAL_REPO_REVIEW_URL,
           project=_MANIFEST_VERSIONS_PROJECT,
           path=_BUILDSPEC_PATH.format(
               milestone=image_version.milestone,

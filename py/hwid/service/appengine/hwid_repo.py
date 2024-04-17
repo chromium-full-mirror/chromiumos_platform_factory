@@ -327,7 +327,8 @@ class HWIDRepo(HWIDRepoView):
         hashtags = [_UNVERIFIED_HASHTAG]
         cc_list.extend(self._unverfied_cl_ccs)
       change_id, cl_number = git_util.CreateOrPatchCL(
-          git_url=self._repo_url, auth_cookie=git_util.GetGerritAuthCookie(),
+          gerrit_review_url=self._repo_url,
+          auth_cookie=git_util.GetGerritAuthCookie(),
           branch=self._repo_branch, new_files=new_files, author=author,
           committer=author, commit_msg=commit_msg, change_id=change_id,
           reviewers=reviewers,

@@ -529,7 +529,7 @@ def _GetChangeId(tree_id, parent_commit, author, committer, commit_msg):
 
 
 def CreateOrPatchCL(
-    git_url: str,
+    gerrit_review_url: str,
     auth_cookie: str,
     branch: str,
     new_files: Sequence[Tuple[str, int, Union[str, bytes]]],
@@ -553,7 +553,7 @@ def CreateOrPatchCL(
   """Creates or patches a CL from adding files in specified location.
 
   Args:
-    git_url: HTTPS repo url
+    gerrit_review_url: HTTPS repo url
     auth_cookie: Auth_cookie
     branch: Branch needs adding file
     new_files: List of (filepath, mode, bytes)
@@ -585,7 +585,7 @@ def CreateOrPatchCL(
   if repo is None:
     repo = MemoryRepo(auth_cookie=auth_cookie)
     # only fetches last commit
-    repo.shallow_clone(git_url, branch=_B(branch))
+    repo.shallow_clone(gerrit_review_url, branch=_B(branch))
   head_commit = repo[HEAD]
   original_tree_id = head_commit.tree
   updated_tree = repo.add_files(new_files)
@@ -622,12 +622,13 @@ def CreateOrPatchCL(
     target_branch += '%' + ','.join(options)
 
   stderr = io.BytesIO()
-  porcelain.push(repo, git_url, HEAD + b':' + _B(target_branch),
+  porcelain.push(repo, gerrit_review_url, HEAD + b':' + _B(target_branch),
                  errstream=stderr,
                  pool_manager=_CreatePoolManager(cookie=repo.auth_cookie))
 
   def _ParseCLNumber(message):
-    pattern = re.sub(r'googlesource\.com/', 'googlesource.com/c/', git_url)
+    pattern = re.sub(r'googlesource\.com/', 'googlesource.com/c/',
+                     gerrit_review_url)
     pattern = re.escape(pattern) + r'/\+/(\d+)'
     matches = re.findall(pattern, message)
     return int(matches[0]) if matches else None
@@ -638,13 +639,13 @@ def CreateOrPatchCL(
 @sync_utils.RetryDecorator(max_attempt_count=DEFAULT_RETRY_COUNT,
                            interval_sec=DEFAULT_DELAY_SEC,
                            exceptions_to_catch=[GitUtilException], reraise=True)
-def GetCurrentBranch(git_url_prefix, project, auth_cookie=''):
+def GetCurrentBranch(gerrit_review_url, project, auth_cookie=''):
   """Gets the branch HEAD tracks.
 
   Uses the gerrit API to get the branch name HEAD tracks.
 
   Args:
-    git_url_prefix: HTTPS repo url
+    gerrit_review_url: HTTPS repo url
     project: Project name
     auth_cookie: Auth cookie
 
@@ -652,7 +653,7 @@ def GetCurrentBranch(git_url_prefix, project, auth_cookie=''):
     GitUtilException if error occurs while querying the Gerrit API.
   """
   quoted_project = urllib.parse.quote(project, safe='')
-  git_url = f'{git_url_prefix}/projects/{quoted_project}/HEAD'
+  git_url = f'{gerrit_review_url}/projects/{quoted_project}/HEAD'
   branch_name = _InvokeGerritAPIJSON(
       'GET', git_url, auth_cookie=auth_cookie, response_schema=schema.Scalar(
           'refs head', str))
@@ -671,13 +672,13 @@ _BRANCH_INFO_SCHEMA = schema.FixedDict(
 @sync_utils.RetryDecorator(max_attempt_count=DEFAULT_RETRY_COUNT,
                            interval_sec=DEFAULT_DELAY_SEC,
                            exceptions_to_catch=[GitUtilException], reraise=True)
-def GetCommitId(git_url_prefix, project, branch=None, auth_cookie=''):
+def GetCommitId(gerrit_review_url, project, branch=None, auth_cookie=''):
   """Gets branch commit.
 
   Uses the gerrit API to get the commit id.
 
   Args:
-    git_url_prefix: HTTPS repo url
+    gerrit_review_url: HTTPS repo url
     project: Project name
     branch: Branch name, use the branch HEAD tracks if set to None.
     auth_cookie: Auth cookie
@@ -685,11 +686,12 @@ def GetCommitId(git_url_prefix, project, branch=None, auth_cookie=''):
   Raises:
     GitUtilException if error occurs while querying the Gerrit API.
   """
-  branch = branch or GetCurrentBranch(git_url_prefix, project, auth_cookie)
+  branch = branch or GetCurrentBranch(gerrit_review_url, project, auth_cookie)
 
   quoted_proj = urllib.parse.quote(project, safe='')
   quoted_branch = urllib.parse.quote(branch, safe='')
-  git_url = f'{git_url_prefix}/projects/{quoted_proj}/branches/{quoted_branch}'
+  git_url = (
+      f'{gerrit_review_url}/projects/{quoted_proj}/branches/{quoted_branch}')
   branch_info = _InvokeGerritAPIJSON('GET', git_url, auth_cookie=auth_cookie,
                                      response_schema=_BRANCH_INFO_SCHEMA)
   return branch_info['revision']
@@ -698,7 +700,7 @@ def GetCommitId(git_url_prefix, project, branch=None, auth_cookie=''):
 @sync_utils.RetryDecorator(max_attempt_count=DEFAULT_RETRY_COUNT,
                            interval_sec=DEFAULT_DELAY_SEC,
                            exceptions_to_catch=[GitUtilException], reraise=True)
-def GetFileContent(git_url_prefix: str, project: str, path: str,
+def GetFileContent(gerrit_review_url: str, project: str, path: str,
                    commit_id: Optional[str] = None,
                    change_id: Optional[str] = None,
                    branch: Optional[str] = None, auth_cookie: str = '',
@@ -708,7 +710,7 @@ def GetFileContent(git_url_prefix: str, project: str, path: str,
   Uses the gerrit API to get the file content.  If commit_id is specified
 
   Args:
-    git_url_prefix: HTTPS repo url.
+    gerrit_review_url: HTTPS repo url.
     project: Project name.
     path: Path to the file.
     commit_id: The commit id which is the version of the file.
@@ -731,18 +733,20 @@ def GetFileContent(git_url_prefix: str, project: str, path: str,
       logging.warning('Commit id is already specified, ignore change_id %s.',
                       change_id)
 
-    git_url = (f'{git_url_prefix}/projects/{quoted_project}/commits/{commit_id}'
-               f'/files/{quoted_path}/content')
+    git_url = (
+        f'{gerrit_review_url}/projects/{quoted_project}/commits/{commit_id}'
+        f'/files/{quoted_path}/content')
   elif change_id:
     if branch:
       logging.warning('Change ID is already specified, ignore branch %r.',
                       branch)
-    git_url = (f'{git_url_prefix}/changes/{change_id}/revisions/current/files/'
-               f'{quoted_path}/content')
+    git_url = (
+        f'{gerrit_review_url}/changes/{change_id}/revisions/current/files/'
+        f'{quoted_path}/content')
   else:
-    branch = branch or GetCurrentBranch(git_url_prefix, project, auth_cookie)
+    branch = branch or GetCurrentBranch(gerrit_review_url, project, auth_cookie)
     quoted_branch = urllib.parse.quote(branch, safe='')
-    git_url = (f'{git_url_prefix}/projects/{quoted_project}/'
+    git_url = (f'{gerrit_review_url}/projects/{quoted_project}/'
                f'branches/{quoted_branch}/files/{quoted_path}/content')
   raw_data = _InvokeGerritAPI('GET', git_url, auth_cookie=auth_cookie,
                               accept_not_found=optional)
@@ -1401,3 +1405,46 @@ def GetGerritAuthCookie(credentials=None):
   service_account_name, token = GetGerritCredentials(
   ) if credentials is None else credentials
   return f'o=git-{service_account_name}={token}'
+
+
+_FILE_LOG_SCHEMA = schema.FixedDict(
+    'response object',
+    items={
+        'logs':
+            schema.List(
+                'logs', element_type=schema.FixedDict(
+                    'commit details',
+                    items={'commit': schema.Scalar('commit', str)},
+                    allow_undefined_keys=True,
+                )),
+    },
+)
+
+
+def GetLastMergedChangeCommit(gitiles_url: str, project: str, path: str,
+                              revisions: str) -> Optional[str]:
+  """Gets the commit ID of the last merged change that modifies the file.
+
+  Note that removing the file also counts.
+
+  Args:
+    gitiles_url: The URL to the Gitiles host.
+    project: The repository's project name.
+    path: The path of the target file.
+    revisions: The ref that indicates the commit chain for the lookup.  E.g.
+        `HEAD` for commits on the default branch; `<some_commit_id>..HEAD` for
+        commits after `<some_commit_id>` on the default branch.
+
+  Returns:
+    If such commit exist, it returns a string of the commit's ID.  Otherwise,
+    it returns `None`.
+
+  Raises:
+    GitUtilException: The query ends unsuccessfully.
+  """
+  git_url = f'{gitiles_url}/{project}/+log/{revisions}/{path}'
+  git_logs = _InvokeGerritAPIJSON('GET', git_url, params=[('format', 'JSON')],
+                                  response_schema=_FILE_LOG_SCHEMA)
+  if not git_logs['logs']:
+    return None
+  return git_logs['logs'][0]['commit']

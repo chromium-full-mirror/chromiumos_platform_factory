@@ -1635,7 +1635,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       return
     try:
       git_util.CreateOrPatchCL(
-          git_url=git_url,
+          gerrit_review_url=git_url,
           auth_cookie=auth_cookie,
           branch=branch,
           new_files=new_files,

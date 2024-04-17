@@ -754,7 +754,7 @@ class HWIDFeatureMatcherBuilder:
     """
     # TODO(clarkchung): Consider caching the device selection payload.
     payload = git_util.GetFileContent(
-        git_url_prefix=hwid_repo.INTERNAL_REPO_REVIEW_URL,
+        gerrit_review_url=hwid_repo.INTERNAL_REPO_REVIEW_URL,
         project=payload_config.project,
         path=f'{payload_config.prefix}device_selection.textproto',
         commit_id=commit,

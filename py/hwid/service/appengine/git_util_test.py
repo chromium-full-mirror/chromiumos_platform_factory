@@ -15,6 +15,7 @@ import unittest
 from unittest import mock
 
 from dulwich import objects as dw_objects
+import urllib3.exceptions
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.v3 import filesystem_adapter
@@ -195,18 +196,19 @@ class GetChangeIdTest(unittest.TestCase):
 class GetCommitIdTest(unittest.TestCase):
 
   def testGetCommitId(self):
-    git_url_prefix = 'https://chromium-review.googlesource.com'
+    gerrit_review_url = 'https://chromium-review.googlesource.com'
     project = 'chromiumos/platform/factory'
     branch = None
 
     auth_cookie = ''  # auth_cookie is not needed in chromium repo
-    commit = git_util.GetCommitId(git_url_prefix, project, branch, auth_cookie)
+    commit = git_util.GetCommitId(gerrit_review_url, project, branch,
+                                  auth_cookie)
     self.assertRegex(commit, '^[0-9a-f]{40}$')
 
   @mock.patch('urllib3.PoolManager')
   def testGetCommitIdFormatError(self, mocked_poolmanager):
     """Mock response and status to test if exceptions are raised."""
-    git_url_prefix = 'dummy'
+    gerrit_review_url = 'dummy'
     project = 'dummy'
     branch = 'dummy'
     auth_cookie = 'dummy'
@@ -240,7 +242,7 @@ class GetCommitIdTest(unittest.TestCase):
     for resp in error_responses:
       instance.urlopen.return_value = resp
       self.assertRaises(git_util.GitUtilException, git_util.GetCommitId,
-                        git_url_prefix, project, branch, auth_cookie)
+                        gerrit_review_url, project, branch, auth_cookie)
 
 
 def _BuildGerritSuccResponse(json_obj):
@@ -747,7 +749,7 @@ class GetFileContentTest(unittest.TestCase):
     self.addCleanup(mock.patch.stopall)
 
   def testGetFileContent_SpecifyCommitID(self):
-    git_url_prefix = 'https://url_prefix'
+    gerrit_review_url = 'https://url_prefix'
     project = 'my/project'
     commit_id = 'commit-id'
     path = 'path/to/file'
@@ -755,7 +757,7 @@ class GetFileContentTest(unittest.TestCase):
         b'content')
 
     actual_content = git_util.GetFileContent(
-        git_url_prefix=git_url_prefix,
+        gerrit_review_url=gerrit_review_url,
         project=project,
         path=path,
         commit_id=commit_id,
@@ -767,7 +769,7 @@ class GetFileContentTest(unittest.TestCase):
                 'commits/commit-id/files/path%2Fto%2Ffile/content'), body=b'')
 
   def testGetFileContent_SpecifyChangeID(self):
-    git_url_prefix = 'https://url_prefix'
+    gerrit_review_url = 'https://url_prefix'
     project = 'my/project'
     change_id = 'change-id'
     path = 'path/to/file'
@@ -775,7 +777,7 @@ class GetFileContentTest(unittest.TestCase):
         b'content')
 
     actual_content = git_util.GetFileContent(
-        git_url_prefix=git_url_prefix,
+        gerrit_review_url=gerrit_review_url,
         project=project,
         path=path,
         change_id=change_id,
@@ -787,7 +789,7 @@ class GetFileContentTest(unittest.TestCase):
                 'files/path%2Fto%2Ffile/content'), body=b'')
 
   def testGetFileContent_SpecifyBranch(self):
-    git_url_prefix = 'https://url_prefix'
+    gerrit_review_url = 'https://url_prefix'
     project = 'my/project'
     branch = 'branch/name'
     path = 'path/to/file'
@@ -795,7 +797,7 @@ class GetFileContentTest(unittest.TestCase):
         b'content')
 
     actual_content = git_util.GetFileContent(
-        git_url_prefix=git_url_prefix,
+        gerrit_review_url=gerrit_review_url,
         project=project,
         path=path,
         branch=branch,
@@ -809,7 +811,7 @@ class GetFileContentTest(unittest.TestCase):
 
   @mock.patch.object(git_util, 'GetCurrentBranch')
   def testGetFileContent_ToT(self, mock_get_cur_branch):
-    git_url_prefix = 'https://url_prefix'
+    gerrit_review_url = 'https://url_prefix'
     project = 'my/project'
     path = 'path/to/file'
     self._mock_urlopen.return_value = _BuildGerritFileContentResponse(
@@ -817,7 +819,7 @@ class GetFileContentTest(unittest.TestCase):
     mock_get_cur_branch.return_value = 'curr/branch'
 
     actual_content = git_util.GetFileContent(
-        git_url_prefix=git_url_prefix,
+        gerrit_review_url=gerrit_review_url,
         project=project,
         path=path,
     )
@@ -969,6 +971,43 @@ class ApprovalCaseTest(unittest.TestCase):
         git_util.ReviewVote('Code-Review', 0),
         git_util.ReviewVote('Commit-Queue', 0),
     ], git_util.ApprovalCase.NEED_MANUAL_REVIEW.ConvertToVotes())
+
+
+class GetLastMergedChangeCommitTest(unittest.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    patcher = mock.patch('urllib3.PoolManager')
+    self._mocked_pool_manager_cls = patcher.start()
+    self.addCleanup(patcher.stop)
+
+  def testGerritAPIEndUnsuccessfully(self):
+    mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
+    mock_urlopen.side_effect = urllib3.exceptions.HTTPError()
+
+    with self.assertRaises(git_util.GitUtilException):
+      git_util.GetLastMergedChangeCommit('unused_url', 'unused_project',
+                                         'unused_path', 'unused_head')
+
+  def testSuccess(self):
+    mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
+    mock_urlopen.return_value = _BuildGerritSuccResponse(
+        {'logs': [
+            {
+                'commit': '12345',
+            },
+            {
+                'commit': '67890',
+            },
+        ]})
+
+    result = git_util.GetLastMergedChangeCommit('the_url', 'the_project',
+                                                'the_target_path', 'the_head')
+
+    self.assertEqual(result, '12345')
+    mock_urlopen.assert_called_once_with(
+        'GET', 'the_url/the_project/+log/the_head/the_target_path?format=JSON',
+        body=b'')
 
 
 if __name__ == '__main__':

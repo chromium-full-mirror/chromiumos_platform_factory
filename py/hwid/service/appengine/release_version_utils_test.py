@@ -323,7 +323,7 @@ class ReleaseVersionManagerTest(unittest.TestCase):
     )
 
     mock_get_file_content.assert_called_once_with(
-        git_url_prefix='https://chrome-internal-review.googlesource.com',
+        gerrit_review_url='https://chrome-internal-review.googlesource.com',
         project='chromeos/manifest-versions',
         path='buildspecs/100/12345.67.8.xml',
         auth_cookie=mock.ANY,

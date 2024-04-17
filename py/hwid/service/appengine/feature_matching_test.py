@@ -943,7 +943,7 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
     )
 
     mock_get_file_content.assert_called_once_with(
-        git_url_prefix='https://chrome-internal-review.googlesource.com',
+        gerrit_review_url='https://chrome-internal-review.googlesource.com',
         project='chromeos/overlays/overlay-theboard-private',
         path=('chromeos-base/feature-management-bsp/files/'
               'device_selection.textproto'),
