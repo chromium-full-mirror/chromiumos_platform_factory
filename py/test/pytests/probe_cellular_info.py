@@ -2,14 +2,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Probes information from modem status.
+"""Probes information from /org/freedesktop/ModemManager1.
 
 Description
 -----------
 This test can probe requested data, including
-``NAME={'imei', 'meid', 'lte_imei', 'lte_iccid'}`` from modem status. When the
-argument ``probe_{NAME}`` is set ``True``, the data ``NAME`` will be logged and
-saved to device data.
+``NAME={'imei', 'meid', 'lte_imei', 'lte_iccid'}`` from
+/org/freedesktop/ModemManager1. When the argument ``probe_{NAME}`` is set
+``True``, the data ``NAME`` will be logged and saved to device data.
 
 The ``fields`` argument is a dictionary containing multiple
 (``NAME``, ``FIELD``) pairs. It will override the following default fields:
@@ -27,8 +27,8 @@ Test Procedure
 --------------
 This is an automated test without user interaction.
 
-The test will probe specific data from the command ``modem status``, then log to
-``cros.factory.testlog`` and save to ``cros.factory.test.device_data``.
+The test will probe specific data from /org/freedesktop/ModemManager1, then log
+to ``cros.factory.testlog`` and save to ``cros.factory.test.device_data``.
 
 Dependency
 ----------
@@ -74,11 +74,11 @@ import unittest
 
 from cros.factory.test import device_data
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
+from cros.factory.test.rf import cellular
 from cros.factory.test import test_tags
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
-from cros.factory.utils import string_utils
 
 
 class ProbeCellularInfoTest(unittest.TestCase):
@@ -95,29 +95,11 @@ class ProbeCellularInfoTest(unittest.TestCase):
   ]
 
   def runTest(self):
-
-    def _FindField(output_dict, key):
-      """Find field value in nested dictionary."""
-
-      if not isinstance(output_dict, dict):
-        return None
-      if key in output_dict and len(output_dict[key]) > 0:
-        return output_dict[key]
-
-      for child in output_dict.values():
-        value = _FindField(child, key)
-        if value is not None:
-          return value
-
-      return None
-
     output = process_utils.CheckOutput(['modem', 'status'], log=True)
     logging.info('modem status output:\n%s', output)
 
-    output_dict = string_utils.ParseDict(output.strip().splitlines(),
-                                         recursive=True)
-    data = {}
-
+    names = []
+    fields = []
     for name, field, enabled in (
         ('imei', 'imei', self.args.probe_imei),
         ('meid', 'meid', self.args.probe_meid),
@@ -127,17 +109,26 @@ class ProbeCellularInfoTest(unittest.TestCase):
         continue
 
       field = self.args.fields[name] if name in self.args.fields else field
-      data[name] = _FindField(output_dict, field)
+      names.append(name)
+      fields.append(field)
+
+    values = [None] * len(fields)
+    all_info = cellular.ProbeSimInfo(fields) + [cellular.ProbeModemInfo(fields)]
+    for info in all_info:
+      for index, value in enumerate(info):
+        if value is not None:
+          values[index] = value
+    data = dict(zip(names, values))
 
     event_log.Log('cellular_info', modem_status_stdout=output, **data)
     testlog.LogParam('modem_status_stdout', output)
     for k, v in data.items():
       testlog.LogParam(k, v)
 
-    missing = set(k for k, v in data.items() if v is None)
+    missing = sorted(set(k for k, v in data.items() if v is None))
     self.assertFalse(
         missing,
-        f"Missing elements in 'modem status' output: {sorted(missing)}")
+        f"Missing elements in '/org/freedesktop/ModemManager1': {missing}")
 
     logging.info('Probed data: %s', data)
     device_data.UpdateDeviceData({
