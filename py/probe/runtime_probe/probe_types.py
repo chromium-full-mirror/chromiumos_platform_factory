@@ -47,7 +47,6 @@ class ProbeInfo(NamedTuple):
   expected_fields: List of all possible values of fields, grouped by field
                    names.
   """
-  component_name: str
   probe_function_identifier: ProbeFunctionIdentifier
   expected_fields: Mapping[str, Collection[ExpectedField]]
 
