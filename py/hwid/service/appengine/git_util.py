@@ -1410,7 +1410,7 @@ def GetGerritAuthCookie(credentials=None):
 _FILE_LOG_SCHEMA = schema.FixedDict(
     'response object',
     items={
-        'logs':
+        'log':
             schema.List(
                 'logs', element_type=schema.FixedDict(
                     'commit details',
@@ -1418,11 +1418,13 @@ _FILE_LOG_SCHEMA = schema.FixedDict(
                     allow_undefined_keys=True,
                 )),
     },
+    allow_undefined_keys=True,
 )
 
 
 def GetLastMergedChangeCommit(gitiles_url: str, project: str, path: str,
-                              revisions: str) -> Optional[str]:
+                              revisions: str,
+                              auth_cookie: str = '') -> Optional[str]:
   """Gets the commit ID of the last merged change that modifies the file.
 
   Note that removing the file also counts.
@@ -1444,7 +1446,8 @@ def GetLastMergedChangeCommit(gitiles_url: str, project: str, path: str,
   """
   git_url = f'{gitiles_url}/{project}/+log/{revisions}/{path}'
   git_logs = _InvokeGerritAPIJSON('GET', git_url, params=[('format', 'JSON')],
-                                  response_schema=_FILE_LOG_SCHEMA)
-  if not git_logs['logs']:
+                                  response_schema=_FILE_LOG_SCHEMA,
+                                  auth_cookie=auth_cookie)
+  if not git_logs['log']:
     return None
-  return git_logs['logs'][0]['commit']
+  return git_logs['log'][0]['commit']

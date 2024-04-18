@@ -15,6 +15,7 @@ from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
+from cros.factory.hwid.service.appengine.hwid_api_helpers import self_service_helper as ss_helper_module
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
@@ -61,6 +62,8 @@ class _Config:
         process.
     dlm_product_manager: A DLMProductManager instance responsible for operations
         on DLM product data.
+    battery_config_fetcher: A IBatteryConfigFetcher instance responsible for
+        accessing the battery config contents from the upstream.
   """
 
   def __init__(self, config_path=config_data.PATH_TO_APP_CONFIGURATIONS_FILE):
@@ -121,6 +124,15 @@ class _Config:
     latest_push_sql = release_version_setting.get('latest_push_sql', '')
     self.release_version_manager = release_version_utils.ReleaseVersionManager(
         bigquery_cloud_project, latest_push_sql, ndb_connector)
+    battery_config_setting = conf.get('battery_config_setting')
+    if battery_config_setting is None:
+      self.battery_config_fetcher = ss_helper_module.EmptyBatteryConfigFetcher()
+    else:
+      self.battery_config_fetcher = ss_helper_module.TOTBatteryConfigFetcher(
+          battery_config_setting['gerrit_review_url'],
+          battery_config_setting['gitiles_url'],
+          battery_config_setting['repo_name'],
+          battery_config_setting['base_dir'])
 
 
 CONFIG = type_utils.LazyObject(_Config)

@@ -29,6 +29,7 @@ from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import hwid_v3_action
 from cros.factory.hwid.service.appengine import memcache_adapter
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.v3 import builder as v3_builder
@@ -127,6 +128,7 @@ def _CreateFakeSelfServiceShard(
     avl_metadata_manager: Optional[avl_metadata_util.AVLMetadataManager] = None,
     feature_matcher_builder_class: (
         Optional[Type[ss_helper_module.FeatureMatcherBuilder]]) = None,
+    battery_config_fetcher: Optional[hwid_action.IBatteryConfigFetcher] = None,
     cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
 ) -> ss_helper_module.SelfServiceShard:
   avl_metadata_manager = (
@@ -135,6 +137,8 @@ def _CreateFakeSelfServiceShard(
           config_data.AVLMetadataSetting.CreateInstance(
               False, 'namespace.prefix', 'avl-metadata-topic',
               ['cc1@notgoogle.com'])))
+  battery_config_fetcher = (
+      battery_config_fetcher or ss_helper_module.EmptyBatteryConfigFetcher())
   return ss_helper_module.SelfServiceShard(
       hwid_action_manager_inst or modules.fake_hwid_action_manager,
       hwid_repo_manager, hwid_db_data_manager or
@@ -142,7 +146,7 @@ def _CreateFakeSelfServiceShard(
       modules.fake_avl_converter_manager, session_cache_adapter or
       modules.fake_session_cache_adapter, avl_metadata_manager,
       (feature_matcher_builder_class or
-       ss_helper_module.FeatureMatcherBuilderImpl),
+       ss_helper_module.FeatureMatcherBuilderImpl), battery_config_fetcher,
       cq_count_over_limit_cl_reviewers)
 
 
@@ -526,10 +530,15 @@ class SelfServiceShardTest(unittest.TestCase):
         ss_helper_module.FeatureMatcherBuildResult(
             has_warnings=False, commit_message='',
             feature_matcher_source='unused value'))
+    self._mock_battery_config_fetcher = mock.create_autospec(
+        hwid_action.IBatteryConfigFetcher, instance=True)
+    self._mock_battery_config_fetcher.FetchContents.return_value = None
+    self._mock_battery_config_fetcher.GetLastVersion.return_value = None
 
     self.service = _CreateFakeSelfServiceShard(
         self._modules, self._mock_hwid_repo_manager,
-        feature_matcher_builder_class=self._mock_feature_matcher_builder_class)
+        feature_matcher_builder_class=self._mock_feature_matcher_builder_class,
+        battery_config_fetcher=self._mock_battery_config_fetcher)
 
   def tearDown(self):
     self._modules.ClearAll()
@@ -597,6 +606,7 @@ class SelfServiceShardTest(unittest.TestCase):
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-2', 'db data after change 2',
             'db data after change 2 (internal)', False, [], [], [], {}))
+    action.GenerateBatteryConfigMetadata.return_value = None
 
     req = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(
         project='proj', validation_token='validation-token-value-1')
@@ -619,6 +629,7 @@ class SelfServiceShardTest(unittest.TestCase):
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
             'db data after change 1 (internal)', False, [], [], [], {}))
+    action.GenerateBatteryConfigMetadata.return_value = None
     self._modules.fake_session_cache_adapter.Put(
         'validation-token-value-1', _SessionCache('PROJ',
                                                   'db data after change'))
@@ -648,6 +659,7 @@ class SelfServiceShardTest(unittest.TestCase):
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
             'db data after change 1 (internal)', False, [], [], [], {}))
+    action.GenerateBatteryConfigMetadata.return_value = None
     self._modules.fake_session_cache_adapter.Put(
         'validation-token-value-1', _SessionCache('PROJ',
                                                   'db data after change'))
@@ -664,6 +676,37 @@ class SelfServiceShardTest(unittest.TestCase):
     unused_args, kwargs = live_hwid_repo.CommitHWIDDB.call_args
     self.assertIn('Some commit info.', kwargs['commit_msg'])
     self.assertEqual('the result payload', kwargs['feature_matcher_source'])
+
+  @mock.patch.object(database.Database, 'LoadData')
+  def testCreateHwidDbEditableSectionChangeCl_BuildBundleMetadataSuccess(
+      self, mock_load_data):
+    del mock_load_data
+    self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    action.AnalyzeDBEditableSection.return_value = (
+        hwid_action.DBEditableSectionAnalysisReport(
+            'validation-token-value-1', 'db data after change 1',
+            'db data after change 1 (internal)', False, [], [], [], {}))
+    action.GenerateBatteryConfigMetadata.return_value = (
+        bundles_pb2.BundleMetadata.BatteryConfig(change_commit='123'))
+    self._modules.fake_session_cache_adapter.Put(
+        'validation-token-value-1', _SessionCache('PROJ',
+                                                  'db data after change'))
+    live_hwid_repo.CommitHWIDDB.return_value = 123
+
+    req = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(
+        project='proj', validation_token='validation-token-value-1')
+    self.service.CreateHwidDbEditableSectionChangeCl(req)
+
+    unused_args, kwargs = live_hwid_repo.CommitHWIDDB.call_args
+    expected_bundle_metadata = textwrap.dedent('''\
+        battery_config {
+          change_commit: "123"
+        }
+        ''')
+    self.assertEqual(expected_bundle_metadata, kwargs['bundle_metadata_source'])
 
   @mock.patch.object(database.Database, 'LoadData')
   def testCreateHwidDbEditableSectionChangeCl_Succeed(self, mock_load_data):
@@ -730,6 +773,7 @@ class SelfServiceShardTest(unittest.TestCase):
                             _PVAlignmentStatus.NO_PROBE_INFO),
                         skip_avl_check=False, marked_untracked=False),
             }))
+    action.GenerateBatteryConfigMetadata.return_value = None
 
     self._modules.fake_session_cache_adapter.Put(
         'validation-token-value-1', _SessionCache('PROJ',
@@ -814,6 +858,7 @@ class SelfServiceShardTest(unittest.TestCase):
       action.AnalyzeDBEditableSection.return_value = (
           hwid_action.DBEditableSectionAnalysisReport(hwid_data.raw_db, '', '',
                                                       False, [], [], [], {}))
+      action.GenerateBatteryConfigMetadata.return_value = None
       return action
 
     self._modules.ConfigHWID('PROJ', '3', 'db data ver 1',
@@ -2052,6 +2097,8 @@ class SelfServiceShardTest(unittest.TestCase):
         ss_helper_module.FeatureMatcherBuildResult(
             has_warnings=False, commit_message='unused msg',
             feature_matcher_source='generated feature matcher payload'))
+    self._mock_battery_config_fetcher.GetLastVersion.return_value = (
+        'battery_config_version')
 
     # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project,
@@ -2251,6 +2298,9 @@ class SelfServiceShardTest(unittest.TestCase):
         all(f'reason1 of {identity}.' in auto_approved_call['commit_msg'] and
             f'reason2 of {identity}.' in auto_approved_call['commit_msg'] for
             identity in create_cl_resp.auto_mergeable_change_unit_identities))
+    self.assertEqual(
+        'battery_config {\n  change_commit: "battery_config_version"\n}\n',
+        auto_approved_call['bundle_metadata_source'])
 
     # Validate review-required HWID DB CL.
     self.assertFalse(review_required_call['bot_commit'])

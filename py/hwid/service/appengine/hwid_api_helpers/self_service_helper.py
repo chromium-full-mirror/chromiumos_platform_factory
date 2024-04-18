@@ -31,6 +31,7 @@ from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import hwid_v3_action
 from cros.factory.hwid.service.appengine import memcache_adapter
+from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3 import builder as v3_builder
 from cros.factory.hwid.v3 import common as v3_common
@@ -683,6 +684,38 @@ class EmptyBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
     return None
 
 
+class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
+  """A battery config fetcher that fetches the contents from remote git repo."""
+
+  def __init__(self, gerrit_review_url: str, gitiles_url: str, repo_name: str,
+               base_dir: str):
+    self._gerrit_review_url = gerrit_review_url
+    self._gitiles_url = gitiles_url
+    self._repo_name = repo_name
+    self._path_prefix = f'{base_dir}/' if base_dir else ''
+
+  def _BuildBatteryConfigFilePath(self, board_name: str,
+                                  model_name: str) -> str:
+    return (f'{self._path_prefix}{board_name.lower()}/bcic/'
+            f'{model_name.lower()}.battery_config.json')
+
+  def FetchContents(self, board: str, project: str,
+                    version: str) -> Optional[bytes]:
+    """See base class."""
+    battery_config_path_in_repo = self._BuildBatteryConfigFilePath(
+        board, project)
+    return git_util.GetFileContent(
+        self._gerrit_review_url, self._repo_name, battery_config_path_in_repo,
+        commit_id=version, auth_cookie=git_util.GetGerritAuthCookie())
+
+  def GetLastVersion(self, board: str, project: str) -> Optional[str]:
+    """See base class."""
+    file_path = self._BuildBatteryConfigFilePath(board, project)
+    return git_util.GetLastMergedChangeCommit(
+        self._gitiles_url, self._repo_name, file_path, 'HEAD',
+        auth_cookie=git_util.GetGerritAuthCookie())
+
+
 class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
   def __init__(
@@ -694,6 +727,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       session_cache_adapter: memcache_adapter.MemcacheAdapter,
       avl_metadata_manager: avl_metadata_util.AVLMetadataManager,
       feature_matcher_builder_class: Type[FeatureMatcherBuilder],
+      battery_config_fetcher: hwid_action.IBatteryConfigFetcher,
       cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
   ):
     self._hwid_action_manager = hwid_action_manager_inst
@@ -703,8 +737,18 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     self._session_cache_adapter = session_cache_adapter
     self._avl_metadata_manager = avl_metadata_manager
     self._feature_matcher_builder_class = feature_matcher_builder_class
+    self._battery_config_fetcher = battery_config_fetcher
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
+
+  def _BuildBundleMetadataSource(self, action: hwid_action.HWIDAction) -> str:
+    bundle_metadata = bundles_pb2.BundleMetadata()
+    battery_config_metadata = action.GenerateBatteryConfigMetadata(
+        self._battery_config_fetcher)
+    if battery_config_metadata is not None:
+      bundle_metadata.battery_config.CopyFrom(battery_config_metadata)
+    return hwid_preproc_data.HWIDV3PreprocData.DumpBundleMetadata(
+        bundle_metadata)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -799,14 +843,18 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project, hwid_db_contents=analysis.new_hwid_db_contents_external,
-          commit_msg=commit_msg, reviewers=request_metadata.reviewer_emails,
+          name=project,
+          hwid_db_contents=analysis.new_hwid_db_contents_external,
+          commit_msg=commit_msg,
+          reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
           hwid_db_contents_internal=analysis.new_hwid_db_contents_internal,
           feature_matcher_source=(
-              feature_matcher_build_result.feature_matcher_source))
+              feature_matcher_build_result.feature_matcher_source),
+          bundle_metadata_source=self._BuildBundleMetadataSource(action),
+      )
       is_noop = False
     except git_util.GitUtilNoModificationException:
       cl_number = 0
@@ -1219,7 +1267,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     try:
       # TODO(b/209362238): pass request.bundle_resource into BundleHWIDDB to
       # validate if the AVL link still holds.
-      bundle_info = action.BundleHWIDDB(EmptyBatteryConfigFetcher())
+      bundle_info = action.BundleHWIDDB(self._battery_config_fetcher)
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
@@ -1753,6 +1801,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       else:
         feature_matcher_generation_commit_msg = ''
         feature_matcher_source = None
+      bundle_metadata_source = self._BuildBundleMetadataSource(action)
 
       commit_msg = '\n\n'.join(
           filter(None, [
@@ -1775,6 +1824,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             verified=verified,
             hwid_db_contents_internal=new_hwid_db_contents_internal,
             feature_matcher_source=feature_matcher_source,
+            bundle_metadata_source=bundle_metadata_source,
         )
       except git_util.GitUtilNoModificationException:
         return 0, new_hwid_db_contents_external

@@ -992,7 +992,7 @@ class GetLastMergedChangeCommitTest(unittest.TestCase):
   def testSuccess(self):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
     mock_urlopen.return_value = _BuildGerritSuccResponse(
-        {'logs': [
+        {'log': [
             {
                 'commit': '12345',
             },

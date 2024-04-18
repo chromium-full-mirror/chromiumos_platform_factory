@@ -50,7 +50,7 @@ def GetAllHWIDServiceShards(
       config.hwid_action_manager, config.hwid_repo_manager,
       config.hwid_db_data_manager, config.avl_converter_manager,
       session_cache_adapter, config.avl_metadata_manager,
-      ss_helper.FeatureMatcherBuilderImpl,
+      ss_helper.FeatureMatcherBuilderImpl, config.battery_config_fetcher,
       config_data.cq_count_over_limit_cl_reviewers)
 
   dlm_product_shard = dlm_product_apis.DLMProductShard(
