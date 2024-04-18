@@ -807,16 +807,12 @@ class DatabaseBuilder:
     if sku_ids:
       self._AddSkuIds(sku_ids)
 
-    if skip_firmware_components:
-      probed_results = {
-          comp_cls: values
-          for comp_cls, values in probed_results.items()
-          if not common.FirmwareComps.has_value(comp_cls)
-      }
-
     # Add extra components.
     existed_comp_classes = self._database.GetComponentClasses()
     for comp_cls, probed_comps in probed_results.items():
+      if (skip_firmware_components and
+          common.FirmwareComps.has_value(comp_cls)):
+        continue
       if comp_cls not in existed_comp_classes:
         # We only need the probe values here.
         probed_values = [probed_comp['values'] for probed_comp in probed_comps]
@@ -849,6 +845,13 @@ class DatabaseBuilder:
 
     if mismatched_probed_results:
       for comp_cls, probed_comps in mismatched_probed_results.items():
+        if (skip_firmware_components and probed_comps and
+            common.FirmwareComps.has_value(comp_cls)):
+          raise BuilderException(
+              f'Firmware component [{comp_cls}] is missing. Please add '
+              'firmware components on DLM before updating HWID DB.\n'
+              'https://chromeos.google.com/partner/dlm/docs/factory/'
+              'updatingHWID.html#hwid-firmware-components\n')
         self.AddComponents(
             comp_cls, [probed_comp['values'] for probed_comp in probed_comps])
 
@@ -877,20 +880,11 @@ class DatabaseBuilder:
           add_default = True
         else:
           # Ask user to add a default item.
-          if common.FirmwareComps.has_value(comp_cls):
-            add_default = PromptAndAsk(
-                f'Firmware component [{comp_cls}] is missing. Please add '
-                'firmware components on DLM before updating HWID DB.\n'
-                'https://chromeos.google.com/partner/dlm/docs/factory/'
-                'updatingHWID.html#hwid-firmware-components\n'
-                'If the probed code is not ready yet, please enter "Y" to '
-                'add a default component.\n', default_answer=False)
-          else:
-            add_default = PromptAndAsk(
-                f'Component [{comp_cls}] is essential but the probe result is '
-                'missing. Do you want to add a default item?\n'
-                'If the probed code is not ready yet, please enter "Y".\n',
-                default_answer=False)
+          add_default = PromptAndAsk(
+              f'Component [{comp_cls}] is essential but the probe result is '
+              'missing. Do you want to add a default item?\n'
+              'If the probed code is not ready yet, please enter "Y".\n',
+              default_answer=False)
 
         if add_default:
           self.AddDefaultComponent(comp_cls)
