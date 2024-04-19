@@ -12,11 +12,12 @@ Test Procedure
 --------------
 This is an automated test without user interaction.
 
-1. Retrieve the OEM name and model number of battery from runtime probe.
-2. Retrieve the required information from the battery configuration in the
-   release image.
-3. Clear and write the information to the CBI.
-4. Check the information in the CBI to ensure that battery config saved in CBI
+1. Retrieve the OEM name and model number of battery from ectool.
+2. (Optional) Connect to the factory server to update the HWID bundle.
+3. Retrieve the required information from the battery configuration in the
+   HWID bundle.
+4. Clear and write the information to the CBI.
+5. Check the information in the CBI to ensure that battery config saved in CBI
    is identical to the active battery config.
 
 
@@ -33,7 +34,8 @@ To update BCIC::
   {
     "pytest_name": "bcic",
     "args": {
-      "action": "SET"
+      "action": "SET",
+      "update_hwid_bundle": true
     }
   }
 
@@ -42,7 +44,8 @@ To check BCIC::
   {
     "pytest_name": "bcic",
     "args": {
-      "action": "CHECK"
+      "action": "CHECK",
+      "update_hwid_bundle": false
     }
   }
 
@@ -50,20 +53,17 @@ To check BCIC::
 
 import enum
 import logging
-import os
 import subprocess
 
 from cros.factory.device import device_utils
+from cros.factory.hwid.v3 import common as hwid_common
+from cros.factory.hwid.v3 import hwid_utils
 from cros.factory.test import test_case
 from cros.factory.test import test_tags
 from cros.factory.test.utils import cbi_utils
+from cros.factory.test.utils import update_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import json_utils
-
-from cros.factory.external.chromeos_cli import cros_config
-
-
-CONFIG_DIR = '/usr/share/bcic'
 
 
 class EnumAction(str, enum.Enum):
@@ -75,12 +75,20 @@ class BCICTest(test_case.TestCase):
   """Factory Test for setting and checking BCIC"""
 
   related_components = (test_tags.TestCategory.BATTERY, )
-  ARGS = [Arg('action', EnumAction, "Which action to do.")]
+  ARGS = [
+      Arg('action', EnumAction, "Which action to do."),
+      Arg('update_hwid_bundle', bool,
+          ("Whether to update the HWID bundle (which contains the battery "
+           "config JSON file) first.")),
+  ]
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
+    if self.args.update_hwid_bundle:
+      update_utils.UpdateHWIDDatabase(self._dut)
+
     if self.args.action == EnumAction.SET:
       self.ClearAndSetBCIC()
     else:
@@ -103,8 +111,11 @@ class BCICTest(test_case.TestCase):
       logging.info('Battery config is cleared. Now it is all 0s.')
 
   def SetBCIC(self):
-    model_name = cros_config.CrosConfig().GetModelName().lower()
-    file_path = os.path.join(CONFIG_DIR, f'{model_name}.battery_config.json')
+    try:
+      file_path = hwid_utils.LoadBatteryConfigIntoFile(self._dut)
+    except hwid_common.HWIDException as ex:
+      self.FailTask('Failed to load the battery config file from the HWID '
+                    f'bundle ({ex}).')
     battery_config_set_cmd = [
         'ectool', 'bcfg', 'set', file_path,
         self._dut.power.GetBatteryManufacturer(),

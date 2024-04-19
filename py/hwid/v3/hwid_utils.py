@@ -10,6 +10,7 @@ import os
 from typing import Optional
 import zlib
 
+from cros.factory.hwid.v3 import battery_config_bundle
 from cros.factory.hwid.v3.bom import BOM
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3.configless_fields import ConfiglessFields
@@ -23,6 +24,11 @@ from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
+
+
+# TODO(yhong): Consider split device-related utilities and device-agnostic
+#    utilities into different modules so that methods don't need to lazy
+#    import modules that are not available on the service side.
 
 
 def _HWIDMode(rma_mode):
@@ -383,6 +389,13 @@ def ComputeDatabaseChecksum(file_name):
   return Database.Checksum(file_name)
 
 
+def ProbeModel(dut=None):
+  from cros.factory.external.chromeos_cli import cros_config
+
+  cros_config_cli = cros_config.CrosConfig(dut=dut)
+  return cros_config_cli.GetModelName().lower()
+
+
 def ProbeProject():
   """Probes the project name.
 
@@ -398,12 +411,8 @@ def ProbeProject():
 
   from cros.factory.utils import cros_board_utils
 
-  from cros.factory.external.chromeos_cli import cros_config
-
-
   try:
-    cros_config_cli = cros_config.CrosConfig()
-    project = cros_config_cli.GetModelName().lower()
+    project = ProbeModel()
     if project:
       return project
 
@@ -475,6 +484,9 @@ def GetHWIDRepoPath():
 _DEFAULT_DATA_PATH = None
 
 
+_DEFAULT_DATA_PATH_ON_DEVICE = '/usr/local/factory/hwid'
+
+
 def GetDefaultDataPath():
   """Returns the expected location of HWID data within a factory image or the
   chroot.
@@ -486,7 +498,7 @@ def GetDefaultDataPath():
     if sys_utils.InChroot():
       _DEFAULT_DATA_PATH = os.path.join(GetHWIDRepoPath(), 'v3')
     else:
-      _DEFAULT_DATA_PATH = '/usr/local/factory/hwid'
+      _DEFAULT_DATA_PATH = _DEFAULT_DATA_PATH_ON_DEVICE
   return _DEFAULT_DATA_PATH
 
 
@@ -556,3 +568,28 @@ def GetSkuIdsFromCrosConfig(project, config_yaml_path=None):
         sku_ids.append(identity['sku-id'])
 
   return sku_ids
+
+
+def LoadBatteryConfigIntoFile(dut) -> str:
+  """Loads the battery config from the HWID bundle into a file.
+
+  Args:
+    dut: The interface to the device under test.
+
+  Returns:
+    The path name of the file that contains the battery config JSON.
+
+  Raises:
+    common.HWIDException: Raises if it fails to load the battery config.  It
+      could be either the corresponding payload file not found in HWID bundle
+      or the payload contents invalid.
+  """
+  model_name = ProbeModel(dut=dut).upper()
+  contents = battery_config_bundle.UnpackBatteryConfigContents(
+      _DEFAULT_DATA_PATH_ON_DEVICE, model_name, dut)
+  if contents is None:
+    raise common.HWIDException(f'The battery config for {model_name} is not '
+                               f'found in {_DEFAULT_DATA_PATH_ON_DEVICE}.')
+  target_file = dut.temp.mktemp(is_dir=False)
+  dut.WriteFile(target_file, contents)
+  return target_file
