@@ -159,6 +159,20 @@ find_hwid_tool() {
   fi
 }
 
+is_database_file() {
+  local file_name="$1"
+  local non_database_file_suffix_list=(
+      ".feature_requirement_spec.textproto"
+      ".battery_config.json"
+  )
+  for non_database_file_suffix in "${non_database_file_suffix_list[@]}"; do
+    if [[ "${file_name}" = *"${non_database_file_suffix}" ]]; then
+      return 1
+    fi
+  done
+  return 0
+}
+
 main() {
   find_hwid_tool
 
@@ -199,8 +213,7 @@ main() {
   # Verify the HWID databases
   if [ -n "${FACTORY_TOOL}" ]; then
     for database_file in "${bundle_dir}"/*; do
-      # Skip the feature requirement spec files.
-      if [[ "${database_file}" = *".feature_requirement_spec.textproto" ]]; then
+      if ! is_database_file "${database_file}"; then
         continue
       fi
       warn "Verify the HWID database: $(basename "${database_file}")"
