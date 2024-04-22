@@ -3,7 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import hashlib
 import os
 import os.path
 import shutil
@@ -16,26 +15,7 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import sys_interface
 
 
-class PackBatteryConfigContentsTest(unittest.TestCase):
-
-  def testSuccess(self):
-    battery_config_contents = '{\n  ...\n}'
-
-    actual = battery_config_bundle.PackBatteryConfigContents(
-        battery_config_contents, 'v1.0')
-
-    expected_checksum = hashlib.sha1(
-        battery_config_contents.encode('utf-8')).hexdigest()
-    expected_lines = [
-        f'// checksum: {expected_checksum}',
-        '// version: v1.0',
-        '',
-        battery_config_contents,
-    ]
-    self.assertEqual(actual, '\n'.join(expected_lines))
-
-
-class LoadBatteryConfigFileTest(unittest.TestCase):
+class PackAndLoadBatteryConfigFileTest(unittest.TestCase):
 
   def setUp(self):
     self._bundle_base_dir = tempfile.mkdtemp()
@@ -54,8 +34,9 @@ class LoadBatteryConfigFileTest(unittest.TestCase):
     self.assertIsNone(actual)
 
   def testInvalidDataThenRaise(self):
-    battery_config_file_name = battery_config_bundle.GetBatteryConfigFileName(
-        'the_model')
+    battery_config_file_name, unused_contents = (
+        battery_config_bundle.PackBatteryConfigContents('the_model', '{}',
+                                                        'v1.0'))
     os.makedirs(os.path.join(self._bundle_base_dir, battery_config_file_name))
 
     with self.assertRaises(common.HWIDException):
@@ -63,10 +44,9 @@ class LoadBatteryConfigFileTest(unittest.TestCase):
           self._bundle_base_dir, 'the_model', sys_interface.SystemInterface())
 
   def testInvalidChecksumThenRaise(self):
-    battery_config_file_name = battery_config_bundle.GetBatteryConfigFileName(
-        'the_model')
-    original_contents = battery_config_bundle.PackBatteryConfigContents(
-        '{\n ...\n}', 'v1.0')
+    battery_config_file_name, original_contents = (
+        battery_config_bundle.PackBatteryConfigContents('the_model',
+                                                        '{\n ...\n}', 'v1.0'))
     file_utils.WriteFile(
         os.path.join(self._bundle_base_dir, battery_config_file_name),
         original_contents + '\nsome extra modification')
@@ -75,11 +55,35 @@ class LoadBatteryConfigFileTest(unittest.TestCase):
       battery_config_bundle.UnpackBatteryConfigContents(
           self._bundle_base_dir, 'the_model', sys_interface.SystemInterface())
 
+  def testRenameFileThenRaise(self):
+    # arrange, bundle two battery configs for 2 models, but swap the file names
+    shared_battery_config_contents = '{\n ...\n}'
+    shared_version = 'v1.0'
+    battery_config_file_name_1, original_contents_1 = (
+        battery_config_bundle.PackBatteryConfigContents(
+            'the_model_1', shared_battery_config_contents, shared_version))
+    battery_config_file_name_2, original_contents_2 = (
+        battery_config_bundle.PackBatteryConfigContents(
+            'the_model_2', shared_battery_config_contents, shared_version))
+    file_utils.WriteFile(
+        os.path.join(self._bundle_base_dir, battery_config_file_name_1),
+        original_contents_2)
+    file_utils.WriteFile(
+        os.path.join(self._bundle_base_dir, battery_config_file_name_2),
+        original_contents_1)
+
+    with self.assertRaises(common.HWIDException):
+      battery_config_bundle.UnpackBatteryConfigContents(
+          self._bundle_base_dir, 'the_model_1', sys_interface.SystemInterface())
+
+    with self.assertRaises(common.HWIDException):
+      battery_config_bundle.UnpackBatteryConfigContents(
+          self._bundle_base_dir, 'the_model_2', sys_interface.SystemInterface())
+
   def testSuccess(self):
-    battery_config_file_name = battery_config_bundle.GetBatteryConfigFileName(
-        'the_model')
-    contents = battery_config_bundle.PackBatteryConfigContents(
-        '{\n  ...\n}', 'v1.0')
+    battery_config_file_name, contents = (
+        battery_config_bundle.PackBatteryConfigContents('the_model',
+                                                        '{\n  ...\n}', 'v1.0'))
     file_utils.WriteFile(
         os.path.join(self._bundle_base_dir, battery_config_file_name), contents)
 

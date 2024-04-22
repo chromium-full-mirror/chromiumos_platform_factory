@@ -45,30 +45,35 @@ def _ParseHeaderLine(line: str) -> Tuple[str, str]:
   return name_part[len(_HEADER_PREFIX):], value_part
 
 
-def PackBatteryConfigContents(contents: str, version: str) -> str:
+def _GetBatteryConfigFileName(model_name: str) -> str:
+  """Gets the battery config file name in the HWID bundle."""
+  return f'{model_name}.battery_config.json'
+
+
+def PackBatteryConfigContents(model_name: str, contents: str,
+                              version: str) -> Tuple[str, str]:
   """Packs the battery config contents into a payload for HWID bundle.
 
   Args:
+    model_name: The model name.
     contents: The original battery config contents.
     version: A string that represents the version of the original battery config
         contents.
 
   Returns:
-    The battery config payload for HWID bundle to pack.
+    The battery config file name in HWID bundle and the payload contents
+    for HWID bundle to pack.
   """
-  contents_checksum = hashlib.sha1(contents.encode('utf-8')).hexdigest()
+  file_name = _GetBatteryConfigFileName(model_name)
+  contents_checksum = hashlib.sha1(
+      f'{file_name}\n{contents}'.encode('utf-8')).hexdigest()
   parts = [
       _RenderHeaderLine(_HEADER_FIELD_CHECKSUM, contents_checksum),
       _RenderHeaderLine(_HEADER_FIELD_VERSION, version),
       '',
       contents,
   ]
-  return '\n'.join(parts)
-
-
-def GetBatteryConfigFileName(model_name: str) -> str:
-  """Gets the battery config file name in the HWID bundle."""
-  return f'{model_name}.battery_config.json'
+  return file_name, '\n'.join(parts)
 
 
 def UnpackBatteryConfigContents(
@@ -90,7 +95,7 @@ def UnpackBatteryConfigContents(
     common.HWIDException: If the related data in HWID bundle is invalid.
     OSError: If it fails to write the battery config to a file to return.
   """
-  file_name_in_bundle = GetBatteryConfigFileName(model_name)
+  file_name_in_bundle = _GetBatteryConfigFileName(model_name)
   full_pathname = os.path.join(bundle_dir_path, file_name_in_bundle)
   if not os.path.exists(full_pathname):
     return None
@@ -116,7 +121,8 @@ def UnpackBatteryConfigContents(
     if field_name == _HEADER_FIELD_CHECKSUM:
       expected_checksum = field_value
 
-  actual_checksum = hashlib.sha1(contents_part.encode('utf-8')).hexdigest()
+  actual_checksum = hashlib.sha1(
+      f'{file_name_in_bundle}\n{contents_part}'.encode('utf-8')).hexdigest()
   if expected_checksum != actual_checksum:
     raise common.HWIDException(
         f'Invalid data at {full_pathname!r}: Checksum mismatch.')
