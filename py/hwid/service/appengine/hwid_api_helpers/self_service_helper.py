@@ -978,6 +978,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       logging.error('Failed to load the HWID DB CL info: %r.', ex)
       return None
 
+    if cl_info.status != hwid_repo.HWIDDBCLStatus.NEW:
+      return cl_info
+
     if _HasCQCountOverLimitHashtag(cl_info):
       # Simply returns and waits for the retry-loop fix.
       return cl_info
@@ -985,11 +988,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     is_cl_expired, cl_expiration_reason = False, None
 
     # Auto rebase metadata when merge conflict.
-    merge_conflict = (
-        cl_info.status == hwid_repo.HWIDDBCLStatus.NEW and
-        not cl_info.mergeable)
-
-    if merge_conflict and _IsCLReadyForCQ(cl_info):
+    if not cl_info.mergeable and _IsCLReadyForCQ(cl_info):
       logging.info('CL %d merge conflict, perform auto rebase.', cl_number)
       try:
         self._hwid_repo_manager.RebaseCLMetadata(cl_info)
@@ -1016,7 +1015,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             ex)
         return cl_info
 
-    if not is_cl_expired and not merge_conflict:
+    if not is_cl_expired and cl_info.mergeable:
       if _IsCQCountOverLimit(cl_info):
         self._HandleCQCountOverLimit(cl_info)
         return cl_info
