@@ -1,0 +1,16 @@
+{
+  "__comment": "Examples for testing Ethernet components. Ethernet is called \"Ethernet controller\" in AVL.",
+  "inherit": [
+    "generic_ethernet.test_list"
+  ],
+  "label": "Generic Ethernet Factory tests",
+  "constants": {},
+  "options": {
+    "auto_run_on_start": false
+  },
+  "definitions": {},
+  "tests": [
+    "ProbeEthernet",
+    "Ethernet"
+  ]
+}

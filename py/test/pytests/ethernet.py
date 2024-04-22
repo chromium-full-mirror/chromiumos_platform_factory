@@ -19,11 +19,11 @@ The pytest depends on the ethernet on the system.
 
 Examples
 --------
-To use the test::
+To use the test:
 
-  {
-    "pytest_name": "ethernet"
-  }
+.. test_list::
+
+  generic_ethernet_examples:Ethernet
 
 """
 

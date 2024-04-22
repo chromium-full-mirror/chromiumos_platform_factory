@@ -1,0 +1,36 @@
+{
+  "__comment": "Predefined Ethernet tests. Ethernet is called \"Ethernet controller\" in AVL.",
+  "inherit": [
+    "base.test_list"
+  ],
+  "constants": {},
+  "options": {},
+  "definitions": {
+    "Ethernet": {
+      "pytest_name": "ethernet",
+      "label": "Ethernet Test",
+      "args": {
+        "auto_start": true,
+        "link_only": true,
+        "iface": "eth0"
+      }
+    },
+    "ProbeEthernet": {
+      "pytest_name": "probe.probe",
+      "label": "Probe Ethernet",
+      "args": {
+        "component_list": [
+          "ethernet"
+        ],
+        "config_file": "/usr/local/factory/py/hwid/v3/default_probe_statement.json",
+        "overridden_rules": [
+          [
+            "ethernet",
+            ">",
+            0
+          ]
+        ]
+      }
+    }
+  }
+}

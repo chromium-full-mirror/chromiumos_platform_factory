@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-18 15:03+CST\n"
+"PO-Revision-Date: 2024-04-23 13:04+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3766,10 +3766,6 @@ msgid "Enable Lid Switch"
 msgstr "蓋スイッチの有効化"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ethernet Test"
-msgstr "イーサネットテスト"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
 msgstr "MLB のファイナライズ"
 
@@ -4219,6 +4215,18 @@ msgstr "模擬チャンバーによる光センサーのキャリブレーショ
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Generic Ambient Light Sensor Factory tests"
 msgstr "汎用環境光センサーファクトリーテスト"
+
+#: ../py/test/test_lists/generic_ethernet.test_list.json
+msgid "Ethernet Test"
+msgstr "イーサネットテスト"
+
+#: ../py/test/test_lists/generic_ethernet.test_list.json
+msgid "Probe Ethernet"
+msgstr "イーサネットのプローブ"
+
+#: ../py/test/test_lists/generic_ethernet_examples.test_list.json
+msgid "Generic Ethernet Factory tests"
+msgstr "汎用イーサネット工場テスト"
 
 #: ../py/test/test_lists/generic_fat.test_list.json
 msgid "FAT (Final Assembly Test)"

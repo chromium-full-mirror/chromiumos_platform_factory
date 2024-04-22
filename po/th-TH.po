@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-18 15:03+CST\n"
+"PO-Revision-Date: 2024-04-23 13:04+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3700,10 +3700,6 @@ msgid "Enable Lid Switch"
 msgstr "เปิดใช้งานสวิตช์ฝาปิด"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ethernet Test"
-msgstr "การทดสอบอีเทอร์เน็ต"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Finalize MLB"
 msgstr "สิ้นสุด MLB"
 
@@ -4152,6 +4148,18 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Generic Ambient Light Sensor Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ethernet.test_list.json
+msgid "Ethernet Test"
+msgstr "การทดสอบอีเทอร์เน็ต"
+
+#: ../py/test/test_lists/generic_ethernet.test_list.json
+msgid "Probe Ethernet"
+msgstr ""
+
+#: ../py/test/test_lists/generic_ethernet_examples.test_list.json
+msgid "Generic Ethernet Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fat.test_list.json
