@@ -49,6 +49,8 @@ DLC_CACHE_PAYLOAD_NAME = (
     f'{_CROS_PAYLOADS_PATH}/release_image.dlc_factory_cache')
 DLC_CACHE_TAR_PATH = '/tmp/dlc_cache.tar'
 
+CROS_REGIONS_PATH = '/usr/share/misc/cros-regions.json'
+
 # Some upstart jobs have multiple instances and we need to specify the name of
 # the instance to stop a job.
 # For example, to stop `ml-service` and `timberslide`, we need to run
@@ -269,6 +271,9 @@ def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
             '/usr/share/chromeos-ssh-config',
             # /mnt/empty is required by openssh server.
             '/mnt/empty',
+            # (b/336224858) prevent error when reading cros-regions.json from
+            # release partition during wiping.
+            CROS_REGIONS_PATH,
         ],
         binary_list=binary_deps,
         etc_issue=etc_issue).PivotRoot(old_root):
@@ -276,6 +281,10 @@ def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
       logging.debug(
           'lsof: %s',
           process_utils.SpawnOutput(f'lsof -p {os.getpid()}', shell=True))
+
+      env = {
+          'CROS_REGIONS_DATABASE': CROS_REGIONS_PATH
+      }
 
       # Modify display_wipe_message so we have shells in VT2.
       # --dev-mode provides shell with etc-issue.
@@ -313,7 +322,7 @@ def WipeInRamFs(is_fast=None, shopfloor_url=None, station_ip=None,
       if keep_developer_mode_flag:
         args += ['--keep_developer_mode_flag_after_clobber_state']
 
-      ExecFactoryPar('gooftool', 'wipe_init', *args)
+      ExecFactoryPar('gooftool', 'wipe_init', *args, env=env)
       raise WipeError('Should not reach here')
   except Exception:
     logging.exception('wipe_in_place failed')

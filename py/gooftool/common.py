@@ -65,7 +65,7 @@ def Shell(cmd, stdin=None, log=True, sys_interface=None):
   return Obj(stdout=stdout, stderr=stderr, status=status, success=(status == 0))
 
 
-def ExecFactoryPar(*args):
+def ExecFactoryPar(*args, env=None):
   """Use os.execl to execute a command (given by args) provided by factory PAR.
 
   This function will execute "/path/to/factory.par arg0 arg1 ..." using
@@ -81,10 +81,10 @@ def ExecFactoryPar(*args):
   """
 
   factory_par = paths.GetFactoryPythonArchivePath()
-  # There are two factory_par in the argument because os.execl's function
-  # signature is: os.execl(exec_path, arg0, arg1, ...)
+  # There are two factory_par in the argument because os.execle's function
+  # signature is: os.execle(exec_path, arg0, arg1, ..., env)
   logging.debug('exec: %s %s', factory_par, args)
-  os.execl(factory_par, factory_par, *args)
+  os.execle(factory_par, factory_par, *args, env or {})
 
 
 class Util:
