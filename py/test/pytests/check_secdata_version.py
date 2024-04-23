@@ -31,18 +31,12 @@ Dependency
 
 Examples
 --------
-To verify that secdata version is 1.0::
+To verify that secdata version is 1.0:
 
-  {
-    "pytest_name": "check_secdata_version",
-    "disable_services": [
-      "trunksd"
-    ],
-    "args": {
-      "major_version": 1,
-      "minor_version": 0
-    }
-  }
+.. test_list::
+
+  generic_tpm_examples:CommonTests.CheckSecdataVersion
+
 """
 
 from cros.factory.device import device_utils

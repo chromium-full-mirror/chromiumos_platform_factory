@@ -28,21 +28,11 @@ Dependency
 
 Examples
 --------
-To set/clear AP RO hash, add this to test list::
+To set, verify and clear AP RO hash, add this to test list:
 
-  {
-    "pytest_name": "cr50_ap_ro_hash",
-    "args": {
-      "action": "set"
-    }
-  }
+.. test_list::
 
-  {
-    "pytest_name": "cr50_ap_ro_hash",
-    "args": {
-      "action": "clear"
-    }
-  }
+  generic_tpm_examples:Cr50Tests.Cr50APROVerificationGroup
 
 """
 

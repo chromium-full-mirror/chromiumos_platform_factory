@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-23 13:04+CST\n"
+"PO-Revision-Date: 2024-05-14 16:45+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -154,7 +154,7 @@ msgid "Check Retimer Firmware"
 msgstr "リタイマーファームウェアの確認"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Check Secdata Version"
 msgstr "Secdataバージョンの確認"
 
@@ -3706,10 +3706,6 @@ msgid "Charger Type Detection"
 msgstr "充電器タイプの検出"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Cr50 Board ID Not Set"
-msgstr "Cr50 ボード ID 未設定の確認"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Display Connection"
 msgstr "ディスプレイ接続の確認"
 
@@ -3720,10 +3716,6 @@ msgstr "チェックポイント"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Release Image"
 msgstr "リリースイメージの確認"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Clear Cr50 AP RO Hash"
-msgstr "Cr50 AP RO ハッシュのクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear factory VPD entries"
@@ -3740,14 +3732,6 @@ msgstr "EC コールドリセット"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Cold Reset"
 msgstr "コールドリセット"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Cr50 AP RO Verification"
-msgstr "Cr50 AP RO 検証"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Cr50 AP RO Verification Group"
-msgstr "Cr50 AP RO 検証グループ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Deprovision CBI"
@@ -3845,10 +3829,6 @@ msgid "SD Performance"
 msgstr "SD パフォーマンス"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Set Cr50 AP RO Hash"
-msgstr "Cr50 AP RO ハッシュの設定"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Set Widevine Keybox"
 msgstr "Widevine キーボックスの設定"
 
@@ -3867,22 +3847,6 @@ msgstr "ショップフロアサービス (NotifyEnd)"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "ショップフロアサービス (NotifyStart)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Verify TPM state"
-msgstr "TPM 状態の確認"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification (PVT)"
-msgstr "Ti50 AP RO 検証 (PVT)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification (pre-PVT)"
-msgstr "Ti50 AP RO 検証 (pre-PVT)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification"
-msgstr "Ti50 AP RO 検証"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Random Number Generation"
@@ -3953,29 +3917,9 @@ msgid "Update CBI"
 msgstr "CBIアップデート"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Cr50 Firmware Version"
-msgstr "Cr50ファームウェアバージョン確認"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Cr50 Firmware"
-msgstr "Cr50ファームウェアアップデート"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "SKU IDアップデート"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Ti50 Firmware"
-msgstr "Ti50ファームウェアアップデート"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Ti50 Firmware Version"
-msgstr "Ti50ファームウェアバージョン確認"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Clear Inactive Ti50 Slot"
-msgstr "非アクティブなTi50スロットをクリア"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Upload Reg (ECHO) Codes to activate"
@@ -4518,6 +4462,86 @@ msgstr "時間制限なしのタッチスクリーン"
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Generic Touchscreen Factory tests"
 msgstr "汎用タッチスクリーン工場テスト"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Assert GSC Board ID Is Unset"
+msgstr "GSC ボード ID 未設定のアサート"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Check Cr50 Firmware Version"
+msgstr "Cr50ファームウェアバージョン確認"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Check Ti50 Firmware Version"
+msgstr "Ti50ファームウェアバージョン確認"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Clear Cr50 AP RO Hash"
+msgstr "Cr50 AP RO ハッシュのクリア"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Clear Inactive Ti50 Slot"
+msgstr "非アクティブなTi50スロットをクリア"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Cr50 AP RO Verification"
+msgstr "Cr50 AP RO 検証"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Cr50 AP RO Verification Group"
+msgstr "Cr50 AP RO 検証グループ"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Set Cr50 AP RO Hash"
+msgstr "Cr50 AP RO ハッシュの設定"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Verify TPM state"
+msgstr "TPM 状態の確認"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification (PVT)"
+msgstr "Ti50 AP RO 検証 (PVT)"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification (pre-PVT)"
+msgstr "Ti50 AP RO 検証 (pre-PVT)"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification"
+msgstr "Ti50 AP RO 検証"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Update Cr50 Firmware"
+msgstr "Cr50ファームウェアアップデート"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Update Ti50 Firmware"
+msgstr "Ti50ファームウェアアップデート"
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Assert GSC Board ID flags is pre-pvt"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Cr50 AP RO Verification Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Probe TPM"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Update GSC Firmware without upstart"
+msgstr "GSCファームウェアの更新"
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Update Ti50 Firmware from 0.0.15- to 0.0.16+"
+msgstr "Ti50ファームウェアアップデート 0.0.15- => 0.0.16+"
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Generic TPM Factory tests"
+msgstr "汎用セキュア エレメント工場テスト"
 
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Provision Chromebook with SKU ID"

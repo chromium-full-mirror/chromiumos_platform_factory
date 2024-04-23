@@ -27,11 +27,12 @@ Dependency
 
 Examples
 --------
-An example::
+An example:
 
-  {
-    "pytest_name": "tpm_clear_owner"
-  }
+.. test_list::
+
+  generic_tpm_examples:CommonTests.ClearTPMOwnerRequestGroup
+
 """
 
 import unittest

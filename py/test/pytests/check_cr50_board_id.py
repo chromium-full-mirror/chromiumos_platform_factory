@@ -30,26 +30,19 @@ Dependency
 
 Examples
 --------
-To check if the board ID is still unprogrammed, add this in test list::
+To check if the board ID is still unprogrammed, add this in test list:
 
-  {
-    "pytest_name": "check_cr50_board_id",
-    "args": {
-      "board_id_type": "ffffffff",
-      "board_id_flags": "ffffffff"
-    }
-  }
+.. test_list::
 
-To check if the board ID is set to "UNKNOWN", you can either set the argument
-``board_id_flags`` to `"0000ff00"` or by using the pre-defined marcos (see the
-arguemnt description for the details)::
+  generic_tpm_examples:CommonTests.AssertGSCBoardIDIsUnset
 
-  {
-    "pytest_name": "check_cr50_board_id",
-    "args": {
-      "board_id_flags": "PHASE_UNKNOWN"
-    }
-  }
+To check if the board ID flags is set to normal prePVT, you can set the argument
+``board_id_flags`` to `PHASE_PREPVT`:
+
+.. test_list::
+
+  generic_tpm_examples:CommonTests.AssertGSCBoardIDIsPrePVT
+
 """
 
 from cros.factory.device import device_utils

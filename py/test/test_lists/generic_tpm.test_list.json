@@ -1,0 +1,187 @@
+{
+  "__comment": "Predefined TPM tests. TPM is called \"TPM\", or \"Secure Element\" in AVL.",
+  "inherit": [
+    "generic_common.test_list"
+  ],
+  "constants": {
+    "__comment_imported_constants": "constants.phase and constants.factory_process are from generic_common.",
+    "use_prepvt_cr50_firmware": false,
+    "__comment_use_prepvt_cr50_firmware": "Set this to true if the prepvt cr50 firmware in release image is requested. See b/257621975#comment45. We always want to flash prod image by default even in prepvt phases.",
+    "use_prepvt_ti50_firmware": false,
+    "__comment_use_prepvt_ti50_firmware": "Set this to true if the prepvt ti50 firmware in release image is requested. See b/257621975#comment45. We always want to flash prod image by default even in prepvt phases."
+  },
+  "options": {},
+  "definitions": {
+    "APROVerification": {
+      "inherit": "Cr50APROVerification",
+      "__comment": "Make old definition as an alias of the new definition for backward compatibility"
+    },
+    "APROVerificationGroup": {
+      "inherit": "Cr50APROVerificationGroup",
+      "__comment": "Make old definition as an alias of the new definition for backward compatibility"
+    },
+    "AssertGSCBoardIDIsUnset": {
+      "pytest_name": "check_cr50_board_id",
+      "label": "Assert GSC Board ID Is Unset",
+      "args": {
+        "board_id_type": "ffffffff",
+        "board_id_flags": "ffffffff"
+      }
+    },
+    "CheckCr50BoardIDNotSet": {
+      "inherit": "AssertGSCBoardIDIsUnset",
+      "__comment": "Make old definition as an alias of the new definition for backward compatibility"
+    },
+    "CheckCr50FirmwareVersion": {
+      "pytest_name": "update_cr50_firmware",
+      "label": "Check Cr50 Firmware Version",
+      "args": {
+        "method": "CHECK_VERSION"
+      }
+    },
+    "CheckSecdataVersion": {
+      "pytest_name": "check_secdata_version",
+      "label": "Check Secdata Version",
+      "disable_services": [
+        "trunksd"
+      ],
+      "args": {
+        "major_version": 1,
+        "minor_version": 0
+      }
+    },
+    "CheckTi50FirmwareVersion": {
+      "inherit": "CheckCr50FirmwareVersion",
+      "label": "Check Ti50 Firmware Version"
+    },
+    "ClearAPROHash": {
+      "inherit": "ClearCr50APROHash",
+      "__comment": "Make old definition as an alias of the new definition for backward compatibility"
+    },
+    "ClearCr50APROHash": {
+      "pytest_name": "cr50_ap_ro_hash",
+      "label": "Clear Cr50 AP RO Hash",
+      "args": {
+        "action": "clear"
+      }
+    },
+    "ClearInactiveTi50Slot": {
+      "pytest_name": "clear_inactive_gsc_slot",
+      "label": "Clear Inactive Ti50 Slot"
+    },
+    "ClearTPMOwnerRequest": {
+      "pytest_name": "tpm_clear_owner"
+    },
+    "ClearTPMOwnerRequestGroup": {
+      "child_action_on_failure": "STOP",
+      "subtests": [
+        "ClearTPMOwnerRequest",
+        "RebootStep"
+      ]
+    },
+    "Cr50APROVerification": {
+      "pytest_name": "cr50_ap_ro_verification",
+      "label": "Cr50 AP RO Verification",
+      "allow_reboot": true
+    },
+    "Cr50APROVerificationGroup": {
+      "inherit": "TestGroup",
+      "label": "Cr50 AP RO Verification Group",
+      "subtests": [
+        "SetCr50APROHash",
+        "Cr50APROVerification",
+        "ClearCr50APROHash"
+      ]
+    },
+    "SetAPROHash": {
+      "inherit": "SetCr50APROHash",
+      "__comment": "Make old definition as an alias of the new definition for backward compatibility"
+    },
+    "SetCr50APROHash": {
+      "pytest_name": "cr50_ap_ro_hash",
+      "label": "Set Cr50 AP RO Hash",
+      "args": {
+        "action": "set"
+      }
+    },
+    "TPMState": {
+      "pytest_name": "tpm_state",
+      "label": "Verify TPM state",
+      "__comment": "Only needed and applicable for certain projects. b/198711349"
+    },
+    "TPMVerifyEK": {
+      "pytest_name": "tpm_verify_ek"
+    },
+    "TPMVerifyEKGroup": {
+      "retries": 1,
+      "child_action_on_failure": "NEXT",
+      "subtests": [
+        "TPMVerifyEK",
+        "RebootStep"
+      ]
+    },
+    "Ti50APROVerification": {
+      "inherit": "TestGroup",
+      "label": "Ti50 AP RO Verification",
+      "subtests": [
+        {
+          "pytest_name": "ti50_ap_ro_verification",
+          "label": "Ti50 AP RO Verification (PVT)",
+          "allow_reboot": true,
+          "args": {
+            "enable_swwp": true,
+            "two_stages": "eval! constants.factory_process == 'TWOSTAGES'"
+          }
+        },
+        {
+          "pytest_name": "ti50_ap_ro_verification",
+          "label": "Ti50 AP RO Verification (pre-PVT)",
+          "run_if": "constants.phase != 'PVT'",
+          "allow_reboot": true,
+          "args": {
+            "enable_swwp": false,
+            "two_stages": "eval! constants.factory_process == 'TWOSTAGES'"
+          }
+        }
+      ]
+    },
+    "UpdateCr50Firmware": {
+      "inherit": "TestGroup",
+      "label": "Update Cr50 Firmware",
+      "subtests": [
+        {
+          "pytest_name": "update_cr50_firmware",
+          "args": {
+            "firmware_file": "eval! constants.use_prepvt_cr50_firmware and '/opt/google/cr50/firmware/cr50.bin.prepvt' or None",
+            "skip_prepvt_flag_check": "eval! constants.phase != 'PVT'"
+          }
+        },
+        {
+          "inherit": "RebootStep",
+          "run_if": "device.factory.cr50_update_need_reboot"
+        },
+        "CheckCr50FirmwareVersion"
+      ]
+    },
+    "UpdateTi50Firmware": {
+      "inherit": "TestGroup",
+      "label": "Update Ti50 Firmware",
+      "subtests": [
+        {
+          "pytest_name": "update_cr50_firmware",
+          "label": "Update Ti50 Firmware",
+          "args": {
+            "firmware_file": "eval! constants.use_prepvt_ti50_firmware and '/opt/google/ti50/firmware/ti50.bin.prepvt' or None",
+            "skip_prepvt_flag_check": "eval! constants.phase != 'PVT'"
+          }
+        },
+        {
+          "inherit": "RebootStep",
+          "run_if": "device.factory.cr50_update_need_reboot"
+        },
+        "CheckTi50FirmwareVersion",
+        "ClearInactiveTi50Slot"
+      ]
+    }
+  }
+}

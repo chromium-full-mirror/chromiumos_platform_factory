@@ -10,6 +10,12 @@ test requires a normal version of the firmware. We cannot use "serial" or "dev"
 version of firmware. We need the normal version because the HSP state log will
 be washed off if using serial or dev firmware.
 
+Only needed and applicable for certain projects.
+
+Internal references
+^^^^^^^^^^^^^^^^^^^
+- b/198711349
+
 Test Procedure
 --------------
 This is an automatic test that doesn't need any user interaction.
@@ -21,11 +27,11 @@ Dependency
 
 Examples
 --------
-To verify the tpm state, add this to test list::
+To verify the tpm state, add this to test list:
 
-  {
-    "pytest_name": "tpm_state",
-  }
+.. test_list::
+
+  generic_tpm_examples:CommonTests.TPMState
 
 """
 

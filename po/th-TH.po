@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-04-23 13:04+CST\n"
+"PO-Revision-Date: 2024-05-14 16:45+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -154,7 +154,7 @@ msgid "Check Retimer Firmware"
 msgstr "ตรวจสอบเฟิร์มแวร์ Retimer"
 
 #: ../build/pytests_label_generated.json
-#: ../py/test/test_lists/generic_common.test_list.json
+#: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Check Secdata Version"
 msgstr "ตรวจสอบเวอร์ชัน Secdata"
 
@@ -3640,10 +3640,6 @@ msgid "Charger Type Detection"
 msgstr "การตรวจจับประเภทเครื่องชาร์จ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Cr50 Board ID Not Set"
-msgstr "ตรวจสอบบอร์ด Cr50 ID ไม่ได้ตั้งค่า"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Display Connection"
 msgstr "ตรวจสอบการเชื่อมต่อจอแสดงผล"
 
@@ -3654,10 +3650,6 @@ msgstr "จุดตรวจสอบ"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Check Release Image"
 msgstr "ตรวจสอบอิมเมจการเปิดตัว"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Clear Cr50 AP RO Hash"
-msgstr "ล้างแฮช Cr50 AP RO"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Clear factory VPD entries"
@@ -3674,14 +3666,6 @@ msgstr "EC การรีเซ็ตเย็น"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Cold Reset"
 msgstr "การรีเซ็ตเย็น"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Cr50 AP RO Verification"
-msgstr "การยืนยัน RO AP Cr50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Cr50 AP RO Verification Group"
-msgstr "กลุ่มตรวจสอบ RO AP Cr50"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Deprovision CBI"
@@ -3779,10 +3763,6 @@ msgid "SD Performance"
 msgstr "ประสิทธิภาพ SD"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Set Cr50 AP RO Hash"
-msgstr "ตั้งแฮช RO AP Cr50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Set Widevine Keybox"
 msgstr "ตั้งกล่องคีย์ Widevine"
 
@@ -3801,22 +3781,6 @@ msgstr "บริการบนชั้นการผลิต (แจ้ง�
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Shopfloor Service (NotifyStart)"
 msgstr "บริการบนชั้นการผลิต (แจ้งเตือนการเริ่มต้น)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Verify TPM state"
-msgstr "ตรวจสอบสถานะ TPM"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification (PVT)"
-msgstr "การยืนยัน RO ของ Ti50 AP (PVT)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification (pre-PVT)"
-msgstr "การยืนยัน RO ของ Ti50 AP (pre-PVT)"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Ti50 AP RO Verification"
-msgstr "การยืนยัน RO ของ Ti50 AP"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Random Number Generation"
@@ -3887,29 +3851,9 @@ msgid "Update CBI"
 msgstr "อัปเดต CBI"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Cr50 Firmware Version"
-msgstr "ตรวจสอบเวอร์ชันเฟิร์มแวร์ของ Cr50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Cr50 Firmware"
-msgstr "อัปเดตเฟิร์มแวร์ของ Cr50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json
 msgid "Update SKU ID"
 msgstr "อัปเดตรหัส SKU"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Update Ti50 Firmware"
-msgstr "อัปเดตเฟิร์มแวร์ของ Ti50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Check Ti50 Firmware Version"
-msgstr "ตรวจสอบเวอร์ชันเฟิร์มแวร์ของ Ti50"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Clear Inactive Ti50 Slot"
-msgstr "ล้างช่อง Ti50 ที่ไม่ได้ใช้งาน"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Upload Reg (ECHO) Codes to activate"
@@ -4451,6 +4395,86 @@ msgstr ""
 
 #: ../py/test/test_lists/generic_touchscreen_examples.test_list.json
 msgid "Generic Touchscreen Factory tests"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Assert GSC Board ID Is Unset"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Check Cr50 Firmware Version"
+msgstr "ตรวจสอบเวอร์ชันเฟิร์มแวร์ของ Cr50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Check Ti50 Firmware Version"
+msgstr "ตรวจสอบเวอร์ชันเฟิร์มแวร์ของ Ti50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Clear Cr50 AP RO Hash"
+msgstr "ล้างแฮช Cr50 AP RO"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Clear Inactive Ti50 Slot"
+msgstr "ล้างช่อง Ti50 ที่ไม่ได้ใช้งาน"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Cr50 AP RO Verification"
+msgstr "การยืนยัน RO AP Cr50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Cr50 AP RO Verification Group"
+msgstr "กลุ่มตรวจสอบ RO AP Cr50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Set Cr50 AP RO Hash"
+msgstr "ตั้งแฮช RO AP Cr50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Verify TPM state"
+msgstr "ตรวจสอบสถานะ TPM"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification (PVT)"
+msgstr "การยืนยัน RO ของ Ti50 AP (PVT)"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification (pre-PVT)"
+msgstr "การยืนยัน RO ของ Ti50 AP (pre-PVT)"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Ti50 AP RO Verification"
+msgstr "การยืนยัน RO ของ Ti50 AP"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Update Cr50 Firmware"
+msgstr "อัปเดตเฟิร์มแวร์ของ Cr50"
+
+#: ../py/test/test_lists/generic_tpm.test_list.json
+msgid "Update Ti50 Firmware"
+msgstr "อัปเดตเฟิร์มแวร์ของ Ti50"
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Assert GSC Board ID flags is pre-pvt"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Cr50 AP RO Verification Manual"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Probe TPM"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Update GSC Firmware without upstart"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Update Ti50 Firmware from 0.0.15- to 0.0.16+"
+msgstr ""
+
+#: ../py/test/test_lists/generic_tpm_examples.test_list.json
+msgid "Generic TPM Factory tests"
 msgstr ""
 
 #: ../py/test/test_lists/generic_unprovisioned.test_list.json

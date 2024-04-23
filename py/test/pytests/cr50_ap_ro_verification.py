@@ -34,23 +34,18 @@ Dependency
 
 Examples
 --------
-To test AP RO verification, add this to test list::
+To test AP RO verification, add this to test list:
 
-  {
-    "pytest_name": "cr50_ap_ro_verification",
-    "allow_reboot": true
-  }
+.. test_list::
 
-To use manual test of AP RO verification, add this to test list::
+  generic_tpm_examples:Cr50Tests.Cr50APROVerificationGroup
 
-  {
-    "pytest_name": "cr50_ap_ro_verification",
-    "allow_reboot": true,
-    "args": {
-      "timeout_secs": 5,
-      "manual_test": true
-    }
-  }
+To use manual test of AP RO verification, add this to test list:
+
+.. test_list::
+
+  generic_tpm_examples:Cr50Tests.Cr50APROVerificationManual
+
 """
 
 import logging

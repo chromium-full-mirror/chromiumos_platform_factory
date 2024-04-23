@@ -32,12 +32,12 @@ Dependency
 
 Examples
 --------
-To test AP RO verification, add this to test list::
+To test AP RO verification, add this to test list:
 
-  {
-    "pytest_name": "ti50_ap_ro_verification",
-    "allow_reboot": true,
-  }
+.. test_list::
+
+  generic_tpm_examples:Ti50Tests.Ti50APROVerification
+
 """
 
 from cros.factory.gooftool.common import Util

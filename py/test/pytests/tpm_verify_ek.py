@@ -13,6 +13,8 @@ If the TPM is somehow owned but no password is available, the test
 will fail but emit a reasonable error message (and it will pass on the
 next boot).
 
+This should generally be followed by a reboot step.
+
 Test Procedure
 --------------
 This is an automated test without user interaction.
@@ -24,14 +26,11 @@ And hardware security daemons & clients.
 
 Examples
 --------
-Examples of how to use this test::
+Examples of how to use this test:
 
-  {
-    "pytest_name": "tpm_verify_ek",
-    "args": {
-      "is_cros_core": false,
-    }
-  }
+.. test_list::
+
+  generic_tpm_examples:CommonTests.TPMVerifyEKGroup
 
 """
 

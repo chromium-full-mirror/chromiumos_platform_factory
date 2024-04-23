@@ -1,6 +1,7 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+# pylint: disable=line-too-long
 """Clears the inactive GSC RW slot.
 
 Description
@@ -18,11 +19,11 @@ gsctool
 
 Examples
 --------
-To run the test, do::
+To run the test, do:
 
-  {
-    "pytest_name": "clear_inactive_gsc_slot"
-  }
+.. test_list::
+
+  generic_tpm_examples:Ti50Tests.UpdateTi50Firmware.ClearInactiveTi50Slot
 
 """
 

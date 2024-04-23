@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# pylint: disable=line-too-long
 """Update Cr50 firmware.
 
 Description
@@ -50,13 +51,15 @@ Dependency
 
 Examples
 --------
-The standard way to update cr50 firmware on the factory line is adding a
-"UpdateCr50Firmware" test group.
-The UpdateCr50Firmware test group contains three steps:
+The standard way to update GSC firmware on the factory line is adding a
+"UpdateCr50Firmware" test group or a "UpdateTi50Firmware" test group.
+
+These test groups contain four steps:
 
 1. Update the firmware (pytest: update_cr50_firmware)
 2. Reboot (pytest: shutdown)
 3. Check firmware version (pytest: update_cr50_firmware)
+4. Clear inactivate slot. (for Ti50 only)
 
 Step 1 (update firmware) checks the current firmware version, and decides
        whether to update the firmware or not. If the test updates the firmware,
@@ -66,25 +69,31 @@ Step 2 (reboot) will be skipped if the device data is set to `False` while
        checking `run-if`.
 Step 3 (check firmware) deletes the device data to clean up the state after
        the version is validated as up-to-date.
+Step 4 (clear inactivate slot)
+       Clear inactivate slot.
 
-To update Cr50 firmware with the Cr50 firmware image in DUT release partition,
-add this in test list::
+"UpdateCr50Firmware"
 
-  {
-    "pytest_name": "update_cr50_firmware"
-  }
+.. test_list::
 
-To update Cr50 firmware without upstart mode, unset `upstart_mode` argument and
+  generic_tpm_examples:Cr50Tests.UpdateCr50Firmware
+
+"UpdateTi50Firmware"
+
+.. test_list::
+
+  generic_tpm_examples:Ti50Tests.UpdateTi50Firmware
+
+Sometimes, e.g. b/145973336, it's required to update GSC firmware without
+upstart mode.
+
+To update GSC firmware without upstart mode, unset `upstart_mode` argument and
 set the pytest as `allow_reboot`. After updated and reboot, the test will be run
-again and succeeds in the second run::
+again and succeeds in the second run:
 
-  {
-    "pytest_name": "update_cr50_firmware",
-    "allow_reboot": true,
-    "args": {
-      "upstart_mode": false
-    }
-  }
+.. test_list::
+
+  generic_tpm_examples:CommonTests.UpdateGSCFirmwareWithoutUpstart
 
 To update Cr50 firmware with the Cr50 firmware image in station::
 
@@ -97,30 +106,21 @@ To update Cr50 firmware with the Cr50 firmware image in station::
   }
 
 To check if Cr50 firmware version is greater than or equals to the Cr50 image
-in the release image::
+in the release image:
 
-  {
-    "pytest_name": "update_cr50_firmware",
-    "args": {
-      "method": "CHECK_VERSION"
-    }
-  }
+.. test_list::
 
-To update the Ti50 firmware version from 0.0.15 (or less) to 0.0.16+ with
-prepvt firmware::
+  generic_tpm_examples:Cr50Tests.UpdateCr50Firmware.CheckCr50FirmwareVersion
 
-  {
-    "pytest_name": "update_cr50_firmware"
-    "allow_reboot": true,
-    "args": {
-      "firmware_file": "/path/to/ti50.bin.prepvt",
-      "skip_prepvt_flag_check": "eval! constants.phase != 'PVT'",
-      "upstart_mode": false,
-      "force_ro_mode": true
-    }
-  }
+To update the Ti50 firmware version from 0.0.15 (or earlier) to 0.0.16 (or
+later) with prepvt firmware. See b/236793753 for more detail:
+
+.. test_list::
+
+  generic_tpm_examples:Ti50Tests.UpdateTi50From0o0o15To0o0o16
 
 """
+# pylint: enable=line-too-long
 
 from distutils import version
 import enum

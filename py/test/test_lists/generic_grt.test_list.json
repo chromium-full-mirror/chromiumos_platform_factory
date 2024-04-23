@@ -1,5 +1,6 @@
 {
   "inherit": [
+    "generic_tpm.test_list",
     "generic_common.test_list"
   ],
   "constants": {

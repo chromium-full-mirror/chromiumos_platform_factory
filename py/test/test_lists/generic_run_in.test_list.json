@@ -3,6 +3,7 @@
     "generic_battery.test_list",
     "generic_camera.test_list",
     "generic_dram.test_list",
+    "generic_tpm.test_list",
     "generic_storage.test_list",
     "generic_common.test_list"
   ],
