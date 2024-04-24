@@ -3858,7 +3858,9 @@ class EditLSBCommand(AbstractSubCommand):
   def EditDisplayQrcode(self):
     """Enable or disable qrcode when factory reset.
 
-    Check src/platform/factory_installer/factory_reset.sh for supported fields.
+    Check
+    https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/setup/RMA_SHIM.md#edit-lsb_factory-config-in-an-rma-shim
+    for supported fields.
     """
     answer = UserInput.YesNo(
         'Enable (y) or disable (n) qrcode when factory reset?')
@@ -4102,7 +4104,9 @@ class EditToolkitConfigCommand(AbstractSubCommand):
     """Enable or disable qrcode right before cutoff.
 
     This can be used as a confirmation that the whole process has been done.
-    Check src/platform/factory_installer/factory_reset.sh for supported fields.
+    Check
+    https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/setup/RMA_SHIM.md#edit-lsb_factory-config-in-an-rma-shim
+    for supported fields.
     """
     display_info = UserInput.GetString(
         'Enter the fields needed to display. The fields separated by space '
