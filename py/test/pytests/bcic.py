@@ -24,7 +24,6 @@ This is an automated test without user interaction.
 Dependency
 ----------
 - ``ectool``
-- cros_config
 
 
 Examples
@@ -56,7 +55,6 @@ import logging
 import subprocess
 
 from cros.factory.device import device_utils
-from cros.factory.hwid.v3 import common as hwid_common
 from cros.factory.hwid.v3 import hwid_utils
 from cros.factory.test import test_case
 from cros.factory.test import test_tags
@@ -77,29 +75,84 @@ class BCICTest(test_case.TestCase):
   related_components = (test_tags.TestCategory.BATTERY, )
   ARGS = [
       Arg('action', EnumAction, "Which action to do."),
-      Arg('update_hwid_bundle', bool,
-          ("Whether to update the HWID bundle (which contains the battery "
-           "config JSON file) first.")),
+      Arg(
+          'use_latest_hwid_bundle', bool,
+          'Whether to update the HWID bundle first and load the battery config'
+          'from it.'),
+      Arg('file_path', str, 'The path to the battery config file.', default=''),
   ]
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
+    if self.args.action == EnumAction.SET:
+      self.assertTrue(
+          self.args.use_latest_hwid_bundle != bool(self.args.file_path),
+          'Provide either a `file_path` or enable `use_latest_hwid_bundle`'
+          'to indicate the battery config source')
 
   def runTest(self):
-    if self.args.update_hwid_bundle:
+    if self.args.use_latest_hwid_bundle:
       update_utils.UpdateHWIDDatabase(self._dut)
 
     if self.args.action == EnumAction.SET:
-      self.ClearAndSetBCIC()
+      file_path = (
+          self.args.file_path or
+          hwid_utils.LoadBatteryConfigIntoFile(self._dut))
+      manufacturer = self._dut.power.GetBatteryManufacturer()
+      device_name = self._dut.power.GetBatteryDeviceName()
+
+      self.VerifyBatteryConfigExists(file_path, manufacturer, device_name)
+      self.ClearExistingBatteryConfig()
+      self.ApplyNewBatteryConfig(file_path, manufacturer, device_name)
     else:
       self.CheckBCIC()
 
-  def ClearAndSetBCIC(self):
-    # Always clears the battery config saved in CBI before setting it.
-    self.ClearBCIC()
-    self.SetBCIC()
+  def _ExecuteBatteryConfigCmd(self, action, file_path, manufacturer,
+                               device_name):
+    """Executes a battery config command using `ectool` with a specified file.
 
-  def ClearBCIC(self):
+      Args:
+        action: The action to perform (e.g., 'search', 'set').
+        file_path: The path to the battery configuration file.
+        manufacturer: The manufacturer of the battery.
+        device_name:  The name of the battery device.
+
+      Raises:
+        FailTask: If the command execution fails, indicating an error occurred
+          during the battery configuration operation.
+      """
+
+    cmd = ['ectool', 'bcfg', action, file_path, manufacturer, device_name]
+    process = self._dut.Popen(cmd, log=True, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+    unused_stdout, stderr = process.communicate()
+
+    if stderr:
+      self.FailTask(f'Unable to {action} BCIC due to error: {stderr}')
+
+  def VerifyBatteryConfigExists(self, file_path, manufacturer, device_name):
+    """Verifies the existence of a battery configuration file.
+
+    Ensures that the configuration file:
+        * Exists
+        * Contains a valid JSON payload
+        * Includes the expected key within the JSON data
+    """
+
+    self._ExecuteBatteryConfigCmd('search', file_path, manufacturer,
+                                  device_name)
+
+  def ApplyNewBatteryConfig(self, file_path, manufacturer, device_name):
+    """Applies a new battery configuration to CBI.
+
+    Performs the following when applying the configuration:
+      * Verifies that the configuration file contains a valid JSON payload.
+      * Checks that the JSON data includes the expected keys.
+    """
+
+    self._ExecuteBatteryConfigCmd('set', file_path, manufacturer, device_name)
+
+  def ClearExistingBatteryConfig(self):
     cbi_battery_config_hex = cbi_utils.GetCbiData(
         self._dut, cbi_utils.CbiDataName.BATTERY_CONFIG)
     logging.info('The battery config saved in CBI before clearing is: %s',
@@ -110,24 +163,17 @@ class BCICTest(test_case.TestCase):
                            '0' * size)
       logging.info('Battery config is cleared. Now it is all 0s.')
 
-  def SetBCIC(self):
-    try:
-      file_path = hwid_utils.LoadBatteryConfigIntoFile(self._dut)
-    except hwid_common.HWIDException as ex:
-      self.FailTask('Failed to load the battery config file from the HWID '
-                    f'bundle ({ex}).')
-    battery_config_set_cmd = [
-        'ectool', 'bcfg', 'set', file_path,
-        self._dut.power.GetBatteryManufacturer(),
-        self._dut.power.GetBatteryDeviceName()
-    ]
-    process = self._dut.Popen(battery_config_set_cmd, log=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    unused_stdout, stderr = process.communicate()
-    if stderr:
-      self.FailTask(f'Unable to set BCIC due to error: {stderr}')
-
   def CheckBCIC(self):
+    """Checks between the active and a stored battery configuration.
+
+    Compares the active battery configuration to the configuration indexed as
+    '0'. Identifies missing keys and value mismatches between the two.
+
+    Raises:
+      ValueError: If inconsistencies exist between the active and stored
+        configurations. The error message details the mismatches.
+    """
+
     active_battery_config = self.GetBatteryConfig('')
     cbi_stored_battery_config = self.GetBatteryConfig('0')
     mismatches = []
@@ -147,7 +193,22 @@ class BCICTest(test_case.TestCase):
       error_message += '\n'.join(mismatches)
       raise ValueError(error_message)
 
-  def GetBatteryConfig(self, index) -> dict:
+  def GetBatteryConfig(self, index: str) -> dict:
+    """Retrieves battery configuration information from the device.
+
+    Args:
+      index: To specify the battery configuration you want:
+        * Leave it empty ('') to get the active configuration.
+        * Set it to '0' to get the first available configuration.
+
+    Returns:
+      dict: A dictionary containing flattened battery configuration data.
+
+    Raises:
+      ValueError: If an error occurs while retrieving the configuration
+        information.
+    """
+
     battery_config_get_cmd = ['ectool', 'bcfg', 'get']
     if index:
       battery_config_get_cmd.append(index)

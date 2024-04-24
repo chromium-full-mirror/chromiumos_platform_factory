@@ -19,9 +19,10 @@
         {
           "inherit": "BCIC",
           "label": "BCIC Set",
+          "action_on_failure": "PARENT",
           "args": {
             "action": "SET",
-            "update_hwid_bundle": true
+            "use_latest_hwid_bundle": true
           }
         },
         "FullRebootStep",
@@ -30,7 +31,7 @@
           "label": "BCIC Check",
           "args": {
             "action": "CHECK",
-            "update_hwid_bundle": false
+            "use_latest_hwid_bundle": false
           }
         }
       ]
