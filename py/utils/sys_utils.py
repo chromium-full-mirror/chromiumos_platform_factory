@@ -96,8 +96,10 @@ def MountPartition(source_path, index=None, mount_point=None, rw=False,
     if line.split()[1] == mount_point:
       raise OSError(f'Mount point {mount_point} is already mounted')
 
-  command = ['toybox'] if (not local_mode and
-                           dut.Call(['which', 'toybox']) == 0) else []
+  command = ['toybox'
+            ] if (not local_mode and
+                  dut.Call(['which', 'toybox'], stdout=process_utils.DEVNULL,
+                           stderr=process_utils.DEVNULL) == 0) else []
   command += ['mount', '-o', ','.join(all_options)]
   if fstype is not None:
     command += ['-t', fstype]
