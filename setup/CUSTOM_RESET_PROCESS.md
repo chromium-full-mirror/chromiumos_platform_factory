@@ -56,13 +56,15 @@ This action sends a post request to a specific url with specific arguments.
 ```
 config_file.json
 [
-    "HttpRequest": {"url": "<url>", "post_arg": {"<key>": "<value>"}}
+    {"HttpRequest": {"url": "<url>", "post_arg": {"<key>": "<value>"}}}
 ]
 ```
 
 #### Display QRcodes
 This action displays multiple qrcodes with specific size in specific location.
 If `position` is not given, the qrcode will be displayed in the center.
+If `continue_key` is given, the action will stop after displaying the qrcodes. The behavior is the same as
+`StopAndConfirm`. We adjust the order of displayed content to make it more stable.
 If the content contains the pattern `<ARGUMENT>`, then it will be replaced by the information of the DUT.
 - `<hwid>` will be replaced by the hwid string.
 - `<serial_number>` will be replaced by the serial_number in vpd.
@@ -72,9 +74,10 @@ If the content contains the pattern `<ARGUMENT>`, then it will be replaced by th
 ```
 config_file.json
 [
-    "DisplayQRcode": {
-        "qrcodes": [{"size": <size>, "position": [<x>, <y>], "content": "<string to display>"}]
-    }
+    {"DisplayQRcode": {
+        "qrcodes": [{"size": <size>, "position": [<x>, <y>], "content": "<string to display>"}],
+        "continue_key": "a"
+    }}
 ]
 ```
 
@@ -84,16 +87,25 @@ press enter to continue the process.
 ```
 config_file.json
 [
-    "StopAndConfirm": "<string to input>"
+    {"StopAndConfirm": "<string to input>"}
 ]
 ```
 
 #### Check AC state
-This action makes sure the state of AC meets the config in [cutoff.json](../sh/cutoff/README.md)
+This action makes sure the state of AC meets the config in [cutoff.json](../sh/cutoff/README.md).
 ```
 config_file.json
 [
     "CheckAcState"
+]
+```
+
+#### Clear the terminal
+This action clears the terminal.
+```
+config_file.json
+[
+    "Clear"
 ]
 ```
 
