@@ -10,6 +10,9 @@ This test checks the board ID in the Cr50 firmware matched the given
 expectation or not.  The test gains the board ID by invoking `gsctool`
 utility on DUT.
 
+See https://chrome-internal.googlesource.com/ti50/common/ti50/+/main/docs/\
+board_id_flags.md#values-in-info-pages for available flags.
+
 Test Procedure
 --------------
 This is an automatic test that doesn't need any user interaction.
@@ -58,6 +61,8 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.external.chromeos_cli import gsctool
 
 
+_non_inclusive_label = bytes.fromhex('57484954454c4142454c').decode('utf-8')
+
 class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
   related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   _PREDEFINED_PHASES = {
@@ -65,10 +70,10 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
       'PHASE_UNKNOWN': 0x0000ff00,
       'PHASE_PREPVT': 0x00007f7f,
       'PHASE_PVT': 0x00007f80,
-      # Customlabel devices have different flags to distinguish with PVT.
-      # In cr50 scripts, it's still called "WHITELABEL".
-      # TODO(b/169766857): rename it when cr50 scripts are updated.
-      'PHASE_WHITELABEL': 0x00003f80,
+      f'PHASE_{_non_inclusive_label}_PREPVT': 0x00003f7f,
+      f'PHASE_{_non_inclusive_label}': 0x00003f80,
+      'PHASE_CUSTOM_LABEL_PREPVT': 0x00003f7f,
+      'PHASE_CUSTOM_LABEL': 0x00003f80,
   }
 
   ARGS = [
