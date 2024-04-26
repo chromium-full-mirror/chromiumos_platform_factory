@@ -475,6 +475,11 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
       cmd = ['fuser', '-k', f'-{int(sig)}', '-m', mount_point]
       process_utils.Spawn(cmd, call=True, log=True)
     proc_list = _ListProcOpening(mount_point_list)
+    # rmad holds stateful partition.
+    list_cmd = ['pgrep', 'rmad']
+    proc_list += [
+        int(line) for line in process_utils.SpawnOutput(list_cmd).splitlines()
+    ]
     if not proc_list:
       return True  # we are done
     for pid in proc_list:
@@ -531,6 +536,7 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
         "processes still using minijail: "
         f"{process_utils.SpawnOutput(['pgrep', '-al', 'minijail'])}")
 
+    # Doing what 'mount-encrypted umount' should do.
     process_utils.Spawn(
         ['dmsetup', 'remove', 'encstateful', '--noudevrules', '--noudevsync'],
         check_call=True)
