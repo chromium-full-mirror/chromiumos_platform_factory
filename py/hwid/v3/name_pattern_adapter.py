@@ -155,14 +155,13 @@ class LegacyNameInfo(NameInfoProvider):
 
 NameInfo = NameInfoProvider
 
-
 _GroupValueType = TypeVar('_GroupValueType')
 
 
 def _GetTypedMatchGroup(
     match: Match[str], group_id: Union[int, str],
-    group_value_converter: Callable[..., _GroupValueType],
-    default: Optional[_GroupValueType] = None) -> Optional[_GroupValueType]:
+    group_value_converter: Callable[..., _GroupValueType]
+) -> Optional[_GroupValueType]:
   """Helps convert the specified regexp matched group to certain value type.
 
   Args:
@@ -170,15 +169,13 @@ def _GetTypedMatchGroup(
     group_id: The identity of the target group.
     group_value_converter: A callable object with 1 parameter that converts
       the obtained raw group value to the value to return.
-    default: This function returns the specified default value when the
-      un-converted group value is `None`.
 
   Returns:
     The converted group value, or `default`.
   """
   raw_group_value = match.group(group_id)
   if raw_group_value is None:
-    return default
+    return None
   return group_value_converter(raw_group_value)
 
 
@@ -248,16 +245,18 @@ class NamePattern:
   def Matches(self, tag: str) -> NameInfo:
     matched_result = self._comp_pattern.fullmatch(tag)
     if matched_result:
+      cid = _GetTypedMatchGroup(matched_result, 'cid', int)
+      assert cid is not None
       return LinkAVLNameRegularInfo(
-          _GetTypedMatchGroup(matched_result, 'cid', int),
+          cid,
           _GetTypedMatchGroup(matched_result, 'qid', int),
       )
 
     matched_result = self._subcomp_pattern.fullmatch(tag)
     if matched_result:
-      return LinkAVLNameSubcompInfo(
-          _GetTypedMatchGroup(matched_result, 'cid', int),
-      )
+      cid = _GetTypedMatchGroup(matched_result, 'cid', int)
+      assert cid is not None
+      return LinkAVLNameSubcompInfo(cid)
 
     matched_result = self._untracked_pattern.fullmatch(tag)
     if matched_result:
