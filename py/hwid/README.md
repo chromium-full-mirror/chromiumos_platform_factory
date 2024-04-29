@@ -100,6 +100,14 @@ needs to be manually updated in the following scenarios:
 
   Because changing the status is quite easy. Just change it :)
 
+### Prerequisites
+
+The command `hwid` must be run on a
+[Factory Preflash Image](https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/README.md#imaging-methods)
+(test image in partition A and release image on partition B) because `hwid`
+loads information from other partitions in the factory preflash image. You might
+encounter unexpected error if running on the wrong partition.
+
 ### Command of Database Builder
 
 ```shell
