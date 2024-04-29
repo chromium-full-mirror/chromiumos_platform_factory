@@ -177,7 +177,7 @@ proto:
 	$(foreach file,\
 	  $(PROTO_FILES),\
 	  $(info - Compiling proto resource file $(file)) \
-	  protoc $(file) --python_out=py${\n} )
+	  protoc $(file) --python_out=pyi_out:py${\n} )
 
 # Resource/Toolkit uses the pb2 file generated at build time.
 # The reason we're not incorporating it into `make proto`

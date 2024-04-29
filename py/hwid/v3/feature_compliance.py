@@ -6,7 +6,7 @@ import abc
 import hashlib
 import logging
 import os.path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from google.protobuf import text_format
 
@@ -14,17 +14,19 @@ from cros.factory.hwid.v3 import identity as identity_module
 from cros.factory.hwid.v3 import transformer
 from cros.factory.utils import file_utils
 
-
-try:
-  # For HWID service testing environment.
-  import factory_hwid_feature_requirement_pb2
-except ImportError:
-  # For factory software environment.
-  from cros.factory.proto import factory_hwid_feature_requirement_pb2  # pylint: disable=ungrouped-imports
+if TYPE_CHECKING:
+  from cros.factory.proto import factory_hwid_feature_requirement_pb2
+else:
+  try:
+    # For HWID service testing environment.
+    import factory_hwid_feature_requirement_pb2  # type: ignore
+  except ImportError:
+    # For factory software environment.
+    from cros.factory.proto import factory_hwid_feature_requirement_pb2  # pylint: disable=ungrouped-imports
 
 
 _BrandFeatureRequirementSpec = (
-    factory_hwid_feature_requirement_pb2.BrandFeatureRequirementSpec)
+    factory_hwid_feature_requirement_pb2.BrandFeatureRequirementSpec)  # pylint: disable=used-before-assignment
 _Profile = _BrandFeatureRequirementSpec.Profile
 _EncodingRequirement = _Profile.EncodingRequirement
 
@@ -48,8 +50,8 @@ class Checker(abc.ABC):
     """
 
   @abc.abstractmethod
-  def CheckFeatureEnablement(
-      self, brand_code: str, is_feature_enabled: bool) -> bool:
+  def CheckFeatureEnablement(self, brand_code: str,
+                             is_feature_enabled: bool) -> bool:
     """Reports whether the feature enablement state is permitted.
 
     Args:
@@ -176,8 +178,8 @@ class FeatureRequirementSpecChecker(Checker):
 
     return FEATURE_INCOMPLIANT_VERSION
 
-  def CheckFeatureEnablement(
-      self, brand_code: str, is_feature_enabled: bool) -> bool:
+  def CheckFeatureEnablement(self, brand_code: str,
+                             is_feature_enabled: bool) -> bool:
     brand_spec = self._GetBrandFeatureRequirementSpec(brand_code)
 
     if is_feature_enabled:
