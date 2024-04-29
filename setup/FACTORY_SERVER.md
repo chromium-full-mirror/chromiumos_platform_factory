@@ -87,8 +87,11 @@ officially supported.
    Otherwise, read [Docker docs](https://docs.docker.com/engine/installation/)
    to find the right instruction for your server.
 
-2. Type `docker version` and make sure your Docker server is ready, and the
-   version is newer than `1.10.3`
+2. Type `docker version` and make sure your Docker server is ready.
+   - known incompatible docker versions: version < 1.10.3 or version > 24.0.9
+   - known compatible docker versions: version == `20.10.21`
+   - Note: If you need, please contact the Google contact of your project to
+   request supporting for newer docker version.
 
 ## Installation
 
