@@ -23,8 +23,8 @@ class BaseYAMLTagHandlerMetaclass(type):
 class BaseYAMLTagHandler(metaclass=BaseYAMLTagHandlerMetaclass):
   YAML_TAG = None
   TARGET_CLASS = None
-  LOADERS = (yaml.SafeLoader, )
-  DUMPERS = (yaml.SafeDumper, )
+  LOADERS = [yaml.SafeLoader]
+  DUMPERS = [yaml.SafeDumper]
 
   @classmethod
   def YAMLConstructor(cls, loader, node, deep=False):

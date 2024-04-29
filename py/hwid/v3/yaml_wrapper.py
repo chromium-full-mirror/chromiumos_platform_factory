@@ -10,11 +10,10 @@ from the origin yaml module.
 import collections
 import functools
 import itertools
-from typing import DefaultDict, Set
 
-from yaml import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from yaml import __with_libyaml__
+import yaml
 from yaml import constructor
+from yaml import error  # pylint: disable=unused-import
 from yaml import nodes
 from yaml import resolver
 
@@ -25,12 +24,19 @@ from cros.factory.utils import schema
 from cros.factory.utils import yaml_utils
 
 
-# Prefer CSafe* to improve performance.
-_SafeLoader, _SafeDumper = ((CSafeLoader, CSafeDumper) if __with_libyaml__ else
-                            (SafeLoader, SafeDumper))
+from typing import TYPE_CHECKING, DefaultDict, Optional, Set  # isort:skip
+
+if TYPE_CHECKING:
+  _SafeLoader = yaml.SafeLoader
+  _SafeDumper = yaml.SafeDumper
+else:
+  # Prefer CSafe* to improve performance.
+  _SafeLoader, _SafeDumper = ((yaml.CSafeLoader,
+                               yaml.CSafeDumper) if yaml.__with_libyaml__ else
+                              (yaml.SafeLoader, yaml.SafeDumper))
 
 
-class V3Loader(_SafeLoader):
+class V3Loader(_SafeLoader):  # pylint: disable=too-many-ancestors
   """A HWID v3 yaml Loader for patch separation."""
 
 
@@ -50,8 +56,8 @@ class V3DumperInternal(_SafeDumper):
 # We cannot only output the tag without any data, such as !region_component.
 # Therefore we add a dummy string afterward, and remove it in post-processing.
 _YAML_DUMMY_STRING = 'YAML_DUMMY_STRING'
-_DUMMY_STRING_DUMP_STYLE = (f' {_YAML_DUMMY_STRING}'
-                            if __with_libyaml__ else f" '{_YAML_DUMMY_STRING}'")
+_DUMMY_STRING_DUMP_STYLE = (f' {_YAML_DUMMY_STRING}' if yaml.__with_libyaml__
+                            else f" '{_YAML_DUMMY_STRING}'")
 
 
 def _RemoveDummyStringWrapper(func):
@@ -75,13 +81,14 @@ def _OptionalInternalDumpers(func):
 
 # Patch functions to use V3Loader and V3Dumper.  safe_load does not accept the
 # argument Loader, so we have to achieve this by customizing yaml.load.
-safe_load = functools.partial(load, Loader=V3Loader)
-safe_load_all = functools.partial(load_all, Loader=V3Loader)
-add_constructor = functools.partial(add_constructor, Loader=V3Loader)
-safe_dump = _RemoveDummyStringWrapper(_OptionalInternalDumpers(dump))
-safe_dump_all = _RemoveDummyStringWrapper(_OptionalInternalDumpers(dump_all))
-add_representer = _OptionalInternalDumpers(add_representer)
-add_multi_representer = _OptionalInternalDumpers(add_multi_representer)
+safe_load = functools.partial(yaml.load, Loader=V3Loader)
+safe_load_all = functools.partial(yaml.load_all, Loader=V3Loader)
+add_constructor = functools.partial(yaml.add_constructor, Loader=V3Loader)
+safe_dump = _RemoveDummyStringWrapper(_OptionalInternalDumpers(yaml.dump))
+safe_dump_all = _RemoveDummyStringWrapper(
+    _OptionalInternalDumpers(yaml.dump_all))
+add_representer = _OptionalInternalDumpers(yaml.add_representer)
+add_multi_representer = _OptionalInternalDumpers(yaml.add_multi_representer)
 
 
 # Override existing YAML tags to disable some auto type conversion.
@@ -126,8 +133,8 @@ add_multi_representer(str, _HWIDStrPresenter, internal=True)
 # The following register customized YAML tags.
 # pylint: disable=abstract-method
 class _HWIDV3YAMLTagHandler(yaml_utils.BaseYAMLTagHandler):
-  LOADERS = (V3Loader, )
-  DUMPERS = (V3Dumper, V3DumperInternal)
+  LOADERS = [V3Loader]
+  DUMPERS = [V3Dumper, V3DumperInternal]
 
   @classmethod
   def IsDumperInternal(cls, dumper):
@@ -254,13 +261,13 @@ class RegionComponent(dict):
   status is mutable.
   """
 
-  def __init__(self, status_lists=None):
+  def __init__(self, status_lists: Optional[dict] = None):
     # Load system regions.
-    components_dict = {
+    components_dict: dict = {
         'items': {}
     }
     for code, region in regions.BuildRegionsDict(include_all=True).items():
-      region_comp = {
+      region_comp: dict = {
           'values': {
               'region_code': region.region_code
           }
