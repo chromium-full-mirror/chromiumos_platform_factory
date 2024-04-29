@@ -2,7 +2,6 @@
 # Copyright 2013 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Implementation of base32 utilities."""
 
 import argparse
@@ -20,7 +19,8 @@ class Base32:
   strings and pad 0 when the bit string length is not multiples of 5.
   """
   BASE32_ALPHABET = common.HEADER_ALPHABET
-  BASE32_REVERSED = dict([v, k] for k, v in enumerate(BASE32_ALPHABET))
+  BASE32_REVERSED = {v: k
+                     for k, v in enumerate(BASE32_ALPHABET)}
   BASE32_BIT_WIDTH = 5
   DASH_INSERTION_WIDTH = 4
   CHECKSUM_SIZE = 10
@@ -52,8 +52,8 @@ class Base32:
     assert cls.GetPaddingLength(len(binary_string)) == 0
     result = []
     for i in range(0, len(binary_string), cls.BASE32_BIT_WIDTH):
-      result.append(cls.BASE32_ALPHABET[
-          int(binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
+      result.append(cls.BASE32_ALPHABET[int(
+          binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
     return ''.join(result)
 
   @classmethod
@@ -83,9 +83,9 @@ class Base32:
       10-bit checksum.
     """
     # Get the last 10 bits
-    c = crc32(string.encode('utf-8')) & (2 ** 10 - 1)
+    c = crc32(string.encode('utf-8')) & (2**10 - 1)
     return (cls.BASE32_ALPHABET[c >> cls.BASE32_BIT_WIDTH] +
-            cls.BASE32_ALPHABET[c & (2 ** cls.BASE32_BIT_WIDTH - 1)])
+            cls.BASE32_ALPHABET[c & (2**cls.BASE32_BIT_WIDTH - 1)])
 
 
 if __name__ == '__main__':

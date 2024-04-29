@@ -2,7 +2,6 @@
 # Copyright 2013 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Implementation of base8192 utilities."""
 
 import argparse
@@ -22,10 +21,12 @@ class Base8192:
   3-bit binary string.
   """
   BASE8_ALPHABET = '23456789'
-  BASE8_REVERSED = dict([v, k] for k, v in enumerate(BASE8_ALPHABET))
+  BASE8_REVERSED = {v: k
+                    for k, v in enumerate(BASE8_ALPHABET)}
   BASE8_BIT_WIDTH = 3
   BASE32_ALPHABET = common.HEADER_ALPHABET
-  BASE32_REVERSED = dict([v, k] for k, v in enumerate(BASE32_ALPHABET))
+  BASE32_REVERSED = {v: k
+                     for k, v in enumerate(BASE32_ALPHABET)}
   BASE32_BIT_WIDTH = 5
   BASE8192_BIT_WIDTH = 13
   DASH_INSERTION_WIDTH = 3
@@ -64,19 +65,19 @@ class Base8192:
     result = []
     for index in range(0, len(binary_string), cls.BASE8192_BIT_WIDTH):
       i = index
-      result.append(cls.BASE32_ALPHABET[
-          int(binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
+      result.append(cls.BASE32_ALPHABET[int(
+          binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
       i += 5
 
       # The last group is only 5-bit long.
       if i == len(binary_string):
         break
 
-      result.append(cls.BASE8_ALPHABET[
-          int(binary_string[i:i + cls.BASE8_BIT_WIDTH], 2)])
+      result.append(cls.BASE8_ALPHABET[int(
+          binary_string[i:i + cls.BASE8_BIT_WIDTH], 2)])
       i += 3
-      result.append(cls.BASE32_ALPHABET[
-          int(binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
+      result.append(cls.BASE32_ALPHABET[int(
+          binary_string[i:i + cls.BASE32_BIT_WIDTH], 2)])
 
     return ''.join(result)
 
@@ -121,9 +122,9 @@ class Base8192:
       representing the 8-bit checksum.
     """
     # Get the last 8 bits
-    c = crc32(string.encode('utf-8')) & (2 ** 8 - 1)
+    c = crc32(string.encode('utf-8')) & (2**8 - 1)
     return (cls.BASE8_ALPHABET[c >> cls.BASE32_BIT_WIDTH] +
-            cls.BASE32_ALPHABET[c & (2 ** cls.BASE32_BIT_WIDTH - 1)])
+            cls.BASE32_ALPHABET[c & (2**cls.BASE32_BIT_WIDTH - 1)])
 
 
 if __name__ == '__main__':
