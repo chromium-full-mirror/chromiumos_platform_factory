@@ -498,6 +498,8 @@ def _EnsureRMAImageIdPatternContainsEncodedFields(
   '''
   current_db = database_builder.Build()
   image_id = current_db.rma_image_id
+  # Must be checked before calling this function.
+  assert image_id is not None
   already_included_encoded_fields = set(
       current_db.GetEncodedFieldsBitLength(image_id=image_id))
   encoded_fields = set(encoded_fields) - already_included_encoded_fields
