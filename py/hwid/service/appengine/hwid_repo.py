@@ -250,6 +250,10 @@ class HWIDRepo(HWIDRepoView):
   def hwid_db_commit_id(self) -> str:
     return self._repo.head().decode()
 
+  def ResetRepo(self):
+    """Resets the repo to ToT."""
+    self._repo.checkout_branch(self._repo_branch)
+
   def CommitHWIDDB(self, name: str, hwid_db_contents: str, commit_msg: str,
                    reviewers: Sequence[str], cc_list: Sequence[str],
                    *,

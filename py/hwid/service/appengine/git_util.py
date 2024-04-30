@@ -325,6 +325,10 @@ class MemoryRepo(dw_repo.MemoryRepo):
         if n.startswith(REF_HEADS_PREFIX)
     }
     self.refs.import_refs(REF_REMOTES_PREFIX + DEFAULT_REMOTE_NAME, branches)
+    self.checkout_branch(branch)
+
+  def checkout_branch(self, branch):
+    """Checkouts the repo to the branch."""
     self[HEAD] = self[REF_REMOTES_PREFIX + DEFAULT_REMOTE_NAME + b'/' +
                       _B(branch)]
 

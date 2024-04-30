@@ -1937,6 +1937,25 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(ex.exception.code,
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
+  def testCreateHwidDbFirmwareInfoUpdateCl_MultipleProjects(self):
+    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    self._ConfigLiveHWIDRepo('PROJ1', 3, raw_db)
+    self._ConfigLiveHWIDRepo('PROJ2', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.side_effect = [123, 456]
+    action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
+    action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
+    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)
+    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)
+
+    req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
+        bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))
+    resp = self.service.CreateHwidDbFirmwareInfoUpdateCl(req)
+
+    live_hwid_repo.ResetRepo.assert_called_once()
+    self.assertEqual(resp.commits['PROJ1'].cl_number, 123)
+    self.assertEqual(resp.commits['PROJ2'].cl_number, 456)
+
   def testSetFirmwareInfoSupportStatus_Succeed(self):
     raw_db = file_utils.ReadFile(HWIDV3_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)

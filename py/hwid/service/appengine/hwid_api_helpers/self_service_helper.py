@@ -959,6 +959,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     resp = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClResponse()
     try:
       for model_name, external_db, internal_db, commit_msg in all_commits:
+        # Reset HWID repo to break CL chain.
+        if resp.commits:
+          live_hwid_repo.ResetRepo()
         try:
           cl_number = live_hwid_repo.CommitHWIDDB(
               name=model_name, hwid_db_contents=external_db,
