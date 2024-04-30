@@ -4,9 +4,11 @@
 """Shared utilities for all hwid_api related modules."""
 
 import re
+from typing import Optional
 
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3 import common as v3_common
+from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.probe_info_service.app_engine import protorpc_utils
 
 
@@ -32,6 +34,30 @@ HWID_STRING_OF_SUPPORT_STATUS_CASE = {
     v: k
     for k, v in SUPPORT_STATUS_CASE_OF_HWID_STRING.items()
 }
+
+
+class GenerateAVLInfoAcceptor(name_pattern_adapter.NameInfoAcceptor[Optional[
+    hwid_api_messages_pb2.AvlInfo]]):
+  """An acceptor to generate an AvlInfo proto message."""
+
+  def AcceptRegularComp(
+      self, cid: int,
+      qid: Optional[int]) -> Optional[hwid_api_messages_pb2.AvlInfo]:
+    """See base class."""
+    return hwid_api_messages_pb2.AvlInfo(cid=cid, qid=qid)
+
+  def AcceptSubcomp(self, cid: int) -> Optional[hwid_api_messages_pb2.AvlInfo]:
+    """See base class."""
+    return hwid_api_messages_pb2.AvlInfo(cid=cid, is_subcomp=True)
+
+  def AcceptUntracked(self) -> Optional[hwid_api_messages_pb2.AvlInfo]:
+    """See base class."""
+    return None
+
+  def AcceptLegacy(
+      self, raw_comp_name: str) -> Optional[hwid_api_messages_pb2.AvlInfo]:
+    """See base class."""
+    return None
 
 
 def FastFailKnownBadHWID(hwid):

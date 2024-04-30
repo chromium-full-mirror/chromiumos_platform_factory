@@ -68,10 +68,10 @@ _ActionHelperCls = v3_action_helper.HWIDV3SelfServiceActionHelper
 _DbChangeRequestMetadata = hwid_api_messages_pb2.DbChangeRequestMetadata
 _ComponentMsg = hwid_api_messages_pb2.Component
 
-HWIDV3_FILE = os.path.join(
+_HWID_V3_FROM_FACTORY_BUNDLE_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/v3-from-factory-bundle.yaml')
-HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE = os.path.join(
+_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/v3-from-factory-bundle-after.yaml')
 _HWID_V3_CHANGE_UNIT_BEFORE = os.path.join(
@@ -89,9 +89,12 @@ _HWID_V3_CHANGE_UNIT_INTERNAL_BEFORE = os.path.join(
 _HWID_V3_CHANGE_UNIT_INTERNAL_AFTER = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/change-unit-with-internal-after.yaml')
-HWIDV3_REGION_FILE = os.path.join(
+_HWID_V3_REGION_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/v3-golden-region.yaml')
+_HWID_V3_UPDATE_COMP_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '../testdata/v3-update-comp.yaml')
 
 
 def _ApplyUnifiedDiff(src: str, diff: str) -> str:
@@ -1723,7 +1726,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_Succeed(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1747,7 +1750,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      action.GetDBEditableSection())
 
   def testCreateHwidDbFirmwareInfoUpdateCl_Succeed_DevSignedFirmware(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1773,7 +1776,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      action.GetDBEditableSection())
 
   def testCreateHwidDbFirmwareInfoUpdateCl_NoComponentAdded(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
     self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
@@ -1785,7 +1788,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(len(resp.commits), 0)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_EmptyFirmwareRecord(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
     self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
@@ -1800,7 +1803,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(len(resp.commits), 0)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_AppendUuidOnly(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1826,7 +1829,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      action.GetDBEditableSection())
 
   def testCreateHwidDbFirmwareInfoUpdateCl_FlipStatusOnly(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1846,7 +1849,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      action.GetDBEditableSection())
 
   def testCreateHwidDbFirmwareInfoUpdateCl_NameCollision(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1902,7 +1905,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_InternalError(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
@@ -1918,7 +1921,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_InternalError_AbandonCL(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ1', 3, raw_db)
     self._ConfigLiveHWIDRepo('PROJ2', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
@@ -1938,7 +1941,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
   def testCreateHwidDbFirmwareInfoUpdateCl_MultipleProjects(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ1', 3, raw_db)
     self._ConfigLiveHWIDRepo('PROJ2', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
@@ -1957,7 +1960,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(resp.commits['PROJ2'].cl_number, 456)
 
   def testSetFirmwareInfoSupportStatus_Succeed(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -1989,7 +1992,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.NOT_FOUND)
 
   def testSetFirmwareInfoSupportStatus_NoChange(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
     self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
@@ -2005,7 +2008,7 @@ class SelfServiceShardTest(unittest.TestCase):
         resp, hwid_api_messages_pb2.SetFirmwareInfoSupportStatusResponse())
 
   def testSetFirmwareInfoSupportStatus_InternalError(self):
-    raw_db = file_utils.ReadFile(HWIDV3_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
@@ -2938,7 +2941,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testCreateHwidRegionCl_Succeed(self):
-    raw_db = file_utils.ReadFile(HWIDV3_REGION_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
@@ -2983,7 +2986,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testCreateHwidRegionCl_UnsupportedRegion_InternalError(self):
-    raw_db = file_utils.ReadFile(HWIDV3_REGION_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
     self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
@@ -3000,7 +3003,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
   def testCreateHwidRegionCl_CommitDBFailed_InternalError(self):
-    raw_db = file_utils.ReadFile(HWIDV3_REGION_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
@@ -3018,7 +3021,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
   def testCreateHwidRegionCl_NoChange(self):
-    raw_db = file_utils.ReadFile(HWIDV3_REGION_FILE)
+    raw_db = file_utils.ReadFile(_HWID_V3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
@@ -3032,6 +3035,96 @@ class SelfServiceShardTest(unittest.TestCase):
     resp = self.service.CreateHwidRegionCl(req)
 
     self.assertEqual(resp, hwid_api_messages_pb2.CreateHwidRegionClResponse())
+
+  def testUpdateHwidDbComponents_Succeed(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.return_value = 123
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
+        project='proj', comps=[
+            _ComponentMsg(component_class='comp_cls1', avl_info=_AvlInfoMsg(
+                cid=1, qid=1), status=_SupportStatusCase.SUPPORTED),
+            _ComponentMsg(component_class='comp_cls1',
+                          avl_info=_AvlInfoMsg(cid=1),
+                          status=_SupportStatusCase.SUPPORTED),
+            _ComponentMsg(component_class='comp_cls1', avl_info=_AvlInfoMsg(
+                cid=2, is_subcomp=True), status=_SupportStatusCase.SUPPORTED),
+        ])
+    resp = self.service.UpdateHwidDbComponents(req)
+    comps = action.GetComponents(['comp_cls1'])
+
+    self.assertEqual(comps['comp_cls1']['comp_cls1_1'].status, 'supported')
+    self.assertEqual(comps['comp_cls1']['comp_cls1_1_1'].status, 'supported')
+    self.assertEqual(comps['comp_cls1']['comp_cls1_subcomp_2'].status,
+                     'supported')
+    self.assertEqual(resp.commit.cl_number, 123)
+    self.assertEqual(resp.commit.new_hwid_db_contents,
+                     action.GetDBEditableSection())
+
+  def testUpdateHwidDbComponents_ProjectNotFound(self):
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.GetHWIDDBMetadataByName.side_effect = KeyError
+
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
+      req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(project='foo')
+      self.service.UpdateHwidDbComponents(req)
+
+    self.assertEqual(ex.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.NOT_FOUND)
+
+  def testUpdateHwidDbComponents_InvalidRequest(self):
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.GetHWIDDBMetadataByName.side_effect = ValueError
+
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
+      req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(project='foo')
+      self.service.UpdateHwidDbComponents(req)
+
+    self.assertEqual(ex.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+
+  def testUpdateHwidDbComponents_CommitDBFailed_InternalError(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
+        project='proj', comps=[
+            _ComponentMsg(component_class='comp_cls1',
+                          avl_info=_AvlInfoMsg(cid=1),
+                          status=_SupportStatusCase.SUPPORTED),
+        ])
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
+      self.service.UpdateHwidDbComponents(req)
+
+    self.assertEqual(ex.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
+
+  def testUpdateHwidDbComponents_NoChange(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+    self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
+    action = self._CreateFakeHWIDBAction('PROJ', raw_db)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+
+    req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
+        project='proj', comps=[
+            _ComponentMsg(component_class='comp_cls1',
+                          avl_info=_AvlInfoMsg(cid=1),
+                          status=_SupportStatusCase.UNQUALIFIED),
+        ])
+    resp = self.service.UpdateHwidDbComponents(req)
+
+    self.assertEqual(resp,
+                     hwid_api_messages_pb2.UpdateHwidDbComponentsResponse())
 
 
 if __name__ == '__main__':

@@ -33,30 +33,6 @@ def _GenerateCacheKey(hwid: str, verbose: bool, no_avl_name: bool) -> str:
   return f'{hwid},verbose={verbose},no_avl_name={no_avl_name}'
 
 
-class _GenerateAVLInfoAcceptor(name_pattern_adapter.NameInfoAcceptor[Optional[
-    hwid_api_messages_pb2.AvlInfo]]):
-  """An acceptor to generate an AvlInfo proto message."""
-
-  def AcceptRegularComp(
-      self, cid: int,
-      qid: Optional[int]) -> Optional[hwid_api_messages_pb2.AvlInfo]:
-    """See base class."""
-    return hwid_api_messages_pb2.AvlInfo(cid=cid, qid=qid)
-
-  def AcceptSubcomp(self, cid: int) -> Optional[hwid_api_messages_pb2.AvlInfo]:
-    """See base class."""
-    return hwid_api_messages_pb2.AvlInfo(cid=cid, is_subcomp=True)
-
-  def AcceptUntracked(self) -> Optional[hwid_api_messages_pb2.AvlInfo]:
-    """See base class."""
-    return None
-
-  def AcceptLegacy(
-      self, raw_comp_name: str) -> Optional[hwid_api_messages_pb2.AvlInfo]:
-    """See base class."""
-    return None
-
-
 class BOMAndConfigless(NamedTuple):
   """A class to collect bom and configless obtained from decoded HWID string."""
 
@@ -134,7 +110,7 @@ class BOMAndConfiglessHelper:
     self._vpg_targets = _CONFIG_DATA.vpg_targets
     self._decoder_data_manager = decoder_data_manager
     self._bom_data_cacher = bom_data_cacher
-    self._generate_avl_info_acceptor = _GenerateAVLInfoAcceptor()
+    self._generate_avl_info_acceptor = common_helper.GenerateAVLInfoAcceptor()
 
   def BatchGetBOMAndConfigless(
       self,

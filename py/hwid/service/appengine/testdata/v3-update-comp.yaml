@@ -1,0 +1,41 @@
+checksum: DUMMY
+
+project: CHROMEBOOK
+
+encoding_patterns:
+  0: default
+
+image_id:
+  0: PROTO
+
+pattern:
+- image_ids:
+  - 0
+  encoding_scheme: base8192
+  fields: []
+
+encoded_fields:
+  region_field: !region_field []
+  comp_cls1_field:
+    0:
+      comp_cls1: comp_cls1_1
+    1:
+      comp_cls1: comp_cls1_1_1
+    2:
+      comp_cls1: comp_cls1_subcomp_2
+
+components:
+  region: !region_component
+  comp_cls1:
+    items:
+      comp_cls1_1:
+        status: unqualified
+        values: null
+      comp_cls1_1_1:
+        status: unqualified
+        values: null
+      comp_cls1_subcomp_2:
+        status: unqualified
+        values: null
+
+rules: []

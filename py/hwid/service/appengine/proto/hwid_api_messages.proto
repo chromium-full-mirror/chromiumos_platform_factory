@@ -1107,6 +1107,22 @@ message UpdateDlmDeviceResponse {
   int64 device_id = 1;
 }
 
+// The request of update components in HWID DB.
+message UpdateHwidDbComponentsRequest {
+  // Project name.
+  string project = 1;
+  // CL metadata.
+  DbChangeRequestMetadata request_metadata = 2;
+  // All components to be updated.
+  repeated Component comps = 3;
+}
+
+// The response of update components in HWID DB.
+message UpdateHwidDbComponentsResponse {
+  // Created HWID CL.
+  HwidDbCommit commit = 1;
+}
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1188,20 +1204,20 @@ service HwidService {
 
   // Get all valid region code in ChromeOS.
   rpc GetRegionList(GetRegionListRequest)
-    returns (GetRegionListResponse);
+     returns (GetRegionListResponse);
 
   // Create HWID CL to modify region components.
   rpc CreateHwidRegionCl(CreateHwidRegionClRequest)
-    returns (CreateHwidRegionClResponse);
+      returns (CreateHwidRegionClResponse);
 
   // Get all HWID string prefixes which are potentially soft-branded.
   rpc GetPotentiallySoftBrandedHwidPrefixes(
       GetPotentiallySoftBrandedHwidPrefixesRequest)
-    returns (GetPotentiallySoftBrandedHwidPrefixesResponse);
+      returns (GetPotentiallySoftBrandedHwidPrefixesResponse);
 
   // Get soft-brand eligibility in LTS, pushed-stable, and ToT versions.
   rpc GetSoftBrandEligibility(GetSoftBrandEligibilityRequest)
-    returns (GetSoftBrandEligibilityResponse);
+      returns (GetSoftBrandEligibilityResponse);
 
   // Create or refresh HWID DB CLs by given CL number.
   rpc CreateOrRefreshSplittedHwidDbCls(CreateOrRefreshSplittedHwidDbClsRequest)
@@ -1209,9 +1225,13 @@ service HwidService {
 
   // Update or create DLM product data with DLM product data.
   rpc UpdateDlmProduct(UpdateDlmProductRequest)
-    returns (UpdateDlmProductResponse);
+      returns (UpdateDlmProductResponse);
 
   // Update DLM product data with DLM device data.
   rpc UpdateDlmDevice(UpdateDlmDeviceRequest)
-    returns (UpdateDlmDeviceResponse);
+      returns (UpdateDlmDeviceResponse);
+
+  // Update components in the HWID database.
+  rpc UpdateHwidDbComponents(UpdateHwidDbComponentsRequest)
+      returns (UpdateHwidDbComponentsResponse);
 }

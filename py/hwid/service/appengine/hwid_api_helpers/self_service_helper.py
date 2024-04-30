@@ -14,6 +14,7 @@ from typing import Collection, Iterator, Mapping, MutableMapping, NamedTuple, Op
 import uuid
 
 from google.protobuf import json_format
+from google.protobuf import text_format
 
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine import change_unit_utils
@@ -740,6 +741,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     self._battery_config_fetcher = battery_config_fetcher
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
+    self._generate_avl_info_acceptor = common_helper.GenerateAVLInfoAcceptor()
 
   def _BuildBundleMetadataSource(self, action: hwid_action.HWIDAction) -> str:
     bundle_metadata = bundles_pb2.BundleMetadata()
@@ -1618,6 +1620,86 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
+          name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
+          reviewers=request_metadata.reviewer_emails,
+          cc_list=request_metadata.cc_emails,
+          bot_commit=request_metadata.auto_approved,
+          commit_queue=request_metadata.auto_approved,
+          hwid_db_contents_internal=internal_db)
+    except hwid_repo.HWIDRepoError:
+      logging.exception(
+          'Caught an unexpected exception while uploading a HWID CL.')
+      raise protorpc_utils.ProtoRPCException(
+          protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from None
+    resp.commit.cl_number = cl_number
+    resp.commit.new_hwid_db_contents = (
+        v3_action_helper.HWIDV3SelfServiceActionHelper.RemoveHeader(external_db)
+    )
+
+    return resp
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
+  def UpdateHwidDbComponents(self, request):
+    request_metadata = request.request_metadata
+    project = _NormalizeProjectString(request.project)
+    live_hwid_repo, action = self._GetRepoAndAction(project)
+    resp = hwid_api_messages_pb2.UpdateHwidDbComponentsResponse()
+
+    avl_comps_need_updated = {
+        text_format.MessageToString(c.avl_info): c
+        for c in request.comps
+    }
+    db_comps = action.GetComponents({c.component_class
+                                     for c in request.comps})
+    db = action.GetDBV3()
+    np_adapter = name_pattern_adapter.NamePatternAdapter()
+    changed = False
+
+    try:
+      for comp_cls, comps in db_comps.items():
+        np = np_adapter.GetNamePattern(comp_cls)
+        for comp_name, db_comp_info in comps.items():
+          avl_info = np.Matches(comp_name).Provide(
+              self._generate_avl_info_acceptor)
+          if avl_info is None:
+            continue
+          comp = avl_comps_need_updated.get(
+              text_format.MessageToString(avl_info))
+          if comp is None:
+            continue
+          status = common_helper.HWID_STRING_OF_SUPPORT_STATUS_CASE[comp.status]
+          if status == db_comp_info.status:
+            continue
+          db.SetComponentStatus(comp_cls, comp_name, status)
+          changed = True
+    except (KeyError, ValueError, v3_common.HWIDException) as ex:
+      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+
+    if not changed:
+      logging.info('No component is changed to DB: %s', project)
+      return resp
+
+    # Create commit
+    internal_db = action.PatchHeader(
+        db.DumpDataWithoutChecksum(internal=True,
+                                   suppress_support_status=False))
+    external_db = action.PatchHeader(
+        db.DumpDataWithoutChecksum(internal=False,
+                                   suppress_support_status=False))
+
+    commit_msg = textwrap.dedent(f"""\
+        ({int(time.time())}) {project}: HWID Component Update
+
+        Requested by: {request_metadata.original_requester}
+        Warning: all posted comments will be sent back to the requester.
+
+        %s
+
+        BUG=b:{request_metadata.bug_number}""") % request_metadata.description
+
+    try:
+      cl_number = live_hwid_repo.CommitHWIDDB(
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
