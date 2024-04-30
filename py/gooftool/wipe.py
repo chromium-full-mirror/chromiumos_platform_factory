@@ -88,22 +88,31 @@ class WipeError(Exception):
   """Failed to complete wiping."""
 
 
-def _CopyLogFileToStateDev(state_dev, logfile):
+def _CopyLogFileToStateDev(state_dev, log_files):
   with sys_utils.MountPartition(state_dev, rw=True,
                                 fstype='ext4') as mount_point:
-    shutil.copyfile(logfile, os.path.join(mount_point,
-                                          os.path.basename(logfile)))
+    for log_file in log_files:
+      shutil.copyfile(log_file,
+                      os.path.join(mount_point, os.path.basename(log_file)))
 
 
 def _OnError(ip, port, token, state_dev, wipe_in_ramfs_log=None,
              wipe_init_log=None):
-  state_dev = GetLogicalStateful(state_dev)
-  if wipe_in_ramfs_log:
-    _CopyLogFileToStateDev(state_dev, wipe_in_ramfs_log)
-  if wipe_init_log:
-    _CopyLogFileToStateDev(state_dev, wipe_init_log)
-  _InformStation(ip, port, token, wipe_in_ramfs_log=wipe_in_ramfs_log,
-                 wipe_init_log=wipe_init_log, success=False)
+  try:
+    state_dev = GetLogicalStateful(state_dev)
+    log_files = []
+    if wipe_in_ramfs_log:
+      log_files.append(wipe_in_ramfs_log)
+    if wipe_init_log:
+      log_files.append(wipe_init_log)
+    _CopyLogFileToStateDev(state_dev, log_files)
+  except Exception:
+    logging.exception('Failed to copy log in _OnError.')
+  try:
+    _InformStation(ip, port, token, wipe_in_ramfs_log=wipe_in_ramfs_log,
+                   wipe_init_log=wipe_init_log, success=False)
+  except Exception:
+    logging.exception('Failed to inform station in _OnError.')
 
 
 def Daemonize(logfile=None):
@@ -526,13 +535,11 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
       output = process_utils.Spawn(['umount', '-n', '-R', mount_point],
                                    log=True,
                                    log_stderr_on_error=True).stderr_data
+      # Let mypy to realize that output is str.
+      output = output or ''
       # some mount points need to be unmounted multiple times.
-      # yapf: disable
-      if (output.endswith(': not mounted\n') or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          output.endswith(': not found\n')):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if (output.endswith(': not mounted\n') or
+          output.endswith(': not found\n')):
         return
       time.sleep(0.5)
     logging.error('failed to unmount %s', mount_point)
@@ -623,9 +630,7 @@ def _InformStation(ip, port, token, wipe_init_log=None, wipe_in_ramfs_log=None,
     if wipe_in_ramfs_log:
       response['wipe_in_ramfs_log'] = file_utils.ReadFile(wipe_in_ramfs_log)
 
-    # yapf: disable
-    sock.sendall(json.dumps(response) + '\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    sock.sendall((json.dumps(response) + '\n').encode())
     sock.close()
 
 
