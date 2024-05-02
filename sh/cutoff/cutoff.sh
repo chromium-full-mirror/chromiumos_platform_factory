@@ -7,6 +7,13 @@
 # This script controls battery power level and performs required battery
 # cutoff protection by sending commands to EC with ectool.
 
+# Used by:
+# 1. the last step of GRT
+# 2. factory shim before R124-15812.0.0
+#
+# Factory shims after R124-15812.0.0 (CL:5333112) starts to use the rust version
+# of cutoff so modify this file won't affect factory shims after R124-15812.0.0.
+
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 DISPLAY_MESSAGE="${SCRIPT_DIR}/display_wipe_message.sh"
 . "${SCRIPT_DIR}/options.sh"
@@ -356,6 +363,10 @@ main() {
       ;;
       shutdown | *)
         # By default we shutdown the device without doing anything.
+        # See CL:4775107 for the reason that we have to do the following.
+        if [ "$(crossystem mainfw_type 2>/dev/null)" = "recovery" ]; then
+          ectool reboot_ec cold-ap-off at-shutdown
+        fi
         shutdown -h now
     esac
     sleep 15
