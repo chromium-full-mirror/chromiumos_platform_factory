@@ -42,3 +42,7 @@ def SyncTimeWithFactoryServer():
   except Exception:
     return False
   return True
+
+
+def Now(zone=None):
+  return datetime.datetime.now(zone)

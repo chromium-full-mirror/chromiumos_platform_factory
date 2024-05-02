@@ -2966,10 +2966,6 @@ msgstr ""
 "ソフトウェアの更新が利用可能です。スペースキーを押して更新してください。"
 
 #: ../py/test/pytests/sync_factory_server.py
-msgid "Preparing..."
-msgstr "準備中..."
-
-#: ../py/test/pytests/sync_factory_server.py
 msgid "Ping"
 msgstr "Ping"
 
@@ -3030,6 +3026,10 @@ msgstr "サーバータスクが完了しました: {label}"
 msgid "Task <b>{label}</b> failed, retry in {time_left} seconds..."
 msgstr ""
 "タスク <b>{label}</b> が失敗しました。{time_left} 秒後に再試行します..."
+
+#: ../py/test/pytests/sync_factory_server.py
+msgid "Preparing..."
+msgstr "準備中..."
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Flip the lid into tablet mode"

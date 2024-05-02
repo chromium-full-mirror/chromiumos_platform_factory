@@ -2911,10 +2911,6 @@ msgid "A software update is available. Press SPACE to update."
 msgstr "มีการอัปเดตซอฟต์แวร์ใหม่ให้ใช้ กดปุ่ม SPACE เพื่ออัปเดต"
 
 #: ../py/test/pytests/sync_factory_server.py
-msgid "Preparing..."
-msgstr "กําลังเตรียม..."
-
-#: ../py/test/pytests/sync_factory_server.py
 msgid "Ping"
 msgstr "Ping"
 
@@ -2974,6 +2970,10 @@ msgstr "งานเสร็จสิ้นบนเซิร์ฟเวอร
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Task <b>{label}</b> failed, retry in {time_left} seconds..."
 msgstr "งาน <b>{label}</b> ล้มเหลว, ลองใหม่อีกครั้งใน {time_left} วินาที..."
+
+#: ../py/test/pytests/sync_factory_server.py
+msgid "Preparing..."
+msgstr "กําลังเตรียม..."
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Flip the lid into tablet mode"

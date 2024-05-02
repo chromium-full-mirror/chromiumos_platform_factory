@@ -1,6 +1,7 @@
 # Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+# pylint: disable=useless-suppression
 
 """Connect to factory server to find software updates and upload logs.
 
@@ -138,7 +139,6 @@ mapping object with key set to "IP/CIDR" and value set to server URL::
 import datetime
 import logging
 import threading
-import time
 
 from cros.factory.device import device_utils
 from cros.factory.gooftool import commands
@@ -229,9 +229,7 @@ class SyncFactoryServer(test_case.TestCase):
     self.allow_edit_url = True
     self.event_url_set = threading.Event()
     self.goofy = state.GetInstance()
-    # yapf: disable
-    self.report = Report(None, None, self.args.report_stage)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.report = None
     self.dut = device_utils.CreateDUTInterface()
     self.station = device_utils.CreateStationInterface()
     self.csv_entry_manager = csv_utils.CSVManager()
@@ -390,10 +388,9 @@ class SyncFactoryServer(test_case.TestCase):
 
   def CreateReport(self):
     # yapf: disable
+    self.report = Report(None, None, self.args.report_stage) # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     self.ui.SetState(_('Collecting report data...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
     self.report.blob = commands.CreateReportArchiveBlob()
-    # yapf: disable
     self.ui.SetState(_('Getting serial number...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
     self.report.serial_number = device_data.GetSerialNumber(
@@ -404,9 +401,9 @@ class SyncFactoryServer(test_case.TestCase):
 
   def UploadReport(self):
     # yapf: disable
-    self.server.UploadReport(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    self.server.UploadReport( # type: ignore #TODO(b/338318729) Fixit!
+        self.report.serial_number, self.report.blob, None, self.report.station) # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
-        self.report.serial_number, self.report.blob, None, self.report.station)
 
   def UploadRegCodes(self):
     """Uploads registration codes to factory server.
@@ -425,7 +422,8 @@ class SyncFactoryServer(test_case.TestCase):
 
     registration_codes.CheckRegistrationCode(ubind)
     registration_codes.CheckRegistrationCode(gbind)
-    timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+    timestamp = time_utils.Now(
+        datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     entry = [board, ubind, gbind, timestamp, hwid]
     self.csv_entry_manager.Append('registration_code_log', entry)
 
@@ -437,7 +435,7 @@ class SyncFactoryServer(test_case.TestCase):
     assert isinstance(hwid, str)
     assert isinstance(serial_number, str)
 
-    now = datetime.datetime.now()
+    now = time_utils.Now()
     timestamp = now.astimezone().replace(microsecond=0).isoformat()
     entry = [serial_number, hwid, timestamp]
 
@@ -496,25 +494,14 @@ class SyncFactoryServer(test_case.TestCase):
     # updateFactory is running.
     self.WaitTaskEnd()
 
-  def runTest(self):
-    # yapf: disable
-    self.ui.SetInstruction(_('Preparing...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    retry_secs = self.args.first_retry_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  def SyncTime(self):
+    if not time_utils.SyncTimeWithFactoryServer():
+      raise Exception('Failed to sync time with factory server')
 
-    # yapf: disable
-    self.event_loop.AddEventHandler(EVENT_SET_URL, self.OnButtonSetClicked)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.event_loop.AddEventHandler(EVENT_CANCEL_SET_URL,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                                    self.OnButtonCancelClicked)
-    # yapf: disable
-    self.event_loop.AddEventHandler(EVENT_DO_SET_URL, self.OnButtonEditClicked)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  def FlushEventLogs(self):
+    self.goofy.FlushEventLogs()
 
+  def GetTasks(self):
     # Setup tasks to perform.
     tasks = [(_('Ping'), self.Ping)]
 
@@ -527,15 +514,12 @@ class SyncFactoryServer(test_case.TestCase):
     # yapf: disable
     if self.args.sync_time:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      def SyncTime():
-        if not time_utils.SyncTimeWithFactoryServer():
-          raise Exception('Failed to sync time with factory server')
-      tasks += [(_('Sync time'), SyncTime)]
+      tasks += [(_('Sync time'), self.SyncTime)]
 
     # yapf: disable
     if self.args.sync_event_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      tasks += [(_('Flush Event Logs'), self.goofy.FlushEventLogs)]
+      tasks += [(_('Flush Event Logs'), self.FlushEventLogs)]
 
     # yapf: disable
     if self.args.flush_testlog:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -585,23 +569,20 @@ class SyncFactoryServer(test_case.TestCase):
     else:
       session.console.info('Toolkit update is disabled.')
 
-    # Setup new server URL
-    server_proxy.ValidateServerConfig()
-    self.ChangeServerURL(
-        # yapf: disable
-        URLSpec.FindServerURL(self.args.server_url, self.station))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return tasks
 
+  def ProcessTasks(self):
     # It's very often that a DUT under FA is left without network connected for
     # hours to days, so we should not log (which will increase TestLog events)
     # if the exception string is not changed.
     logger = log_utils.NoisyLogger(
         lambda fault, prompt: logging.exception(prompt, fault))
 
+    tasks = self.GetTasks()
     # yapf: disable
     self.ui.DrawProgressBar(len(tasks))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
-
+    retry_secs = self.args.first_retry_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     for label, task in tasks:
       while True:
         try:
@@ -661,3 +642,28 @@ class SyncFactoryServer(test_case.TestCase):
       # yapf: disable
       self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
+
+  def runTest(self):
+    # yapf: disable
+    self.ui.SetInstruction(_('Preparing...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    # yapf: disable
+    self.event_loop.AddEventHandler(EVENT_SET_URL, self.OnButtonSetClicked)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.event_loop.AddEventHandler(EVENT_CANCEL_SET_URL,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+                                    self.OnButtonCancelClicked)
+    # yapf: disable
+    self.event_loop.AddEventHandler(EVENT_DO_SET_URL, self.OnButtonEditClicked)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    # Setup new server URL
+    server_proxy.ValidateServerConfig()
+    self.ChangeServerURL(
+        # yapf: disable
+        URLSpec.FindServerURL(self.args.server_url, self.station))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    self.ProcessTasks()

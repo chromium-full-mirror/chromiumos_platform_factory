@@ -2898,10 +2898,6 @@ msgid "A software update is available. Press SPACE to update."
 msgstr "有可用的更新。按空白键更新。"
 
 #: ../py/test/pytests/sync_factory_server.py
-msgid "Preparing..."
-msgstr "准备中..."
-
-#: ../py/test/pytests/sync_factory_server.py
 msgid "Ping"
 msgstr "连线测试"
 
@@ -2961,6 +2957,10 @@ msgstr "完成任务: {label}"
 #: ../py/test/pytests/sync_factory_server.py
 msgid "Task <b>{label}</b> failed, retry in {time_left} seconds..."
 msgstr "<b>{label}</b>任务失败，将在 {time_left} 秒后重试..."
+
+#: ../py/test/pytests/sync_factory_server.py
+msgid "Preparing..."
+msgstr "准备中..."
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Flip the lid into tablet mode"

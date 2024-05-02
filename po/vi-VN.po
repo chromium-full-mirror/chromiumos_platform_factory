@@ -2945,10 +2945,6 @@ msgid "A software update is available. Press SPACE to update."
 msgstr "Có sẵn các bản cập nhật. Bấm phím trống để cập nhật"
 
 #: ../py/test/pytests/sync_factory_server.py
-msgid "Preparing..."
-msgstr "Đang chuẩn bị..."
-
-#: ../py/test/pytests/sync_factory_server.py
 msgid "Ping"
 msgstr "Kiểm tra kết nối"
 
@@ -3009,6 +3005,10 @@ msgstr "Hoàn thành tác vụ: {label}"
 msgid "Task <b>{label}</b> failed, retry in {time_left} seconds..."
 msgstr ""
 "<b>Tác vụ{label}</b>không thành công và sẽ thử lại sau {time_left} giây ..."
+
+#: ../py/test/pytests/sync_factory_server.py
+msgid "Preparing..."
+msgstr "Đang chuẩn bị..."
 
 #: ../py/test/pytests/tablet_mode.py
 msgid "Flip the lid into tablet mode"
