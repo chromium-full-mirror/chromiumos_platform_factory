@@ -91,6 +91,14 @@ EBUILD_TEST_BLOCKED_LIST = \
   soraka
 
 PROTO_FILES = $(wildcard proto/*.proto)
+PROJECT_PROTO_FILES = \
+	$(wildcard py/hwid/service/appengine/proto/*.proto) \
+	$(wildcard py/probe_info_service/app_engine/*.proto) \
+	$(wildcard py/probe_info_service/app_engine/probe_tools/*.proto)
+EXTERNAL_PROJECT_PROTO_FILES = \
+  $(wildcard ../../platform2/hardware_verifier/proto/*.proto) \
+  $(wildcard ../../platform2/system_api/dbus/runtime_probe/*.proto) \
+  $(wildcard ../feature-management/proto/*.proto)
 
 HTML_SOURCE_DIR = \
   misc \
@@ -470,7 +478,14 @@ lint:
 	$(if $(CROS_CHROOT_VERSION),,$(info Entering chroot for "make $@" ...))
 	$(ENTER_CHROOT_PREFIX)$(MK_DIR)/pylint.sh $(LINT_ALLOWLIST)
 
-mypy:
+mypy-proto-pyi: $(PROJECT_PROTO_FILES) $(EXTERNAL_PROJECT_PROTO_FILES)
+# These proto files are imported from cros.factory.
+	protoc -I=py_pkg --pyi_out=py_pkg $(PROJECT_PROTO_FILES:py/%=cros/factory/%)
+# These proto files are imported directly (no package).
+	protoc $(addprefix -I=,$(dir $(EXTERNAL_PROJECT_PROTO_FILES))) \
+		--pyi_out=py_pkg $(EXTERNAL_PROJECT_PROTO_FILES)
+
+mypy: mypy-proto-pyi
 	$(if $(CROS_CHROOT_VERSION),,$(info Entering chroot for "make $@" ...))
 	$(ENTER_CHROOT_PREFIX)$(MK_DIR)/mypy.sh mypy \
 		--config-file="$(MYPY_CONFIG)" $(MYPY_FILES)

@@ -14,6 +14,8 @@ setup/rootCA.pem
 setup/cert.pem
 setup/ovl_password
 **/proto/*.py
+**/proto/*_pb2.pyi
+py_pkg/*_pb2.pyi
 jsconfig.json
 .vscode
 .coverage_data
