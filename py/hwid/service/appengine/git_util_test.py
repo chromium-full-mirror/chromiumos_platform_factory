@@ -171,6 +171,28 @@ class MemoryRepoTest(unittest.TestCase):
                            r"Invalid filepath 'a/b/c/d'\.", repo.delete_files,
                            ['a/b/c/d'])
 
+  def testCheckPathExistence(self):
+    new_files = [
+        ('a/b/c', 0o100644, b'content of a/b/c'),
+    ]
+    repo, tree = _BuildGitTreeByFiles(new_files)
+    repo.do_commit(b'Test_commit', tree=tree.id)
+
+    self.assertTrue(repo.check_path_existence('a'))
+    self.assertTrue(repo.check_path_existence('a/b'))
+    self.assertTrue(repo.check_path_existence('a/b/c'))
+
+  def testCheckPathExistence_PathNotExist_ShouldReturnFalse(self):
+    new_files = [
+        ('a/b/c', 0o100644, b'content of a/b/c'),
+    ]
+    repo, tree = _BuildGitTreeByFiles(new_files)
+    repo.do_commit(b'Test_commit', tree=tree.id)
+
+    self.assertFalse(repo.check_path_existence('x'))
+    self.assertFalse(repo.check_path_existence('a/x'))
+    self.assertFalse(repo.check_path_existence('a/b/x'))
+    self.assertFalse(repo.check_path_existence('a/b/c/x'))
 
 class GetChangeIdTest(unittest.TestCase):
 

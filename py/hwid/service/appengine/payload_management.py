@@ -431,6 +431,9 @@ class VerificationPayloadManager(PayloadManager):
       else:
         vps.add(search_res['model'])
 
+    if not repo.check_path_existence(f'{setting.prefix}runtime_probe'):
+      return []
+
     # Search the repository for existing probe config files.
     delete_files = []
     for model, mode, unused_data in repo.list_files(

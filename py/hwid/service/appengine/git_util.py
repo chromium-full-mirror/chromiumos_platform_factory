@@ -20,6 +20,7 @@ import urllib.parse
 
 import certifi  # type: ignore #TODO(b/338318729) Fixit!
 from dulwich import client as dw_client  # type: ignore #TODO(b/338318729) Fixit!
+from dulwich import errors as dw_errors
 from dulwich import objects as dw_objects
 from dulwich import porcelain
 from dulwich import refs as dw_refs
@@ -501,6 +502,21 @@ class MemoryRepo(dw_repo.MemoryRepo):
       yield (name.decode(), mode,
              obj.data if obj.type_name == b'blob' else None)
 
+  def check_path_existence(self, path: Union[str, bytes]) -> bool:
+    """Checks if the path exists in the repository.
+
+    Args:
+      path: The path to be checked.
+    Returns:
+      A bool value indicating whether the path exists or not.
+    """
+    head_commit = self[HEAD]
+    root = self[head_commit.tree]
+    try:
+      root.lookup_path(self.get_object, _B(path))
+    except (KeyError, dw_errors.NotTreeError):
+      return False
+    return True
 
 def _GetChangeId(tree_id, parent_commit, author, committer, commit_msg):
   """Gets change id from information of commit.
