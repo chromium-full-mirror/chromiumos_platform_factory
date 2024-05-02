@@ -7,8 +7,8 @@
 
 import os
 
-from backend import common
-from backend.models import Bundle
+from backend import common  # type: ignore #TODO(b/338318729) Fixit!
+from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit!
 from backend.models import DomeConfig
 from backend.models import FactoryDriveComponent
 from backend.models import FactoryDriveDirectory
@@ -20,7 +20,7 @@ from backend.models import Resource
 from backend.models import Service
 from backend.models import TemporaryUploadedFile
 from backend.models import UpdateDuplicateResource
-from backend.serializers import BundleSerializer
+from backend.serializers import BundleSerializer  # type: ignore #TODO(b/338318729) Fixit!
 from backend.serializers import ConfigSerializer
 from backend.serializers import FactoryDriveComponentSerializer
 from backend.serializers import FactoryDriveDirectorySerializer
@@ -33,11 +33,11 @@ from backend.serializers import ProjectSerializer
 from backend.serializers import ResourceSerializer
 from backend.serializers import ServiceSerializer
 from backend.serializers import UploadedFileSerializer
-from django.http import StreamingHttpResponse
-from rest_framework import generics
+from django.http import StreamingHttpResponse  # type: ignore #TODO(b/338318729) Fixit!
+from rest_framework import generics  # type: ignore #TODO(b/338318729) Fixit!
 from rest_framework import mixins
 from rest_framework import permissions
-from rest_framework.response import Response
+from rest_framework.response import Response  # type: ignore #TODO(b/338318729) Fixit!
 from rest_framework import status
 from rest_framework import views
 

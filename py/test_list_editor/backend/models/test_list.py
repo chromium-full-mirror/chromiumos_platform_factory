@@ -217,7 +217,7 @@ class ITestList(abc.ABC):
   def GetTestDefinitions(self):
     """Gets the test item definitions."""
 
-  def GetTestSequence(self) -> List[Dict]:
+  def GetTestSequence(self) -> List[Dict]:  # type: ignore #TODO(b/338318729) Fixit!
     """Gets the resolved test sequence."""
 
   def UpdateTestSequence(self,
@@ -248,13 +248,13 @@ class TestList(ITestList):
   def __init__(self) -> None:
 
     self._diff = DiffUnit()
-    self._definitions = {}
-    self.options = {}
-    self.constants = {}
-    self.label = {}
-    self.tests = []
-    self.override_args = {}
-    self.inherit = []
+    self._definitions = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self.options = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self.constants = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self.label = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self.tests = []  # type: ignore #TODO(b/338318729) Fixit!
+    self.override_args = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self.inherit = []  # type: ignore #TODO(b/338318729) Fixit!
     self.tests = []
 
   def LoadFromFile(self, test_list_file: files.ITestListFile):
@@ -303,7 +303,7 @@ class TestList(ITestList):
 
   def UpdateTestItemConfig(self, test_item: TestItem):
     # TODO: Modify this to support Redo/Undo procedures.
-    self._diff.Update(['definitions', test_item.test_item_id], test_item.dict())
+    self._diff.Update(['definitions', test_item.test_item_id], test_item.dict())  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetTestSequence(self) -> List[Dict]:
     result = [

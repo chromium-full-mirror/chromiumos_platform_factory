@@ -213,7 +213,7 @@ def GenerateTestDocs(
 
 def LinkToAVL(component: test_case.TestCategory):
   url = 'https://chromeos.google.com/partner/dlm/avl/component'
-  encoded_args = urllib.parse.quote_plus(component.avl_name)
+  encoded_args = urllib.parse.quote_plus(component.avl_name)  # type: ignore #TODO(b/338318729) Fixit!
   return f'`{component.avl_name} <{url}?q=componentType:"{encoded_args}">`_'
 
 
@@ -238,9 +238,9 @@ def GenerateOneTypeOfPyTestsDoc(
 @DocGenerator('pytests')
 def GeneratePyTestsDoc(pytests_output_dir):
   # Map of pytest name to info returned by GenerateTestDocs.
-  pytest_description: Dict[str, str] = {}
-  uncategorized_tests: List[str] = []
-  component_to_tests: Dict[test_case.TestCategory, List[str]] = {}
+  pytest_description: Dict[str, str] = {}  # type: ignore #TODO(b/338318729) Fixit!
+  uncategorized_tests: List[str] = []  # type: ignore #TODO(b/338318729) Fixit!
+  component_to_tests: Dict[test_case.TestCategory, List[str]] = {}  # type: ignore #TODO(b/338318729) Fixit!
 
   for relpath in pytest_utils.GetPytestList(paths.FACTORY_DIR):
     pytest_name = pytest_utils.RelpathToPytestName(relpath)

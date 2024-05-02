@@ -350,7 +350,7 @@ class AbstractEventClient(abc.ABC):
 
     hello = s.recv(len(_HELLO_MESSAGE))
     if hello != _HELLO_MESSAGE:
-      raise socket.error(f'Event client expected hello ({_HELLO_MESSAGE:r}) '
+      raise socket.error(f'Event client expected hello ({_HELLO_MESSAGE:r}) '  # type: ignore #TODO(b/338318729) Fixit!
                          f'but got {hello:r}')
     return s
 

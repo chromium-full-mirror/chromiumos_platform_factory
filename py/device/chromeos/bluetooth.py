@@ -21,10 +21,10 @@ from cros.factory.utils.sync_utils import RetryDecorator
 
 from cros.factory.external.py_lib import dbus
 # pylint: disable=no-name-in-module,import-error
-from cros.factory.external.py_lib.dbus import DBusException
-from cros.factory.external.py_lib.dbus.mainloop.glib import DBusGMainLoop
-from cros.factory.external.py_lib.dbus import service
-from cros.factory.external.py_lib.gi.repository import GLib as gobject
+from cros.factory.external.py_lib.dbus import DBusException  # type: ignore #TODO(b/338318729) Fixit!
+from cros.factory.external.py_lib.dbus.mainloop.glib import DBusGMainLoop  # type: ignore #TODO(b/338318729) Fixit!
+from cros.factory.external.py_lib.dbus import service  # type: ignore #TODO(b/338318729) Fixit!
+from cros.factory.external.py_lib.gi.repository import GLib as gobject  # type: ignore #TODO(b/338318729) Fixit!
 
 
 BUS_NAME = 'org.bluez'
@@ -101,7 +101,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     available through dbus interface.
   """
 
-  Error = BluetoothManagerException
+  Error = BluetoothManagerException  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(self, dut):
     super().__init__(dut)

@@ -9,7 +9,7 @@ import subprocess
 import threading
 import time
 
-from ws4py.websocket import WebSocket
+from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.env import paths
 from cros.factory.test.event import Event

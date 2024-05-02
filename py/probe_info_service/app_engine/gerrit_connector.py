@@ -9,9 +9,9 @@ import logging
 from typing import List, NamedTuple, Optional
 import urllib.parse
 
-import certifi
+import certifi  # type: ignore #TODO(b/338318729) Fixit!
 import google.auth
-import urllib3
+import urllib3  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.utils import json_utils
 

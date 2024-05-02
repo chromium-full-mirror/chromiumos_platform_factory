@@ -340,16 +340,16 @@ class KeyboardTest(test_case.TestCase):
                         description='The keycode of malfunction keys')
 
   def GetKeycodesInFirstRow(self) -> list:
-    if self.args.vivaldi_keyboard:
+    if self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit!
       fn_keycodes = self.GetVivaldiKeycodes()
-    elif self.args.fn_keycodes:
-      fn_keycodes = self.args.fn_keycodes
+    elif self.args.fn_keycodes:  # type: ignore #TODO(b/338318729) Fixit!
+      fn_keycodes = self.args.fn_keycodes  # type: ignore #TODO(b/338318729) Fixit!
     else:
       fn_keycodes = _DEFAULT_FN_KEYCODES_IN_FIRST_ROW
 
     last_key = (
         _POWER_KEY_CODE
-        if self.args.has_power_key else self.args.last_fn_keycode)
+        if self.args.has_power_key else self.args.last_fn_keycode)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertIn(last_key, _LAST_FN_KEYCODES)
     return [_ESC_KEY_CODE] + fn_keycodes + [last_key]
 
@@ -419,7 +419,7 @@ class KeyboardTest(test_case.TestCase):
     """Return a 2-D array for rendering the keyboard of different layout.
 
     Each element represents the keycodes in a row."""
-    layout_filename = os.path.join(self.ui.GetStaticDirectoryPath(),
+    layout_filename = os.path.join(self.ui.GetStaticDirectoryPath(),  # type: ignore #TODO(b/338318729) Fixit!
                                    layout + '.layout')
     return ast.literal_eval(file_utils.ReadFile(layout_filename))
 

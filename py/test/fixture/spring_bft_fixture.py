@@ -4,7 +4,7 @@
 
 import logging
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.utils import serial_utils

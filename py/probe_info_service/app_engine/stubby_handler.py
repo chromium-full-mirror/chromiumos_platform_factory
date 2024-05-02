@@ -89,8 +89,8 @@ class ComponentNameImpl(probe_info_analytics.IComponentName):
     if not component_identity.qual_id and not component_identity.component_id:
       raise ValueError('ComponentIdentity must have either CID or QID.')
 
-    return cls(cid=component_identity.component_id,
-               qid=component_identity.qual_id)
+    return cls(cid=component_identity.component_id,  # type: ignore #TODO(b/338318729) Fixit!
+               qid=component_identity.qual_id)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 ProbeInfoServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
@@ -98,7 +98,7 @@ ProbeInfoServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
     stubby_pb2.DESCRIPTOR.services_by_name['ProbeInfoService'])
 
 
-class ProbeInfoService(ProbeInfoServiceProtoRPCBase):
+class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   MSG_NO_PROBE_STATEMENT_PREVIEW_INVALID_AVL_DATA = (
       '(no preview available due to the invalid data from AVL)')
@@ -262,7 +262,7 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):
               component_identity.component_id, component_identity.qual_id)
           if not avl_entry:
             raise protorpc_utils.ProtoRPCException(
-                protorpc_utils.RPCCANONICALErrorCode.INVALID_ARGUMENT,
+                protorpc_utils.RPCCANONICALErrorCode.INVALID_ARGUMENT,  # type: ignore #TODO(b/338318729) Fixit!
                 'Invalid AVL ID.')
           if not avl_entry.is_tested:
             avl_entry.is_tested = True

@@ -278,8 +278,8 @@ class SysfsDisplayInfo:
   def __init__(self, dut: device_types.DeviceBoard, sysfs_path: str,
                retry_times: int = 3):
     self.sysfs_path = sysfs_path
-    self.status_path = dut.path.join(sysfs_path, 'status')
-    self.edid_path = dut.path.join(sysfs_path, 'edid')
+    self.status_path = dut.path.join(sysfs_path, 'status')  # type: ignore #TODO(b/338318729) Fixit!
+    self.edid_path = dut.path.join(sysfs_path, 'edid')  # type: ignore #TODO(b/338318729) Fixit!
     self.status = None
     self.edid = None
 
@@ -309,7 +309,7 @@ class SysfsDisplayInfo:
       RuntimeError: If the status is 'connected' but the edid is invalid.
     """
     self.edid = None
-    self.status = dut.ReadFile(self.status_path).strip()
+    self.status = dut.ReadFile(self.status_path).strip()  # type: ignore #TODO(b/338318729) Fixit!
     if self.status != 'connected':
       return
     edid_probe_func = probe_function.GetFunctionClass("edid")
@@ -321,8 +321,8 @@ class SysfsDisplayInfo:
       raise RuntimeError(f"Multiple display found in {self.sysfs_path}")
     self.edid = edid_data[0]
     try:
-      self.edid['manufacturerId'] = self.edid.pop('vendor')
-      self.edid['productId'] = self.edid.pop('product_id').upper()
+      self.edid['manufacturerId'] = self.edid.pop('vendor')  # type: ignore #TODO(b/338318729) Fixit!
+      self.edid['productId'] = self.edid.pop('product_id').upper()  # type: ignore #TODO(b/338318729) Fixit!
     except KeyError as err:
       raise RuntimeError(f'Bad edid {edid_data!r} found from drm_sysfs_path: '
                          f'{self.sysfs_path}') from err
@@ -350,7 +350,7 @@ class SysfsDisplayInfo:
       return None
     for info in display_info:
       for key in ('manufacturerId', 'productId'):
-        if info['edid'][key] != self.edid[key]:
+        if info['edid'][key] != self.edid[key]:  # type: ignore #TODO(b/338318729) Fixit!
           break
       else:
         return info
@@ -442,7 +442,7 @@ class ExtDisplayTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._display_manager: display_manager.DisplayManager = (
+    self._display_manager: display_manager.DisplayManager = (  # type: ignore #TODO(b/338318729) Fixit!
         plugin_controller.GetPluginRPCProxy('display_manager.display_manager'))
 
     self._fixture = None
@@ -827,7 +827,7 @@ class ExtDisplayTest(test_case.TestCase):
   def _IsDisplayConnected(self, args: ExtDisplayTaskArg,
                           display_info: Optional[List[Dict[str, Any]]] = None):
     """Gets connection status."""
-    if self.args.drm_sysfs_path:
+    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit!
       display_info = display_info or self._display_manager.ListDisplayInfo()
       # Check that the target exists in Chrome API.
       return bool(self._target_display_info.JoinTargetInfo(display_info))
@@ -851,7 +851,7 @@ class ExtDisplayTest(test_case.TestCase):
 
   def _IsDisplayDisconnected(self, args: ExtDisplayTaskArg):
     """Gets disconnection status."""
-    if self.args.drm_sysfs_path:
+    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit!
       self._FetchTargetInfo(args.display_id)
       return self._target_display_info.status == 'disconnected'
 

@@ -11,7 +11,7 @@ from typing import Mapping
 import unittest
 from unittest import mock
 
-import redis
+import redis  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine import memcache_adapter
 

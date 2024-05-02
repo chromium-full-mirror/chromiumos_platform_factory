@@ -299,7 +299,7 @@ _RE_BEACON = re.compile(r'(\d+) MHz.*Beacon \((.+)\)')
 
 
 class RadiotapPacket:
-  FIELD = collections.namedtuple('Field', ['name', 'struct', 'align'])
+  FIELD = collections.namedtuple('Field', ['name', 'struct', 'align'])  # type: ignore #TODO(b/338318729) Fixit!
   ANTENNA_SIGNAL_FIELD = FIELD('Antenna Signal', struct.Struct('b'), 0)
   ANTENNA_INDEX_FIELD = FIELD('Antenna Index', struct.Struct('B'), 0)
   EXTENDED_BIT = 31
@@ -334,7 +334,7 @@ class RadiotapPacket:
       None,
       None]
   MAIN_HEADER_FORMAT = struct.Struct('BBhI')
-  PARSE_INFO = collections.namedtuple('AntennaData', ['header_size',
+  PARSE_INFO = collections.namedtuple('AntennaData', ['header_size',  # type: ignore #TODO(b/338318729) Fixit!
                                                       'data_bytes',
                                                       'antenna_offsets'])
 
@@ -525,8 +525,8 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
   def ScanSignal(self, service: wifi.ServiceSpec, antenna: Antenna,
                  scan_count: int) -> None:
     """See wifi.AbstractWiFiChip.ScanSignal."""
-    ssid = service.ssid
-    freq = service.freq
+    ssid = service.ssid  # type: ignore #TODO(b/338318729) Fixit!
+    freq = service.freq  # type: ignore #TODO(b/338318729) Fixit!
     assert freq is not None
 
     record_count = len(self._signal_mapping[(ssid, freq, antenna)])
@@ -535,7 +535,7 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
 
     session.console.info(f'Switching to AP {ssid} {freq:d}...')
     if not self._ConnectService(ssid=ssid, freq=freq,
-                                password=service.password):
+                                password=service.password):  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     self._MeasureSignalStrength(ssid, freq, scan_count - record_count)
@@ -558,8 +558,8 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
   def GetAverageSignal(self, service: wifi.ServiceSpec,
                        antenna: Antenna) -> Optional[float]:
     """See wifi.AbstractWiFiChip.GetAverageSignal."""
-    assert service.freq is not None
-    result = self._signal_mapping[(service.ssid, service.freq, antenna)]
+    assert service.freq is not None  # type: ignore #TODO(b/338318729) Fixit!
+    result = self._signal_mapping[(service.ssid, service.freq, antenna)]  # type: ignore #TODO(b/338318729) Fixit!
     return sum(result) / len(result) if result else None
 
   def _ConnectService(self, ssid: str, freq: int,
@@ -912,11 +912,11 @@ class WirelessTest(test_case.TestCase):
     raise ValueError(f'Wifi chip type {self._wifi_chip_type} is not supported.')
 
   def _ScanAllServices(self) -> None:
-    self.ui.SetState(_('Checking frequencies...'))
+    self.ui.SetState(_('Checking frequencies...'))  # type: ignore #TODO(b/338318729) Fixit!
 
     scan_result = self._dut.wifi.FilterAccessPoints(
-        interface=self._device_name, scan_timeout=self.args.scan_timeout)
-    ssid_freqs = {service.ssid: set() for service in self._services}
+        interface=self._device_name, scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+    ssid_freqs = {service.ssid: set() for service in self._services}  # type: ignore #TODO(b/338318729) Fixit!
 
     for scanned_service in scan_result:
       if scanned_service.ssid in ssid_freqs:
@@ -926,7 +926,7 @@ class WirelessTest(test_case.TestCase):
     for service in self._services:
       if not ssid_freqs[service.ssid]:
         error_message = f'The service {service.ssid} is not found.'
-        if self.args.ignore_missing_services:
+        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('%s Ignore this service and continue the test.',
                        error_message)
           continue
@@ -940,7 +940,7 @@ class WirelessTest(test_case.TestCase):
             f'Frequency {service.freq} is not supported by the service '
             f'{service.ssid}.  Available frequencies are '
             f'{ssid_freqs[service.ssid]!r}.')
-        if self.args.ignore_missing_services:
+        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('%s Ignore this service and continue the test.',
                        error_message)
           continue

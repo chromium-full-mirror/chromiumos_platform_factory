@@ -24,7 +24,7 @@ class PhaseAssertionError(Exception):
 class PhaseEnumMeta(enum.EnumMeta):
   """Meta class allows constructing Phase from name."""
 
-  def __getitem__(cls, name) -> 'Phase':
+  def __getitem__(cls, name) -> 'Phase':  # type: ignore #TODO(b/338318729) Fixit!
     try:
       return super().__getitem__(name)
     except KeyError as err:
@@ -185,12 +185,12 @@ def SetPersistentPhase(phase: Union[Phase, str, None]):
     phase = _CoerceToPhase(phase)
     logging.info('Setting phase to %s in %s', phase, path)
     file_utils.TryMakeDirs(os.path.dirname(path))
-    file_utils.WriteFile(path, phase.name)
+    file_utils.WriteFile(path, phase.name)  # type: ignore #TODO(b/338318729) Fixit!
   else:
     logging.info('Deleting phase in %s', path)
     file_utils.TryUnlink(path)
 
-  _current_phase = phase
+  _current_phase = phase  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def OverridePhase(phase: Union[Phase, str, None]):

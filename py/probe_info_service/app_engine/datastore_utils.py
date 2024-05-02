@@ -143,7 +143,7 @@ class _ModelFieldInternal:
       self.default_factory = default_factory
     else:
       self.has_default = False
-      self.default_factory = None
+      self.default_factory = None  # type: ignore #TODO(b/338318729) Fixit!
     self.exclude_from_index = exclude_from_index
 
 
@@ -225,7 +225,7 @@ class _ModelBase(type_utils.Obj):
     return client.entity(
         key=key, exclude_from_indexes=[
             field_name for field_name, field_info in cls._GetFields()
-            if field_info.exclude_from_index
+            if field_info.exclude_from_index  # type: ignore #TODO(b/338318729) Fixit!
         ])
 
   @classmethod
@@ -247,10 +247,10 @@ class _ModelBase(type_utils.Obj):
     missing_field_names = []
     for field_name, field_info in cls._GetFields():
       if field_name in entity:
-        model_dict[field_name] = field_info.converter.ToModelFieldValue(
+        model_dict[field_name] = field_info.converter.ToModelFieldValue(  # type: ignore #TODO(b/338318729) Fixit!
             entity[field_name])
-      elif field_info.has_default:
-        model_dict[field_name] = field_info.default_factory()
+      elif field_info.has_default:  # type: ignore #TODO(b/338318729) Fixit!
+        model_dict[field_name] = field_info.default_factory()  # type: ignore #TODO(b/338318729) Fixit!
       else:
         missing_field_names.append(field_name)
     if missing_field_names:
@@ -267,7 +267,7 @@ class _ModelBase(type_utils.Obj):
     # Write back the field value changes.
     exported_dict = {}
     for field_name, field_info in self._GetFields():
-      exported_dict[field_name] = field_info.converter.ToEntityFieldValue(
+      exported_dict[field_name] = field_info.converter.ToEntityFieldValue(  # type: ignore #TODO(b/338318729) Fixit!
           getattr(self, field_name))
     for field_name in list(self._entity):
       if field_name not in exported_dict:
@@ -276,7 +276,7 @@ class _ModelBase(type_utils.Obj):
     return self._entity
 
   @classmethod
-  def _GetFields(cls) -> Sequence[Tuple[str, ModelField]]:
+  def _GetFields(cls) -> Sequence[Tuple[str, ModelField]]:  # type: ignore #TODO(b/338318729) Fixit!
     return [(field_name, getattr(cls, field_name, _DEFAULT_MODEL_FIELD))
             for field_name in cls.__annotations__]
 
@@ -291,8 +291,8 @@ class _ModelBase(type_utils.Obj):
     for field_name, field_info in cls._GetFields():
       if field_name in fields:
         model_dict[field_name] = fields.pop(field_name)
-      elif field_info.has_default:
-        model_dict[field_name] = field_info.default_factory()
+      elif field_info.has_default:  # type: ignore #TODO(b/338318729) Fixit!
+        model_dict[field_name] = field_info.default_factory()  # type: ignore #TODO(b/338318729) Fixit!
       else:
         missing_field_names.append(field_name)
     if missing_field_names:
@@ -358,7 +358,7 @@ class KeyfulModelBase(_ModelBase):
       raise KeyMismatchError('Entity key and model key mismatch.')
 
   @classmethod
-  def FromEntity(cls, entity: datastore.Entity) -> 'cls':
+  def FromEntity(cls, entity: datastore.Entity) -> 'cls':  # type: ignore #TODO(b/338318729) Fixit!
     """See base class."""
     if entity.key.is_partial:
       raise ValueError('Entity key is not complete.')
@@ -389,7 +389,7 @@ class KeyfulModelBase(_ModelBase):
     if len(model_key_path) % 2 != (1 if is_parent_key_partial else 0):
       raise ValueError('Parent key is incompatible with derived model key.')
     if is_parent_key_partial:
-      parent_key = parent_key.completed_key(model_key_path[0])
+      parent_key = parent_key.completed_key(model_key_path[0])  # type: ignore #TODO(b/338318729) Fixit!
       model_key_path = model_key_path[1:]
     key = client.key(*model_key_path,
                      parent_key=parent_key) if model_key_path else parent_key

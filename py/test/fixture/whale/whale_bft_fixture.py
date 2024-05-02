@@ -31,24 +31,24 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   # Mapping of Whale controlled device to Servo control.
   _WHALE_DEVICE = {
-      bft.BFTFixture.Device.AUDIO_JACK: _WHALE_CONTROL.AUDIO_PLUG,
-      bft.BFTFixture.Device.BATTERY: _WHALE_CONTROL.BATTERY,
-      bft.BFTFixture.Device.LID_MAGNET: _WHALE_CONTROL.ELECTRO_MAGNET,
-      bft.BFTFixture.Device.C0_CC2_DUT: _WHALE_CONTROL.DC,
-      bft.BFTFixture.Device.C1_CC2_DUT: _WHALE_CONTROL.OUTPUT_RESERVE_1,
-      bft.BFTFixture.Device.LID_HALL_MAGNET: _WHALE_CONTROL.LID_HALL_MAGNET,
-      bft.BFTFixture.Device.BASE_HALL_MAGNET: _WHALE_CONTROL.BASE_HALL_MAGNET,
-      bft.BFTFixture.Device.BASE_CHARGER: _WHALE_CONTROL.BASE_CHARGER, }
+      bft.BFTFixture.Device.AUDIO_JACK: _WHALE_CONTROL.AUDIO_PLUG,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.BATTERY: _WHALE_CONTROL.BATTERY,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.LID_MAGNET: _WHALE_CONTROL.ELECTRO_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.C0_CC2_DUT: _WHALE_CONTROL.DC,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.C1_CC2_DUT: _WHALE_CONTROL.OUTPUT_RESERVE_1,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.LID_HALL_MAGNET: _WHALE_CONTROL.LID_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.BASE_HALL_MAGNET: _WHALE_CONTROL.BASE_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
+      bft.BFTFixture.Device.BASE_CHARGER: _WHALE_CONTROL.BASE_CHARGER, }  # type: ignore #TODO(b/338318729) Fixit!
 
   # Add 8 GPIOs on krill board PCA9534
   _WHALE_DEVICE.update({
-      f'krill_pca9534_p{int(i)}': f'krill_pca9534_p{int(i)}'
+      f'krill_pca9534_p{int(i)}': f'krill_pca9534_p{int(i)}'  # type: ignore #TODO(b/338318729) Fixit!
       for i in range(8)
   })
 
   # Add whale_fixture_ctrl
   _WHALE_DEVICE.update({
-      f'whale_fixture_ctrl{int(i)}': f'whale_fixture_ctrl{int(i)}'
+      f'whale_fixture_ctrl{int(i)}': f'whale_fixture_ctrl{int(i)}'  # type: ignore #TODO(b/338318729) Fixit!
       for i in range(1, 7)
   })
 
@@ -66,7 +66,7 @@ class WhaleBFTFixture(bft.BFTFixture):
     self._lcm = None
     self._nuc_host = None
     self._nuc_dut_serial_path = None
-    self._nuc_ssh_link: Optional[ssh.SSHLink] = None
+    self._nuc_ssh_link: Optional[ssh.SSHLink] = None  # type: ignore #TODO(b/338318729) Fixit!
 
   def Init(self, **params):
     """Sets up an XML-RPC proxy to BFTFixture's BeagleBone Servo.
@@ -117,7 +117,7 @@ class WhaleBFTFixture(bft.BFTFixture):
     action = f"{'engage' if engage else 'disengage'} device {device}"
     logging.debug(action)
 
-    whale_device: str = self._WHALE_DEVICE.get(device)
+    whale_device: str = self._WHALE_DEVICE.get(device)  # type: ignore #TODO(b/338318729) Fixit!
     if not whale_device:
       raise bft.BFTFixtureException('Unsupported device: ' + whale_device)
     try:

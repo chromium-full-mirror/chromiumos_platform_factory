@@ -11,7 +11,7 @@ from typing import Callable, Optional
 import unittest
 from unittest import mock
 
-from packaging import version as version_module
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import feature_matching

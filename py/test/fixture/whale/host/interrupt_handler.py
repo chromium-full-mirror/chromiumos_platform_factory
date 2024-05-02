@@ -65,7 +65,7 @@ class InterruptHandler:
   _FEEDBACK_LIST = servo_client.WHALE_FEEDBACKS
 
   # Buttons that operator can use (non debug mode).
-  _OPERATOR_BUTTON_LIST = (_BUTTON.FIXTURE_START, _BUTTON.FIXTURE_STOP)
+  _OPERATOR_BUTTON_LIST = (_BUTTON.FIXTURE_START, _BUTTON.FIXTURE_STOP)  # type: ignore #TODO(b/338318729) Fixit!
 
   # DUT sensor check list, add (FEEDBACK, Bool) to check if MLB exists.
   # example:
@@ -135,7 +135,7 @@ class InterruptHandler:
     # Used to avoid toggle battery too fast.
     self._last_battery_toggle_time = time.time()
 
-    self.nuc_ssh_link: Optional[ssh.SSHLink] = None
+    self.nuc_ssh_link: Optional[ssh.SSHLink] = None  # type: ignore #TODO(b/338318729) Fixit!
 
   @TimeClassMethodDebug
   def Init(self):

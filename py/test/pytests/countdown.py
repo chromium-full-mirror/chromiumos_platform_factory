@@ -100,7 +100,7 @@ class CountDownTest(test_case.TestCase):
   related_components = tuple()
 
 
-  ui_class = test_ui.UI
+  ui_class = test_ui.UI  # type: ignore #TODO(b/338318729) Fixit!
   ARGS = [
       Arg('duration_secs', int, 'Duration of time to countdown.'),
       Arg('log_interval', int,
@@ -368,7 +368,7 @@ class CountDownTest(test_case.TestCase):
     self.goofy = state.GetInstance()
     self.btmgmt = bluetooth_utils.BtMgmt()
     self.btmgmt.PowerOn()
-    self._last_thread: Dict[str, threading.Thread] = {}
+    self._last_thread: Dict[str, threading.Thread] = {}  # type: ignore #TODO(b/338318729) Fixit!
 
   def Log(self):
     """Add event log and detects abnormal status."""
@@ -403,7 +403,7 @@ class CountDownTest(test_case.TestCase):
     """Launch WiFi scan in another thread."""
     self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',
                     id=PanelID.WIFI)
-    wifi_aps: List[wifi.AccessPoint] = (
+    wifi_aps: List[wifi.AccessPoint] = (  # type: ignore #TODO(b/338318729) Fixit!
         self._dut.wifi.FilterAccessPoints(log=False))
     self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',
                        id=PanelID.WIFI)
@@ -424,7 +424,7 @@ class CountDownTest(test_case.TestCase):
                     id=PanelID.BLUETOOTH)
     # There may be hundreds of bluetooth device inside the factory and the
     # scanning may be too long to be finished so we have to set a timeout.
-    devices: Dict[str, Dict] = self.btmgmt.FindDevices(
+    devices: Dict[str, Dict] = self.btmgmt.FindDevices(  # type: ignore #TODO(b/338318729) Fixit!
         timeout_secs=self.args.bluetooth_update_interval, log=False)
     self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',
                        id=PanelID.BLUETOOTH)

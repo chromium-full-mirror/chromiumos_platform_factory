@@ -74,7 +74,7 @@ class WirelessConnectTest(test_case.TestCase):
     return False
 
   def _CheckNotConnected(self):
-    result: str = self._dut.CheckOutput(
+    result: str = self._dut.CheckOutput(  # type: ignore #TODO(b/338318729) Fixit!
         ['iw', 'dev', self._device_name, 'link'], log=True)
     return result.startswith('Not connected.')
 

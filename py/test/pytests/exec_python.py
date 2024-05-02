@@ -45,7 +45,7 @@ from cros.factory.utils.arg_utils import Arg
 
 class ExecPythonTest(unittest.TestCase):
   """A simple test that just executes a Python script."""
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
 
   ARGS = [
       Arg('script', str, 'Python code to execute'),

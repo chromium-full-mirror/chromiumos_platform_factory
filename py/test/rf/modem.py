@@ -7,7 +7,7 @@
 import logging
 from typing import List
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.utils import sync_utils
 from cros.factory.utils import type_utils
@@ -51,7 +51,7 @@ class Modem:
         after `_COMMAND_RETRY_TIMES` times
     """
 
-    @sync_utils.RetryDecorator(max_attempt_count=_COMMAND_RETRY_TIMES,
+    @sync_utils.RetryDecorator(max_attempt_count=_COMMAND_RETRY_TIMES,  # type: ignore #TODO(b/338318729) Fixit!
                                timeout_sec=float('inf'),
                                target_condition=lambda x: x)
     def _SerialRead() -> str:
@@ -92,7 +92,7 @@ class Modem:
         `_COMMAND_RETRY_TIMES`.
     """
 
-    @sync_utils.RetryDecorator(max_attempt_count=retry_times,
+    @sync_utils.RetryDecorator(max_attempt_count=retry_times,  # type: ignore #TODO(b/338318729) Fixit!
                                timeout_sec=float('inf'),
                                target_condition=lambda x: x)
     def _SendCommand() -> List[str]:

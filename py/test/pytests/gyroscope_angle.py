@@ -90,7 +90,7 @@ class Gyroscope(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
-    self._display_manager: display_manager.DisplayManager = (
+    self._display_manager: display_manager.DisplayManager = (  # type: ignore #TODO(b/338318729) Fixit!
         plugin_controller.GetPluginRPCProxy('display_manager.display_manager'))
 
     self.gyroscope = self.dut.gyroscope.GetController(

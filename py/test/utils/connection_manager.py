@@ -27,8 +27,8 @@ except ImportError:
 
 try:
   from cros.factory.test.utils import flimflam_test_path  # isort: skip  # pylint: disable=unused-import
-  import dbus
-  import flimflam
+  import dbus  # type: ignore #TODO(b/338318729) Fixit!
+  import flimflam  # type: ignore #TODO(b/338318729) Fixit!
 except ImportError:
   # E.g., in chroot
   pass

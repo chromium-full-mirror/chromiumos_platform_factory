@@ -114,16 +114,16 @@ class RetimerFirmwareTest(test_case.TestCase):
     retimer_version = version.LooseVersion(version_string.strip())
     logging.info('retimer_version %s', retimer_version)
 
-    self.ui.SetState(_('Checking the retimer firmware version...'))
-    if self.args.min_retimer_version:
-      min_retimer_version = version.LooseVersion(self.args.min_retimer_version)
+    self.ui.SetState(_('Checking the retimer firmware version...'))  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.min_retimer_version:  # type: ignore #TODO(b/338318729) Fixit!
+      min_retimer_version = version.LooseVersion(self.args.min_retimer_version)  # type: ignore #TODO(b/338318729) Fixit!
       if retimer_version < min_retimer_version:
         raise ValueError(
             f'retimer_version {retimer_version} < min_retimer_version '
             f'{min_retimer_version}')
 
-    if self.args.max_retimer_version:
-      max_retimer_version = version.LooseVersion(self.args.max_retimer_version)
+    if self.args.max_retimer_version:  # type: ignore #TODO(b/338318729) Fixit!
+      max_retimer_version = version.LooseVersion(self.args.max_retimer_version)  # type: ignore #TODO(b/338318729) Fixit!
       if retimer_version > max_retimer_version:
         raise ValueError(
             f'retimer_version {retimer_version} > max_retimer_version '

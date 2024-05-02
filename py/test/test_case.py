@@ -33,7 +33,7 @@ class TestWaivedException(Exception):
   """The exception to waive a test."""
 
 
-_Task = collections.namedtuple('Task',
+_Task = collections.namedtuple('Task',  # type: ignore #TODO(b/338318729) Fixit!
                                ['name', 'run', 'reboot', 'reboot_timeout_secs'])
 TestCategory = test_tags.TestCategory
 
@@ -168,7 +168,7 @@ class TestCase(unittest.TestCase):
               reboot_timeout_secs=reboot_timeout_secs))
 
   def GetNextTaskStage(self) -> None:
-    return device_data.GetDeviceData(self._next_task_stage_key, default=0)
+    return device_data.GetDeviceData(self._next_task_stage_key, default=0)  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateNextTaskStage(self, next_task_stage) -> None:
     device_data.UpdateDeviceData({self._next_task_stage_key: next_task_stage})

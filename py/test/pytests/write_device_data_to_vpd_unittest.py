@@ -18,8 +18,8 @@ from cros.factory.utils import type_utils
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.ro_key_map: dict = None
-    self.rw_key_map: dict = None
+    self.ro_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.rw_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit!
 
     for k, v in kwargs.items():
       setattr(self, k, v)

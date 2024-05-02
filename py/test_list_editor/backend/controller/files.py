@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from flask import g
+from flask import g  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema

@@ -55,7 +55,7 @@ from cros.factory.utils import net_utils
 
 
 class SelectForSamplingTest(unittest.TestCase):
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
   ARGS = [
       Arg('rate', float,
           'Sampling rate (0 to never select any devices, 1 to select all, '

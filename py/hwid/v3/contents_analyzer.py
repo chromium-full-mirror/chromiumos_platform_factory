@@ -94,12 +94,12 @@ class ValidationReport(NamedTuple):
 
 class DBLineAnalysisResult(NamedTuple):
 
-  class ModificationStatus(enum.Enum):
+  class ModificationStatus(enum.Enum):  # type: ignore #TODO(b/338318729) Fixit!
     NOT_MODIFIED = enum.auto()
     MODIFIED = enum.auto()
     NEWLY_ADDED = enum.auto()
 
-  class Part(NamedTuple):
+  class Part(NamedTuple):  # type: ignore #TODO(b/338318729) Fixit!
 
     class Type(enum.Enum):
       TEXT = enum.auto()
@@ -113,8 +113,8 @@ class DBLineAnalysisResult(NamedTuple):
     def reference_id(self):
       return self.text  # Reuse the existing field.
 
-  modification_status: ModificationStatus
-  parts: List[Part]
+  modification_status: ModificationStatus  # type: ignore #TODO(b/338318729) Fixit!
+  parts: List[Part]  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class HWIDComponentAnalysisResult(NamedTuple):
@@ -197,7 +197,7 @@ class ContentsAnalyzer:
                             form_factor=form_factor)
       ]
       for validation_func in validate_funcs:
-        keep_going = validation_func(report, self._curr_db.instance)
+        keep_going = validation_func(report, self._curr_db.instance)  # type: ignore #TODO(b/338318729) Fixit!
         if not keep_going:
           break
     return report
@@ -287,7 +287,7 @@ class ContentsAnalyzer:
       A boolean indicates whether to keep performing the rest of validation
           steps.
     """
-    if not self._curr_db.instance.can_encode:
+    if not self._curr_db.instance.can_encode:  # type: ignore #TODO(b/338318729) Fixit!
       report.errors.append(
           Error(
               ErrorCode.CONTENTS_ERROR,
@@ -296,7 +296,7 @@ class ContentsAnalyzer:
               'pattern.'))
       return False
 
-    region_field_legacy_info = self._curr_db.instance.region_field_legacy_info
+    region_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
     if not region_field_legacy_info or any(region_field_legacy_info.values()):
       report.errors.append(
           Error(ErrorCode.CONTENTS_ERROR,
@@ -313,8 +313,8 @@ class ContentsAnalyzer:
     """
     # If the old database follows the new pattern rule, so does the new
     # database.
-    if (self._prev_db.instance.can_encode and
-        not self._curr_db.instance.can_encode):
+    if (self._prev_db.instance.can_encode and  # type: ignore #TODO(b/338318729) Fixit!
+        not self._curr_db.instance.can_encode):  # type: ignore #TODO(b/338318729) Fixit!
       report.errors.append(
           Error(
               ErrorCode.COMPATIBLE_ERROR,
@@ -324,14 +324,14 @@ class ContentsAnalyzer:
       return False
 
     visited_patterns = set()
-    for image_id in self._prev_db.instance.image_ids:
-      old_bit_mapping = self._prev_db.instance.GetBitMapping(image_id=image_id)
-      if image_id not in self._curr_db.instance.image_ids:
+    for image_id in self._prev_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
+      old_bit_mapping = self._prev_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit!
+      if image_id not in self._curr_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
         report.errors.append(
             Error(ErrorCode.COMPATIBLE_ERROR,
                   f'Image id {image_id} is deleted.'))
         continue
-      new_bit_mapping = self._curr_db.instance.GetBitMapping(image_id=image_id)
+      new_bit_mapping = self._curr_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit!
 
       # Make sure all the encoded fields in the existing patterns are not
       # changed.
@@ -348,15 +348,15 @@ class ContentsAnalyzer:
 
       # Make sure no new component field is added to existing pattern after
       # PVT.
-      pattern_id = self._curr_db.instance.GetPattern(image_id).idx
-      image_name = self._curr_db.instance.GetImageName(image_id)
+      pattern_id = self._curr_db.instance.GetPattern(image_id).idx  # type: ignore #TODO(b/338318729) Fixit!
+      image_name = self._curr_db.instance.GetImageName(image_id)  # type: ignore #TODO(b/338318729) Fixit!
       if (pattern_id not in visited_patterns and
           re.fullmatch(r'(PVT|MP).*', image_name, flags=re.IGNORECASE)):
         visited_patterns.add(pattern_id)
         old_field_set = set(
-            self._prev_db.instance.GetEncodedFieldsBitLength(image_id))
+            self._prev_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit!
         new_field_set = set(
-            self._curr_db.instance.GetEncodedFieldsBitLength(image_id))
+            self._curr_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit!
         added_fields = new_field_set - old_field_set
         if added_fields:
           report.errors.append(
@@ -366,8 +366,8 @@ class ContentsAnalyzer:
                   f'appended in the existing pattern(#{pattern_id}) except in '
                   'early phases. Please create a new pattern instead.'))
 
-    old_reg_field_legacy_info = self._prev_db.instance.region_field_legacy_info
-    new_reg_field_legacy_info = self._curr_db.instance.region_field_legacy_info
+    old_reg_field_legacy_info = self._prev_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
+    new_reg_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
     for field_name, is_legacy_style in new_reg_field_legacy_info.items():
       orig_is_legacy_style = old_reg_field_legacy_info.get(field_name)
       if orig_is_legacy_style is None:
@@ -401,12 +401,12 @@ class ContentsAnalyzer:
                     f'modify it from {comp.name!r} to {expected_comp_name!r}'
                     '.'))
             continue
-        if (not comp.is_newly_added and comp.diff_prev.name_changed and
-            comp.diff_prev.values_changed):
+        if (not comp.is_newly_added and comp.diff_prev.name_changed and  # type: ignore #TODO(b/338318729) Fixit!
+            comp.diff_prev.values_changed):  # type: ignore #TODO(b/338318729) Fixit!
           report.errors.append(
               Error(
                   ErrorCode.COMPATIBLE_ERROR,
-                  'Modifying both the component name '
+                  'Modifying both the component name '  # type: ignore #TODO(b/338318729) Fixit!
                   f'({comp.diff_prev.prev_comp_name!r} -> {comp.name!r}) '
                   'and values often causes compatibility issues. Is this '
                   'change proposal mistakenly based on a legacy HWID bundle?'))
@@ -473,32 +473,32 @@ class ContentsAnalyzer:
     rules_change_status = HWIDSectionTouchCase.UNTOUCHED
     framework_version_change_status = HWIDSectionTouchCase.UNTOUCHED
     encoded_fields_change_status = {}
-    if prev_db.image_ids != curr_db.image_ids:
+    if prev_db.image_ids != curr_db.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
       image_id_change_status = HWIDSectionTouchCase.TOUCHED
       pattern_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for image_id in prev_db.image_ids:
-        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):
+        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):  # type: ignore #TODO(b/338318729) Fixit!
           image_id_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
       for image_id in prev_db.image_ids:
-        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(
+        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(  # type: ignore #TODO(b/338318729) Fixit!
             image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
-        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(
+        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(  # type: ignore #TODO(b/338318729) Fixit!
             image_id=image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    curr_encoded_fields = set(curr_db.encoded_fields)
+    curr_encoded_fields = set(curr_db.encoded_fields)  # type: ignore #TODO(b/338318729) Fixit!
     prev_encoded_fields = set(prev_db.encoded_fields)
     for encoded_field in curr_encoded_fields - prev_encoded_fields:
       encoded_fields_change_status[encoded_field] = (
           HWIDSectionTouchCase.TOUCHED)
     for encoded_field in curr_encoded_fields & prev_encoded_fields:
-      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(
+      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(  # type: ignore #TODO(b/338318729) Fixit!
           encoded_field):
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.TOUCHED)
@@ -506,20 +506,20 @@ class ContentsAnalyzer:
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.UNTOUCHED)
 
-    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():
+    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit!
       components_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for comp_cls in prev_db.GetComponentClasses():
-        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):
+        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):  # type: ignore #TODO(b/338318729) Fixit!
           components_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    if prev_db.device_info_rules != curr_db.device_info_rules:
+    if prev_db.device_info_rules != curr_db.device_info_rules:  # type: ignore #TODO(b/338318729) Fixit!
       rules_change_status = HWIDSectionTouchCase.TOUCHED
-    elif prev_db.verify_rules != curr_db.verify_rules:
+    elif prev_db.verify_rules != curr_db.verify_rules:  # type: ignore #TODO(b/338318729) Fixit!
       rules_change_status = HWIDSectionTouchCase.TOUCHED
 
-    if prev_db.framework_version != curr_db.framework_version:
+    if prev_db.framework_version != curr_db.framework_version:  # type: ignore #TODO(b/338318729) Fixit!
       framework_version_change_status = HWIDSectionTouchCase.TOUCHED
 
     return TouchHWIDSections(image_id_change_status, pattern_change_status,
@@ -567,14 +567,14 @@ class ContentsAnalyzer:
             f'component-{comp_cls}-{comp.name}')
         comp_status_replacer = _LineSplitter.GeneratePlaceholderKey(
             f'support_status-{comp_cls}-{comp.name}')
-        db_placeholder_options.components[(comp_cls, comp.name)] = (
+        db_placeholder_options.components[(comp_cls, comp.name)] = (  # type: ignore #TODO(b/338318729) Fixit!
             database.MagicPlaceholderComponentOptions(comp_name_replacer,
                                                       comp_status_replacer))
 
-        all_placeholders[comp_name_replacer] = DBLineAnalysisResult.Part(
-            DBLineAnalysisResult.Part.Type.COMPONENT_NAME, comp_name_replacer)
-        all_placeholders[comp_status_replacer] = DBLineAnalysisResult.Part(
-            DBLineAnalysisResult.Part.Type.COMPONENT_STATUS, comp_name_replacer)
+        all_placeholders[comp_name_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit!
+            DBLineAnalysisResult.Part.Type.COMPONENT_NAME, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit!
+        all_placeholders[comp_status_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit!
+            DBLineAnalysisResult.Part.Type.COMPONENT_STATUS, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit!
 
         if (comp.extracted_seq_no is not None and
             comp.extracted_seq_no != str(comp.expected_seq_no)):
@@ -625,15 +625,15 @@ class ContentsAnalyzer:
       skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
                                                 bool]] = None
   ) -> Dict[str, List['_HWIDComponentMetadata']]:
-    ret = {}
+    ret = {}  # type: ignore #TODO(b/338318729) Fixit!
     adapter = name_pattern_adapter.NamePatternAdapter()
-    for comp_cls in self._curr_db.instance.GetComponentClasses():
+    for comp_cls in self._curr_db.instance.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit!
       ret[comp_cls] = []
       name_pattern = adapter.GetNamePattern(comp_cls)
       prev_items = (() if
                     (self._prev_db is None or self._prev_db.instance is None)
                     else self._prev_db.instance.GetComponents(comp_cls).items())
-      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()
+      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()  # type: ignore #TODO(b/338318729) Fixit!
 
       for expected_seq, (curr_item, prev_item) in enumerate(
           itertools.zip_longest(curr_items, prev_items, fillvalue=None), 1):
@@ -670,7 +670,7 @@ class ContentsAnalyzer:
           elif prev_comp_info.value_is_none != comp_info.value_is_none:
             values_changed = True
           else:
-            values_changed = not dict.__eq__(prev_comp_info.values,
+            values_changed = not dict.__eq__(prev_comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
                                              comp_info.values)
 
           prev_alignment_status = (

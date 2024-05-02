@@ -18,12 +18,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
-from backend import common
+from backend import common  # type: ignore #TODO(b/338318729) Fixit!
 from backend import views
-from django.conf.urls import url
-from django.views.generic import TemplateView
-from rest_framework.authtoken import views as drf_views
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls import url  # type: ignore #TODO(b/338318729) Fixit!
+from django.views.generic import TemplateView  # type: ignore #TODO(b/338318729) Fixit!
+from rest_framework.authtoken import views as drf_views  # type: ignore #TODO(b/338318729) Fixit!
+from rest_framework.urlpatterns import format_suffix_patterns  # type: ignore #TODO(b/338318729) Fixit!
 
 
 # TODO(littlecvr): move to common config with umpire.

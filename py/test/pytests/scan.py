@@ -247,10 +247,10 @@ class Scan(test_case.TestCase):
   def _GetOriginalValues(self) -> List[Tuple[str, Optional[str]]]:
     existed_data_source = {
         'serial_number_key': (
-            self.args.serial_number_key, device_data.GetSerialNumber),
-        'device_data': (self.args.device_data_key, device_data.GetDeviceData),
-        'ro_vpd': (self.args.ro_vpd_key, self.dut.vpd.ro.get),
-        'rw_vpd': (self.args.rw_vpd_key, self.dut.vpd.rw.get),
+            self.args.serial_number_key, device_data.GetSerialNumber),  # type: ignore #TODO(b/338318729) Fixit!
+        'device_data': (self.args.device_data_key, device_data.GetDeviceData),  # type: ignore #TODO(b/338318729) Fixit!
+        'ro_vpd': (self.args.ro_vpd_key, self.dut.vpd.ro.get),  # type: ignore #TODO(b/338318729) Fixit!
+        'rw_vpd': (self.args.rw_vpd_key, self.dut.vpd.rw.get),  # type: ignore #TODO(b/338318729) Fixit!
     }
     return [
         (f'{display_key_name}={data_key}', cast(Optional[str],
@@ -260,45 +260,45 @@ class Scan(test_case.TestCase):
     ]
 
   def runTest(self) -> None:
-    self.ui.SetTitle(_('Scan {label}', label=self.args.label))
+    self.ui.SetTitle(_('Scan {label}', label=self.args.label))  # type: ignore #TODO(b/338318729) Fixit!
 
     original_values = self._GetOriginalValues()
 
-    self.ui.SetState([
-        _('Please scan the {label} and press ENTER.', label=self.args.label),
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+        _('Please scan the {label} and press ENTER.', label=self.args.label),  # type: ignore #TODO(b/338318729) Fixit!
         '<input id="scan-value" type="text" size="20">'
         '<p id="scan-status">&nbsp;</p>'
     ] + [
         _('<p>original value from {source}: {value}</p>', source=source,
           value=value) for source, value in original_values
     ])
-    self.ui.SetFocus('scan-value')
-    self.ui.BindKeyJS(
+    self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.BindKeyJS(  # type: ignore #TODO(b/338318729) Fixit!
         test_ui.ENTER_KEY,
         'window.test.sendTestEvent("scan_value",'
         'document.getElementById("scan-value").value)')
     self.event_loop.AddEventHandler('scan_value', self.HandleScanValue)
 
-    if self.args.value_assigned is not None:
-      self.ui.CallJSFunction(
-          'window.test.sendTestEvent', 'scan_value', self.args.value_assigned)
-    elif self.args.bft_scan_fixture_id:
+    if self.args.value_assigned is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
+          'window.test.sendTestEvent', 'scan_value', self.args.value_assigned)  # type: ignore #TODO(b/338318729) Fixit!
+    elif self.args.bft_scan_fixture_id:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Getting fixture ID...')
       fixture_id = self.fixture.GetFixtureId()
-      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value',
+      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value',  # type: ignore #TODO(b/338318729) Fixit!
                              str(fixture_id))
-    elif self.args.bft_scan_barcode:
+    elif self.args.bft_scan_barcode:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Triggering barcode scanner...')
       self.ScanBarcode()
-    elif self.args.bft_save_barcode:
+    elif self.args.bft_save_barcode:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Triggering barcode scanner...')
       self.BFTScanSaveBarcode()
-    elif self.args.bft_get_barcode:
+    elif self.args.bft_get_barcode:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Getting barcode from BFT...')
       saved_barcode_path = None
-      if isinstance(self.args.bft_get_barcode, str):
-        saved_barcode_path = self.args.bft_get_barcode
+      if isinstance(self.args.bft_get_barcode, str):  # type: ignore #TODO(b/338318729) Fixit!
+        saved_barcode_path = self.args.bft_get_barcode  # type: ignore #TODO(b/338318729) Fixit!
       barcode = self.fixture.ScanBarcode(saved_barcode_path)
-      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value', barcode)
+      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value', barcode)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.WaitTaskEnd()

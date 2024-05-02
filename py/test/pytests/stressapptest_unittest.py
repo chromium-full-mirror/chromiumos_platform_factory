@@ -17,18 +17,18 @@ from cros.factory.test.utils import stress_manager
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.seconds: int = 60
-    self.memory_ratio: float = 0.9
-    self.free_memory_only: bool = True
-    self.wait_secs: int = 0
-    self.disk_thread: bool = True
-    self.disk_thread_dir: str = None
-    self.max_errors: int = stress_manager.DEFAULT_MAX_ERRORS
-    self.num_threads: int = None
-    self.taskset_args: list = None
-    self.scaling_min_freq: int = None
-    self.scaling_max_freq: int = None
-    self.scaling_governor: int = None
+    self.seconds: int = 60  # type: ignore #TODO(b/338318729) Fixit!
+    self.memory_ratio: float = 0.9  # type: ignore #TODO(b/338318729) Fixit!
+    self.free_memory_only: bool = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.wait_secs: int = 0  # type: ignore #TODO(b/338318729) Fixit!
+    self.disk_thread: bool = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.disk_thread_dir: str = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.max_errors: int = stress_manager.DEFAULT_MAX_ERRORS  # type: ignore #TODO(b/338318729) Fixit!
+    self.num_threads: int = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.taskset_args: list = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.scaling_min_freq: int = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.scaling_max_freq: int = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.scaling_governor: int = None  # type: ignore #TODO(b/338318729) Fixit!
 
     for k, v in kwargs.items():
       setattr(self, k, v)

@@ -21,7 +21,7 @@ import sys
 import time
 import xmlrpc.server
 
-from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils
+from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils  # type: ignore #TODO(b/338318729) Fixit!
 from cros.factory.utils import file_utils
 
 

@@ -327,7 +327,7 @@ class BasicSensorController(device_types.DeviceComponent):
         'iioservice_simpleclient',
         f"--channels={' '.join(iioservice_channels)}",
         f'--frequency={sample_rate:f}',
-        f"--device_id={int(self._GetSysfsValue('dev').split(':')[1])}",
+        f"--device_id={int(self._GetSysfsValue('dev').split(':')[1])}",  # type: ignore #TODO(b/338318729) Fixit!
         f'--samples={int(capture_count)}'
     ]
     logging.info('iioservice_simpleclient command: %r', iioservice_cmd)
@@ -337,7 +337,7 @@ class BasicSensorController(device_types.DeviceComponent):
     for signal_name in self.signal_names:
       channel_name = ToChannelName(signal_name)
       matches = re.findall(f'(?<={channel_name}'
-                           r': )-?\d+', proc.stderr_data)
+                           r': )-?\d+', proc.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
       if len(matches) != capture_count:
         error_msg = ('Failed to read channel "%s" from iioservice_simpleclient.'
                      'Expect %d data, but %d captured. stderr:\n%s',
@@ -348,11 +348,11 @@ class BasicSensorController(device_types.DeviceComponent):
       logging.info('Getting %d data on channel %s: %s', len(matches),
                    channel_name, matches)
 
-      ret[signal_name] = [int(value) * self.scale for value in matches]
+      ret[signal_name] = [int(value) * self.scale for value in matches]  # type: ignore #TODO(b/338318729) Fixit!
 
       # Calculates average value and convert to SI unit.
       if average:
-        ret[signal_name] = statistics.mean(ret[signal_name])
+        ret[signal_name] = statistics.mean(ret[signal_name])  # type: ignore #TODO(b/338318729) Fixit!
 
     if average:
       logging.info('Average of %d data: %s', capture_count, ret)

@@ -200,7 +200,7 @@ def GetSystemSummary(
     filter_vpd: bool = False
 ) -> Dict[str, Optional[Union[Dict, bool, int, str]]]:
   """See common.Util.GetSystemInfo()"""
-  return Util().GetSystemInfo(filter_vpd, FACTORY_SYSTEM_INFO)
+  return Util().GetSystemInfo(filter_vpd, FACTORY_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def PrintSystemSummary(filter_vpd: bool = False,

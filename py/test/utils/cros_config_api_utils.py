@@ -9,7 +9,7 @@ from google.protobuf import json_format
 
 
 try:
-  from chromiumos.config.payload import config_bundle_pb2
+  from chromiumos.config.payload import config_bundle_pb2  # type: ignore #TODO(b/338318729) Fixit!
   MODULE_READY = True
 except ImportError:
   MODULE_READY = False

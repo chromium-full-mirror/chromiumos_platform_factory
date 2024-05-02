@@ -6,7 +6,7 @@
 import unittest
 from unittest import mock
 
-import dbus
+import dbus  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.utils.oemcrypto_utils import OEMCryptoClient
 

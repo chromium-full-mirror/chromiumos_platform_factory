@@ -258,12 +258,12 @@ class CheckImageVersionTest(test_case.TestCase):
         raise Exception(f'Installation failed! Reason: {line}')
 
     updater = update_utils.Updater(
-        component, spawn=lambda cmd: self.ui.PipeProcessOutputToUI(
+        component, spawn=lambda cmd: self.ui.PipeProcessOutputToUI(  # type: ignore #TODO(b/338318729) Fixit!
             cmd, callback=ReInstallCallBack))
     if not updater.IsUpdateAvailable():
       self.FailTask(f'{component} not available on factory server.')
 
-    self.ui.SetInstruction(_('Updating {component}....', component=component))
+    self.ui.SetInstruction(_('Updating {component}....', component=component))  # type: ignore #TODO(b/338318729) Fixit!
     updater.PerformUpdate(destination=destination, callback=callback)
 
   def CheckImageVersion(self):

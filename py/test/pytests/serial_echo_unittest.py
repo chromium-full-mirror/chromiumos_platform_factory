@@ -7,7 +7,7 @@
 import unittest
 from unittest import mock
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.pytests import serial_echo
 from cros.factory.utils.arg_utils import Args

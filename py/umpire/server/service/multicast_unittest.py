@@ -127,7 +127,7 @@ class MulticastServiceTest(unittest.TestCase):
   _DUMMY_MCAST_CONFIG = {
       'dummy_key': 'dummy_value'
   }
-  _FAKE_UMPIRE_CONFIG = {
+  _FAKE_UMPIRE_CONFIG = {  # type: ignore #TODO(b/338318729) Fixit!
       'services': {
           'multicast': {}
       }

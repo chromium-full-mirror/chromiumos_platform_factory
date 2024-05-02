@@ -59,11 +59,11 @@ def ProbeSimInfo(properties: List[str], bus=None) -> List[List[Any]]:
     requested properties. If a requested property is absence then the value
     in the table is None.
   """
-  bus = bus or dbus.SystemBus()
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
   modem_obj = _GetDbusModem(bus)
   if modem_obj is None:
     return []
-  properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)
+  properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
   sims = properties_iface.Get(MODEM_IFACE_NAME, 'SimSlots')
 
   ret = []
@@ -71,7 +71,7 @@ def ProbeSimInfo(properties: List[str], bus=None) -> List[List[Any]]:
     if sim_path == '/':
       continue
     sim_obj = bus.get_object(MM_BUS_NAME, sim_path)
-    sim_properties_iface = dbus.Interface(sim_obj, PROPERTIES_IFACE_NAME)
+    sim_properties_iface = dbus.Interface(sim_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
 
     data = []
     for name in properties:
@@ -95,9 +95,9 @@ def ProbeModemInfo(properties: List[str], bus=None) -> List[Any]:
     A list of requested properties. If a requested property is absence then the
     value in the list is None.
   """
-  bus = bus or dbus.SystemBus()
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
   modem_obj = _GetDbusModem(bus)
-  modem_properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)
+  modem_properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
   data = []
   for name in properties:
     try:

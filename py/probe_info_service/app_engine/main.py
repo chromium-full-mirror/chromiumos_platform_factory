@@ -6,7 +6,7 @@ import http
 import logging
 import os
 
-import flask
+import flask  # type: ignore #TODO(b/338318729) Fixit!
 from google.cloud import logging as gc_logging
 
 from cros.factory.probe_info_service.app_engine import admin_service

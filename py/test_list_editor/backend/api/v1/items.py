@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from flask import Blueprint
+from flask import Blueprint  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test_list_editor.backend.controller import test_list as test_list_controller
 from cros.factory.test_list_editor.backend.middleware import validation

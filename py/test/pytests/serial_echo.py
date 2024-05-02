@@ -19,7 +19,7 @@ dargs:
 
 import unittest
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.utils import serial_utils
 from cros.factory.utils.arg_utils import Arg
@@ -29,7 +29,7 @@ _SERIAL_TIMEOUT = 3
 
 
 class SerialEchoTest(unittest.TestCase):
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
   ARGS = [
       Arg('serial_param', dict,
           'a dict of parameters for a serial connection. Should contain '

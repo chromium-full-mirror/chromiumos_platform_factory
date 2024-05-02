@@ -17,7 +17,7 @@ try:
   from cros.factory.utils import type_utils
 except ImportError:
   # BB might still using the old toolkit, try to be backward compatible.
-  from cros.factory import common as type_utils
+  from cros.factory import common as type_utils  # type: ignore #TODO(b/338318729) Fixit!
 
 
 SERVO_CONFIG_FILENAME_SPEC = '*_servo_config.py'

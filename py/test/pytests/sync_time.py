@@ -54,7 +54,7 @@ from cros.factory.utils import time_utils
 
 
 class SyncTime(unittest.TestCase):
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
 
   ARGS = [
       Arg('tolerance', float,

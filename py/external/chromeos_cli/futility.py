@@ -181,7 +181,7 @@ class Futility:
       with open(gscvd_file, 'rb') as gscvd:
         magic = gscvd.read(len(GSCVD_MAGIC))
         if magic != GSCVD_MAGIC:
-          raise ValueError('Failed to find magic number in GSCVD! '
+          raise ValueError('Failed to find magic number in GSCVD! '  # type: ignore #TODO(b/338318729) Fixit!
                            f'Expected: {GSCVD_MAGIC}, Found: {magic}')
         gscvd.seek(GSCVD_RLZ_OFFSET, 0)
         rlz_bytes = gscvd.read(4)

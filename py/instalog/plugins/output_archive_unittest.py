@@ -17,7 +17,7 @@ import tempfile
 import time
 import unittest
 
-import psutil
+import psutil  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog import log_utils

@@ -202,7 +202,7 @@ class PlanktonCCFlipCheck(test_case.TestCase):
     """
     # We may need some time for PD negotiate and settle down
 
-    @sync_utils.RetryDecorator(
+    @sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit!
         max_attempt_count=retry_times, interval_sec=1, timeout_sec=float('inf'),
         target_condition=lambda x: x == expected_polarity)
     def _GetCCPolarity():
@@ -227,7 +227,7 @@ class PlanktonCCFlipCheck(test_case.TestCase):
       MaxRetryError: If the polarity always returns `_CC_UNCONNECT`.
     """
     # We may need some time for PD negotiate and settle down
-    @sync_utils.RetryDecorator(max_attempt_count=retry_times, interval_sec=1,
+    @sync_utils.RetryDecorator(max_attempt_count=retry_times, interval_sec=1,  # type: ignore #TODO(b/338318729) Fixit!
                                timeout_sec=float('inf'),
                                target_condition=lambda x: x == _CC_UNCONNECT)
     def _GetCCPolarity():

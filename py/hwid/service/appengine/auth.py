@@ -6,7 +6,7 @@ import functools
 import http
 import logging
 
-import flask
+import flask  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.probe_info_service.app_engine import protorpc_utils

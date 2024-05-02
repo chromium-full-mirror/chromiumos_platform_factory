@@ -29,9 +29,9 @@ import time
 import traceback
 import xmlrpc.client
 
-import django
-import rest_framework.exceptions
-import rest_framework.status
+import django  # type: ignore #TODO(b/338318729) Fixit!
+import rest_framework.exceptions  # type: ignore #TODO(b/338318729) Fixit!
+import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.umpire import common as umpire_common
 from cros.factory.umpire.server import resource as umpire_resource

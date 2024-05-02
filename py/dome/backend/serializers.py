@@ -2,8 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from backend import common
-from backend.models import Bundle
+from backend import common  # type: ignore #TODO(b/338318729) Fixit!
+from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit!
 from backend.models import DomeConfig
 from backend.models import FactoryDriveComponent
 from backend.models import FactoryDriveDirectory
@@ -11,8 +11,8 @@ from backend.models import Project
 from backend.models import Resource
 from backend.models import Service
 from backend.models import TemporaryUploadedFile
-import django
-from rest_framework import exceptions
+import django  # type: ignore #TODO(b/338318729) Fixit!
+from rest_framework import exceptions  # type: ignore #TODO(b/338318729) Fixit!
 from rest_framework import serializers
 from rest_framework import validators
 

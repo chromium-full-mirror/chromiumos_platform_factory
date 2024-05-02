@@ -181,7 +181,7 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
                                            _ComponentValue]]] = None,
   ) -> database.Database:
     components = components or {}
-    db_components = {}
+    db_components = {}  # type: ignore #TODO(b/338318729) Fixit!
     for comp_class, comp_names_and_values in components.items():
       for comp_name, comp_value in comp_names_and_values.items():
         db_comps_of_class = db_components.setdefault(comp_class, {'items': {}})

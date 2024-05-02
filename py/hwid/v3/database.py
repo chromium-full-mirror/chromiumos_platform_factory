@@ -125,7 +125,7 @@ class ComponentInfo:
     if self.bundle_uuids:
       component_dict = v3_rule.FromFactoryBundle(self.bundle_uuids)
     else:
-      component_dict = yaml.Dict()
+      component_dict = yaml.Dict()  # type: ignore #TODO(b/338318729) Fixit!
     if not suppress_support_status or (self._status !=
                                        common.ComponentStatus.supported):
       component_dict['status'] = override_support_status or self._status
@@ -1203,7 +1203,7 @@ class EncodedFields:
     if field_name not in self._fields:
       raise common.HWIDException(f'The field name {field_name!r} is invalid.')
 
-    ret: MutableMapping[int, Mapping[str, Sequence[str]]] = {}
+    ret: MutableMapping[int, Mapping[str, Sequence[str]]] = {}  # type: ignore #TODO(b/338318729) Fixit!
     for index, comps in self._fields[field_name].items():
       ret[index] = {c: self._StandardlizeList(n)
                     for c, n in comps.items()}
@@ -1928,7 +1928,7 @@ class Pattern:
     """
     self._SCHEMA.Validate(pattern_list_expr)
 
-    self._image_id_to_pattern: MutableMapping[int, int] = {}
+    self._image_id_to_pattern: MutableMapping[int, int] = {}  # type: ignore #TODO(b/338318729) Fixit!
     self._patterns = []
 
     for pattern_expr in pattern_list_expr:
@@ -1958,7 +1958,7 @@ class Pattern:
   def Export(self):
     """Exports this `pattern` part of HWID database into a serializable object
     which can be stored into a HWID database file."""
-    inverse_mapping: DefaultDict[int, List[int]] = collections.defaultdict(list)
+    inverse_mapping: DefaultDict[int, List[int]] = collections.defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit!
     for image_id, pattern_idx in self._image_id_to_pattern.items():
       inverse_mapping[pattern_idx].append(image_id)
 
@@ -2033,8 +2033,8 @@ class Pattern:
 
     if pattern_idx >= self.num_patterns:
       raise common.HWIDException(f'No such pattern at position {pattern_idx}.')
-    self._image_id_to_pattern[image_id] = pattern_idx
-    return pattern_idx
+    self._image_id_to_pattern[image_id] = pattern_idx  # type: ignore #TODO(b/338318729) Fixit!
+    return pattern_idx  # type: ignore #TODO(b/338318729) Fixit!
 
   def AppendField(self, field_name, bit_length, image_id=None,
                   pattern_idx=None):
@@ -2094,7 +2094,7 @@ class Pattern:
     Returns:
       A dict mapping each encoded field to its bit length.
     """
-    ret = collections.defaultdict(int)
+    ret = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
     for field in self.GetPattern(image_id=image_id,
                                  pattern_idx=pattern_idx).fields:
       ret[field.name] += field.bit_length

@@ -14,7 +14,7 @@ SerialFixtureConnection: a serial port based FixtureConnection.
 import abc
 import time
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.utils import serial_utils
 

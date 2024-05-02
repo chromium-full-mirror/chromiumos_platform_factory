@@ -9,7 +9,7 @@ import re
 import time
 import xmlrpc.client
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.fixture import dummy_bft_fixture

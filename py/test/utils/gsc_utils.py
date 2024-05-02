@@ -476,7 +476,7 @@ class GSCUtils:
     if isinstance(args, str):
       cmd = [path, args]
     elif isinstance(args, list):
-      cmd = [path] + args
+      cmd = [path] + args  # type: ignore #TODO(b/338318729) Fixit!
 
     p = phase.GetPhase()
     result = self._shell(cmd)

@@ -35,9 +35,9 @@ import urllib.parse
 import urllib.request
 
 import jsonrpclib
-from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
+from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit!
 from jsonrpclib import config
-from ws4py.client import WebSocketBaseClient
+from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit!
 import yaml
 
 from cros.factory.utils import file_utils

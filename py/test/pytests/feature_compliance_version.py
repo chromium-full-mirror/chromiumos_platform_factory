@@ -125,7 +125,7 @@ class FeatureComplianceVersionTest(test_case.TestCase):
 
     identity = self.GetHWIDIdentity()
     checker = feature_compliance.LoadChecker(self._hwid_dir, self._project)
-    checker_hw_compliance_version = checker.CheckFeatureComplianceVersion(
+    checker_hw_compliance_version = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit!
         identity)
     logging.info('HW compliance version acquired from checker: %d',
                  checker_hw_compliance_version)
@@ -151,7 +151,7 @@ class FeatureComplianceVersionTest(test_case.TestCase):
     # allowed to be shipped without branded chassis, while non-feature
     # proejcts are not allowed to be shipped with branded chassis.
     brand_code = hwid_utils.GetBrandCode()
-    permitted = checker.CheckFeatureEnablement(brand_code,
+    permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit!
                                                branded_chassis_device_data)
     self.assertTrue(
         permitted, 'Current feature enablement status is not permitted as '
@@ -161,7 +161,7 @@ class FeatureComplianceVersionTest(test_case.TestCase):
         'used on this project again and contact Google.')
 
     # Add further checks for RMA but the above asserts should always be True.
-    if (self.args.rma_mode and gsc_utils.GSCUtils().IsGSCFieldLocked()):
+    if (self.args.rma_mode and gsc_utils.GSCUtils().IsGSCFieldLocked()):  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckFeatureComplianceForRMACr50Locked(checker_hw_compliance_version)
     else:
       device_data.SetHWComplianceVersionData(checker_hw_compliance_version)

@@ -26,7 +26,7 @@ import sys
 import threading
 import urllib.request
 
-from ws4py.client.threadedclient import WebSocketClient
+from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit!
 
 
 DEFAULT_CHROME_DEBUG_URL = 'http://127.0.0.1:9222'

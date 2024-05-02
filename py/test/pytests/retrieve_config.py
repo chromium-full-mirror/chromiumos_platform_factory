@@ -112,7 +112,7 @@ class RetrieveConfig(unittest.TestCase):
       |__ config
           |__ als_fixture.schema.json
   """
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
 
 
   ARGS = [

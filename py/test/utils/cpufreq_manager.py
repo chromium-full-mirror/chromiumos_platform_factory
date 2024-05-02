@@ -224,7 +224,7 @@ class CpufreqManager:
     min_freq_key = 'scaling_min_freq'
     governor_key = 'scaling_governor'
 
-    self.index_to_freq_settings = {}
+    self.index_to_freq_settings = {}  # type: ignore #TODO(b/338318729) Fixit!
     for core in self._GetOnlineCPUs():
       self.index_to_freq_settings[core] = {}
 

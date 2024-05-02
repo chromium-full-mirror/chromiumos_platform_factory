@@ -241,13 +241,13 @@ class Storage(device_types.DeviceComponent):
       A MainStorageType enum.
     """
     dut = self._device
-    dev_basename = dut.path.basename(self.GetMainStorageDevice())
+    dev_basename = dut.path.basename(self.GetMainStorageDevice())  # type: ignore #TODO(b/338318729) Fixit!
 
     if dev_basename.startswith('nvme'):
       return MainStorageType.NVME
 
     dev_node = f'/sys/block/{dev_basename}/device'
-    type_file = dut.path.realpath(dut.path.join(dev_node, 'type'))
+    type_file = dut.path.realpath(dut.path.join(dev_node, 'type'))  # type: ignore #TODO(b/338318729) Fixit!
 
     if 'mmc' in type_file:
       return MainStorageType(dut.ReadFile(type_file).strip())
@@ -263,11 +263,11 @@ class Storage(device_types.DeviceComponent):
       #         -> /sys/devices/pcixxx/host0/target0:0:0/0:0:0:0/type
       # driver_path: /sys/devices/pcixxx/driver
       #           -> /sys/bus/pci/drivers/ufshcd
-      dirname = dut.path.dirname
-      dev_node_realpath = dut.path.realpath(dev_node)
-      driver_path = dut.path.join(
+      dirname = dut.path.dirname  # type: ignore #TODO(b/338318729) Fixit!
+      dev_node_realpath = dut.path.realpath(dev_node)  # type: ignore #TODO(b/338318729) Fixit!
+      driver_path = dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
           dirname(dirname(dirname(dev_node_realpath))), 'driver')
-      driver_realpath = dut.path.realpath(driver_path)
+      driver_realpath = dut.path.realpath(driver_path)  # type: ignore #TODO(b/338318729) Fixit!
       if driver_realpath.endswith('/ufshcd'):
         return MainStorageType.UFS
 

@@ -2806,7 +2806,7 @@ class ChromeOSFactoryBundle:
         if config['name'] in designs
     ]
     for config in configs_for_designs:
-      identity: Dict[str, Any] = config['identity']
+      identity: Dict[str, Any] = config['identity']  # type: ignore #TODO(b/338318729) Fixit!
       # According to https://crbug.com/1070692, 'platform-name' is not a part of
       # identity info.  We shouldn't check it.
       identity.pop('platform-name', None)

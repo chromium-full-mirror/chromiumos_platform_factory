@@ -51,7 +51,7 @@ def ParseArgument():
 def main():
   args = ParseArgument()
   plugin_name = 'camera_manager.camera_manager'
-  manager: camera_manager.CameraManager = (
+  manager: camera_manager.CameraManager = (  # type: ignore #TODO(b/338318729) Fixit!
       plugin_controller.GetPluginRPCProxy(plugin_name, args.dut_ip,
                                           args.dut_port))
 

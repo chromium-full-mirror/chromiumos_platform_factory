@@ -80,24 +80,24 @@ class FormattedStrType(str, ConvertedValueType):
   def __new__(cls, *args, formatter_self: Optional[IStrFormatter] = None,
               formatter_other: Optional[IStrFormatter] = None, **kwargs):
     instance = super().__new__(cls, *args, **kwargs)
-    instance._formatter_self = formatter_self
-    instance._formatter_other = formatter_other
+    instance._formatter_self = formatter_self  # type: ignore #TODO(b/338318729) Fixit!
+    instance._formatter_other = formatter_other  # type: ignore #TODO(b/338318729) Fixit!
     return instance
 
   def __eq__(self, other: Any):
     if isinstance(other, str):
-      if self._formatter_self:
+      if self._formatter_self:  # type: ignore #TODO(b/338318729) Fixit!
         try:
-          formatted_self = self._formatter_self(self)
+          formatted_self = self._formatter_self(self)  # type: ignore #TODO(b/338318729) Fixit!
         except StrFormatterError:
           logging.exception('Invalid value %r for str formatter.', self)
           return False
       else:
         formatted_self = self
 
-      if self._formatter_other:
+      if self._formatter_other:  # type: ignore #TODO(b/338318729) Fixit!
         try:
-          formatted_other = self._formatter_other(other)
+          formatted_other = self._formatter_other(other)  # type: ignore #TODO(b/338318729) Fixit!
         except StrFormatterError:
           logging.exception('Invalid value %r for str formatter.', other)
           return False

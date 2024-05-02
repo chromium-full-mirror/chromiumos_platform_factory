@@ -7,7 +7,7 @@ import textwrap
 import unittest
 from unittest import mock
 
-import urllib3.exceptions
+import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.probe_info_service.app_engine import gerrit_connector
 

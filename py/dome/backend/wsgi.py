@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
 
 import os
 
-from django.core.wsgi import get_wsgi_application
+from django.core.wsgi import get_wsgi_application  # type: ignore #TODO(b/338318729) Fixit!
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 

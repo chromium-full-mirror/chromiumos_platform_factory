@@ -235,4 +235,4 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
       path_fpframe_err_msg = os.path.join(dest, self.FILE_FPFRAME_ERR_MSG)
       file_utils.WriteFile(path_fpframe_err_msg, err_msg)
       logging.info('Saved fpframe err: %s', path_fpframe_err_msg)
-      raise WriteProtectError(f'Failed to save fpframe: {err_msg}') from e
+      raise WriteProtectError(f'Failed to save fpframe: {err_msg}') from e  # type: ignore #TODO(b/338318729) Fixit!

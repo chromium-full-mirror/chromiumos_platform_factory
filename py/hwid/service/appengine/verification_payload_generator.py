@@ -198,7 +198,7 @@ class _FieldRecord:
         all_empty = False
       for value_converter in self.value_converters:
         try:
-          expected_field.append(value_converter(comp_values[hwid_field_name]))
+          expected_field.append(value_converter(comp_values[hwid_field_name]))  # type: ignore #TODO(b/338318729) Fixit!
           break
         except Exception as e:
           if err is None:
@@ -640,7 +640,7 @@ def GetAllComponentVerificationPayloadPieces(
     target = batteries[target_comp_name].values
     for field in ['model_name', 'manufacturer']:
       # TODO(b/281479050): Also check regex in HWID database.
-      if not isinstance(target.get(field), str):
+      if not isinstance(target.get(field), str):  # type: ignore #TODO(b/338318729) Fixit!
         return False
 
     for comp_name, comp_info in batteries.items():
@@ -650,11 +650,11 @@ def GetAllComponentVerificationPayloadPieces(
       comp_vals = comp_info.values
       is_identical = True
       for field in ['model_name', 'manufacturer']:
-        target_val = target.get(field)
-        comp_val = comp_vals.get(field)
+        target_val = target.get(field)  # type: ignore #TODO(b/338318729) Fixit!
+        comp_val = comp_vals.get(field)  # type: ignore #TODO(b/338318729) Fixit!
         if comp_val != target_val:
           is_identical = False
-        if not (isinstance(comp_val, str) and comp_val.startswith(target_val)):
+        if not (isinstance(comp_val, str) and comp_val.startswith(target_val)):  # type: ignore #TODO(b/338318729) Fixit!
           break
       else:
         if not is_identical:
@@ -669,9 +669,9 @@ def GetAllComponentVerificationPayloadPieces(
   ) -> Mapping[str, database.ComponentInfo]:
     preprocessed = {}
     for comp_name, comp_info in components.items():
-      if comp_name in skip_comp_names:
+      if comp_name in skip_comp_names:  # type: ignore #TODO(b/338318729) Fixit!
         continue
-      val = collections.OrderedDict(comp_info.values)
+      val = collections.OrderedDict(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit!
       preprocessed[comp_name] = comp_info.Replace(values=val)
 
     if hwid_comp_category == 'battery':
@@ -683,8 +683,8 @@ def GetAllComponentVerificationPayloadPieces(
       for comp_name in update_comp_names:
         comp_info = preprocessed[comp_name]
         for field in ['model_name', 'manufacturer']:
-          val = comp_info.values[field]
-          comp_info.values[field] = hwid_rule.Value(f'{re.escape(val)}.*',
+          val = comp_info.values[field]  # type: ignore #TODO(b/338318729) Fixit!
+          comp_info.values[field] = hwid_rule.Value(f'{re.escape(val)}.*',  # type: ignore #TODO(b/338318729) Fixit!
                                                     is_re=True)
 
     return preprocessed
@@ -870,7 +870,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
       2. Component name (skip the lexicographically larger one).
       """
       component = batteries[comp_name]
-      status = _SUPPORT_STATUS_PREFERENCE.get(component.status)
+      status = _SUPPORT_STATUS_PREFERENCE.get(component.status)  # type: ignore #TODO(b/338318729) Fixit!
 
       return (status, comp_name)
 
@@ -881,7 +881,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
       comp_1 = batteries[comp_name_1].values
       comp_2 = batteries[comp_name_2].values
 
-      if _CheckShouldSkipBattery(comp_1, comp_2):
+      if _CheckShouldSkipBattery(comp_1, comp_2):  # type: ignore #TODO(b/338318729) Fixit!
         skip_comp_names.add(max(comp_name_1, comp_name_2, key=BatteryKeyFunc))
 
     return skip_comp_names
@@ -956,7 +956,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
           probe_config_str.encode('utf-8')).digest()
       probe_config_salt = probe_config_hash[:8] if salt is None else salt
       generated_file_contents[probe_config_pathname] = _Encrypt(
-          probe_config_str, encryption_key, probe_config_salt)
+          probe_config_str, encryption_key, probe_config_salt)  # type: ignore #TODO(b/338318729) Fixit!
       # Generate generic probe configs to make runtime_probe and
       # hardware_verifier run without failures.  Therefore, the Tast test for
       # hardware_verifier still works.
@@ -1014,17 +1014,17 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
 
   logging.basicConfig(level=logging.INFO)
 
-  waived_categories = collections.defaultdict(list)
+  waived_categories = collections.defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit!
   for waived_category in waived_categories:
     model_name, unused_sep, category_name = waived_category.partition('.')
-    waived_categories[model_name.lower()].append(category_name)
+    waived_categories[model_name.lower()].append(category_name)  # type: ignore #TODO(b/338318729) Fixit!
 
   ignore_error = collections.defaultdict(list)
   for category in ignore_errors:
     model_name, unused_sep, category_name = category.partition('.')
     ignore_error[model_name.lower()].append(category_name)
 
-  encrypted_models = {model.lower()
+  encrypted_models = {model.lower()  # type: ignore #TODO(b/338318729) Fixit!
                       for model in encrypted_models}
 
   dbs = []
@@ -1034,7 +1034,7 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
     model = db.project.lower()
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
         ignore_error=ignore_error[model],
-        waived_comp_categories=waived_categories[model], encrypted=model
+        waived_comp_categories=waived_categories[model], encrypted=model  # type: ignore #TODO(b/338318729) Fixit!
         in encrypted_models)
     logging.info('Waived component category: %r',
                  vpg_config.waived_comp_categories)

@@ -20,8 +20,8 @@ import unittest
 from cros.factory.test.utils.media_utils import MediaMonitor
 from cros.factory.test.utils.media_utils import MountedMedia
 
-from cros.factory.external.py_lib import glib
-from cros.factory.external.py_lib import gtk
+from cros.factory.external.py_lib import glib  # type: ignore #TODO(b/338318729) Fixit!
+from cros.factory.external.py_lib import gtk  # type: ignore #TODO(b/338318729) Fixit!
 from cros.factory.external.py_lib import pyudev
 
 

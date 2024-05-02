@@ -118,12 +118,12 @@ class ProbeSIMCardTest(test_case.TestCase):
     return status
 
   def CheckSIMCardState(self, predicator, fail_string: str) -> None:
-    self.ui.SetState(_('Checking SIM card is present or not...'))
+    self.ui.SetState(_('Checking SIM card is present or not...'))  # type: ignore #TODO(b/338318729) Fixit!
 
     self.ResetModem()
 
     output = predicator()
-    if self.args.poll_modem_status:
+    if self.args.poll_modem_status:  # type: ignore #TODO(b/338318729) Fixit!
       total_delay = 0
       while not output:
         self.Sleep(_INSERT_CHECK_PERIOD_SECS)

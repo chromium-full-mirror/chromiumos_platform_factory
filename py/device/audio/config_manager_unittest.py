@@ -69,7 +69,7 @@ card 2: card_2 [card_2], device 8: Audio (*) []
 
   def MockWriteFile(unused_path: str, content: str):
     match = _RE_CARD_NAME_FROM_COMMANDS.fullmatch(content.splitlines()[0])
-    card_name = match.group(1)
+    card_name = match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
     processes.append(MockProcess(card_name))
 
   device.WriteFile.side_effect = MockWriteFile

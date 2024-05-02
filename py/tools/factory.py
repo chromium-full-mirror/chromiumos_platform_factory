@@ -266,7 +266,7 @@ class TestsCommand(Subcommand):
       returns ['FAT (Final Assembly Test)', '', 'Update PSR Oem Data']
     """
 
-    path = path.split('.', 2)
+    path = path.split('.', 2)  # type: ignore #TODO(b/338318729) Fixit!
     labels = [self._GetLabel('.'.join(path[:i + 1])) for i in range(len(path))]
     if len(path) == 1:
       return ['', ''] + labels

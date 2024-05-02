@@ -221,7 +221,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     Args:
       controller_patterns: The set of the glob patterns.
     """
-    devices = []
+    devices = []  # type: ignore #TODO(b/338318729) Fixit!
     for name in controller_patterns:
       device_path = self._dut.path.join(_LOOPBACK_TEST_PATH, name, _DMA_TEST)
       devices.extend(
@@ -369,11 +369,11 @@ class ThunderboltLoopbackTest(test_case.TestCase):
         'LC_ALL': 'en_US.utf-8',
     }
     logging.info('env: %r, cmd: %r, cwd: %r', env, cmd, _TDTL_PATH)
-    stop_timer = self.ui.StartCountdownTimer(
-        self.args.lane_margining_timeout_secs)
+    stop_timer = self.ui.StartCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.lane_margining_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     try:
       result = subprocess.run(cmd, env=env, cwd=_TDTL_PATH,
-                              timeout=self.args.lane_margining_timeout_secs,
+                              timeout=self.args.lane_margining_timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                               encoding='utf-8', stdout=subprocess.PIPE,
                               check=False)
     except subprocess.TimeoutExpired:
@@ -424,7 +424,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
     csv_entries = [device_data.GetSerialNumber(), timestamp]
     csv_entries.extend(log_result[key] for key in self.LOG_KEYS)
-    self.ui.SetState(_('Trying to check server protocol...'))
+    self.ui.SetState(_('Trying to check server protocol...'))  # type: ignore #TODO(b/338318729) Fixit!
     try:
       server = server_proxy.GetServerProxy(timeout=5)
       server.Ping()
@@ -446,7 +446,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def _UploadOrSaveLaneMargining(self, log_result: dict):
     """Uploads or Saves the result of lane margining."""
-    if self.args.lane_margining_csv:
+    if self.args.lane_margining_csv:  # type: ignore #TODO(b/338318729) Fixit!
       self._UploadLaneMarginingViaCSV(log_result)
     self._SaveLaneMarginingViaTestlog(log_result)
 

@@ -9,7 +9,7 @@ from typing import Optional
 import unittest
 from unittest import mock
 
-from packaging import version as version_module
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import release_version_utils

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 from typing import Dict, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
 from pydantic import Extra
 
 from cros.factory.test_list_editor.backend.schema import common

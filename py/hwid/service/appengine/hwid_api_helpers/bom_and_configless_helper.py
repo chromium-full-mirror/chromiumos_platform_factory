@@ -121,7 +121,7 @@ def GenerateFieldsMessage(
       field.value = str(fvalue)
     fields.append(field)
   fields.sort(key=lambda field: field.name)
-  return fields
+  return fields  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class BOMAndConfiglessHelper:
@@ -216,8 +216,8 @@ class BOMAndConfiglessHelper:
       bom = bom_configless.bom
       components = []
 
-      for component in bom.GetComponents():
-        fields = GenerateFieldsMessage(component.fields) if verbose else []
+      for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit!
+        fields = GenerateFieldsMessage(component.fields) if verbose else []  # type: ignore #TODO(b/338318729) Fixit!
         avl_info = self.GetAVLInfo(component.cls, component.name, no_avl_name)
         components.append(
             hwid_api_messages_pb2.Component(
@@ -226,9 +226,9 @@ class BOMAndConfiglessHelper:
 
       components.sort(key=operator.attrgetter('component_class', 'name'))
 
-      result[hwid] = BOMEntry(components, bom.phase, '',
+      result[hwid] = BOMEntry(components, bom.phase, '',  # type: ignore #TODO(b/338318729) Fixit!
                               status=hwid_api_messages_pb2.Status.SUCCESS,
-                              project=bom.project or '')
+                              project=bom.project or '')  # type: ignore #TODO(b/338318729) Fixit!
       self._bom_data_cacher.SetBOMEntryCache(project, cache_key, result[hwid])
     return result
 

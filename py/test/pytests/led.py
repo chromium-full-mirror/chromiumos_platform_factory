@@ -362,7 +362,7 @@ class LEDTest(test_case.TestCase):
           unplug_ports.append(port)
       if not plug_ports and not unplug_ports:
         return
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _(
               'Plug power into ports: {plug_ports}<br>'
               'Unplug power from ports: {unplug_ports}<br>'

@@ -8,7 +8,7 @@ import logging
 import re
 import time
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 
 # The classes here supporting Cr50 also support Ti50.

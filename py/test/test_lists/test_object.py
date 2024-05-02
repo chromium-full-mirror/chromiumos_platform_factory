@@ -211,7 +211,7 @@ class FactoryTest:
     """
     self.pytest_name = pytest_name
 
-    self.subtests = list(filter(None, type_utils.FlattenList(subtests or [])))
+    self.subtests = list(filter(None, type_utils.FlattenList(subtests or [])))  # type: ignore #TODO(b/338318729) Fixit!
     assert len(list(filter(None, [pytest_name, subtests]))) <= 1, (
         'Only one of pytest_name and subtests can be specified')
 
@@ -272,7 +272,7 @@ class FactoryTest:
     self._SetIterations(iterations)
     self.default_iterations = self.iterations
     self.default_retries = self.retries
-    self.related_components = []
+    self.related_components = []  # type: ignore #TODO(b/338318729) Fixit!
 
     if allow_reboot is not None:
       self.allow_reboot = allow_reboot

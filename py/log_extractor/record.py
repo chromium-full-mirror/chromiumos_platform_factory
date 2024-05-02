@@ -105,7 +105,7 @@ class TestlogRecord(FactoryRecord):
   _STATION_TO_STR_TEMPLATE = '[{log_level}] {time} {msg}'
 
   def __init__(self, data: testlog.EventBase):
-    super().__init__(data)
+    super().__init__(data)  # type: ignore #TODO(b/338318729) Fixit!
     self._time = self._data['time']
     if isinstance(self._data, testlog.StationTestRun):
       # The `time` field should store the timestamp that the event is generated.
@@ -129,7 +129,7 @@ class TestlogRecord(FactoryRecord):
     return cls(data)
 
   def GetEventType(self) -> str:
-    return self._data.GetEventType()
+    return self._data.GetEventType()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _BuildStrFromStationMessage(self) -> str:
     msg_list = []

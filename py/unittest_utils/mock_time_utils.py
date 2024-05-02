@@ -98,7 +98,7 @@ class TimeLine:
       event_func()
 
 
-class FakeEvent(threading.Event().__class__):
+class FakeEvent(threading.Event().__class__):  # type: ignore #TODO(b/338318729) Fixit!
   """A fake threading.Event.
 
   All methods works like a normal threading.Event, except that wait() won't

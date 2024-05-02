@@ -6,8 +6,8 @@
 
 import re
 
-from docutils import nodes
-from docutils.parsers.rst import Directive
+from docutils import nodes  # type: ignore #TODO(b/338318729) Fixit!
+from docutils.parsers.rst import Directive  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.l10n import regions
 

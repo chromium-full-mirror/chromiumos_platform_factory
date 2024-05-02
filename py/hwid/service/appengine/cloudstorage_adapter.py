@@ -72,7 +72,7 @@ class CloudStorageAdapter(filesystem_adapter.IFileSystemAdapter):
     if encoding == 'utf-8' or isinstance(content, bytes):
       blob.upload_from_string(content)
     else:
-      blob.upload_from_string(content.encode(encoding))
+      blob.upload_from_string(content.encode(encoding))  # type: ignore #TODO(b/338318729) Fixit!
 
   def _DeleteFile(self, path: str):
     """See base class."""

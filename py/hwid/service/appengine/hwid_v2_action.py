@@ -127,8 +127,8 @@ class HWIDV2Action(hwid_action.HWIDAction):
     classes_set.update(self._preproc_data.volatile_value_map.keys())
     return classes_set
 
-  def GetComponents(self, with_classes: List[Optional[str]] = None):
-    components = {}
+  def GetComponents(self, with_classes: List[Optional[str]] = None):  # type: ignore #TODO(b/338318729) Fixit!
+    components = {}  # type: ignore #TODO(b/338318729) Fixit!
     all_comps = []
     for bom in self._preproc_data.bom_map.values():
       if bom['primary']['components']:

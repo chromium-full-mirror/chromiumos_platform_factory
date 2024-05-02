@@ -134,7 +134,7 @@ class _ParamValueConverter:
 
 
 class _ProbeParamInput(NamedTuple):
-  index: int
+  index: int  # type: ignore #TODO(b/338318729) Fixit!
   raw_value: _ProbeParameter
 
 
@@ -279,7 +279,7 @@ class _SingleProbeStatementParam(_IProbeStatementParam):
         if not self._is_informational:
           # Attempt to trigger the probe statement generator directly to see if
           # it's convertible.
-          self._ps_gen_checker(value)
+          self._ps_gen_checker(value)  # type: ignore #TODO(b/338318729) Fixit!
         converted_values.append(value)
       except _IncompatibleError as e:
         raise _IncompatibleError(
@@ -351,7 +351,7 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
   """
 
   class _ConvertedValue(NamedTuple):
-    index: int
+    index: int  # type: ignore #TODO(b/338318729) Fixit!
     value: str
 
   def __init__(self, name: str,
@@ -367,14 +367,14 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
   def probe_info_params(self) -> Mapping[str, _IProbeStatementParam]:
     ret: Mapping[str, _SingleProbeStatementParam] = {}
     for param in self._sub_probe_info_params:
-      ret.update(param.probe_info_params)
+      ret.update(param.probe_info_params)  # type: ignore #TODO(b/338318729) Fixit!
     return ret
 
   @property
   def probe_info_param_definitions(
       self) -> Mapping[str, _ProbeParameterDefinition]:
     """See base class."""
-    definitions = collections.defaultdict()
+    definitions = collections.defaultdict()  # type: ignore #TODO(b/338318729) Fixit!
     for probe_info_param in self.probe_info_params.values():
       definitions.update(probe_info_param.probe_info_param_definitions)
 
@@ -389,8 +389,8 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
       self, probe_parameters: Mapping[str, Sequence[_ProbeParamInput]]
   ) -> Tuple[List[Any], Sequence[_ProbeParameterSuggestion]]:
     """See base class."""
-    converted_values = collections.OrderedDict()
-    suggestions = []
+    converted_values = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit!
+    suggestions = []  # type: ignore #TODO(b/338318729) Fixit!
     for param_name, probe_info_param in self.probe_info_params.items():
       converted_values[param_name] = []
       for probe_parameter in probe_parameters[param_name]:
@@ -431,7 +431,7 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
     converted_probe_vals = []
     probe_val = probe_values[self._name]
     for param_name, probe_info_param in self.probe_info_params.items():
-      sub_converted_vals = probe_info_param.ConvertProbeValuesWithInformational(
+      sub_converted_vals = probe_info_param.ConvertProbeValuesWithInformational(  # type: ignore #TODO(b/338318729) Fixit!
           {param_name: probe_val})
       converted_probe_vals.extend(sub_converted_vals)
 
@@ -586,7 +586,7 @@ def ConvertProbeParamInputsToProbeStatementValues(
   probe_param_names = {
       probe_info_param_name
       for probe_param in probe_params
-      for probe_info_param_name in probe_param.probe_info_param_definitions
+      for probe_info_param_name in probe_param.probe_info_param_definitions  # type: ignore #TODO(b/338318729) Fixit!
   }
   probe_param_input_names = set(probe_param_inputs)
 
@@ -604,9 +604,9 @@ def ConvertProbeParamInputsToProbeStatementValues(
   probe_param_errors = []
 
   for probe_param in probe_params:
-    values, suggestions = probe_param.ConvertProbeParams(probe_param_inputs)
-    if values and probe_param.probe_statement_param_name:
-      expected_values_of_field[probe_param.probe_statement_param_name] = values
+    values, suggestions = probe_param.ConvertProbeParams(probe_param_inputs)  # type: ignore #TODO(b/338318729) Fixit!
+    if values and probe_param.probe_statement_param_name:  # type: ignore #TODO(b/338318729) Fixit!
+      expected_values_of_field[probe_param.probe_statement_param_name] = values  # type: ignore #TODO(b/338318729) Fixit!
 
     for suggestion in suggestions:
       probe_param_errors.append(suggestion)
@@ -690,7 +690,7 @@ class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
       if self.probe_info_params[param_name].is_restricted_re:
         matchers[param_name] = _ProbeParameterReMatcher(param_name, param_vals)
       else:
-        matchers[param_name] = _ProbeParameterEqMatcher(param_name, param_vals)
+        matchers[param_name] = _ProbeParameterEqMatcher(param_name, param_vals)  # type: ignore #TODO(b/338318729) Fixit!
 
     return matchers
 
@@ -771,7 +771,7 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     """See base class."""
     return dict(
-        collections.ChainMap(*(probe_param.probe_info_params
+        collections.ChainMap(*(probe_param.probe_info_params  # type: ignore #TODO(b/338318729) Fixit!
                                for probe_param in self._probe_params)))
 
   @property
@@ -815,10 +815,10 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       _ProbeParameterError: when ConvertProbeParamInputsToProbeStatementValues
         returns suggestions.
     """
-    ps_expected_fields = []
+    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit!
     expected_values_of_field, probe_param_errors = (
         ConvertProbeParamInputsToProbeStatementValues(
-            self._probe_params, probe_param_inputs, allow_missing_params))
+            self._probe_params, probe_param_inputs, allow_missing_params))  # type: ignore #TODO(b/338318729) Fixit!
 
     if probe_param_errors:
       raise _ProbeParameterError(probe_param_errors)
@@ -837,7 +837,7 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str],
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     """See `ParseProbeParams()` for more details."""
     try:
       ps_expected_fields = self.CollectExpectedFields(
@@ -873,7 +873,7 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
   def ParseProbeParams(
       self, probe_params: Sequence[_ProbeParameter], allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     """See base class."""
     return self.ParseProbeParamInputs(
         _ToProbeParamInputs(probe_params),
@@ -889,7 +889,7 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
                                              [])
     parsed_results = []
     for probe_values in category_probe_result:
-      res = []
+      res = []  # type: ignore #TODO(b/338318729) Fixit!
       for param in self.probe_params:
         try:
           converted_values = param.ConvertProbeValues(probe_values)
@@ -915,7 +915,7 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       probe_parameters[probe_param.name].append(probe_param)
 
     normalized_params = []
-    for probe_param in self.probe_info_params.values():
+    for probe_param in self.probe_info_params.values():  # type: ignore #TODO(b/338318729) Fixit!
       normalized_params.extend(
           probe_param.NormalizeProbeParams(probe_parameters))
 
@@ -962,7 +962,7 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
   @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     return dict(
-        collections.ChainMap(*(converter.probe_info_params
+        collections.ChainMap(*(converter.probe_info_params  # type: ignore #TODO(b/338318729) Fixit!
                                for converter in self._sub_converters.values())))
 
   def GetName(self) -> str:
@@ -983,7 +983,7 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str],
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     """See `ParseProbeParams()` for more details."""
     remaining_probe_param_inputs = copy.deepcopy(probe_param_inputs)
 
@@ -993,7 +993,7 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       for param in sub_converter.probe_params:
         for param_name in param.probe_info_param_definitions:
           if param_name in remaining_probe_param_inputs:
-            probe_param_inputs[param_name] = remaining_probe_param_inputs.pop(
+            probe_param_inputs[param_name] = remaining_probe_param_inputs.pop(  # type: ignore #TODO(b/338318729) Fixit!
                 param_name)
       sub_comp_name = (f'{comp_name_for_probe_statement}-{sub_converter_name}'
                        if comp_name_for_probe_statement else None)
@@ -1022,14 +1022,14 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
         aggregated_parsed_result,
         list(
             itertools.chain.from_iterable(
-                a.output for a in sub_probe_info_artifacts)))
+                a.output for a in sub_probe_info_artifacts)))  # type: ignore #TODO(b/338318729) Fixit!
 
   def ParseProbeParams(
       self,
       probe_params: Sequence[_ProbeParameter],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None,
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     """See base class."""
     return self.ParseProbeParamInputs(
         _ToProbeParamInputs(probe_params), allow_missing_params,
@@ -1048,7 +1048,7 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       self,
       probe_params: Sequence[_ProbeParameter]) -> Sequence[_ProbeParameter]:
     """See base class."""
-    normalized_params = []
+    normalized_params = []  # type: ignore #TODO(b/338318729) Fixit!
     for converter in self._sub_converters.values():
       normalized_params.extend(converter.GetNormalizedProbeParams(probe_params))
     return normalized_params
@@ -1308,16 +1308,16 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
       probe_params: Sequence[_ProbeParameter],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None,
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     """See base class."""
     probe_param_inputs = _ToProbeParamInputs(probe_params)
 
     # Treat "empty or N/A NVMe model string" as not exist.
-    nvme_model_params = probe_param_inputs.pop(self._NVME_MODEL, [])
+    nvme_model_params = probe_param_inputs.pop(self._NVME_MODEL, [])  # type: ignore #TODO(b/338318729) Fixit!
     for nvme_model_param in nvme_model_params:
       if (nvme_model_param.raw_value.string_value and
           nvme_model_param.raw_value.string_value.upper().strip() != self._NA):
-        probe_param_inputs[self._NVME_MODEL].append(nvme_model_param)
+        probe_param_inputs[self._NVME_MODEL].append(nvme_model_param)  # type: ignore #TODO(b/338318729) Fixit!
 
     if self._NVME_MODEL not in probe_param_inputs:
       return self._emmc_and_host_converter.ParseProbeParamInputs(
@@ -1410,7 +1410,7 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
 
     battery_param_names = set(self.probe_info_params)
 
-    mismatch_battery_params = list(mismatch_param_names & battery_param_names)
+    mismatch_battery_params = list(mismatch_param_names & battery_param_names)  # type: ignore #TODO(b/338318729) Fixit!
 
     if mismatch_battery_params:
       for comp_idx in range(
@@ -1477,13 +1477,13 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
       comp_name_for_probe_statement: Optional[str],
   ) -> Sequence[Mapping[str, Any]]:
     del allow_missing_params
-    ps_expected_fields = []
+    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit!
     for sub_probe_param_inputs in self.ConvertToMultipleProbeParamInputs(
         probe_param_inputs[self._JOINED_ATTR_NAME]):
       try:
         expected_values_of_field, probe_param_errors = (
             ConvertProbeParamInputsToProbeStatementValues(
-                self.probe_params,
+                self.probe_params,  # type: ignore #TODO(b/338318729) Fixit!
                 sub_probe_param_inputs,
                 self._allow_missing_params,
             ))

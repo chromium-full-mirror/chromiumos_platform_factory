@@ -64,8 +64,8 @@ class VerifyBrandedChassis(test_case.TestCase):
     self.feature_management = device_data.GetFeatureDeviceData()
 
   def ShowPrompt(self) -> None:
-    self.ui.SetTitle(_('Verify branded chassis'))
-    self.ui.SetState(
+    self.ui.SetTitle(_('Verify branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Please verify if the chassis has ChromeBook Plus label on it.'
           'If Yes, press "Y". If not, press "N"'))
 

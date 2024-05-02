@@ -54,7 +54,7 @@ def _ToFeatureEnablementStatusMsg(
   return msg
 
 
-class GetBOMShard(common_helper.HWIDServiceShardBase):
+class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(
       self,
@@ -123,7 +123,7 @@ class GetBOMShard(common_helper.HWIDServiceShardBase):
     return response
 
 
-class GetSKUShard(common_helper.HWIDServiceShardBase):
+class GetSKUShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(
       self,
@@ -175,7 +175,7 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):
     )
 
 
-class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
+class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(self, decoder_data_manager: decoder_data.DecoderDataManager,
                goldeneye_memcache_adapter: memcache_adapter.MemcacheAdapter,

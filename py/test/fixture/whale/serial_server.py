@@ -9,7 +9,7 @@ import logging
 import time
 import xmlrpc.client
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.utils import serial_utils
 

@@ -160,7 +160,7 @@ def _ConvertValidationErrorCode(code):
 def _ConvertSupportStatsCase(
     hwid_value: str) -> hwid_api_messages_pb2.ComponentSupportStatus.Case:
   try:
-    return common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[hwid_value]
+    return common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[hwid_value]  # type: ignore #TODO(b/338318729) Fixit!
   except KeyError as ex:
     raise HWIDStatusConversionError(
         f'Unrecognizable HWID support status value: {hwid_value!r}.') from ex
@@ -350,7 +350,7 @@ def _SplitIntoDBSnapshots(
 
 
 def _IsCLReadyForCQ(cl_info: hwid_repo.HWIDDBCLInfo) -> bool:
-  return cl_info.bot_commit or (cl_info.verified and cl_info.review_status
+  return cl_info.bot_commit or (cl_info.verified and cl_info.review_status  # type: ignore #TODO(b/338318729) Fixit!
                                 == hwid_repo.HWIDDBCLReviewStatus.APPROVED)
 
 
@@ -439,14 +439,14 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
     """
     self._db = db
     self._extra_resource = extra_resource
-    self._warnings = []
+    self._warnings = []  # type: ignore #TODO(b/338318729) Fixit!
     self._npa = name_pattern_adapter.NamePatternAdapter()
     self._create_dlm_comp_entry_acceptor = features.CreateDLMCompEntryAcceptor()
 
   @classmethod
   def Create(
       cls, db: database.Database,
-      extra_resource: hwid_api_messages_pb2.HwidDbExternalResource) -> 'cls':
+      extra_resource: hwid_api_messages_pb2.HwidDbExternalResource) -> 'cls':  # type: ignore #TODO(b/338318729) Fixit!
     return cls(db, extra_resource)
 
   def _GetCPUProperty(
@@ -585,9 +585,9 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
       if any(v < 0 for v in camera_info.feature_compatible_versions):
         raise ValueError('Invalid camera feature versions: '
                          f'{camera_info.feature_compatible_versions}.')
-      return features.CameraProperty.FromCompatibleVersions(
+      return features.CameraProperty.FromCompatibleVersions(  # type: ignore #TODO(b/338318729) Fixit!
           camera_info.feature_compatible_versions)
-    return features.CameraProperty.FromAttributes(
+    return features.CameraProperty.FromAttributes(  # type: ignore #TODO(b/338318729) Fixit!
         is_user_facing=camera_info.position == camera_info.USER_FACING,
         has_tnr=camera_info.has_tnr,
         horizontal_resolution=camera_info.horizontal_resolution,
@@ -716,7 +716,7 @@ class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
         auth_cookie=git_util.GetGerritAuthCookie())
 
 
-class SelfServiceShard(common_helper.HWIDServiceShardBase):
+class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(
       self,
@@ -996,7 +996,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   def _AbandonParentCLs(self, cl_info: hwid_repo.HWIDDBCLInfo):
     parent_cl_reject_reason = (f'CL:*{cl_info.cl_number} is rejected by the '
                                'reviewer.')
-    for parent_cl_number, unused_parent_change_id in cl_info.parent_cl_ids:
+    for parent_cl_number, unused_parent_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit!
       parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(parent_cl_number)
       if parent_cl_info.status != hwid_repo.HWIDDBCLStatus.ABANDONED:
         self._hwid_repo_manager.AbandonCL(parent_cl_number,
@@ -1010,7 +1010,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       put_cq.append(cl_info.cl_number)
 
     # Collect parent CLs which have Bot-Commit+1 votes.
-    for cl_number, unused_change_id in cl_info.parent_cl_ids:
+    for cl_number, unused_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit!
       try:
         parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(cl_number)
         if not _IsCLReadyForCQ(parent_cl_info):
@@ -1640,7 +1640,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     live_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
     try:
       self._UpdateHWIDDBDataIfNeed(live_repo, project)
-      return live_repo, self._hwid_action_manager.GetHWIDAction(project)
+      return live_repo, self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
     except (KeyError, ValueError, RuntimeError, hwid_repo.HWIDRepoError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
@@ -1785,26 +1785,26 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           suppress_support_status=False, internal=True)
       new_hwid_db_editable_section_external = db.DumpDataWithoutChecksum(
           suppress_support_status=False)
-      new_hwid_db_contents_external = action.PatchHeader(
+      new_hwid_db_contents_external = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
           new_hwid_db_editable_section_external)
-      new_hwid_db_contents_internal = action.PatchHeader(
+      new_hwid_db_contents_internal = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
           new_hwid_db_editable_section_internal)
 
-      reviewers = set()
-      ccs = set()
+      reviewers = set()  # type: ignore #TODO(b/338318729) Fixit!
+      ccs = set()  # type: ignore #TODO(b/338318729) Fixit!
       for identity in change_unit_identities:
         ccs.update(approval_infos[identity].ccs)
         reviewers.update(approval_infos[identity].reviewers)
 
       if include_feature_matcher_source:
         build_result = self._feature_matcher_builder_class.Create(
-            db, session_cache.avl_resource).Build()
+            db, session_cache.avl_resource).Build()  # type: ignore #TODO(b/338318729) Fixit!
         feature_matcher_generation_commit_msg = build_result.commit_message
         feature_matcher_source = build_result.feature_matcher_source
       else:
         feature_matcher_generation_commit_msg = ''
         feature_matcher_source = None
-      bundle_metadata_source = self._BuildBundleMetadataSource(action)
+      bundle_metadata_source = self._BuildBundleMetadataSource(action)  # type: ignore #TODO(b/338318729) Fixit!
 
       commit_msg = '\n\n'.join(
           filter(None, [
@@ -1815,7 +1815,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
               f'BUG=b:{bug_number}',
           ]))
       try:
-        cl_number = live_hwid_repo.CommitHWIDDB(
+        cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
             name=project,
             hwid_db_contents=new_hwid_db_contents_external,
             commit_msg=commit_msg,
@@ -1842,11 +1842,11 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     session_cache = self._GetSessionCache(session_token)
     change_unit_manager = session_cache.change_unit_manager
     project = session_cache.project
-    live_hwid_repo, action = self._GetRepoAndAction(project)
-    approval_infos = _CollectApprovalInfos(change_unit_manager, approval_status)
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+    approval_infos = _CollectApprovalInfos(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Perform change unit related actions.
-    split_result = _SplitIntoDBSnapshots(change_unit_manager, approval_status)
+    split_result = _SplitIntoDBSnapshots(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit!
 
     auto_mergeable_change_cl_number = review_required_change_cl_number = 0
     final_hwid_db_content = ''
@@ -1905,7 +1905,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     for to_be_abandoned_change_id in to_be_abandoned:
       if to_be_abandoned_change_id is not None:
         self._hwid_repo_manager.AbandonCL(
-            to_be_abandoned_change_id,
+            to_be_abandoned_change_id,  # type: ignore #TODO(b/338318729) Fixit!
             reason='Obsoleted by refreshing AVL alignment status')
 
     return (

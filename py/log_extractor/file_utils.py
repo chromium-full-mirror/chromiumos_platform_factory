@@ -170,7 +170,7 @@ def ExtractAndWriteRecordByTestRun(
     run event.
   """
   state_machine = LogExtractorStateMachine()
-  cur_start_event_cnt_map = {}
+  cur_start_event_cnt_map = {}  # type: ignore #TODO(b/338318729) Fixit!
   test_run_info_list = []
   for record in reader:
     status = test_run_handler.StatusHandler().Parse(record)
@@ -228,7 +228,7 @@ def ExtractAndWriteRecordByTimeStamp(reader, output_dir: str, output_fname: str,
 
 
 def GetStartEventCnt(reader) -> Dict[str, int]:
-  start_cnt = {}
+  start_cnt = {}  # type: ignore #TODO(b/338318729) Fixit!
   for record in reader:
     status = test_run_handler.StatusHandler().Parse(record)
     _, test_run_id = test_run_handler.TestRunNameHandler().Parse(record)

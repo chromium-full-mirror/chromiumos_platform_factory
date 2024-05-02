@@ -27,7 +27,7 @@ try:
       'depot_tools')
   if DEPOT_TOOLS_PATH not in sys.path:
     sys.path.append(DEPOT_TOOLS_PATH)
-  import gerrit_util
+  import gerrit_util  # type: ignore #TODO(b/338318729) Fixit!
 except ImportError:
   logging.exception('cannot find module gerrit_util, which should be found '
                     'under %s, are you in chroot?', DEPOT_TOOLS_PATH)

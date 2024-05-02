@@ -37,7 +37,7 @@ _ImageVersionTypeMsg = _SoftBrandEligibilityMsg.ImageVersionType
 
 def _ConvertImageVersionTypeToMsg(
     image_version_type: _ImageVersionType,
-) -> _ImageVersionTypeMsg.ValueType:
+) -> _ImageVersionTypeMsg.ValueType:  # type: ignore #TODO(b/338318729) Fixit!
   if image_version_type == _ImageVersionType.LATEST_PUSHED_STABLE:
     return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE
   if image_version_type == _ImageVersionType.LATEST_PUSHED_LTS:
@@ -68,7 +68,7 @@ class _ErrorSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
   def __init__(
       self,
-      version_type: _ImageVersionTypeMsg.ValueType,
+      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit!
       error: _SoftBrandEligibilityMsg.Error,
   ):
     super().__init__()
@@ -94,7 +94,7 @@ class _NormalSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
   def __init__(
       self,
-      version_type: _ImageVersionTypeMsg.ValueType,
+      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit!
       feature_matcher: feature_matching.HWIDFeatureMatcher,
   ):
     super().__init__()
@@ -119,14 +119,14 @@ class _NormalSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
 
 class _SoftBrandEligibilityCheckerSpec(NamedTuple):
-  version_type: _ImageVersionTypeMsg.ValueType
+  version_type: _ImageVersionTypeMsg.ValueType  # type: ignore #TODO(b/338318729) Fixit!
   image_version: release_version_utils.ImageVersion
   db: db_module.Database
   repo_name: str
   payload_config: config_data.CLSetting
 
 
-class ProjectInfoShard(common_helper.HWIDServiceShardBase):
+class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(
       self,
@@ -323,7 +323,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
                            f'{proj}.'))))
     else:
       checkers.append(
-          _NormalSoftBrandEligibilityChecker(
+          _NormalSoftBrandEligibilityChecker(  # type: ignore #TODO(b/338318729) Fixit!
               version_type=_ImageVersionTypeMsg.TOT,
               feature_matcher=feature_matcher,
           ))
@@ -363,7 +363,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):
               payload_config,
           ))
       if checker is not None:
-        checkers.append(checker)
+        checkers.append(checker)  # type: ignore #TODO(b/338318729) Fixit!
     return checkers
 
   def _CreateEligibilityCheckerBySpec(

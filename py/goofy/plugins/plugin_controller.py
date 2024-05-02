@@ -69,8 +69,8 @@ class PluginController:
       goofy: the goofy instance.
     """
     self._plugins: Dict[str, plugin.Plugin] = {}
-    self._menu_items = {}
-    self._frontend_configs = []
+    self._menu_items = {}  # type: ignore #TODO(b/338318729) Fixit!
+    self._frontend_configs = []  # type: ignore #TODO(b/338318729) Fixit!
 
     plugin_config = config_utils.LoadConfig('goofy_plugins', 'plugins')
     config_utils.OverrideConfig(

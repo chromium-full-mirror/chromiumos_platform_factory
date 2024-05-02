@@ -7,7 +7,7 @@
 import tempfile
 from typing import List
 
-import psutil
+import psutil  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog.plugins.benchmark import benchmark
@@ -65,7 +65,7 @@ class BenchmarkBufferSimpleFile(benchmark.BenchmarkCase):
     sf = buffer_simple_file.BufferSimpleFile(config={}, logger_name='',
                                              store={}, plugin_api=None)
     data_dir = tempfile.mkdtemp(prefix='buffer_simple_file_benchmark_')
-    sf.GetDataDir = lambda: data_dir
+    sf.GetDataDir = lambda: data_dir  # type: ignore #TODO(b/338318729) Fixit!
     sf.SetUp()
 
     memory_before_produce = psutil.Process().memory_info().vms

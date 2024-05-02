@@ -34,7 +34,7 @@ import urllib.request
 import uuid
 
 import jsonrpclib
-from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
+from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test import device_data
 from cros.factory.test import state

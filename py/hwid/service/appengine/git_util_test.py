@@ -14,8 +14,8 @@ from typing import Optional, Sequence, Tuple
 import unittest
 from unittest import mock
 
-from dulwich import objects as dw_objects
-import urllib3.exceptions
+from dulwich import objects as dw_objects  # type: ignore #TODO(b/338318729) Fixit!
+import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.v3 import filesystem_adapter
@@ -304,7 +304,7 @@ class GetCLInfoTest(unittest.TestCase):
     }
     if parent_cls_info:
       for commit_id, cl_number in parent_cls_info:
-        json_obj['changes'][-1]['commit']['parents'].append(
+        json_obj['changes'][-1]['commit']['parents'].append(  # type: ignore #TODO(b/338318729) Fixit!
             {'commit': commit_id})
         json_obj['changes'].append({
             'commit': {

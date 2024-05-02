@@ -134,12 +134,12 @@ class Options:
   sync_event_log_period_secs = None
   """Send events to the factory server when it is reachable at this
   interval.  Set to ``None`` to disable."""
-  _types['sync_event_log_period_secs'] = (type(None), int)
+  _types['sync_event_log_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit!
 
   update_period_secs = None
   """Automatically check for updates at the given interval.  Set to
   ``None`` to disable."""
-  _types['update_period_secs'] = (type(None), int)
+  _types['update_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit!
 
   stop_on_failure = False
   """Whether to stop on any failure."""

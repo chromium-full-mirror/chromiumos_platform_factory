@@ -59,14 +59,14 @@ TEST_INFO_PATH = 'test:Root.TestGroup.Summary'
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.prompt_message: str = _('Click or press SPACE to continue')
-    self.disable_input_on_fail: bool = False
-    self.pass_without_prompt: bool = False
-    self.bft_fixture: dict = None
-    self.accessibility: bool = False
-    self.include_parents: bool = False
-    self.run_factory_external_name: str = None
-    self.screensaver_timeout: int = None
+    self.prompt_message: str = _('Click or press SPACE to continue')  # type: ignore #TODO(b/338318729) Fixit!
+    self.disable_input_on_fail: bool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.pass_without_prompt: bool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.bft_fixture: dict = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.accessibility: bool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.include_parents: bool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.run_factory_external_name: str = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.screensaver_timeout: int = None  # type: ignore #TODO(b/338318729) Fixit!
 
     for k, v in kwargs.items():
       setattr(self, k, v)

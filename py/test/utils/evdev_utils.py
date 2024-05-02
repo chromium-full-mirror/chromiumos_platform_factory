@@ -122,10 +122,10 @@ def IsStylusDevice(dev):
       evdev.ecodes.BTN_TOOL_PEN]])
 
 
-def IsStylusGarageDevice(dev: evdev.InputDevice):
+def IsStylusGarageDevice(dev: evdev.InputDevice):  # type: ignore #TODO(b/338318729) Fixit!
   """Check if a device is a stylus garage device."""
-  return evdev.ecodes.SW_PEN_INSERTED in dev.capabilities().get(
-      evdev.ecodes.EV_SW, [])
+  return evdev.ecodes.SW_PEN_INSERTED in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsTouchpadDevice(dev):
@@ -148,21 +148,21 @@ class HoverType(enum.Enum):
   NotSupported = enum.auto()
 
 
-def GetHoverType(dev: evdev.InputDevice) -> HoverType:
+def GetHoverType(dev: evdev.InputDevice) -> HoverType:  # type: ignore #TODO(b/338318729) Fixit!
   """Gets the HoverType of a device.
 
   See EventDevice::HoverSupported() in
   power_manager/powerd/system/event_device.cc for reference.
   """
   caps = dev.capabilities(absinfo=False)
-  absolute = caps.get(evdev.ecodes.EV_ABS, [])
-  if evdev.ecodes.ABS_MT_DISTANCE in absolute:
+  absolute = caps.get(evdev.ecodes.EV_ABS, [])  # type: ignore #TODO(b/338318729) Fixit!
+  if evdev.ecodes.ABS_MT_DISTANCE in absolute:  # type: ignore #TODO(b/338318729) Fixit!
     return HoverType.MultiTouch
 
-  keycaps = caps.get(evdev.ecodes.EV_KEY, [])
-  if (evdev.ecodes.ABS_DISTANCE in absolute and
-      evdev.ecodes.BTN_TOUCH in keycaps and
-      evdev.ecodes.BTN_TOOL_FINGER in keycaps):
+  keycaps = caps.get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
+  if (evdev.ecodes.ABS_DISTANCE in absolute and  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.BTN_TOOL_FINGER in keycaps):  # type: ignore #TODO(b/338318729) Fixit!
     return HoverType.SingleTouch
 
   return HoverType.NotSupported

@@ -29,7 +29,7 @@ _HWIDIngestionProtoRPCShardBase = protorpc_utils.CreateProtoRPCServiceShardBase(
     ingestion_pb2.DESCRIPTOR.services_by_name['HwidIngestion'])
 
 
-class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):
+class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def CreateInstance(cls, config):
@@ -111,7 +111,7 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):
     return ingestion_pb2.SyncNameMappingResponse()
 
 
-class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
+class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def CreateInstance(cls, config, config_data):
@@ -139,7 +139,7 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):
                       dryrun: bool, limit_models: bool, force_update: bool,
                       live_hwid_repo: hwid_repo.HWIDRepo,
                       skip_model_check: bool = False) -> Mapping[str, str]:
-    board_result = payload_manager.Update(dryrun, limit_models, force_update,
+    board_result = payload_manager.Update(dryrun, limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
                                           live_hwid_repo, skip_model_check)
     change_ids = {
         board: result.change_id

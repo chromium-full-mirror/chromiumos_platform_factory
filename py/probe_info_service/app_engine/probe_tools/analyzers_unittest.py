@@ -59,7 +59,7 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
   def ParseProbeParams(
       self, probe_params: Sequence[_ProbeParameter], allow_missing_params: bool,
       comp_name_for_probe_statement=None
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
     if len(set(p.name for p in probe_params)) != len(probe_params):
       return self._BuildIncompatibleProbeInfoArtifact(
           'Got repeated parameter values.')

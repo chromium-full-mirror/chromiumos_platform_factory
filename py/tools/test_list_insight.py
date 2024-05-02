@@ -285,7 +285,7 @@ class TestListInsightConfigList(config_utils._ConfigList):
                             source_object['args'], source_name)
 
 # pylint: disable=protected-access
-config_utils._ConfigList = TestListInsightConfigList
+config_utils._ConfigList = TestListInsightConfigList  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class TestListInsightManager(manager.Manager):

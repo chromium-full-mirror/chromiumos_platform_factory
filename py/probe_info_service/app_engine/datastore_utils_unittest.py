@@ -32,7 +32,7 @@ class KeylessModelBaseTest(_DatastoreTestBase):
   def testCreateWithMissingFieldValuesThenRaise(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.assertRaises(TypeError):
       unused_model = TestModel.Create(self.client, self.client.key(ENTITY_KIND))
@@ -40,7 +40,7 @@ class KeylessModelBaseTest(_DatastoreTestBase):
   def testCreateWithExtraFieldValuesThenRaise(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.assertRaises(TypeError):
       unused_model = TestModel.Create(self.client, self.client.key(ENTITY_KIND),
@@ -49,9 +49,9 @@ class KeylessModelBaseTest(_DatastoreTestBase):
   def testCreateWithFieldValuesThenSuccess(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
-      field2: int = datastore_utils.ModelField(default=2)
-      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
+      field2: int = datastore_utils.ModelField(default=2)  # type: ignore #TODO(b/338318729) Fixit!
+      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)  # type: ignore #TODO(b/338318729) Fixit!
 
     model = TestModel.Create(self.client, self.client.key(ENTITY_KIND),
                              field1=1)
@@ -64,7 +64,7 @@ class KeylessModelBaseTest(_DatastoreTestBase):
     entity = self.client.entity(self.client.key(ENTITY_KIND))
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.assertRaises(TypeError):
       unused_model = TestModel.FromEntity(entity)
@@ -75,7 +75,7 @@ class KeylessModelBaseTest(_DatastoreTestBase):
     entity['extra_field'] = 100
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
     model = TestModel.FromEntity(entity)
 
@@ -86,9 +86,9 @@ class KeylessModelBaseTest(_DatastoreTestBase):
     entity.update({'field1': 1})
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
-      field2: int = datastore_utils.ModelField(default=2)
-      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
+      field2: int = datastore_utils.ModelField(default=2)  # type: ignore #TODO(b/338318729) Fixit!
+      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)  # type: ignore #TODO(b/338318729) Fixit!
 
     model = TestModel.FromEntity(entity)
 
@@ -99,7 +99,7 @@ class KeylessModelBaseTest(_DatastoreTestBase):
   def testCorrespondingEntityReflectChanges(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
     model = TestModel.Create(self.client, self.client.key(ENTITY_KIND),
                              field1=123)
@@ -141,9 +141,9 @@ class KeyfulModelBaseTest(_DatastoreTestBase):
   def testCreateWithFieldValuesThenSuccess(self):
 
     class TestModel(datastore_utils.KeyfulModelBase):
-      field1: int
-      field2: int = datastore_utils.ModelField(default=2)
-      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
+      field2: int = datastore_utils.ModelField(default=2)  # type: ignore #TODO(b/338318729) Fixit!
+      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)  # type: ignore #TODO(b/338318729) Fixit!
 
       def DeriveKeyPathFromModelFields(self):
         return (self.field1, )
@@ -167,7 +167,7 @@ class KeyfulModelBaseTest(_DatastoreTestBase):
     self.used_entity_kinds.append('TheKind')
 
     class TestModel(datastore_utils.KeyfulModelBase):
-      field1: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
 
       def DeriveKeyPathFromModelFields(self):
         return ('TheKind', self.field1)
@@ -198,9 +198,9 @@ class KeyfulModelBaseTest(_DatastoreTestBase):
     })
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
-      field2: int = datastore_utils.ModelField(default=2)
-      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
+      field2: int = datastore_utils.ModelField(default=2)  # type: ignore #TODO(b/338318729) Fixit!
+      field3: int = datastore_utils.ModelField(default_factory=lambda: 3)  # type: ignore #TODO(b/338318729) Fixit!
 
       def DeriveKeyPathFromModelFields(self):
         return (self.field1, )
@@ -214,8 +214,8 @@ class KeyfulModelBaseTest(_DatastoreTestBase):
   def testCorrespondingEntityReflectChanges(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: int
-      field2: int
+      field1: int  # type: ignore #TODO(b/338318729) Fixit!
+      field2: int  # type: ignore #TODO(b/338318729) Fixit!
 
       def DeriveKeyPathFromModelFields(self):
         return (self.field1, )
@@ -245,7 +245,7 @@ class PBModelFieldConverterTest(_DatastoreTestBase):
   def testCanConvertToEntityAndLoadBack(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: stubby_pb2.ComponentIdentity = datastore_utils.ModelField(
+      field1: stubby_pb2.ComponentIdentity = datastore_utils.ModelField(  # type: ignore #TODO(b/338318729) Fixit!
           converter=datastore_utils.PBModelFieldConverter(
               stubby_pb2.ComponentIdentity))
 
@@ -262,7 +262,7 @@ class TextPBModelFieldConverterTest(_DatastoreTestBase):
   def testCanConvertToEntityAndLoadBack(self):
 
     class TestModel(datastore_utils.KeylessModelBase):
-      field1: stubby_pb2.ComponentIdentity = datastore_utils.ModelField(
+      field1: stubby_pb2.ComponentIdentity = datastore_utils.ModelField(  # type: ignore #TODO(b/338318729) Fixit!
           converter=datastore_utils.TextPBModelFieldConverter(
               stubby_pb2.ComponentIdentity))
 

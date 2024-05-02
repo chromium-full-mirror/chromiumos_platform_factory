@@ -23,7 +23,7 @@ from ctypes import *
 import mmap
 import os
 
-from PIL import Image
+from PIL import Image  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class DrmVersion(Structure):

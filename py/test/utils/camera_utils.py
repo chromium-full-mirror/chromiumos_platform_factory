@@ -69,7 +69,7 @@ def GetCameraTypeFromCameraFacing(facing: CameraFacing):
                       f'{list(CameraFacing.__members__)}')
 
   #TODO(jimmysun) remove this line after changing rear to back in pytest.
-  facing = 'back' if facing == CameraFacing.rear else facing
+  facing = 'back' if facing == CameraFacing.rear else facing  # type: ignore #TODO(b/338318729) Fixit!
   for index in (0, 1):
     command = ['cros_config', f'/camera/devices/{index}']
     if process_utils.SpawnOutput(command + ['facing']) == facing:

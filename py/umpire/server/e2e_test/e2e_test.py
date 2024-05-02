@@ -27,7 +27,7 @@ import time
 import unittest
 import xmlrpc.client
 
-import requests
+import requests  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.umpire import common
 from cros.factory.utils import file_utils

@@ -47,18 +47,18 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
   """Unit tests for preparing netboot."""
 
   def _SetupBuilder(self, bundle_builder: finalize_bundle.FinalizeBundle):
-    orig_netboot_dir = os.path.join(bundle_builder.bundle_dir, 'factory_shim',
+    orig_netboot_dir = os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
                                     'netboot')
     file_utils.TryMakeDirs(orig_netboot_dir)
     file_utils.TouchFile(
-        os.path.join(bundle_builder.bundle_dir, 'factory_shim',
+        os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
                      'factory_shim.bin'))
     file_utils.TouchFile(os.path.join(orig_netboot_dir, 'vmlinuz'))
     file_utils.TouchFile(
         os.path.join(orig_netboot_dir, 'image-randomName.net.bin'))
     bundle_builder.designs = ['test']  # Set by PrepareProjectConfig
     # Set by ObtainFirmwareManifestKeys
-    bundle_builder.firmware_manifest_keys = {
+    bundle_builder.firmware_manifest_keys = {  # type: ignore #TODO(b/338318729) Fixit!
         'randomFWKey': ['test']
     }
     # Set by AddFirmwareUpdaterAndImages

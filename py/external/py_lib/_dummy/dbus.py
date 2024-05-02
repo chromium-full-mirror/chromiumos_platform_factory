@@ -33,5 +33,5 @@ DBusException = DummyClass
 _name = 'cros.factory.external.py_lib.dbus.mainloop'
 mainloop = sys.modules[_name] = types.ModuleType(_name)
 _name += '.glib'
-mainloop.glib = sys.modules[_name] = types.ModuleType(_name)
-mainloop.glib.DBusGMainLoop = DummyFunc
+mainloop.glib = sys.modules[_name] = types.ModuleType(_name)  # type: ignore #TODO(b/338318729) Fixit!
+mainloop.glib.DBusGMainLoop = DummyFunc  # type: ignore #TODO(b/338318729) Fixit!

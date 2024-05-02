@@ -41,7 +41,7 @@ from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 
 
-_TestItem = collections.namedtuple('TestItem', 'num_point bg_color point_color')
+_TestItem = collections.namedtuple('TestItem', 'num_point bg_color point_color')  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class DisplayPointTest(test_case.TestCase):

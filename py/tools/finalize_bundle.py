@@ -256,7 +256,7 @@ class FinalizeBundle:
     self.archive = archive
     self.jobs = jobs
     self.bundle_record = bundle_record
-    self.firmware_bios_names: List[str] = []
+    self.firmware_bios_names: List[str] = []  # type: ignore #TODO(b/338318729) Fixit!
     self.timestamp = ''
     self.bundle_phase = 'mp'
     self.rma_shim = rma_shim
@@ -314,7 +314,7 @@ class FinalizeBundle:
           f'The designs (currently {self.designs!r}) should be '
           f'{BOXSTER_DESIGNS!r}, None or a list of str.')
 
-    self.bundle_name: str = self.manifest['bundle_name']
+    self.bundle_name: str = self.manifest['bundle_name']  # type: ignore #TODO(b/338318729) Fixit!
     if not re.match(r'\d{8}_', self.bundle_name):
       raise FinalizeBundleException(
           f"The bundle_name (currently {self.bundle_name!r}) should be today's "
@@ -573,7 +573,7 @@ class FinalizeBundle:
                          self.signed_shim_path
                         ) + need_test_image + need_release_image + need_firmware
       max_workers = min(max_workers, self.jobs)
-      not_done_jobs: Set[concurrent.futures.Future] = set()
+      not_done_jobs: Set[concurrent.futures.Future] = set()  # type: ignore #TODO(b/338318729) Fixit!
       try:
         executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=max_workers)
@@ -875,8 +875,8 @@ class FinalizeBundle:
       ], log=True, call=True)
 
     if self.is_boxster_project:
-      max_ro_version: Optional[version_module.StrictVersion] = None
-      firmware_bios_names: Set[str] = set()
+      max_ro_version: Optional[version_module.StrictVersion] = None  # type: ignore #TODO(b/338318729) Fixit!
+      firmware_bios_names: Set[str] = set()  # type: ignore #TODO(b/338318729) Fixit!
       for manifest_key, sub_manifest in manifest.items():
         if manifest_key not in firmware_manifest_keys:
           continue
@@ -1483,9 +1483,9 @@ class FinalizeBundle:
   def BuildArchiveAndRMASharedArguments(self, args: List[str]):
     args.extend([
         '--board',
-        self.board,
+        self.board,  # type: ignore #TODO(b/338318729) Fixit!
         '--project',
-        self.project,
+        self.project,  # type: ignore #TODO(b/338318729) Fixit!
     ])
     if self.designs:
       args.append('--designs')
@@ -1603,7 +1603,7 @@ class FinalizeBundle:
     for url in possible_urls:
       try:
         logging.info('Looking for %s at %s', resource_name, url)
-        output = self.gsutil.LS(url)
+        output = self.gsutil.LS(url)  # type: ignore #TODO(b/338318729) Fixit!
       except gsutil.NoSuchKey:
         continue
 

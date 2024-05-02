@@ -7,7 +7,7 @@ import os
 import signal
 import sys
 
-from django.core.management import execute_from_command_line
+from django.core.management import execute_from_command_line  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def handler(signum, frame):

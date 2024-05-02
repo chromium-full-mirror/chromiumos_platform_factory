@@ -52,7 +52,7 @@ from cros.factory.utils.arg_utils import Arg
 
 try:
   # TODO(littlecvr) Make dummy implementation.
-  from cros.factory.board import modem_utils
+  from cros.factory.board import modem_utils  # type: ignore #TODO(b/338318729) Fixit!
 except ImportError:
   pass
 

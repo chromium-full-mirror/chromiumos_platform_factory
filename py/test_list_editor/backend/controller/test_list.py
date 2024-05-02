@@ -4,7 +4,7 @@
 
 from typing import cast
 
-from flask import g
+from flask import g  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.models import test_list as test_list_model
@@ -41,7 +41,7 @@ class TestListController:
 
   def GetItem(self, test_list_id: str, test_list: test_list_model.ITestList,
               test_item_id: str) -> test_list_schema.TestItemsResponse:
-    self._LoadTestListFromFile(test_list_id, test_list)
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
 
     return test_list_schema.TestItemsResponse(
         status=common_schema.StatusEnum.SUCCESS,
@@ -53,7 +53,7 @@ class TestListController:
   ) -> test_list_schema.TestItemsResponse:
     test_list_file = self._GetTestListFile(test_list_id)
 
-    self._LoadTestListFromFile(test_list_id, test_list)
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
     test_list.UpdateTestItemConfig(test_item)
     test_list.ExportDiff(test_list_file)
 
@@ -66,7 +66,7 @@ class TestListController:
   ) -> test_list_schema.TestItemsResponse:
     test_list_file = self._GetTestListFile(test_list_id)
 
-    self._LoadTestListFromFile(test_list_id, test_list)
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
     test_list.UpdateTestItemConfig(test_item)
     test_list.ExportDiff(test_list_file)
 

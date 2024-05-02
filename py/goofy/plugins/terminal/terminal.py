@@ -12,7 +12,7 @@ import struct
 import termios
 import threading
 
-from ws4py.websocket import WebSocket
+from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.goofy.plugins import plugin
 from cros.factory.test.utils.web_socket_utils import WebSocketHandshake

@@ -157,9 +157,9 @@ class HWIDV3Test(test_case.TestCase):
 
     collect_material_cmd = ['hwid', 'collect-material']
     collect_material_cmd.extend(['--device-info-file', device_info_file])
-    if self.args.vpd_data_file:
-      collect_material_cmd.extend(['--vpd-data-file', self.args.vpd_data_file])
-    if self.args.run_vpd:
+    if self.args.vpd_data_file:  # type: ignore #TODO(b/338318729) Fixit!
+      collect_material_cmd.extend(['--vpd-data-file', self.args.vpd_data_file])  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.run_vpd:  # type: ignore #TODO(b/338318729) Fixit!
       collect_material_cmd.append('--run-vpd')
 
     collect_material_cmd.extend(['--output-file', hwid_material_file])

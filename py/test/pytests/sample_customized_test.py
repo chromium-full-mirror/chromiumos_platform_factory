@@ -57,7 +57,7 @@ class SampleCustomizedTest(unittest.TestCase):
   `tearDown` functions to make sure something is done before / after the test,
   no matter what.
   """
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
 
 
   ARGS = [

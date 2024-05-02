@@ -99,7 +99,7 @@ class CbiEepromWpStatus(str, enum.Enum):
     return self.name
 
 
-CbiDataAttr = collections.namedtuple('DataAttr', ['tag', 'type', 'size'])
+CbiDataAttr = collections.namedtuple('DataAttr', ['tag', 'type', 'size'])  # type: ignore #TODO(b/338318729) Fixit!
 CbiDataDict = {
     CbiDataName.BOARD_VERSION: CbiDataAttr(0, int, 1),
     CbiDataName.OEM_ID: CbiDataAttr(1, int, 1),

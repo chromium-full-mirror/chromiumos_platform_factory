@@ -79,7 +79,7 @@ class BluetoothScanTest(unittest.TestCase):
           default=None),
   ]
 
-  HostDeviceType = collections.namedtuple(
+  HostDeviceType = collections.namedtuple(  # type: ignore #TODO(b/338318729) Fixit!
       'HostDevice', ['interface', 'address'])
 
   def setUp(self):

@@ -22,20 +22,20 @@ class Toybox(device_types.DeviceComponent):
 
   # The data structures used by sub commands.
 
-  DISK_FREE_TUPLE = namedtuple(
+  DISK_FREE_TUPLE = namedtuple(  # type: ignore #TODO(b/338318729) Fixit!
       'DiskFreeTuple', 'filesystem kblocks used available use_pct mounted_on')
 
-  MEM_FREE_TUPLE = namedtuple(
+  MEM_FREE_TUPLE = namedtuple(  # type: ignore #TODO(b/338318729) Fixit!
       'MemoryFreeTuple',
       ('mem_total mem_used mem_free mem_shared mem_buffers ' +
        # The second line refers to +/- buffers/cache.
        'mem_min_used mem_max_free ' +
        'swap_total swap_used swap_free'))
 
-  MOUNT_TUPLE = namedtuple(
+  MOUNT_TUPLE = namedtuple(  # type: ignore #TODO(b/338318729) Fixit!
       'MountTuple', 'device path type options')
 
-  UPTIME_TUPLE = namedtuple(
+  UPTIME_TUPLE = namedtuple(  # type: ignore #TODO(b/338318729) Fixit!
       'UptimeTuple',
       'current_time uptime users loadavg_1min loadavg_5min loadavg_15min')
 

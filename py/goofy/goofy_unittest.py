@@ -19,7 +19,7 @@ import traceback
 import unittest
 from unittest import mock
 
-from ws4py.client import WebSocketBaseClient
+from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.device import info as device_info
 from cros.factory.goofy import goofy
@@ -898,6 +898,6 @@ class NoHostTest(GoofyUITest):
 
 if __name__ == '__main__':
   log_utils.InitLogging()
-  goofy.suppress_chroot_warning = True
+  goofy.suppress_chroot_warning = True  # type: ignore #TODO(b/338318729) Fixit!
 
   unittest.main()

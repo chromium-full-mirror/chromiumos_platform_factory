@@ -20,7 +20,7 @@ class OEMCryptoClient:
     obj = bus.get_object(self.SERVICE_NAME, self.PATH)
     self._interface = dbus.Interface(obj, self.INTERFACE)
 
-  def GetFactoryTransportKeyMaterial(self) -> (int, str):
+  def GetFactoryTransportKeyMaterial(self) -> (int, str):  # type: ignore #TODO(b/338318729) Fixit!
     """Get SoC model ID and SoC serial number from OEMCrypto API
 
     Returns:
@@ -45,6 +45,6 @@ class OEMCryptoClient:
     Returns:
       The re-encrypted keybox in hex string format.
     """
-    keybox_for_dbus = dbus.Array(
-        [dbus.Byte(b) for b in bytes.fromhex(encrypted_keybox)], signature='y')
+    keybox_for_dbus = dbus.Array(  # type: ignore #TODO(b/338318729) Fixit!
+        [dbus.Byte(b) for b in bytes.fromhex(encrypted_keybox)], signature='y')  # type: ignore #TODO(b/338318729) Fixit!
     return bytes(self._interface.WrapFactoryKeybox(keybox_for_dbus)).hex()

@@ -86,7 +86,7 @@ from cros.factory.external.py_lib import numpy
 # use the fingerprint image processing library if available
 sys.path.extend(['/usr/local/opt/fpc', '/opt/fpc'])
 try:
-  import fputils
+  import fputils  # type: ignore #TODO(b/338318729) Fixit!
   libfputils = fputils.FpUtils()
 except ImportError:
   libfputils = None
@@ -423,18 +423,18 @@ class FingerprintTest(test_case.TestCase):
         ''.join(f'<img src="{os.path.join(_IMAGE_DIR, filename)}">'
                 for filename in captures))
     self._ui_table.cols += 1
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         [self._ui_table.GenerateHTML(), test_ui.PASS_FAIL_KEY_LABEL])
 
   def _ManualTest(self, iterations: int):
-    self.ui.SetTitle(_('Fingerprint Manual Test'))
-    self.ui.SetInstruction(_('Touch fingerprint sensor'))
+    self.ui.SetTitle(_('Fingerprint Manual Test'))  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetInstruction(_('Touch fingerprint sensor'))  # type: ignore #TODO(b/338318729) Fixit!
     self._dut.CheckCall(['mkdir', '-p', self._image_dir], log=True)
     for iteration in range(iterations):
       self._fpmcu.FpmcuCommand('fpmode', 'capture', 'vendor')
       # wait for the end of capture (or timeout)
       self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
-                             str(self.args.timeout_secs * 1000))
+                             str(self.args.timeout_secs * 1000))  # type: ignore #TODO(b/338318729) Fixit!
       img = self.FpmcuGetFpframe('raw', encoding=None)
       self._ShowFingerprint(img, f'capture{int(iteration + 1)}')
 
@@ -445,11 +445,11 @@ class FingerprintTest(test_case.TestCase):
       ], log=True)
       self.FailTask('Operator marked as fail')
 
-    self.ui.SetInstruction('')
-    self.ui.BindKey(test_ui.ESCAPE_KEY, _FailTask)
-    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)
-    self.ui.UnbindKey(test_ui.ESCAPE_KEY)
-    self.ui.SetState([])
+    self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.BindKey(test_ui.ESCAPE_KEY, _FailTask)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.UnbindKey(test_ui.ESCAPE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState([])  # type: ignore #TODO(b/338318729) Fixit!
     self._dut.CheckCall(['rm', '-rf', self._image_dir], log=True)
 
   def _VerifyCommunication(self):

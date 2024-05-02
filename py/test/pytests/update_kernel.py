@@ -80,7 +80,7 @@ _DEVKEY = 'b11d74edd286c144e1135b49e7f0bc20cf041f10'
 
 
 class UpdateKernel(unittest.TestCase):
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
   ARGS = [
       # TODO(hungte) Support compressed image, or download from factory server.
       Arg('kernel_image', str, 'Full path of kernel.bin',

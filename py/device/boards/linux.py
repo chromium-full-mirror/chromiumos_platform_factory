@@ -287,7 +287,7 @@ class LinuxBoard(device_types.DeviceBoard):
 
     with file_utils.UnopenedTemporaryFile() as local_temp:
       file_utils.WriteFile(local_temp, content)
-      with self.temp.TempFile() as remote_temp:
+      with self.temp.TempFile() as remote_temp:  # type: ignore #TODO(b/338318729) Fixit!
         self.link.Push(local_temp, remote_temp)
         self.CheckOutput(['dd', f'if={remote_temp}', f'of={path}'])
 

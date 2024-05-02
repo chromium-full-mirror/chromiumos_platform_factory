@@ -9,7 +9,7 @@ from xml.dom import minidom
 
 from google.cloud import bigquery
 from google.cloud import ndb
-from packaging import version as version_module
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_repo

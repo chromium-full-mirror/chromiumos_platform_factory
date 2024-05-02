@@ -73,7 +73,7 @@ class HPSDevice:
                               stderr=subprocess.PIPE, log=True)
     output, stderr = process.communicate()
     errors = []
-    results = []
+    results = []  # type: ignore #TODO(b/338318729) Fixit!
     for pattern in (MCU_ID_RE, CAMERA_ID_RE, SPI_FLASH_RE):
       match = pattern.search(output)
       if match is None:

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class StatusEnum(str, Enum):

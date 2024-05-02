@@ -4,7 +4,7 @@
 from typing import Any, Dict, List
 
 from jsonschema import ValidationError as JSONValidationError
-from pydantic import validator
+from pydantic import validator  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.test_lists import test_list_common
 from cros.factory.test_list_editor.backend.models import files as file_model

@@ -62,7 +62,7 @@ def _GetExactlyOneComponentClassFromEncodedField(db: database.Database,
 def _IsNewlyCreatedOrRenamedComp(
     analysis_result: _HWIDComponentAnalysisResult) -> bool:
   return (analysis_result.is_newly_added or
-          analysis_result.diff_prev.name_changed)
+          analysis_result.diff_prev.name_changed)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class ChangeUnitDepSpec:
@@ -74,7 +74,7 @@ class ChangeUnitDepSpec:
   """
 
   def __init__(self, cu_cls: Type['ChangeUnit'],
-               *spec_tuple: Union[type(None), str, int, bool]):
+               *spec_tuple: Union[type(None), str, int, bool]):  # type: ignore #TODO(b/338318729) Fixit!
     self._spec_tuple = (cu_cls, *spec_tuple)
 
   def __eq__(self, rhs: Any) -> bool:
@@ -129,7 +129,7 @@ class ChangeUnit(abc.ABC):
 
 
 # A special instance to filter all other change units.
-_ALL_OTHER_CHANGE_UNIT_DEP_SPEC = ChangeUnitDepSpec(ChangeUnit)
+_ALL_OTHER_CHANGE_UNIT_DEP_SPEC = ChangeUnitDepSpec(ChangeUnit)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class CompChange(ChangeUnit):
@@ -188,12 +188,12 @@ class CompChange(ChangeUnit):
                               self._information)
     else:  # Update component in-place.
       if (comp_name in comps and
-          comp_name != self._analysis_result.diff_prev.prev_comp_name):
+          comp_name != self._analysis_result.diff_prev.prev_comp_name):  # type: ignore #TODO(b/338318729) Fixit!
         # Name collision while renaming component to an existing name.
         comp_name = name_pattern_adapter.AddSequenceSuffix(
             comp_name, self._analysis_result.seq_no)
       db_builder.UpdateComponent(
-          comp_cls, self._analysis_result.diff_prev.prev_comp_name, comp_name,
+          comp_cls, self._analysis_result.diff_prev.prev_comp_name, comp_name,  # type: ignore #TODO(b/338318729) Fixit!
           self._probe_values, self._analysis_result.support_status,
           self._information, self._bundle_uuids)
 
@@ -497,9 +497,9 @@ def _ExtractCompChanges(analysis_mapping: MutableMapping[Tuple[
     str, str], _HWIDComponentAnalysisResult],
                         new_db: database.Database) -> Iterable[CompChange]:
   for (comp_cls, comp_name), comp_analysis in analysis_mapping.items():
-    if comp_analysis.is_newly_added or not comp_analysis.diff_prev.unchanged:
+    if comp_analysis.is_newly_added or not comp_analysis.diff_prev.unchanged:  # type: ignore #TODO(b/338318729) Fixit!
       comp_info = new_db.GetComponents(comp_cls)[comp_name]
-      yield CompChange(comp_analysis, comp_info.values, comp_info.information,
+      yield CompChange(comp_analysis, comp_info.values, comp_info.information,  # type: ignore #TODO(b/338318729) Fixit!
                        comp_info.comp_hash, comp_info.bundle_uuids)
 
 
@@ -646,7 +646,7 @@ def _ExtractEncodingRelatedChanges(
 
 def _ExtractRenameImages(old_db: database.Database,
                          new_db: database.Database) -> Iterable[ChangeUnit]:
-  if old_db.raw_image_id.items() <= new_db.raw_image_id.items():
+  if old_db.raw_image_id.items() <= new_db.raw_image_id.items():  # type: ignore #TODO(b/338318729) Fixit!
     return
   removed_image_ids = set(old_db.image_ids) - set(new_db.image_ids)
   if removed_image_ids:
@@ -699,8 +699,8 @@ def _ExtractNewImageIds(old_db: database.Database,
 def _ExtractReplaceRules(old_db: database.Database,
                          new_db: database.Database) -> Iterable[ReplaceRules]:
 
-  if old_db.raw_rules != new_db.raw_rules:
-    yield ReplaceRules(new_db.raw_rules.Export())
+  if old_db.raw_rules != new_db.raw_rules:  # type: ignore #TODO(b/338318729) Fixit!
+    yield ReplaceRules(new_db.raw_rules.Export())  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def _ReverseCompIdxMapping(

@@ -5,7 +5,7 @@
 import unittest
 from unittest import mock
 
-from flask import Flask
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
 from flask import g
 
 from cros.factory.test_list_editor.backend.controller import files as file_controller

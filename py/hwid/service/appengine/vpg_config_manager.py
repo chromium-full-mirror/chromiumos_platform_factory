@@ -65,7 +65,7 @@ class VPGTargets(NamedTuple):
   content: str
   hash_value: str
 
-  _VPG_TARGETS_HEADER = ('# This file is updated automatically. Do not edit '
+  _VPG_TARGETS_HEADER = ('# This file is updated automatically. Do not edit '  # type: ignore #TODO(b/338318729) Fixit!
                          'this file manually.\n\n')
 
   @classmethod
@@ -73,7 +73,7 @@ class VPGTargets(NamedTuple):
     vpg_targets_content = cls._VPG_TARGETS_HEADER + yaml.safe_dump(
         models_vp_on, default_flow_style=False)
     content_hash = hashlib.sha1(vpg_targets_content.encode('utf-8')).hexdigest()
-    return cls(content=vpg_targets_content, hash_value=content_hash)
+    return cls(content=vpg_targets_content, hash_value=content_hash)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class VPGConfigGenerationException(Exception):
@@ -87,7 +87,7 @@ def _ToSortedDict(target: Mapping[Any, Any]) -> collections.OrderedDict:
     if isinstance(val, dict):
       sorted_dict[key] = _ToSortedDict(val)
     elif isinstance(val, list):
-      sorted_dict[key] = list(sorted(val))
+      sorted_dict[key] = list(sorted(val))  # type: ignore #TODO(b/338318729) Fixit!
     else:
       sorted_dict[key] = val
   return sorted_dict
@@ -108,7 +108,7 @@ class VPGConfigManager:
 
   @property
   def _author(self) -> str:
-    service_account_name = self._gerrit_credentials[0]
+    service_account_name = self._gerrit_credentials[0]  # type: ignore #TODO(b/338318729) Fixit!
     return f'chromeoshwid <{service_account_name}>'
 
   def _RefreshCredential(self):
@@ -141,7 +141,7 @@ class VPGConfigManager:
     """
     dlm_products = self._dlm_product_manager.GetDLMProductsByBoards(
         vpg_config.target_boards)
-    product_status_mapping = collections.defaultdict(
+    product_status_mapping = collections.defaultdict(  # type: ignore #TODO(b/338318729) Fixit!
         lambda: collections.defaultdict(set))
     for product in dlm_products:
       product_status_mapping[product.board][product.model].add(
@@ -167,7 +167,7 @@ class VPGConfigManager:
     commit_msg = 'vpg_targets: Update the list of model to generate payloads'
     try:
       self._cl_upload_manager.CreateCL(
-          dryrun, git_url, self._auth_cookie, branch, git_files, author, author,
+          dryrun, git_url, self._auth_cookie, branch, git_files, author, author,  # type: ignore #TODO(b/338318729) Fixit!
           commit_msg, topic=self._cl_setting.topic, auto_submit=True,
           hashtags=self._cl_setting.hashtags)
     except git_util.GitUtilNoModificationException:
@@ -195,7 +195,7 @@ class VPGConfigManager:
     self._RefreshCredential()
 
     vpg_config = self._GetVPGConfig()
-    models_vp_on = collections.defaultdict(
+    models_vp_on = collections.defaultdict(  # type: ignore #TODO(b/338318729) Fixit!
         lambda: collections.defaultdict(dict))
     models_vp_on.update(vpg_config.models_force_vp_on)
 
@@ -219,7 +219,7 @@ class VPGConfigManager:
         models_vp_on[board][model] = model_config
 
     # Sort the result to avoid flakiness.
-    models_vp_on = {
+    models_vp_on = {  # type: ignore #TODO(b/338318729) Fixit!
         'models_vp_on': _ToSortedDict(models_vp_on)
     }
     vpg_targets = VPGTargets.Create(models_vp_on)

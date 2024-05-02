@@ -49,9 +49,9 @@ import os
 import typing
 from typing import Callable, Sequence, Type, Union
 
-from flask import g
+from flask import g  # type: ignore #TODO(b/338318729) Fixit!
 from flask import request
-from pydantic import BaseModel
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
 from pydantic import ValidationError
 
 from cros.factory.test_list_editor.backend.middleware import validation_exception as exceptions

@@ -6,8 +6,8 @@ from typing import Tuple
 import unittest
 from unittest import mock
 
-from flask import Flask
-from pydantic import BaseModel
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
 from pydantic import Field
 
 from cros.factory.test_list_editor.backend.middleware import validation
@@ -113,7 +113,7 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponse(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -129,10 +129,10 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponseTupleType(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     class UserResponseHeader(common.BaseHeader):
-      custom_header: str = Field(alias='custom-header')
+      custom_header: str = Field(alias='custom-header')  # type: ignore #TODO(b/338318729) Fixit!
 
     @self.app.route('/export/users/', methods=['GET'])
     @validation.Validate
@@ -153,10 +153,10 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponseDifferentClass(self):
 
     class UserResponse(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     class AnotherUserResponse(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -171,10 +171,10 @@ class TestValidateResponse(unittest.TestCase):
   def testInvalidResponse(self):
 
     class UserResponse(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     class BadUserResponse(BaseModel):
-      user_id: str
+      user_id: str  # type: ignore #TODO(b/338318729) Fixit!
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -190,10 +190,10 @@ class TestValidateResponse(unittest.TestCase):
   def testInvalidResponseUnknownType(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
 
     class BadUserResponse(BaseModel):
-      bad_data: int
+      bad_data: int  # type: ignore #TODO(b/338318729) Fixit!
 
     @self.app.route('/export/bad/users/', methods=['GET'])
     @validation.Validate

@@ -5,8 +5,8 @@
 
 from typing import Any, Dict, Tuple
 
-from sphinx import application
-from sphinx.directives import code
+from sphinx import application  # type: ignore #TODO(b/338318729) Fixit!
+from sphinx.directives import code  # type: ignore #TODO(b/338318729) Fixit!
 from sphinx import errors
 
 from cros.factory.test.test_lists import manager
@@ -79,7 +79,7 @@ class TestListDirective(code.CodeBlock):
           f'{test_list_id!r}. ' + self.error_messages_template.format(
               self.directive_name, test_object_name))
 
-    dict_test_object: Dict[str, Any] = factory_test_object.ToStruct(
+    dict_test_object: Dict[str, Any] = factory_test_object.ToStruct(  # type: ignore #TODO(b/338318729) Fixit!
         remove_default=True)
     dict_test_object.pop('id', None)
     dict_test_object.pop('locals', None)

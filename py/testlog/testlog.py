@@ -397,7 +397,7 @@ def CollectExpiredSessions(log_root,
       test_name, test_run_id = LogFinalTestRun(session_log_path,
                                                station_test_run)
       expired_session.append([test_name, test_run_id])
-  return expired_session
+  return expired_session  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def LogTestRun(session_json_path, station_test_run=None) -> Tuple[str, str]:

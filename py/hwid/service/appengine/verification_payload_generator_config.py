@@ -35,7 +35,7 @@ class VerificationPayloadGeneratorConfig(NamedTuple):
 
     return cls(ignore_error=ignore_error,
                waived_comp_categories=waived_comp_categories,
-               encrypted=encrypted)
+               encrypted=encrypted)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def BatchCreate(

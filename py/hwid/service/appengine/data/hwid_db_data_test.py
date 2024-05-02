@@ -9,7 +9,7 @@ import textwrap
 import unittest
 from unittest import mock
 
-from dulwich import objects as dulwich_objects
+from dulwich import objects as dulwich_objects  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import git_util

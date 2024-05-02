@@ -185,7 +185,7 @@ class UpdateFirmwareTest(test_case.TestCase):
         the firmware by flashing only the SI_DESC region from the updater.
     """
     _, dut_locked = fw_image.GenerateAndCheckLockedDescriptor()
-    updater_locked = not self.args.unlock_csme
+    updater_locked = not self.args.unlock_csme  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Intel descriptor status: %s',
                  'Locked' if dut_locked else 'Unlocked')
     logging.info('Updater descriptor status: %s',
@@ -211,7 +211,7 @@ class UpdateFirmwareTest(test_case.TestCase):
 
   def RunUpdaterAndCheckResult(self, command: List[str],
                                error_msg: str = 'Firmware update failed'):
-    returncode = self.ui.PipeProcessOutputToUI(command)
+    returncode = self.ui.PipeProcessOutputToUI(command)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Updates system info so EC and Firmware version in system info box
     # are correct.

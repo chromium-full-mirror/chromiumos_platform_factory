@@ -9,7 +9,7 @@ import os
 import pickle
 from typing import Collection, Optional, Union
 
-import redis
+import redis  # type: ignore #TODO(b/338318729) Fixit!
 
 
 PICKLE_PROTOCOL_VERSION = 2

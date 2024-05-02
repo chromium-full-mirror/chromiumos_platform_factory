@@ -28,11 +28,11 @@ from cros.factory.utils import webservice_utils
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.method: str = 'GetVersion'
-    self.args: list = None
-    self.kargs: Mapping = None
-    self.raw_invocation: bool = False
-    self.server_url: Union[str, Dict[str, str]] = None
+    self.method: str = 'GetVersion'  # type: ignore #TODO(b/338318729) Fixit!
+    self.args: list = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.kargs: Mapping = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.raw_invocation: bool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.server_url: Union[str, Dict[str, str]] = None  # type: ignore #TODO(b/338318729) Fixit!
 
     for k, v in kwargs.items():
       setattr(self, k, v)

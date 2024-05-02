@@ -1,7 +1,7 @@
 # Copyright 2023 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-from flask import Flask
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test_list_editor.backend.schema import common
 from cros.factory.utils import config_utils

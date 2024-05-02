@@ -161,7 +161,7 @@ class ReportArchiver:
     Returns:
       True if it archives a directory correctly; otherwise, return False.
     """
-    archived_list = []
+    archived_list = []  # type: ignore #TODO(b/338318729) Fixit!
     index = 0
     report_day = os.path.basename(dir_to_archive)
 
@@ -308,7 +308,7 @@ class SFTP(IConnection):
     """
     with open(file_path, 'rb') as f:
       hash_value = base64.b64encode(hashlib.md5(f.read()).digest())
-    return hash_value
+    return hash_value  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SFTPCommand(self, command: str) -> Tuple[int, str, str]:
     with subprocess.Popen([
@@ -354,7 +354,7 @@ class ArchiveUploader:
     # Checks the file integrity.
     if not hash_check or not self.connection.CheckIntegrity(
         local_path, target_path):
-      return False
+      return False  # type: ignore #TODO(b/338318729) Fixit!
     self._CleanUp(local_path)
     return Status.SUCCESS
 

@@ -4,8 +4,8 @@
 
 import logging
 
-from backend.models import Project
-from django.core.management.base import BaseCommand
+from backend.models import Project  # type: ignore #TODO(b/338318729) Fixit!
+from django.core.management.base import BaseCommand  # type: ignore #TODO(b/338318729) Fixit!
 
 
 logger = logging.getLogger(f'django.{__name__}')

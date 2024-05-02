@@ -24,8 +24,8 @@ TEST_PATH = '/test-bucket/foo'
 def _CreateMockListBlobsWrapper(test_files):
 
   class Blob(NamedTuple):
-    name: str
-    path: str
+    name: str  # type: ignore #TODO(b/338318729) Fixit!
+    path: str  # type: ignore #TODO(b/338318729) Fixit!
 
   def wrapper(bucket_name, prefix, delimiter):
     if bucket_name == TEST_BUCKET and delimiter == '/':

@@ -13,7 +13,7 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class BFTFixture(unittest.TestCase):
-  related_components = tuple()
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('method', str, 'BFTFixture method to call.'),

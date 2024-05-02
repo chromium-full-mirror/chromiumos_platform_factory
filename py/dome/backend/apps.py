@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-from django.apps import AppConfig
+from django.apps import AppConfig  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class BackendConfig(AppConfig):

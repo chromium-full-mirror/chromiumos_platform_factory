@@ -110,7 +110,7 @@ def Main(module='__main__'):
   """
   caller_module = __import__(module)
   benchmark_cases = CreateBenchmarkCases(caller_module)
-  available_benchmarks: Dict[str, Callable] = {}
+  available_benchmarks: Dict[str, Callable] = {}  # type: ignore #TODO(b/338318729) Fixit!
   for case_name, case_class in benchmark_cases.items():
     for benchmark_name, method in case_class.GetBenchmarkTests().items():
       available_benchmarks[f'{case_name}.{benchmark_name}'] = method

@@ -2,8 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from flask import Flask
-from flask_cors import CORS
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
+from flask_cors import CORS  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test_list_editor.backend.api import status
 from cros.factory.test_list_editor.backend.api.v1 import files

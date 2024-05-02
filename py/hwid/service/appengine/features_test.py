@@ -86,7 +86,7 @@ def _BuildDatabaseForTest(
   encoded_fields_data_object = (
       yaml.safe_load(encoded_fields_section)['encoded_fields'])
 
-  component_part = {
+  component_part = {  # type: ignore #TODO(b/338318729) Fixit!
       'components': {}
   }
   for comp_combo in itertools.chain.from_iterable(

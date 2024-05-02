@@ -103,7 +103,7 @@ def _DetermineFeatureManagementComponentName(comp_cls: str,
 def _DetermineFirmwareComponentName(unused_comp_cls: str,
                                     value: ProbedValueType,
                                     opt: FirmwareNameOptions) -> str:
-  if 'devkeys' in value.get('key_root', {}):
+  if 'devkeys' in value.get('key_root', {}):  # type: ignore #TODO(b/338318729) Fixit!
     return 'firmware_keys_dev'
   comp_name = f'firmware_keys_{"mp" if opt.mp_key else "premp"}'
   if opt.key_id is not None:
@@ -145,7 +145,7 @@ def _DetermineComponentName(
   }
 
   if comp_cls in component_name_generators:
-    return component_name_generators[comp_cls](comp_cls, value)
+    return component_name_generators[comp_cls](comp_cls, value)  # type: ignore #TODO(b/338318729) Fixit!
 
   # General components.
   if len(value) == 1:
@@ -385,12 +385,12 @@ class DatabaseBuilder:
     key_id = value.pop('key_id', None)
     comp_name = DetermineComponentName(
         comp_cls, value, list(comps), firmware_name_opt=FirmwareNameOptions(
-            mp_key=mp_key, key_id=key_id))
+            mp_key=mp_key, key_id=key_id))  # type: ignore #TODO(b/338318729) Fixit!
     # Update the name, status and bundle_uuid if the probe value exists in the
     # database.
     for old_comp_name, comp_info in comps.items():
       if (value and not comp_info.value_is_none and
-          dict.__eq__(comp_info.values, value)):
+          dict.__eq__(comp_info.values, value)):  # type: ignore #TODO(b/338318729) Fixit!
         status = (
             common.ComponentStatus.supported if supported else comp_info.status)
         # Don't rename if the old component name is already valid.
@@ -628,7 +628,7 @@ class DatabaseBuilder:
         continue
 
       existing_fw_identity = _GetVersionStringIdentity(
-          comp_info.values.get('version'))
+          comp_info.values.get('version'))  # type: ignore #TODO(b/338318729) Fixit!
       # Only deprecate pre-PVT firmware keys.
       if (_IsPrePVTFirmwareKeys(comp_name) or
           fw_identity and fw_identity == existing_fw_identity):

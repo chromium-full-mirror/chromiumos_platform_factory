@@ -10,7 +10,7 @@ import logging
 from typing import Any, Callable, Collection, Mapping, Optional, Type
 import uuid
 
-import flask
+import flask  # type: ignore #TODO(b/338318729) Fixit!
 from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import symbol_database

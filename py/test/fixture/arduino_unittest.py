@@ -9,7 +9,7 @@
 import unittest
 from unittest import mock
 
-import serial
+import serial  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.test.fixture import arduino
 

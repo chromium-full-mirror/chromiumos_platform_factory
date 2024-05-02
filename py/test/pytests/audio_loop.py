@@ -1143,8 +1143,8 @@ class AudioLoopTest(test_case.TestCase):
 
     commands = [
         audio_utils.CONFORMANCETEST_PATH, '--test-suites', 'test_rates',
-        '--rate-criteria-diff-pct', f'{self.args.conformance_rate_criteria:f}',
-        '--rate-err-criteria', f'{self.args.conformance_rate_err_criteria}',
+        '--rate-criteria-diff-pct', f'{self.args.conformance_rate_criteria:f}',  # type: ignore #TODO(b/338318729) Fixit!
+        '--rate-err-criteria', f'{self.args.conformance_rate_err_criteria}',  # type: ignore #TODO(b/338318729) Fixit!
         '--allow-rate', f'{sample_rate}'
     ]
     if input_device:
@@ -1153,7 +1153,7 @@ class AudioLoopTest(test_case.TestCase):
       commands.extend(['-P', output_device])
     if _IsInMergeThresholdSize480Board():
       commands.extend(['--merge-thld-size', '480'])
-    self.ui.CallJSFunction('checkConformance', input_device, output_device)
+    self.ui.CallJSFunction('checkConformance', input_device, output_device)  # type: ignore #TODO(b/338318729) Fixit!
     process = self._dut.Popen(commands, stdout=process_utils.PIPE,
                               stderr=process_utils.PIPE, log=True)
     stdout, stderr = process.communicate()

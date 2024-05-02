@@ -6,7 +6,7 @@
 import argparse
 import ast
 
-import mock_loader
+import mock_loader  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def RunPytest(pytest, args):

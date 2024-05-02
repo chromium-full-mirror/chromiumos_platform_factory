@@ -60,7 +60,7 @@ class ModemSecurity(test_case.TestCase):
     if not match:
       self.FailTask(f'Bad response: {response}')
 
-    return match.group(1)
+    return match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     response = self._dut.CheckOutput(['mmcli', '-L'], log=True)

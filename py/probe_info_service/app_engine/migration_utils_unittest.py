@@ -37,7 +37,7 @@ class MigrationManagerTest(unittest.TestCase):
     sys.path.remove(cls._EXTRA_PYTHON_PATH_FOR_TEST)
 
   def _CreateMigrationManager(self) -> migration_utils.MigrationManager:
-    importlib.reload(self._MIGRATION_SCRIPT_PKG)
+    importlib.reload(self._MIGRATION_SCRIPT_PKG)  # type: ignore #TODO(b/338318729) Fixit!
     manager = migration_utils.MigrationManager(self._MIGRATION_SCRIPT_PKG)
     self.addCleanup(manager.CleanupForTest)
     return manager

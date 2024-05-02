@@ -11,7 +11,7 @@ from unittest import mock
 import urllib.error
 import urllib.request
 
-from ws4py.client.threadedclient import WebSocketClient
+from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.tools import chrome_debugger
 

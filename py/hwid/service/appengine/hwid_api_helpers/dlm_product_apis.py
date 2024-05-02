@@ -15,7 +15,7 @@ _UpdateDlmProductRequest = hwid_api_messages_pb2.UpdateDlmProductRequest
 _UpdateDlmProductResponse = hwid_api_messages_pb2.UpdateDlmProductResponse
 
 
-class DLMProductShard(common_helper.HWIDServiceShardBase):
+class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(
       self,
@@ -60,6 +60,6 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):
 
     self._dlm_product_manager.UpdateDLMProductByDeviceId(
         device.id, device.board.upper(),
-        device.model.upper() or None)
+        device.model.upper() or None)  # type: ignore #TODO(b/338318729) Fixit!
 
     return _UpdateDlmDeviceResponse(device_id=device.id)

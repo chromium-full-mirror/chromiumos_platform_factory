@@ -109,7 +109,7 @@ class WebGLAquariumTest(test_case.TestCase):
     self.metrics = dict.fromkeys(_FACTORY_METRICS + _TAST_METRICS, float("nan"))
     self.window_sum_fps = 0
     self.window_fps = collections.deque()
-    num_fish: int = self.args.num_fish
+    num_fish: int = self.args.num_fish  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertIn(num_fish, _FISH_SETTINGS)
     self.ui.CallJSFunction('setSettings', _FISH_SETTINGS[num_fish])
