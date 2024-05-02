@@ -84,7 +84,10 @@ def ExecFactoryPar(*args, env=None):
   # There are two factory_par in the argument because os.execle's function
   # signature is: os.execle(exec_path, arg0, arg1, ..., env)
   logging.debug('exec: %s %s', factory_par, args)
-  os.execle(factory_par, factory_par, *args, env or {})
+  os.execle(factory_par, factory_par, *args, {
+      **os.environ,
+      **(env or {})
+  })
 
 
 class Util:
