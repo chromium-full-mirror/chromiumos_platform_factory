@@ -16,6 +16,7 @@ main(){
   fi
   local settings_dir="${workspace_folder}/.vscode"
   local settings_path="${settings_dir}/settings.json"
+  local extensions_path="${settings_dir}/extensions.json"
 
   if which "code"; then
     echo "Verified that the vscode is installed."
@@ -29,6 +30,7 @@ main(){
   mkdir -p "${settings_dir}"
   cp -f "${SCRIPT_DIR}/factory_settings.json" "${settings_path}"
   sed -i "s#\${factoryFolder}#${FACTORY_DIR}#g" "${settings_path}"
+  cp -f "${SCRIPT_DIR}/extensions.json" "${extensions_path}"
 
   local jsconfig_path="${workspace_folder}/jsconfig.json"
   cp -f "${SCRIPT_DIR}/example_jsconfig.json" "${jsconfig_path}"

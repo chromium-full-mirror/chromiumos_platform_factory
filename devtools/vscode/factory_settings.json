@@ -19,15 +19,17 @@
       "url": "file://${factoryFolder}/py_pkg/cros/factory/goofy/plugins/plugins.schema.json"
     }
   ],
-  "python.pythonPath": "/usr/bin/python3.6",
+  "python.defaultInterpreterPath": "/usr/bin/python3.8",
   "python.autoComplete.extraPaths": [
     "${factoryFolder}/py_pkg"
   ],
   "python.analysis.extraPaths": [
     "${factoryFolder}/py_pkg"
   ],
-  "python.formatting.provider": "yapf",
-  "python.sortImports.args": [
+  "[python]": {
+    "editor.defaultFormatter": "eeyore.yapf"
+  },
+  "isort.args": [
     "--settings-path=${factoryFolder}/devtools/vscode/.isort.cfg"
   ]
 }
