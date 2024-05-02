@@ -92,7 +92,7 @@ class TestInputHTTP(unittest.TestCase):
 
   def _ClientConnected(self):
     # pylint: disable=protected-access
-    return len(self.plugin._http_server._threads) > 0
+    return len(self.plugin._http_server._threads) > 0  # type: ignore #TODO(b/338318729) Fixit!
 
   @unittest.skipIf(_TempAvailSpaceMB() < 256, 'Test requires 256mb disk space.')
   def testShutdown(self):
@@ -100,7 +100,7 @@ class TestInputHTTP(unittest.TestCase):
     event = datatypes.Event({}, {'att_id': 'att'})
     big_att_path = self._GeneratePayload(128)  # 128mb
     # Use a queue to get the request object out of the thread.
-    q = queue.Queue()
+    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     def PostBig():
       event_str = datatypes.Event.Serialize(event)
       r = self._CurlPost(f'event={event_str}', f'att=@{big_att_path}')
@@ -288,7 +288,7 @@ class TestInputHTTP(unittest.TestCase):
                   'att': '!' * 1024}  # 1kb
 
     # Use a queue to get the request object out of the thread.
-    q = queue.Queue()
+    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     def PostBig():
       event_str = datatypes.Event.Serialize(event1)
       r = self._CurlPost(f'event={event_str}', f'att=@{big_att_path}')

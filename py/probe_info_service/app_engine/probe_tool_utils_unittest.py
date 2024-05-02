@@ -150,15 +150,15 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     s1 = typing.cast(
         analyzers._ProbeDataSourceImpl,
         self._LoadProbeDataSource(
-            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))
+            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))  # type: ignore #TODO(b/338318729) Fixit!
     s2 = typing.cast(
         analyzers._ProbeDataSourceImpl,
         self._LoadProbeDataSource(
-            '2-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))
+            '2-valid', comp_name=stubby_handler.ComponentNameImpl(cid=1)))  # type: ignore #TODO(b/338318729) Fixit!
     s3 = typing.cast(
         analyzers._ProbeDataSourceImpl,
         self._LoadProbeDataSource(
-            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=2)))
+            '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=2)))  # type: ignore #TODO(b/338318729) Fixit!
     # pylint: enable=protected-access
     self.assertNotEqual(s1.fingerprint, s2.fingerprint)
     self.assertEqual(s1.fingerprint, s3.fingerprint)
@@ -406,7 +406,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     s = self._LoadProbeDataSource('1-valid')
     with self.assertRaises(probe_info_analytics.PayloadInvalidError):
       self._pi_analyzer.AnalyzeQualProbeTestResultPayload(
-          s, 'this_is_an_invalid_data')
+          s, 'this_is_an_invalid_data')  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAnalyzeQualProbeTestResult_WrongComponentError(self):
     s = self._LoadProbeDataSource('1-valid')
@@ -466,7 +466,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     raw_probed_outcome = 'this is not a valid probed outcome'
     with self.assertRaises(probe_info_analytics.PayloadInvalidError):
       self._pi_analyzer.AnalyzeDeviceProbeResultPayload([s1, s2],
-                                                        raw_probed_outcome)
+                                                        raw_probed_outcome)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAnalyzeDeviceProbeResultPayload_HasUnknownComponentError(self):
     s1 = self._LoadProbeDataSource('1-valid')
@@ -490,11 +490,11 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     s2 = self._LoadProbeDataSource('2-valid')
     s3 = self._LoadProbeDataSource('3-valid')
     s4 = self._LoadProbeDataSource(
-        '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=10000))
+        '1-valid', comp_name=stubby_handler.ComponentNameImpl(cid=10000))  # type: ignore #TODO(b/338318729) Fixit!
     result = self._pi_analyzer.AnalyzeDeviceProbeResultPayload(
         [s1, s2, s3, s4], unittest_utils.LoadRawProbedOutcome('1_2_3-valid'))
     self.assertIsNone(result.intrivial_error_msg)
-    self.assertEqual([r.result_type for r in result.probe_info_test_results], [
+    self.assertEqual([r.result_type for r in result.probe_info_test_results], [  # type: ignore #TODO(b/338318729) Fixit!
         stubby_pb2.ProbeInfoTestResult.NOT_PROBED,
         stubby_pb2.ProbeInfoTestResult.PASSED,
         stubby_pb2.ProbeInfoTestResult.LEGACY,

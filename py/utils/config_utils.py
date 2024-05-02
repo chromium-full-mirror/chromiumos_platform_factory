@@ -154,7 +154,7 @@ def OverrideConfig(base, overrides, copy_on_write=False):
   result = base.copy() if copy_on_write else base
   for k, v in overrides.items():
     if isinstance(v, collections.abc.Mapping):
-      v = v.copy()
+      v = v.copy()  # type: ignore #TODO(b/338318729) Fixit!
       if pop_bool(v, _OVERRIDE_DELETE_KEY):
         if k in result:
           result.pop(k)
@@ -275,7 +275,7 @@ def _LoadConfigUtilsConfig():
   module_dir = os.path.realpath(os.path.dirname(__file__))
   module_name = os.path.splitext(os.path.basename(__file__))[0]
 
-  config = {}
+  config = {}  # type: ignore #TODO(b/338318729) Fixit!
   schema = _ApplyConfig(None)
   build_schema = _ApplyConfig(_CONFIG_NAME_BUILD_DIR)
   runtime_schema = _ApplyConfig(_CONFIG_NAME_RUNTIME_DIR)
@@ -561,7 +561,7 @@ class _ConfigList(collections.OrderedDict):
   """Internal structure to store a list of raw configs."""
   def Resolve(self):
     """Returns the final config after overriding."""
-    ret = {}
+    ret = {}  # type: ignore #TODO(b/338318729) Fixit!
     # collections.OrderedDict does support reversed().
     for key in reversed(self):  # pylint: disable=bad-reversed-sequence
       for unused_config_dir, config in reversed(self[key]):
@@ -609,7 +609,7 @@ def _C3Linearization(parent_configs, config_name):
   # We collect all configs into all_configs, and only use keys in parent_configs
   # as OrderedSet afterward.
   all_configs = {}
-  parents = collections.OrderedDict()
+  parents = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit!
   for config_list in parent_configs:
     all_configs.update(config_list)
     # Only key is used, value is not important.

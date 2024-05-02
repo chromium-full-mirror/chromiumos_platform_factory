@@ -103,22 +103,22 @@ class InputEventlogFile(input_log_file.InputLogFile):
 
     output = None
     try:
-      output = yaml.safe_load(event_str)
-    except yaml.error.YAMLError:
+      output = yaml.safe_load(event_str)  # type: ignore #TODO(b/338318729) Fixit!
+    except yaml.error.YAMLError:  # type: ignore #TODO(b/338318729) Fixit!
       # Try recovering.  Was the event cut off in the middle?  Attempt to parse
       # from the last occurence of 'EVENT:' until the end of the string.
       recover_event_index = event_str.rfind(_EVENT_HEAD)
       if recover_event_index > 0:
         try:
           # Dropping event(s) that were cut off mid-stream.
-          output = yaml.safe_load(event_str[recover_event_index:])
+          output = yaml.safe_load(event_str[recover_event_index:])  # type: ignore #TODO(b/338318729) Fixit!
 
           # Log this error.
           recover_event_line_num = event_str.count(
               '\n', 0, recover_event_index - 1)
           LogError(self.logger.name, 'Dropping corrupted event(s)',
                    recover_event_line_num)
-        except yaml.error.YAMLError:
+        except yaml.error.YAMLError:  # type: ignore #TODO(b/338318729) Fixit!
           # `output` will still be None.  Log error below.
           pass
 

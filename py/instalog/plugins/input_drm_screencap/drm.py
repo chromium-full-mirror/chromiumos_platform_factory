@@ -86,7 +86,7 @@ class DrmModeResources(Structure):
     if not 0 <= index < self.count_crtcs:
       raise IndexError("CRTC index out of range")
 
-    crtc = self._l.drmModeGetCrtc(self._fd, self.crtcs[index]).contents
+    crtc = self._l.drmModeGetCrtc(self._fd, self.crtcs[index]).contents  # type: ignore #TODO(b/338318729) Fixit!
     crtc._fd = self._fd
     crtc._l = self._l
     return crtc
@@ -126,7 +126,7 @@ class DrmModeCrtc(Structure):
         """
 
     if self.hasFb():
-      fb = self._l.drmModeGetFB(self._fd, self.buffer_id).contents
+      fb = self._l.drmModeGetFB(self._fd, self.buffer_id).contents  # type: ignore #TODO(b/338318729) Fixit!
       fb._fd = self._fd
       fb._l = self._l
       return fb
@@ -200,7 +200,7 @@ class DrmModeFB(Structure):
     mapDumb = drm_mode_map_dumb()
     mapDumb.handle = self.handle
 
-    rv = self._l.drmIoctl(self._fd, DRM_IOCTL_MODE_MAP_DUMB, pointer(mapDumb))
+    rv = self._l.drmIoctl(self._fd, DRM_IOCTL_MODE_MAP_DUMB, pointer(mapDumb))  # type: ignore #TODO(b/338318729) Fixit!
     if rv:
       raise IOError(rv, os.strerror(rv))
 
@@ -256,7 +256,7 @@ def loadDRM():
   l.drmModeFreeFB.argtypes = [POINTER(DrmModeFB)]
   l.drmModeFreeFB.restype = None
 
-  l.drmIoctl.argtypes = [c_int, c_ulong, c_voidp]
+  l.drmIoctl.argtypes = [c_int, c_ulong, c_voidp]  # type: ignore #TODO(b/338318729) Fixit!
   l.drmIoctl.restype = c_int
 
   return l
@@ -285,7 +285,7 @@ class DRM:
     self = cls(loadDRM(), handle.fileno())
     # We must keep the handle alive, and we cannot trust the caller to
     # keep it alive for us.
-    self._handle = handle
+    self._handle = handle  # type: ignore #TODO(b/338318729) Fixit!
     return self
 
   def version(self):
@@ -333,7 +333,7 @@ def _screenshot(image, fb):
   m = fb._map
   lineLength = fb.width * fb.bpp // 8
   pitch = fb.pitch
-  pixels = []
+  pixels = []  # type: ignore #TODO(b/338318729) Fixit!
 
   if fb.depth == 24:
     unformat = _bgrx24

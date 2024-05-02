@@ -126,7 +126,7 @@ class TestEvent(unittest.TestCase):
     # Self-defined iteritems(), so it still works in Python3.
     self.assertEqual(('a', 1), next(event.iteritems()))
     with self.assertRaises(AttributeError):
-      self.assertTrue(event.__d__)
+      self.assertTrue(event.__d__)  # type: ignore #TODO(b/338318729) Fixit!
     event.setdefault('a', 2)
     event.setdefault('d', 2)
     self.assertEqual(event['a'], 1)
@@ -238,7 +238,7 @@ class TestEventStream(unittest.TestCase):
 
   def testEventStream(self):
     """Tests using the basic functionality of EventStream."""
-    buffer_q = queue.Queue()
+    buffer_q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     plugin_api = FakeIPlugin(buffer_q)
     event_stream = datatypes.EventStream(None, plugin_api)
 
@@ -262,7 +262,7 @@ class TestEventStreamIteratorBase(unittest.TestCase):
   """Base tests for the EventStreamIterator class."""
 
   def setUp(self):
-    self.q = queue.Queue()
+    self.q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     self.plugin_api = FakeIPlugin(self.q)
     self.event_stream = datatypes.EventStream(None, self.plugin_api)
 

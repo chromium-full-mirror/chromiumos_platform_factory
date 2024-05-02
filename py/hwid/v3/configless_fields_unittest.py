@@ -39,7 +39,7 @@ class ConfiglessFieldsTest(unittest.TestCase):
             'has_touchscreen': True
         }
     }
-    vpd = {}
+    vpd = {}  # type: ignore #TODO(b/338318729) Fixit!
     bom = probe.GenerateBOMFromProbedResults(
         self.database, self.probed_results, device_info, vpd,
         common.OperationMode.normal, False, False)[0]

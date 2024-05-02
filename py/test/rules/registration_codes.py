@@ -129,7 +129,7 @@ class RegistrationCode:
       CheckLegacyRegistrationCode(encoded_string)
       self.type = RegistrationCode.Type.LEGACY
       self.device = None
-      self.proto = None
+      self.proto = None  # type: ignore #TODO(b/338318729) Fixit!
     else:
       raise RegistrationCodeException(
           f'Invalid registration code {encoded_string!r}')
@@ -161,7 +161,7 @@ def CheckLegacyRegistrationCode(code):
   crc = binascii.unhexlify(code[64:72])
   expected_crc = struct.pack('!I', binascii.crc32(payload) & 0xFFFFFFFF)
   if expected_crc != crc:
-    raise RegistrationCodeException(f'CRC of {code!r} is invalid (should be '
+    raise RegistrationCodeException(f'CRC of {code!r} is invalid (should be '  # type: ignore #TODO(b/338318729) Fixit!
                                     f'{binascii.hexlify(expected_crc)})')
 
 

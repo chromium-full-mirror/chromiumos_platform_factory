@@ -231,7 +231,7 @@ class HWIDRepo(HWIDRepoView):
   def _LoadMandatoryTextFile(self, path: str) -> str:
     """See base class."""
     try:
-      return self._git_fs.ReadFile(path)
+      return self._git_fs.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit!
     except filesystem_adapter.FileSystemAdapterException as ex:
       raise HWIDRepoError(f'Failed to load {path}: {ex}.') from None
 
@@ -242,7 +242,7 @@ class HWIDRepo(HWIDRepoView):
     except filesystem_adapter.NotFoundException:
       return None
     try:
-      return raw_contents.decode('utf-8')
+      return raw_contents.decode('utf-8')  # type: ignore #TODO(b/338318729) Fixit!
     except ValueError as ex:
       raise HWIDRepoError(f'Failed to load {path}: {ex}.') from None
 

@@ -81,7 +81,7 @@ class InputSocket(plugin_base.InputPlugin):
         if not thread.is_alive():
           del self._threads[thread]
 
-      conn, addr = self._sock.accept()
+      conn, addr = self._sock.accept()  # type: ignore #TODO(b/338318729) Fixit!
       self.info(f'Connected with {addr[0]}:{int(addr[1])}')
       conn.settimeout(socket_common.SOCKET_TIMEOUT)
       conn.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF,

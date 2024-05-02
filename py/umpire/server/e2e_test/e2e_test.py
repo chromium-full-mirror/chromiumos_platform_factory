@@ -147,14 +147,14 @@ class UmpireDockerTestCase(unittest.TestCase):
     # Add a timestamp to project name to avoid problem that sometimes container
     # goes dead.
     project_name = 'test_' + time.strftime('%Y%m%d_%H%M%S')
-    cls.umpire = _UmpireInformation(project_name)
-    SetUpUmpire(cls.umpire.project_name, cls.umpire.port, cls.umpire.umpire_dir,
-                cls.umpire.rpc_addr_base, setup_shared_data=True)
+    cls.umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit!
+    SetUpUmpire(cls.umpire.project_name, cls.umpire.port, cls.umpire.umpire_dir,  # type: ignore #TODO(b/338318729) Fixit!
+                cls.umpire.rpc_addr_base, setup_shared_data=True)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def tearDownClass(cls):
-    PrintDockerLogs(cls.umpire.container_name)
-    CleanUp(cls.umpire.project_name, cls.umpire.port)
+    PrintDockerLogs(cls.umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit!
+    CleanUp(cls.umpire.project_name, cls.umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
 
   @contextlib.contextmanager
   def assertRPCRaises(self,
@@ -179,29 +179,29 @@ class TwoUmpireDockerTestCase(UmpireDockerTestCase):
   def setUpClass(cls):
     super().setUpClass()
     project_name = 'test2_' + time.strftime('%Y%m%d_%H%M%S')
-    cls.second_umpire = _UmpireInformation(project_name)
-    SetUpUmpire(cls.second_umpire.project_name, cls.second_umpire.port,
-                cls.second_umpire.umpire_dir, cls.second_umpire.rpc_addr_base)
+    cls.second_umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit!
+    SetUpUmpire(cls.second_umpire.project_name, cls.second_umpire.port,  # type: ignore #TODO(b/338318729) Fixit!
+                cls.second_umpire.umpire_dir, cls.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def tearDownClass(cls):
     super().tearDownClass()
-    PrintDockerLogs(cls.second_umpire.container_name)
-    CleanUp(cls.second_umpire.project_name, cls.second_umpire.port)
+    PrintDockerLogs(cls.second_umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit!
+    CleanUp(cls.second_umpire.project_name, cls.second_umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class ResourceMapTest(UmpireDockerTestCase):
   """Tests for Umpire /webapps/resourcemap and legacy /resourcemap."""
 
   def testResourceMap(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/resourcemap',
+    r = requests.get(f'{self.umpire.addr_base}/webapps/resourcemap',  # type: ignore #TODO(b/338318729) Fixit!
                      headers={'X-Umpire-DUT': 'mac=00:11:22:33:44:55'})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
         re.search(r'^payloads: .*\.json$', r.text, re.MULTILINE))
 
   def testLegacyResourceMap(self):
-    r = requests.get(f'{self.umpire.addr_base}/resourcemap',
+    r = requests.get(f'{self.umpire.addr_base}/resourcemap',  # type: ignore #TODO(b/338318729) Fixit!
                      headers={'X-Umpire-DUT': 'mac=00:11:22:33:44:55'})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
@@ -212,7 +212,7 @@ class DownloadSlotsManagerTest(UmpireDockerTestCase):
   """Tests for Umpire /webapps/download_slots."""
 
   def testCanRequestSlot(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
                      headers={'X-Umpire-DUT': 'uuid='})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
@@ -221,17 +221,17 @@ class DownloadSlotsManagerTest(UmpireDockerTestCase):
     self.assertIsNotNone(re.search(r'^N_PLACE: 0$', r.text, re.MULTILINE))
 
   def testExtendAliveTimeSlot(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
                      headers={'X-Umpire-DUT': 'uuid='})
     self.assertEqual(200, r.status_code)
     res = re.search(r'^UUID: ([\w-]+)$', r.text, re.MULTILINE)
     self.assertIsNotNone(res)
 
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',
-                     headers={'X-Umpire-DUT': f'uuid={res.group(1)}'})
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
+                     headers={'X-Umpire-DUT': f'uuid={res.group(1)}'})  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
-        re.search(r'^UUID: ('
+        re.search(r'^UUID: ('  # type: ignore #TODO(b/338318729) Fixit!
                   f'{res.group(1)})$', r.text, re.MULTILINE))
 
 
@@ -240,7 +240,7 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
     self.default_config = json.loads(
         self.ReadConfigTestdata('umpire_default.json'))
     # Deploy an empty default config.
@@ -256,22 +256,22 @@ class UmpireRPCTest(UmpireDockerTestCase):
     self.assertEqual(common.UMPIRE_VERSION, self.proxy.GetVersion())
 
   def testListMethods(self):
-    self.assertIn('IsDeploying', self.proxy.system.listMethods())
+    self.assertIn('IsDeploying', self.proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit!
 
   def testEndingSlashInProxyAddress(self):
-    with xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base) as proxy:
-      self.assertIn('IsDeploying', proxy.system.listMethods())
+    with xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit!
+      self.assertIn('IsDeploying', proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit!
 
   def testGetActiveConfig(self):
     self.assertEqual(self.default_config,
-                     json.loads(self.proxy.GetActiveConfig()))
+                     json.loads(self.proxy.GetActiveConfig()))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAddConfigFromBlob(self):
     test_add_config_blob = 'test config blob'
     conf = self.proxy.AddConfigFromBlob(test_add_config_blob, 'umpire_config')
     self.assertEqual(
         test_add_config_blob,
-        file_utils.ReadFile(os.path.join(self.umpire.resource_dir, conf)))
+        file_utils.ReadFile(os.path.join(self.umpire.resource_dir, conf)))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testValidateConfig(self):
     with self.assertRPCRaises('json.decoder.JSONDecodeError'):
@@ -294,7 +294,7 @@ class UmpireRPCTest(UmpireDockerTestCase):
     conf = self.proxy.AddConfigFromBlob(to_deploy_config, 'umpire_config')
     self.proxy.Deploy(conf)
 
-    active_config = json.loads(self.proxy.GetActiveConfig())
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(json.loads(to_deploy_config), active_config)
 
   def testDeployServiceConfigChanged(self):
@@ -310,7 +310,7 @@ class UmpireRPCTest(UmpireDockerTestCase):
     # TODO(pihsun): Figure out a better way to detect if services are restarted
     # without reading docker logs.
     docker_logs = process_utils.CheckOutput(
-        ['docker', 'logs', self.umpire.container_name],
+        ['docker', 'logs', self.umpire.container_name],  # type: ignore #TODO(b/338318729) Fixit!
         stderr=subprocess.STDOUT).splitlines()
     restarted_services = []
     for log_line in reversed(docker_logs):
@@ -335,12 +335,12 @@ class UmpireRPCTest(UmpireDockerTestCase):
     with self.assertRPCRaises('Deploy failed'):
       self.proxy.Deploy(conf)
 
-    active_config = json.loads(self.proxy.GetActiveConfig())
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.default_config, active_config)
 
   def testStopStartService(self):
     test_rsync_cmd = (
-        f'rsync rsync://localhost:{int(self.umpire.port + 4)}/system_logs '
+        f'rsync rsync://localhost:{int(self.umpire.port + 4)}/system_logs '  # type: ignore #TODO(b/338318729) Fixit!
         '>/dev/null 2>&1')
 
     self.proxy.StopServices(['rsync'])
@@ -351,8 +351,8 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def testAddPayload(self):
     payload = self.proxy.AddPayload('/mnt/hwid.gz', 'hwid')
-    resource = payload['hwid']['file']
-    resource_path = os.path.join(self.umpire.resource_dir, resource)
+    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit!
+    resource_path = os.path.join(self.umpire.resource_dir, resource)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRegex(resource, r'hwid\..*\.gz')
     with gzip.open(os.path.join(SHARED_TESTDATA_DIR, 'hwid.gz')) as f1:
@@ -363,15 +363,15 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def testUpdate(self):
     payload = self.proxy.AddPayload('/mnt/hwid.gz', 'hwid')
-    resource = payload['hwid']['file']
+    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit!
     self.proxy.Update([('hwid', os.path.join(DOCKER_RESOURCE_DIR, resource))])
 
-    active_config = json.loads(self.proxy.GetActiveConfig())
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
     payload = self.proxy.GetPayloadsDict(
         active_config['bundles'][0]['payloads'])
-    self.assertEqual(resource, payload['hwid']['file'])
+    self.assertEqual(resource, payload['hwid']['file'])  # type: ignore #TODO(b/338318729) Fixit!
 
-    os.unlink(os.path.join(self.umpire.resource_dir, resource))
+    os.unlink(os.path.join(self.umpire.resource_dir, resource))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testImportBundle(self):
     resources = {
@@ -384,15 +384,15 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
     self.proxy.ImportBundle('/mnt/bundle_for_import.zip', 'umpire_test')
 
-    active_config = json.loads(self.proxy.GetActiveConfig())
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
     new_bundle = next(bundle for bundle in active_config['bundles']
                       if bundle['id'] == 'umpire_test')
     new_payload = self.proxy.GetPayloadsDict(new_bundle['payloads'])
 
     for resource_type, resource in resources.items():
       self.assertTrue(
-          os.path.exists(os.path.join(self.umpire.resource_dir, resource)))
-      self.assertEqual(new_payload[resource_type]['file'], resource)
+          os.path.exists(os.path.join(self.umpire.resource_dir, resource)))  # type: ignore #TODO(b/338318729) Fixit!
+      self.assertEqual(new_payload[resource_type]['file'], resource)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual('umpire_test', active_config['active_bundle_id'])
     for bundle in active_config['bundles']:
@@ -404,7 +404,7 @@ class UmpireHTTPTest(UmpireDockerTestCase):
   """Tests for Umpire http features."""
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
 
   def testReverseProxy(self):
@@ -414,7 +414,7 @@ class UmpireHTTPTest(UmpireDockerTestCase):
     self.proxy.Deploy(conf)
 
     response = requests.get(
-        f'http://localhost:{int(self.umpire.port)}/res/test',
+        f'http://localhost:{int(self.umpire.port)}/res/test',  # type: ignore #TODO(b/338318729) Fixit!
         allow_redirects=False)
     self.assertEqual(307, response.status_code)
     self.assertEqual('http://11.22.33.44/res/test',
@@ -425,40 +425,40 @@ class RPCDUTTest(UmpireDockerTestCase):
   """Tests for Umpire DUT RPC."""
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.addr_base)
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.addr_base)  # type: ignore #TODO(b/338318729) Fixit!
     shutil.copy(
         os.path.join(CONFIG_TESTDATA_DIR, 'test_report_index.json'),
-        os.path.join(self.umpire.umpire_dir, 'properties', 'report_index.json'))
+        os.path.join(self.umpire.umpire_dir, 'properties', 'report_index.json'))  # type: ignore #TODO(b/338318729) Fixit!
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
 
   def testPing(self):
     version = self.proxy.Ping()
     self.assertEqual({
         'version': 3,
-        'project': self.umpire.project_name
+        'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
     }, version)
 
   def testEndingSlashInProxyAddress(self):
-    with xmlrpc.client.ServerProxy(self.umpire.addr_base) as proxy:
+    with xmlrpc.client.ServerProxy(self.umpire.addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertEqual({
           'version': 3,
-          'project': self.umpire.project_name
+          'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
       }, proxy.Ping())
 
   def testGetTime(self):
     t = self.proxy.GetTime()
-    self.assertAlmostEqual(t, time.time(), delta=1)
+    self.assertAlmostEqual(t, time.time(), delta=1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAlternateURL(self):
-    with xmlrpc.client.ServerProxy(f'{self.umpire.addr_base}/umpire') as proxy:
+    with xmlrpc.client.ServerProxy(f'{self.umpire.addr_base}/umpire') as proxy:  # type: ignore #TODO(b/338318729) Fixit!
       version = proxy.Ping()
       self.assertEqual({
           'version': 3,
-          'project': self.umpire.project_name
+          'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
       }, version)
 
   def testGetFactoryLogPort(self):
-    self.assertEqual(self.umpire.port + 4, self.proxy.GetFactoryLogPort())
+    self.assertEqual(self.umpire.port + 4, self.proxy.GetFactoryLogPort())  # type: ignore #TODO(b/338318729) Fixit!
 
   def _GenerateReportBlob(self):
     report_path = os.path.join(SHARED_TESTDATA_DIR, 'report_for_upload.rpt.xz')
@@ -479,7 +479,7 @@ class RPCDUTTest(UmpireDockerTestCase):
         timezone = service_config['umpire_timezone']['timezone']
     now = time_utils.GetNowWithTimezone(timezone)
     report_pattern = os.path.join(
-        self.umpire.umpire_dir, 'umpire_data', 'report',
+        self.umpire.umpire_dir, 'umpire_data', 'report',  # type: ignore #TODO(b/338318729) Fixit!
         time.strftime('%Y%m%d', now), 'Unknown-test_serial-*.rpt.xz')
     report_files = glob.glob(report_pattern)
     self.assertEqual(1, len(report_files))
@@ -489,7 +489,7 @@ class RPCDUTTest(UmpireDockerTestCase):
       for tarinfo in tar_file.getmembers():
         if tarinfo.name == 'metadata.json':
           metadata_json = json_utils.LoadStr(
-              tar_file.extractfile(tarinfo).read())
+              tar_file.extractfile(tarinfo).read())  # type: ignore #TODO(b/338318729) Fixit!
           self.assertEqual('0000000001', metadata_json['report_index'])
 
 
@@ -497,9 +497,9 @@ class ServiceTest(TwoUmpireDockerTestCase):
 
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
     self.second_proxy = xmlrpc.client.ServerProxy(
-        self.second_umpire.rpc_addr_base)
+        self.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
     self.addCleanup(_CloseServerProxyConnection, self.second_proxy)
 
@@ -521,18 +521,18 @@ class ServiceTest(TwoUmpireDockerTestCase):
     to_deploy_config = self.ReadConfigTestdata('umpire_sync_service.json')
     to_deploy_config['services']['umpire_sync']['primary_information'] = {
         'ip': docker_bridge_gateway_ip,
-        'port': str(self.umpire.port)
+        'port': str(self.umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
     }
     to_deploy_config['services']['umpire_sync']['secondary_information'][0] = {
         'ip': docker_bridge_gateway_ip,
-        'port': str(self.second_umpire.port)
+        'port': str(self.second_umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
     }
     self.StartService(to_deploy_config, wait_time=2)
     self.assertEqual(self.proxy.GetActivePayload(),
                      self.second_proxy.GetActivePayload())
     second_url = (
-        f'http://{docker_bridge_gateway_ip}:{int(self.second_umpire.port)}')
-    self.assertEqual(self.proxy.GetUmpireSyncStatus()[second_url]['status'],
+        f'http://{docker_bridge_gateway_ip}:{int(self.second_umpire.port)}')  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.proxy.GetUmpireSyncStatus()[second_url]['status'],  # type: ignore #TODO(b/338318729) Fixit!
                      'Success')
 
 

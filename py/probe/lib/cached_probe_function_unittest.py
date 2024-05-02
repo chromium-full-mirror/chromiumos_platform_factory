@@ -24,7 +24,7 @@ class CachedProbeFunctionTest(unittest.TestCase):
 
       def __init__(self):
         super().__init__()
-        self.GetCategoryFromArgs = mock.MagicMock()
+        self.GetCategoryFromArgs = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
       @classmethod
       def ProbeAllDevices(cls):
@@ -35,7 +35,7 @@ class CachedProbeFunctionTest(unittest.TestCase):
     self.func = _SimpleCachedProbeFunction()
 
   def testNoCategory(self):
-    self.func.GetCategoryFromArgs.return_value = None
+    self.func.GetCategoryFromArgs.return_value = None  # type: ignore #TODO(b/338318729) Fixit!
 
     result = self.func()
     self.assertEqual(
@@ -45,21 +45,21 @@ class CachedProbeFunctionTest(unittest.TestCase):
     self.assertEqual(result, self.func())
 
   def testWithCategory(self):
-    self.func.GetCategoryFromArgs.return_value = 'i1'
+    self.func.GetCategoryFromArgs.return_value = 'i1'  # type: ignore #TODO(b/338318729) Fixit!
 
     result = self.func()
     self.assertEqual(result, [{'k1': 'v1'}])
     self.assertEqual(result, self.func())
 
   def testInvalidCategory(self):
-    self.func.GetCategoryFromArgs.side_effect = (
+    self.func.GetCategoryFromArgs.side_effect = (  # type: ignore #TODO(b/338318729) Fixit!
         cached_probe_function.InvalidCategoryError())
 
     self.assertEqual(self.func(), [])
 
   def testProbedResultsNoCategory(self):
-    self.probed_results = [{'aa': 'bb'}, {'cc': 'dd'}]
-    self.func.GetCategoryFromArgs.return_value = None
+    self.probed_results = [{'aa': 'bb'}, {'cc': 'dd'}]  # type: ignore #TODO(b/338318729) Fixit!
+    self.func.GetCategoryFromArgs.return_value = None  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(sorted(self.func(), key=lambda d: sorted(d.items())),
                      sorted([{'aa': 'bb'}, {'cc': 'dd'}],
@@ -73,11 +73,11 @@ class LazyCachedProbeFunctionTest(unittest.TestCase):
 
     # pylint: disable=abstract-method
     class _Function(cached_probe_function.LazyCachedProbeFunction):
-      called = set()
+      called = set()  # type: ignore #TODO(b/338318729) Fixit!
 
       def __init__(self):
         super().__init__()
-        self.GetCategoryFromArgs = mock.MagicMock()
+        self.GetCategoryFromArgs = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
       @classmethod
       def ProbeDevices(cls, category):
@@ -88,26 +88,26 @@ class LazyCachedProbeFunctionTest(unittest.TestCase):
     self.func = _Function()
 
   def testNormal(self):
-    self.func.GetCategoryFromArgs.return_value = 'i1'
+    self.func.GetCategoryFromArgs.return_value = 'i1'  # type: ignore #TODO(b/338318729) Fixit!
     result = self.func()
     self.assertEqual(result, [{'k1': 'v1'}])
     self.assertEqual(result, self.func())
     self.assertEqual(self.func.called, {'i1'})
 
-    self.func.GetCategoryFromArgs.return_value = 'i2'
+    self.func.GetCategoryFromArgs.return_value = 'i2'  # type: ignore #TODO(b/338318729) Fixit!
     result = self.func()
     self.assertEqual(result, [{'k2': 'v21'}, {'k2': 'v22'}])
     self.assertEqual(result, self.func())
     self.assertEqual(self.func.called, {'i1', 'i2'})
 
   def testInvalidCategory(self):
-    self.func.GetCategoryFromArgs.side_effect = (
+    self.func.GetCategoryFromArgs.side_effect = (  # type: ignore #TODO(b/338318729) Fixit!
         cached_probe_function.InvalidCategoryError())
 
     self.assertEqual(self.func(), [])
 
   def testProbeFailed(self):
-    self.func.GetCategoryFromArgs.return_value = 'i999'
+    self.func.GetCategoryFromArgs.return_value = 'i999'  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(self.func(), [])
 

@@ -162,7 +162,7 @@ class Settings:
         setting = IpAddressValue
         value = setting.unpack(value)
       else:
-        setting = BytesValue
+        setting = BytesValue  # type: ignore #TODO(b/338318729) Fixit!
         value = setting.unpack(value)
       return cls(code, value), offset
 

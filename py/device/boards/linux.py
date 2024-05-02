@@ -402,12 +402,12 @@ class LinuxBoard(device_types.DeviceBoard):
                     '(This is normal on an non-Intel systems).')
 
     try:
-      res['ec_console_log'] = self.ec.GetECConsoleLog()
+      res['ec_console_log'] = self.ec.GetECConsoleLog()  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       logging.exception('Error retrieving EC console log')
 
     try:
-      res['ec_panic_info'] = self.ec.GetECPanicInfo()
+      res['ec_panic_info'] = self.ec.GetECPanicInfo()  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       logging.exception('Error retrieving EC panic info')
 

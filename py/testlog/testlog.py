@@ -656,12 +656,12 @@ class JSONLogFile(file_utils.FileLockContextManager):
     line = event.ToJSON() + '\n'
     with self:
       if override:
-        self.file.seek(0)
-      self.file.write(line)
+        self.file.seek(0)  # type: ignore #TODO(b/338318729) Fixit!
+      self.file.write(line)  # type: ignore #TODO(b/338318729) Fixit!
       if override:
-        self.file.truncate()
-      self.file.flush()
-      os.fsync(self.file.fileno())
+        self.file.truncate()  # type: ignore #TODO(b/338318729) Fixit!
+      self.file.flush()  # type: ignore #TODO(b/338318729) Fixit!
+      os.fsync(self.file.fileno())  # type: ignore #TODO(b/338318729) Fixit!
 
     self._thread_data.in_log = False
 
@@ -852,7 +852,7 @@ class EventBase:
     for cls in mro:
       if cls is object:
         break
-      for field_name, metadata in cls.FIELDS.items():
+      for field_name, metadata in cls.FIELDS.items():  # type: ignore #TODO(b/338318729) Fixit!
         if metadata[0] and field_name not in self._data:
           missing_fields.append(field_name)
 
@@ -940,10 +940,10 @@ class EventBase:
   def _TypeClassMap(cls):
     """Returns a map of EVENT_TYPE to EVENT_CLASS."""
     if not hasattr(cls, '_type_class_map_cache'):
-      cls._type_class_map_cache = {event_cls.GetEventType(): event_cls
+      cls._type_class_map_cache = {event_cls.GetEventType(): event_cls  # type: ignore #TODO(b/338318729) Fixit!
                                    for event_cls in cls._AllSubclasses()
                                    if event_cls.GetEventType()}
-    return cls._type_class_map_cache
+    return cls._type_class_map_cache  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def DetermineClass(cls, data):
@@ -1139,7 +1139,7 @@ class StationStatus(_StationBase):
       if regex:
         value_dict['expectedRegex'] = regex
     elif isinstance(value, (int, float)):
-      value_dict['numericValue'] = value
+      value_dict['numericValue'] = value  # type: ignore #TODO(b/338318729) Fixit!
       if regex:
         raise ValueError('This should not happen!')
       if min_val is not None:

@@ -21,7 +21,7 @@ class HardwareMonitorDevice(device_types.DeviceComponent):
     self._path = path
 
   def GetAttribute(self, name):
-    return self._device.ReadFile(self._device.path.join(self._path, name))
+    return self._device.ReadFile(self._device.path.join(self._path, name))  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetPath(self):
     return self._path
@@ -63,10 +63,10 @@ class HardwareMonitor(device_types.DeviceComponent):
     Returns:
       A list of matching hwmon device.
     """
-    search_path = self._device.path.join(
+    search_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
         self._hwmon_path, '*', pipes.quote(attr_name))
     output = self._device.CheckOutput(
         f'grep {search_path} -l -e {pipes.quote(f"^{attr_value}$")}')
 
-    return [HardwareMonitorDevice(self._device, self._device.path.dirname(path))
+    return [HardwareMonitorDevice(self._device, self._device.path.dirname(path))  # type: ignore #TODO(b/338318729) Fixit!
             for path in output.splitlines()]

@@ -219,7 +219,7 @@ class ALSFixture(test_case.TestCase):
 
     # Loads config.
     try:
-      self.config = self.args.config_dict or config_utils.LoadConfig()
+      self.config = self.args.config_dict or config_utils.LoadConfig()  # type: ignore #TODO(b/338318729) Fixit!
       if self.config is None:
         raise ValueError('No available configuration.')
       self._LogConfig()
@@ -231,23 +231,23 @@ class ALSFixture(test_case.TestCase):
     self.n_samples = self.config['n_samples']
 
     try:
-      if self.args.chamber_conn_params is None:
+      if self.args.chamber_conn_params is None:  # type: ignore #TODO(b/338318729) Fixit!
         chamber_conn_params = CHAMBER_CONN_PARAMS_DEFAULT
       else:
-        chamber_conn_params = self.args.chamber_conn_params
+        chamber_conn_params = self.args.chamber_conn_params  # type: ignore #TODO(b/338318729) Fixit!
 
       self.fixture_conn = None
-      if self.args.control_chamber:
-        if self.args.mock_mode:
+      if self.args.control_chamber:  # type: ignore #TODO(b/338318729) Fixit!
+        if self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
           script = {k.strip(): v.strip()
-                    for k, v in sum(self.args.chamber_cmd.values(), [])}
+                    for k, v in sum(self.args.chamber_cmd.values(), [])}  # type: ignore #TODO(b/338318729) Fixit!
           self.fixture_conn = fixture_connection.MockFixtureConnection(script)
         else:
-          self.fixture_conn = fixture_connection.SerialFixtureConnection(
+          self.fixture_conn = fixture_connection.SerialFixtureConnection(  # type: ignore #TODO(b/338318729) Fixit!
               **chamber_conn_params)
 
       self.chamber = light_chamber.LightChamber(
-          fixture_conn=self.fixture_conn, fixture_cmd=self.args.chamber_cmd)
+          fixture_conn=self.fixture_conn, fixture_cmd=self.args.chamber_cmd)  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       self._LogFailure(FAIL_CHAMBER_ERROR,
                        f'Error setting up ALS chamber: {str(e)}')
@@ -259,7 +259,7 @@ class ALSFixture(test_case.TestCase):
 
     self.monitor = media_utils.MediaMonitor('usb-serial', None)
 
-    self.ui.SetTitle(_('ALS Sensor Calibration'))
+    self.ui.SetTitle(_('ALS Sensor Calibration'))  # type: ignore #TODO(b/338318729) Fixit!
 
     # Group checker for Testlog.
     self.group_checker = testlog.GroupParam(
@@ -275,7 +275,7 @@ class ALSFixture(test_case.TestCase):
     self._Log(f"{key}={value}")
 
   def _LogConfig(self):
-    if self.args.keep_raw_logs:
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
       testlog.AttachContent(
           content=json.dumps(self.config),
           name='light_sensor_calibration_config.json',
@@ -290,7 +290,7 @@ class ALSFixture(test_case.TestCase):
   def _ALSTest(self):
     try:
       self._ShowTestStatus(_('Cleaning up calibration values'))
-      if not self.args.mock_mode:
+      if not self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
         self.als_controller.CleanUpCalibrationValues()
     except Exception as e:
       self._LogFailure(FAIL_ALS_CLEAN,
@@ -351,8 +351,8 @@ class ALSFixture(test_case.TestCase):
   def _OnU2SInsertion(self, device):
     del device  # unused
 
-    @sync_utils.RetryDecorator(max_attempt_count=self.args.chamber_n_retries,
-                               interval_sec=self.args.chamber_retry_delay)
+    @sync_utils.RetryDecorator(max_attempt_count=self.args.chamber_n_retries,  # type: ignore #TODO(b/338318729) Fixit!
+                               interval_sec=self.args.chamber_retry_delay)  # type: ignore #TODO(b/338318729) Fixit!
     def _SetupFixture():
       try:
         self._SetupFixture()
@@ -380,7 +380,7 @@ class ALSFixture(test_case.TestCase):
       label = _('Fixture Disconnected')
     else:
       raise ValueError(f'Unknown fixture status {status}')
-    self.ui.SetHTML([f'<span class="{style}">', label, '</span>'],
+    self.ui.SetHTML([f'<span class="{style}">', label, '</span>'],  # type: ignore #TODO(b/338318729) Fixit!
                     id='fixture-status')
 
   def _SetupFixture(self):
@@ -413,7 +413,7 @@ class ALSFixture(test_case.TestCase):
     return True
 
   def _SampleLuxValue(self, param_name, delay, samples):
-    if self.args.mock_mode:
+    if self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
       return ALS_MOCK_VALUE
     try:
       buf = []
@@ -430,7 +430,7 @@ class ALSFixture(test_case.TestCase):
     except ambient_light_sensor.AmbientLightSensorException as e:
       logging.exception('Error reading ALS value: %s', str(e))
       raise
-    return float(np.mean(buf))
+    return float(np.mean(buf))  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SampleALS(self, light_name):
     param_name = 'Calibrating' + light_name
@@ -475,13 +475,13 @@ class ALSFixture(test_case.TestCase):
         f'{result} ValidatingLuxMean: {sampled_vlux!r} (min={lower_bound}, max={upper_bound})'
     )
 
-    if not result and not self.args.mock_mode:
+    if not result and not self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError(
           f'Error validating calibrated als, got {sampled_vlux} out of range ({lower_bound}, {upper_bound})'
       )
 
   def _CheckALSOrdering(self):
-    if self.args.mock_mode:
+    if self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
       return
     luxs = self.config['luxs']
     for i, li in enumerate(luxs):
@@ -498,7 +498,7 @@ class ALSFixture(test_case.TestCase):
     #                        Slope((x0,y0), (xn,yn)))
     # bias = y0/sf - x0
     # Here our x is self.all_sampled_lux, y is self.config['luxs']
-    if self.args.mock_mode:
+    if self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     def Slope(base, sample):
@@ -507,7 +507,7 @@ class ALSFixture(test_case.TestCase):
     def ScaleFactor(xs, ys):
       base = (xs[0], ys[0])
       samples = list(zip(xs[1:], ys[1:]))
-      return float(np.mean([Slope(base, s) for s in samples]))
+      return float(np.mean([Slope(base, s) for s in samples]))  # type: ignore #TODO(b/338318729) Fixit!
 
     self.scale_factor = ScaleFactor(self.all_sampled_lux,
                                     self.config['luxs'])
@@ -523,7 +523,7 @@ class ALSFixture(test_case.TestCase):
         description='Calibrated coefficients bias.')
 
   def _SaveCalibCoefToVPD(self):
-    if self.args.mock_mode:
+    if self.args.mock_mode:  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     self.dut.vpd.ro.Update({
@@ -547,12 +547,12 @@ class ALSFixture(test_case.TestCase):
     self.monitor.Start(
         on_insert=self._OnU2SInsertion, on_remove=self._OnU2SRemoval)
 
-    if self.args.assume_chamber_connected:
+    if self.args.assume_chamber_connected:  # type: ignore #TODO(b/338318729) Fixit!
       self._SetFixtureStatus(FixtureStatus.CONNECTED)
 
     try:
       with kbd_leds.Blinker(LED_PATTERN):
-        if self.args.assume_chamber_connected:
+        if self.args.assume_chamber_connected:  # type: ignore #TODO(b/338318729) Fixit!
           self._SetupFixture()
 
         self._ALSTest()
@@ -573,5 +573,5 @@ class ALSFixture(test_case.TestCase):
       msg: i18n text.
       style: CSS style.
     """
-    self.ui.SetHTML([f'<span class="{style}">', msg, '</span>'],
+    self.ui.SetHTML([f'<span class="{style}">', msg, '</span>'],  # type: ignore #TODO(b/338318729) Fixit!
                     id='test-status')

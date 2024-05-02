@@ -28,9 +28,9 @@ class FactoryInit(device_types.DeviceComponent):
 
   def __init__(self, _dut=None):
     super().__init__(_dut)
-    self._factory_root = self._device.storage.GetFactoryRoot()
-    self._init_dir = self._device.path.join(self._factory_root, 'init')
-    self._init_script_dir = self._device.path.join(self._init_dir, 'main.d')
+    self._factory_root = self._device.storage.GetFactoryRoot()  # type: ignore #TODO(b/338318729) Fixit!
+    self._init_dir = self._device.path.join(self._factory_root, 'init')  # type: ignore #TODO(b/338318729) Fixit!
+    self._init_script_dir = self._device.path.join(self._init_dir, 'main.d')  # type: ignore #TODO(b/338318729) Fixit!
 
   def AddFactoryStartUpApp(self, name, script_path):
     """Add a start up application to the board.
@@ -43,17 +43,17 @@ class FactoryInit(device_types.DeviceComponent):
     # Chrome OS test image executes '${FACTORY_ROOT}/init/startup' if
     # file '${FACTORY_ROOT}/enabled' exists.
     self._device.CheckCall(
-        ['touch', self._device.path.join(self._factory_root, 'enabled')])
+        ['touch', self._device.path.join(self._factory_root, 'enabled')])  # type: ignore #TODO(b/338318729) Fixit!
 
     # we first assume that factory toolkit exists, so we can use its startup
     # mechanism. (see init/main.d/README for more detail)
-    job_path = self._device.path.join(self._init_script_dir, name + '.sh')
+    job_path = self._device.path.join(self._init_script_dir, name + '.sh')  # type: ignore #TODO(b/338318729) Fixit!
     self._device.CheckCall(['mkdir', '-p', self._init_script_dir])
     self._device.CheckCall(['ln', '-sf', script_path, job_path])
     self._device.CheckCall(['chmod', '+x', job_path])
 
-    dut_startup_script = self._device.path.join(self._init_dir, 'startup')
-    if not self._device.path.exists(dut_startup_script):
+    dut_startup_script = self._device.path.join(self._init_dir, 'startup')  # type: ignore #TODO(b/338318729) Fixit!
+    if not self._device.path.exists(dut_startup_script):  # type: ignore #TODO(b/338318729) Fixit!
       # however, if the default startup script doesn't exists (e.g. factory
       # toolkit is not installed), we will create a stub startup script.
       station_startup_script = os.path.join(paths.FACTORY_DIR, 'sh',
@@ -67,5 +67,5 @@ class FactoryInit(device_types.DeviceComponent):
     Args:
       name: the name of the job used when creating the job.
     """
-    job_path = self._device.path.join(self._init_script_dir, name + '.sh')
+    job_path = self._device.path.join(self._init_script_dir, name + '.sh')  # type: ignore #TODO(b/338318729) Fixit!
     self._device.CheckCall(['rm', '-f', job_path])

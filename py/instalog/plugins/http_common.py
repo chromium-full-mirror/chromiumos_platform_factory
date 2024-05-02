@@ -20,7 +20,7 @@ def CheckGnuPG():
     logging.error('Can not import package python-gnupg. '
                   'Did you run instalog/setup.py?')
     raise ImportError
-  if gnupg.__version__ != REQUESTED_GNUPG_VERSION:
+  if gnupg.__version__ != REQUESTED_GNUPG_VERSION:  # type: ignore #TODO(b/338318729) Fixit!
     logging.error('Please use package python-gnupg instead of gnupg. '
                   'Did you run instalog/setup.py?')
     raise ImportError

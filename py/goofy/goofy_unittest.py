@@ -90,7 +90,7 @@ class GoofyTest(unittest.TestCase):
     self.env.lock = mock.MagicMock()
     self.state = state.StubFactoryState()
 
-    state.FactoryState = mock.MagicMock()
+    state.FactoryState = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test_list_manager = mock.Mock(manager.Manager)
 
@@ -120,12 +120,12 @@ class GoofyTest(unittest.TestCase):
       self.assertEqual([], extra_threads)
     finally:
       state.GetInstance = self.original_get_state_instance
-      state.FactoryState = self.original_factory_state
+      state.FactoryState = self.original_factory_state  # type: ignore #TODO(b/338318729) Fixit!
 
   def InitGoofy(self, restart=True):
     """Initializes and returns a Goofy."""
     new_goofy = Goofy()
-    new_goofy.InitUI = mock.MagicMock()
+    new_goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
     args = []
     if restart:
       args.append('--restart')
@@ -143,7 +143,7 @@ class GoofyTest(unittest.TestCase):
     self.goofy = new_goofy
 
   def RecordGoofyInit(self):
-    state.FactoryState.return_value = self.state
+    state.FactoryState.return_value = self.state  # type: ignore #TODO(b/338318729) Fixit!
 
     if self.test_list:
       test_list = manager.BuildTestListForUnittest(
@@ -230,11 +230,11 @@ class GoofyUITest(GoofyTest):
         # this log could run after goofy.Destroy is called, which triggers
         # logger to re-open log file without further closing.
         # logging.info('Test client received %s', event)
-        self.events.append(event)
+        self.events.append(event)  # type: ignore #TODO(b/338318729) Fixit!
         if event.type == Event.Type.HELLO:
           socket_self.send(Event(Event.Type.KEEPALIVE,
                                  uuid=event.uuid).to_json())
-          self.ws_start.set()
+          self.ws_start.set()  # type: ignore #TODO(b/338318729) Fixit!
 
     ws = MyClient(
         f'ws://{net_utils.LOCALHOST}:{int(goofy_proxy.DEFAULT_GOOFY_PORT)}'
@@ -243,16 +243,16 @@ class GoofyUITest(GoofyTest):
     def OpenWebSocket():
       ws.connect()
       ws.run()
-      self.ws_done.set()
+      self.ws_done.set()  # type: ignore #TODO(b/338318729) Fixit!
 
     # After goofy.Init(), it should be ready to accept a web socket
     process_utils.StartDaemonThread(target=OpenWebSocket)
 
   def WaitForWebSocketStart(self):
-    self.ws_start.wait()
+    self.ws_start.wait()  # type: ignore #TODO(b/338318729) Fixit!
 
   def WaitForWebSocketStop(self):
-    self.ws_done.wait()
+    self.ws_done.wait()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 # A simple test list with three tests.
@@ -288,7 +288,7 @@ class BasicTest(GoofyUITest):
             dict(count=1, error_msg='Uh-oh', id='c', path='test:c',
                  status='FAILED'),
         ]),
-        self.goofy.test_list.ToFactoryTestList().AsDict(
+        self.goofy.test_list.ToFactoryTestList().AsDict(  # type: ignore #TODO(b/338318729) Fixit!
             state.GetInstance().GetTestStates()))
 
 
@@ -302,7 +302,7 @@ class WebSocketTest(GoofyUITest):
     # The Goofy Server should receive the events in 2 seconds.
     for unused_t in range(20):
       statuses = []
-      for event in self.events:
+      for event in self.events:  # type: ignore #TODO(b/338318729) Fixit!
         if event.type == Event.Type.STATE_CHANGE and event.path == test_id:
           statuses.append(event.state['status'])
       if statuses == [TestState.UNTESTED, TestState.ACTIVE, test_state]:
@@ -331,7 +331,7 @@ class WebSocketTest(GoofyUITest):
     self.WaitForWebSocketStop()
 
     hello_event = 0
-    for event in self.events:
+    for event in self.events:  # type: ignore #TODO(b/338318729) Fixit!
       if event.type == Event.Type.HELLO:
         hello_event += 1
 
@@ -592,7 +592,7 @@ class RequireRunTest(GoofyUITest):
   @mock.patch('cros.factory.goofy.prespawner.Prespawner.spawn')
   def runTest(self, spawn_mock):
     self.goofy.RestartTests(
-        root=self.goofy.test_list.LookupPath('b'))
+        root=self.goofy.test_list.LookupPath('b'))  # type: ignore #TODO(b/338318729) Fixit!
     self.CheckOneTest('test:b', 'b_B', TestState.FAILED,
                       'Required tests [test:a] have not been run yet',
                       spawn_mock, does_not_start=True)
@@ -877,7 +877,7 @@ class NoHostTest(GoofyUITest):
   }
 
   def runTest(self):
-    self.goofy.InitUI = mock.MagicMock()
+    self.goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
     # No UI for test 'a', should not call InitUI
     self.goofy.RunOnce()

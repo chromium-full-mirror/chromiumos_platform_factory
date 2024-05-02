@@ -26,7 +26,7 @@ class TestCaseTest(unittest.TestCase):
 
   class _MockEventLoop:
     def __init__(self):
-      self._event_loop_end = queue.Queue()
+      self._event_loop_end = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
       # We don't use mock for PostNewEvent and Run, since there is race
       # condition within the mock library __call__...
       self.mock = mock.Mock()
@@ -61,7 +61,7 @@ class TestCaseTest(unittest.TestCase):
                         'GetInstance').return_value = self._mock_goofy_rpc
 
     self._test = test_case.TestCase()
-    self._test.ui_class = mock.Mock
+    self._test.ui_class = mock.Mock  # type: ignore #TODO(b/338318729) Fixit!
 
     self._handler_exception_hook = None
 
@@ -134,7 +134,7 @@ class TestCaseTest(unittest.TestCase):
     def _RunTest():
       pass
 
-    self._test.runTest = _RunTest
+    self._test.runTest = _RunTest  # type: ignore #TODO(b/338318729) Fixit!
 
     self.AssertRunPass()
     self._mock_event_loop.AddEventHandler.assert_any_call(
@@ -189,7 +189,7 @@ class TestCaseTest(unittest.TestCase):
     def _RunTest():
       self.assertTrue(False)  # pylint: disable=redundant-unittest-assert
 
-    self._test.runTest = _RunTest
+    self._test.runTest = _RunTest  # type: ignore #TODO(b/338318729) Fixit!
 
     self.AssertRunFailOrWaive('False is not true')
 
@@ -198,7 +198,7 @@ class TestCaseTest(unittest.TestCase):
 
     def _Task(idx):
       self.assertEqual(idx, self._mock_event_loop.ClearHandlers.call_count)
-      self.assertEqual(idx, self._test.ui.UnbindAllKeys.call_count)
+      self.assertEqual(idx, self._test.ui.UnbindAllKeys.call_count)  # type: ignore #TODO(b/338318729) Fixit!
       executed_tasks.append(idx)
 
     self._test.AddTask(lambda: _Task(0))
@@ -227,7 +227,7 @@ class TestCaseTest(unittest.TestCase):
     next_task_stages = []
 
     def _Task():
-      next_task_stages.append(self._test.GetNextTaskStage())
+      next_task_stages.append(self._test.GetNextTaskStage())  # type: ignore #TODO(b/338318729) Fixit!
 
     # next_task_stage will not be updated if all tasks were added with
     # `reboot=False`
@@ -242,7 +242,7 @@ class TestCaseTest(unittest.TestCase):
     next_task_stages = []
 
     def _Task():
-      next_task_stages.append(self._test.GetNextTaskStage())
+      next_task_stages.append(self._test.GetNextTaskStage())  # type: ignore #TODO(b/338318729) Fixit!
 
     # next_task_stage will be updated if any task was added with
     # `reboot=True`
@@ -259,7 +259,7 @@ class TestCaseTest(unittest.TestCase):
 
     def _Task(name):
       executed_tasks.append((name))
-      next_task_stages.append(self._test.GetNextTaskStage())
+      next_task_stages.append(self._test.GetNextTaskStage())  # type: ignore #TODO(b/338318729) Fixit!
 
     self._test.AddTask(lambda: _Task('task1'))
     self._test.AddTask(lambda: _Task('task2'), reboot=True)
@@ -284,7 +284,7 @@ class TestCaseTest(unittest.TestCase):
 
     self._test.UpdateNextTaskStage(1)
     self.AssertRunPass()
-    self.assertEqual(self._test.GetNextTaskStage(), 0)
+    self.assertEqual(self._test.GetNextTaskStage(), 0)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAddTasks_ClearNextTaskStage_TestFail(self):
 
@@ -299,7 +299,7 @@ class TestCaseTest(unittest.TestCase):
 
     self._test.UpdateNextTaskStage(1)
     self.AssertRunFailOrWaive()
-    self.assertEqual(self._test.GetNextTaskStage(), 0)
+    self.assertEqual(self._test.GetNextTaskStage(), 0)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAddTasks_UnexpectedReboot(self):
 
@@ -356,9 +356,9 @@ class TestCaseTest(unittest.TestCase):
       try:
         self._test.PassTask()
       except Exception:
-        self._handler_exception_hook()
+        self._handler_exception_hook()  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._test.runTest = _RunTest
+    self._test.runTest = _RunTest  # type: ignore #TODO(b/338318729) Fixit!
     self._timeline.AddEvent(10, _TestEnd)
 
     self.AssertRunPass()
@@ -373,9 +373,9 @@ class TestCaseTest(unittest.TestCase):
       try:
         self._test.FailTask('FAILED!')
       except Exception:
-        self._handler_exception_hook()
+        self._handler_exception_hook()  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._test.runTest = _RunTest
+    self._test.runTest = _RunTest  # type: ignore #TODO(b/338318729) Fixit!
     self._timeline.AddEvent(10, _TestEnd)
 
     self.AssertRunFailOrWaive()
@@ -392,9 +392,9 @@ class TestCaseTest(unittest.TestCase):
       try:
         self._test.FailTask('FAILED!')
       except Exception:
-        self._handler_exception_hook()
+        self._handler_exception_hook()  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._test.runTest = _RunTest
+    self._test.runTest = _RunTest  # type: ignore #TODO(b/338318729) Fixit!
     self._timeline.AddEvent(5, _TestEnd)
 
     self.AssertRunFailOrWaive()
@@ -405,7 +405,7 @@ class TestCaseTest(unittest.TestCase):
     next_stage = []
 
     def _side_effect():
-      next_stage.append(self._test.GetNextTaskStage())
+      next_stage.append(self._test.GetNextTaskStage())  # type: ignore #TODO(b/338318729) Fixit!
 
     def _Task():
       pass
@@ -423,7 +423,7 @@ class TestCaseTest(unittest.TestCase):
     next_stage = []
 
     def _side_effect(_):
-      next_stage.append(self._test.GetNextTaskStage())
+      next_stage.append(self._test.GetNextTaskStage())  # type: ignore #TODO(b/338318729) Fixit!
 
     def _Task():
       pass

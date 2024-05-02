@@ -29,7 +29,7 @@ class DetectCameraAssemblyIssue:
       min_luminance_ratio: the minimum acceptable luminance of the boundary
                            region
     """
-    self.cv_image = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
+    self.cv_image = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)  # type: ignore #TODO(b/338318729) Fixit!
     self.cv_color_image = cv_image
     self.min_luminance_ratio = min_luminance_ratio
 
@@ -45,24 +45,24 @@ class DetectCameraAssemblyIssue:
         img_height % grid_height != 0)
 
     # Calculate which pixel belongs to which grid
-    grid_row_idx = np.arange(0, img_height) // grid_height
-    grid_row_idx = np.clip(grid_row_idx, None, num_vertical_grid - 1)
-    grid_col_idx = np.arange(0, img_width) // grid_width
-    grid_col_idx = np.clip(grid_col_idx, None, num_horizontal_grid - 1)
+    grid_row_idx = np.arange(0, img_height) // grid_height  # type: ignore #TODO(b/338318729) Fixit!
+    grid_row_idx = np.clip(grid_row_idx, None, num_vertical_grid - 1)  # type: ignore #TODO(b/338318729) Fixit!
+    grid_col_idx = np.arange(0, img_width) // grid_width  # type: ignore #TODO(b/338318729) Fixit!
+    grid_col_idx = np.clip(grid_col_idx, None, num_horizontal_grid - 1)  # type: ignore #TODO(b/338318729) Fixit!
 
     # We use bin count to calculate the sum of pixel values in each grid.
     # Moreover, since numpy.bincount only accept 1d index, we turn the 2d index
     # into 1d index.
 
     # Shape of two_d_row_idx, two_d_col_idx = (img_height, img_width)
-    two_d_row_idx, two_d_col_idx = np.meshgrid(grid_col_idx, grid_row_idx)
+    two_d_row_idx, two_d_col_idx = np.meshgrid(grid_col_idx, grid_row_idx)  # type: ignore #TODO(b/338318729) Fixit!
     two_d_idx = two_d_row_idx + two_d_col_idx * num_horizontal_grid
     one_d_idx = two_d_idx.flatten()
-    sum_grid_vals = np.bincount(one_d_idx, weights=self.cv_image.flatten())
+    sum_grid_vals = np.bincount(one_d_idx, weights=self.cv_image.flatten())  # type: ignore #TODO(b/338318729) Fixit!
 
     # Calculate the number of pixels in each grid
-    one_d_ones_array = np.ones((img_height * img_width), dtype=int)
-    num_pixels_each_grid = np.bincount(one_d_idx, weights=one_d_ones_array)
+    one_d_ones_array = np.ones((img_height * img_width), dtype=int)  # type: ignore #TODO(b/338318729) Fixit!
+    num_pixels_each_grid = np.bincount(one_d_idx, weights=one_d_ones_array)  # type: ignore #TODO(b/338318729) Fixit!
 
     avg_grid_vals = sum_grid_vals / num_pixels_each_grid
     avg_grid_vals = avg_grid_vals.reshape(num_vertical_grid,
@@ -112,7 +112,7 @@ class DetectCameraAssemblyIssue:
       # We mask out the center region since we only check if the boundary
       # region is too dark.
       grid_is_too_dark[1:-1, 1:-1] = False
-      is_too_dark = np.any(grid_is_too_dark)
+      is_too_dark = np.any(grid_is_too_dark)  # type: ignore #TODO(b/338318729) Fixit!
       if is_too_dark:
         return is_too_dark, grid_is_too_dark, (grid_width, grid_height)
 

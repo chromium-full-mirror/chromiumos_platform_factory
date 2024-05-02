@@ -24,11 +24,11 @@ def ScanQRCode(cv_image):
     List of scanned text.
   """
   width, height = cv_image.shape[1], cv_image.shape[0]
-  raw_str = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).astype(np.uint8).tostring()
+  raw_str = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).astype(np.uint8).tostring()  # type: ignore #TODO(b/338318729) Fixit!
 
-  scanner = zbar.ImageScanner()
-  scanner.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 1)
-  zbar_img = zbar.Image(width, height, 'Y800', raw_str)
+  scanner = zbar.ImageScanner()  # type: ignore #TODO(b/338318729) Fixit!
+  scanner.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 1)  # type: ignore #TODO(b/338318729) Fixit!
+  zbar_img = zbar.Image(width, height, 'Y800', raw_str)  # type: ignore #TODO(b/338318729) Fixit!
   scanner.scan(zbar_img)
 
   return [symbol.data for symbol in zbar_img]

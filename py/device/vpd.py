@@ -121,8 +121,8 @@ class ImmutableFileBasedPartition(IPartition):
 
   def get(self, key, default=None):
     """See IPartition.get"""
-    file_path = self._device.path.join(self._path, key)
-    if self._device.path.exists(file_path):
+    file_path = self._device.path.join(self._path, key)  # type: ignore #TODO(b/338318729) Fixit!
+    if self._device.path.exists(file_path):  # type: ignore #TODO(b/338318729) Fixit!
       return self._device.ReadFile(file_path)
     return None
 
@@ -150,17 +150,17 @@ class MutableFileBasedPartition(ImmutableFileBasedPartition):
   def Delete(self, *keys):
     """See IPartition.Delete."""
     for key in keys:
-      file_path = self._device.path.join(self._path, key)
-      if self._device.path.exists(file_path):
+      file_path = self._device.path.join(self._path, key)  # type: ignore #TODO(b/338318729) Fixit!
+      if self._device.path.exists(file_path):  # type: ignore #TODO(b/338318729) Fixit!
         self._device.CheckCall(['rm', '-f', file_path])
         return
 
   def Update(self, items, log=True):
     """See IPartition.Update."""
     for k, v in items.items():
-      file_name = self._device.path.join(self._path, k)
+      file_name = self._device.path.join(self._path, k)  # type: ignore #TODO(b/338318729) Fixit!
       if v is not None:
-        dir_name = self._device.path.dirname(file_name)
+        dir_name = self._device.path.dirname(file_name)  # type: ignore #TODO(b/338318729) Fixit!
         self._device.CheckCall(['mkdir', '-p', dir_name])
         self._device.WriteFile(file_name, v)
       else:
@@ -237,13 +237,13 @@ class SysFSVPDSource(VPDSource):
   def ro(self):
     return ImmutableFileBasedPartition(
         self._device,
-        self._device.path.join(self._path, 'ro'))
+        self._device.path.join(self._path, 'ro'))  # type: ignore #TODO(b/338318729) Fixit!
 
   @device_types.DeviceProperty
   def rw(self):
     return ImmutableFileBasedPartition(
         self._device,
-        self._device.path.join(self._path, 'rw'))
+        self._device.path.join(self._path, 'rw'))  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class SysRawVPDSource(VPDSource):
@@ -259,13 +259,13 @@ class SysRawVPDSource(VPDSource):
   def ro(self):
     return CommandVPDPartition(
         self._device, vpd.VPD_READONLY_PARTITION_NAME,
-        self._device.path.join(self._path, 'ro_raw'))
+        self._device.path.join(self._path, 'ro_raw'))  # type: ignore #TODO(b/338318729) Fixit!
 
   @device_types.DeviceProperty
   def rw(self):
     return CommandVPDPartition(
         self._device, vpd.VPD_READWRITE_PARTITION_NAME,
-        self._device.path.join(self._path, 'rw_raw'))
+        self._device.path.join(self._path, 'rw_raw'))  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class AbstractVitalProductData(abc.ABC, device_types.DeviceComponent):
@@ -286,16 +286,16 @@ class AbstractVitalProductData(abc.ABC, device_types.DeviceComponent):
   @device_types.DeviceProperty
   def ro(self):
     """A shortcut to read ro from live VPD source."""
-    return self.live.ro
+    return self.live.ro  # type: ignore #TODO(b/338318729) Fixit!
 
   @device_types.DeviceProperty
   def rw(self):
     """A shortcut to read rw from live VPD source."""
-    return self.live.rw
+    return self.live.rw  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetPartition(self, partition):
     """A shortcut to get partition from live VPD source."""
-    return self.live.GetPartition(partition)
+    return self.live.GetPartition(partition)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class ChromeOSVitalProductData(AbstractVitalProductData):

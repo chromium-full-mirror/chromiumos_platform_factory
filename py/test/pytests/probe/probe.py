@@ -201,7 +201,7 @@ class ProbeTest(test_case.TestCase):
     self._dut = device_utils.CreateDUTInterface()
     self.factory_tools = deploy_utils.CreateFactoryTools(self._dut)
     self.config_file_path = os.path.join(
-        LOCAL_CONFIG_DIR, self.args.config_file)
+        LOCAL_CONFIG_DIR, self.args.config_file)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     # Check the config file exists.
@@ -210,8 +210,8 @@ class ProbeTest(test_case.TestCase):
 
     # Execute Probe.
     cmd = ['probe', '-v', 'probe', '--config-file', self.config_file_path]
-    if self.args.component_list is not None:
-      cmd += ['--comps'] + self.args.component_list
+    if self.args.component_list is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      cmd += ['--comps'] + self.args.component_list  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Call the command: %s', ' '.join(cmd))
     probed_results = json.loads(self.factory_tools.CheckOutput(cmd))
 
@@ -222,7 +222,7 @@ class ProbeTest(test_case.TestCase):
           device_data.JoinKeys(device_data.KEY_COMPONENT, 'has_' + category))
       rule_map[category] = (
           '==', int(expected_count) if expected_count is not None else 1)
-    for category, op_str, value in self.args.overridden_rules:
+    for category, op_str, value in self.args.overridden_rules:  # type: ignore #TODO(b/338318729) Fixit!
       rule_map[category] = (op_str, value)
 
     table_html = ui_templates.Table(rows=len(probed_results) + 1, cols=4)
@@ -239,7 +239,7 @@ class ProbeTest(test_case.TestCase):
       all_passed &= status
 
       # Set the table.
-      counter = collections.defaultdict(int)
+      counter = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
       for result in probed_results[category]:
         counter[result['name']] += 1
       comp_summary = '<br>'.join(f'{int(num_comp)} {comp_name} found.'
@@ -256,13 +256,13 @@ class ProbeTest(test_case.TestCase):
       table_html.SetContent(
           row_idx, 3, f'<div class=test-status-{status_str}>{status_str}</div>')
 
-    if self.args.show_ui is True or (self.args.show_ui is None and
+    if self.args.show_ui is True or (self.args.show_ui is None and  # type: ignore #TODO(b/338318729) Fixit!
                                      not all_passed):
-      self.ui.SetState([
+      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
           table_html.GenerateHTML(), '<span class="prompt">',
           _('Press SPACE to continue'), '</span>'
       ])
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
     if not all_passed:
       self.fail()

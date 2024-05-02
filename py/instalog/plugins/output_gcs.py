@@ -117,7 +117,7 @@ class OutputCloudStorage(plugin_base.OutputPlugin):
       target_path = f'/{self.target_dir}/{target_filename}'
 
       # Upload the file.
-      self.gcs(att_path, target_path)
+      self.gcs(att_path, target_path)  # type: ignore #TODO(b/338318729) Fixit!
 
       # Relocate the attachments entry into the event payload.
       event.setdefault('__attachments__', {})[att_id] = f'gs:/{target_path}'

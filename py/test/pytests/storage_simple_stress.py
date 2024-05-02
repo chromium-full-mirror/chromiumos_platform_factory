@@ -120,18 +120,18 @@ class SimpleStorageStressTest(unittest.TestCase):
       return True
 
   def TestReadWriteIn(self, dirpath):
-    file_size = self.args.file_size
-    for iteration in range(self.args.operations):
+    file_size = self.args.file_size  # type: ignore #TODO(b/338318729) Fixit!
+    for iteration in range(self.args.operations):  # type: ignore #TODO(b/338318729) Fixit!
       with self._dut.temp.TempFile(dir=dirpath) as temp_file:
         logging.info(
             '[%d/%d]: Tempfile[%s] created for %d bytes write/read test',
-            iteration, self.args.operations, temp_file, file_size)
+            iteration, self.args.operations, temp_file, file_size)  # type: ignore #TODO(b/338318729) Fixit!
         self.ReadWriteFile(temp_file, file_size)
 
   def runTest(self):
-    if self.args.mount_device:
+    if self.args.mount_device:  # type: ignore #TODO(b/338318729) Fixit!
       with sys_utils.MountPartition(
-          self.args.mount_device, rw=True, dut=self._dut) as mount_path:
-        self.TestReadWriteIn(self._dut.path.join(mount_path, self.args.dir))
+          self.args.mount_device, rw=True, dut=self._dut) as mount_path:  # type: ignore #TODO(b/338318729) Fixit!
+        self.TestReadWriteIn(self._dut.path.join(mount_path, self.args.dir))  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self.TestReadWriteIn(self.args.dir)
+      self.TestReadWriteIn(self.args.dir)  # type: ignore #TODO(b/338318729) Fixit!

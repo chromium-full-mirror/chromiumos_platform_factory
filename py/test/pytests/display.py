@@ -187,11 +187,11 @@ class DisplayTest(test_case.TestCase):
 
   def setUp(self):
     """Initializes frontend presentation and properties."""
-    self.static_dir = self.ui.GetStaticDirectoryPath()
+    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.idle_timeout = self.args.idle_timeout
-    self.items = self.args.items
-    self.symptoms = self.args.symptoms
+    self.idle_timeout = self.args.idle_timeout  # type: ignore #TODO(b/338318729) Fixit!
+    self.items = self.args.items  # type: ignore #TODO(b/338318729) Fixit!
+    self.symptoms = self.args.symptoms  # type: ignore #TODO(b/338318729) Fixit!
 
     if self.idle_timeout is not None:
       if self.symptoms:
@@ -222,7 +222,7 @@ class DisplayTest(test_case.TestCase):
     if unknown_items:
       raise ValueError(f'Unknown item {unknown_items!r} in items.')
 
-    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest', self.items,
+    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest', self.items,  # type: ignore #TODO(b/338318729) Fixit!
                                                    self.symptoms)
     self.checked = False
     self.fullscreen = False
@@ -232,23 +232,23 @@ class DisplayTest(test_case.TestCase):
 
   def runTest(self):
     """Sets the callback function of keys."""
-    self.event_loop.AddEventHandler('failed_lists',
+    self.event_loop.AddEventHandler('failed_lists',  # type: ignore #TODO(b/338318729) Fixit!
                                     self.LogFailedListsAndFinishTask)
-    self.event_loop.AddEventHandler('pass_subtest', self.OnEnterPressed)
+    self.event_loop.AddEventHandler('pass_subtest', self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit!
     if self.idle_timeout is None:
-      self.ui.BindKey(test_ui.SPACE_KEY, self.OnSpacePressed)
-      self.ui.BindKey(test_ui.ENTER_KEY, self.OnEnterPressed)
+      self.ui.BindKey(test_ui.SPACE_KEY, self.OnSpacePressed)  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.BindKey(test_ui.ENTER_KEY, self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit!
       if not self.symptoms:
         # Fail the subtest with Escape key in Normal mode.
-        self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)
+        self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       # Idle mode
       # Automatically enter fullscreen mode in idle mode.
       self.ToggleFullscreen()
-      self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)
-      self.ui.StartCountdownTimer(self.idle_timeout, self.PassTask)
-      if self.args.show_timer:
-        self.ui.ShowElement('display-timer')
+      self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.StartCountdownTimer(self.idle_timeout, self.PassTask)  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.show_timer:  # type: ignore #TODO(b/338318729) Fixit!
+        self.ui.ShowElement('display-timer')  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTaskEnd()
 
   def ExtractTestImages(self):
@@ -276,7 +276,7 @@ class DisplayTest(test_case.TestCase):
         self.frontend_proxy.JudgeSubTestWithSymptom()
       # If the next subtest will be in fullscreen mode, checked should be True
       self.checked = self.fullscreen
-      if self.args.quick_display and not self.fullscreen:
+      if self.args.quick_display and not self.fullscreen:  # type: ignore #TODO(b/338318729) Fixit!
         self.ToggleFullscreen()
 
   def OnFailPressed(self, event):

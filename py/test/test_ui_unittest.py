@@ -93,7 +93,7 @@ class EventLoopTest(EventLoopTestBase):
   def _MockNewEvent(self, event_type=_EventType.TEST_UI_EVENT, **kwargs):
     kwargs.setdefault('test', _MOCK_TEST)
     kwargs.setdefault('invocation', _MOCK_INVOCATION)
-    self._event_callback(test_event.Event(event_type, **kwargs))
+    self._event_callback(test_event.Event(event_type, **kwargs))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testHandleEvent(self):
     def _Handler(name, event):
@@ -107,7 +107,7 @@ class EventLoopTest(EventLoopTestBase):
     self.event_loop.AddEventHandler(
         'type2', lambda event: _Handler('handler3', event))
 
-    received_data = []
+    received_data = []  # type: ignore #TODO(b/338318729) Fixit!
     self._MockNewEvent(subtype='type1', data='data')
     self.assertEqual([('handler1', 'data'), ('handler2', 'data')],
                      received_data)
@@ -217,7 +217,7 @@ class EventLoopRunTest(EventLoopTestBase):
       while True:
         event = self._fake_event_client_queue.get(
             timeout=end_time - self._timeline.GetTime())
-        self._event_callback(event)
+        self._event_callback(event)  # type: ignore #TODO(b/338318729) Fixit!
         if condition(event):
           return event
     except queue.Empty:
@@ -373,7 +373,7 @@ class EventLoopRunTest(EventLoopTestBase):
     random.seed(0)
     TOTAL_TIME = 1000
 
-    calls = {}
+    calls = {}  # type: ignore #TODO(b/338318729) Fixit!
     called_times = []
     def _Log(name):
       calls.setdefault(name, []).append(self._timeline.GetTime())
@@ -392,7 +392,7 @@ class EventLoopRunTest(EventLoopTestBase):
     self.event_loop.AddEventHandler(
         'type2', lambda event: _Log('handler2'))
 
-    expected_calls = {}
+    expected_calls = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     def _AddRandomEvent():
       event_type = random.randint(1, 3)

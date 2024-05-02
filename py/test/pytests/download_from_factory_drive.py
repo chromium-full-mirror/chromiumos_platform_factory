@@ -104,14 +104,14 @@ class RetrieveParameter(test_case.TestCase):
 
   def setUp(self):
     self._server = None
-    self._frontend_proxy = self.ui.InitJSTestObject('RetrieveParameterTest')
-    self.args.source_namespace = self.args.source_namespace.strip('/')
-    self.args.source_namespace = self.args.source_namespace or None
+    self._frontend_proxy = self.ui.InitJSTestObject('RetrieveParameterTest')  # type: ignore #TODO(b/338318729) Fixit!
+    self.args.source_namespace = self.args.source_namespace.strip('/')  # type: ignore #TODO(b/338318729) Fixit!
+    self.args.source_namespace = self.args.source_namespace or None  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     self._frontend_proxy.DisplayStatus('Try connecting to server...')
     try:
-      self._server = server_proxy.GetServerProxy(timeout=self.args.timeout_secs)
+      self._server = server_proxy.GetServerProxy(timeout=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
       self._server.Ping()
     except Exception:
       logging.exception('Retrieve Parameter')
@@ -119,8 +119,8 @@ class RetrieveParameter(test_case.TestCase):
 
     self._frontend_proxy.DisplayStatus('Try downloading files...')
     try:
-      content = self._server.GetFactoryDrives(self.args.source_namespace,
-                                              self.args.source_file).data
+      content = self._server.GetFactoryDrives(self.args.source_namespace,  # type: ignore #TODO(b/338318729) Fixit!
+                                              self.args.source_file).data  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       logging.exception('Retrieve Parameter')
       self._handleError('Namespace or file not found')
@@ -128,10 +128,10 @@ class RetrieveParameter(test_case.TestCase):
     with file_utils.UnopenedTemporaryFile() as tar_path:
       file_utils.WriteFile(tar_path, content, encoding=None)
       with tarfile.open(tar_path) as tar_file:
-        file_utils.TryMakeDirs(self.args.destination_namespace)
+        file_utils.TryMakeDirs(self.args.destination_namespace)  # type: ignore #TODO(b/338318729) Fixit!
         self._frontend_proxy.DisplayStatus('Files downloaded:')
         for member in tar_file:
-          tar_file.extract(member, self.args.destination_namespace)
+          tar_file.extract(member, self.args.destination_namespace)  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('Donwload file: %s', member.name)
           self._frontend_proxy.DisplayAppendFiles(member.name)
 

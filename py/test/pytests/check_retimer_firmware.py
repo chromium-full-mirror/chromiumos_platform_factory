@@ -87,14 +87,14 @@ class RetimerFirmwareTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
     self._dut = device_utils.CreateDUTInterface()
-    self.controller_ports = self.args.controller_ports
-    self.usb_ports = self.args.usb_ports
+    self.controller_ports = self.args.controller_ports  # type: ignore #TODO(b/338318729) Fixit!
+    self.usb_ports = self.args.usb_ports  # type: ignore #TODO(b/338318729) Fixit!
     if not set(_CONTROLLER_PORTS).issuperset(self.controller_ports):
       raise ValueError(f'controller_ports {self.controller_ports!r} must be a '
                        f'subset of {_CONTROLLER_PORTS!r}.')
-    phase.AssertStartingAtPhase(phase.PVT, self.args.min_retimer_version,
+    phase.AssertStartingAtPhase(phase.PVT, self.args.min_retimer_version,  # type: ignore #TODO(b/338318729) Fixit!
                                 'min_retimer_version must be specified.')
 
   def _CheckOneRetimer(self, controller_port: str):
@@ -132,10 +132,10 @@ class RetimerFirmwareTest(test_case.TestCase):
   def _WaitOneUSBUnplugged(self, usb_port):
     """Waits until usb_port is disconnected."""
     test_timer = None
-    if self.args.timeout_secs:
-      test_timer = self.ui.StartCountdownTimer(self.args.timeout_secs)
+    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
+      test_timer = self.ui.StartCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Please remove USB type-C cable from port {port}', port=usb_port))
 
     def _VerifyDisconnect():
@@ -145,7 +145,7 @@ class RetimerFirmwareTest(test_case.TestCase):
       })
       return usbpd_verified
 
-    sync_utils.WaitFor(_VerifyDisconnect, self.args.timeout_secs,
+    sync_utils.WaitFor(_VerifyDisconnect, self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                        poll_interval=0.5)
     if test_timer:
       test_timer.set()
@@ -154,12 +154,12 @@ class RetimerFirmwareTest(test_case.TestCase):
     """Waits until all ports in self.usb_ports are disconnected."""
     for usb_port in self.usb_ports:
       self._WaitOneUSBUnplugged(usb_port)
-    self.ui.SetInstruction('')
+    self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit!
 
   def _RetimerSwitcher(self, controller_port_prefix, mode):
     retimer_switcher_path = self._GetRetimerSwitcherPath(controller_port_prefix)
     if mode == 'ON':
-      self.ui.SetState(_('Enumerating Retimer...'))
+      self.ui.SetState(_('Enumerating Retimer...'))  # type: ignore #TODO(b/338318729) Fixit!
       self._dut.CheckCall(f'echo 1 > {retimer_switcher_path}/offline')
       self._dut.CheckCall(f'echo 1 > {retimer_switcher_path}/rescan')
     else:

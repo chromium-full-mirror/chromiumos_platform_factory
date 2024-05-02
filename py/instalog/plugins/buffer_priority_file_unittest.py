@@ -31,8 +31,8 @@ class TestBufferPriorityFile(unittest.TestCase):
 
   def _CreateBuffer(self, config=None):
     # Remove previous temporary folder if any.
-    if self.data_dir is not None:
-      shutil.rmtree(self.data_dir)
+    if self.data_dir is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      shutil.rmtree(self.data_dir)  # type: ignore #TODO(b/338318729) Fixit!
     self.data_dir = tempfile.mkdtemp(prefix='buffer_priority_file_unittest_')
     logging.info('Create state directory: %s', self.data_dir)
     self.sf = buffer_priority_file.BufferPriorityFile(
@@ -40,11 +40,11 @@ class TestBufferPriorityFile(unittest.TestCase):
         logger_name='priority_file',
         store={},
         plugin_api=None)
-    self.sf.GetDataDir = lambda: self.data_dir
+    self.sf.GetDataDir = lambda: self.data_dir  # type: ignore #TODO(b/338318729) Fixit!
     self.sf.SetUp()
 
   def setUp(self):
-    self.data_dir = None
+    self.data_dir = None  # type: ignore #TODO(b/338318729) Fixit!
     self._CreateBuffer()
 
     self.pri_level_max = buffer_priority_file._PRIORITY_LEVEL
@@ -66,14 +66,14 @@ class TestBufferPriorityFile(unittest.TestCase):
     if target_file_num is not None:
       for file_num, file_num_lock in enumerate(self.sf._file_num_lock):
         if file_num != target_file_num:
-          file_num_lock.acquire()
+          file_num_lock.acquire()  # type: ignore #TODO(b/338318729) Fixit!
     result = self.sf.Produce(producer, [copy.deepcopy(self.e[pri_level])],
                              consumable)
     assert result, 'Emit failed!'
     if target_file_num is not None:
       for file_num, file_num_lock in enumerate(self.sf._file_num_lock):
         if file_num != target_file_num:
-          file_num_lock.release()
+          file_num_lock.release()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testConsumeOrder(self):
     self.sf.AddConsumer('a')

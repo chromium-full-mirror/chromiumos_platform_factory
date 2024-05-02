@@ -97,7 +97,7 @@ class TestListFile(ITestListFile):
     Refer to the underlying function for detailed exceptions.
     """
     test_list_common.SaveTestList(self.data,
-                                  self.filename.removesuffix('.test_list'),
+                                  self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit!
                                   self.folder_path)
 
   def SaveDiff(self) -> None:

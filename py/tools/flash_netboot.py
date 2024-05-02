@@ -61,7 +61,7 @@ class FlashNetboot:
       self._ro_vpd = vpd_ro_file
       self._rw_vpd = vpd_rw_file
       self._PreserveVPD()
-      shutil.copyfile(self._image, self._fw_main)
+      shutil.copyfile(self._image, self._fw_main)  # type: ignore #TODO(b/338318729) Fixit!
       self._PackVPD()
       self._FlashFirmware()
 
@@ -85,7 +85,7 @@ class FlashNetboot:
       Spawn(cmd, log=True, check_call=True)
     else:
       p = Spawn(cmd, log=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-      for line in iter(p.stdout.readline, ''):
+      for line in iter(p.stdout.readline, ''):  # type: ignore #TODO(b/338318729) Fixit!
         self._on_output(line)
 
   def _PreserveSection(self, fw_main_file, section_file, section_name):
@@ -106,7 +106,7 @@ class FlashNetboot:
   def _PackVPD(self):
     logging.info('Packing RO/RW VPD into %s', self._fw_main)
     Spawn([
-        'futility', 'load_fmap', self._fw_main, f'RO_VPD:{self._ro_vpd}',
+        'futility', 'load_fmap', self._fw_main, f'RO_VPD:{self._ro_vpd}',  # type: ignore #TODO(b/338318729) Fixit!
         f'RW_VPD:{self._rw_vpd}'
     ], check_call=True)
 

@@ -45,6 +45,6 @@ class CellularFirmwareSwitching(test_case.TestCase):
       Arg('target', str, 'The firmware name to switch.')]
 
   def runTest(self):
-    self.ui.SetState(
-        _('Switching firmware to {target!r}', target=self.args.target))
-    cellular.SwitchModemFirmware(self.args.target)
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+        _('Switching firmware to {target!r}', target=self.args.target))  # type: ignore #TODO(b/338318729) Fixit!
+    cellular.SwitchModemFirmware(self.args.target)  # type: ignore #TODO(b/338318729) Fixit!

@@ -45,7 +45,7 @@ class GpioManagerTest(unittest.TestCase):
   @mock.patch.object(gpio_utils, 'Gpio', autospec=True)
   def testPollLocal(self, mock_gpio):
     gpio_manager = gpio_utils.GpioManager(False)
-    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))
+    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
 
     mock_gpio.assert_called_once_with(PORT)
     mock_gpio_instance = mock_gpio.return_value
@@ -67,8 +67,8 @@ class GpioManagerTest(unittest.TestCase):
                      spec=_GpioProxy)
   def testPollRemote(self, mock_server, mock_timeout):
     del mock_timeout  # unused
-    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT, True)
-    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))
+    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT, True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
 
     mock_server.assert_called_once_with(f'http://host:{PORT}', timeout=TIMEOUT,
                                         verbose=True)
@@ -78,9 +78,9 @@ class GpioManagerTest(unittest.TestCase):
   def testPollRemoteTimeout(self, mock_timeout):
     mock_timeout.side_effect = type_utils.TimeoutError
 
-    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT)
+    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.assertFalse(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))
+    self.assertFalse(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
 
   @mock.patch.object(gpio_utils.net_utils, 'TimeoutXMLRPCServerProxy',
                      spec=_GpioProxy)
@@ -217,7 +217,7 @@ class GpioTest(unittest.TestCase):
     mock_fd = mock.Mock(io.TextIOWrapper)
 
     gpio = gpio_utils.Gpio(PORT, mock_fd)
-    gpio.Poll('gpio_rising', TIMEOUT)
+    gpio.Poll('gpio_rising', TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit!
 
     mock_write_file.assert_called_with(f'/sys/class/gpio/gpio{PORT}/edge',
                                        'rising')

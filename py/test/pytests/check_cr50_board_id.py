@@ -85,14 +85,14 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
 
   def setUp(self):
     # Preprocesses the arguments.
-    if isinstance(self.args.board_id_type, str):
-      self.args.board_id_type = int(self.args.board_id_type, 16)
-    if isinstance(self.args.board_id_flags, str):
-      if self.args.board_id_flags.startswith('PHASE_'):
-        self.args.board_id_flags = self._PREDEFINED_PHASES[
-            self.args.board_id_flags]
+    if isinstance(self.args.board_id_type, str):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.board_id_type = int(self.args.board_id_type, 16)  # type: ignore #TODO(b/338318729) Fixit!
+    if isinstance(self.args.board_id_flags, str):  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.board_id_flags.startswith('PHASE_'):  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.board_id_flags = self._PREDEFINED_PHASES[  # type: ignore #TODO(b/338318729) Fixit!
+            self.args.board_id_flags]  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        self.args.board_id_flags = int(self.args.board_id_flags, 16)
+        self.args.board_id_flags = int(self.args.board_id_flags, 16)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Setups the DUT environments.
     self.dut = device_utils.CreateDUTInterface()
@@ -114,12 +114,12 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
     testlog.LogParam('board_id_flags', board_id_flags_str)
 
     succ = True
-    if self.args.board_id_type is not None:
-      if board_id.type != self.args.board_id_type:
+    if self.args.board_id_type is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      if board_id.type != self.args.board_id_type:  # type: ignore #TODO(b/338318729) Fixit!
         testlog.AddFailure('BoardIDTypeMismatch', '')
         succ = False
-    if self.args.board_id_flags is not None:
-      if board_id.flags != self.args.board_id_flags:
+    if self.args.board_id_flags is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      if board_id.flags != self.args.board_id_flags:  # type: ignore #TODO(b/338318729) Fixit!
         testlog.AddFailure('BoardIDFlagsMismatch', '')
         succ = False
     if not succ:

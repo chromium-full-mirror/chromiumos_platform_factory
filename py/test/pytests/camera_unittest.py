@@ -54,7 +54,7 @@ class CameraUnitTest(unittest.TestCase):
 
   def setUp(self):
     self.test = camera.CameraTest()
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
     self.ui = mock.create_autospec(test_ui.StandardUI)
     type_utils.LazyProperty.Override(self.test, 'ui', self.ui)
     logging.disable()
@@ -71,14 +71,14 @@ class CameraUnitTest(unittest.TestCase):
 
   def testSetUpMipi(self):
     self.mock_type.return_value = camera_utils.CameraType.mipi
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Exception,
                            r'e2e_mode should be enabled for MIPI camera\.',
                            self.test.setUp)
 
   def testSetUp_NoFacingAndNoUpVidPid_Fail(self):
-    self.test.args = FakeArgs(e2e_mode=False, camera_facing=None)
+    self.test.args = FakeArgs(e2e_mode=False, camera_facing=None)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Check if camera_usb_vid_pid and camera_facing are mentioned in the error
     # messages.
@@ -87,7 +87,7 @@ class CameraUnitTest(unittest.TestCase):
       self.test.setUp()
 
   def testSetUpVidPid(self):
-    self.test.args = FakeArgs(e2e_mode=False, camera_usb_vid_pid=['vid', 'pid'],
+    self.test.args = FakeArgs(e2e_mode=False, camera_usb_vid_pid=['vid', 'pid'],  # type: ignore #TODO(b/338318729) Fixit!
                               camera_facing=None)
 
     self.test.setUp()
@@ -97,7 +97,7 @@ class CameraUnitTest(unittest.TestCase):
     self.camera.GetCameraDeviceByUsbVidPid.assert_called_with('vid', 'pid')
 
   def testSetUpFacing(self):
-    self.test.args = FakeArgs(e2e_mode=False, camera_usb_vid_pid=None,
+    self.test.args = FakeArgs(e2e_mode=False, camera_usb_vid_pid=None,  # type: ignore #TODO(b/338318729) Fixit!
                               camera_facing='facing')
 
     self.test.setUp()
@@ -107,7 +107,7 @@ class CameraUnitTest(unittest.TestCase):
     self.camera.GetCameraDevice.assert_called_with('facing')
 
   def testSetUpE2e(self):
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         e2e_mode=True, flip_image=True, camera_facing='rear',
         video_start_play_timeout_ms=1, get_user_media_retries=2,
         reinitialization_delay_ms=3, camera_args={'resolution': (100, 200)})
@@ -127,14 +127,14 @@ class CameraUnitTest(unittest.TestCase):
     self.assertIsNone(self.test.camera_device)
 
   def testSetUpE2eNotLocal(self):
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.dut.link.IsLocal.return_value = False
 
     self.assertRaisesRegex(
         ValueError, r'e2e mode does not work on remote DUT\.', self.test.setUp)
 
   def testSetUpFullScreen(self):
-    self.test.args = FakeArgs(fullscreen=True)
+    self.test.args = FakeArgs(fullscreen=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
 
@@ -143,7 +143,7 @@ class CameraUnitTest(unittest.TestCase):
 
   @mock.patch.object(camera.phase, 'GetPhase', autospec=True)
   def testRunTestManual(self, mock_phase):
-    self.test.args = FakeArgs(mode=camera.TestModes.manual,
+    self.test.args = FakeArgs(mode=camera.TestModes.manual,  # type: ignore #TODO(b/338318729) Fixit!
                               camera_facing='front')
     self.test.setUp()
 
@@ -172,14 +172,14 @@ class CameraUnitTest(unittest.TestCase):
         camera.TestModes.qr, camera.TestModes.camera_assemble_qr,
         camera.TestModes.face
     ]:
-      self.test.args = FakeArgs(mode=mode, show_image=False)
+      self.test.args = FakeArgs(mode=mode, show_image=False)  # type: ignore #TODO(b/338318729) Fixit!
       self.test.setUp()
 
       self.assertRaisesRegex(Exception, 'show_image should be set to true!',
                              self.test.runTest)
 
   def testRunTestLed(self):
-    self.test.args = FakeArgs(mode=camera.TestModes.manual_led,
+    self.test.args = FakeArgs(mode=camera.TestModes.manual_led,  # type: ignore #TODO(b/338318729) Fixit!
                               show_image=False)
     self.test.setUp()
 
@@ -208,14 +208,14 @@ class CameraUnitTest(unittest.TestCase):
       if flicker:
         mock_methods['DisableDevice'].assert_called()
         mock_methods['Sleep'].assert_called_with(
-            self.test.args.flicker_interval_secs)
+            self.test.args.flicker_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
       else:
         mock_methods['DisableDevice'].assert_not_called()
         mock_methods['Sleep'].assert_called_with(0.5)
 
   @mock.patch.object(camera.random, 'randint', autospec=True)
   def testLEDTestFlicker(self, mock_rand):
-    self.test.args = FakeArgs(flicker_interval_secs=2)
+    self.test.args = FakeArgs(flicker_interval_secs=2)  # type: ignore #TODO(b/338318729) Fixit!
     mock_rand.return_value = 1
     self._testLEDTest(True)
 
@@ -232,7 +232,7 @@ class CameraUnitTest(unittest.TestCase):
     process_rate = 3
     num_frames_to_pass = 2
     capture_fps = 6
-    self.test.args = FakeArgs(show_image=show_image, process_rate=process_rate,
+    self.test.args = FakeArgs(show_image=show_image, process_rate=process_rate,  # type: ignore #TODO(b/338318729) Fixit!
                               num_frames_to_pass=num_frames_to_pass,
                               capture_fps=capture_fps)
     self.test.setUp()
@@ -315,7 +315,7 @@ class CameraUnitTest(unittest.TestCase):
   def testDrawQRDetectionRegion(self, mock_region, mock_rectangle):
     mock_region.return_value = (1, 2, 100, 200)
     img = FakeCvImage(5, 6)
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.test.DrawQRDetectionRegion(img)
@@ -328,7 +328,7 @@ class CameraUnitTest(unittest.TestCase):
   def testDrawQRDetectionRegionE2e(self, mock_region):
     mock_region.return_value = (1, 2, 100, 200)
     img = FakeCvImage(5, 10)
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     with mock.patch.object(self.test, 'RunJSBlocking',
@@ -344,7 +344,7 @@ class CameraUnitTest(unittest.TestCase):
 
   @mock.patch.object(camera.codecs, 'encode', autospec=True)
   def testShowImage(self, mock_encode):
-    self.test.args = FakeArgs(e2e_mode=False, resize_ratio=0.5, flip_image=True)
+    self.test.args = FakeArgs(e2e_mode=False, resize_ratio=0.5, flip_image=True)  # type: ignore #TODO(b/338318729) Fixit!
     img = FakeCvImage()
     self.test.setUp()
     with mock.patch.multiple(camera.cv, autospec=True, resize=mock.DEFAULT,
@@ -356,18 +356,18 @@ class CameraUnitTest(unittest.TestCase):
       self.test.ShowImage(img)
 
       mock_methods['resize'].assert_called_with(img, None, fx=0.5, fy=0.5,
-                                                interpolation=cv.INTER_AREA)
+                                                interpolation=cv.INTER_AREA)  # type: ignore #TODO(b/338318729) Fixit!
       mock_methods['flip'].assert_called_with(
           mock_methods['resize'].return_value, 1)
       mock_methods['imencode'].assert_called_with(
           '.jpg', mock_methods['flip'].return_value,
-          (cv.IMWRITE_JPEG_QUALITY, 70))
+          (cv.IMWRITE_JPEG_QUALITY, 70))  # type: ignore #TODO(b/338318729) Fixit!
       mock_encode.assert_called_with(mock_jpg_data.tobytes.return_value,
                                      'base64')
 
   @mock.patch.object(camera.cv, 'cvtColor', autospec=True)
   def testBrightnessCheck(self, mock_bright):
-    self.test.args = FakeArgs(brightness_range=[10, 20])
+    self.test.args = FakeArgs(brightness_range=[10, 20])  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
     img = FakeCvImage()
 
@@ -377,11 +377,11 @@ class CameraUnitTest(unittest.TestCase):
     mock_bright.return_value.max.return_value = 9
     self.assertFalse(self.test.BrightnessCheck(img))
 
-    mock_bright.assert_called_with(img, cv.COLOR_BGR2GRAY)
+    mock_bright.assert_called_with(img, cv.COLOR_BGR2GRAY)  # type: ignore #TODO(b/338318729) Fixit!
 
   @mock.patch.object(camera.barcode, 'ScanQRCode', autospec=True)
   def testScanQRCode(self, mock_scan):
-    self.test.args = FakeArgs(QR_string='test')
+    self.test.args = FakeArgs(QR_string='test')  # type: ignore #TODO(b/338318729) Fixit!
     img = FakeCvImage()
 
     mock_scan.return_value = ['test']
@@ -399,7 +399,7 @@ class CameraUnitTest(unittest.TestCase):
   @mock.patch.object(camera.camera_assemble, 'DetectCameraAssemblyIssue',
                      autospec=True)
   def testDetectAssemblyIssue(self, mock_issue, mock_draw):
-    self.test.args = FakeArgs(min_luminance_ratio=0.1, e2e_mode=False)
+    self.test.args = FakeArgs(min_luminance_ratio=0.1, e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_type.return_value = camera_utils.CameraType.usb
     too_dark = True
     img = FakeCvImage(20, 20)
@@ -415,7 +415,7 @@ class CameraUnitTest(unittest.TestCase):
   @mock.patch.object(camera.camera_assemble, 'DetectCameraAssemblyIssue',
                      autospec=True)
   def testDetectAssemblyIssueE2e(self, mock_issue):
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_type.return_value = camera_utils.CameraType.usb
     too_dark = True
     img = FakeCvImage(20, 20)
@@ -435,7 +435,7 @@ class CameraUnitTest(unittest.TestCase):
   @mock.patch.object(camera.camera_assemble, 'DetectCameraAssemblyIssue',
                      autospec=True)
   def testDetectAssemblyIssueNotTooDark(self, mock_issue):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_type.return_value = camera_utils.CameraType.usb
     too_dark = False
     img = FakeCvImage(20, 20)
@@ -449,7 +449,7 @@ class CameraUnitTest(unittest.TestCase):
   @mock.patch.object(camera.cv, 'rectangle', autospec=True)
   @mock.patch.object(camera.cv, 'CascadeClassifier', autospec=True)
   def testDetectFaces(self, mock_cascade, mock_draw):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     img = FakeCvImage(20, 20)
     self.test.setUp()
     mock_cascade.return_value.detectMultiScale.return_value = [(0, 0, 20, 30)]
@@ -463,7 +463,7 @@ class CameraUnitTest(unittest.TestCase):
 
   @mock.patch.object(camera.cv, 'CascadeClassifier', autospec=True)
   def testDetectFacesE2e(self, mock_cascade):
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     img = FakeCvImage(20, 20)
     self.test.setUp()
     mock_cascade.return_value.detectMultiScale.return_value = [(0, 0, 20, 30)]
@@ -481,7 +481,7 @@ class CameraUnitTest(unittest.TestCase):
 
   @mock.patch.object(camera.cv, 'CascadeClassifier', autospec=True)
   def testDetectFacesNoDetect(self, mock_cascade):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     img = FakeCvImage()
     self.test.setUp()
     mock_cascade.return_value.detectMultiScale.return_value = []
@@ -489,15 +489,15 @@ class CameraUnitTest(unittest.TestCase):
     self.assertFalse(self.test.DetectFaces(img))
 
   def testEnableDevice(self):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.test.EnableDevice()
 
-    self.test.camera_device.EnableCamera.assert_called_once()
+    self.test.camera_device.EnableCamera.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testEnableDeviceE2e(self):
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     with mock.patch.object(self.test, 'RunJSPromiseBlocking') as mock_runjs:
@@ -506,15 +506,15 @@ class CameraUnitTest(unittest.TestCase):
       mock_runjs.assert_called_with('cameraTest.enable()')
 
   def testDisableDevice(self):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.test.DisableDevice()
 
-    self.test.camera_device.DisableCamera.assert_called_once()
+    self.test.camera_device.DisableCamera.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testDisableDeviceE2e(self):
-    self.test.args = FakeArgs(e2e_mode=True)
+    self.test.args = FakeArgs(e2e_mode=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     with mock.patch.object(self.test, 'RunJSBlocking') as mock_runjs:
@@ -523,16 +523,16 @@ class CameraUnitTest(unittest.TestCase):
       mock_runjs.assert_called_with('cameraTest.disable()')
 
   def testReadSingleFrame(self):
-    self.test.args = FakeArgs(e2e_mode=False)
+    self.test.args = FakeArgs(e2e_mode=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.assertEqual(self.test.ReadSingleFrame(),
-                     self.test.camera_device.ReadSingleFrame.return_value)
+                     self.test.camera_device.ReadSingleFrame.return_value)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.test.camera_device.ReadSingleFrame.assert_called_once()
+    self.test.camera_device.ReadSingleFrame.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testReadSingleFrameE2e(self):
-    self.test.args = FakeArgs(e2e_mode=True, need_transmit_from_ui=False)
+    self.test.args = FakeArgs(e2e_mode=True, need_transmit_from_ui=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     with mock.patch.object(self.test, 'RunJSPromiseBlocking') as mock_runjs:
@@ -547,7 +547,7 @@ class CameraUnitTest(unittest.TestCase):
   @mock.patch.object(camera.cv, 'imdecode', autospec=True)
   def testReadSingleFrameE2eTransmit(self, mock_cvdecode, mock_decode,
                                      mock_readfile, mock_unlink, mock_numpy):
-    self.test.args = FakeArgs(e2e_mode=True, mode='qr')
+    self.test.args = FakeArgs(e2e_mode=True, mode='qr')  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     with mock.patch.object(self.test, 'RunJSPromiseBlocking') as mock_runjs:
@@ -557,8 +557,8 @@ class CameraUnitTest(unittest.TestCase):
       mock_readfile.assert_called_with(mock_runjs.return_value, encoding=None)
       mock_decode.assert_called_with(mock_readfile.return_value, 'base64')
       mock_unlink.assert_called_with(mock_runjs.return_value)
-      mock_numpy.assert_called_with(mock_decode.return_value, dtype=np.uint8)
-      mock_cvdecode.assert_called_with(mock_numpy.return_value, cv.IMREAD_COLOR)
+      mock_numpy.assert_called_with(mock_decode.return_value, dtype=np.uint8)  # type: ignore #TODO(b/338318729) Fixit!
+      mock_cvdecode.assert_called_with(mock_numpy.return_value, cv.IMREAD_COLOR)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SetupTimeUtils(self):
     self.time = 0

@@ -103,9 +103,9 @@ class PingTest(test_case.TestCase):
   def _CheckSuccessPercentage(self, success_count, total_count, title=''):
     """Checks the percentage of successful pings is within the range."""
     success_percentage = (success_count / total_count) * 100
-    if success_percentage < self.args.ping_success_percent:
+    if success_percentage < self.args.ping_success_percent:  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask(
-          f'Failed to meet ping success percentage: {success_percentage:.2f}% '
+          f'Failed to meet ping success percentage: {success_percentage:.2f}% '  # type: ignore #TODO(b/338318729) Fixit!
           f'(expected: {int(self.args.ping_success_percent)}%).')
     logging.info('%s%.2f%% packets received.', title, success_percentage)
 
@@ -116,27 +116,27 @@ class PingTest(test_case.TestCase):
     the test.  If moving_window_size is set, it will also check the successful
     percentage within the moving window during the ping tests.
     """
-    window_size = self.args.moving_window_size
+    window_size = self.args.moving_window_size  # type: ignore #TODO(b/338318729) Fixit!
     moving_queue = []
     moving_success_count = 0
     total_success_count = 0
     total_count = 0
 
-    ping_command = f'ping {self.args.host} -c 1'
-    if self.args.interface:
-      ping_command += f' -I {self.args.interface}'
-    if self.args.packet_size:
-      ping_command += f' -s {int(self.args.packet_size)}'
+    ping_command = f'ping {self.args.host} -c 1'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.interface:  # type: ignore #TODO(b/338318729) Fixit!
+      ping_command += f' -I {self.args.interface}'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.packet_size:  # type: ignore #TODO(b/338318729) Fixit!
+      ping_command += f' -s {int(self.args.packet_size)}'  # type: ignore #TODO(b/338318729) Fixit!
 
-    end_time = time_utils.MonotonicTime() + self.args.duration_secs
+    end_time = time_utils.MonotonicTime() + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit!
     while time_utils.MonotonicTime() < end_time:
-      if self.args.verbose:
+      if self.args.verbose:  # type: ignore #TODO(b/338318729) Fixit!
         p = process_utils.Spawn(ping_command,
                                 shell=True, log=True, read_stdout=True)
         logging.info(p.stdout_data)
         if total_count % 10 == 0:
-          self.ui.ClearLog()
-        self.ui.AppendLog(p.stdout_data + '\n')
+          self.ui.ClearLog()  # type: ignore #TODO(b/338318729) Fixit!
+        self.ui.AppendLog(p.stdout_data + '\n')  # type: ignore #TODO(b/338318729) Fixit!
       else:
         p = process_utils.Spawn(ping_command, shell=True, call=True,
                                 ignore_stdout=True, ignore_stderr=True)
@@ -153,6 +153,6 @@ class PingTest(test_case.TestCase):
 
       total_success_count += result
       total_count += 1
-      self.Sleep(self.args.interval_secs)
+      self.Sleep(self.args.interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._CheckSuccessPercentage(total_success_count, total_count, 'Overall: ')

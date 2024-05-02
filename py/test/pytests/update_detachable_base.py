@@ -115,33 +115,33 @@ class UpdateDetachableBaseTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Read preconfigured values from cros_config if args are not provided.
-    if self.args.usb_path is None:
-      self.args.usb_path = self.CrosConfig('usb-path')
-    if self.args.product_id is None:
-      self.args.product_id = int(self.CrosConfig('product-id'))
-    if self.args.vendor_id is None:
-      self.args.vendor_id = int(self.CrosConfig('vendor-id'))
-    if self.args.ec_image_path is None:
-      self.args.ec_image_path = self.dut.path.join(
+    if self.args.usb_path is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.usb_path = self.CrosConfig('usb-path')  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.product_id is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.product_id = int(self.CrosConfig('product-id'))  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.vendor_id is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.vendor_id = int(self.CrosConfig('vendor-id'))  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.ec_image_path is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.ec_image_path = self.dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
           BASE_FW_DIR, self.CrosConfig('ec-image-name'))
-    if self.args.touchpad_image_path is None:
-      self.args.touchpad_image_path = self.dut.path.join(
+    if self.args.touchpad_image_path is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.touchpad_image_path = self.dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
           BASE_FW_DIR, self.CrosConfig('touch-image-name'))
 
-    self.device_id = f'{self.args.vendor_id:04x}:{self.args.product_id:04x}'
+    self.device_id = f'{self.args.vendor_id:04x}:{self.args.product_id:04x}'  # type: ignore #TODO(b/338318729) Fixit!
     self.usb_info = UsbInfo(self.device_id)
 
   def runDetachableTest(self):
-    if self.args.update:
-      self.ui.SetState(_('Updating base firmware. Do not remove the base.'))
+    if self.args.update:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Updating base firmware. Do not remove the base.'))  # type: ignore #TODO(b/338318729) Fixit!
       self.UpdateDetachableBase()
       session.console.info('Base firmware update done.')
 
-    if self.args.verify:
-      self.ui.SetState(_('Verifying detachable base information...'))
+    if self.args.verify:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Verifying detachable base information...'))  # type: ignore #TODO(b/338318729) Fixit!
       # Sleep for a while, because usb_updater2 may not be able to read
       # touchpad info right after FW is flashed.
       self.Sleep(3)
@@ -151,7 +151,7 @@ class UpdateDetachableBaseTest(test_case.TestCase):
       # info.
       tp_info = self.usb_info.GetTouchpadInfo()
       ec_info = self.usb_info.GetBaseInfo()
-      fw_info = self.usb_info.GetFirmwareInfo(self.args.ec_image_path)
+      fw_info = self.usb_info.GetFirmwareInfo(self.args.ec_image_path)  # type: ignore #TODO(b/338318729) Fixit!
       key_version = self.GetDetachableKeyVersion()
 
       self.VerifyBaseInfo(ec=ec_info, tp=tp_info, fw=fw_info,
@@ -183,18 +183,18 @@ class UpdateDetachableBaseTest(test_case.TestCase):
           f'Failed to get detachable base version over {retry_times} time(s)')
 
   def runTest(self):
-    self.ui.SetState(_('Please connect the detachable base.'))
+    self.ui.SetState(_('Please connect the detachable base.'))  # type: ignore #TODO(b/338318729) Fixit!
     sync_utils.PollForCondition(poll_method=self.BaseIsReady, timeout_secs=60,
                                 poll_interval_secs=1)
 
-    if self.args.from_release:
+    if self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit!
       with sys_utils.MountPartition(self.dut.partitions.RELEASE_ROOTFS.path,
                                     dut=self.dut) as root:
         logging.info('Get EC and touch FW images from the release rootfs.')
-        self.args.ec_image_path = self.dut.path.join(
-            root, self.args.ec_image_path[1:])
-        self.args.touchpad_image_path = self.dut.path.join(
-            root, self.args.touchpad_image_path[1:])
+        self.args.ec_image_path = self.dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+            root, self.args.ec_image_path[1:])  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.touchpad_image_path = self.dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+            root, self.args.touchpad_image_path[1:])  # type: ignore #TODO(b/338318729) Fixit!
         self.runDetachableTest()
     else:
       self.runDetachableTest()
@@ -222,11 +222,11 @@ class UpdateDetachableBaseTest(test_case.TestCase):
                      '-u', 'hammerd', '-g', 'hammerd', '-c', '0002']
     hammerd_cmd = [
         '/usr/bin/hammerd', '--at_boot=true', '--force_inject_entropy=true',
-        '--update_if=always', f'--product_id={int(self.args.product_id)}',
-        f'--vendor_id={int(self.args.vendor_id)}',
-        f'--usb_path={self.args.usb_path}',
-        f'--ec_image_path={self.args.ec_image_path}',
-        f'--touchpad_image_path={self.args.touchpad_image_path}'
+        '--update_if=always', f'--product_id={int(self.args.product_id)}',  # type: ignore #TODO(b/338318729) Fixit!
+        f'--vendor_id={int(self.args.vendor_id)}',  # type: ignore #TODO(b/338318729) Fixit!
+        f'--usb_path={self.args.usb_path}',  # type: ignore #TODO(b/338318729) Fixit!
+        f'--ec_image_path={self.args.ec_image_path}',  # type: ignore #TODO(b/338318729) Fixit!
+        f'--touchpad_image_path={self.args.touchpad_image_path}'  # type: ignore #TODO(b/338318729) Fixit!
     ]
 
     try:
@@ -400,7 +400,7 @@ class UsbInfo:
         'off': 'offset',
         'kv': 'key_version',
     }
-    res = {'ro': {}, 'rw': {}}
+    res = {'ro': {}, 'rw': {}}  # type: ignore #TODO(b/338318729) Fixit!
 
     for line in self.CmdWithArgs(['-b', fw_path]).splitlines():
       mode, *rest = line.split()

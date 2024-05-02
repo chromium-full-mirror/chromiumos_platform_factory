@@ -225,7 +225,7 @@ class GSCToolTest(unittest.TestCase):
 
   def testInvalidFeatureManagementFlags_Invalid_Chassis_Branded_Type(self):
     with self.assertRaises(TypeError):
-      self.gsctool.SetFeatureManagementFlags(0, 0)
+      self.gsctool.SetFeatureManagementFlags(0, 0)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testInvalidFeatureManagementFlags_Invalid_Hw_Compliance_Type(self):
     with self.assertRaises(TypeError):

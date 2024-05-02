@@ -117,28 +117,28 @@ class ProbeSimCardTrayTest(test_case.TestCase):
 
   def setUp(self):
     self._detection_gpio_path = os.path.join(
-        _GPIO_PATH, f'gpio{int(self.args.tray_detection_gpio)}')
+        _GPIO_PATH, f'gpio{int(self.args.tray_detection_gpio)}')  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     self.ExportGPIO()
     self.CheckPresence()
 
-    if self.args.only_check_presence:
+    if self.args.only_check_presence:  # type: ignore #TODO(b/338318729) Fixit!
       return
 
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.tray_already_present:
-      self.assertTrue(self.args.remove, 'Must set remove to Ture '
+    if self.args.tray_already_present:  # type: ignore #TODO(b/338318729) Fixit!
+      self.assertTrue(self.args.remove, 'Must set remove to Ture '  # type: ignore #TODO(b/338318729) Fixit!
                       'since tray_already_present is True')
       self.WaitTrayRemoved()
-      if self.args.insert:
+      if self.args.insert:  # type: ignore #TODO(b/338318729) Fixit!
         self.WaitTrayInserted()
     else:
-      self.assertTrue(self.args.insert, 'Must set insert to Ture '
+      self.assertTrue(self.args.insert, 'Must set insert to Ture '  # type: ignore #TODO(b/338318729) Fixit!
                       'since tray_already_present is False')
       self.WaitTrayInserted()
-      if self.args.remove:
+      if self.args.remove:  # type: ignore #TODO(b/338318729) Fixit!
         self.WaitTrayRemoved()
 
   def ExportGPIO(self):
@@ -153,13 +153,13 @@ class ProbeSimCardTrayTest(test_case.TestCase):
 
     export_path = os.path.join(_GPIO_PATH, 'export')
     try:
-      file_utils.WriteFile(export_path, str(self.args.tray_detection_gpio),
+      file_utils.WriteFile(export_path, str(self.args.tray_detection_gpio),  # type: ignore #TODO(b/338318729) Fixit!
                            log=True)
     except IOError:
       logging.exception('Can not write %s into %s',
-                        self.args.tray_detection_gpio, export_path)
+                        self.args.tray_detection_gpio, export_path)  # type: ignore #TODO(b/338318729) Fixit!
       raise ProbeTrayException(
-          f'Can not export detection gpio {self.args.tray_detection_gpio}'
+          f'Can not export detection gpio {self.args.tray_detection_gpio}'  # type: ignore #TODO(b/338318729) Fixit!
       ) from None
 
     direction_path = os.path.join(self._detection_gpio_path, 'direction')
@@ -182,25 +182,25 @@ class ProbeSimCardTrayTest(test_case.TestCase):
     if ret not in ['0', '1']:
       raise ProbeTrayException(f'Get invalid detection {ret} from {value_path}')
 
-    if self.args.gpio_active_high:
+    if self.args.gpio_active_high:  # type: ignore #TODO(b/338318729) Fixit!
       return _TrayState.INSERTED if ret == '1' else _TrayState.REMOVED
     return _TrayState.INSERTED if ret == '0' else _TrayState.REMOVED
 
   def CheckPresence(self):
     self.assertEqual(
-        self.args.tray_already_present,
+        self.args.tray_already_present,  # type: ignore #TODO(b/338318729) Fixit!
         self.GetDetection() == _TrayState.INSERTED,
-        (f'Unexpected tray '
+        (f'Unexpected tray '  # type: ignore #TODO(b/338318729) Fixit!
          f'{"absence" if self.args.tray_already_present else "presence"}. '
          f'Please {"insert" if self.args.tray_already_present else "remove"} '
          f'SIM card tray and retest.'))
 
   def WaitTrayInserted(self):
-    self.ui.SetState(_('Please insert the SIM card tray'))
+    self.ui.SetState(_('Please insert the SIM card tray'))  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTrayState(_TrayState.INSERTED)
 
   def WaitTrayRemoved(self):
-    self.ui.SetState(_('Detected! Please remove the SIM card tray'))
+    self.ui.SetState(_('Detected! Please remove the SIM card tray'))  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTrayState(_TrayState.REMOVED)
 
   def WaitTrayState(self, state):

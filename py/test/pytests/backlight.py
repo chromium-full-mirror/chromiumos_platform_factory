@@ -89,8 +89,8 @@ class BacklightTest(test_case.TestCase):
     self.current_level = 0
     self.ResetBrightness()
 
-    self.ui.ToggleTemplateClass('font-large', True)
-    self.ui.SetState(
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Press Space to change backlight brightness;<br>'
           'Press Esc to reset backlight brightness to original;<br>'
           'After checking, Enter H if pressing Space changes the '
@@ -100,14 +100,14 @@ class BacklightTest(test_case.TestCase):
           'This test will be executed twice.'))
 
   def CheckArgs(self):
-    min_level = self.args.min_level
+    min_level = self.args.min_level  # type: ignore #TODO(b/338318729) Fixit!
     if not 0 <= min_level <= 1:
       self.FailTask(f'min_level must between 0 and 1, got: {min_level}')
-    reset_level = self.args.reset_level
+    reset_level = self.args.reset_level  # type: ignore #TODO(b/338318729) Fixit!
     if not min_level <= reset_level <= 1:
       self.FailTask(f'reset_level must between min_level: {min_level} '
                     f'and 1, got: {reset_level}')
-    adjust_level = self.args.adjust_level
+    adjust_level = self.args.adjust_level  # type: ignore #TODO(b/338318729) Fixit!
     if not 0 <= adjust_level <= 1:
       self.FailTask(f'adjust_level must between 0 and 1, got: {adjust_level}')
 
@@ -118,13 +118,13 @@ class BacklightTest(test_case.TestCase):
     for direction in self.sequence:
       self.ResetBrightness()
       while True:
-        key = self.ui.WaitKeysOnce(
+        key = self.ui.WaitKeysOnce(  # type: ignore #TODO(b/338318729) Fixit!
             [test_ui.ESCAPE_KEY, test_ui.SPACE_KEY, 'H', 'L'])
         if key == test_ui.ESCAPE_KEY:
           self.ResetBrightness()
         elif key == test_ui.SPACE_KEY:
           self.AdjustBrightness(self.current_level +
-                                direction * self.args.adjust_level)
+                                direction * self.args.adjust_level)  # type: ignore #TODO(b/338318729) Fixit!
         else:
           correct_key = 'H' if direction == +1 else 'L'
           if key == correct_key:
@@ -134,12 +134,12 @@ class BacklightTest(test_case.TestCase):
 
   def AdjustBrightness(self, level):
     """Adjust the intensity."""
-    level = max(self.args.min_level, min(1, level))
+    level = max(self.args.min_level, min(1, level))  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Adjust brightness level to %r', level)
     self.dut.display.SetBacklightBrightness(level)
     self.current_level = level
 
   def ResetBrightness(self):
     """Resets brightness back to normal value."""
-    logging.info('Reset brightness to %r', self.args.reset_level)
-    self.AdjustBrightness(self.args.reset_level)
+    logging.info('Reset brightness to %r', self.args.reset_level)  # type: ignore #TODO(b/338318729) Fixit!
+    self.AdjustBrightness(self.args.reset_level)  # type: ignore #TODO(b/338318729) Fixit!

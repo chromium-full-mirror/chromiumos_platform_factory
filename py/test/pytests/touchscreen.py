@@ -230,26 +230,26 @@ class TouchscreenTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    if self.args.stylus:
-      self._device = evdev_utils.FindDevice(self.args.device_filter,
+    if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit!
+      self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
                                             evdev_utils.IsStylusDevice)
     else:
-      if self.args.e2e_mode:
+      if self.args.e2e_mode:  # type: ignore #TODO(b/338318729) Fixit!
         self._device = None
       else:
-        self._device = evdev_utils.FindDevice(self.args.device_filter,
+        self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
                                               evdev_utils.IsTouchscreenDevice)
     self._dispatcher = None
     self._monitor = None
     self._state = state.GetInstance()
-    self._SetInternalDisplayRotation(self.args.angle_compensation)
+    self._SetInternalDisplayRotation(self.args.angle_compensation)  # type: ignore #TODO(b/338318729) Fixit!
     # Waits the screen rotates, then starts the test.
     self.Sleep(1)
 
-    self._frontend_proxy = self.ui.InitJSTestObject(
-        'TouchscreenTest', self.args.x_segments, self.args.y_segments,
-        self.args.retries, self.args.demo_interval_ms, self.args.e2e_mode,
-        self.args.spiral_mode)
+    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
+        'TouchscreenTest', self.args.x_segments, self.args.y_segments,  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.retries, self.args.demo_interval_ms, self.args.e2e_mode,  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.spiral_mode)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     if self._dispatcher is not None:
@@ -259,24 +259,24 @@ class TouchscreenTest(test_case.TestCase):
     self._SetInternalDisplayRotation(-1)
 
   def runTest(self):
-    if self.args.timeout_secs:
-      self.ui.StartCountdownTimer(self.args.timeout_secs,
+    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.StartCountdownTimer(self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                                   self._frontend_proxy.FailTest)
 
     if self._device is not None:
       self._device = evdev_utils.DeviceReopen(self._device)
       self._device.grab()
-      if self.args.stylus:
+      if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit!
         self._monitor = StylusMonitor(
             self._device, self._frontend_proxy,
-            ecodes.BTN_TOOL_PEN if self.args.hover_mode else ecodes.BTN_TOUCH)
+            ecodes.BTN_TOOL_PEN if self.args.hover_mode else ecodes.BTN_TOUCH)  # type: ignore #TODO(b/338318729) Fixit!
       else:
         self._monitor = TouchscreenMonitor(self._device, self._frontend_proxy)
       self._dispatcher = evdev_utils.InputDeviceDispatcher(
           self._device, self._monitor.Handler)
       self._dispatcher.StartDaemon()
 
-    self.ui.BindKey(test_ui.ESCAPE_KEY,
+    self.ui.BindKey(test_ui.ESCAPE_KEY,  # type: ignore #TODO(b/338318729) Fixit!
                     lambda unused_event: self._frontend_proxy.FailTest())
     self.WaitTaskEnd()
 

@@ -24,21 +24,21 @@ class SerialEchoUnittest(unittest.TestCase):
     arg_spec = getattr(self._test_case, 'ARGS', [])
     if 'serial_param' not in args:
       args['serial_param'] = {'port': '/dev/ttyUSB0'}
-    self._test_case.args = Args(*arg_spec).Parse(args)
+    self._test_case.args = Args(*arg_spec).Parse(args)  # type: ignore #TODO(b/338318729) Fixit!
 
   def RunTestCase(self):
-    self._test_result = self._test_case.defaultTestResult()
-    self._test_case.run(self._test_result)
+    self._test_result = self._test_case.defaultTestResult()  # type: ignore #TODO(b/338318729) Fixit!
+    self._test_case.run(self._test_result)  # type: ignore #TODO(b/338318729) Fixit!
 
   def HasError(self, expected_error, assert_message):
-    self.assertEqual(1, len(self._test_result.errors), assert_message)
-    self.assertTrue(self._test_result.errors[0][1].find(expected_error) != -1,
+    self.assertEqual(1, len(self._test_result.errors), assert_message)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertTrue(self._test_result.errors[0][1].find(expected_error) != -1,  # type: ignore #TODO(b/338318729) Fixit!
                     assert_message)
 
   def HasFailure(self, expected_failure, assert_message):
-    self.assertEqual(1, len(self._test_result.failures), assert_message)
+    self.assertEqual(1, len(self._test_result.failures), assert_message)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(
-        self._test_result.failures[0][1].find(expected_failure) != -1,
+        self._test_result.failures[0][1].find(expected_failure) != -1,  # type: ignore #TODO(b/338318729) Fixit!
         assert_message)
 
   def testSendRecvTupleTooLong(self):
@@ -69,8 +69,8 @@ class SerialEchoUnittest(unittest.TestCase):
 
     self.SetUpTestCase({})
     self.RunTestCase()
-    self.assertEqual(0, len(self._test_result.errors))
-    self.assertEqual(0, len(self._test_result.failures))
+    self.assertEqual(0, len(self._test_result.errors))  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(0, len(self._test_result.failures))  # type: ignore #TODO(b/338318729) Fixit!
     open_serial_mock.assert_called_once_with(port=mock.ANY)
     mock_serial.write.assert_called_once_with(b'\xE0')
     mock_serial.read.assert_called_once_with()

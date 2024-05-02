@@ -86,12 +86,12 @@ class WriteDeviceDataToVPD(test_case.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    data = {
+    data = {  # type: ignore #TODO(b/338318729) Fixit!
         'ro': {},
         'rw': {},
     }
 
-    if self.args.ro_key_map is None and self.args.rw_key_map is None:
+    if self.args.ro_key_map is None and self.args.rw_key_map is None:  # type: ignore #TODO(b/338318729) Fixit!
       data['ro'] = device_data.GetDeviceData(device_data.KEY_VPD_RO, {})
       data['rw'] = device_data.GetDeviceData(device_data.KEY_VPD_RW, {})
       # Device serial number and OEM name (an optional field) are usually not
@@ -108,11 +108,11 @@ class WriteDeviceDataToVPD(test_case.TestCase):
     else:
       data['ro'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          for vpd_name, data_key in (self.args.ro_key_map or {}).items()
+          for vpd_name, data_key in (self.args.ro_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit!
       }
       data['rw'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          for vpd_name, data_key in (self.args.rw_key_map or {}).items()
+          for vpd_name, data_key in (self.args.rw_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit!
       }
 
     missing_keys = [
@@ -122,7 +122,7 @@ class WriteDeviceDataToVPD(test_case.TestCase):
       self.FailTask(f'Missing device data keys: {sorted(missing_keys)!r}')
 
     for section, entries in data.items():
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Writing device data to {vpd_section} VPD...',
             vpd_section=section.upper()))
       if not entries:

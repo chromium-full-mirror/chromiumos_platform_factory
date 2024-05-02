@@ -97,69 +97,69 @@ class ThermalLoadTest(unittest.TestCase):
         testlog.LogParam('sensor', self.sensors[index])
         testlog.CheckNumericParam('temperature',
                                   temperature_value,
-                                  min=self.args.lower_threshold[index],
-                                  max=self.args.temperature_limit[index])
+                                  min=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit!
+                                  max=self.args.temperature_limit[index])  # type: ignore #TODO(b/338318729) Fixit!
 
       self.max_temperature[index] = max(
           self.max_temperature[index], temperature_value)
 
       if not self.heated_up[index] and (
-          temperature_value >= self.args.lower_threshold[index]):
+          temperature_value >= self.args.lower_threshold[index]):  # type: ignore #TODO(b/338318729) Fixit!
         self.heated_up[index] = True
         event_log.Log('heated', temperature_value=temperature_value,
-                      lower_threshold=self.args.lower_threshold[index],
+                      lower_threshold=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit!
                       sensor=self.sensors[index],
                       elapsed_sec=elapsed)
         logging.info('Sensor %s heated up to %d C in %d seconds.',
                      self.sensors[index],
-                     self.args.lower_threshold[index], elapsed)
+                     self.args.lower_threshold[index], elapsed)  # type: ignore #TODO(b/338318729) Fixit!
 
-      if temperature_value > self.args.temperature_limit[index]:
+      if temperature_value > self.args.temperature_limit[index]:  # type: ignore #TODO(b/338318729) Fixit!
         event_log.Log('over_heated', temperature_value=temperature_value,
-                      temperature_limit=self.args.temperature_limit[index],
+                      temperature_limit=self.args.temperature_limit[index],  # type: ignore #TODO(b/338318729) Fixit!
                       sensor=self.sensors[index],
                       elapsed_sec=elapsed)
-        self.fail(f'Sensor {self.sensors[index]} temperature got over '
+        self.fail(f'Sensor {self.sensors[index]} temperature got over '  # type: ignore #TODO(b/338318729) Fixit!
                   f'{int(self.args.temperature_limit[index])}.')
 
-      if elapsed >= self.args.heat_up_timeout_secs and (
+      if elapsed >= self.args.heat_up_timeout_secs and (  # type: ignore #TODO(b/338318729) Fixit!
           not self.heated_up[index]):
         event_log.Log('slow_temp_slope', temperature_value=temperature_value,
-                      lower_threshold=self.args.lower_threshold[index],
+                      lower_threshold=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit!
                       sensor=self.sensors[index],
-                      timeout=self.args.heat_up_timeout_secs)
+                      timeout=self.args.heat_up_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
         logging.info('temperature track: %r', self.temperatures_track)
-        self.fail(f"Temperature {self.sensors[index]} didn't go over "
+        self.fail(f"Temperature {self.sensors[index]} didn't go over "  # type: ignore #TODO(b/338318729) Fixit!
                   f"{int(self.args.lower_threshold[index])} in "
                   f"{self.args.heat_up_timeout_secs} seconds.")
 
-    if self.args.temperatures_difference:
+    if self.args.temperatures_difference:  # type: ignore #TODO(b/338318729) Fixit!
       difference = max(temperatures) - min(temperatures)
-      if difference > self.args.temperatures_difference:
+      if difference > self.args.temperatures_difference:  # type: ignore #TODO(b/338318729) Fixit!
         logging.info('temperature track: %r', self.temperatures_track)
         self.fail(
-            f'The difference of temperatures {int(difference)} exceeds the '
+            f'The difference of temperatures {int(difference)} exceeds the '  # type: ignore #TODO(b/338318729) Fixit!
             f'limit {int(self.args.temperatures_difference)}.')
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.load = self.args.load or self.dut.info.cpu_count
+    self.load = self.args.load or self.dut.info.cpu_count  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.assertTrue(self.args.heat_up_timeout_secs <= self.args.duration_secs,
+    self.assertTrue(self.args.heat_up_timeout_secs <= self.args.duration_secs,  # type: ignore #TODO(b/338318729) Fixit!
                     'heat_up_timeout_secs must not be greater than '
                     'duration_secs.')
 
-    sensors = self.args.sensors or [self.dut.thermal.GetMainSensorName()]
+    sensors = self.args.sensors or [self.dut.thermal.GetMainSensorName()]  # type: ignore #TODO(b/338318729) Fixit!
     self.sensors = sensors
 
-    if isinstance(self.args.lower_threshold, int):
-      self.args.lower_threshold = [self.args.lower_threshold]
-    if isinstance(self.args.temperature_limit, int):
-      self.args.temperature_limit = [self.args.temperature_limit]
+    if isinstance(self.args.lower_threshold, int):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.lower_threshold = [self.args.lower_threshold]  # type: ignore #TODO(b/338318729) Fixit!
+    if isinstance(self.args.temperature_limit, int):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.temperature_limit = [self.args.temperature_limit]  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertTrue(
-        len(sensors) == len(self.args.lower_threshold) and (
-            len(sensors) == len(self.args.temperature_limit)),
+        len(sensors) == len(self.args.lower_threshold) and (  # type: ignore #TODO(b/338318729) Fixit!
+            len(sensors) == len(self.args.temperature_limit)),  # type: ignore #TODO(b/338318729) Fixit!
         'The number of sensors, lower_threshold, and temperature_limit '
         'should be the same.')
 
@@ -184,7 +184,7 @@ class ThermalLoadTest(unittest.TestCase):
 
     with stress_manager.StressManager(self.dut).Run(num_threads=self.load):
       start_time = time.time()
-      while time.time() - start_time < self.args.duration_secs:
+      while time.time() - start_time < self.args.duration_secs:  # type: ignore #TODO(b/338318729) Fixit!
         time.sleep(1)
         temperatures = self.GetTemperatures()
         self.temperatures_track.append(temperatures)

@@ -79,7 +79,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
     self.mock_wait_event = patcher.start()
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
 
   @mock.patch.object(device_data, 'FlattenData',
                      side_effect=lambda dict, domain: dict or domain,
@@ -111,7 +111,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
 
   def test_UpdateAutoResults(self):
     args = ['arg1', 'arg2']
-    result_dict = {}
+    result_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     for method in self.test.METHODS:
@@ -233,13 +233,13 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
     self.test.setUp()
     self.test.runTest()
 
-    assert self.test.event_loop.AddEventHandler.call_count == 1
-    args, unused_kwargs = self.test.event_loop.AddEventHandler.call_args
+    assert self.test.event_loop.AddEventHandler.call_count == 1  # type: ignore #TODO(b/338318729) Fixit!
+    args, unused_kwargs = self.test.event_loop.AddEventHandler.call_args  # type: ignore #TODO(b/338318729) Fixit!
     assert args[0] == 'retry'
 
   def test_runTest_GetServerByUrl(self):
     fake_url = 'fake_url'
-    self.test.args = FakeArgs(server_url=fake_url)
+    self.test.args = FakeArgs(server_url=fake_url)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_find_server_url.return_value = fake_url
 
     self.test.setUp()
@@ -257,7 +257,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
     self.mock_get_server_proxy.assert_called_once()
 
   def test_runTest_UseRawInvocationForInternalServer(self):
-    self.test.args = FakeArgs(raw_invocation=True)
+    self.test.args = FakeArgs(raw_invocation=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_find_server_url.return_value = None
 
     self.test.setUp()
@@ -269,7 +269,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
   @mock.patch.object(shopfloor_service, 'ServiceSpec',
                      return_value=mock.MagicMock(), autospec=True)
   def test_runTest_CreateServiceSpecWithRawInvocation(self, mock_service_spec):
-    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)
+    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -277,7 +277,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
     mock_service_spec.assert_called_once_with(has_data=False)
 
   def test_runTest_UseKargsWithoutRawInvocation(self):
-    self.test.args = FakeArgs(kargs={'fake_karg_key': 'fake_karg_val'},
+    self.test.args = FakeArgs(kargs={'fake_karg_key': 'fake_karg_val'},  # type: ignore #TODO(b/338318729) Fixit!
                               raw_invocation=False)
 
     self.test.setUp()
@@ -286,7 +286,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
       self.test.runTest()
 
   def test_runTest_GetSpecByUnknownMethod(self):
-    self.test.args = FakeArgs(method='fake_method', raw_invocation=False)
+    self.test.args = FakeArgs(method='fake_method', raw_invocation=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     with self.assertRaisesRegex(
@@ -295,7 +295,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
 
   @mock.patch.object(shopfloor_service, 'ServiceSpec', autospec=True)
   def test_runTest_GetDeviceDataBySpecDataArgs(self, mock_service_spec):
-    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)
+    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)  # type: ignore #TODO(b/338318729) Fixit!
     mock_spec = mock.MagicMock()
     mock_spec.data_args = ['key1', 'key2', 'key3']
     mock_service_spec.return_value = mock_spec
@@ -313,7 +313,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
   @mock.patch.object(shopfloor_service, 'ServiceSpec', autospec=True)
   def test_runTest_GetFactoryDeviceDataWhenSpecHasData(self, mock_service_spec,
                                                        mock_get_factory_data):
-    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)
+    self.test.args = FakeArgs(server_url='fake_url', raw_invocation=True)  # type: ignore #TODO(b/338318729) Fixit!
     mock_spec = mock.MagicMock()
     mock_spec.has_data = True
     mock_service_spec.return_value = mock_spec
@@ -326,7 +326,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
   @mock.patch.object(logging, 'info', autospec=True)
   @mock.patch.object(shopfloor_service, 'ServiceSpec', autospec=True)
   def test_runTest_LogTestArgs(self, mock_service_spec, mock_logging_info):
-    self.test.args = FakeArgs(method='GetVersion', server_url='fake_url',
+    self.test.args = FakeArgs(method='GetVersion', server_url='fake_url',  # type: ignore #TODO(b/338318729) Fixit!
                               raw_invocation=True, args=['fake_arg'],
                               kargs={'fake_karg.key': 'fake_karg.val'})
     mock_spec = mock.MagicMock()
@@ -349,7 +349,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
   @mock.patch.object(shopfloor_service, 'ServiceSpec', autospec=True)
   def test_runTest_ReplaceLogWhenSpecHasPrivacyArgs(self, mock_service_spec,
                                                     mock_logging_info):
-    self.test.args = FakeArgs(method='GetVersion', server_url='fake_url',
+    self.test.args = FakeArgs(method='GetVersion', server_url='fake_url',  # type: ignore #TODO(b/338318729) Fixit!
                               raw_invocation=True)
     mock_spec = mock.MagicMock()
     mock_spec.has_privacy_args = True
@@ -376,7 +376,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
       mock_logging_info, mock_show_message):
     method = 'GetVersion'
     fake_args = [1, 2, 3]
-    self.test.args = FakeArgs(method=method, args=fake_args)
+    self.test.args = FakeArgs(method=method, args=fake_args)  # type: ignore #TODO(b/338318729) Fixit!
     fake_result = {
         'fake.key': 'fake.val'
     }
@@ -408,7 +408,7 @@ class ShopfloorServiceUnitTest(unittest.TestCase):
   def test_runTest_GetResultAndUpdateData_RaiseException(
       self, unused_mock_format_exception, mock_handle_error,
       unused_mock_update_device_data):
-    self.test.args = FakeArgs(method='GetVersion')
+    self.test.args = FakeArgs(method='GetVersion')  # type: ignore #TODO(b/338318729) Fixit!
     fake_result = [
         server_proxy.Fault(faultCode=0, faultString='fake_fault'), Exception, {
             'fake.key': 'fake.val'

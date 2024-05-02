@@ -221,54 +221,54 @@ class KeyboardTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.assertFalse(self.args.skip_power_key,
+    self.assertFalse(self.args.skip_power_key,  # type: ignore #TODO(b/338318729) Fixit!
                      'skip_power_key is deprecated, please use skip_keycodes.')
     self.assertFalse(
-        self.args.replacement_keymap,
+        self.args.replacement_keymap,  # type: ignore #TODO(b/338318729) Fixit!
         'replacement_keymap is deprecated, please use fn_keycodes.')
 
-    self.assertFalse(self.args.allow_multi_keys and self.args.sequential_press,
+    self.assertFalse(self.args.allow_multi_keys and self.args.sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
                      'Sequential press requires one key at a time.')
     self.assertFalse(
-        self.args.allow_multi_keys and self.args.strict_sequential_press,
+        self.args.allow_multi_keys and self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
         'Strict sequential press requires one key at a time.')
-    self.assertTrue(self.args.multi_keys_delay >= 0,
+    self.assertTrue(self.args.multi_keys_delay >= 0,  # type: ignore #TODO(b/338318729) Fixit!
                     'multi_keys_delay should be a positive number.')
-    if self.args.allow_multi_keys and self.args.multi_keys_delay > 0:
+    if self.args.allow_multi_keys and self.args.multi_keys_delay > 0:  # type: ignore #TODO(b/338318729) Fixit!
       session.console.warning('multi_keys_delay is not effective when '
                               'allow_multi_keys is set to True.')
-    if (not self.args.strict_sequential_press and
-        not self.args.sequential_press and self.args.key_order):
+    if (not self.args.strict_sequential_press and  # type: ignore #TODO(b/338318729) Fixit!
+        not self.args.sequential_press and self.args.key_order):  # type: ignore #TODO(b/338318729) Fixit!
       session.console.warning('key_order is not effective if it is not '
                               'needed to press sequentially.')
 
-    if self.args.fn_keycodes and self.args.vivaldi_keyboard:
+    if self.args.fn_keycodes and self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit!
       session.console.warning('the fn_keycodes will be '
                               'overridden by vivaldi_keyboard.')
 
-    if self.args.key_combinations:
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertFalse(
-          self.args.repeat_times, 'repeat_times is not supported '
+          self.args.repeat_times, 'repeat_times is not supported '  # type: ignore #TODO(b/338318729) Fixit!
           'with key_combinations.')
-      self.assertFalse(self.args.key_order, 'key_order is not supported with '
+      self.assertFalse(self.args.key_order, 'key_order is not supported with '  # type: ignore #TODO(b/338318729) Fixit!
                        'key_combinations.')
       self.assertFalse(
-          self.args.strict_sequential_press,
+          self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
           'strict_sequential_press is not supported with key_combinations.')
       self.assertFalse(
-          self.args.sequential_press, 'sequential_press is not '
+          self.args.sequential_press, 'sequential_press is not '  # type: ignore #TODO(b/338318729) Fixit!
           'supported with key_combinations.')
       self.assertTrue(
-          self.args.allow_multi_keys or self.args.multi_keys_delay == 0,
+          self.args.allow_multi_keys or self.args.multi_keys_delay == 0,  # type: ignore #TODO(b/338318729) Fixit!
           'multi_keys should be allowed when using key_combinations.')
       self.assertTrue(
-          all(comb for comb in self.args.key_combinations),
+          all(comb for comb in self.args.key_combinations),  # type: ignore #TODO(b/338318729) Fixit!
           'Combination should have at least 1 key.')
 
     # Get the keyboard input device.
     try:
       self.keyboard_device = evdev_utils.FindDevice(
-          self.args.device_filter, evdev_utils.IsKeyboardDevice)
+          self.args.device_filter, evdev_utils.IsKeyboardDevice)  # type: ignore #TODO(b/338318729) Fixit!
     except evdev_utils.MultipleDevicesFoundError:
       session.console.info(
           "Please set the test argument 'device_filter' to one of the name.")
@@ -281,36 +281,36 @@ class KeyboardTest(test_case.TestCase):
         key for keys_in_row in main_keys for key in keys_in_row
     ]
     numpad_layout = ('strauss_numpad'
-                     if self.args.layout == 'STRAUSS' else 'numpad')
+                     if self.args.layout == 'STRAUSS' else 'numpad')  # type: ignore #TODO(b/338318729) Fixit!
     numpad_keys = []
-    if self.args.has_numpad:
+    if self.args.has_numpad:  # type: ignore #TODO(b/338318729) Fixit!
       numpad_keys = self.GetLayoutKeycodes(numpad_layout)
     else:
-      self.ui.HideElement('instruction-sequential-numpad')
+      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit!
     flatten_numpad_keys = [
         key for keys_in_row in numpad_keys for key in keys_in_row
     ]
 
     self.hold_keys = set()
     self.last_press_time = 0
-    self.frontend_proxy = self.ui.InitJSTestObject(
+    self.frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
         'KeyboardTest', layout, first_row_keys, main_keys, numpad_keys)
 
-    default_number_to_press = self.args.repeat_times.get('default', 1)
+    default_number_to_press = self.args.repeat_times.get('default', 1)  # type: ignore #TODO(b/338318729) Fixit!
     self.need_press_keys = {}
-    keycodes_to_skip = set(self.args.skip_keycodes)
+    keycodes_to_skip = set(self.args.skip_keycodes)  # type: ignore #TODO(b/338318729) Fixit!
     for key in set(flatten_main_keys) | set(first_row_keys) | set(
         flatten_numpad_keys):
       if key in keycodes_to_skip:
         self.frontend_proxy.Skip(key)
       else:
-        self.need_press_keys[key] = self.args.repeat_times.get(
+        self.need_press_keys[key] = self.args.repeat_times.get(  # type: ignore #TODO(b/338318729) Fixit!
             str(key), default_number_to_press)
 
     self.next_index = 0
-    if self.args.sequential_press or self.args.strict_sequential_press:
-      if self.args.key_order:
-        self.key_order_list = self.args.key_order
+    if self.args.sequential_press or self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.key_order:  # type: ignore #TODO(b/338318729) Fixit!
+        self.key_order_list = self.args.key_order  # type: ignore #TODO(b/338318729) Fixit!
         invalid_key_order = [
             key for key in self.key_order_list if key in keycodes_to_skip
         ]
@@ -325,16 +325,16 @@ class KeyboardTest(test_case.TestCase):
         ]
     else:
       self.key_order_list = []
-      self.ui.HideElement('instruction-sequential')
-      self.ui.HideElement('instruction-sequential-numpad')
+      self.ui.HideElement('instruction-sequential')  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.allow_multi_keys or self.args.multi_keys_delay == 0:
-      self.ui.HideElement('instruction-single-key')
+    if self.args.allow_multi_keys or self.args.multi_keys_delay == 0:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.HideElement('instruction-single-key')  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.key_combinations:
-      self.frontend_proxy.Hint(self.args.key_combinations[0], True)
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
+      self.frontend_proxy.Hint(self.args.key_combinations[0], True)  # type: ignore #TODO(b/338318729) Fixit!
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        self.keyboard_device, self.event_loop.CatchException(self.HandleEvent))
+        self.keyboard_device, self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit!
 
     testlog.UpdateParam('malfunction_key',
                         description='The keycode of malfunction keys')
@@ -407,9 +407,9 @@ class KeyboardTest(test_case.TestCase):
 
   def GetKeyboardLayout(self):
     """Uses the given keyboard layout or auto-detect from VPD."""
-    board = f'_{self.args.board}' if self.args.board else ''
-    if self.args.layout:
-      return self.args.layout + board
+    board = f'_{self.args.board}' if self.args.board else ''  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.layout:  # type: ignore #TODO(b/338318729) Fixit!
+      return self.args.layout + board  # type: ignore #TODO(b/338318729) Fixit!
 
     # Use the primary keyboard_layout for testing.
     region = process_utils.CheckOutput(['vpd', '-g', 'region']).strip()
@@ -425,13 +425,13 @@ class KeyboardTest(test_case.TestCase):
 
   def HandleEvent(self, event):
     """Handler for evdev events."""
-    if event.type != evdev.ecodes.EV_KEY:
+    if event.type != evdev.ecodes.EV_KEY:  # type: ignore #TODO(b/338318729) Fixit!
       return
     if event.value == 1:
       self.OnKeydown(event.code)
     elif event.value == 0:
       self.OnKeyup(event.code)
-    elif self.args.detect_long_press and event.value == 2:
+    elif self.args.detect_long_press and event.value == 2:  # type: ignore #TODO(b/338318729) Fixit!
       fail_msg = f'Got events on keycode {event.code} pressed too long.'
       session.console.error(fail_msg)
       self.FailTask(fail_msg)
@@ -443,8 +443,8 @@ class KeyboardTest(test_case.TestCase):
                               keycode)
       return
 
-    if (not self.args.allow_multi_keys and self.hold_keys and
-        time.time() - self.last_press_time < self.args.multi_keys_delay):
+    if (not self.args.allow_multi_keys and self.hold_keys and  # type: ignore #TODO(b/338318729) Fixit!
+        time.time() - self.last_press_time < self.args.multi_keys_delay):  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask(
           f'Got key down event on keycode {keycode} but there are other key '
           f'pressed: {next(iter(self.hold_keys))}.')
@@ -453,7 +453,7 @@ class KeyboardTest(test_case.TestCase):
       self.FailTask(f'Got 2 key down events on keycode {keycode} but didn\'t '
                     'get key up event.')
 
-    self.last_press_time = time.time()
+    self.last_press_time = time.time()  # type: ignore #TODO(b/338318729) Fixit!
     self.hold_keys.add(keycode)
     self.frontend_proxy.Hold(keycode, self.need_press_keys[keycode])
 
@@ -467,18 +467,18 @@ class KeyboardTest(test_case.TestCase):
           f'Got key up event for keycode {keycode} but did not get key down '
           'event.')
 
-    if self.args.key_combinations:
-      if self.next_index == len(self.args.key_combinations):
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit!
         return
-      keys = self.args.key_combinations[self.next_index]
+      keys = self.args.key_combinations[self.next_index]  # type: ignore #TODO(b/338318729) Fixit!
       if self.hold_keys == set(keys):
         self.next_index += 1
-        if self.next_index == len(self.args.key_combinations):
+        if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit!
           self.PassTask()
       self.hold_keys.remove(keycode)
       self.frontend_proxy.Click(keycode, 1)  # Restore the color of the key.
       if not self.hold_keys:
-        self.frontend_proxy.Hint(self.args.key_combinations[self.next_index],
+        self.frontend_proxy.Hint(self.args.key_combinations[self.next_index],  # type: ignore #TODO(b/338318729) Fixit!
                                  True)
       return
 
@@ -488,7 +488,7 @@ class KeyboardTest(test_case.TestCase):
         keycode in self.key_order_list):
       next_key = self.key_order_list[self.next_index]
       if keycode != next_key:
-        if self.args.strict_sequential_press:
+        if self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit!
           self.FailTask(f'Expect keycode {next_key} but get {keycode}.')
         else:
           self.frontend_proxy.Click(keycode, self.need_press_keys[keycode])
@@ -505,8 +505,8 @@ class KeyboardTest(test_case.TestCase):
 
   def FailTestTimeout(self):
     """Fail the test due to timeout, and log untested keys."""
-    if self.args.key_combinations:
-      failed_keys = self.args.key_combinations[self.next_index:]
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
+      failed_keys = self.args.key_combinations[self.next_index:]  # type: ignore #TODO(b/338318729) Fixit!
     else:
       failed_keys = [
           key for key, num_left in self.need_press_keys.items() if num_left
@@ -518,7 +518,7 @@ class KeyboardTest(test_case.TestCase):
   def runTest(self):
     self.keyboard_device.grab()
     self.dispatcher.StartDaemon()
-    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)
+    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTaskEnd()
 
   def tearDown(self):

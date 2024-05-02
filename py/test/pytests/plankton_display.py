@@ -102,18 +102,18 @@ class PlanktonDisplayTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
 
-    self._static_dir = self.ui.GetStaticDirectoryPath()
+    self._static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
     self._display_image_path = os.path.join(self._static_dir, 'template.png')
     self._golden_image_path = os.path.join(self._static_dir, 'golden.png')
     self.ExtractTestImage()
 
-    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest')
+    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._image_matched = True
 
-    self._testing_display = self.args.display_id
-    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
-    self._bft_media_device = self.args.bft_media_device
+    self._testing_display = self.args.display_id  # type: ignore #TODO(b/338318729) Fixit!
+    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    self._bft_media_device = self.args.bft_media_device  # type: ignore #TODO(b/338318729) Fixit!
     if self._bft_media_device not in self._bft_fixture.Device:
       self.FailTask('Invalid args.bft_media_device: ' + self._bft_media_device)
 
@@ -122,19 +122,19 @@ class PlanktonDisplayTest(test_case.TestCase):
     self._verify_server = None
     self._server_camera_enabled = False
     self._camera_device = None
-    self._verify_locally = not self.args.dp_verify_server
-    if self.args.dp_verify_server:
+    self._verify_locally = not self.args.dp_verify_server  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.dp_verify_server:  # type: ignore #TODO(b/338318729) Fixit!
       # allow_none is necessary as most of the methods return None.
       self._verify_server = xmlrpc.client.ServerProxy(
-          self.args.dp_verify_server, allow_none=True)
+          self.args.dp_verify_server, allow_none=True)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      uvc_video_index = (None if self.args.uvc_video_dev_index < 0 else
-                         self.args.uvc_video_dev_index)
+      uvc_video_index = (None if self.args.uvc_video_dev_index < 0 else  # type: ignore #TODO(b/338318729) Fixit!
+                         self.args.uvc_video_dev_index)  # type: ignore #TODO(b/338318729) Fixit!
       self._camera_device = plankton_hdmi.PlanktonHDMI(
           uvc_video_index=uvc_video_index,
-          uvc_video_port=self.args.uvc_video_dev_port,
-          capture_resolution=self.args.capture_resolution,
-          capture_fps=self.args.capture_fps)
+          uvc_video_port=self.args.uvc_video_dev_port,  # type: ignore #TODO(b/338318729) Fixit!
+          capture_resolution=self.args.capture_resolution,  # type: ignore #TODO(b/338318729) Fixit!
+          capture_fps=self.args.capture_fps)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     # Make sure to disable camera of dp_verify_server in the end of test.
@@ -145,7 +145,7 @@ class PlanktonDisplayTest(test_case.TestCase):
 
   def ExtractTestImage(self):
     """Extracts selected test images from zipped files."""
-    filename = ('template.tar.gz' if self.args.verify_display_switch else
+    filename = ('template.tar.gz' if self.args.verify_display_switch else  # type: ignore #TODO(b/338318729) Fixit!
                 'wallpaper.tar.gz')
     file_utils.ExtractFile(os.path.join(self._static_dir, filename),
                            self._static_dir)
@@ -164,35 +164,35 @@ class PlanktonDisplayTest(test_case.TestCase):
       connect: True if testing engagement, False if testing disengagement.
     """
     if connect:
-      self.ui.SetInstruction(
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _('Connecting BFT display: {device}', device=self._bft_media_device))
       self._bft_fixture.SetDeviceEngaged(self._bft_media_device, engage=True)
-      if self.args.force_dp_renegotiated:
+      if self.args.force_dp_renegotiated:  # type: ignore #TODO(b/338318729) Fixit!
         self._bft_fixture.SetFakeDisconnection(1)
         # disconnetion by software for re-negotiation.
         self.Sleep(1)
       else:
         self.Sleep(0.5)
-      if self.args.fire_hpd_manually:
-        self._dut.usb_c.SetHPD(self.args.usb_c_index)
-        self._dut.usb_c.SetPortFunction(self.args.usb_c_index, 'dp')
+      if self.args.fire_hpd_manually:  # type: ignore #TODO(b/338318729) Fixit!
+        self._dut.usb_c.SetHPD(self.args.usb_c_index)  # type: ignore #TODO(b/338318729) Fixit!
+        self._dut.usb_c.SetPortFunction(self.args.usb_c_index, 'dp')  # type: ignore #TODO(b/338318729) Fixit!
       sync_utils.WaitFor(self._PollDisplayConnected, timeout_secs=10)
     else:
-      self.ui.SetInstruction(
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _('Disconnecting BFT display: {device}',
             device=self._bft_media_device))
-      if self.args.fire_hpd_manually:
-        self._dut.usb_c.ResetHPD(self.args.usb_c_index)
+      if self.args.fire_hpd_manually:  # type: ignore #TODO(b/338318729) Fixit!
+        self._dut.usb_c.ResetHPD(self.args.usb_c_index)  # type: ignore #TODO(b/338318729) Fixit!
       self._bft_fixture.SetDeviceEngaged(self._bft_media_device, engage=False)
-      if self.args.force_dp_renegotiated:
+      if self.args.force_dp_renegotiated:  # type: ignore #TODO(b/338318729) Fixit!
         self._bft_fixture.SetFakeDisconnection(1)
         # disconnetion by software for re-negotiation.
         self.Sleep(1)
       sync_utils.WaitFor(lambda: not self._PollDisplayConnected(),
                          timeout_secs=10)
 
-    if not self.args.verify_display_switch:
-      self.ui.AdvanceProgress()
+    if not self.args.verify_display_switch:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     # need a delay for display_info
@@ -205,7 +205,7 @@ class PlanktonDisplayTest(test_case.TestCase):
     # we can not check display info has no display with 'isInternal' False
     # because any display for chromebox has 'isInternal' False.
     if not connect or any(x['isInternal'] is False for x in display_info):
-      self.ui.AdvanceProgress()
+      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self.FailTask('Get the wrong display info')
 
@@ -213,8 +213,8 @@ class PlanktonDisplayTest(test_case.TestCase):
     """Projects the screen to external display, make the display to show an
     image by JS function.
     """
-    if self.args.verify_display_switch:
-      self.ui.SetInstruction(
+    if self.args.verify_display_switch:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _('BFT display {device} is connected. Sending image...',
             device=self._bft_media_device))
       self.frontend_proxy.ToggleFullscreen()
@@ -222,7 +222,7 @@ class PlanktonDisplayTest(test_case.TestCase):
 
     # wait for display signal stable
     self.Sleep(_WAIT_DISPLAY_SIGNAL_SECS)
-    self.ui.AdvanceProgress()
+    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
 
   def TestCaptureImage(self):
     """Tests and compares loopback image.
@@ -235,18 +235,18 @@ class PlanktonDisplayTest(test_case.TestCase):
       BFTFixtureException: If it failed to detect camera.
     """
     if self._verify_locally:
-      self._image_matched = self._camera_device.CaptureCompare(
-          self._golden_image_path, self.args.corr_value_threshold)
+      self._image_matched = self._camera_device.CaptureCompare(  # type: ignore #TODO(b/338318729) Fixit!
+          self._golden_image_path, self.args.corr_value_threshold)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self._image_matched = self._verify_server.VerifyDP(False)
+      self._image_matched = self._verify_server.VerifyDP(False)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.verify_display_switch:
+    if self.args.verify_display_switch:  # type: ignore #TODO(b/338318729) Fixit!
       self.frontend_proxy.ToggleFullscreen()
       self.SetMainDisplay(recover_original=True)
       # wait for display signal stable
       self.Sleep(_WAIT_DISPLAY_SIGNAL_SECS)
 
-    self.ui.AdvanceProgress()
+    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
 
   def SetMainDisplay(self, recover_original=True):
     """Sets the main display.
@@ -275,7 +275,7 @@ class PlanktonDisplayTest(test_case.TestCase):
         # Stop the loop if these two conditions are either both True or
         # both False.
         break
-      evdev_utils.SendKeys([evdev.ecodes.KEY_LEFTALT, evdev.ecodes.KEY_F4])
+      evdev_utils.SendKeys([evdev.ecodes.KEY_LEFTALT, evdev.ecodes.KEY_F4])  # type: ignore #TODO(b/338318729) Fixit!
       tries_left -= 1
       self.Sleep(_WAIT_RETEST_SECS)
 
@@ -307,27 +307,27 @@ class PlanktonDisplayTest(test_case.TestCase):
       return
     def _PingDPVerifyServer():
       return self._dut.Call(
-          ['wget', self.args.dp_verify_server, '-T', '1']) == 8
+          ['wget', self.args.dp_verify_server, '-T', '1']) == 8  # type: ignore #TODO(b/338318729) Fixit!
     sync_utils.WaitFor(_PingDPVerifyServer, timeout_secs=30)
-    self._verify_server.DisableCamera()
+    self._verify_server.DisableCamera()  # type: ignore #TODO(b/338318729) Fixit!
     self._server_camera_enabled = False
 
   def runTest(self):
     """Runs display test."""
     # Sanity check
-    if self.args.verify_display_switch:
+    if self.args.verify_display_switch:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(os.path.isfile(self._display_image_path))
     self.assertTrue(os.path.isfile(self._golden_image_path))
 
     # Connect, video playback, capture, disconnect
-    self.ui.DrawProgressBar(4)
+    self.ui.DrawProgressBar(4)  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('Testing device: %s', self._bft_media_device)
 
     if self._verify_locally:
-      self._camera_device.EnableCamera()
+      self._camera_device.EnableCamera()  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self._verify_server.EnableCamera()
+      self._verify_server.EnableCamera()  # type: ignore #TODO(b/338318729) Fixit!
       self._server_camera_enabled = True
 
     self.TestConnectivity(connect=True)
@@ -336,7 +336,7 @@ class PlanktonDisplayTest(test_case.TestCase):
     self.TestConnectivity(connect=False)
 
     if self._verify_locally:
-      self._camera_device.DisableCamera()
+      self._camera_device.DisableCamera()  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self._DisableServerCamera()
       self._server_camera_enabled = False

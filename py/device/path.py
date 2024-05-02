@@ -49,7 +49,7 @@ class Path(device_types.DeviceComponent):
     (file_type, size) = output.splitlines()
 
     if file_type in ('block special file', 'block device'):
-      return int(self._device.CallOutput(['blockdev', '--getsize64', path]))
+      return int(self._device.CallOutput(['blockdev', '--getsize64', path]))  # type: ignore #TODO(b/338318729) Fixit!
     # For other files, just returns what we got from stat
     return int(size)
 
@@ -87,7 +87,7 @@ class Path(device_types.DeviceComponent):
 
     # this should never failed, a path should always be returned
     output = self._device.CallOutput(['realpath', '-m', path])
-    return output.splitlines()[0]
+    return output.splitlines()[0]  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class AndroidPath(Path):
@@ -149,5 +149,5 @@ class AndroidPath(Path):
         # it might be a symbolic loop or non-existing file,
         # so we just append everything left and normalize the path.
         return self.normpath(self.join(current, *bits[i:]))
-      current = output.strip()
+      current = output.strip()  # type: ignore #TODO(b/338318729) Fixit!
     return current

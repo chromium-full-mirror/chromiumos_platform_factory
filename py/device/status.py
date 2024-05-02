@@ -23,7 +23,7 @@ def StatusProperty(f):
   name = f.__name__
   if not name.startswith('_'):
     _PROP_LIST.append(name)
-  @property
+  @property  # type: ignore #TODO(b/338318729) Fixit!
   @functools.wraps(f)
   def prop(self):
     if name in self._overrides:  # pylint: disable=protected-access
@@ -41,14 +41,14 @@ def StatusProperty(f):
 # modules.
 def GetIPv4Interfaces():
   """Returns a list of IPv4 interfaces."""
-  interfaces = sorted(netifaces.interfaces())
+  interfaces = sorted(netifaces.interfaces())  # type: ignore #TODO(b/338318729) Fixit!
   return [x for x in interfaces if not x.startswith('lo')]
 
 
 def GetIPv4InterfaceAddresses(interface):
   """Returns a list of ips of an interface"""
   try:
-    addresses = netifaces.ifaddresses(interface).get(netifaces.AF_INET, [])
+    addresses = netifaces.ifaddresses(interface).get(netifaces.AF_INET, [])  # type: ignore #TODO(b/338318729) Fixit!
   except ValueError:
     pass
   ips = [x.get('addr') for x in addresses
@@ -138,12 +138,12 @@ class SystemStatus(device_types.DeviceComponent):
     # If the below calls raise PowerException, the machine probably doesn't
     # have a battery.  Leave the values as `None` in this case.
     try:
-      charge_fraction = self._device.power.GetChargePct(get_float=True) / 100
+      charge_fraction = self._device.power.GetChargePct(get_float=True) / 100  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       charge_fraction = None
 
     try:
-      charge_state = self._device.power.GetChargeState()
+      charge_state = self._device.power.GetChargeState()  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       charge_state = None
 
@@ -153,12 +153,12 @@ class SystemStatus(device_types.DeviceComponent):
   @StatusProperty
   def fan_rpm(self):
     """Gets fan speed."""
-    return self._device.fan.GetFanRPM()
+    return self._device.fan.GetFanRPM()  # type: ignore #TODO(b/338318729) Fixit!
 
   @StatusProperty
   def temperature(self):
     """Gets main (CPU) temperature from thermal sensor."""
-    return self._device.thermal.GetTemperature()
+    return self._device.thermal.GetTemperature()  # type: ignore #TODO(b/338318729) Fixit!
 
   @StatusProperty
   def load_avg(self):

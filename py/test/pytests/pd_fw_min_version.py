@@ -62,10 +62,10 @@ class PdFwMinVersion(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    if isinstance(self.args.ports, int):
-      self.args.ports = [self.args.ports]
+    if isinstance(self.args.ports, int):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.ports = [self.args.ports]  # type: ignore #TODO(b/338318729) Fixit!
 
-    for port in self.args.ports:
+    for port in self.args.ports:  # type: ignore #TODO(b/338318729) Fixit!
       info = self.dut.CheckOutput(['ectool', 'pdchipinfo', f'{port}'], log=True)
       logging.info('pdchipinfo of port %d:\n%s.', port, info)
       res = re.search(r'^min_req_fw_version: (0x\w+)$', info, re.MULTILINE)

@@ -239,43 +239,43 @@ class Finalize(test_case.TestCase):
   def runTest(self):
     testlog.LogParam(name='phase', value=str(phase.GetPhase()))
     # TODO(hungte) Should we set a percentage of units to run WP on DVT?
-    if self.args.write_protection is None:
-      self.args.write_protection = phase.GetPhase() >= phase.PVT
-    phase.AssertStartingAtPhase(phase.PVT, self.args.write_protection,
+    if self.args.write_protection is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.write_protection = phase.GetPhase() >= phase.PVT  # type: ignore #TODO(b/338318729) Fixit!
+    phase.AssertStartingAtPhase(phase.PVT, self.args.write_protection,  # type: ignore #TODO(b/338318729) Fixit!
                                 'Write protection must be enabled')
-    if self.args.cbi_eeprom_wp_status != cbi_utils.CbiEepromWpStatus.Absent:
+    if self.args.cbi_eeprom_wp_status != cbi_utils.CbiEepromWpStatus.Absent:  # type: ignore #TODO(b/338318729) Fixit!
       phase.AssertStartingAtPhase(
           phase.PVT,
-          self.args.cbi_eeprom_wp_status == cbi_utils.CbiEepromWpStatus.Locked,
+          self.args.cbi_eeprom_wp_status == cbi_utils.CbiEepromWpStatus.Locked,  # type: ignore #TODO(b/338318729) Fixit!
           'CBI Write protection must be enabled')
 
     def GetState(v):
       return (['<b style="color: green;">', MSG_ENABLED, '</b>']
               if v else ['<b style="color: red;">', MSG_DISABLED, '</b>'])
 
-    self.ui.SetInstruction([
+    self.ui.SetInstruction([  # type: ignore #TODO(b/338318729) Fixit!
         MSG_WRITE_PROTECTION, ': ',
-        GetState(self.args.write_protection), '<br>', MSG_BUILD_PHASE,
+        GetState(self.args.write_protection), '<br>', MSG_BUILD_PHASE,  # type: ignore #TODO(b/338318729) Fixit!
         f': {phase.GetPhase()}, ', MSG_FACTORY_SERVER, ': ',
-        GetState(self.args.enable_factory_server)
+        GetState(self.args.enable_factory_server)  # type: ignore #TODO(b/338318729) Fixit!
     ])
-    self.ui.SetState(MSG_PREFLIGHT)
+    self.ui.SetState(MSG_PREFLIGHT)  # type: ignore #TODO(b/338318729) Fixit!
     self.Preflight()
-    self.ui.SetState(MSG_FINALIZING)
-    if self.args.mode in (FinalizeMode.MLB, FinalizeMode.SHIMLESS_MLB):
+    self.ui.SetState(MSG_FINALIZING)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.mode in (FinalizeMode.MLB, FinalizeMode.SHIMLESS_MLB):  # type: ignore #TODO(b/338318729) Fixit!
       self.FinalizeMLB()
-    elif self.args.mode == FinalizeMode.ASSEMBLED:
+    elif self.args.mode == FinalizeMode.ASSEMBLED:  # type: ignore #TODO(b/338318729) Fixit!
       self.Finalize()
 
   def Preflight(self):
     # Check for HWID bundle update from factory server.
-    if self.args.enable_factory_server:
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
       update_utils.UpdateHWIDDatabase(self.dut)
     self.LogTestStates()
     self.LogImageVersion()
 
   def LogTestStates(self):
-    test_list = self.test_info.ReadTestList()
+    test_list = self.test_info.ReadTestList()  # type: ignore #TODO(b/338318729) Fixit!
     test_states = test_list.AsDict(
         state.GetInstance().GetTestStates())
     file_utils.TryMakeDirs(os.path.dirname(self.test_states_path))
@@ -309,7 +309,7 @@ class Finalize(test_case.TestCase):
     """
     assert command.startswith('gooftool ')
 
-    if self.dut.link.IsLocal() and self.args.use_local_gooftool:
+    if self.dut.link.IsLocal() and self.args.use_local_gooftool:  # type: ignore #TODO(b/338318729) Fixit!
       (out, unused_err, returncode) = gooftools.run(command)
       # since STDERR is logged, we only need to log STDOUT
       session.console.info('========= STDOUT ========')
@@ -357,20 +357,20 @@ class Finalize(test_case.TestCase):
     return method
 
   def AppendUploadReportArgs(self, command):
-    upload_method = self.NormalizeUploadMethod(self.args.upload_method)
-    if self.args.enable_factory_server:
+    upload_method = self.NormalizeUploadMethod(self.args.upload_method)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
       state.GetInstance().FlushEventLogs()
-    if self.args.enable_factory_server:
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
       server_url = server_proxy.GetServerURL()
       if server_url:
         command += f' --factory_server_url "{server_url}"'
 
     command += f' --upload_method "{upload_method}"'
-    if self.args.upload_max_retry_times:
-      command += f' --upload_max_retry_times {self.args.upload_max_retry_times}'
-    if self.args.upload_retry_interval is not None:
-      command += f' --upload_retry_interval {self.args.upload_retry_interval}'
-    if self.args.upload_allow_fail:
+    if self.args.upload_max_retry_times:  # type: ignore #TODO(b/338318729) Fixit!
+      command += f' --upload_max_retry_times {self.args.upload_max_retry_times}'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.upload_retry_interval is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      command += f' --upload_retry_interval {self.args.upload_retry_interval}'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.upload_allow_fail:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --upload_allow_fail'
     command += f' --add_file "{self.test_states_path}"'
 
@@ -380,63 +380,62 @@ class Finalize(test_case.TestCase):
     command = 'gooftool -v 4 smt_finalize'
     command = self.AppendUploadReportArgs(command)
 
-    if self.args.factory_process == FactoryProcessEnum.RMA and \
-      self.args.mode == FinalizeMode.SHIMLESS_MLB:
+    if self.args.factory_process == FactoryProcessEnum.RMA and self.args.mode == FinalizeMode.SHIMLESS_MLB:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --boot_to_shimless'
 
       # The device will be wiped before initiating Shimless RMA, so wipe-related
       # auguments should be included here.
-      if not self.args.secure_wipe:
+      if not self.args.secure_wipe:  # type: ignore #TODO(b/338318729) Fixit!
         command += ' --fast'
 
-    self._DoFinalize(command, self.args.mode != FinalizeMode.SHIMLESS_MLB)
+    self._DoFinalize(command, self.args.mode != FinalizeMode.SHIMLESS_MLB)  # type: ignore #TODO(b/338318729) Fixit!
 
   def AppendAssembledArgs(self, command):
-    if not self.args.write_protection:
+    if not self.args.write_protection:  # type: ignore #TODO(b/338318729) Fixit!
       self.Warn('WRITE PROTECTION IS DISABLED.')
       command += ' --no_write_protect'
-    command += f' --cbi_eeprom_wp_status {self.args.cbi_eeprom_wp_status}'
+    command += f' --cbi_eeprom_wp_status {self.args.cbi_eeprom_wp_status}'  # type: ignore #TODO(b/338318729) Fixit!
 
-    if not self.args.has_ectool:
+    if not self.args.has_ectool:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --no_ectool'
-    if not self.args.secure_wipe:
+    if not self.args.secure_wipe:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --fast'
 
-    if self.args.hwid_need_vpd:
+    if self.args.hwid_need_vpd:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --hwid-run-vpd'
-    if self.args.is_cros_core:
+    if self.args.is_cros_core:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --cros_core'
       logging.info('ChromeOS Core device. Skip some check.')
-    if self.args.has_ec_pubkey:
+    if self.args.has_ec_pubkey:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --has_ec_pubkey'
       logging.info('Device has EC public key for EFS and need to verify it.')
-    if self.args.enforced_release_channels:
-      command += (f" --enforced_release_channels "
+    if self.args.enforced_release_channels:  # type: ignore #TODO(b/338318729) Fixit!
+      command += (f" --enforced_release_channels "  # type: ignore #TODO(b/338318729) Fixit!
                   f"{' '.join(self.args.enforced_release_channels)}")
       logging.info('Enforced release channels: %s.',
-                   self.args.enforced_release_channels)
-    if self.args.ec_pubkey_path:
-      command += f' --ec_pubkey_path {self.args.ec_pubkey_path}'
-    elif self.args.ec_pubkey_hash:
-      command += f' --ec_pubkey_hash {self.args.ec_pubkey_hash}'
-    if self.args.gooftool_waive_list:
-      command += ' --waive_list ' + ' '.join(self.args.gooftool_waive_list)
-    if self.args.gooftool_skip_list:
-      command += ' --skip_list ' + ' '.join(self.args.gooftool_skip_list)
-    if self.args.enable_zero_touch:
+                   self.args.enforced_release_channels)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.ec_pubkey_path:  # type: ignore #TODO(b/338318729) Fixit!
+      command += f' --ec_pubkey_path {self.args.ec_pubkey_path}'  # type: ignore #TODO(b/338318729) Fixit!
+    elif self.args.ec_pubkey_hash:  # type: ignore #TODO(b/338318729) Fixit!
+      command += f' --ec_pubkey_hash {self.args.ec_pubkey_hash}'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.gooftool_waive_list:  # type: ignore #TODO(b/338318729) Fixit!
+      command += ' --waive_list ' + ' '.join(self.args.gooftool_waive_list)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.gooftool_skip_list:  # type: ignore #TODO(b/338318729) Fixit!
+      command += ' --skip_list ' + ' '.join(self.args.gooftool_skip_list)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.enable_zero_touch:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --enable_zero_touch'
-    if self.args.is_reference_board:
+    if self.args.is_reference_board:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --is_reference_board'
-    if self.args.project:
+    if self.args.project:  # type: ignore #TODO(b/338318729) Fixit!
       phase.AssertStartingAtPhase(
-          phase.PVT, self.args.project is None,
+          phase.PVT, self.args.project is None,  # type: ignore #TODO(b/338318729) Fixit!
           'Should not use `project` option in this phase')
-      command += f' --project {self.args.project}'
+      command += f' --project {self.args.project}'  # type: ignore #TODO(b/338318729) Fixit!
     command += f' --phase "{phase.GetPhase()}"'
-    command += f' --factory_process {self.args.factory_process}'
-    if self.args.skip_feature_tiering_steps:
+    command += f' --factory_process {self.args.factory_process}'  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.skip_feature_tiering_steps:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --skip_feature_tiering_steps'
-    if self.args.block_dev_mode:
+    if self.args.block_dev_mode:  # type: ignore #TODO(b/338318729) Fixit!
       command += ' --block_dev_mode'
 
     return command
@@ -447,7 +446,7 @@ class Finalize(test_case.TestCase):
     command = self.AppendAssembledArgs(command)
 
     self._DoFinalize(command, commands.WIPE_IN_PLACE
-                     in self.args.gooftool_skip_list)
+                     in self.args.gooftool_skip_list)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _DoFinalize(self, command, skip_wipe):
     if self.dut.link.IsLocal():
@@ -512,7 +511,7 @@ class Finalize(test_case.TestCase):
     # If station IP is not given, we assume that this station is the first host
     # in the subnet, and number of prefix bits in this subnet is 24.
     station_ip = (
-        self.args.station_ip or
+        self.args.station_ip or  # type: ignore #TODO(b/338318729) Fixit!
         net_utils.CIDR(str(self.dut.link.host), 24).SelectIP(1))
     command += f' --station_ip "{station_ip}"'
     command += (
@@ -533,9 +532,9 @@ class Finalize(test_case.TestCase):
         paths.DATA_TESTS_DIR, session.GetCurrentTestPath())
     file_utils.WriteFile(
         os.path.join(output_dir, 'wipe_in_ramfs.log'),
-        self.dut_response.get('wipe_in_ramfs_log', ''))
+        self.dut_response.get('wipe_in_ramfs_log', ''))  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.WriteFile(
         os.path.join(output_dir, 'wipe_init.log'),
-        self.dut_response.get('wipe_init_log', ''))
+        self.dut_response.get('wipe_init_log', ''))  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.assertTrue(self.dut_response['success'])
+    self.assertTrue(self.dut_response['success'])  # type: ignore #TODO(b/338318729) Fixit!

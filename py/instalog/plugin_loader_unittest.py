@@ -44,7 +44,7 @@ class TestPluginLoader(unittest.TestCase):
   def tearDown(self):
     """Unloads and deletes the temporary plugin directory."""
     self.assertEqual(self._plugin_dir, sys.path.pop(0))
-    shutil.rmtree(self._plugin_dir)
+    shutil.rmtree(self._plugin_dir)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _createPluginFile(self, content):
     """Creates a plugin in the temporary directory on disk.

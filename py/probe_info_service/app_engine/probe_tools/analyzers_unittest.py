@@ -202,7 +202,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
               "eval": {"the_probe_function": {}},
               "expect": {"param2": [true, "str", "!eq value2"]}
         } } }'''
-    self._AssertJSONStringEqual(actual.output, expect_probe_statement)
+    self._AssertJSONStringEqual(actual.output, expect_probe_statement)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testLoadProbeInfo_WithMultiProbeStatements_ThenCanLoad(self):
     # Arrange.
@@ -228,7 +228,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
             "comp_name-part1": {"eval": {"the_probe_function1": {}}},
             "comp_name-part2": {"eval": {"the_probe_function2": {}}}
         } }'''
-    self._AssertJSONStringEqual(generation_result.output,
+    self._AssertJSONStringEqual(generation_result.output,  # type: ignore #TODO(b/338318729) Fixit!
                                 expect_probe_statement)
 
   def testWithMultiProbeStatementProbeInfo_ThenCanGenerateDummyProbeStatement(
@@ -281,7 +281,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
               "eval": {"the_probe_function": {}},
               "expect": {"param2": [true, "str", "!eq value2"]}
         } } }'''
-    self._AssertJSONStringEqual(actual.output, expect_probe_statement)
+    self._AssertJSONStringEqual(actual.output, expect_probe_statement)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _InvokeProbeBundleWithStubRuntimeProbe(
       self, probe_bundle_payload: bytes, runtime_probe_stdout: str = '',
@@ -330,7 +330,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     self.assertEqual(actual.probe_info_parsed_results[0].result_type,
                      _ProbeInfoParsedResult.PASSED)
     self.assertIsNotNone(actual.output)
-    bundle_content = actual.output.content
+    bundle_content = actual.output.content  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.subTest('Tested'):
       # Arrange, invoke the probe bundle.
@@ -489,7 +489,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     self.assertEqual(actual.probe_info_parsed_results[0].result_type,
                      _ProbeInfoParsedResult.PASSED)
     self.assertIsNotNone(actual.output)
-    bundle_content = actual.output.content
+    bundle_content = actual.output.content  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.subTest('Probed'):
       # Arrange, invoke the probe bundle.
@@ -539,7 +539,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     self.assertEqual(actual.probe_info_parsed_results[0].result_type,
                      _ProbeInfoParsedResult.PASSED)
     self.assertIsNotNone(actual.output)
-    bundle_content = actual.output.content
+    bundle_content = actual.output.content  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.subTest('Probed'):
       # Arrange, invoke the probe bundle.
@@ -635,7 +635,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
     self.assertEqual(actual.probe_info_parsed_results[0].result_type,
                      _ProbeInfoParsedResult.PASSED)
     self.assertIsNotNone(actual.output)
-    bundle_content = actual.output.content
+    bundle_content = actual.output.content  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.subTest('Probed'):
       # Arrange, invoke the probe bundle.

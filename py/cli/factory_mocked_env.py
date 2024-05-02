@@ -24,7 +24,7 @@ Usage :
 
 
 def Main():
-  with mock_loader.Loader() as loader:
+  with mock_loader.Loader() as loader:  # type: ignore #TODO(b/338318729) Fixit!
     # mocked env only takes care mocked module, other env should be set by
     # factory_env and here we just copy env from outside
     child_env = dict(os.environ)

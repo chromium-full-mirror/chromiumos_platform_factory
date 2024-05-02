@@ -67,7 +67,7 @@ class SpatialSensorCalibration(test_case.TestCase):
     self._dut = device_utils.CreateDUTInterface()
     self._vsync = self._dut.vsync_sensor.GetController()
 
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertIsNotNone(self._vsync, 'VSync controller not found')
 
@@ -78,31 +78,31 @@ class SpatialSensorCalibration(test_case.TestCase):
     # on/off switch, so this turns on the sensor.
     self._vsync.SetFrequency(1)
     start_count = 0
-    for idx in range(self.args.repeat_times):
-      self.ui.SetState(
+    for idx in range(self.args.repeat_times):  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Verifying VSync pin... ({count}/{total})',
-            count=idx, total=self.args.repeat_times))
+            count=idx, total=self.args.repeat_times))  # type: ignore #TODO(b/338318729) Fixit!
       self._dut.CheckCall(
-          ['yavta', f'--capture={int(self.args.capture_number)}', camera_path])
+          ['yavta', f'--capture={int(self.args.capture_number)}', camera_path])  # type: ignore #TODO(b/338318729) Fixit!
       end_count = self._vsync.GetCount()
       session.console.info('VSync device in_count_raw (%d/%d): %d',
-                           idx, self.args.repeat_times, end_count)
-      if not start_count + self.args.capture_number <= end_count:
+                           idx, self.args.repeat_times, end_count)  # type: ignore #TODO(b/338318729) Fixit!
+      if not start_count + self.args.capture_number <= end_count:  # type: ignore #TODO(b/338318729) Fixit!
         self.fail('in_count_raw is not growing')
       start_count = end_count
     # Turning off the sensor.
     self._vsync.SetFrequency(0)
 
   def GetDevicePath(self):
-    device_index = self._dut.camera.GetDeviceIndex(self.args.camera_facing)
+    device_index = self._dut.camera.GetDeviceIndex(self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit!
     camera_path = f'/dev/video{int(device_index)}'
     if not stat.S_ISCHR(os.stat(camera_path)[stat.ST_MODE]):
       self.fail(f'{camera_path} is not a character special file')
     return camera_path
 
   def WaitForDevice(self):
-    self.ui.SetState(_('Waiting for device...'))
+    self.ui.SetState(_('Waiting for device...'))  # type: ignore #TODO(b/338318729) Fixit!
     try:
-      sync_utils.WaitFor(self._dut.IsReady, self.args.timeout_secs)
+      sync_utils.WaitFor(self._dut.IsReady, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     except type_utils.TimeoutError:
       self.fail('failed to find deivce')

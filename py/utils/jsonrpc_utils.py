@@ -44,7 +44,7 @@ class JSONRPCServer:
 
   def _ServeRPCForever(self):
     while not self._aborted.isSet():
-      self._server.handle_request()
+      self._server.handle_request()  # type: ignore #TODO(b/338318729) Fixit!
 
   def Start(self):
     self._server = SimpleJSONRPCServer.SimpleJSONRPCServer(
@@ -71,7 +71,7 @@ class JSONRPCServer:
     except Exception:
       pass
     self._server_thread.join()
-    self._server.server_close()
+    self._server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def GetJSONRPCCallerIP():
@@ -152,7 +152,7 @@ class MultiPathJSONRPCServer(SimpleJSONRPCServer.SimpleJSONRPCServer):
     This function is called by SimpleJSONRPCRequestHandler to dispatch request.
     """
     # TODO (shunhsingou): find other way instead of using inspect.
-    handler = inspect.currentframe().f_back.f_locals['self']
+    handler = inspect.currentframe().f_back.f_locals['self']  # type: ignore #TODO(b/338318729) Fixit!
     path = handler.path
     # pylint: disable=protected-access
     return self.dispatchers[path]._marshaled_dispatch(

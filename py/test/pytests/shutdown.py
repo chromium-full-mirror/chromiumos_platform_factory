@@ -149,13 +149,13 @@ class ShutdownTest(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.power = self.dut.power
-    self.ui.ToggleTemplateClass('font-large', True)
-    self.operation_label = _DICT_OPERATION_LABEL.get(self.args.operation,
-                                                     self.args.operation)
-    self.ui.SetTitle(
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.operation_label = _DICT_OPERATION_LABEL.get(self.args.operation,  # type: ignore #TODO(b/338318729) Fixit!
+                                                     self.args.operation)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetTitle(  # type: ignore #TODO(b/338318729) Fixit!
         _('Shutdown Test ({operation})', operation=self.operation_label))
     self.goofy = state.GetInstance()
-    self.test_state = self.goofy.GetTestState(self.test_info.path)
+    self.test_state = self.goofy.GetTestState(self.test_info.path)  # type: ignore #TODO(b/338318729) Fixit!
     self.remaining_time = 0
 
   def PromptCancelShutdown(self, iteration):
@@ -170,11 +170,11 @@ class ShutdownTest(test_case.TestCase):
     # TODO (jcliang): Move the UI for cancelling shutdown from Goofy to this
     # test.
     pending_shutdown_data = {
-        'delay_secs': self.args.delay_secs,
-        'operation': self.args.operation,
+        'delay_secs': self.args.delay_secs,  # type: ignore #TODO(b/338318729) Fixit!
+        'operation': self.args.operation,  # type: ignore #TODO(b/338318729) Fixit!
         'iteration': iteration,
         'iterations': self.test_state.iterations,
-        'wait_shutdown_secs': self.args.wait_shutdown_secs,
+        'wait_shutdown_secs': self.args.wait_shutdown_secs,  # type: ignore #TODO(b/338318729) Fixit!
     }
 
     with test_event.BlockingEventClient() as event_client:
@@ -183,7 +183,7 @@ class ShutdownTest(test_case.TestCase):
               test_event.Event.Type.PENDING_SHUTDOWN, **pending_shutdown_data))
       aborted = event_client.wait(
           lambda event: event.type == test_event.Event.Type.CANCEL_SHUTDOWN,
-          timeout=self.args.delay_secs) is not None
+          timeout=self.args.delay_secs) is not None  # type: ignore #TODO(b/338318729) Fixit!
       if aborted:
         event_client.post_event(
             test_event.Event(test_event.Event.Type.PENDING_SHUTDOWN))
@@ -194,7 +194,7 @@ class ShutdownTest(test_case.TestCase):
     if os.path.exists(NO_REBOOT_FILE):
       raise ShutdownError(f'Skipped shutdown since {NO_REBOOT_FILE} is present')
 
-    expected_device_number = self.args.check_audio_devices
+    expected_device_number = self.args.check_audio_devices  # type: ignore #TODO(b/338318729) Fixit!
     if expected_device_number:
       total_device_number = audio_utils.GetTotalNumberOfAudioDevices()
       message = (f'Expect {int(expected_device_number)} audio devices, found '
@@ -209,13 +209,13 @@ class ShutdownTest(test_case.TestCase):
       raise ShutdownError('Shutdown aborted by operator')
 
     try:
-      self.goofy.Shutdown(self.args.operation)
+      self.goofy.Shutdown(self.args.operation)  # type: ignore #TODO(b/338318729) Fixit!
 
-      self.Sleep(self.args.wait_shutdown_secs)
+      self.Sleep(self.args.wait_shutdown_secs)  # type: ignore #TODO(b/338318729) Fixit!
     except type_utils.TestFailure:
       return
     self.FailTask(
-        f'System did not shutdown in {self.args.wait_shutdown_secs} seconds.')
+        f'System did not shutdown in {self.args.wait_shutdown_secs} seconds.')  # type: ignore #TODO(b/338318729) Fixit!
 
   def CheckShutdownFailureTagFile(self):
     """Checks if there is any shutdown failure tag file.
@@ -261,8 +261,8 @@ class ShutdownTest(test_case.TestCase):
     logging.info('%.03f s passed since reboot', now - last_shutdown_time)
     if (last_shutdown_time > now and
         (self.power.CheckBatteryPresent() or
-         self.args.operation == SHUTDOWN_TYPES.reboot or
-         self.args.operation == SHUTDOWN_TYPES.halt)):
+         self.args.operation == SHUTDOWN_TYPES.reboot or  # type: ignore #TODO(b/338318729) Fixit!
+         self.args.operation == SHUTDOWN_TYPES.halt)):  # type: ignore #TODO(b/338318729) Fixit!
       # Running fullreboot and direct_ec_reboot on a Chromebook with
       # no battery resets time and thus triggers the 'time moving backward'
       # error. Since this is an expected result, we do this check for fullreboot
@@ -271,16 +271,16 @@ class ShutdownTest(test_case.TestCase):
           status=state.TestState.FAILED, error_msg=(
               f'Time moved backward during reboot (before={last_shutdown_time},'
               f' after={now})'))
-    elif (self.args.operation == SHUTDOWN_TYPES.reboot and
-          self.args.max_reboot_time_secs and
-          (now - last_shutdown_time > self.args.max_reboot_time_secs)):
+    elif (self.args.operation == SHUTDOWN_TYPES.reboot and  # type: ignore #TODO(b/338318729) Fixit!
+          self.args.max_reboot_time_secs and  # type: ignore #TODO(b/338318729) Fixit!
+          (now - last_shutdown_time > self.args.max_reboot_time_secs)):  # type: ignore #TODO(b/338318729) Fixit!
       # A reboot took too long; fail.  (We don't check this for
       # HaltSteps, because the machine could be halted for a
       # very long time, and even unplugged with battery backup,
       # thus hosing the clock.)
       LogAndEndTest(
           status=state.TestState.FAILED, error_msg=(
-              f'More than {self.args.max_reboot_time_secs:d} s elapsed during '
+              f'More than {self.args.max_reboot_time_secs:d} s elapsed during '  # type: ignore #TODO(b/338318729) Fixit!
               f'reboot ({now - last_shutdown_time:03f} s, from '
               f'{time_utils.TimeString(last_shutdown_time)} to '
               f'{time_utils.TimeString(now)})'),
@@ -293,7 +293,7 @@ class ShutdownTest(test_case.TestCase):
               f'Too many shutdowns (count={self.test_state.shutdown_count})'))
       logging.info(self.dut.GetStartupMessages())
 
-    elif self.args.check_tag_file and self.CheckShutdownFailureTagFile():
+    elif self.args.check_tag_file and self.CheckShutdownFailureTagFile():  # type: ignore #TODO(b/338318729) Fixit!
       LogAndEndTest(status=state.TestState.FAILED,
                     error_msg='Found shutdown fail tag file')
 
@@ -301,11 +301,11 @@ class ShutdownTest(test_case.TestCase):
     LogAndEndTest(status=state.TestState.PASSED,
                   duration=(now - last_shutdown_time),
                   error_msg=None)
-    if self.args.warmup_post_shutdown > 0:
-      self.ui.SetState(
+    if self.args.warmup_post_shutdown > 0:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Warming up the system for {delay} seconds.',
-            delay=self.args.warmup_post_shutdown))
-      self.Sleep(self.args.warmup_post_shutdown)
+            delay=self.args.warmup_post_shutdown))  # type: ignore #TODO(b/338318729) Fixit!
+      self.Sleep(self.args.warmup_post_shutdown)  # type: ignore #TODO(b/338318729) Fixit!
 
   def RemoteShutdown(self):
     DUT_READY_CHECKPOINT = Checkpoint(
@@ -322,8 +322,8 @@ class ShutdownTest(test_case.TestCase):
 
     self.PreShutdown()
 
-    end_time = time.time() + self.args.wait_shutdown_secs
-    if self.args.operation in (SHUTDOWN_TYPES.reboot,
+    end_time = time.time() + self.args.wait_shutdown_secs  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.operation in (SHUTDOWN_TYPES.reboot,  # type: ignore #TODO(b/338318729) Fixit!
                                SHUTDOWN_TYPES.full_reboot,
                                SHUTDOWN_TYPES.direct_ec_reboot):
       checkpoints = [DUT_NOT_READY_CHECKPOINT, DUT_READY_CHECKPOINT]
@@ -338,15 +338,15 @@ class ShutdownTest(test_case.TestCase):
         SHUTDOWN_TYPES.halt: ['shutdown -h now'],
         SHUTDOWN_TYPES.direct_ec_reboot: ['ectool reboot_ec cold']
     }
-    for command in command_table[self.args.operation]:
+    for command in command_table[self.args.operation]:  # type: ignore #TODO(b/338318729) Fixit!
       self.dut.Call(command)
     while checkpoints:
       self.remaining_time = end_time - time.time()
       if self.remaining_time < 0:
         raise ShutdownError(
-            f'{checkpoints} are not completed in {self.args.wait_shutdown_secs}'
+            f'{checkpoints} are not completed in {self.args.wait_shutdown_secs}'  # type: ignore #TODO(b/338318729) Fixit!
             f' secs.')
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _(
               'Remote DUT is performing {operation}, '
               'timeout in {delay} seconds.', operation=self.operation_label,
@@ -358,11 +358,11 @@ class ShutdownTest(test_case.TestCase):
       self.Sleep(POLLING_PERIOD)
 
   def LocalShutdown(self):
-    key_post_shutdown = state.KEY_POST_SHUTDOWN % self.test_info.path
+    key_post_shutdown = state.KEY_POST_SHUTDOWN % self.test_info.path  # type: ignore #TODO(b/338318729) Fixit!
     post_shutdown = self.goofy.DataShelfGetValue(key_post_shutdown, True)
     if post_shutdown:
       # Only do post shutdown verification once.
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Verifying system state after {operation}',
             operation=self.operation_label))
       self.goofy.DataShelfDeleteKeys(key_post_shutdown)
@@ -372,19 +372,19 @@ class ShutdownTest(test_case.TestCase):
       self.PostShutdown()
     else:
       self.PreShutdown()
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('System is going to {operation} in {delay} seconds.',
             operation=self.operation_label,
-            delay=self.args.delay_secs))
+            delay=self.args.delay_secs))  # type: ignore #TODO(b/338318729) Fixit!
       self.Shutdown()
 
   def PreShutdown(self):
-    if self.args.check_gpt:
+    if self.args.check_gpt:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckGPT()
 
   def _GetActiveKernelPartition(self):
     rootfs_path = str(self.dut.CheckOutput(['rootdev', '-s'])).strip()
-    rootfs_idx = int(re.search(r'\d+$', rootfs_path).group(0))
+    rootfs_idx = int(re.search(r'\d+$', rootfs_path).group(0))  # type: ignore #TODO(b/338318729) Fixit!
     kernel_idx = rootfs_idx - 1
     return kernel_idx
 

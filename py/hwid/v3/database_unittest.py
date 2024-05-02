@@ -75,15 +75,15 @@ class DatabaseTest(unittest.TestCase):
 
     self.assertEqual(
         'converter-identifier1',
-        loaded_db.GetComponents('cls4')['comp7'].values.converter_identifier)
+        loaded_db.GetComponents('cls4')['comp7'].values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(
-        loaded_db.GetComponents('cls4')['comp7'].values.probe_value_matched)
+        loaded_db.GetComponents('cls4')['comp7'].values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(
         'converter-identifier2',
-        loaded_db.GetComponents('cls3')['comp5'].values.converter_identifier)
+        loaded_db.GetComponents('cls3')['comp5'].values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertFalse(
-        loaded_db.GetComponents('cls3')['comp5'].values.probe_value_matched)
+        loaded_db.GetComponents('cls3')['comp5'].values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testSetLinkAVLProbeValue_NoneValue(self):
     db = database.WritableDatabase.LoadFile(
@@ -96,9 +96,9 @@ class DatabaseTest(unittest.TestCase):
 
     values = loaded_db.GetComponents('cls4')['comp8'].values
     self.assertIsInstance(values, rule.AVLProbeValue)
-    self.assertEqual('converter-identifier1', values.converter_identifier)
-    self.assertFalse(values.probe_value_matched)
-    self.assertTrue(values.value_is_none)
+    self.assertEqual('converter-identifier1', values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertFalse(values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertTrue(values.value_is_none)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testSetBundleUUIDs(self):
     db = database.WritableDatabase.LoadFile(
@@ -225,14 +225,14 @@ class DatabaseTest(unittest.TestCase):
     db = database.WritableDatabase.LoadFile(
         os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
         verify_checksum=False)
-    db.ReplaceRules([{
+    db.ReplaceRules([{  # type: ignore #TODO(b/338318729) Fixit!
         'name': 'device_info.set_image_id',
         'evaluate': "SetImageId('TEST')",
     }])
 
     self.assertListEqual(
         [rule.Rule('device_info.set_image_id', "SetImageId('TEST')")],
-        db.device_info_rules)
+        db.device_info_rules)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testDatabasePicklable(self):
     db = database.WritableDatabase.LoadFile(

@@ -129,13 +129,13 @@ class UCMConfigManagerTest(unittest.TestCase):
     # '\tCaptureChannelMap/Front Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n'.
     prefix = '\tCaptureChannelMap/'
     # pylint: disable=protected-access
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Front Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic,
                                             '2')
     self.assertEqual(return_value, [0, 1])
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Rear Mic=2 3 -1 -1 -1 -1 -1 -1 -1\n')
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic2,
                                             '2')
@@ -143,24 +143,24 @@ class UCMConfigManagerTest(unittest.TestCase):
 
     # It's normal that there are no CaptureChannelMap defined. In this case, we
     # should use default channels.
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         side_effect=device_types.CalledProcessError(1, cmd=[],
                                                     output='Not exist'))
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic,
                                             '2')
     self.assertEqual(return_value, None)
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Front Mic=-1 -1 -1 -1\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Front Mic=1 2 3 evil\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Evil Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
@@ -179,14 +179,14 @@ class UCMConfigManagerTest(unittest.TestCase):
     # with an intrinsic sensitivity of -2600 should be 20 (db).
     prefix = '\tIntrinsicSensitivity/'
     # pylint: disable=protected-access
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=f'{prefix}Internal Mic=-2600\n')
     return_value = config_mgr.GetDefaultInputGain('2')
     self.assertEqual(return_value, 20)
 
     # It's normal that there are no IntrinsicSensitivity defined.
     # In this case, we should use return 0 to ignore input gain.
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         side_effect=device_types.CalledProcessError(1, cmd=[],
                                                     output='Not exist'))
     return_value = config_mgr.GetDefaultInputGain('2')

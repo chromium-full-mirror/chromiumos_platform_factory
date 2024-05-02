@@ -208,7 +208,7 @@ class RegionField(dict):
     # which do not have region encoded will not return a bogus region component
     # when being decoded.
     fields_dict[0] = {
-        common.REGION_CLS: []
+        common.REGION_CLS: []  # type: ignore #TODO(b/338318729) Fixit!
     }
 
     super().__init__(fields_dict)

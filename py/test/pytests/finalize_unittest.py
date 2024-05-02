@@ -58,7 +58,7 @@ class FinalizeUnittest(unittest.TestCase):
 
   def setUp(self):
     self.test = finalize.Finalize()
-    self.test.args = DefaultArgs()
+    self.test.args = DefaultArgs()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.test_states_path = 'states_path'
     self.MockFunction('cros.factory.test.server_proxy.GetServerURL', 'url')
@@ -81,47 +81,47 @@ class FinalizeUnittest(unittest.TestCase):
   @mock.patch(f'{finalize.__name__}.Finalize.AppendUploadReportArgs')
   @mock.patch(f'{finalize.__name__}.Finalize._DoFinalize')
   def testFinalizeShimlessMLB(self, mock_finalize, mock_upload_report_args):
-    self.test.args.factory_process = FactoryProcessEnum.RMA
-    self.test.args.mode = FinalizeMode.SHIMLESS_MLB
+    self.test.args.factory_process = FactoryProcessEnum.RMA  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.mode = FinalizeMode.SHIMLESS_MLB  # type: ignore #TODO(b/338318729) Fixit!
     mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
 
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with(
         'gooftool -v 4 smt_finalize upload_args --boot_to_shimless', False)
 
-    self.test.args.secure_wipe = False
+    self.test.args.secure_wipe = False  # type: ignore #TODO(b/338318729) Fixit!
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with(
         'gooftool -v 4 smt_finalize upload_args --boot_to_shimless --fast',
         False)
 
   def testUploadReportArgsUploadMethodNone(self):
-    self.test.args.enable_factory_server = False
+    self.test.args.enable_factory_server = False  # type: ignore #TODO(b/338318729) Fixit!
     for upload_method in [None, 'none']:
-      self.test.args.upload_method = upload_method
+      self.test.args.upload_method = upload_method  # type: ignore #TODO(b/338318729) Fixit!
       actual = self.test.AppendUploadReportArgs('')
       self.assertTrue('--upload_method "none"' in actual)
 
   def testUploadReportArgsUploadMethodFactoryServer(self):
-    self.test.args.enable_factory_server = False
-    self.test.args.upload_method = 'factory_server'
+    self.test.args.enable_factory_server = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_method = 'factory_server'  # type: ignore #TODO(b/338318729) Fixit!
     actual = self.test.AppendUploadReportArgs('')
     self.assertTrue('--upload_method "factory_server:url#123"' in actual)
 
   def testUploadReportArgsEnableFactoryServer(self):
-    self.test.args.enable_factory_server = True
+    self.test.args.enable_factory_server = True  # type: ignore #TODO(b/338318729) Fixit!
     actual = self.test.AppendUploadReportArgs('')
     self.assertTrue('--factory_server_url "url"' in actual)
 
   @mock.patch('cros.factory.test.server_proxy.GetServerURL')
   def testUploadReportArgsNoServerUrl(self, mock_server_url):
     mock_server_url.return_value = None
-    self.test.args.enable_factory_server = True
+    self.test.args.enable_factory_server = True  # type: ignore #TODO(b/338318729) Fixit!
     actual = self.test.AppendUploadReportArgs('')
     self.assertFalse('--factory_server_url' in actual)
 
   def testUploadReportArgsNotEnableFactoryServer(self):
-    self.test.args.enable_factory_server = False
+    self.test.args.enable_factory_server = False  # type: ignore #TODO(b/338318729) Fixit!
     actual = self.test.AppendUploadReportArgs('')
     self.assertFalse('--factory_server_url' in actual)
 
@@ -131,10 +131,10 @@ class FinalizeUnittest(unittest.TestCase):
     self.assertTrue('--add_file "path"' in actual)
 
   def testUploadReportArgsAppend(self):
-    self.test.args.enable_factory_server = False
-    self.test.args.upload_max_retry_times = 1
-    self.test.args.upload_retry_interval = 2
-    self.test.args.upload_allow_fail = True
+    self.test.args.enable_factory_server = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_max_retry_times = 1  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_retry_interval = 2  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_allow_fail = True  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendUploadReportArgs('')
 
@@ -143,9 +143,9 @@ class FinalizeUnittest(unittest.TestCase):
     self.assertTrue('--upload_allow_fail' in actual)
 
   def testUploadReportArgsNotAppend(self):
-    self.test.args.upload_max_retry_times = 0
-    self.test.args.upload_retry_interval = None
-    self.test.args.upload_allow_fail = False
+    self.test.args.upload_max_retry_times = 0  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_retry_interval = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.upload_allow_fail = False  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendUploadReportArgs('')
 
@@ -163,7 +163,7 @@ class FinalizeUnittest(unittest.TestCase):
                    mock_upload_report_args):
     mock_assembled_args.side_effect = self._FakeAppendAssembledArgs
     mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
-    self.test.args.gooftool_skip_list = []
+    self.test.args.gooftool_skip_list = []  # type: ignore #TODO(b/338318729) Fixit!
     self.test.Finalize()
     mock_finalize.assert_called_with(
         'gooftool -v 4 finalize upload_args assembled_args', False)
@@ -175,7 +175,7 @@ class FinalizeUnittest(unittest.TestCase):
                            mock_upload_report_args):
     mock_assembled_args.side_effect = self._FakeAppendAssembledArgs
     mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
-    self.test.args.gooftool_skip_list = [commands.WIPE_IN_PLACE]
+    self.test.args.gooftool_skip_list = [commands.WIPE_IN_PLACE]  # type: ignore #TODO(b/338318729) Fixit!
     self.test.Finalize()
     mock_finalize.assert_called_with(
         'gooftool -v 4 finalize upload_args assembled_args', True)
@@ -183,8 +183,8 @@ class FinalizeUnittest(unittest.TestCase):
   @mock.patch('cros.factory.test.rules.phase.GetPhase')
   def testAssembledArgsAlways(self, mock_phase):
     mock_phase.return_value = 'phase'
-    self.test.args.cbi_eeprom_wp_status = "status"
-    self.test.args.factory_process = FactoryProcessEnum.TWOSTAGES
+    self.test.args.cbi_eeprom_wp_status = "status"  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.factory_process = FactoryProcessEnum.TWOSTAGES  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendAssembledArgs('')
 
@@ -193,19 +193,19 @@ class FinalizeUnittest(unittest.TestCase):
     self.assertTrue('--factory_process TWOSTAGES' in actual)
 
   def testAssembledArgsAppended(self):
-    self.test.args.write_protection = False
-    self.test.args.has_ectool = False
-    self.test.args.secure_wipe = False
-    self.test.args.hwid_need_vpd = True
-    self.test.args.is_cros_core = True
-    self.test.args.has_ec_pubkey = True
-    self.test.args.ec_pubkey_path = 'pubkey_path'
-    self.test.args.gooftool_waive_list = ['waive_item1', 'waive_item2']
-    self.test.args.gooftool_skip_list = ['skip_item1', 'skip_item2']
-    self.test.args.enforced_release_channels = ['1', '2', '3']
-    self.test.args.enable_zero_touch = True
-    self.test.args.is_reference_board = True
-    self.test.args.project = 'project'
+    self.test.args.write_protection = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.has_ectool = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.secure_wipe = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.hwid_need_vpd = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.is_cros_core = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.has_ec_pubkey = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.ec_pubkey_path = 'pubkey_path'  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.gooftool_waive_list = ['waive_item1', 'waive_item2']  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.gooftool_skip_list = ['skip_item1', 'skip_item2']  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.enforced_release_channels = ['1', '2', '3']  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.enable_zero_touch = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.is_reference_board = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.project = 'project'  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendAssembledArgs('')
 
@@ -230,19 +230,19 @@ class FinalizeUnittest(unittest.TestCase):
       self.assertTrue(flag in actual)
 
   def testAssembledArgsNotAppended(self):
-    self.test.args.write_protection = True
-    self.test.args.has_ectool = True
-    self.test.args.secure_wipe = True
-    self.test.args.hwid_need_vpd = False
-    self.test.args.is_cros_core = False
-    self.test.args.has_ec_pubkey = False
-    self.test.args.ec_pubkey_path = None
-    self.test.args.gooftool_waive_list = []
-    self.test.args.gooftool_skip_list = []
-    self.test.args.enforced_release_channels = None
-    self.test.args.enable_zero_touch = False
-    self.test.args.is_reference_board = False
-    self.test.args.project = None
+    self.test.args.write_protection = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.has_ectool = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.secure_wipe = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.hwid_need_vpd = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.is_cros_core = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.has_ec_pubkey = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.ec_pubkey_path = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.gooftool_waive_list = []  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.gooftool_skip_list = []  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.enforced_release_channels = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.enable_zero_touch = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.is_reference_board = False  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.project = None  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendAssembledArgs('')
 
@@ -266,16 +266,16 @@ class FinalizeUnittest(unittest.TestCase):
       self.assertFalse(flag in actual)
 
   def testAssembledArgsOnlyEcPubkeyHash(self):
-    self.test.args.ec_pubkey_path = None
-    self.test.args.ec_pubkey_hash = 'pubkey_hash'
+    self.test.args.ec_pubkey_path = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.ec_pubkey_hash = 'pubkey_hash'  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendAssembledArgs('')
 
     self.assertTrue('--ec_pubkey_hash pubkey_hash' in actual)
 
   def testAssembledArgsNoEcPubkeyHash(self):
-    self.test.args.ec_pubkey_path = None
-    self.test.args.ec_pubkey_hash = None
+    self.test.args.ec_pubkey_path = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.ec_pubkey_hash = None  # type: ignore #TODO(b/338318729) Fixit!
 
     actual = self.test.AppendAssembledArgs('')
 
@@ -284,7 +284,7 @@ class FinalizeUnittest(unittest.TestCase):
   @mock.patch('cros.factory.test.rules.phase.GetPhase')
   def testAssembledProjectInPVTRaise(self, mock_phase):
     mock_phase.return_value = phase.PVT
-    self.test.args.project = 'project'
+    self.test.args.project = 'project'  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(PhaseAssertionError, self.test.AppendAssembledArgs, '')
 

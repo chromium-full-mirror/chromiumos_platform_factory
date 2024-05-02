@@ -29,7 +29,7 @@ class WriteProtectSwitchTest(unittest.TestCase):
     self.assertEqual(1, int(self.dut.CheckOutput(['crossystem', 'wpsw_cur'],
                                                  log=True).strip()))
 
-    if self.args.has_ectool:
+    if self.args.has_ectool:  # type: ignore #TODO(b/338318729) Fixit!
       ectool_flashprotect = self.dut.CheckOutput(
           ['ectool', 'flashprotect'], log=True)
 

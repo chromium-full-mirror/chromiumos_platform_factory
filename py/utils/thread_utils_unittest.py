@@ -12,7 +12,7 @@ from cros.factory.utils import thread_utils
 
 class ThreadUtilsUnittest(unittest.TestCase):
   def setUp(self):
-    self.errors = queue.Queue()
+    self.errors = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _TestOneThread(self, index):
     try:

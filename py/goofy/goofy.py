@@ -125,7 +125,7 @@ class Goofy:
   """
 
   def __init__(self):
-    self.run_queue = queue.Queue()
+    self.run_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     self.exceptions = []
     self.last_idle = None
 
@@ -184,11 +184,11 @@ class Goofy:
         path = None
 
       if path:
-        test = self.test_list.LookupPath(path)
+        test = self.test_list.LookupPath(path)  # type: ignore #TODO(b/338318729) Fixit!
         if parent_or_group:
           test = test.GetTopLevelParentOrGroup()
         return test
-      return self.test_list.ToFactoryTestList()
+      return self.test_list.ToFactoryTestList()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.event_handlers = {
         Event.Type.RESTART_TESTS:
@@ -207,10 +207,10 @@ class Goofy:
                                     reason=getattr(event, 'reason', None)),
         Event.Type.CLEAR_STATE:
             lambda event: self.ClearState(
-                self.test_list.LookupPath(event.path)),
+                self.test_list.LookupPath(event.path)),  # type: ignore #TODO(b/338318729) Fixit!
         Event.Type.SET_ITERATIONS_AND_RETRIES:
             lambda event: self.SetIterationsAndRetries(
-                test=self.test_list.LookupPath(event.path),
+                test=self.test_list.LookupPath(event.path),  # type: ignore #TODO(b/338318729) Fixit!
                 iterations=getattr(event, 'iterations', None),
                 retries=getattr(event, 'retries', None)),
     }
@@ -236,7 +236,7 @@ class Goofy:
       logging.info('Stopping goofy server')
       net_utils.ShutdownTCPServer(self.goofy_server)
       self.goofy_server_thread.join()
-      self.goofy_server.server_close()
+      self.goofy_server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
       self.goofy_server_thread = None
     if self.state_instance:
       self.state_instance.Close()
@@ -244,7 +244,7 @@ class Goofy:
       logging.info('Stopping event server')
       net_utils.ShutdownTCPServer(self.event_server)
       self.event_server_thread.join()
-      self.event_server.server_close()
+      self.event_server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
       self.event_server_thread = None
     if self.log_watcher:
       if self.log_watcher.IsThreadStarted():
@@ -283,7 +283,7 @@ class Goofy:
   def _InitStaticFiles(self):
     static_path = os.path.join(paths.FACTORY_PYTHON_DIR, 'goofy/static')
     # Setup static file path
-    self.goofy_server.RegisterPath('/', static_path)
+    self.goofy_server.RegisterPath('/', static_path)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _InitStateInstance(self):
     # Before starting state server, remount stateful partitions with
@@ -302,11 +302,11 @@ class Goofy:
 
     # Backup the required data.
     preserved_data = {
-        key: self.state_instance.DataShelfGetValue(key, optional=True)
+        key: self.state_instance.DataShelfGetValue(key, optional=True)  # type: ignore #TODO(b/338318729) Fixit!
         for key in PRESERVED_KEYS}
 
     # Reset the state instance.
-    self.state_instance.Close()
+    self.state_instance.Close()  # type: ignore #TODO(b/338318729) Fixit!
     state.ClearState()
     self.state_instance = state.FactoryState()
 
@@ -316,7 +316,7 @@ class Goofy:
         self.state_instance.DataShelfSetValue(key, value)
 
   def _InitGoofyRPC(self):
-    self.goofy_server.AddRPCInstance(goofy_proxy.STATE_URL, self.state_instance)
+    self.goofy_server.AddRPCInstance(goofy_proxy.STATE_URL, self.state_instance)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Setup Goofy RPC.
     # TODO(shunhsingou): separate goofy_rpc and state server instead of
@@ -326,9 +326,9 @@ class Goofy:
 
   def _InitI18n(self):
     js_data = f'var goofy_i18n_data = {translation.GetAllI18nDataJS()};'
-    self.goofy_server.RegisterData('/js/goofy-translations.js',
+    self.goofy_server.RegisterData('/js/goofy-translations.js',  # type: ignore #TODO(b/338318729) Fixit!
                                    'application/javascript', js_data)
-    self.goofy_server.RegisterData('/css/i18n.css',
+    self.goofy_server.RegisterData('/css/i18n.css',  # type: ignore #TODO(b/338318729) Fixit!
                                    'text/css', i18n_test_ui.GetStyleSheet())
 
   def _StartEventServer(self):
@@ -343,15 +343,15 @@ class Goofy:
     # pylint: enable=undefined-variable
 
     self.web_socket_manager = WebSocketManager(self.uuid)
-    self.goofy_server.AddHTTPGetHandler(
+    self.goofy_server.AddHTTPGetHandler(  # type: ignore #TODO(b/338318729) Fixit!
         '/event', self.web_socket_manager.handle_web_socket)
 
   def SaveDataForNextBoot(self):
     # Save pending test list in the state server
-    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN,
+    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN,  # type: ignore #TODO(b/338318729) Fixit!
                                           self.test_list_iterator)
     # Save shutdown time
-    self.state_instance.DataShelfSetValue('shutdown_time', time.time())
+    self.state_instance.DataShelfSetValue('shutdown_time', time.time())  # type: ignore #TODO(b/338318729) Fixit!
 
   def Shutdown(self, operation):
     """Starts shutdown procedure.
@@ -361,7 +361,7 @@ class Goofy:
         or direct_ec_reboot).
     """
     active_tests = []
-    for test in self.test_list.Walk():
+    for test in self.test_list.Walk():  # type: ignore #TODO(b/338318729) Fixit!
       if not test.IsLeaf():
         continue
 
@@ -391,18 +391,18 @@ class Goofy:
     logging.info('Start Goofy shutdown (%s)', operation)
     self.SaveDataForNextBoot()
 
-    with self.env.lock:
-      self.event_log.Log('shutdown', operation=operation)
-      shutdown_result = self.env.shutdown(operation)
+    with self.env.lock:  # type: ignore #TODO(b/338318729) Fixit!
+      self.event_log.Log('shutdown', operation=operation)  # type: ignore #TODO(b/338318729) Fixit!
+      shutdown_result = self.env.shutdown(operation)  # type: ignore #TODO(b/338318729) Fixit!
     if shutdown_result:
       # That's all, folks!
       self.RunEnqueue(None)
     else:
       # Just pass (e.g., in the chroot).
-      self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, None)
+      self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, None)  # type: ignore #TODO(b/338318729) Fixit!
       # Send event with no fields to indicate that there is no
       # longer a pending shutdown.
-      self.event_client.post_event(Event(Event.Type.PENDING_SHUTDOWN))
+      self.event_client.post_event(Event(Event.Type.PENDING_SHUTDOWN))  # type: ignore #TODO(b/338318729) Fixit!
 
   def _HandleShutdownComplete(self, test):
     """Handles the case where a shutdown/reboot was detected as expected.
@@ -414,33 +414,33 @@ class Goofy:
     logging.info('Detected shutdown (%d of %d)',
                  test_state.shutdown_count, test.iterations)
 
-    tests_after_shutdown = self.state_instance.DataShelfGetValue(
+    tests_after_shutdown = self.state_instance.DataShelfGetValue(  # type: ignore #TODO(b/338318729) Fixit!
         TESTS_AFTER_SHUTDOWN, optional=True)
 
     # The test should handle the following execution after shutdown/reboot.
     # Re-run the test for post-shutdown verification.
     if not tests_after_shutdown:
       goofy_error = 'TESTS_AFTER_SHUTDOWN is not set'
-      self.state_instance.DataShelfSetValue(
+      self.state_instance.DataShelfSetValue(  # type: ignore #TODO(b/338318729) Fixit!
           TESTS_AFTER_SHUTDOWN, TestListIterator(test))
     else:
       goofy_error = tests_after_shutdown.RestartLastTest()
-      self.state_instance.DataShelfSetValue(
+      self.state_instance.DataShelfSetValue(  # type: ignore #TODO(b/338318729) Fixit!
           TESTS_AFTER_SHUTDOWN, tests_after_shutdown)
 
     # Set 'post_shutdown' to inform shutdown test that a shutdown just occurred.
-    self.state_instance.DataShelfSetValue(
+    self.state_instance.DataShelfSetValue(  # type: ignore #TODO(b/338318729) Fixit!
         state.KEY_POST_SHUTDOWN % test.path,
-        {'invocation': self.state_instance.GetTestState(test.path).invocation,
+        {'invocation': self.state_instance.GetTestState(test.path).invocation,  # type: ignore #TODO(b/338318729) Fixit!
          'goofy_error': goofy_error})
 
   def _InitStates(self):
     """Initializes all states on startup."""
-    for test in self.test_list.GetAllTests():
+    for test in self.test_list.GetAllTests():  # type: ignore #TODO(b/338318729) Fixit!
       # Make sure the state server knows about all the tests,
       # defaulting to an untested state.
       test.UpdateState(update_parent=False)
-    for test in self.test_list.GetAllTests():
+    for test in self.test_list.GetAllTests():  # type: ignore #TODO(b/338318729) Fixit!
       test_state = test.GetState()
       self.SetIterationsAndRetries(test,
                                    test_state.iterations, test_state.retries)
@@ -448,7 +448,7 @@ class Goofy:
     is_unexpected_shutdown = False
 
     # Any 'active' tests should be marked as failed now.
-    for test in self.test_list.Walk():
+    for test in self.test_list.Walk():  # type: ignore #TODO(b/338318729) Fixit!
       if not test.IsLeaf():
         # Don't bother with parents; they will be updated when their
         # children are updated.
@@ -472,7 +472,7 @@ class Goofy:
 
         is_unexpected_shutdown = True
         error_msg = 'Unexpected shutdown while test was running'
-        self.event_log.Log('end_test',
+        self.event_log.Log('end_test',  # type: ignore #TODO(b/338318729) Fixit!
                            path=test.path,
                            status=TestState.FAILED,
                            invocation=test.GetState().invocation,
@@ -482,7 +482,7 @@ class Goofy:
         expired_sessions = testlog.CollectExpiredSessions(
             paths.DATA_LOG_DIR, GetUnexpectedShutdownTestRun())
         for test_name, test_run_id in expired_sessions:
-          syslog.syslog(f'Test {test_name} ({test_run_id}) completed: FAILED'
+          syslog.syslog(f'Test {test_name} ({test_run_id}) completed: FAILED'  # type: ignore #TODO(b/338318729) Fixit!
                         f'{f" ({error_msg})" if error_msg else ""}')
         test.UpdateState(
             status=TestState.FAILED,
@@ -494,15 +494,15 @@ class Goofy:
                              'running; cancelling any pending tests',
                              test.path)
         # cancel pending tests by replace the iterator with an empty one
-        self.state_instance.DataShelfSetValue(
+        self.state_instance.DataShelfSetValue(  # type: ignore #TODO(b/338318729) Fixit!
             TESTS_AFTER_SHUTDOWN,
             TestListIterator(None))
 
     if is_unexpected_shutdown:
       logging.warning("Unexpected shutdown.")
-      self.hooks.OnUnexpectedReboot(self)
+      self.hooks.OnUnexpectedReboot(self)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.test_list.options.read_device_data_from_vpd_on_init:
+    if self.test_list.options.read_device_data_from_vpd_on_init:  # type: ignore #TODO(b/338318729) Fixit!
       vpd_data = {}
       for section in [device_data.NAME_RO, device_data.NAME_RW]:
         try:
@@ -513,8 +513,8 @@ class Goofy:
       device_data.UpdateDeviceDataFromVPD(None, vpd_data)
 
     # state_instance is initialized, we can mark skipped and waived tests now.
-    self.test_list.SetSkippedAndWaivedTests()
-    self.test_list.ApplyConditionalPatchesToTests()
+    self.test_list.SetSkippedAndWaivedTests()  # type: ignore #TODO(b/338318729) Fixit!
+    self.test_list.ApplyConditionalPatchesToTests()  # type: ignore #TODO(b/338318729) Fixit!
 
   def HandleEvent(self, event):
     """Handles an event from the event server."""
@@ -528,7 +528,7 @@ class Goofy:
 
   def _CheckCriticalFactoryNote(self):
     """Returns True if the last factory note is critical."""
-    notes = self.state_instance.DataShelfGetValue('factory_note', optional=True)
+    notes = self.state_instance.DataShelfGetValue('factory_note', optional=True)  # type: ignore #TODO(b/338318729) Fixit!
     return notes and notes[-1]['level'] == 'CRITICAL'
 
   def ScheduleRestart(self):
@@ -558,13 +558,13 @@ class Goofy:
 
     if self._CheckCriticalFactoryNote():
       logging.info('has critical factory note, stop running')
-      self.test_list_iterator.Stop()
+      self.test_list_iterator.Stop()  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     while True:
       try:
-        path = next(self.test_list_iterator)
-        test = self.test_list.LookupPath(path)
+        path = next(self.test_list_iterator)  # type: ignore #TODO(b/338318729) Fixit!
+        test = self.test_list.LookupPath(path)  # type: ignore #TODO(b/338318729) Fixit!
       except StopIteration:
         logging.info('no next test, stop running')
         return
@@ -587,7 +587,7 @@ class Goofy:
 
       if untested:
         untested_paths = ', '.join(sorted([x.path for x in untested]))
-        if self.state_instance.IsEngineeringMode():
+        if self.state_instance.IsEngineeringMode():  # type: ignore #TODO(b/338318729) Fixit!
           # In engineering mode, we'll let it go.
           session.console.warn('In engineering mode; running '
                                '%s even though required tests '
@@ -604,11 +604,11 @@ class Goofy:
 
       # okay, let's run the test
       if (isinstance(test, test_object.ShutdownStep) and
-          self.state_instance.DataShelfGetValue(
+          self.state_instance.DataShelfGetValue(  # type: ignore #TODO(b/338318729) Fixit!
               state.KEY_POST_SHUTDOWN % test.path, optional=True)):
         # Invoking post shutdown method of shutdown test. We should retain the
         # iterations_left and retries_left of the original test state.
-        test_state = self.state_instance.GetTestState(test.path)
+        test_state = self.state_instance.GetTestState(test.path)  # type: ignore #TODO(b/338318729) Fixit!
         self._RunTest(test, test_state.iterations_left, test_state.retries_left)
       else:
         # Starts a new test run; reset iterations and retries.
@@ -622,11 +622,11 @@ class Goofy:
     The argument `test` should be either a leaf test (no subtests) or a parallel
     test (all subtests should be run in parallel).
     """
-    if self.args.goofy_ui and not test.IsNoHost():
+    if self.args.goofy_ui and not test.IsNoHost():  # type: ignore #TODO(b/338318729) Fixit!
       self.InitUI()
 
     if set_layout:
-      self.event_client.post_event(
+      self.event_client.post_event(  # type: ignore #TODO(b/338318729) Fixit!
           Event(
               Event.Type.SET_TEST_UI_LAYOUT,
               layout_type=test.layout_type,
@@ -645,7 +645,7 @@ class Goofy:
       # Send a INIT_TEST_UI event here, so the test UI are initialized in
       # order, and the tab order would be same as test list order when there
       # are parallel tests with UI.
-      self.event_client.post_event(
+      self.event_client.post_event(  # type: ignore #TODO(b/338318729) Fixit!
           Event(
               Event.Type.INIT_TEST_UI,
               test=test.path,
@@ -666,7 +666,7 @@ class Goofy:
         # for example, stressapptest and countdown test.
 
         # Make sure we don't need to skip it:
-        if not self.test_list_iterator.CheckSkip(subtest):
+        if not self.test_list_iterator.CheckSkip(subtest):  # type: ignore #TODO(b/338318729) Fixit!
           self._RunTest(subtest, subtest.iterations, subtest.retries,
                         set_layout=False)
     else:
@@ -839,22 +839,22 @@ class Goofy:
 
   def _CheckPlugins(self):
     """Check plugins to be paused or resumed."""
-    exclusive_resources = set()
+    exclusive_resources = set()  # type: ignore #TODO(b/338318729) Fixit!
     for invoc in self.invocations.values():
       exclusive_resources = exclusive_resources.union(
           invoc.test.GetExclusiveResources())
-    self.plugin_controller.PauseAndResumePluginByResource(exclusive_resources)
+    self.plugin_controller.PauseAndResumePluginByResource(exclusive_resources)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _CheckForUpdates(self):
     """Schedules an asynchronous check for updates if necessary."""
-    if not self.test_list.options.update_period_secs:
+    if not self.test_list.options.update_period_secs:  # type: ignore #TODO(b/338318729) Fixit!
       # Not enabled.
       return
 
     now = time.time()
     if self.last_update_check and (
         now - self.last_update_check <
-        self.test_list.options.update_period_secs):
+        self.test_list.options.update_period_secs):  # type: ignore #TODO(b/338318729) Fixit!
       # Not yet time for another check.
       return
 
@@ -883,17 +883,17 @@ class Goofy:
 
   def _RestoreActiveRunState(self):
     """Restores active run id and the list of scheduled tests."""
-    self.run_id = self.state_instance.DataShelfGetValue('run_id', optional=True)
-    self.scheduled_run_tests = self.state_instance.DataShelfGetValue(
+    self.run_id = self.state_instance.DataShelfGetValue('run_id', optional=True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.scheduled_run_tests = self.state_instance.DataShelfGetValue(  # type: ignore #TODO(b/338318729) Fixit!
         'scheduled_run_tests', optional=True)
 
   def _SetActiveRunState(self):
     """Sets active run id and the list of scheduled tests."""
     self.run_id = str(uuid.uuid4())
     # try our best to predict which tests will be run.
-    self.scheduled_run_tests = self.test_list_iterator.GetPendingTests()
-    self.state_instance.DataShelfSetValue('run_id', self.run_id)
-    self.state_instance.DataShelfSetValue('scheduled_run_tests',
+    self.scheduled_run_tests = self.test_list_iterator.GetPendingTests()  # type: ignore #TODO(b/338318729) Fixit!
+    self.state_instance.DataShelfSetValue('run_id', self.run_id)  # type: ignore #TODO(b/338318729) Fixit!
+    self.state_instance.DataShelfSetValue('scheduled_run_tests',  # type: ignore #TODO(b/338318729) Fixit!
                                           self.scheduled_run_tests)
 
   def _RunTests(self, subtree, status_filter=None):
@@ -906,7 +906,7 @@ class Goofy:
       status_filter: List of available test states. Only run the tests which
         states are in the list. Set to None if all test states are available.
     """
-    self.hooks.OnTestStart()
+    self.hooks.OnTestStart()  # type: ignore #TODO(b/338318729) Fixit!
     self.test_list_iterator = TestListIterator(
         subtree, status_filter, self.test_list)
     if subtree is not None:
@@ -926,7 +926,7 @@ class Goofy:
         del self.invocations[invoc.uuid]
 
         # Stop on failure if flag is true and there is no retry chances.
-        if (self.test_list.options.stop_on_failure and
+        if (self.test_list.options.stop_on_failure and  # type: ignore #TODO(b/338318729) Fixit!
             new_state.retries_left < 0 and
             new_state.status == TestState.FAILED):
           # Clean all the tests to cause goofy to stop.
@@ -944,7 +944,7 @@ class Goofy:
           self._RunTest(test)
 
     if test_completed:
-      self.log_watcher.KickWatchThread()
+      self.log_watcher.KickWatchThread()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _KillActiveTests(self, abort, root=None, reason=None):
     """Kills and waits for all active tests.
@@ -975,7 +975,7 @@ class Goofy:
 
   def Stop(self, root=None, fail=False, reason=None, clear_queue=False):
     self._KillActiveTests(fail, root, reason)
-    self.test_list_iterator.Stop(root)
+    self.test_list_iterator.Stop(root)  # type: ignore #TODO(b/338318729) Fixit!
 
     if clear_queue:
       # Clear the running queue
@@ -1011,12 +1011,12 @@ class Goofy:
     self._KillActiveTests(True, reason=reason)
 
   def Main(self):
-    syslog.openlog('goofy')
+    syslog.openlog('goofy')  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       self.status = Status.INITIALIZING
       self.Init()
-      self.event_log.Log('goofy_init',
+      self.event_log.Log('goofy_init',  # type: ignore #TODO(b/338318729) Fixit!
                          success=True)
       testlog.Log(
           testlog.StationInit({
@@ -1043,9 +1043,9 @@ class Goofy:
       raise
 
     self.status = Status.RUNNING
-    syslog.syslog('Goofy (factory test harness) starting')
-    syslog.syslog(f'Boot sequence = {GetBootSequence()}')
-    syslog.syslog(f'Goofy init count = {session.GetInitCount()}')
+    syslog.syslog('Goofy (factory test harness) starting')  # type: ignore #TODO(b/338318729) Fixit!
+    syslog.syslog(f'Boot sequence = {GetBootSequence()}')  # type: ignore #TODO(b/338318729) Fixit!
+    syslog.syslog(f'Goofy init count = {session.GetInitCount()}')  # type: ignore #TODO(b/338318729) Fixit!
     self.Run()
 
   def _UpdateSystemInfo(self):
@@ -1062,7 +1062,7 @@ class Goofy:
       logging.debug('Failed to update status monitor plugin.')
 
   def SetForceAutoRun(self):
-    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, FORCE_AUTO_RUN)
+    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, FORCE_AUTO_RUN)  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateFactory(self, auto_run_on_restart=False, post_update_hook=None):
     """Commences updating factory software.
@@ -1082,12 +1082,12 @@ class Goofy:
     def PreUpdateHook():
       if auto_run_on_restart:
         self.SetForceAutoRun()
-      self.state_instance.Close()
+      self.state_instance.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     if updater.TryUpdate(pre_update_hook=PreUpdateHook):
       if post_update_hook:
         post_update_hook()
-      self.env.shutdown('reboot')
+      self.env.shutdown('reboot')  # type: ignore #TODO(b/338318729) Fixit!
 
   def _HandleSignal(self, signum, unused_frame):
     names = [signame for signame in dir(signal) if signame.startswith('SIG') and
@@ -1104,18 +1104,18 @@ class Goofy:
       TestListError: The test list ID is not valid.
     """
     try:
-      return self.test_lists[test_list_id]
+      return self.test_lists[test_list_id]  # type: ignore #TODO(b/338318729) Fixit!
     except KeyError:
       raise type_utils.TestListError(
-          f'{test_list_id!r} is not a valid test list ID (available IDs are '
+          f'{test_list_id!r} is not a valid test list ID (available IDs are '  # type: ignore #TODO(b/338318729) Fixit!
           f'{sorted(self.test_lists)!r})') from None
 
   def _RecordStartError(self, error_message):
     """Appends the startup error message into the shared data."""
     KEY = 'startup_error'
-    data = self.state_instance.DataShelfGetValue(KEY, optional=True)
+    data = self.state_instance.DataShelfGetValue(KEY, optional=True)  # type: ignore #TODO(b/338318729) Fixit!
     new_data = f'{data}\n\n{error_message}' if data else error_message
-    self.state_instance.DataShelfSetValue(KEY, new_data)
+    self.state_instance.DataShelfSetValue(KEY, new_data)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _InitTestLists(self):
     """Reads in all test lists and sets the active test list.
@@ -1168,18 +1168,18 @@ class Goofy:
     # because model name is changed too. In this case, shared state should be
     # cleared; otherwise shared data like TESTS_AFTER_SHUTDOWN prevents tests
     # from running automatically.
-    previous_id = self.state_instance.DataShelfGetValue(ACTIVE_TEST_LIST_ID,
+    previous_id = self.state_instance.DataShelfGetValue(ACTIVE_TEST_LIST_ID,  # type: ignore #TODO(b/338318729) Fixit!
                                                         optional=True)
-    if previous_id != self.test_list.test_list_id:
+    if previous_id != self.test_list.test_list_id:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Test list is changed from %s to %s.',
-                   previous_id, self.test_list.test_list_id)
+                   previous_id, self.test_list.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!
       if previous_id:
         self._ResetStateInstance()
 
-      self.state_instance.DataShelfSetValue(ACTIVE_TEST_LIST_ID,
-                                            self.test_list.test_list_id)
+      self.state_instance.DataShelfSetValue(ACTIVE_TEST_LIST_ID,  # type: ignore #TODO(b/338318729) Fixit!
+                                            self.test_list.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.test_list.state_instance = self.state_instance
+    self.test_list.state_instance = self.state_instance  # type: ignore #TODO(b/338318729) Fixit!
 
     # Only return False if failed to load the active test list.
     return success
@@ -1189,7 +1189,7 @@ class Goofy:
 
     Must run after self.test_list ready.
     """
-    module, cls = self.test_list.options.hooks_class.rsplit('.', 1)
+    module, cls = self.test_list.options.hooks_class.rsplit('.', 1)  # type: ignore #TODO(b/338318729) Fixit!
     self.hooks = getattr(__import__(module, fromlist=[cls]), cls)()
     assert isinstance(self.hooks, hooks.Hooks), (
         f'hooks should be of type Hooks but is {type(self.hooks)!r}')
@@ -1199,7 +1199,7 @@ class Goofy:
   def InitUI(self):
     """Initialize UI."""
     logging.info('Waiting for a web socket connection')
-    self.web_socket_manager.wait()
+    self.web_socket_manager.wait()  # type: ignore #TODO(b/338318729) Fixit!
 
     # Before start the test, make sure that UI is ready by
     # checking whether the ui_initialized flag was set by frontend.
@@ -1225,10 +1225,10 @@ class Goofy:
     # Prepare DUT link after the plugins start running, because the link might
     # need the network connection.
 
-    dut_options = self.test_list.options.dut_options
+    dut_options = self.test_list.options.dut_options  # type: ignore #TODO(b/338318729) Fixit!
     if dut_options:
-      logging.info('dut_options set by %s: %r', self.test_list.test_list_id,
-                   self.test_list.options.dut_options)
+      logging.info('dut_options set by %s: %r', self.test_list.test_list_id,  # type: ignore #TODO(b/338318729) Fixit!
+                   self.test_list.options.dut_options)  # type: ignore #TODO(b/338318729) Fixit!
 
     def PrepareLink():
       try:
@@ -1294,7 +1294,7 @@ class Goofy:
     self._InitStaticFiles()
 
     logging.info('Starting goofy server')
-    self.goofy_server_thread.start()
+    self.goofy_server_thread.start()  # type: ignore #TODO(b/338318729) Fixit!
 
     self._InitStateInstance()
 
@@ -1305,21 +1305,21 @@ class Goofy:
     self._InitGoofyRPC()
 
     self._InitHooks()
-    self.testlog.init_hooks(self.test_list.options.testlog_hooks)
+    self.testlog.init_hooks(self.test_list.options.testlog_hooks)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.test_list.options.clear_state_on_start:
+    if self.test_list.options.clear_state_on_start:  # type: ignore #TODO(b/338318729) Fixit!
       # TODO(stimim): Perhaps we should check if we are running `shutdown` test?
-      self.state_instance.ClearTestState()
+      self.state_instance.ClearTestState()  # type: ignore #TODO(b/338318729) Fixit!
 
-    phase.SetPersistentPhase(self.test_list.options.phase)
+    phase.SetPersistentPhase(self.test_list.options.phase)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if not self.state_instance.DataShelfHasKey('ui_locale'):
-      ui_locale = self.test_list.options.ui_locale
-      self.state_instance.DataShelfSetValue('ui_locale', ui_locale)
-    self.state_instance.DataShelfSetValue(
+    if not self.state_instance.DataShelfHasKey('ui_locale'):  # type: ignore #TODO(b/338318729) Fixit!
+      ui_locale = self.test_list.options.ui_locale  # type: ignore #TODO(b/338318729) Fixit!
+      self.state_instance.DataShelfSetValue('ui_locale', ui_locale)  # type: ignore #TODO(b/338318729) Fixit!
+    self.state_instance.DataShelfSetValue(  # type: ignore #TODO(b/338318729) Fixit!
         'test_list_options',
-        self.test_list.options.ToDict())
-    self.state_instance.test_list = self.test_list
+        self.test_list.options.ToDict())  # type: ignore #TODO(b/338318729) Fixit!
+    self.state_instance.test_list = self.test_list  # type: ignore #TODO(b/338318729) Fixit!
 
     self._InitStates()
     self._StartEventServer()
@@ -1327,7 +1327,7 @@ class Goofy:
     # Some plugins connect to UI web socket so we have to start all plugins
     # after `InitUI`.
     self.plugin_controller = plugin_controller.PluginController(
-        self.test_list.options.plugin_config_name, self)
+        self.test_list.options.plugin_config_name, self)  # type: ignore #TODO(b/338318729) Fixit!
 
     if success:
       self._PrepareDUTLink()
@@ -1336,20 +1336,20 @@ class Goofy:
     # sync_event_log_period_secs isn't set (no background
     # syncing), since we may use it to flush event logs as well.
     self.log_watcher = EventLogWatcher(
-        self.test_list.options.sync_event_log_period_secs,
+        self.test_list.options.sync_event_log_period_secs,  # type: ignore #TODO(b/338318729) Fixit!
         event_log_db_file=None,
         handle_event_logs_callback=self._HandleEventLogs)
-    if self.test_list.options.sync_event_log_period_secs:
+    if self.test_list.options.sync_event_log_period_secs:  # type: ignore #TODO(b/338318729) Fixit!
       self.log_watcher.StartWatchThread()
 
-    self.event_client.post_event(
+    self.event_client.post_event(  # type: ignore #TODO(b/338318729) Fixit!
         Event(Event.Type.UPDATE_SYSTEM_INFO))
 
     os.environ['CROS_FACTORY'] = '1'
     os.environ['CROS_DISABLE_SITE_SYSINFO'] = '1'
 
     # Should not move earlier.
-    self.hooks.OnStartup()
+    self.hooks.OnStartup()  # type: ignore #TODO(b/338318729) Fixit!
 
     # Only after this point the Goofy backend is ready for UI connection.
     self.ready_for_ui_connection = True
@@ -1358,17 +1358,17 @@ class Goofy:
     self.plugin_controller.StartAllPlugins()
 
     def state_change_callback(test, test_state):
-      self.event_client.post_event(
+      self.event_client.post_event(  # type: ignore #TODO(b/338318729) Fixit!
           Event(
               Event.Type.STATE_CHANGE,
               path=test.path,
               state=test_state.ToStruct()))
-    self.test_list.state_change_callback = state_change_callback
+    self.test_list.state_change_callback = state_change_callback  # type: ignore #TODO(b/338318729) Fixit!
 
     self.pytest_prespawner = prespawner.PytestPrespawner()
     self.pytest_prespawner.start()
 
-    tests_after_shutdown = self.state_instance.DataShelfGetValue(
+    tests_after_shutdown = self.state_instance.DataShelfGetValue(  # type: ignore #TODO(b/338318729) Fixit!
         TESTS_AFTER_SHUTDOWN, optional=True)
     force_auto_run = (tests_after_shutdown == FORCE_AUTO_RUN)
 
@@ -1377,15 +1377,15 @@ class Goofy:
       self.test_list_iterator = tests_after_shutdown
       self.test_list_iterator.SetTestList(self.test_list)
       self.RunEnqueue(self._RunNextTest)
-    elif force_auto_run or self.test_list.options.auto_run_on_start:
+    elif force_auto_run or self.test_list.options.auto_run_on_start:  # type: ignore #TODO(b/338318729) Fixit!
       status_filter = [TestState.UNTESTED]
-      if self.test_list.options.retry_failed_on_start:
+      if self.test_list.options.retry_failed_on_start:  # type: ignore #TODO(b/338318729) Fixit!
         status_filter.append(TestState.FAILED)
       self.RunEnqueue(lambda: self._RunTests(self.test_list, status_filter))
-    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, None)
+    self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, None)  # type: ignore #TODO(b/338318729) Fixit!
     self._RestoreActiveRunState()
 
-    self.hooks.OnTestStart()
+    self.hooks.OnTestStart()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _PerformPeriodicTasks(self):
     """Perform any periodic work.
@@ -1489,7 +1489,7 @@ class Goofy:
       self.ReapCompletedTests()
 
   def _TestFail(self, test):
-    self.hooks.OnTestFailure(test)
+    self.hooks.OnTestFailure(test)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def main():

@@ -143,19 +143,19 @@ class Report(test_case.TestCase):
 
   def setUp(self):
     self.assertTrue(
-        self.args.screensaver_timeout is None or
-        self.args.screensaver_timeout >= 1,
+        self.args.screensaver_timeout is None or  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.screensaver_timeout >= 1,  # type: ignore #TODO(b/338318729) Fixit!
         "Timeout for screensaver should be positive.")
 
     self.dut = device_utils.CreateDUTInterface()
-    self._frontend_proxy = self.ui.InitJSTestObject(
-        'SummaryTest', self.args.screensaver_timeout)
+    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
+        'SummaryTest', self.args.screensaver_timeout)  # type: ignore #TODO(b/338318729) Fixit!
     self.goofy = state.GetInstance()
 
   def _GetTestResults(self, test, states):
-    previous_tests = []
+    previous_tests = []  # type: ignore #TODO(b/338318729) Fixit!
     current = test
-    root = test.root if self.args.include_parents else test.parent
+    root = test.root if self.args.include_parents else test.parent  # type: ignore #TODO(b/338318729) Fixit!
 
     while current != root:
       previous_tests = list(itertools.takewhile(
@@ -170,7 +170,7 @@ class Report(test_case.TestCase):
 
   def _SetFixtureStatusLight(self, all_pass):
     try:
-      fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
+      fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
       fixture.SetStatusColor(
           fixture.StatusColor.GREEN if all_pass else fixture.StatusColor.RED)
       fixture.Disconnect()
@@ -180,7 +180,7 @@ class Report(test_case.TestCase):
   def _WriteResultFile(self, all_pass, test_results):
     self.dut.CheckCall(['mkdir', '-p', _EXTERNAL_DIR])
     file_path = self.dut.path.join(_EXTERNAL_DIR,
-                                   self.args.run_factory_external_name)
+                                   self.args.run_factory_external_name)  # type: ignore #TODO(b/338318729) Fixit!
     if all_pass:
       self.dut.WriteFile(file_path, 'PASS')
     else:
@@ -188,8 +188,8 @@ class Report(test_case.TestCase):
       self.dut.WriteFile(file_path, report)
 
   def _PromptMessage(self, all_pass):
-    if not self.args.disable_input_on_fail or all_pass:
-      self._frontend_proxy.SetPromptMessage(self.args.prompt_message, True)
+    if not self.args.disable_input_on_fail or all_pass:  # type: ignore #TODO(b/338318729) Fixit!
+      self._frontend_proxy.SetPromptMessage(self.args.prompt_message, True)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self._frontend_proxy.SetPromptMessage(
           _('Unable to proceed, since some previous tests have not passed.'),
@@ -201,16 +201,16 @@ class Report(test_case.TestCase):
     self._frontend_proxy.SetDetailTestResults(test_results)
 
   def _BindUiKeys(self, all_pass):
-    if not self.args.disable_input_on_fail:
-      self.ui.BindStandardKeys()
+    if not self.args.disable_input_on_fail:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit!
     # If disable_input_on_fail is True, and overall status is PASSED, user
     # can only pass the test.
     elif all_pass:
-      self.ui.BindStandardPassKeys()
+      self.ui.BindStandardPassKeys()  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    test_list = self.test_info.ReadTestList()
-    test = test_list.LookupPath(self.test_info.path)
+    test_list = self.test_info.ReadTestList()  # type: ignore #TODO(b/338318729) Fixit!
+    test = test_list.LookupPath(self.test_info.path)  # type: ignore #TODO(b/338318729) Fixit!
     states = state.GetInstance().GetTestStates()
 
     test_results = self._GetTestResults(test, states)
@@ -219,20 +219,20 @@ class Report(test_case.TestCase):
     all_pass = overall_status in _EXTENED_PASSED_STATE
     self.goofy.PostHookEvent('Summary', 'Good' if all_pass else 'Bad')
 
-    if self.args.bft_fixture:
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
       self._SetFixtureStatusLight(all_pass)
 
-    if self.args.run_factory_external_name:
+    if self.args.run_factory_external_name:  # type: ignore #TODO(b/338318729) Fixit!
       self._WriteResultFile(all_pass, test_results)
 
-    if all_pass and self.args.pass_without_prompt:
+    if all_pass and self.args.pass_without_prompt:  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     self._PromptMessage(all_pass)
     self._ShowTestInfoAtFrontend(test, overall_status, test_results)
     self._BindUiKeys(all_pass)
 
-    if self.args.accessibility and not all_pass:
+    if self.args.accessibility and not all_pass:  # type: ignore #TODO(b/338318729) Fixit!
       # Display red background at frontend when test fail.
       self._frontend_proxy.EnableAccessibility()
     logging.info('overall_status=%r', overall_status)

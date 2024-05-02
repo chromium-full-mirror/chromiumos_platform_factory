@@ -51,7 +51,7 @@ def _ParseDictRecursive(lines, delimiter=':'):
     if len(node.childs) == 0:
       return key, value
 
-    output_dict = {}
+    output_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
     for child in node.childs:
       output_dict.update([_BuildDictRecursive(child)])
 

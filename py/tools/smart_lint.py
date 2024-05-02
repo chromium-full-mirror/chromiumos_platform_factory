@@ -43,7 +43,7 @@ def GetFileToLint(path=None):
     if proc.returncode:
       # No more log entries
       break
-    if '\n    Reviewed-on: ' in proc.stdout_data:
+    if '\n    Reviewed-on: ' in proc.stdout_data:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('%s has Reviewed-on; ending search', commit)
       break
 

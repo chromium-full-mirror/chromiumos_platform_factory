@@ -36,7 +36,7 @@ class FactoryEntryUnitTest(unittest.TestCase):
     self._patchers.extend(mock_time_utils.MockAll(self._timeline))
 
     self.test = station_entry.StationEntry()
-    self.test.ui_class = lambda event_loop: mock.Mock(spec=test_ui.StandardUI)
+    self.test.ui_class = lambda event_loop: mock.Mock(spec=test_ui.StandardUI)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.mock_state = mock.Mock(spec=state.StubFactoryState)
     self.mock_state.PostHookEvent = mock.MagicMock()
@@ -78,7 +78,7 @@ class FactoryEntryUnitTest(unittest.TestCase):
 
   def _testEndStationBasedTest(self, is_local):
     timeout_secs = 123
-    self.test.args = FakeArgs({'start_station_tests': False,
+    self.test.args = FakeArgs({'start_station_tests': False,  # type: ignore #TODO(b/338318729) Fixit!
                                'prompt_start': False,
                                'timeout_secs': timeout_secs,
                                'disconnect_dut': True,
@@ -105,7 +105,7 @@ class FactoryEntryUnitTest(unittest.TestCase):
 
   def testStartStationBasedTest(self):
     timeout_secs = 123
-    self.test.args = FakeArgs({'start_station_tests': True,
+    self.test.args = FakeArgs({'start_station_tests': True,  # type: ignore #TODO(b/338318729) Fixit!
                                'prompt_start': False,
                                'load_dut_storage': True,
                                'timeout_secs': timeout_secs,
@@ -132,7 +132,7 @@ class FactoryEntryUnitTest(unittest.TestCase):
 
   def testStartStationBasedTestTimeout(self):
     timeout_secs = 123
-    self.test.args = FakeArgs({'start_station_tests': True,
+    self.test.args = FakeArgs({'start_station_tests': True,  # type: ignore #TODO(b/338318729) Fixit!
                                'prompt_start': False,
                                'load_dut_storage': True,
                                'timeout_secs': timeout_secs,

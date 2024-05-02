@@ -233,7 +233,7 @@ class ImageToolTest(unittest.TestCase):
     bundle_name = 'factory_bundle_test_20180101_proto.tar.bz2'
     self.assertTrue(os.path.exists(bundle_name))
     contents = process_utils.CheckOutput(f'tar -xvf {bundle_name}', shell=True)
-    contents = [line.split()[-1] for line in contents.splitlines()]
+    contents = [line.split()[-1] for line in contents.splitlines()]  # type: ignore #TODO(b/338318729) Fixit!
     self.assertCountEqual(
         contents,
         ['./', './README.md', './factory_shim/', './factory_shim/image.bin',

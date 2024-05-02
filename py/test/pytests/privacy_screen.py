@@ -65,9 +65,9 @@ class PrivacyScreenTest(test_case.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def _RunDiagnosticsRoutine(self):
-    self.ui.SetState(_('Running diagnostics privacy screen routine...'))
+    self.ui.SetState(_('Running diagnostics privacy screen routine...'))  # type: ignore #TODO(b/338318729) Fixit!
 
-    arg_state = f'--set_privacy_screen={self.args.target_state}'
+    arg_state = f'--set_privacy_screen={self.args.target_state}'  # type: ignore #TODO(b/338318729) Fixit!
     try:
       process_utils.Spawn(
           ['cros-health-tool', 'diag', 'privacy_screen', arg_state],
@@ -78,19 +78,19 @@ class PrivacyScreenTest(test_case.TestCase):
       logging.error('Privacy screen routine failed with exit code %d.',
                     e.returncode)
       logging.error('Privacy screen expected state: %s, current state: %s',
-                    self.args.target_state, current_state)
+                    self.args.target_state, current_state)  # type: ignore #TODO(b/338318729) Fixit!
       logging.error('Privacy screen routine stderr: %s', e.stderr)
 
       ui_msg = _(
           'Diagnostics privacy screen routine failed. '
           'Expected state: {expected_state}, current state: {current_state}',
-          expected_state=self.args.target_state, current_state=current_state)
-      self.ui.SetState(ui_msg)
+          expected_state=self.args.target_state, current_state=current_state)  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(ui_msg)  # type: ignore #TODO(b/338318729) Fixit!
       raise
 
     ui_msg = _('Privacy screen state "{state}" verified.',
-               state=self.args.target_state)
-    self.ui.SetState(ui_msg)
+               state=self.args.target_state)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState(ui_msg)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _IsPrivacyScreenOn(self) -> bool:
     try:

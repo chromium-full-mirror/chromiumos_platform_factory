@@ -123,40 +123,40 @@ class StartTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def WaitHWButton(self):
-    button = button_utils.Button(self.dut, self.args.button_key_name, None)
-    sync_utils.WaitFor(button.IsPressed, timeout_secs=None)
+    button = button_utils.Button(self.dut, self.args.button_key_name, None)  # type: ignore #TODO(b/338318729) Fixit!
+    sync_utils.WaitFor(button.IsPressed, timeout_secs=None)  # type: ignore #TODO(b/338318729) Fixit!
 
   def SetStateWithPrompt(self, message):
     html = []
-    if self.args.prompt:
-      html += [self.args.prompt, '<br><br>']
+    if self.args.prompt:  # type: ignore #TODO(b/338318729) Fixit!
+      html += [self.args.prompt, '<br><br>']  # type: ignore #TODO(b/338318729) Fixit!
     html += [message]
-    self.ui.SetState(html)
+    self.ui.SetState(html)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.init_shared_data:
+    if self.args.init_shared_data:  # type: ignore #TODO(b/338318729) Fixit!
       self.InitializeSharedData()
 
-    if self.args.check_factory_install_complete:
+    if self.args.check_factory_install_complete:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckFactoryInstallComplete()
 
-    if self.args.require_external_power:
+    if self.args.require_external_power:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckExternalPower()
 
-    if self.args.key_to_continue == _KeyType.SPACE:
+    if self.args.key_to_continue == _KeyType.SPACE:  # type: ignore #TODO(b/338318729) Fixit!
       self.SetStateWithPrompt(_('Hit SPACE to start testing...'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
-    elif self.args.key_to_continue == _KeyType.HW_BUTTON:
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    elif self.args.key_to_continue == _KeyType.HW_BUTTON:  # type: ignore #TODO(b/338318729) Fixit!
       self.SetStateWithPrompt(
-          _('Hit {name} to start testing...', name=self.args.button_name))
+          _('Hit {name} to start testing...', name=self.args.button_name))  # type: ignore #TODO(b/338318729) Fixit!
       self.WaitHWButton()
 
   def CheckExternalPower(self):
     logger = log_utils.NoisyLogger(logging.info)
-    self.ui.SetState(_('Plug in external power to continue.'))
+    self.ui.SetState(_('Plug in external power to continue.'))  # type: ignore #TODO(b/338318729) Fixit!
 
     while True:
       ac_present = self.dut.power.CheckACPresent()
@@ -169,7 +169,7 @@ class StartTest(test_case.TestCase):
   def CheckFactoryInstallComplete(self):
     if not os.path.exists(_LSB_FACTORY_PATH):
       session.console.error('%s is missing', _LSB_FACTORY_PATH)
-      self.ui.SetState([
+      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
           '<span class="test-error">',
           _('Factory install process did not complete. '
             'Auto-testing stopped.<br><br>'
@@ -181,7 +181,7 @@ class StartTest(test_case.TestCase):
     Log('factory_installed')
 
   def InitializeSharedData(self):
-    self.ui.SetState(_('Initialize some shared data...'))
-    for key, value in self.args.init_shared_data.items():
+    self.ui.SetState(_('Initialize some shared data...'))  # type: ignore #TODO(b/338318729) Fixit!
+    for key, value in self.args.init_shared_data.items():  # type: ignore #TODO(b/338318729) Fixit!
       session.console.debug('DataShelfSetValue[%s] = "%s"', key, value)
       state.DataShelfSetValue(key, value)

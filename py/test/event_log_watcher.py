@@ -210,7 +210,7 @@ class EventLogWatcher:
     """Stops the event logs watching thread."""
     self._aborted.set()
     self._kick.set()
-    self._watch_thread.join()
+    self._watch_thread.join()  # type: ignore #TODO(b/338318729) Fixit!
     self._watch_thread = None
     logging.info('Stopped watching.')
     self.Close()

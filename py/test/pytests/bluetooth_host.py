@@ -86,10 +86,10 @@ class BluetoothScanTest(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
     self.host = device_utils.CreateStationInterface()
 
-    if self.args.host_hci_device is None:
+    if self.args.host_hci_device is None:  # type: ignore #TODO(b/338318729) Fixit!
       self.host_interfaces = self._GetHostInterfaces()
     else:
-      self.host_interfaces = [self.args.host_hci_device]
+      self.host_interfaces = [self.args.host_hci_device]  # type: ignore #TODO(b/338318729) Fixit!
 
     # The host device to be used for pairing test
     # This will be filled up after scan test is completed
@@ -102,9 +102,9 @@ class BluetoothScanTest(unittest.TestCase):
       self.host.Call(DISABLE_DEVICE_CMD % host_interface)
 
     # Close DUT Bluetooth device.
-    self.dut.Call(DISABLE_DEVICE_CMD % self.args.dut_hci_device)
-    if self.args.post_command:
-      self.RunCommand(self.args.post_command, 'post-command')
+    self.dut.Call(DISABLE_DEVICE_CMD % self.args.dut_hci_device)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.post_command:  # type: ignore #TODO(b/338318729) Fixit!
+      self.RunCommand(self.args.post_command, 'post-command')  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     if self.dut.link.IsLocal():
@@ -116,9 +116,9 @@ class BluetoothScanTest(unittest.TestCase):
       self.host.CheckCall(ENABLE_SCAN_CMD % host_interface)
 
     # Setup DUT Bluetooth device
-    if self.args.pre_command:
-      self.RunCommand(self.args.pre_command, 'pre-command')
-    self.dut.CheckCall(ENABLE_DEVICE_CMD % self.args.dut_hci_device)
+    if self.args.pre_command:  # type: ignore #TODO(b/338318729) Fixit!
+      self.RunCommand(self.args.pre_command, 'pre-command')  # type: ignore #TODO(b/338318729) Fixit!
+    self.dut.CheckCall(ENABLE_DEVICE_CMD % self.args.dut_hci_device)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Get addresses of host devices
     # Note: We can only get addresses after devices are enabled
@@ -126,13 +126,13 @@ class BluetoothScanTest(unittest.TestCase):
 
     # DUT scans the host station.
     retry_wrapper = sync_utils.RetryDecorator(
-        max_attempt_count=self.args.max_retry_times, interval_sec=0,
+        max_attempt_count=self.args.max_retry_times, interval_sec=0,  # type: ignore #TODO(b/338318729) Fixit!
         target_condition=bool)
     scan_result = retry_wrapper(self.ScanTask)(host_devices)
 
     self.assertTrue(scan_result)
 
-    if self.args.enable_pair:
+    if self.args.enable_pair:  # type: ignore #TODO(b/338318729) Fixit!
       pair_result = retry_wrapper(self.PairTask)()
       self.assertTrue(pair_result)
 
@@ -153,7 +153,7 @@ class BluetoothScanTest(unittest.TestCase):
   def PairTask(self):
     """Connects with the Bluetooth devices of the host station."""
 
-    host_mac = self.host_device_to_pair.address
+    host_mac = self.host_device_to_pair.address  # type: ignore #TODO(b/338318729) Fixit!
     CONNECT_CMD = f'hcitool cc --role=m {host_mac}'
     DISCONNECT_CMD = f'hcitool dc {host_mac}'
     CHECK_CONNECTION_CMD = 'hcitool con'
@@ -188,8 +188,8 @@ class BluetoothScanTest(unittest.TestCase):
     #      01:02:03:04:05:06       Chromebook_0123
     #      01:02:03:04:05:07       Chromebook_4567
     SCAN_COMMAND = 'hcitool scan'
-    if self.args.dut_hci_num_response is not None:
-      SCAN_COMMAND += f' --numrsp={int(self.args.dut_hci_num_response)}'
+    if self.args.dut_hci_num_response is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      SCAN_COMMAND += f' --numrsp={int(self.args.dut_hci_num_response)}'  # type: ignore #TODO(b/338318729) Fixit!
     output = self.dut.CheckOutput(SCAN_COMMAND)
     lines = output.splitlines()[1:]  # Skip the first line "Scanning ...".
     return [line.split()[0].lower() for line in lines]

@@ -50,7 +50,7 @@ def Probe(probe_statement, comps=None, approx_match=False, max_mismatch=0):
   if comps is None:
     comps = list(probe_statement)
 
-  results = {}
+  results = {}  # type: ignore #TODO(b/338318729) Fixit!
   for comp_cls in probe_statement:
     if comp_cls not in comps:
       continue
@@ -86,7 +86,7 @@ def GenerateProbeStatement(config_file=None, include_generic=False,
   Returns:
     A dict of probe statements.
   """
-  statement_dict = {}
+  statement_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
   if config_file:
     config_utils.OverrideConfig(statement_dict,
                                 common.LoadUserProbeStatementFile(config_file))

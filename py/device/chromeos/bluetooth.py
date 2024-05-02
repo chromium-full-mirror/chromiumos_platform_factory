@@ -108,9 +108,9 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     DBusGMainLoop(set_as_default=True)
     self._main_loop = gobject.MainLoop()
     self._manager = None
-    bus = dbus.SystemBus()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
     try:
-      self._manager = dbus.Interface(bus.get_object(BUS_NAME, '/'),
+      self._manager = dbus.Interface(bus.get_object(BUS_NAME, '/'),  # type: ignore #TODO(b/338318729) Fixit!
                                      'org.freedesktop.DBus.ObjectManager')
     except DBusException as e:
       raise BluetoothManagerException(
@@ -126,14 +126,14 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     # Remote devices belonging to the given adapter
     # have their path prefixed by the adapter's object path
     path_prefix = adapter.object_path
-    bus = dbus.SystemBus()
-    remote_objects = self._manager.GetManagedObjects()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+    remote_objects = self._manager.GetManagedObjects()  # type: ignore #TODO(b/338318729) Fixit!
     for path, ifaces in remote_objects.items():
       if path.startswith(path_prefix):
         device = ifaces.get(DEVICE_INTERFACE)
         if device and str(device['Address']) == mac_addr:
           matching_device = bus.get_object(SERVICE_NAME, path)
-          return dbus.Interface(matching_device, DEVICE_INTERFACE)
+          return dbus.Interface(matching_device, DEVICE_INTERFACE)  # type: ignore #TODO(b/338318729) Fixit!
     return None
 
   def SetDeviceConnected(self, adapter, device_address, connect):
@@ -265,12 +265,12 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
         cancel_callback()
       self._main_loop.quit()
 
-    bus = dbus.SystemBus()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
     # Exposes a service agent object at a unique path for this test.
     agent_id = str(uuid.uuid4()).replace('-', '')
     agent_path = os.path.join('/BluetoothTest', 'agent', agent_id)
     obj = bus.get_object(BUS_NAME, '/org/bluez')
-    agent_manager = dbus.Interface(obj, 'org.bluez.AgentManager1')
+    agent_manager = dbus.Interface(obj, 'org.bluez.AgentManager1')  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('CreatePairedDevice: Set agent path at %s.', agent_path)
     try:
       if display_passkey_callback is None:
@@ -281,7 +281,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
         AuthenticationAgent(bus, agent_path,
                             display_passkey_callback=display_passkey_callback,
                             cancel_callback=cancel_callback)
-      agent_manager.RegisterAgent(agent_path, dbus.String(capability))
+      agent_manager.RegisterAgent(agent_path, dbus.String(capability))  # type: ignore #TODO(b/338318729) Fixit!
 
     except DBusException as e:
       if str(e).find('there is already a handler.'):
@@ -311,8 +311,8 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     Raises:
       Raises BluetoothManagerException if fail to get adapter interface.
     """
-    objects = self._manager.GetManagedObjects()
-    bus = dbus.SystemBus()
+    objects = self._manager.GetManagedObjects()  # type: ignore #TODO(b/338318729) Fixit!
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
     adapters = []
     for path, interfaces in objects.items():
       adapter = interfaces.get(ADAPTER_INTERFACE)
@@ -321,7 +321,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
       if mac_addr and adapter.get('Address') != mac_addr:
         continue
       obj = bus.get_object(BUS_NAME, path)
-      adapters.append(dbus.Interface(obj, ADAPTER_INTERFACE))
+      adapters.append(dbus.Interface(obj, ADAPTER_INTERFACE))  # type: ignore #TODO(b/338318729) Fixit!
     return adapters
 
   def GetAdapters(self, max_retry_times=10, interval=2, mac_addr=None):
@@ -356,8 +356,8 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
       adapter: The adapter proxy object.
       on: True/False for power on/off.
     """
-    bus = dbus.SystemBus()
-    device_prop = dbus.Interface(bus.get_object(BUS_NAME, adapter.object_path),
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+    device_prop = dbus.Interface(bus.get_object(BUS_NAME, adapter.object_path),  # type: ignore #TODO(b/338318729) Fixit!
                                  'org.freedesktop.DBus.Properties')
     device_prop.Set(ADAPTER_INTERFACE, 'Powered', on)
 
@@ -368,8 +368,8 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     actually start scanning. This function blocks until it sees adapter property
     "Discovering" is True with a timeout timeout_secs.
     """
-    bus = dbus.SystemBus()
-    device_prop = dbus.Interface(bus.get_object(BUS_NAME, adapter.object_path),
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+    device_prop = dbus.Interface(bus.get_object(BUS_NAME, adapter.object_path),  # type: ignore #TODO(b/338318729) Fixit!
                                  'org.freedesktop.DBus.Properties')
     PollForCondition(
         poll_method=lambda: device_prop.Get(ADAPTER_INTERFACE, 'Discovering'),
@@ -395,7 +395,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
 
   def GetAllDevicePaths(self, adapter):
     """Gets all device paths under the adapter"""
-    introspect = dbus.Interface(adapter, 'org.freedesktop.DBus.Introspectable')
+    introspect = dbus.Interface(adapter, 'org.freedesktop.DBus.Introspectable')  # type: ignore #TODO(b/338318729) Fixit!
     node_names = _RE_NODE_NAME.findall(introspect.Introspect())
     logging.info('node names: %s', node_names)
     paths = [os.path.join(adapter.object_path, x) for x in node_names]
@@ -418,7 +418,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
     """
     result = {}
     path_prefix = adapter.object_path
-    remote_objects = self._manager.GetManagedObjects()
+    remote_objects = self._manager.GetManagedObjects()  # type: ignore #TODO(b/338318729) Fixit!
     for path, ifaces in remote_objects.items():
       if path.startswith(path_prefix):
         device = ifaces.get(DEVICE_INTERFACE)
@@ -562,7 +562,7 @@ class ChromeOSBluetoothManager(AbstractBluetoothManager):
       if 'RSSI' in changed:
         logging.info('Address: %s, new RSSI: %s', address, changed['RSSI'])
 
-    bus = dbus.SystemBus()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
 
     bus.add_signal_receiver(_CallbackInterfacesAdded,
                             dbus_interface='org.freedesktop.DBus.ObjectManager',
@@ -639,9 +639,9 @@ class BluetoothTest:
 
   def Run(self):
     """Controls btmgmt tool to scan remote devices."""
-    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)
+    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.forever:
+    if self.args.forever:  # type: ignore #TODO(b/338318729) Fixit!
       while True:
         self._RunOnce()
     else:
@@ -649,8 +649,8 @@ class BluetoothTest:
 
   def _RunOnce(self):
     """Scans once."""
-    result = self.btmgmt.FindDevices()
-    if self.args.properties:
+    result = self.btmgmt.FindDevices()  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.properties:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info(yaml.safe_dump(result, default_flow_style=False))
 
 

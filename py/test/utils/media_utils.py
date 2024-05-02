@@ -61,17 +61,17 @@ class MediaMonitor:
     self.on_insert = on_insert
     self.on_remove = on_remove
     # Setup the media monitor,
-    context = pyudev.Context()
-    monitor = pyudev.Monitor.from_netlink(context)
+    context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit!
+    monitor = pyudev.Monitor.from_netlink(context)  # type: ignore #TODO(b/338318729) Fixit!
     monitor.filter_by(subsystem=self._subsystem, device_type=self._device_type)
-    self._observer = pyudev.MonitorObserver(monitor, self._UdevEventCallback)
+    self._observer = pyudev.MonitorObserver(monitor, self._UdevEventCallback)  # type: ignore #TODO(b/338318729) Fixit!
     self._observer.start()
     self.is_monitoring = True
     logging.info('Start monitoring media actitivities.')
 
   def Stop(self):
     if self.is_monitoring:
-      self._observer.stop()
+      self._observer.stop()  # type: ignore #TODO(b/338318729) Fixit!
       self.is_monitoring = False
       logging.info('Stop monitoring media actitivities.')
 
@@ -156,5 +156,5 @@ class MountedMedia:
     exit_code, output = subprocess.getstatusoutput(f'umount {self._mount_dir}')
     if exit_code != 0:
       raise Exception(f'Failed to umount. Message-{output}')
-    shutil.rmtree(self._mount_dir)
+    shutil.rmtree(self._mount_dir)  # type: ignore #TODO(b/338318729) Fixit!
     self._mounted = False

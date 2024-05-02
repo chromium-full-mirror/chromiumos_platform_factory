@@ -54,7 +54,7 @@ class StressAppTestUnitTest(unittest.TestCase):
 
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
 
   def test_setUp_GetCPUFreqManager(self):
     self.test.setUp()
@@ -62,7 +62,7 @@ class StressAppTestUnitTest(unittest.TestCase):
 
   @mock.patch.object(time, 'sleep', autospec=True)
   def test_runTest_WaitBeforeTestStart(self, mock_sleep):
-    self.test.args = FakeArgs(wait_secs=10)
+    self.test.args = FakeArgs(wait_secs=10)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -70,7 +70,7 @@ class StressAppTestUnitTest(unittest.TestCase):
     mock_sleep.assert_called_once_with(10)
 
   def test_runTest_SetCPUScalingFrequency(self):
-    self.test.args = FakeArgs(scaling_min_freq=1000, scaling_max_freq=2000,
+    self.test.args = FakeArgs(scaling_min_freq=1000, scaling_max_freq=2000,  # type: ignore #TODO(b/338318729) Fixit!
                               scaling_governor=1)
 
     self.test.setUp()
@@ -83,7 +83,7 @@ class StressAppTestUnitTest(unittest.TestCase):
     })
 
   def test_runTest_RunStressTest_Success(self):
-    self.test.args = FakeArgs(seconds=10, memory_ratio=0.8,
+    self.test.args = FakeArgs(seconds=10, memory_ratio=0.8,  # type: ignore #TODO(b/338318729) Fixit!
                               free_memory_only=True, disk_thread=False,
                               disk_thread_dir='dir', max_errors=5,
                               num_threads=4, taskset_args=['arg1', 'arg2'])

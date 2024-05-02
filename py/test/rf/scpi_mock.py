@@ -52,7 +52,7 @@ class MockServerHandler(socketserver.StreamRequestHandler):
 
   def handle(self):
     while True:
-      line = self.rfile.readline().rstrip('\r\n')
+      line = self.rfile.readline().rstrip('\r\n')  # type: ignore #TODO(b/338318729) Fixit!
       if not line:
         break
       matched = False

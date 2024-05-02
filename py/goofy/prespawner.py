@@ -49,7 +49,7 @@ PYTEST_PRESPAWNER_PATH = os.path.join(paths.FACTORY_DIR,
 class Prespawner:
 
   def __init__(self, prespawner_path, prespawner_args, pipe_stdout=False):
-    self.prespawned = queue.Queue(NUM_PRESPAWNED_PROCESSES)
+    self.prespawned = queue.Queue(NUM_PRESPAWNED_PROCESSES)  # type: ignore #TODO(b/338318729) Fixit!
     self.thread = None
     self.terminated = False
     self.prespawner_path = prespawner_path

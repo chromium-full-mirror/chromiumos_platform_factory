@@ -35,7 +35,7 @@ class TestParallelDownloader(unittest.TestCase):
       local_path = f'/path/to/local{num}'
       download_list.append((target_path, local_path))
 
-    queue = multiprocessing.Queue()
+    queue = multiprocessing.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     def MockDownloadFile(target_path, local_path, overwrite=False):
       del overwrite

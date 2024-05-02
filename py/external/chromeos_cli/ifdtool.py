@@ -79,7 +79,7 @@ class IntelMainFirmwareContent(flashrom.FirmwareContent):
 
   def DumpDescriptor(self):
     desc_bin = self.GetFileName([IntelLayout.DESC.value])
-    return self.ifdtool.Dump(desc_bin)
+    return self.ifdtool.Dump(desc_bin)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GenerateAndCheckLockedDescriptor(self):
     """Generate the locked descriptor and check if it is already locked.
@@ -94,13 +94,13 @@ class IntelMainFirmwareContent(flashrom.FirmwareContent):
       bool - The descriptor is already locked or not.
     """
     desc_bin = self.GetFileName([IntelLayout.DESC.value])
-    locked_desc_bin = self.ifdtool.GenerateLockedDescriptor(desc_bin)
+    locked_desc_bin = self.ifdtool.GenerateLockedDescriptor(desc_bin)  # type: ignore #TODO(b/338318729) Fixit!
     is_locked = filecmp.cmp(desc_bin, locked_desc_bin, shallow=False)
     return locked_desc_bin, is_locked
 
   def ReadDescriptor(self):
     """Read the descriptor data."""
-    return self.flashrom.Read(sections=[IntelLayout.DESC.value])
+    return self.flashrom.Read(sections=[IntelLayout.DESC.value])  # type: ignore #TODO(b/338318729) Fixit!
 
   def WriteDescriptor(self, *, data=None, filename=None):
     """Write the given descriptor data or file to the main firmware.
@@ -113,7 +113,7 @@ class IntelMainFirmwareContent(flashrom.FirmwareContent):
       filename: File name of image to write if data is None.
     """
     logging.info('Write the descriptor...')
-    self.flashrom.Write(data=data, filename=filename,
+    self.flashrom.Write(data=data, filename=filename,  # type: ignore #TODO(b/338318729) Fixit!
                         sections=[IntelLayout.DESC.value])
 
 

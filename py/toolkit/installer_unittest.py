@@ -75,7 +75,7 @@ class ToolkitInstallerTest(unittest.TestCase):
     self.assertRaises(SystemExit, self.createInstaller, True, self.dest)
 
   def installLiveDevice(self):
-    self._installer.Install()
+    self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(
         file_utils.ReadFile(os.path.join(self.dest, 'usr/local', 'file1')),
         'install me!')
@@ -109,7 +109,7 @@ class ToolkitInstallerTest(unittest.TestCase):
     os.getuid = lambda: 0  # root
     self._override_in_cros_device = True
     self.createInstaller(system_root=self.dest)
-    self._installer.Install()
+    self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testIncorrectPatch(self):
     with self.assertRaises(Exception):
@@ -118,7 +118,7 @@ class ToolkitInstallerTest(unittest.TestCase):
   def testPatch(self):
     self.makeStatefulPartition()
     self.createInstaller()
-    self._installer.Install()
+    self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(
         file_utils.ReadFile(os.path.join(self.dest, 'dev_image', 'file1')),
         'install me!')
@@ -135,7 +135,7 @@ class ToolkitInstallerTest(unittest.TestCase):
     os.getuid = lambda: 0  # root
     self._override_in_cros_device = True
     self.createInstaller(enabled_tag=False, system_root=self.dest)
-    self._installer.Install()
+    self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(
         file_utils.ReadFile(os.path.join(self.dest, 'usr/local', 'file1')),
         'install me!')
@@ -148,7 +148,7 @@ class ToolkitInstallerTest(unittest.TestCase):
     os.getuid = lambda: 0  # root
     self._override_in_cros_device = True
     self.createInstaller(system_root=self.dest, apps=['+a', '-b'])
-    self._installer.Install()
+    self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertTrue(os.path.exists(os.path.join(
         self.dest, 'usr/local/factory/init/main.d/enable-a')))
@@ -167,7 +167,7 @@ class ToolkitInstallerTest(unittest.TestCase):
     self.createInstaller(system_root=self.dest, apps=['a', '-b'])
 
     with self.assertRaises(ValueError):
-      self._installer.Install()
+      self._installer.Install()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 if __name__ == '__main__':

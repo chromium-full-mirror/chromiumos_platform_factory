@@ -61,7 +61,7 @@ class TestOutputHTTP(unittest.TestCase):
     shutil.rmtree(self._tmp_dir)
 
   def testMultiEvent(self):
-    q = queue.Queue()
+    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     class MyHandler(http.server.BaseHTTPRequestHandler):
       def __init__(self, request, client_address, server):
@@ -72,7 +72,7 @@ class TestOutputHTTP(unittest.TestCase):
       def _SendResponse(self, status_code, resp_reason):
         """Responds status code, reason and Maximum-Bytes header to client."""
         self.send_response(status_code, resp_reason)
-        self.send_header('Maximum-Bytes', self._max_bytes)
+        self.send_header('Maximum-Bytes', self._max_bytes)  # type: ignore #TODO(b/338318729) Fixit!
         self.end_headers()
 
       def do_GET(self):

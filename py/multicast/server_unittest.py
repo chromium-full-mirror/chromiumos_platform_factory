@@ -58,7 +58,7 @@ class UftpProcessTest(unittest.TestCase):
   @mock.patch('cros.factory.multicast.server.UftpProcess.Spawn')
   def testRespawnIfDiedAnnounceTimedOut(self, mock_spawn):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock(returncode=7)
+    self.uftp_proc._process = mock.Mock(returncode=7)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.uftp_proc.RespawnIfDied()
 
@@ -68,7 +68,7 @@ class UftpProcessTest(unittest.TestCase):
   @mock.patch('cros.factory.multicast.server.UftpProcess.Spawn')
   def testRespawnIfDiedUnexpectedError(self, mock_spawn):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock(returncode=1)
+    self.uftp_proc._process = mock.Mock(returncode=1)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.uftp_proc.RespawnIfDied()
 
@@ -77,12 +77,12 @@ class UftpProcessTest(unittest.TestCase):
 
   def testKill(self):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock()
+    self.uftp_proc._process = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.uftp_proc.Kill()
 
-    self.uftp_proc._process.kill.assert_called_once()
-    self.uftp_proc._process.wait.assert_called_once()
+    self.uftp_proc._process.kill.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
+    self.uftp_proc._process.wait.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class GetLoggerTest(unittest.TestCase):

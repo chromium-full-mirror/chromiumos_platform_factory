@@ -115,55 +115,55 @@ class AccelerometersCalibration(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.dut = device_utils.CreateDUTInterface()
     # Checks arguments.
-    self.assertEqual(2, len(self.args.spec_offset))
+    self.assertEqual(2, len(self.args.spec_offset))  # type: ignore #TODO(b/338318729) Fixit!
 
     self.accelerometer_controller = (
-        self.dut.accelerometer.GetController(self.args.location))
+        self.dut.accelerometer.GetController(self.args.location))  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.calibration_method == 'horizontal':
+    if self.args.calibration_method == 'horizontal':  # type: ignore #TODO(b/338318729) Fixit!
       self.HorizontalCalibration()
     else:
       raise NotImplementedError
 
   def HorizontalCalibration(self):
     """Prompt for space, waits a period of time and then starts calibration."""
-    if not self.args.autostart:
-      self.ui.SetState(
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please put device on a horizontal plane then press space to '
             'start calibration.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self.ui.SetState(_('Please put device on a horizontal plane.'))
+      self.ui.SetState(_('Please put device on a horizontal plane.'))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
     # Waits for a few seconds to let machine become stable.
-    for i in range(self.args.setup_time_secs):
-      self.ui.SetState(
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Calibration will be started within {time} seconds.'
             'Please do not move device.',
-            time=self.args.setup_time_secs - i))
+            time=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
     # Cleanup offsets before calibration
     self.accelerometer_controller.CleanUpCalibrationValues()
 
     # Starts calibration.
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Calibration is in progress, please do not move device.'))
     try:
-      raw_data = self.accelerometer_controller.GetData(self.args.capture_count,
+      raw_data = self.accelerometer_controller.GetData(self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit!
                                                        average=False)
     except accelerometer.AccelerometerException:
       self.FailTask('Read raw data failed.')
 
     # Check the variance of raw_data
     if self.accelerometer_controller.IsVarianceOutOfRange(
-        raw_data, self.args.variance_threshold):
+        raw_data, self.args.variance_threshold):  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask('Variance out of range, the accelerometers may be damaged.')
 
     # Calculate average value of raw_data
@@ -172,9 +172,9 @@ class AccelerometersCalibration(test_case.TestCase):
 
     # Checks accelerometer is normal or not before calibration.
     if not self.accelerometer_controller.IsWithinOffsetRange(
-        raw_data, self.args.orientation, self.args.spec_offset):
+        raw_data, self.args.orientation, self.args.spec_offset):  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask('Raw data out of range, the accelerometers may be damaged.')
 
     calib_bias = self.accelerometer_controller.CalculateCalibrationBias(
-        raw_data, self.args.orientation)
+        raw_data, self.args.orientation)  # type: ignore #TODO(b/338318729) Fixit!
     self.accelerometer_controller.UpdateCalibrationBias(calib_bias)

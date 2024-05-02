@@ -74,7 +74,7 @@ def _BuildDockerImage():
   """Builds docker image and returns the image tag."""
   out = process_utils.CheckOutput([DEPLOY_SCRIPT, 'build'], log=True,
                                   cwd=HOST_FACTORY_DIR)
-  return re.search(r'^Successfully tagged (\w+:\w+)', out,
+  return re.search(r'^Successfully tagged (\w+:\w+)', out,  # type: ignore #TODO(b/338318729) Fixit!
                    re.MULTILINE).group(1)
 
 
@@ -113,7 +113,7 @@ def RunTest(image, test_names):
       temp_path = file_utils.CreateTemporaryFile()
       file_utils.WriteFile(
           temp_path,
-          'stdout:\n' + p.stdout_data + '\nstderr:\n' + p.stderr_data)
+          'stdout:\n' + p.stdout_data + '\nstderr:\n' + p.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
       failed_tests.append((tn, temp_path))
 
   logging.info('[%s/%s] Passed',

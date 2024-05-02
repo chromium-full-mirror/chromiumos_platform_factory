@@ -347,7 +347,7 @@ class DatabaseBuilder:
           f'The component class {comp_cls!r} already has a default component.')
 
     comp_name = comp_cls + self._DEFAULT_COMPONENT_SUFFIX
-    self._database.AddComponent(comp_cls, comp_name, None,
+    self._database.AddComponent(comp_cls, comp_name, None,  # type: ignore #TODO(b/338318729) Fixit!
                                 common.ComponentStatus.unqualified)
 
   @_EnsureInBuilderContext
@@ -486,7 +486,7 @@ class DatabaseBuilder:
     field_name = 'sku_id_field'
     comp_cls = 'sku_id'
     existed_comps = self._database.GetComponents(comp_cls)
-    existed_sku_ids = {int(e.values['sku_id'])
+    existed_sku_ids = {int(e.values['sku_id'])  # type: ignore #TODO(b/338318729) Fixit!
                        for e in existed_comps.values()}
     sku_ids = set(sku_ids)
     new_sku_ids = sorted(sku_ids - existed_sku_ids)
@@ -499,7 +499,7 @@ class DatabaseBuilder:
 
     # Check if we need to update the encoded field.
     comp_to_sku_id = {
-        comp_name: int(comp_info.values['sku_id'])
+        comp_name: int(comp_info.values['sku_id'])  # type: ignore #TODO(b/338318729) Fixit!
         for comp_name, comp_info in self._database.GetComponents(
             comp_cls).items()
     }

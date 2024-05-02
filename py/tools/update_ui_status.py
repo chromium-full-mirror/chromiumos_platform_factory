@@ -46,7 +46,7 @@ def main():
                       args.config)
 
     items = lights + data
-    queue = PriorityQueue(len(items))
+    queue = PriorityQueue(len(items))  # type: ignore #TODO(b/338318729) Fixit!
 
     for item in items:
       if 'poll' in item:

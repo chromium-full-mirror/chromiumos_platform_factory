@@ -153,10 +153,10 @@ class Region:
       assert all(isinstance(x, str) for x in f), (
           f'Expected a list of strings, not {f!r}')
     for f in self.keyboards:
-      assert KEYBOARD_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (
+      assert KEYBOARD_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (  # type: ignore #TODO(b/338318729) Fixit!
           f'Keyboard pattern {f!r} does not match {KEYBOARD_PATTERN.pattern!r}')
     for f in self.language_codes:
-      assert LANGUAGE_CODE_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (
+      assert LANGUAGE_CODE_PATTERN.fullmatch(f) or TBR_PATTERN.match(f), (  # type: ignore #TODO(b/338318729) Fixit!
           f'Language code {f!r} does not match '
           f'{LANGUAGE_CODE_PATTERN.pattern!r}')
 
@@ -338,7 +338,7 @@ def _ConsolidateRegions(regions):
       region, and the values for those regions differ.
   """
   # Build a dict from region_code to the first Region with that code.
-  region_dict = {}
+  region_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
   for r in regions:
     existing_region = region_dict.get(r.region_code)
     if existing_region:
@@ -368,7 +368,7 @@ def BuildRegionsDict(include_all=False):
   """
   if _REGIONS_LIST is None or _UNCONFIRMED_REGIONS_LIST is None:
     InitialSetup()
-  regions = list(_REGIONS_LIST)
+  regions = list(_REGIONS_LIST)  # type: ignore #TODO(b/338318729) Fixit!
   if include_all:
     regions += _UNCONFIRMED_REGIONS_LIST
 

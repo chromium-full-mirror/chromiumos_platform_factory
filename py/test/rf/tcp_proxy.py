@@ -60,7 +60,7 @@ class ClientProtocol(Protocol):
   def dataReceived(self, data):
     logging.info("%s: got %3d bytes from remote host", self.uuid, len(data))
     logging.debug("%s: got data %r from remote host", self.uuid, data)
-    self.factory.boardcastData(data)
+    self.factory.boardcastData(data)  # type: ignore #TODO(b/338318729) Fixit!
 
   def connectionMade(self):
     logging.info("%s: Connected to %s", self.uuid, self.transport.getPeer())
@@ -68,7 +68,7 @@ class ClientProtocol(Protocol):
   def connectionLost(self, reason=connectionDone):
     del reason  # Unused.
     logging.info("%s: lost connection with remote", self.uuid)
-    self.factory.active_client = None
+    self.factory.active_client = None  # type: ignore #TODO(b/338318729) Fixit!
 
   def __del__(self):
     logging.info("%s: __del__ is called()", self.uuid)
@@ -113,7 +113,7 @@ class ClientFactory(ReconnectingClientFactory):
     logging.info(
         "Lost connection with remote (reason: %r), stop listening.", reason)
     self.active_client = None
-    self.listener.stopListening()
+    self.listener.stopListening()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class ServerProtocol(Protocol):

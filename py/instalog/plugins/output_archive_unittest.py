@@ -99,7 +99,7 @@ class TestOutputArchive(unittest.TestCase):
     # pylint: disable=protected-access
     plugin = sandbox._plugin
     self.stream.Queue([self.event])
-    plugin.PrepareAndProcess()
+    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit!
     sandbox.Flush()
     sandbox.Stop()
 
@@ -108,7 +108,7 @@ class TestOutputArchive(unittest.TestCase):
     with tarfile.open(archive_path, 'r:gz') as tar:
       events_member = [n for n in tar.getnames() if 'events.json' in n][0]
       events_file = tar.extractfile(events_member)
-      lines = events_file.readlines()
+      lines = events_file.readlines()  # type: ignore #TODO(b/338318729) Fixit!
       self.assertEqual(1, len(lines))
       event = datatypes.Event.Deserialize(lines[0])
       self.assertEqual(event, self.event)

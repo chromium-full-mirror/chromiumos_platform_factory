@@ -82,7 +82,7 @@ class UftpProcess:
 
     cmd += [self.args.file_path]
 
-    self._process = process_utils.Spawn(cmd, stderr=process_utils.PIPE)
+    self._process = process_utils.Spawn(cmd, stderr=process_utils.PIPE)  # type: ignore #TODO(b/338318729) Fixit!
 
   def RespawnIfDied(self):
     ANNOUNCE_TIMED_OUT_RETCODE = 7
@@ -93,8 +93,8 @@ class UftpProcess:
       self.Spawn()
 
   def Kill(self):
-    self._process.kill()
-    self._process.wait()
+    self._process.kill()  # type: ignore #TODO(b/338318729) Fixit!
+    self._process.wait()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class MulticastServer:

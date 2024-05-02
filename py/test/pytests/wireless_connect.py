@@ -79,16 +79,16 @@ class WirelessConnectTest(test_case.TestCase):
     return result.startswith('Not connected.')
 
   def runTest(self):
-    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)
+    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Selected device_name is %s.', self._device_name)
-    services = self.args.service_name
+    services = self.args.service_name  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('service = %r', services)
     self._connection_manager.Reconnect(services)
     ssid_list = [service.get('ssid') for service in services]
 
     retry_wrapper = sync_utils.RetryDecorator(
-        max_attempt_count=self.args.retries,
-        interval_sec=self.args.sleep_interval, target_condition=bool)
+        max_attempt_count=self.args.retries,  # type: ignore #TODO(b/338318729) Fixit!
+        interval_sec=self.args.sleep_interval, target_condition=bool)  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       if ssid_list:

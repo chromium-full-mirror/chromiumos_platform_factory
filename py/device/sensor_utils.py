@@ -141,7 +141,7 @@ class BasicSensorController(device_types.DeviceComponent):
     else:
       raise device_types.DeviceException('\n'.join(map(str, errors)))
 
-    self.scale = 1.0 if not scale else float(self._GetSysfsValue('scale'))
+    self.scale = 1.0 if not scale else float(self._GetSysfsValue('scale'))  # type: ignore #TODO(b/338318729) Fixit!
 
   def CleanUpCalibrationValues(self):
     """Clean up calibration values.
@@ -161,7 +161,7 @@ class BasicSensorController(device_types.DeviceComponent):
     for signal_name in data:
       ideal_value = orientations.get(signal_name, 0.0)
       current_calib_bias = (
-          int(self._GetSysfsValue(f'{signal_name}_calibbias')) /
+          int(self._GetSysfsValue(f'{signal_name}_calibbias')) /  # type: ignore #TODO(b/338318729) Fixit!
           self.raw_to_sys_weight)
       # Calculate the difference between the ideal value and actual value
       # then store it into _calibbias.  In release image, the raw data will
@@ -185,7 +185,7 @@ class BasicSensorController(device_types.DeviceComponent):
         k: str(int(v * self.raw_to_sys_weight))
         for k, v in calib_bias.items()
     }
-    self._device.vpd.ro.Update(scaled)
+    self._device.vpd.ro.Update(scaled)  # type: ignore #TODO(b/338318729) Fixit!
     mapping = []
     for signal_name in self.signal_names:
       mapping.append((f'{signal_name}_{self.location}_calibbias',
@@ -258,7 +258,7 @@ class BasicSensorController(device_types.DeviceComponent):
     if not frequencies:
       raise SensorError(f'{node_name!r} is empty.')
     try:
-      frequencies = tuple(map(float, frequencies))
+      frequencies = tuple(map(float, frequencies))  # type: ignore #TODO(b/338318729) Fixit!
     except ValueError:
       raise SensorError(
           f'Can not convert {node_name!r} to floating point numbers. '

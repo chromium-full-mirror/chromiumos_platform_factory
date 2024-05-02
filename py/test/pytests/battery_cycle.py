@@ -132,7 +132,7 @@ class BatteryCycleTest(test_case.TestCase):
       history_lines.append('(none)')
     while len(history_lines) < 5:
       history_lines.append('')
-    self.ui.SetHTML('\n'.join(history_lines), id='bc-history')
+    self.ui.SetHTML('\n'.join(history_lines), id='bc-history')  # type: ignore #TODO(b/338318729) Fixit!
 
   def _RunPhase(self):
     """Runs the charge or discharge part of a cycle."""
@@ -140,19 +140,19 @@ class BatteryCycleTest(test_case.TestCase):
     self._Log('phase_start')
     logging.info('Starting %s, cycle=%d', self.mode, self.completed_cycles)
 
-    target_charge_map = {Mode.CHARGE: self.args.maximum_charge_pct,
-                         Mode.DISCHARGE: self.args.minimum_charge_pct,
+    target_charge_map = {Mode.CHARGE: self.args.maximum_charge_pct,  # type: ignore #TODO(b/338318729) Fixit!
+                         Mode.DISCHARGE: self.args.minimum_charge_pct,  # type: ignore #TODO(b/338318729) Fixit!
                          Mode.CUTOFF: 100}
-    target_charge_pct = target_charge_map[self.mode]
+    target_charge_pct = target_charge_map[self.mode]  # type: ignore #TODO(b/338318729) Fixit!
 
     for elt_id, content in (
         ('bc-phase', 'Charging' if self.mode == Mode.CHARGE else 'Discharging'),
         ('bc-current-cycle', self.completed_cycles + 1),
         ('bc-cycles-remaining',
-         (self.args.num_cycles -
-          self.completed_cycles if self.args.num_cycles else '\u221e')),
+         (self.args.num_cycles -  # type: ignore #TODO(b/338318729) Fixit!
+          self.completed_cycles if self.args.num_cycles else '\u221e')),  # type: ignore #TODO(b/338318729) Fixit!
         ('bc-target-charge', f'{target_charge_pct:.2f}%')):
-      self.ui.SetHTML(content, id=elt_id)
+      self.ui.SetHTML(content, id=elt_id)  # type: ignore #TODO(b/338318729) Fixit!
 
     first_done_time = [None]
 
@@ -166,10 +166,10 @@ class BatteryCycleTest(test_case.TestCase):
         if not first_done_time[0]:
           logging.info('%s cycle appears to be done. '
                        'Will continue checking for %d seconds',
-                       self.mode, self.args.charge_threshold_secs)
-          first_done_time[0] = time.time()
-        return (time.time() - first_done_time[0] >=
-                self.args.charge_threshold_secs)
+                       self.mode, self.args.charge_threshold_secs)  # type: ignore #TODO(b/338318729) Fixit!
+          first_done_time[0] = time.time()  # type: ignore #TODO(b/338318729) Fixit!
+        return (time.time() - first_done_time[0] >=  # type: ignore #TODO(b/338318729) Fixit!
+                self.args.charge_threshold_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
       if first_done_time[0]:
         logging.info('%s cycle now appears not to be done. '
@@ -184,11 +184,11 @@ class BatteryCycleTest(test_case.TestCase):
         is_done_now = lambda x: x > target_charge_pct
       else:
         is_done_now = lambda x: (self.dut.power.GetBatteryCurrent() == 0 and
-                                 x > self.args.cutoff_charge_pct)
+                                 x > self.args.cutoff_charge_pct)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self.dut.power.SetChargeState(self.dut.power.ChargeState.DISCHARGE)
-      if self.args.fast_discharge:
-        stress_manager_instance = stress_manager.StressManager(self.dut)
+      if self.args.fast_discharge:  # type: ignore #TODO(b/338318729) Fixit!
+        stress_manager_instance = stress_manager.StressManager(self.dut)  # type: ignore #TODO(b/338318729) Fixit!
       else:
         stress_manager_instance = stress_manager.DummyStressManager(self.dut)
       is_done_now = lambda x: x < target_charge_pct
@@ -204,7 +204,7 @@ class BatteryCycleTest(test_case.TestCase):
           last_log_time = now
           self._Log('status')
 
-        if now > self.cycle_start_time + self.args.cycle_timeout_secs:
+        if now > self.cycle_start_time + self.args.cycle_timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
           self.fail(f'{self.mode} timed out')
 
         if IsDone():
@@ -225,16 +225,16 @@ class BatteryCycleTest(test_case.TestCase):
 
         for elt_id, elapsed_time in (
             ('bc-elapsed-time', now - self.start_time),
-            ('bc-cycle-elapsed-time', now - self.cycle_start_time),
+            ('bc-cycle-elapsed-time', now - self.cycle_start_time),  # type: ignore #TODO(b/338318729) Fixit!
             ('bc-phase-elapsed-time', now - phase_start_time),
             ('bc-time-remaining', (
-                self.args.max_duration_hours * 60 * 60 -
+                self.args.max_duration_hours * 60 * 60 -  # type: ignore #TODO(b/338318729) Fixit!
                 (now - phase_start_time)
-                if self.args.max_duration_hours else None))):
-          self.ui.SetHTML(
+                if self.args.max_duration_hours else None))):  # type: ignore #TODO(b/338318729) Fixit!
+          self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
               time_utils.FormatElapsedTime(elapsed_time)
               if elapsed_time else '\u221e', id=elt_id)
-        self.ui.SetHTML(f'{self.dut.power.GetChargePct(get_float=True):.2f}%',
+        self.ui.SetHTML(f'{self.dut.power.GetChargePct(get_float=True):.2f}%',  # type: ignore #TODO(b/338318729) Fixit!
                         id='bc-charge')
         if first_done_time[0] is None:
           message = ''
@@ -242,24 +242,24 @@ class BatteryCycleTest(test_case.TestCase):
           time_cost = self.args.charge_threshold_secs - int(
               round(now - first_done_time[0]))
           message = f'(complete in {time_cost} s)'
-        self.ui.SetHTML(message, id='bc-phase-complete')
+        self.ui.SetHTML(message, id='bc-phase-complete')  # type: ignore #TODO(b/338318729) Fixit!
 
-        self.Sleep(self.args.idle_time_secs)
+        self.Sleep(self.args.idle_time_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     try:
       self.start_time = time.time()
       while True:
         self.cycle_start_time = time.time()
-        if (self.args.num_cycles and
-            self.completed_cycles >= self.args.num_cycles):
+        if (self.args.num_cycles and  # type: ignore #TODO(b/338318729) Fixit!
+            self.completed_cycles >= self.args.num_cycles):  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('Completed %s cycles (num_cycles).  Success.',
-                       self.args.num_cycles)
+                       self.args.num_cycles)  # type: ignore #TODO(b/338318729) Fixit!
           return
 
         duration_hours = (time.time() - self.start_time) / (60 * 60)
-        if (self.args.max_duration_hours and
-            duration_hours >= self.args.max_duration_hours):
+        if (self.args.max_duration_hours and  # type: ignore #TODO(b/338318729) Fixit!
+            duration_hours >= self.args.max_duration_hours):  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('Ran for %s hours.  Success.', duration_hours)
           return
 

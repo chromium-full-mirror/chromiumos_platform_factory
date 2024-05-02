@@ -24,7 +24,7 @@ class UnresolvableNamespace:
   def __init__(self):
     # for state_proxy.data_shelf.device
     self.data_shelf = self
-    self.data_shelf.device = self
+    self.data_shelf.device = self  # type: ignore #TODO(b/338318729) Fixit!
 
   def __getattr__(self, attr_name):
     raise UnresolvableException

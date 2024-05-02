@@ -69,7 +69,7 @@ class LogDeleter:
         start_date = datetime.datetime.strptime(start_date_str, '%Y%m%d').date()
         end_date = datetime.datetime.strptime(end_date_str, '%Y%m%d').date()
         no_logs = True
-        for date in self.DateRange(start_date, end_date):
+        for date in self.DateRange(start_date, end_date):  # type: ignore #TODO(b/338318729) Fixit!
           date_str = date.strftime('%Y%m%d')
           src_dir = os.path.join(umpire_data_dir, sub_dir, date_str)
           if not os.path.isdir(src_dir) or not os.listdir(src_dir):

@@ -755,7 +755,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def GetHwidDbEditableSection(self, request):
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       editable_section = action.GetDBEditableSection()
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -797,9 +797,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           protorpc_utils.RPCCanonicalErrorCode.ABORTED,
           detail='The validation token is expired.')
     try:
-      self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)
+      self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)  # type: ignore #TODO(b/338318729) Fixit!
 
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       analysis = action.AnalyzeDBEditableSection(
           cache.new_hwid_db_editable_section, derive_fingerprint_only=False,
           require_hwid_db_lines=False, internal=True,
@@ -815,7 +815,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           detail='The validation token is expired.')
 
     feature_matcher_build_result = self._feature_matcher_builder_class.Create(
-        database.Database.LoadData(analysis.new_hwid_db_contents_internal),
+        database.Database.LoadData(analysis.new_hwid_db_contents_internal),  # type: ignore #TODO(b/338318729) Fixit!
         request.db_external_resource).Build()
 
     commit_title = ('HWID Config Update' if cache.new_hwid_db_editable_section
@@ -839,13 +839,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           f'DLM-VALIDATION-EXEMPTION={request.dlm_validation_exemption}')
 
     commit_msg.append(f'BUG=b:{request_metadata.bug_number}')
-    commit_msg = '\n'.join(commit_msg)
+    commit_msg = '\n'.join(commit_msg)  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project,
+          name=project,  # type: ignore #TODO(b/338318729) Fixit!
           hwid_db_contents=analysis.new_hwid_db_contents_external,
-          commit_msg=commit_msg,
+          commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit!
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
@@ -901,8 +901,8 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       model = _NormalizeProjectString(firmware_record.model)
       # Load HWID DB
       try:
-        self._UpdateHWIDDBDataIfNeed(live_hwid_repo, model)
-        action = self._hwid_action_manager.GetHWIDAction(model)
+        self._UpdateHWIDDBDataIfNeed(live_hwid_repo, model)  # type: ignore #TODO(b/338318729) Fixit!
+        action = self._hwid_action_manager.GetHWIDAction(model)  # type: ignore #TODO(b/338318729) Fixit!
       except hwid_repo.InvalidProjectError:
         logging.warning('%s not found in HWID database.', model)
         continue
@@ -964,7 +964,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           live_hwid_repo.ResetRepo()
         try:
           cl_number = live_hwid_repo.CommitHWIDDB(
-              name=model_name, hwid_db_contents=external_db,
+              name=model_name, hwid_db_contents=external_db,  # type: ignore #TODO(b/338318729) Fixit!
               commit_msg=commit_msg, reviewers=request_metadata.reviewer_emails,
               cc_list=request_metadata.cc_emails,
               bot_commit=request_metadata.auto_approved,
@@ -1148,7 +1148,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     require_hwid_db_lines = request.require_hwid_db_lines
 
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       report = action.AnalyzeDBEditableSection(
           request.hwid_db_editable_section or None, False,
           require_hwid_db_lines,
@@ -1160,7 +1160,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     response.validation_token = report.fingerprint
     self._session_cache_adapter.Put(
         report.fingerprint,
-        SessionCache(project, request.hwid_db_editable_section or None),
+        SessionCache(project, request.hwid_db_editable_section or None),  # type: ignore #TODO(b/338318729) Fixit!
         expiry=_SESSION_TIMEOUT)
     response.analysis_report.noop_for_external_db = (
         report.noop_for_external_db)
@@ -1183,9 +1183,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     if require_hwid_db_lines:
       for line in report.lines:
         response_line = response.analysis_report.hwid_config_lines.add()
-        if line.modification_status == line.ModificationStatus.MODIFIED:
+        if line.modification_status == line.ModificationStatus.MODIFIED:  # type: ignore #TODO(b/338318729) Fixit!
           response_line.modification_status = response_line.MODIFIED
-        elif line.modification_status == line.ModificationStatus.NEWLY_ADDED:
+        elif line.modification_status == line.ModificationStatus.NEWLY_ADDED:  # type: ignore #TODO(b/338318729) Fixit!
           response_line.modification_status = response_line.NEWLY_ADDED
         else:
           response_line.modification_status = response_line.NOT_MODIFIED
@@ -1210,7 +1210,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def BatchGenerateAvlComponentName(self, request):
     response = hwid_api_messages_pb2.BatchGenerateAvlComponentNameResponse()
     np_adapter = name_pattern_adapter.NamePatternAdapter()
-    nps = {}
+    nps = {}  # type: ignore #TODO(b/338318729) Fixit!
     for mat in request.component_name_materials:
       try:
         np = nps[mat.component_class]
@@ -1222,7 +1222,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         name_info = name_pattern_adapter.LinkAVLNameSubcompInfo(cid=mat.avl_cid)
       else:
         qid = None if mat.avl_qid == 0 else mat.avl_qid
-        name_info = name_pattern_adapter.LinkAVLNameRegularInfo(
+        name_info = name_pattern_adapter.LinkAVLNameRegularInfo(  # type: ignore #TODO(b/338318729) Fixit!
             cid=mat.avl_cid, qid=qid)
       response.component_names.append(
           np.GenerateAVLName(name_info, seq=mat.seq_no))
@@ -1234,13 +1234,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     project = _NormalizeProjectString(request.project)
     try:
       gerrit_hwid_repo = self._hwid_repo_manager.GetGerritToTHWIDRepo()
-      metadata = gerrit_hwid_repo.GetHWIDDBMetadataByName(project)
-      self._hwid_db_data_manager.UpdateProjectContent(gerrit_hwid_repo,
+      metadata = gerrit_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit!
+      self._hwid_db_data_manager.UpdateProjectContent(gerrit_hwid_repo,  # type: ignore #TODO(b/338318729) Fixit!
                                                       metadata)
       self._hwid_action_manager.ReloadMemcacheCacheFromFiles(
-          limit_models=[project])
+          limit_models=[project])  # type: ignore #TODO(b/338318729) Fixit!
 
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       resource_info = action.GetHWIDBundleResourceInfo()
     except (KeyError, ValueError, RuntimeError, hwid_repo.HWIDRepoError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -1248,7 +1248,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     response = hwid_api_messages_pb2.GetHwidBundleResourceInfoResponse(
         bundle_creation_token=resource_info.fingerprint)
 
-    for reference_id, comp_info in resource_info.hwid_components.items():
+    for reference_id, comp_info in resource_info.hwid_components.items():  # type: ignore #TODO(b/338318729) Fixit!
       response.resource_info.db_info.component_infos[reference_id].CopyFrom(
           _ConvertCompInfoToMsg(comp_info))
     return response
@@ -1258,7 +1258,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def CreateHwidBundle(self, request):
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       resource_info = action.GetHWIDBundleResourceInfo(fingerprint_only=True)
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -1291,7 +1291,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       raise common_helper.ConvertExceptionToProtoRPCException(
           ValueError('Bug number is required.'))
     try:
-      live_hwid_repo.GetHWIDDBMetadataByName(project)
+      live_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit!
     except ValueError:
       pass
     else:
@@ -1299,7 +1299,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           ValueError(f'Project: {project} already exists.'))
 
     init_db = v3_builder.DatabaseBuilder.FromEmpty(
-        project=project, image_name=request.phase).Build()
+        project=project, image_name=request.phase).Build()  # type: ignore #TODO(b/338318729) Fixit!
     db_content = init_db.DumpDataWithoutChecksum(internal=True)
     checksum_updater = v3_builder.ChecksumUpdater()
     db_content = checksum_updater.ReplaceChecksum(db_content)
@@ -1322,10 +1322,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
         BUG=b:{request_metadata.bug_number}
         """)
-    new_metadata = hwid_repo.HWIDDBMetadata(project, board, 3, f'v3/{project}')
+    new_metadata = hwid_repo.HWIDDBMetadata(project, board, 3, f'v3/{project}')  # type: ignore #TODO(b/338318729) Fixit!
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project, hwid_db_contents=db_content, commit_msg=commit_msg,
+          name=project, hwid_db_contents=db_content, commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit!
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
@@ -1366,17 +1366,17 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def SetFirmwareInfoSupportStatus(self, request):
     request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
-    live_hwid_repo, action = self._GetRepoAndAction(project)
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
     resp = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusResponse()
 
-    firmware_comps = action.GetComponents(
+    firmware_comps = action.GetComponents(  # type: ignore #TODO(b/338318729) Fixit!
         with_classes=list(v3_common.FirmwareComps))
 
     def _GetBundleUUIDsByVersionString(ro_main_firmware_comps):
       # TODO(wyuang): currently it is possible to create multiple UUIDs for
       # the same component. Need to investigate how to avoid duplicated
       # firmware components.
-      bundle_uuids = set()
+      bundle_uuids = set()  # type: ignore #TODO(b/338318729) Fixit!
       pattern = re.compile(r'(?:google_\w+\.)?(\d+\.\d+\.\d+)', flags=re.I)
       match = pattern.fullmatch(request.version_string)
       if not match:
@@ -1392,7 +1392,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
     bundle_uuids = _GetBundleUUIDsByVersionString(
         firmware_comps.get(v3_common.FirmwareComps.RO_MAIN_FIRMWARE, {}))
-    db = action.GetDBV3()
+    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit!
     changed = False
     for comp_cls, comps in firmware_comps.items():
       for comp_name, comp_info in comps.items():
@@ -1409,10 +1409,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       return resp
 
     # Create commit
-    internal_db = action.PatchHeader(
+    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
         db.DumpDataWithoutChecksum(internal=True,
                                    suppress_support_status=False))
-    external_db = action.PatchHeader(
+    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
         db.DumpDataWithoutChecksum(internal=False,
                                    suppress_support_status=False))
 
@@ -1427,7 +1427,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         BUG=b:{request_metadata.bug_number}""") % request_metadata.description
 
     try:
-      cl_number = live_hwid_repo.CommitHWIDDB(
+      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
@@ -1496,14 +1496,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
             f'Invalid CL number {request.cl_number}') from None
-      cl_change_id_suggestions[1] = cl_info.change_id
-      if len(cl_info.parent_cl_ids) > 1:
+      cl_change_id_suggestions[1] = cl_info.change_id  # type: ignore #TODO(b/338318729) Fixit!
+      if len(cl_info.parent_cl_ids) > 1:  # type: ignore #TODO(b/338318729) Fixit!
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
             f'Multiple parent CLs {cl_info.parent_cl_ids} are not supported.'
         ) from None
-      unused_cl_number, cl_change_id_suggestions[0] = next(
-          iter(cl_info.parent_cl_ids), (None, None))
+      unused_cl_number, cl_change_id_suggestions[0] = next(  # type: ignore #TODO(b/338318729) Fixit!
+          iter(cl_info.parent_cl_ids), (None, None))  # type: ignore #TODO(b/338318729) Fixit!
 
     (
         split_result,
@@ -1517,7 +1517,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         request.original_requester,
         request.description,
         request.bug_number,
-        cl_change_id_suggestions=tuple(cl_change_id_suggestions),
+        cl_change_id_suggestions=tuple(cl_change_id_suggestions),  # type: ignore #TODO(b/338318729) Fixit!
     )
     resp = hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsResponse(
         auto_mergeable_change_cl_created_or_refreshed=(
@@ -1566,10 +1566,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def CreateHwidRegionCl(self, request):
     request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
-    live_hwid_repo, action = self._GetRepoAndAction(project)
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
     resp = hwid_api_messages_pb2.CreateHwidRegionClResponse()
 
-    db = action.GetDBV3()
+    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit!
     region_comps = db.GetActiveRegionComponents()
     new_regions = {
         comp.name
@@ -1599,10 +1599,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       return resp
 
     # Create commit
-    internal_db = action.PatchHeader(
+    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
         db.DumpDataWithoutChecksum(internal=True,
                                    suppress_support_status=False))
-    external_db = action.PatchHeader(
+    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
         db.DumpDataWithoutChecksum(internal=False,
                                    suppress_support_status=False))
 
@@ -1617,7 +1617,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         BUG=b:{request_metadata.bug_number}""") % request_metadata.description
 
     try:
-      cl_number = live_hwid_repo.CommitHWIDDB(
+      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,

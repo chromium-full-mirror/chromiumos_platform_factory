@@ -42,7 +42,7 @@ def CreateAudioControl(dut, config_path=None):
     controller = Controllers.TINYALSA
 
   # Read from controllers.
-  constructor = controllers.get(controller)
+  constructor = controllers.get(controller)  # type: ignore #TODO(b/338318729) Fixit!
 
   if constructor is None:
     raise NotImplementedError

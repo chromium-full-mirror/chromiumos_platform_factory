@@ -28,10 +28,10 @@ class RobotMovementTest(unittest.TestCase):
     self._test = self.Test()
     self._test._dut = mock.create_autospec(spec=device_types.DeviceInterface)
     self._test._dut.info.serial_number = 'SN123'
-    self._test.ui_class = lambda event_loop: mock.Mock(spec=test_ui.StandardUI)
+    self._test.ui_class = lambda event_loop: mock.Mock(spec=test_ui.StandardUI)  # type: ignore #TODO(b/338318729) Fixit!
     self._test._robot = mock.create_autospec(spec=IRobot)
     self._test._algorithm = mock.create_autospec(spec=IAlgorithm)
-    self._test.args = FakeArgs({
+    self._test.args = FakeArgs({  # type: ignore #TODO(b/338318729) Fixit!
         'positions': [0, 15, 16, 7, 10, 13, 14, 9, 8, 11, 12, 0],
         'period_between_movement': 0,
         'period_after_movement': 0,
@@ -48,7 +48,7 @@ class RobotMovementTest(unittest.TestCase):
     self._test._robot.SetMotor.assert_called_with(True)
 
   def testLoadDevice(self):
-    self._test.ui.WaitKeysOnce = mock.Mock(spec=test_ui.StandardUI.WaitKeysOnce)
+    self._test.ui.WaitKeysOnce = mock.Mock(spec=test_ui.StandardUI.WaitKeysOnce)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._test.LoadDevice()
     calls = [mock.call(False), mock.call(True)]
@@ -57,7 +57,7 @@ class RobotMovementTest(unittest.TestCase):
   def testStartMoving(self):
     self._test.StartMoving()
 
-    calls = [mock.call(position) for position in self._test.args.positions]
+    calls = [mock.call(position) for position in self._test.args.positions]  # type: ignore #TODO(b/338318729) Fixit!
     self._test._robot.MoveTo.assert_has_calls(calls)
 
     self._test._robot.SetLED.assert_has_calls([
@@ -79,11 +79,11 @@ class RobotMovementTest(unittest.TestCase):
     self._test._algorithm.PullResult.assert_called_with(self._test._dut)
 
   def testRunTest(self):
-    self._test.Initialize = mock.Mock(spec=self._test.Initialize)
-    self._test.LoadDevice = mock.Mock(spec=self._test.LoadDevice)
-    self._test.StartMoving = mock.Mock(spec=self._test.StartMoving)
-    self._test.Compute = mock.Mock(spec=self._test.Compute)
-    self._test.PushResult = mock.Mock(spec=self._test.PushResult)
+    self._test.Initialize = mock.Mock(spec=self._test.Initialize)  # type: ignore #TODO(b/338318729) Fixit!
+    self._test.LoadDevice = mock.Mock(spec=self._test.LoadDevice)  # type: ignore #TODO(b/338318729) Fixit!
+    self._test.StartMoving = mock.Mock(spec=self._test.StartMoving)  # type: ignore #TODO(b/338318729) Fixit!
+    self._test.Compute = mock.Mock(spec=self._test.Compute)  # type: ignore #TODO(b/338318729) Fixit!
+    self._test.PushResult = mock.Mock(spec=self._test.PushResult)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._test.runTest()
 

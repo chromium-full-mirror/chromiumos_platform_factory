@@ -801,7 +801,7 @@ class Gooftool:
       fw_filename = main_fw.GetFileName(sections=['GBB'])
       gbb_flags = self.futility.GetGBBFlags(fw_filename)
     except Exception:
-      logging.warning('Failed to get GBB flags, assume it is 0', exc_info=1)
+      logging.warning('Failed to get GBB flags, assume it is 0', exc_info=1)  # type: ignore #TODO(b/338318729) Fixit!
       gbb_flags = 0
 
     if (not test_umount and
@@ -903,15 +903,15 @@ class Gooftool:
     Returns:
       List of language codes supported by the image
     """
-    bitmap_locales = []
+    bitmap_locales = []  # type: ignore #TODO(b/338318729) Fixit!
     with self._named_temporary_file('w+') as f:
       self._util.shell(
           f'cbfstool {image_file} extract -n locales -f {f.name} -r COREBOOT')
-      bitmap_locales = f.read()
+      bitmap_locales = f.read()  # type: ignore #TODO(b/338318729) Fixit!
       # We reach here even if cbfstool command fails
       if bitmap_locales:
         # The line format is "code,rtl". We remove ",rtl" here.
-        return re.findall(r'^(\S+?)(?:,\S*)?$', bitmap_locales, re.MULTILINE)
+        return re.findall(r'^(\S+?)(?:,\S*)?$', bitmap_locales, re.MULTILINE)  # type: ignore #TODO(b/338318729) Fixit!
       # Looks like image does not have locales file. Do the old-fashioned way
       self._util.shell(f'futility gbb -g --bmpfv={f.name} {image_file}')
       bmpblk_data = self._unpack_bmpblock(f.read())

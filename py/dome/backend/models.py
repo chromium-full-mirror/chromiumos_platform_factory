@@ -103,7 +103,7 @@ class DomeException(rest_framework.exceptions.APIException):
   """Virtual base class of all Dome exceptions."""
 
   def __init__(self, detail=None, status_code=None):
-    self.status_code = status_code or self.status_code
+    self.status_code = status_code or self.status_code  # type: ignore #TODO(b/338318729) Fixit!
     super().__init__(detail)
 
 

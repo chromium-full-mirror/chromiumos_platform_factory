@@ -97,7 +97,7 @@ class ConnectionManagerTest(unittest.TestCase):
       cmd = f'start {service}'
       if (service in [_FAKE_MANAGER] and
           self.fakeData['override_blocklisted_devices'] is not None):
-        cmd += (f" BLOCKED_DEVICES=\""
+        cmd += (f" BLOCKED_DEVICES=\""  # type: ignore #TODO(b/338318729) Fixit!
                 f"{','.join(self.fakeData['override_blocklisted_devices'])}\"")
       subprocess_call_calls.append(
           mock.call(cmd, shell=True, stdout=mock.ANY, stderr=mock.ANY))
@@ -127,7 +127,7 @@ class ConnectionManagerTest(unittest.TestCase):
         'SecurityClass': 'psk',
         'Passphrase': 'test0000'
     }, signature=mock.ANY)
-    connection_manager.GetBaseNetworkManager.assert_called()
+    connection_manager.GetBaseNetworkManager.assert_called()  # type: ignore #TODO(b/338318729) Fixit!
     glob_mock.assert_called_with('/sys/class/net/*')
     self.assertEqual(glob_call_count, glob_mock.call_count)
 

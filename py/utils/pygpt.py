@@ -493,26 +493,26 @@ class GPT:
 
     def IsUnused(self):
       """Returns if the partition is unused and can be allocated."""
-      return self.TypeGUID == GPT.TYPE_GUID_UNUSED
+      return self.TypeGUID == GPT.TYPE_GUID_UNUSED  # type: ignore #TODO(b/338318729) Fixit!
 
     def IsChromeOSKernel(self):
       """Returns if the partition is a Chrome OS kernel partition."""
-      return self.TypeGUID == GPT.TYPE_GUID_CHROMEOS_KERNEL
+      return self.TypeGUID == GPT.TYPE_GUID_CHROMEOS_KERNEL  # type: ignore #TODO(b/338318729) Fixit!
 
     @property
     def blocks(self):
       """Return size of partition in blocks (see block_size)."""
-      return self.LastLBA - self.FirstLBA + 1
+      return self.LastLBA - self.FirstLBA + 1  # type: ignore #TODO(b/338318729) Fixit!
 
     @property
     def offset(self):
       """Returns offset to partition in bytes."""
-      return self.FirstLBA * self.block_size
+      return self.FirstLBA * self.block_size  # type: ignore #TODO(b/338318729) Fixit!
 
     @property
     def size(self):
       """Returns size of partition in bytes."""
-      return self.blocks * self.block_size
+      return self.blocks * self.block_size  # type: ignore #TODO(b/338318729) Fixit!
 
   class Partition(PartitionBase):
     """The partition entry in GPT.
@@ -527,7 +527,7 @@ class GPT:
     __slots__ = [f.name for f in FIELDS] + METADATA
 
     def __str__(self):
-      return f'{self.image}#{self.number}'
+      return f'{self.image}#{self.number}'  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(self):
     """GPT constructor.
@@ -659,13 +659,13 @@ class GPT:
     Use 'number' property to find the real location of partition in
     self.partitions.
     """
-    return [p for p in self.partitions if not p.IsUnused()]
+    return [p for p in self.partitions if not p.IsUnused()]  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetMaxUsedLBA(self):
     """Returns the max LastLBA from all used partitions."""
     parts = self.GetUsedPartitions()
     return (max(p.LastLBA for p in parts)
-            if parts else self.header.FirstUsableLBA - 1)
+            if parts else self.header.FirstUsableLBA - 1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetPartitionTableBlocks(self, header=None):
     """Returns the blocks (or LBA) of partition table from given header."""
@@ -683,9 +683,9 @@ class GPT:
     Args:
       number: an integer as 1-based partition number.
     """
-    if not 0 < number <= len(self.partitions):
+    if not 0 < number <= len(self.partitions):  # type: ignore #TODO(b/338318729) Fixit!
       raise GPTError(f'Invalid partition number {number}.')
-    return self.partitions[number - 1]
+    return self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdatePartition(self, part, number):
     """Updates the entry in partition table by given Partition object.
@@ -697,12 +697,12 @@ class GPT:
       part: a Partition GPT object.
       number: an integer as 1-based partition number.
     """
-    ref = self.partitions[number - 1]
-    self.partitions[number - 1] = self.Partition(
+    ref = self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit!
+    self.partitions[number - 1] = self.Partition(  # type: ignore #TODO(b/338318729) Fixit!
         *part, image=ref.image, number=number, block_size=ref.block_size)
 
   def GetSize(self):
-    return self.block_size * (self.header.BackupLBA + 1)
+    return self.block_size * (self.header.BackupLBA + 1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def Resize(self, new_size, check_overlap=True):
     """Adjust GPT for a disk image in given size.
@@ -728,20 +728,20 @@ class GPT:
 
     # Expected location
     backup_lba = new_blocks - 1
-    last_usable_lba = backup_lba - self.header.FirstUsableLBA
+    last_usable_lba = backup_lba - self.header.FirstUsableLBA  # type: ignore #TODO(b/338318729) Fixit!
 
-    if check_overlap and last_usable_lba < self.header.LastUsableLBA:
+    if check_overlap and last_usable_lba < self.header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
       max_used_lba = self.GetMaxUsedLBA()
       if last_usable_lba < max_used_lba:
         raise GPTError('Backup partition tables will overlap used partitions')
 
-    self.header.Update(BackupLBA=backup_lba, LastUsableLBA=last_usable_lba)
+    self.header.Update(BackupLBA=backup_lba, LastUsableLBA=last_usable_lba)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetFreeSpace(self):
     """Returns the free (available) space left according to LastUsableLBA."""
     max_lba = self.GetMaxUsedLBA()
-    assert max_lba <= self.header.LastUsableLBA, "Partitions too large."
-    return self.block_size * (self.header.LastUsableLBA - max_lba)
+    assert max_lba <= self.header.LastUsableLBA, "Partitions too large."  # type: ignore #TODO(b/338318729) Fixit!
+    return self.block_size * (self.header.LastUsableLBA - max_lba)  # type: ignore #TODO(b/338318729) Fixit!
 
   def ExpandPartition(self, number, reserved_blocks=0):
     """Expands a given partition to last usable LBA - reserved blocks.
@@ -766,7 +766,7 @@ class GPT:
       raise GPTError(f'Cannot expand {p} because it is not allocated at last.')
 
     old_blocks = p.blocks
-    p.Update(LastLBA=self.header.LastUsableLBA - reserved_blocks)
+    p.Update(LastLBA=self.header.LastUsableLBA - reserved_blocks)  # type: ignore #TODO(b/338318729) Fixit!
     new_blocks = p.blocks
     logging.warning(
         '%s size changed in LBA: %d -> %d.', p, old_blocks, new_blocks)
@@ -778,26 +778,26 @@ class GPT:
     # PartitionEntriesStartingLBA should be all outside [FirstUsableLBA,
     # LastUsableLBA].
     header = self.header
-    entries_first_lba = header.PartitionEntriesStartingLBA
+    entries_first_lba = header.PartitionEntriesStartingLBA  # type: ignore #TODO(b/338318729) Fixit!
     entries_last_lba = entries_first_lba + self.GetPartitionTableBlocks() - 1
 
     def CheckOutsideUsable(name, lba, outside_entries=False):
       if lba < 1:
         raise GPTError(f'{name} should not live in LBA {lba}.')
-      if lba > max(header.BackupLBA, header.CurrentLBA):
+      if lba > max(header.BackupLBA, header.CurrentLBA):  # type: ignore #TODO(b/338318729) Fixit!
         # Note this is "in theory" possible, but we want to report this as
         # error as well, since it usually leads to error.
-        raise GPTError(f'{name} ({lba}) should not be larger than BackupLBA ('
+        raise GPTError(f'{name} ({lba}) should not be larger than BackupLBA ('  # type: ignore #TODO(b/338318729) Fixit!
                        f'{header.BackupLBA}).')
-      if header.FirstUsableLBA <= lba <= header.LastUsableLBA:
-        raise GPTError(f'{name} ({lba}) should not be included in usable LBAs ['
+      if header.FirstUsableLBA <= lba <= header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
+        raise GPTError(f'{name} ({lba}) should not be included in usable LBAs ['  # type: ignore #TODO(b/338318729) Fixit!
                        f'{header.FirstUsableLBA},{header.LastUsableLBA}]')
       if outside_entries and entries_first_lba <= lba <= entries_last_lba:
         raise GPTError(f'{name} ({lba}) should be outside partition entries ['
                        f'{entries_first_lba},{entries_last_lba}]')
 
-    CheckOutsideUsable('Header', header.CurrentLBA, True)
-    CheckOutsideUsable('Backup header', header.BackupLBA, True)
+    CheckOutsideUsable('Header', header.CurrentLBA, True)  # type: ignore #TODO(b/338318729) Fixit!
+    CheckOutsideUsable('Backup header', header.BackupLBA, True)  # type: ignore #TODO(b/338318729) Fixit!
     CheckOutsideUsable('Partition entries', entries_first_lba)
     CheckOutsideUsable('Partition entries end', entries_last_lba)
 
@@ -814,30 +814,30 @@ class GPT:
     # Now, check the first and last partition.
     if lba_list:
       p = lba_list[0][2]
-      if p.FirstLBA < header.FirstUsableLBA:
-        raise GPTError(f'Partition {p} must not go earlier ({p.FirstLBA}) than '
+      if p.FirstLBA < header.FirstUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
+        raise GPTError(f'Partition {p} must not go earlier ({p.FirstLBA}) than '  # type: ignore #TODO(b/338318729) Fixit!
                        f'FirstUsableLBA={header.FirstLBA}')
       p = lba_list[-1][2]
-      if p.LastLBA > header.LastUsableLBA:
-        raise GPTError(f'Partition {p} must not go further ({p.LastLBA}) than '
+      if p.LastLBA > header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
+        raise GPTError(f'Partition {p} must not go further ({p.LastLBA}) than '  # type: ignore #TODO(b/338318729) Fixit!
                        f'LastUsableLBA={header.LastLBA}')
     # Check if UniqueGUIDs are not unique.
     if len(set(p.UniqueGUID for p in parts)) != len(parts):
       raise GPTError('Partition UniqueGUIDs are duplicated.')
     # Check if CRCs match.
-    if (binascii.crc32(b''.join(p.blob for p in self.partitions)) !=
-        header.PartitionArrayCRC32):
+    if (binascii.crc32(b''.join(p.blob for p in self.partitions)) !=  # type: ignore #TODO(b/338318729) Fixit!
+        header.PartitionArrayCRC32):  # type: ignore #TODO(b/338318729) Fixit!
       raise GPTError('GPT Header PartitionArrayCRC32 does not match.')
-    header_crc = header.Clone()
+    header_crc = header.Clone()  # type: ignore #TODO(b/338318729) Fixit!
     header_crc.UpdateChecksum()
-    if header_crc.CRC32 != header.CRC32:
+    if header_crc.CRC32 != header.CRC32:  # type: ignore #TODO(b/338318729) Fixit!
       raise GPTError('GPT Header CRC32 does not match.')
 
   def UpdateChecksum(self):
     """Updates all checksum fields in GPT objects."""
-    parts = b''.join(p.blob for p in self.partitions)
-    self.header.Update(PartitionArrayCRC32=binascii.crc32(parts))
-    self.header.UpdateChecksum()
+    parts = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit!
+    self.header.Update(PartitionArrayCRC32=binascii.crc32(parts))  # type: ignore #TODO(b/338318729) Fixit!
+    self.header.UpdateChecksum()  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetBackupHeader(self, header):
     """Returns the backup header according to given header.
@@ -936,14 +936,14 @@ class GPT:
 
     self.UpdateChecksum()
     self.CheckIntegrity()
-    parts_blob = b''.join(p.blob for p in self.partitions)
+    parts_blob = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit!
 
     header = self.header
-    WriteData('GPT Header', header.blob, header.CurrentLBA)
-    WriteData('GPT Partitions', parts_blob, header.PartitionEntriesStartingLBA)
+    WriteData('GPT Header', header.blob, header.CurrentLBA)  # type: ignore #TODO(b/338318729) Fixit!
+    WriteData('GPT Partitions', parts_blob, header.PartitionEntriesStartingLBA)  # type: ignore #TODO(b/338318729) Fixit!
     logging.info(
-        'Usable LBA: First=%d, Last=%d', header.FirstUsableLBA,
-        header.LastUsableLBA)
+        'Usable LBA: First=%d, Last=%d', header.FirstUsableLBA,  # type: ignore #TODO(b/338318729) Fixit!
+        header.LastUsableLBA)  # type: ignore #TODO(b/338318729) Fixit!
 
     if not self.is_secondary:
       # When is_secondary is True, the header we have is actually backup header.
@@ -1155,7 +1155,7 @@ class GPTCommands:
           raise GPTError('Sorry, the disk already has primary GPT ignored.')
         args.image_file.seek(gpt.header.CurrentLBA * gpt.block_size)
         args.image_file.write(gpt.header.SIGNATURE_IGNORE)
-        gpt.header = gpt.GetBackupHeader(self.header)
+        gpt.header = gpt.GetBackupHeader(self.header)  # type: ignore #TODO(b/338318729) Fixit!
         gpt.is_secondary = True
       else:
         new_signature = gpt.Header.SIGNATURES[0 if args.efi else 1]
@@ -1459,10 +1459,10 @@ class GPTCommands:
           f = args.image_file
           f.seek(gpt.header.BackupLBA * gpt.block_size)
           header = gpt.Header.ReadFrom(f)
-        print(fmt % (header.PartitionEntriesStartingLBA,
+        print(fmt % (header.PartitionEntriesStartingLBA,  # type: ignore #TODO(b/338318729) Fixit!
                      gpt.GetPartitionTableBlocks(header), '',
                      'Sec GPT table'))
-        print(fmt % (header.CurrentLBA, 1, '', 'Sec GPT header'))
+        print(fmt % (header.CurrentLBA, 1, '', 'Sec GPT header'))  # type: ignore #TODO(b/338318729) Fixit!
 
       # Check integrity after showing all fields.
       gpt.CheckIntegrity()
@@ -1625,7 +1625,7 @@ class GPTCommands:
               Unmatch(args.type_guid, p.TypeGUID)):
             continue
           if match_pattern:
-            with open(drive, 'rb') as f:
+            with open(drive, 'rb') as f:  # type: ignore #TODO(b/338318729) Fixit!
               f.seek(p.offset + args.offset)
               if f.read(len(match_pattern)) != match_pattern:
                 continue

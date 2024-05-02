@@ -17,7 +17,7 @@ def GetDevices():
   Returns:
     A list of evdev.InputDevice() instances of the input devices.
   """
-  return [evdev.InputDevice(d) for d in evdev.list_devices()]
+  return [evdev.InputDevice(d) for d in evdev.list_devices()]  # type: ignore #TODO(b/338318729) Fixit!
 
 def FilterEvdevEcodes(dev, cnf):
   """Check if the capabilities of the device satisfy that of the CNF
@@ -29,7 +29,7 @@ def FilterEvdevEcodes(dev, cnf):
   Returns:
     True if dev satisfies cnf
   """
-  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))
+  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit!
   for clause in cnf:
     if set(clause) & caps == set():
       return False
@@ -44,7 +44,7 @@ def IsLidEventDevice(dev):
   Returns:
     True if dev is a lid event device.
   """
-  return evdev.ecodes.SW_LID in dev.capabilities().get(evdev.ecodes.EV_SW, [])
+  return evdev.ecodes.SW_LID in dev.capabilities().get(evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsTabletEventDevice(dev):
@@ -56,8 +56,8 @@ def IsTabletEventDevice(dev):
   Returns:
     True if dev is a tablet event device.
   """
-  return evdev.ecodes.SW_TABLET_MODE in dev.capabilities().get(
-      evdev.ecodes.EV_SW, [])
+  return evdev.ecodes.SW_TABLET_MODE in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsKeyboardDevice(dev):
@@ -70,11 +70,11 @@ def IsKeyboardDevice(dev):
     True if dev is a keyboard device.
   """
   keys = {
-      evdev.ecodes.KEY_ENTER,
-      evdev.ecodes.KEY_LEFTCTRL,
-      evdev.ecodes.KEY_LEFTALT
+      evdev.ecodes.KEY_ENTER,  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.KEY_LEFTCTRL,  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.KEY_LEFTALT  # type: ignore #TODO(b/338318729) Fixit!
   }
-  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))
+  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit!
   return keys.issubset(caps)
 
 
@@ -85,11 +85,11 @@ def SendKeys(key_sequence):
     key_sequence: A list of keys to send.  For the list of valid key events, see
         evdev.ecodes module.
   """
-  uinput = evdev.UInput()
+  uinput = evdev.UInput()  # type: ignore #TODO(b/338318729) Fixit!
   for k in key_sequence:
-    uinput.write(evdev.ecodes.EV_KEY, k, 1)
+    uinput.write(evdev.ecodes.EV_KEY, k, 1)  # type: ignore #TODO(b/338318729) Fixit!
   for k in key_sequence:
-    uinput.write(evdev.ecodes.EV_KEY, k, 0)
+    uinput.write(evdev.ecodes.EV_KEY, k, 0)  # type: ignore #TODO(b/338318729) Fixit!
   uinput.syn()
   uinput.close()
 
@@ -103,8 +103,8 @@ def IsTouchDevice(dev):
   Returns:
     True if dev is a touch device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])
-  return evdev.ecodes.BTN_TOUCH in keycaps
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
+  return evdev.ecodes.BTN_TOUCH in keycaps  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsStylusDevice(dev):
@@ -117,9 +117,9 @@ def IsStylusDevice(dev):
     True if dev is a stylus device.
   """
   return FilterEvdevEcodes(dev, [[
-      evdev.ecodes.BTN_STYLUS,
-      evdev.ecodes.BTN_STYLUS2,
-      evdev.ecodes.BTN_TOOL_PEN]])
+      evdev.ecodes.BTN_STYLUS,  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.BTN_STYLUS2,  # type: ignore #TODO(b/338318729) Fixit!
+      evdev.ecodes.BTN_TOOL_PEN]])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsStylusGarageDevice(dev: evdev.InputDevice):  # type: ignore #TODO(b/338318729) Fixit!
@@ -137,9 +137,9 @@ def IsTouchpadDevice(dev):
   Returns:
     True if dev is a touchpad device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])
-  return (evdev.ecodes.BTN_TOUCH in keycaps and
-          evdev.ecodes.BTN_MOUSE in keycaps)
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
+  return (evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
+          evdev.ecodes.BTN_MOUSE in keycaps)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class HoverType(enum.Enum):
@@ -178,8 +178,8 @@ def IsTouchscreenDevice(dev):
     True if dev is a touchscreen device.
   """
   return (not IsTouchpadDevice(dev) and
-          evdev.ecodes.ABS_MT_SLOT in dict(
-              dev.capabilities().get(evdev.ecodes.EV_ABS, [])))
+          evdev.ecodes.ABS_MT_SLOT in dict(  # type: ignore #TODO(b/338318729) Fixit!
+              dev.capabilities().get(evdev.ecodes.EV_ABS, [])))  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def IsMouseDevice(dev):
@@ -191,10 +191,10 @@ def IsMouseDevice(dev):
   Returns:
     True if dev is a mouse device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])
-  return (evdev.ecodes.BTN_MOUSE in keycaps and
-          evdev.ecodes.BTN_RIGHT in keycaps and
-          evdev.ecodes.BTN_MIDDLE in keycaps)
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
+  return (evdev.ecodes.BTN_MOUSE in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
+          evdev.ecodes.BTN_RIGHT in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
+          evdev.ecodes.BTN_MIDDLE in keycaps)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class FindDeviceError(RuntimeError):
@@ -264,9 +264,9 @@ def FindDevice(*args):
     if isinstance(item, int):
       dev_filter = lambda dev: dev.fn == f'/dev/input/event{int(item)}'
     elif isinstance(item, str):
-      if item in evdev.ecodes.__dict__:
+      if item in evdev.ecodes.__dict__:  # type: ignore #TODO(b/338318729) Fixit!
         dev_filter = lambda dev: FilterEvdevEcodes(
-            dev, [[evdev.ecodes.__dict__[item]]])
+            dev, [[evdev.ecodes.__dict__[item]]])  # type: ignore #TODO(b/338318729) Fixit!
       else:
         dev_filter = lambda dev: item in dev.name
     elif callable(item):
@@ -295,7 +295,7 @@ def DeviceReopen(dev):
     A different evdev.InputDevice of the same device but with empty event
     buffer.
   """
-  return evdev.InputDevice(dev.fn)
+  return evdev.InputDevice(dev.fn)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class InputDeviceDispatcher:

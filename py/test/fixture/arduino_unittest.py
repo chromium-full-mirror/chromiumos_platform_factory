@@ -28,7 +28,7 @@ class ArduinoControllerTest(unittest.TestCase):
   @mock.patch('time.sleep')
   @mock.patch('cros.factory.test.utils.serial_utils.SerialDevice.Connect')
   def testConnectDefault(self, connect_mock, sleep_mock):
-    self.device.Ping = mock.Mock(return_value=True)
+    self.device.Ping = mock.Mock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.device.Connect()
 
@@ -41,7 +41,7 @@ class ArduinoControllerTest(unittest.TestCase):
   def testCustomReadyDelay(self, connect_mock, sleep_mock):
     ready_delay_secs = 0.5
     self.device = arduino.ArduinoController(ready_delay_secs=ready_delay_secs)
-    self.device.Ping = mock.Mock(return_value=True)
+    self.device.Ping = mock.Mock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.device.Connect()
 
@@ -53,7 +53,7 @@ class ArduinoControllerTest(unittest.TestCase):
   @mock.patch('cros.factory.test.utils.serial_utils.SerialDevice.Connect')
   def testCustomDriver(self, connect_mock, sleep_mock):
     custom_driver = 'CustomDriver'
-    self.device.Ping = mock.Mock(return_value=True)
+    self.device.Ping = mock.Mock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.device.Connect(driver=custom_driver)
 
@@ -64,7 +64,7 @@ class ArduinoControllerTest(unittest.TestCase):
   @mock.patch('time.sleep')
   @mock.patch('cros.factory.test.utils.serial_utils.SerialDevice.Connect')
   def testConnectPingFailed(self, connect_mock, sleep_mock):
-    self.device.Ping = mock.Mock(return_value=False)
+    self.device.Ping = mock.Mock(return_value=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(serial.SerialException, self.device.Connect)
 
@@ -73,7 +73,7 @@ class ArduinoControllerTest(unittest.TestCase):
     self.device.Ping.assert_called_once_with()
 
   def testPing(self):
-    self.device.SendExpectReceive = mock.Mock(side_effect=[True, True, True])
+    self.device.SendExpectReceive = mock.Mock(side_effect=[True, True, True])  # type: ignore #TODO(b/338318729) Fixit!
     send_expect_receive_calls = [
         mock.call(chr(1), chr(1), retry=0),
         mock.call(chr(2), chr(2)),
@@ -85,7 +85,7 @@ class ArduinoControllerTest(unittest.TestCase):
                      send_expect_receive_calls)
 
   def testPingFail(self):
-    self.device.SendExpectReceive = mock.Mock(side_effect=[True, False])
+    self.device.SendExpectReceive = mock.Mock(side_effect=[True, False])  # type: ignore #TODO(b/338318729) Fixit!
     send_expect_receive_calls = [
         mock.call(chr(1), chr(1), retry=0),
         mock.call(chr(2), chr(2))]

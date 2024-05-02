@@ -512,7 +512,7 @@ def main():
     print(f'GetDeviceStatus({device}): {fixture.GetDeviceStatus(device)}')
   elif command == 'SystemStatus':
     component = args.component
-    print(f'GetSystemStatus({device}): {fixture.GetSystemStatus(component)}')
+    print(f'GetSystemStatus({device}): {fixture.GetSystemStatus(component)}')  # type: ignore #TODO(b/338318729) Fixit!
   elif command == 'IsLEDColor':
     color = args.color
     print(f'IsLEDColor({color}): {fixture.IsLEDColor(color)}')

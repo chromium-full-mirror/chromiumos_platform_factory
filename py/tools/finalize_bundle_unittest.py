@@ -25,7 +25,7 @@ def MockDownload(unused_possible_urls, unused_resource_name, unused_version):
 class FinalizeBundleTestBase(unittest.TestCase):
 
   def setUp(self):
-    self.temp_dir = tempfile.mkdtemp(prefix=__class__.__name__)
+    self.temp_dir = tempfile.mkdtemp(prefix=__class__.__name__)  # type: ignore #TODO(b/338318729) Fixit!
 
     @contextlib.contextmanager
     def MockTempdir():
@@ -89,7 +89,7 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'netboot')), {
+            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit!
                 'dnsmasq.conf':
                     '084e4b7f1040bd77555563f49f271213306b8ea5',
                 'image-randomName.net.bin':
@@ -124,7 +124,7 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'netboot')), {
+            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit!
                 'dnsmasq.conf':
                     '084e4b7f1040bd77555563f49f271213306b8ea5',
                 'tftp/chrome-bot/brya/cmdline.sample':
@@ -219,7 +219,7 @@ class AddFirmwareUpdaterAndImagesTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'firmware')), {})
+            os.path.join(bundle_builder.bundle_dir, 'firmware')), {})  # type: ignore #TODO(b/338318729) Fixit!
 
   def testAddFirmware_evtCrosConfigMismatch_raiseException(self):
     self.pack_mock.side_effect = self.MockMismatchPack
@@ -258,7 +258,7 @@ class AddFirmwareUpdaterAndImagesTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'firmware')),
+            os.path.join(bundle_builder.bundle_dir, 'firmware')),  # type: ignore #TODO(b/338318729) Fixit!
         {'chromeos-firmwareupdate': 'da39a3ee5e6b4b0d3255bfef95601890afd80709'})
 
   @mock.patch(file_utils.__name__ + '.TryMakeDirs',
@@ -347,7 +347,7 @@ class DownloadResourcesTest(FinalizeBundleTestBase):
     bundle_builder.DownloadResources()
 
     self.assertEqual(
-        os.path.basename(bundle_builder.firmware_image_source),
+        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit!
         'mock_release_image_15003.0.0')
 
   def testDownloadFirmwareSource_fromOtherReleaseImage(self):
@@ -367,7 +367,7 @@ class DownloadResourcesTest(FinalizeBundleTestBase):
     bundle_builder.DownloadResources()
 
     self.assertEqual(
-        os.path.basename(bundle_builder.firmware_image_source),
+        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit!
         'mock_release_image_15004.0.0')
 
   def testDownloadFirmwareSource_fromLocal(self):
@@ -703,8 +703,8 @@ class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
     self.bundle_builder = finalize_bundle.FinalizeBundle(
         manifest=self.default_manifest, work_dir=self.temp_dir)
     self.bundle_builder.ProcessManifest()
-    self.shim_dir = os.path.join(self.bundle_builder.bundle_dir, 'factory_shim')
-    self.toolkit_dir = os.path.join(self.bundle_builder.bundle_dir, 'toolkit')
+    self.shim_dir = os.path.join(self.bundle_builder.bundle_dir, 'factory_shim')  # type: ignore #TODO(b/338318729) Fixit!
+    self.toolkit_dir = os.path.join(self.bundle_builder.bundle_dir, 'toolkit')  # type: ignore #TODO(b/338318729) Fixit!
     self.extract = mock.patch.object(file_utils, 'ExtractFile',
                                      autospec=True).start()
     mock.patch.object(finalize_bundle.FinalizeBundle, '_DownloadResource',
@@ -728,7 +728,7 @@ class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
     self.assertTrue(os.path.exists(os.path.join(self.shim_dir, 'test_file')))
 
   def testChangedPath_MoveBackToNormalPath(self):
-    rubik_shim_dir = os.path.join(self.bundle_builder.bundle_dir,
+    rubik_shim_dir = os.path.join(self.bundle_builder.bundle_dir,  # type: ignore #TODO(b/338318729) Fixit!
                                   'R123-0.0.0-factory_shim')
 
     def CreateMockedChangedBundle(*unused_args, **unused_kwargs):

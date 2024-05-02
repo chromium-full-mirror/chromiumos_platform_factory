@@ -34,7 +34,7 @@ class WatchdogTest(unittest.TestCase):
 
   def tearDown(self):
     self.watchdog.Stop()
-    self.watchdog = None
+    self.watchdog = None  # type: ignore #TODO(b/338318729) Fixit!
 
   def _CheckOption(self, flag):
     ident = self.watchdog.GetSupport()

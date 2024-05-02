@@ -44,7 +44,7 @@ class AbstractUdevMonitor(device_types.DeviceComponent, abc.ABC):
   def __init__(self, dut):
     super().__init__(dut)
     self._handler = {}
-    self._SYS_BLOCK_PATH = self._device.path.join('/sys', 'block')
+    self._SYS_BLOCK_PATH = self._device.path.join('/sys', 'block')  # type: ignore #TODO(b/338318729) Fixit!
     self._DEV_BLOCK_PATH = '/dev'
 
   def StartMonitorPath(self, sys_path, handler):
@@ -169,18 +169,18 @@ class LocalUdevMonitor(AbstractUdevMonitor):
   def __init__(self, dut):
     super().__init__(dut)
     self._udev_observer = None
-    context = pyudev.Context()
-    self._monitor = pyudev.Monitor.from_netlink(context)
+    context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit!
+    self._monitor = pyudev.Monitor.from_netlink(context)  # type: ignore #TODO(b/338318729) Fixit!
     self._monitor.filter_by(subsystem='block', device_type='disk')
     self._udev_observer = None
 
   def OnStartMonitor(self):
-    self._udev_observer = pyudev.MonitorObserver(self._monitor,
+    self._udev_observer = pyudev.MonitorObserver(self._monitor,  # type: ignore #TODO(b/338318729) Fixit!
                                                  self._HandleUdevEvent)
     self._udev_observer.start()
 
   def OnStopMonitor(self):
-    self._udev_observer.stop()
+    self._udev_observer.stop()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _HandleUdevEvent(self, action, device):
     """The udev event handler.
@@ -191,7 +191,7 @@ class LocalUdevMonitor(AbstractUdevMonitor):
     """
     # Try to determine the change event is an insert or remove.
     if action == self._UDEV_ACTION_CHANGE:
-      if self._device.path.exists(device.device_node):
+      if self._device.path.exists(device.device_node):  # type: ignore #TODO(b/338318729) Fixit!
         action = self._UDEV_ACTION_INSERT
       else:
         action = self._UDEV_ACTION_REMOVE
@@ -248,8 +248,8 @@ class PollingUdevMonitor(AbstractUdevMonitor):
     # We only scan for storage devices, e.g., sd* and mmc*.
     sys_block_path = self.GetSysBlockPath()
     block_devs = (
-        self._device.Glob(self._device.path.join(sys_block_path, 'sd*')) +
-        self._device.Glob(self._device.path.join(sys_block_path, 'mmc*')))
+        self._device.Glob(self._device.path.join(sys_block_path, 'sd*')) +  # type: ignore #TODO(b/338318729) Fixit!
+        self._device.Glob(self._device.path.join(sys_block_path, 'mmc*')))  # type: ignore #TODO(b/338318729) Fixit!
 
     # New cache for realpath.
     curr_realpaths = {}
@@ -257,7 +257,7 @@ class PollingUdevMonitor(AbstractUdevMonitor):
     for block_dev in block_devs:
       real_path = self._realpaths.get(block_dev)
       if not real_path:
-        real_path = self._device.path.realpath(block_dev)
+        real_path = self._device.path.realpath(block_dev)  # type: ignore #TODO(b/338318729) Fixit!
       curr_realpaths[block_dev] = real_path
       # TODO(chenghan): This doesn't work with regex sys_path monitored, but
       #                 currently this class is not used anywhere so it should
@@ -265,8 +265,8 @@ class PollingUdevMonitor(AbstractUdevMonitor):
       sys_paths = [path for path in self.GetPathUnderMonitor() if
                    real_path.startswith(path)]
       for sys_path in sys_paths:
-        node = self._device.path.join(
-            self.GetDevBlockPath(), self._device.path.basename(block_dev))
+        node = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+            self.GetDevBlockPath(), self._device.path.basename(block_dev))  # type: ignore #TODO(b/338318729) Fixit!
         device[sys_path] = self.Device(node, real_path)
     self._realpaths = curr_realpaths
     return device

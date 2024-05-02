@@ -37,17 +37,17 @@ class LinuxTargetTest(unittest.TestCase):
     self.assertEqual(self.dut.ReadFile('/non-exist'), 'TEST')
     self.link.Pull.assert_called_with('/non-exist')
 
-    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')
+    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.ReadFile('/non-exist', 4), 'TEST')
     self.dut.CheckOutput.assert_called_with(
         ['dd', 'bs=1', 'if=/non-exist', 'count=4'], encoding='utf-8')
 
-    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')
+    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.ReadFile('/non-exist', 4, 4), 'TEST')
     self.dut.CheckOutput.assert_called_with(
         ['dd', 'bs=1', 'if=/non-exist', 'count=4', 'skip=4'], encoding='utf-8')
 
-    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')
+    self.dut.CheckOutput = mock.MagicMock(return_value='TEST')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.ReadFile('/non-exist', skip=4), 'TEST')
     self.dut.CheckOutput.assert_called_with(
         ['dd', 'bs=1', 'if=/non-exist', 'skip=4'], encoding='utf-8')
@@ -56,7 +56,7 @@ class LinuxTargetTest(unittest.TestCase):
               return_value=b'\xff\x0f\x00\x00\x00\x00\x00\x00')
   def testReadSpecialFile(self, mock_check_output: mock.Mock):
     self.assertEqual(
-        self.dut.ReadSpecialFile('/dev/cpu/0/msr', count=8, encoding=None),
+        self.dut.ReadSpecialFile('/dev/cpu/0/msr', count=8, encoding=None),  # type: ignore #TODO(b/338318729) Fixit!
         b'\xff\x0f\x00\x00\x00\x00\x00\x00')
     mock_check_output.assert_called_with(
         ['dd', 'bs=1', 'if=/dev/cpu/0/msr', 'count=8'], encoding=None)
@@ -116,9 +116,9 @@ class LinuxTargetTest(unittest.TestCase):
       stdout.write('fake data')
       return 1
 
-    self.dut.Call = mock.MagicMock(side_effect=fakeCallSuccess)
+    self.dut.Call = mock.MagicMock(side_effect=fakeCallSuccess)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.CheckOutput(['cmd']), 'fake data')
-    self.dut.Call = mock.MagicMock(side_effect=fakeCallFailure)
+    self.dut.Call = mock.MagicMock(side_effect=fakeCallFailure)  # type: ignore #TODO(b/338318729) Fixit!
     with self.assertRaises(device_types.CalledProcessError):
       self.dut.CheckOutput(['cmd'])
 
@@ -134,15 +134,15 @@ class LinuxTargetTest(unittest.TestCase):
       stdout.write('fake data')
       return 1
 
-    self.dut.Call = mock.MagicMock(side_effect=fakeCallSuccess)
+    self.dut.Call = mock.MagicMock(side_effect=fakeCallSuccess)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.CallOutput(['cmd']), 'fake data')
-    self.dut.Call = mock.MagicMock(side_effect=fakeCallFailure)
+    self.dut.Call = mock.MagicMock(side_effect=fakeCallFailure)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.CallOutput(['cmd']), None)
 
   def testGlob(self):
-    self.dut.CallOutput = mock.MagicMock(return_value=None)
+    self.dut.CallOutput = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.Glob('/non-exist'), [])
-    self.dut.CallOutput = mock.MagicMock(return_value='/ab\n/a1b\n/a2b\n')
+    self.dut.CallOutput = mock.MagicMock(return_value='/ab\n/a1b\n/a2b\n')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.dut.Glob('/a*b'), ['/ab', '/a1b', '/a2b'])
 
   @mock.patch('cros.factory.utils.sys_utils.GetVarLogMessagesBeforeReboot',

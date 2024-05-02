@@ -271,10 +271,10 @@ class ContentsAnalyzer:
     for comps in self._ExtractHWIDComponents().values():
       for comp in comps:
         if (comp.from_factory_bundle and not comp.is_newly_added and
-            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):
+            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):  # type: ignore #TODO(b/338318729) Fixit!
           report.errors.append(
               Error(
-                  ErrorCode.CONTENTS_ERROR, 'Modifying firmware component '
+                  ErrorCode.CONTENTS_ERROR, 'Modifying firmware component '  # type: ignore #TODO(b/338318729) Fixit!
                   f'{comp.diff_prev.prev_comp_name!r} which is generated from '
                   'the system. Is this change proposal mistakenly based on a '
                   'legacy HWID bundle?'))
@@ -414,12 +414,12 @@ class ContentsAnalyzer:
   def _AnalyzeDBLines(self, db_contents_patcher, all_placeholders,
                       db_placeholder_options):
     dumped_db_lines = db_contents_patcher(
-        self._curr_db.instance.DumpDataWithoutChecksum(
+        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit!
             suppress_support_status=False,
             magic_placeholder_options=db_placeholder_options)).splitlines()
 
     no_placeholder_dumped_db_lines = db_contents_patcher(
-        self._curr_db.instance.DumpDataWithoutChecksum(
+        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit!
             suppress_support_status=False)).splitlines()
     if len(dumped_db_lines) != len(no_placeholder_dumped_db_lines):
       # Unexpected case, skip deriving the line diffs.
@@ -430,15 +430,15 @@ class ContentsAnalyzer:
       prev_db_contents_lines = db_contents_patcher(
           self._prev_db.instance.DumpDataWithoutChecksum(
               suppress_support_status=False)).splitlines()
-      diff_view_line_it = difflib.ndiff(
+      diff_view_line_it = difflib.ndiff(  # type: ignore #TODO(b/338318729) Fixit!
           prev_db_contents_lines, no_placeholder_dumped_db_lines, charjunk=None)
 
     removed_line_count = 0
 
     splitter = _LineSplitter(
         all_placeholders,
-        functools.partial(DBLineAnalysisResult.Part,
-                          DBLineAnalysisResult.Part.Type.TEXT))
+        functools.partial(DBLineAnalysisResult.Part,  # type: ignore #TODO(b/338318729) Fixit!
+                          DBLineAnalysisResult.Part.Type.TEXT))  # type: ignore #TODO(b/338318729) Fixit!
     line_analysis_result = []
     for line in dumped_db_lines:
       while True:
@@ -450,12 +450,12 @@ class ContentsAnalyzer:
         removed_line_count += 1
       if diff_view_line.startswith('  '):
         removed_line_count = 0
-        mod_status = DBLineAnalysisResult.ModificationStatus.NOT_MODIFIED
+        mod_status = DBLineAnalysisResult.ModificationStatus.NOT_MODIFIED  # type: ignore #TODO(b/338318729) Fixit!
       elif removed_line_count > 0:
         removed_line_count -= 1
-        mod_status = DBLineAnalysisResult.ModificationStatus.MODIFIED
+        mod_status = DBLineAnalysisResult.ModificationStatus.MODIFIED  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        mod_status = DBLineAnalysisResult.ModificationStatus.NEWLY_ADDED
+        mod_status = DBLineAnalysisResult.ModificationStatus.NEWLY_ADDED  # type: ignore #TODO(b/338318729) Fixit!
 
       parts = splitter.SplitText(line)
       line_analysis_result.append(DBLineAnalysisResult(mod_status, parts))

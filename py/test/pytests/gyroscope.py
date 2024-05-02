@@ -88,37 +88,37 @@ class Gyroscope(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.gyroscope = self.dut.gyroscope.GetController(
-        location=self.args.location,
-        gyro_id=self.args.gyro_id,
-        freq=self.args.freq)
-    self.ui.ToggleTemplateClass('font-large', True)
+        location=self.args.location,  # type: ignore #TODO(b/338318729) Fixit!
+        gyro_id=self.args.gyro_id,  # type: ignore #TODO(b/338318729) Fixit!
+        freq=self.args.freq)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.setup_sensor:
+    if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit!
       self.gyroscope.SetupMotionSensor()
 
     logging.info('%r', self.gyroscope)
 
-    if not self.args.autostart:
-      self.ui.SetInstruction(
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please put device on a horizontal plane then press space to '
             'start testing.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
-    for i in range(self.args.setup_time_secs):
-      self.ui.SetInstruction(
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _(
               'Test will be started within {secs} seconds. '
               'Please do not move the device.',
-              secs=self.args.setup_time_secs - i))
+              secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
     logging.info('Wait for device stop.')
-    self.ui.SetInstruction(_('Please do not move the device.'))
+    self.ui.SetInstruction(_('Please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
     self._WaitForDeviceStop()
 
     logging.info('Wait for device rotate.')
-    self.ui.SetInstruction(_('Please rotate the device.'))
+    self.ui.SetInstruction(_('Please rotate the device.'))  # type: ignore #TODO(b/338318729) Fixit!
     self.SetImage('chromebook.png')
     self._WaitForDeviceRotate()
 
@@ -127,7 +127,7 @@ class Gyroscope(test_case.TestCase):
     degree_x, degree_y, degree_z = 0, 0, 0
     for k, v in data.items():
       state = ('test-status-passed' if is_passed[k] else 'test-status-failed')
-      axis = re.match(r'in_anglvel_(?P<axis>x|y|z)', k).group('axis')
+      axis = re.match(r'in_anglvel_(?P<axis>x|y|z)', k).group('axis')  # type: ignore #TODO(b/338318729) Fixit!
       if axis == 'x':
         degree_x = int(rotation_degree[k])
       elif axis == 'y':
@@ -139,7 +139,7 @@ class Gyroscope(test_case.TestCase):
                   f'{rotation_degree[k]:.2f} deg</div>')
 
     self.RotateImage(degree_x, degree_y, degree_z)
-    self.ui.SetHTML(''.join(html), id='state')
+    self.ui.SetHTML(''.join(html), id='state')  # type: ignore #TODO(b/338318729) Fixit!
 
   def _UpdateRotationDegree(self, data, rotation_degree, time_period):
     for k, v in data.items():
@@ -149,31 +149,31 @@ class Gyroscope(test_case.TestCase):
   def _WaitForDeviceStop(self):
     """Wait until absolute value of all sensors less than stop_threshold."""
 
-    rotation_degree = collections.defaultdict(int)
+    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
 
     def CheckSensorState():
       data = self.gyroscope.GetData()
       logging.info('sensor value: %r', data)
       is_passed = {
-          k: abs(v) < self.args.stop_threshold
+          k: abs(v) < self.args.stop_threshold  # type: ignore #TODO(b/338318729) Fixit!
           for k, v in data.items()
       }
-      self._UpdateState(data, is_passed, f'< {self.args.stop_threshold:.10f}',
+      self._UpdateState(data, is_passed, f'< {self.args.stop_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit!
                         rotation_degree)
       return all(is_passed.values())
 
-    sync_utils.WaitFor(CheckSensorState, self.args.timeout_secs)
+    sync_utils.WaitFor(CheckSensorState, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _WaitForDeviceRotate(self):
     """Wait until all sensors has absolute value > rotation_threshold."""
 
-    max_values = collections.defaultdict(float)
-    rotation_degree = collections.defaultdict(int)
+    max_values = collections.defaultdict(float)  # type: ignore #TODO(b/338318729) Fixit!
+    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
 
     def CheckSensorMaxValues():
       before_get_data = time.time()
-      data = self.gyroscope.GetData(capture_count=self.args.capture_count,
-                                    sample_rate=self.args.sample_rate,
+      data = self.gyroscope.GetData(capture_count=self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit!
+                                    sample_rate=self.args.sample_rate,  # type: ignore #TODO(b/338318729) Fixit!
                                     average=False)
 
       cleaned_data = collections.defaultdict(float)
@@ -187,35 +187,35 @@ class Gyroscope(test_case.TestCase):
       for sensor_name, value in cleaned_data.items():
         max_values[sensor_name] = max(max_values[sensor_name], abs(value))
       is_passed = {
-          k: v > self.args.rotation_threshold
+          k: v > self.args.rotation_threshold  # type: ignore #TODO(b/338318729) Fixit!
           for k, v in max_values.items()
       }
       after_get_data = time.time()
       self._UpdateRotationDegree(cleaned_data, rotation_degree,
                                  after_get_data - before_get_data)
       self._UpdateState(max_values, is_passed,
-                        f'> {self.args.rotation_threshold:.10f}',
+                        f'> {self.args.rotation_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit!
                         rotation_degree)
       return all(is_passed.values())
 
     sync_utils.WaitFor(condition=CheckSensorMaxValues,
-                       timeout_secs=self.args.timeout_secs,
+                       timeout_secs=self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                        poll_interval=_DEFAULT_POLL_INTERVAL)
 
   def SetImage(self, url):
     """Sets the image src."""
-    self.ui.RunJS('document.getElementById("chromebook_img").src = args.url;',
+    self.ui.RunJS('document.getElementById("chromebook_img").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=url)
 
   def RotateImage(self, degree_x, degree_y, degree_z):
     """Rotates the image according to the degree captured."""
-    if self.args.location == 'base':
+    if self.args.location == 'base':  # type: ignore #TODO(b/338318729) Fixit!
       # Switch y and z axis as the image follows the axes of the screen
       degree_y, degree_z = degree_z, degree_y
-    if self.args.location == 'lid':
+    if self.args.location == 'lid':  # type: ignore #TODO(b/338318729) Fixit!
       # Turn y and z values into negative as the axes have opposite direction
       degree_y, degree_z = -degree_y, -degree_z
 
-    self.ui.RunJS(f'document.getElementById("chromebook_img").style.transform '
+    self.ui.RunJS(f'document.getElementById("chromebook_img").style.transform '  # type: ignore #TODO(b/338318729) Fixit!
                   f'="rotateX({degree_x}deg) rotateY({degree_y}deg) '
                   f'rotateZ({degree_z}deg)";')

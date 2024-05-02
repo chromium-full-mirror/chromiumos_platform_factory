@@ -52,6 +52,6 @@ class ExecPythonTest(unittest.TestCase):
   ]
 
   def runTest(self):
-    logging.info("Executing Python script: '''%s'''", self.args.script)
-    exec(self.args.script, {'test_info': self.test_info}, {})
+    logging.info("Executing Python script: '''%s'''", self.args.script)  # type: ignore #TODO(b/338318729) Fixit!
+    exec(self.args.script, {'test_info': self.test_info}, {})  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Script succeeded')

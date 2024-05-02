@@ -37,12 +37,12 @@ class Storage(device_types.DeviceComponent):
 
   def GetDictFilePath(self):
     """Returns the path to saved key-value pairs file on device."""
-    return self._device.path.join(self.GetDataRoot(), self._DICT_FILENAME)
+    return self._device.path.join(self.GetDataRoot(), self._DICT_FILENAME)  # type: ignore #TODO(b/338318729) Fixit!
 
   def LoadDict(self):
     """Returns a dictionary of key-value pairs stored in device."""
     data = {}
-    if self._device.path.exists(self.GetDictFilePath()):
+    if self._device.path.exists(self.GetDictFilePath()):  # type: ignore #TODO(b/338318729) Fixit!
       try:
         data = json.loads(self._device.ReadFile(self.GetDictFilePath()))
       except ValueError:
@@ -79,7 +79,7 @@ class Storage(device_types.DeviceComponent):
     device_data_file_path = self.GetDictFilePath()
 
     self._device.CheckCall(
-        ['mkdir', '-p', self._device.path.dirname(device_data_file_path)])
+        ['mkdir', '-p', self._device.path.dirname(device_data_file_path)])  # type: ignore #TODO(b/338318729) Fixit!
     # TODO(stimim): we might need to lock the file while writing.
     self._device.WriteFile(
         self.GetDictFilePath(), json.dumps(data, sort_keys=True))
@@ -123,7 +123,7 @@ class Storage(device_types.DeviceComponent):
     Unlike GetMountPoint, path is directly passed to df even if it doesn't
     exist.
     """
-    filesystems = self._device.toybox.df(path)
+    filesystems = self._device.toybox.df(path)  # type: ignore #TODO(b/338318729) Fixit!
     if not filesystems:
       logging.warning('cannot find mount point of %s', path)
       return None, None
@@ -136,8 +136,8 @@ class Storage(device_types.DeviceComponent):
     each component in the path until new path exists. Then use
     _GetMountPointByDiskFree to get the mount point and device of new path.
     """
-    while not self._device.path.exists(path):
-      new_path = self._device.path.dirname(path)
+    while not self._device.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit!
+      new_path = self._device.path.dirname(path)  # type: ignore #TODO(b/338318729) Fixit!
       if new_path == path:
         break
       path = new_path
@@ -210,7 +210,7 @@ class Storage(device_types.DeviceComponent):
 
   def GetStatefulLogicalDevicePath(self):
     state_dev = self.GetMainStorageDevice(
-        self._device.partitions.STATEFUL.index)
+        self._device.partitions.STATEFUL.index)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Check if the stateful partition is LVM format.
     try:

@@ -69,22 +69,22 @@ class KeyboardSMTTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.debug = self.args.debug
-    self.expected_sequence = self.args.keycode_sequence
+    self.debug = self.args.debug  # type: ignore #TODO(b/338318729) Fixit!
+    self.expected_sequence = self.args.keycode_sequence  # type: ignore #TODO(b/338318729) Fixit!
     self.received_sequence = []
 
     self.fixture = None
-    if self.args.bft_fixture:
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Get the keyboard input device.
-    self.event_dev = evdev_utils.FindDevice(self.args.device_filter,
+    self.event_dev = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
                                             evdev_utils.IsKeyboardDevice)
 
     # Monitor keyboard event within specified time period.
     self.event_dev.grab()
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        self.event_dev, self.event_loop.CatchException(self.HandleEvdevEvent))
+        self.event_dev, self.event_loop.CatchException(self.HandleEvdevEvent))  # type: ignore #TODO(b/338318729) Fixit!
     self.dispatcher.StartDaemon()
     self.UpdateUI()
 
@@ -94,11 +94,11 @@ class KeyboardSMTTest(test_case.TestCase):
 
   def UpdateUI(self):
     expected_sequence = self.expected_sequence
-    if not self.debug:
+    if not self.debug:  # type: ignore #TODO(b/338318729) Fixit!
       expected_sequence = expected_sequence[len(self.received_sequence):]
 
-    self.ui.CallJSFunction('setMatchedSequence', self.received_sequence)
-    self.ui.CallJSFunction('setExpectedSequence', expected_sequence)
+    self.ui.CallJSFunction('setMatchedSequence', self.received_sequence)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.CallJSFunction('setExpectedSequence', expected_sequence)  # type: ignore #TODO(b/338318729) Fixit!
 
   def HandleEvdevEvent(self, event):
     """Handles evdev event.
@@ -106,12 +106,12 @@ class KeyboardSMTTest(test_case.TestCase):
     Args:
       event: evdev event.
     """
-    if event.type == evdev.ecodes.EV_KEY and event.value == 0:
+    if event.type == evdev.ecodes.EV_KEY and event.value == 0:  # type: ignore #TODO(b/338318729) Fixit!
       self.HandleKey(event.code)
 
   def HandleKey(self, key):
     """Handles keyup event."""
-    if self.debug:
+    if self.debug:  # type: ignore #TODO(b/338318729) Fixit!
       session.console.info('keycode: %s', key)
       self.received_sequence.append(key)
     else:
@@ -125,7 +125,7 @@ class KeyboardSMTTest(test_case.TestCase):
     self.UpdateUI()
 
   def runTest(self):
-    if not self.debug:
+    if not self.debug:  # type: ignore #TODO(b/338318729) Fixit!
       self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
     if self.fixture:
       self.fixture.SimulateKeystrokes()

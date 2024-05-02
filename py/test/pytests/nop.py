@@ -42,5 +42,5 @@ class NopTest(unittest.TestCase):
       Arg('wait_secs', (int, float), 'Wait for N seconds.', default=0)]
 
   def runTest(self):
-    if self.args.wait_secs:
-      time.sleep(self.args.wait_secs)
+    if self.args.wait_secs:  # type: ignore #TODO(b/338318729) Fixit!
+      time.sleep(self.args.wait_secs)  # type: ignore #TODO(b/338318729) Fixit!

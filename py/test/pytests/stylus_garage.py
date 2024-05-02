@@ -72,21 +72,21 @@ class StylusGarageTest(test_case.TestCase):
 
   def setUp(self):
     filters = []
-    if self.args.device_filter is not None:
-      filters.append(self.args.device_filter)
+    if self.args.device_filter is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      filters.append(self.args.device_filter)  # type: ignore #TODO(b/338318729) Fixit!
     filters.append(evdev_utils.IsStylusGarageDevice)
     self.event_dev = evdev_utils.FindDevice(*filters)
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
     self._current_status = None
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        self.event_dev, self.event_loop.CatchException(self.HandleEvent))
+        self.event_dev, self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     self.dispatcher.Close()
 
   def HandleEvent(self, event):
-    if (event.type == evdev.ecodes.EV_SW and
-        event.code == evdev.ecodes.SW_PEN_INSERTED):
+    if (event.type == evdev.ecodes.EV_SW and  # type: ignore #TODO(b/338318729) Fixit!
+        event.code == evdev.ecodes.SW_PEN_INSERTED):  # type: ignore #TODO(b/338318729) Fixit!
       if event.value == 1:  # Stylus inserted
         if self._current_status == StylusStatus.inserted:
           self.FailTask('Consecutive insertion')
@@ -100,16 +100,16 @@ class StylusGarageTest(test_case.TestCase):
           self.FailTask('Consecutive ejection')
         self._current_status = StylusStatus.ejected
 
-      if self._current_status == self.args.target_state:
+      if self._current_status == self.args.target_state:  # type: ignore #TODO(b/338318729) Fixit!
         self.PassTask()
       elif self._current_status == StylusStatus.inserted:
-        self.ui.SetState(_('Remove stylus'))
+        self.ui.SetState(_('Remove stylus'))  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        self.ui.SetState(_('Insert stylus'))
+        self.ui.SetState(_('Insert stylus'))  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    self.ui.SetState(_('Insert or Remove stylus'))
+    self.ui.SetState(_('Insert or Remove stylus'))  # type: ignore #TODO(b/338318729) Fixit!
     self.dispatcher.StartDaemon()
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.WaitTaskEnd()

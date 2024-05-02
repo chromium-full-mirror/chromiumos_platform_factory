@@ -115,39 +115,39 @@ class StationEntry(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._state = state.GetInstance()
-    self.ui.ToggleTemplateClass('font-large', True)
-    self.ui.SetTitle(
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetTitle(  # type: ignore #TODO(b/338318729) Fixit!
         _('Start Station Test')
-        if self.args.start_station_tests else _('End Station Test'))
+        if self.args.start_station_tests else _('End Station Test'))  # type: ignore #TODO(b/338318729) Fixit!
 
   def SendTestResult(self):
     self._state.PostHookEvent('TestResult', self._state.GetTestStates())
 
   def runTest(self):
-    if self.args.start_station_tests:
+    if self.args.start_station_tests:  # type: ignore #TODO(b/338318729) Fixit!
       # Clear dut.info data.
-      if self.args.invalidate_dut_info:
+      if self.args.invalidate_dut_info:  # type: ignore #TODO(b/338318729) Fixit!
         session.console.info('Clearing dut.info data...')
         self._dut.info.Invalidate()
-      if self.args.clear_serial_numbers:
+      if self.args.clear_serial_numbers:  # type: ignore #TODO(b/338318729) Fixit!
         session.console.info('Clearing serial numbers')
         device_data.ClearAllSerialNumbers()
       self.Start()
-      if self.args.load_dut_storage:
+      if self.args.load_dut_storage:  # type: ignore #TODO(b/338318729) Fixit!
         self._dut.info.GetSerialNumber('serial_number')
         self._dut.info.GetSerialNumber('mlb_serial_number')
     else:
       self.End()
       # Clear dut.info data.
-      if self.args.invalidate_dut_info:
+      if self.args.invalidate_dut_info:  # type: ignore #TODO(b/338318729) Fixit!
         session.console.info('Clearing dut.info data...')
         self._dut.info.Invalidate()
-      if self.args.clear_serial_numbers:
+      if self.args.clear_serial_numbers:  # type: ignore #TODO(b/338318729) Fixit!
         session.console.info('Clearing serial numbers')
         device_data.ClearAllSerialNumbers()
 
   def Start(self):
-    self.ui.SetState(_('Please attach DUT.'))
+    self.ui.SetState(_('Please attach DUT.'))  # type: ignore #TODO(b/338318729) Fixit!
 
     def _IsReady():
       if not self._dut.link.IsReady():
@@ -159,12 +159,12 @@ class StationEntry(test_case.TestCase):
         return False
 
     try:
-      sync_utils.WaitFor(_IsReady, self.args.timeout_secs, poll_interval=1)
+      sync_utils.WaitFor(_IsReady, self.args.timeout_secs, poll_interval=1)  # type: ignore #TODO(b/338318729) Fixit!
     except type_utils.TimeoutError:
       self.FailTask(
-          f'DUT is not connected in {int(self.args.timeout_secs)} seconds')
+          f'DUT is not connected in {int(self.args.timeout_secs)} seconds')  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.wait_goofy:
+    if self.args.wait_goofy:  # type: ignore #TODO(b/338318729) Fixit!
       def _TryCreateStateProxy():
         try:
           state_proxy = state.GetInstance(self._dut.link.host)
@@ -176,28 +176,28 @@ class StationEntry(test_case.TestCase):
 
       try:
         sync_utils.WaitFor(_TryCreateStateProxy,
-                           self.args.timeout_secs,
+                           self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                            poll_interval=1)
       except type_utils.TimeoutError:
         self.FailTask(
-            f'DUT Goofy is not connected in {int(self.args.timeout_secs)} '
+            f'DUT Goofy is not connected in {int(self.args.timeout_secs)} '  # type: ignore #TODO(b/338318729) Fixit!
             f'seconds')
 
-    if self.args.prompt_start:
-      self.ui.SetState(_('Press SPACE to start the test.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+    if self.args.prompt_start:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Press SPACE to start the test.'))  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
   def End(self):
-    self.ui.SetState(_('Sending test results to shopfloor...'))
+    self.ui.SetState(_('Sending test results to shopfloor...'))  # type: ignore #TODO(b/338318729) Fixit!
 
     self.SendTestResult()
 
-    self.ui.SetState(_('Please remove DUT.'))
+    self.ui.SetState(_('Please remove DUT.'))  # type: ignore #TODO(b/338318729) Fixit!
     if not self._dut.link.IsLocal():
-      if self.args.disconnect_dut:
+      if self.args.disconnect_dut:  # type: ignore #TODO(b/338318729) Fixit!
         sync_utils.WaitFor(lambda: not self._dut.link.IsReady(),
-                           self.args.timeout_secs,
+                           self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                            poll_interval=1)
       else:
-        self.ui.SetState(_('Press SPACE to end the test.'))
-        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+        self.ui.SetState(_('Press SPACE to end the test.'))  # type: ignore #TODO(b/338318729) Fixit!
+        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!

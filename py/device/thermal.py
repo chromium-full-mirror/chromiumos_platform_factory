@@ -142,7 +142,7 @@ class CoreTempSensors(IThermalSensorSource):
     """Probes coretemp sensors."""
     def _GetSensorName(coretemp_path, input_path):
       label_path = input_path.rpartition('_')[0] + '_label'
-      return (self._device.path.basename(coretemp_path) + ' ' +
+      return (self._device.path.basename(coretemp_path) + ' ' +  # type: ignore #TODO(b/338318729) Fixit!
               self._device.ReadFile(label_path).strip())
 
     result = {}
@@ -151,7 +151,7 @@ class CoreTempSensors(IThermalSensorSource):
       for median_dirs in ['', 'hwmon/hwmon*']:
         curr_result = dict(
             (_GetSensorName(coretemp_base, input_path), input_path)
-            for input_path in self._device.Glob(self._device.path.join(
+            for input_path in self._device.Glob(self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
                 coretemp_base, median_dirs, 'temp*_input')))
         if curr_result:
           result.update(curr_result)
@@ -187,9 +187,9 @@ class ThermalZoneSensors(IThermalSensorSource):
     # reading 'value' form them will fail. We may need to support that in future
     # if needed.
     return dict(
-        (self._device.path.basename(node) + ' ' +
-         self._device.ReadFile(self._device.path.join(node, 'type')).strip(),
-         self._device.path.join(node, 'temp'))
+        (self._device.path.basename(node) + ' ' +  # type: ignore #TODO(b/338318729) Fixit!
+         self._device.ReadFile(self._device.path.join(node, 'type')).strip(),  # type: ignore #TODO(b/338318729) Fixit!
+         self._device.path.join(node, 'temp'))  # type: ignore #TODO(b/338318729) Fixit!
         for node in self._device.Glob('/sys/class/thermal/thermal_zone*'))
 
   def _ConvertRawValue(self, value):
@@ -233,7 +233,7 @@ class ECToolTemperatureSensors(IThermalSensorSource):
     """Probes ectool sensors by "tempsinfo all" command."""
     return {'ectool ' + name: sensor_id for sensor_id, name in
             self.ECTOOL_TEMPSINFO_ALL_RE.findall(
-                self._device.CallOutput('ectool tempsinfo all'))}
+                self._device.CallOutput('ectool tempsinfo all'))}  # type: ignore #TODO(b/338318729) Fixit!
 
   def _ConvertRawValue(self, value):
     """Converts ectool temperatures from Kelvin to Celsius."""
@@ -245,7 +245,7 @@ class ECToolTemperatureSensors(IThermalSensorSource):
     # 'ectool temps' prints a message like Reading 'temperature...(\d+)'
     return self._ConvertRawValue(
         self.ECTOOL_TEMPS_SENSORID_RE.findall(
-            self._device.CallOutput(f'ectool temps {sensor_id}'))[0])
+            self._device.CallOutput(f'ectool temps {sensor_id}'))[0])  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetAllValues(self):
     """Returns all ectool temps values.
@@ -281,7 +281,7 @@ class ECToolTemperatureSensors(IThermalSensorSource):
       ret = {name: None
              for name in self.GetSensors()}
       for raw_name, raw_temp in raw_values:
-        ret['ectool ' + raw_name.strip()] = int(raw_temp)
+        ret['ectool ' + raw_name.strip()] = int(raw_temp)  # type: ignore #TODO(b/338318729) Fixit!
 
       return ret
 
@@ -367,7 +367,7 @@ class Thermal(device_types.DeviceComponent):
     sensors = {name: source for name in source.GetSensors()}
     if not sensors:
       return
-    self._sensors.update(sensors)
+    self._sensors.update(sensors)  # type: ignore #TODO(b/338318729) Fixit!
     self._sources.append(source)
     if not self._main_sensor:
       self._main_sensor = source.GetMainSensorName()
@@ -384,7 +384,7 @@ class Thermal(device_types.DeviceComponent):
 
     for source_class in self.SOURCE_CLASSES:
       assert issubclass(source_class, IThermalSensorSource)
-      source = source_class(self._device)
+      source = source_class(self._device)  # type: ignore #TODO(b/338318729) Fixit!
       self._AddThermalSensorSource(source)
       if self._main_sensor:
         break
@@ -397,7 +397,7 @@ class Thermal(device_types.DeviceComponent):
       self._SetupSensors()
     except Exception:
       logging.debug('%s: Failed setting up sensors.', self.__class__.__name__)
-    assert len(set(self._sensors.values())) == len(self._sources), (
+    assert len(set(self._sensors.values())) == len(self._sources), (  # type: ignore #TODO(b/338318729) Fixit!
         'Sensor source cache does not match logged sensors')
     return self._sensors
 
@@ -486,8 +486,8 @@ class Thermal(device_types.DeviceComponent):
 
   def GetFanRPM(self, fan_id=None):
     """This function should be deprecated by `fan.GetFanRPM`."""
-    return self._device.fan.GetFanRPM(fan_id)
+    return self._device.fan.GetFanRPM(fan_id)  # type: ignore #TODO(b/338318729) Fixit!
 
   def SetFanRPM(self, rpm, fan_id=None):
     """This function should be deprecated by `fan.SetFanRPM`."""
-    return self._device.fan.SetFanRPM(rpm, fan_id)
+    return self._device.fan.SetFanRPM(rpm, fan_id)  # type: ignore #TODO(b/338318729) Fixit!

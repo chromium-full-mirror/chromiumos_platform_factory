@@ -58,7 +58,7 @@ class URLSpecTest(unittest.TestCase):
     self.assertEqual(actual, 'server_url')
 
   def testInvalidFormat(self):
-    for param in [None, ['url'], {}, {
+    for param in [None, ['url'], {}, {  # type: ignore #TODO(b/338318729) Fixit!
         'matched_domain': ''
     }]:
       with self.subTest(param=param):

@@ -60,18 +60,18 @@ class TestOutputPullSocket(unittest.TestCase):
     return data
 
   def testQing(self):
-    self.assertTrue(self.plugin.GetSocket())
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
 
   def testInvalidQing(self):
     self.sock.recvfrom.return_value = '*'
-    self.assertFalse(self.plugin.GetSocket())
+    self.assertFalse(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
 
   def testPing(self):
-    self.assertTrue(self.plugin.GetSocket())
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
     sender = output_socket.OutputSocketSender(
-        self.plugin.logger.name, self.plugin._sock, self.plugin)
+        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit!
     sender.Ping()
     time.sleep(1)
     self.assertEqual(
@@ -88,10 +88,10 @@ class TestOutputPullSocket(unittest.TestCase):
         self.assertFalse(self.stream.Empty())
 
   def testInvalidPong(self):
-    self.assertTrue(self.plugin.GetSocket())
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
     sender = output_socket.OutputSocketSender(
-        self.plugin.logger.name, self.plugin._sock, self.plugin)
+        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit!
     self.sock.recv.return_value = 'x'
     self.assertFalse(sender.Ping())
 

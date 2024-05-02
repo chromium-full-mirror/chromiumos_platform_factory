@@ -96,21 +96,21 @@ class UpdateKernel(unittest.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.kernel_image is not None:
+    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(
-          os.path.isfile(self.args.kernel_image),
-          msg=f'{self.args.kernel_image} is missing.')
-    if self.args.kernel_config is not None:
+          os.path.isfile(self.args.kernel_image),  # type: ignore #TODO(b/338318729) Fixit!
+          msg=f'{self.args.kernel_image} is missing.')  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.kernel_config is not None:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(
-          os.path.isfile(self.args.kernel_config),
-          msg=f'{self.args.kernel_config} is missing.')
+          os.path.isfile(self.args.kernel_config),  # type: ignore #TODO(b/338318729) Fixit!
+          msg=f'{self.args.kernel_config} is missing.')  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateKernel(self):
     """Apply new kernel.
 
     Gets current kernel config, re-sign by make_dev_ssd, then write into system.
     """
-    if self.args.to_release:
+    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit!
       # verify release partition is in dev channel
       factory_tool = deploy_utils.CreateFactoryTools(self._dut)
       factory_tool.CheckCall(['gooftool', 'verify_release_channel',
@@ -121,22 +121,22 @@ class UpdateKernel(unittest.TestCase):
       fw_keys = [key.split('#')[1] for key in probed_keys]
       self.assertIn(_DEVKEY, fw_keys)
 
-    if self.args.to_release:
+    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit!
       kerndev = self._dut.partitions.RELEASE_KERNEL
     else:
       kerndev = self._dut.partitions.FACTORY_KERNEL
     kernel_id = str(kerndev.index)
 
-    if self.args.kernel_config is None:
+    if self.args.kernel_config is None:  # type: ignore #TODO(b/338318729) Fixit!
       kernel_config = process_utils.CheckOutput(
           ["futility", "dump_kernel_config", kerndev.path])
     else:
-      kernel_config = file_utils.ReadFile(self.args.kernel_config)
+      kernel_config = file_utils.ReadFile(self.args.kernel_config)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.kernel_image is not None:
+    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit!
       # Directly write into kernel partition.
       self._dut.WriteSpecialFile(kerndev.path,
-                                 file_utils.ReadFile(self.args.kernel_image))
+                                 file_utils.ReadFile(self.args.kernel_image))  # type: ignore #TODO(b/338318729) Fixit!
 
     config_suffix = f".{kernel_id}"
     with self._dut.temp.TempFile(suffix=config_suffix) as config_file:

@@ -45,11 +45,11 @@ class FormattedStrTypeTest(unittest.TestCase):
       return f'(prefix){s}'
 
     format_self = converter_types.FormattedStrType(
-        'foo', formatter_self=_PrefixFormatter)
+        'foo', formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(format_self, '(prefix)foo')
 
     format_other = converter_types.FormattedStrType(
-        '(prefix)foo', formatter_other=_PrefixFormatter)
+        '(prefix)foo', formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(format_other, 'foo')
 
   def testFormatterException(self):
@@ -58,11 +58,11 @@ class FormattedStrTypeTest(unittest.TestCase):
       raise converter_types.StrFormatterError
 
     format_self = converter_types.FormattedStrType(
-        'foo', formatter_self=_FormatterWithException)
+        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertNotEqual(format_self, 'foo')
 
     format_other = converter_types.FormattedStrType(
-        'foo', formatter_other=_FormatterWithException)
+        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertNotEqual(format_other, 'foo')
 
   def testCallable(self):
@@ -71,11 +71,11 @@ class FormattedStrTypeTest(unittest.TestCase):
       return f'(prefix){s}'
 
     callable_self = converter_types.FormattedStrType.CreateInstanceFactory(
-        formatter_self=_PrefixFormatter)
+        formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(callable_self('foo'), '(prefix)foo')
 
     callable_other = converter_types.FormattedStrType.CreateInstanceFactory(
-        formatter_other=_PrefixFormatter)
+        formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(callable_other('(prefix)foo'), 'foo')
 
 
@@ -96,11 +96,11 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       return f'5{s}'
 
     format_self = converter_types.FormattedRegexStrType(
-        'foo', formatter_self=_PrefixRegexFormatter)
+        'foo', formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(format_self, '5foo')
 
     format_other = converter_types.FormattedRegexStrType(
-        '[0-9]foo', formatter_other=_PrefixNumberFormatter)
+        '[0-9]foo', formatter_other=_PrefixNumberFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(format_other, 'foo')
 
   def testFormatterException(self):
@@ -109,11 +109,11 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       raise converter_types.StrFormatterError
 
     format_self = converter_types.FormattedRegexStrType(
-        'foo', formatter_self=_FormatterWithException)
+        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertNotEqual(format_self, 'foo')
 
     format_other = converter_types.FormattedRegexStrType(
-        'foo', formatter_other=_FormatterWithException)
+        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertNotEqual(format_other, 'foo')
 
   def testCallable(self):
@@ -125,12 +125,12 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       return f'5{s}'
 
     callable_self = converter_types.FormattedRegexStrType.CreateInstanceFactory(
-        formatter_self=_PrefixRegexFormatter)
+        formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(callable_self('foo'), '5foo')
 
     callable_other = (
         converter_types.FormattedRegexStrType.CreateInstanceFactory(
-            formatter_other=_PrefixNumberFormatter))
+            formatter_other=_PrefixNumberFormatter))  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(callable_other('[0-9]foo'), 'foo')
 
 

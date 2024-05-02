@@ -29,7 +29,7 @@ class I2CFunctionTest(unittest.TestCase):
                                            self.sysfs_i2c_dir))
     def MockRealPath(path):
       return os.path.join('/FAKE_PATH', os.path.basename(path))
-    self.patchers.append(mock.patch('os.path.realpath', MockRealPath))
+    self.patchers.append(mock.patch('os.path.realpath', MockRealPath))  # type: ignore #TODO(b/338318729) Fixit!
     for patcher in self.patchers:
       patcher.start()
 

@@ -227,7 +227,7 @@ class LANSCPI:
     with sync_utils.Timeout(self.timeout, self.timeout_use_signal):
       if not self.timeout:
         self.logger.debug('[ (waiting)')
-      ch = self.rfile.read(1)
+      ch = self.rfile.read(1)  # type: ignore #TODO(b/338318729) Fixit!
 
       if ch == b'#':
         # Binary format, which is:
@@ -245,10 +245,10 @@ class LANSCPI:
         # Note that if any of this goes haywire, the connection will be
         # basically unusable since there is no way to know where we
         # are in the binary data.
-        length_length = int(self.rfile.read(1))
-        length = int(self.rfile.read(length_length))
-        ret = self.rfile.read(length)
-        ch = self.rfile.read(1)
+        length_length = int(self.rfile.read(1))  # type: ignore #TODO(b/338318729) Fixit!
+        length = int(self.rfile.read(length_length))  # type: ignore #TODO(b/338318729) Fixit!
+        ret = self.rfile.read(length)  # type: ignore #TODO(b/338318729) Fixit!
+        ch = self.rfile.read(1)  # type: ignore #TODO(b/338318729) Fixit!
         if ch != b'\n':
           raise Error('Expected newline at end of binary data')
 
@@ -259,7 +259,7 @@ class LANSCPI:
         # Empty line
         self.logger.debug('[empty')
         return b''
-      ret = ch + self.rfile.readline().rstrip(b'\n')
+      ret = ch + self.rfile.readline().rstrip(b'\n')  # type: ignore #TODO(b/338318729) Fixit!
       if self.logger.isEnabledFor(logging.DEBUG):
         self.logger.debug('[ %s', _TruncateForLogging(ret))
       return ret
@@ -269,8 +269,8 @@ class LANSCPI:
     with sync_utils.Timeout(self.timeout, self.timeout_use_signal):
       if not self.timeout:
         self.logger.debug('[ (waiting)')
-      ret = self.rfile.read(expected_length)
-      ch = self.rfile.read(1)
+      ret = self.rfile.read(expected_length)  # type: ignore #TODO(b/338318729) Fixit!
+      ch = self.rfile.read(1)  # type: ignore #TODO(b/338318729) Fixit!
       if ch != b'\n':
         raise Error('Expected newline at end of binary data')
       return ret
@@ -280,7 +280,7 @@ class LANSCPI:
     if b'\n' in command:
       raise Error(f'Newline in command: {command!r}')
     self.logger.debug('] %s', command)
-    self.wfile.write(command + b'\n')
+    self.wfile.write(command + b'\n')  # type: ignore #TODO(b/338318729) Fixit!
 
 
 #

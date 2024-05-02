@@ -37,7 +37,7 @@ class SequenceFunctionTest(unittest.TestCase):
     self.assertEqual(ret, expected_value)
 
     # Syntax sugar
-    func_expression = [
+    func_expression = [  # type: ignore #TODO(b/338318729) Fixit!
         {'mock': {'data': {'foo': 'FOO'}}},
         {'mock': {'data': {'bar': 'BAR'}}}]
     ret = function.InterpretFunction(func_expression)()

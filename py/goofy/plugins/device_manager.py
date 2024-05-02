@@ -68,7 +68,7 @@ class DeviceManager(plugin.Plugin):
 
     return plugin.MenuItem.ReturnData(
         action=plugin.MenuItem.Action.SHOW_IN_DIALOG,
-        data=re.sub(r'^\[\s*([.\d]+)\]', FormatTime, dmesg,
+        data=re.sub(r'^\[\s*([.\d]+)\]', FormatTime, dmesg,  # type: ignore #TODO(b/338318729) Fixit!
                     flags=re.MULTILINE))
 
   def ShowDeviceManagerWindow(self):

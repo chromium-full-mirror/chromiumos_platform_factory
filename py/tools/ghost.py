@@ -258,14 +258,14 @@ class Ghost:
 
     # RPC
     self._requests = {}
-    self._queue = queue.Queue()
+    self._queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     # Protocol specific
     self._last_ping = 0
     self._tty_device = tty_device
     self._shell_command = command
     self._file_op = file_op
-    self._download_queue = queue.Queue()
+    self._download_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     self._port = port
 
   def SetIgnoreChild(self, status):
@@ -305,7 +305,7 @@ class Ghost:
     logging.info('Upgrade: initiating upgrade sequence...')
 
     try:
-      https_enabled = self.TLSEnabled(self._connected_addr[0],
+      https_enabled = self.TLSEnabled(self._connected_addr[0],  # type: ignore #TODO(b/338318729) Fixit!
                                       _OVERLORD_HTTP_PORT)
     except socket.error:
       logging.error('Upgrade: failed to connect to Overlord HTTP server, '
@@ -319,7 +319,7 @@ class Ghost:
       return
 
     scriptpath = os.path.abspath(sys.argv[0])
-    url = (f"http{'s' if https_enabled else ''}://{self._connected_addr[0]}:"
+    url = (f"http{'s' if https_enabled else ''}://{self._connected_addr[0]}:"  # type: ignore #TODO(b/338318729) Fixit!
            f"{int(_OVERLORD_HTTP_PORT)}/upgrade/ghost.py")
 
     # Download sha1sum for ghost.py for verification
@@ -524,12 +524,12 @@ class Ghost:
       proc_vnodepathinfo_size = 2352
       vid_path_offset = 152
 
-      proc = ctypes.cdll.LoadLibrary(ctypes.util.find_library('libproc'))
-      buf = ctypes.create_string_buffer('\0' * proc_vnodepathinfo_size)
+      proc = ctypes.cdll.LoadLibrary(ctypes.util.find_library('libproc'))  # type: ignore #TODO(b/338318729) Fixit!
+      buf = ctypes.create_string_buffer('\0' * proc_vnodepathinfo_size)  # type: ignore #TODO(b/338318729) Fixit!
       proc.proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0,
                         ctypes.byref(buf), proc_vnodepathinfo_size)
-      buf = buf.raw[vid_path_offset:]
-      n = buf.index('\0')
+      buf = buf.raw[vid_path_offset:]  # type: ignore #TODO(b/338318729) Fixit!
+      n = buf.index('\0')  # type: ignore #TODO(b/338318729) Fixit!
       return buf[:n]
     raise RuntimeError('GetProcessWorkingDirectory: unsupported platform')
 
@@ -546,7 +546,7 @@ class Ghost:
 
   def SendMessage(self, msg):
     """Serialize the message and send it through the socket."""
-    self._sock.Send(json.dumps(msg).encode('utf-8') + _SEPARATOR)
+    self._sock.Send(json.dumps(msg).encode('utf-8') + _SEPARATOR)  # type: ignore #TODO(b/338318729) Fixit!
 
   def SendRequest(self, name, args, handler=None,
                   timeout=_REQUEST_TIMEOUT_SECS):
@@ -601,7 +601,7 @@ class Ghost:
           env = os.environ.copy()
           env['USER'] = os.getenv('USER', 'root')
           env['HOME'] = os.getenv('HOME', '/root')
-          env['PATH'] = os.getenv('PATH') + f':{script_dir}'
+          env['PATH'] = os.getenv('PATH') + f':{script_dir}'  # type: ignore #TODO(b/338318729) Fixit!
           os.chdir(env['HOME'])
           os.execve(_SHELL, [_SHELL], env)
       else:
@@ -643,7 +643,7 @@ class Ghost:
               buf = b''
           else:
             if _CONTROL_START in buf:
-              nonlocals['control_state'] = _CONTROL_START
+              nonlocals['control_state'] = _CONTROL_START  # type: ignore #TODO(b/338318729) Fixit!
               index = buf.index(_CONTROL_START)
               write_buffer += buf[:index]
               buf = buf[index+1:]
@@ -654,23 +654,23 @@ class Ghost:
         if write_buffer:
           os.write(fd, write_buffer)
 
-      _ProcessBuffer(self._sock.RecvBuf())
+      _ProcessBuffer(self._sock.RecvBuf())  # type: ignore #TODO(b/338318729) Fixit!
 
       while True:
         rd, unused_wd, unused_xd = select.select([self._sock, fd], [], [])
 
         if fd in rd:
-          self._sock.Send(os.read(fd, _BUFSIZE))
+          self._sock.Send(os.read(fd, _BUFSIZE))  # type: ignore #TODO(b/338318729) Fixit!
 
         if self._sock in rd:
-          buf = self._sock.Recv(_BUFSIZE)
+          buf = self._sock.Recv(_BUFSIZE)  # type: ignore #TODO(b/338318729) Fixit!
           if not buf:
             raise RuntimeError('connection terminated')
           _ProcessBuffer(buf)
     except Exception as e:
       logging.error('SpawnTTYServer: %s', e, exc_info=True)
     finally:
-      self._sock.Close()
+      self._sock.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('SpawnTTYServer: terminated')
     os._exit(0)  # pylint: disable=protected-access
@@ -699,28 +699,28 @@ class Ghost:
     make_non_block(p.stderr)
 
     try:
-      p.stdin.write(self._sock.RecvBuf())
+      p.stdin.write(self._sock.RecvBuf())  # type: ignore #TODO(b/338318729) Fixit!
 
       while True:
         rd, unused_wd, unused_xd = select.select(
             [p.stdout, p.stderr, self._sock], [], [])
         if p.stdout in rd:
-          self._sock.Send(p.stdout.read(_BUFSIZE))
+          self._sock.Send(p.stdout.read(_BUFSIZE))  # type: ignore #TODO(b/338318729) Fixit!
 
         if p.stderr in rd:
-          self._sock.Send(p.stderr.read(_BUFSIZE))
+          self._sock.Send(p.stderr.read(_BUFSIZE))  # type: ignore #TODO(b/338318729) Fixit!
 
         if self._sock in rd:
-          ret = self._sock.Recv(_BUFSIZE)
+          ret = self._sock.Recv(_BUFSIZE)  # type: ignore #TODO(b/338318729) Fixit!
           if not ret:
             raise RuntimeError('connection terminated')
 
           try:
             idx = ret.index(_STDIN_CLOSED * 2)
-            p.stdin.write(ret[:idx])
-            p.stdin.close()
+            p.stdin.write(ret[:idx])  # type: ignore #TODO(b/338318729) Fixit!
+            p.stdin.close()  # type: ignore #TODO(b/338318729) Fixit!
           except ValueError:
-            p.stdin.write(ret)
+            p.stdin.write(ret)  # type: ignore #TODO(b/338318729) Fixit!
         p.poll()
         if p.returncode is not None:
           break
@@ -740,7 +740,7 @@ class Ghost:
           pass
 
       p.wait()
-      self._sock.Close()
+      self._sock.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('SpawnShellServer: terminated')
     os._exit(0)  # pylint: disable=protected-access
@@ -772,11 +772,11 @@ class Ghost:
           data = f.read(_BLOCK_SIZE)
           if not data:
             break
-          self._sock.Send(data)
+          self._sock.Send(data)  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       logging.error('StartDownloadServer: %s', e)
     finally:
-      self._sock.Close()
+      self._sock.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('StartDownloadServer: terminated')
     os._exit(0)  # pylint: disable=protected-access
@@ -796,12 +796,12 @@ class Ghost:
         if self._file_op[2]:
           os.fchmod(f.fileno(), self._file_op[2])
 
-        f.write(self._sock.RecvBuf())
+        f.write(self._sock.RecvBuf())  # type: ignore #TODO(b/338318729) Fixit!
 
         while True:
           rd, unused_wd, unused_xd = select.select([self._sock], [], [])
           if self._sock in rd:
-            buf = self._sock.Recv(_BLOCK_SIZE)
+            buf = self._sock.Recv(_BLOCK_SIZE)  # type: ignore #TODO(b/338318729) Fixit!
             if not buf:
               break
             f.write(buf)
@@ -810,7 +810,7 @@ class Ghost:
     except Exception as e:
       logging.error('StartUploadServer: %s', e)
     finally:
-      self._sock.Close()
+      self._sock.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('StartUploadServer: terminated')
     os._exit(0)  # pylint: disable=protected-access
@@ -825,13 +825,13 @@ class Ghost:
       src_sock.settimeout(_CONNECT_TIMEOUT)
       src_sock.connect(('localhost', self._port))
 
-      src_sock.send(self._sock.RecvBuf())
+      src_sock.send(self._sock.RecvBuf())  # type: ignore #TODO(b/338318729) Fixit!
 
       while True:
         rd, unused_wd, unused_xd = select.select([self._sock, src_sock], [], [])
 
         if self._sock in rd:
-          data = self._sock.Recv(_BUFSIZE)
+          data = self._sock.Recv(_BUFSIZE)  # type: ignore #TODO(b/338318729) Fixit!
           if not data:
             raise RuntimeError('connection terminated')
           src_sock.send(data)
@@ -840,13 +840,13 @@ class Ghost:
           data = src_sock.recv(_BUFSIZE)
           if not data:
             continue
-          self._sock.Send(data)
+          self._sock.Send(data)  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       logging.error('SpawnPortForwardServer: %s', e)
     finally:
       if src_sock:
         src_sock.close()
-      self._sock.Close()
+      self._sock.Close()  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('SpawnPortForwardServer: terminated')
     os._exit(0)  # pylint: disable=protected-access
@@ -961,14 +961,14 @@ class Ghost:
       try:
         index = buf.index(_SEPARATOR)
       except ValueError:
-        self._sock.UnRecv(buf)
+        self._sock.UnRecv(buf)  # type: ignore #TODO(b/338318729) Fixit!
         return
 
       msgs_json = [buf[:index]]
-      self._sock.UnRecv(buf[index + 2:])
+      self._sock.UnRecv(buf[index + 2:])  # type: ignore #TODO(b/338318729) Fixit!
     else:
       msgs_json = buf.split(_SEPARATOR)
-      self._sock.UnRecv(msgs_json.pop())
+      self._sock.UnRecv(msgs_json.pop())  # type: ignore #TODO(b/338318729) Fixit!
 
     for msg_json in msgs_json:
       try:
@@ -1013,7 +1013,7 @@ class Ghost:
                                                   _PING_INTERVAL // 2)
 
         if self._sock in rds:
-          data = self._sock.Recv(_BUFSIZE)
+          data = self._sock.Recv(_BUFSIZE)  # type: ignore #TODO(b/338318729) Fixit!
 
           # Socket is closed
           if not data:
@@ -1236,7 +1236,7 @@ class Ghost:
   def GetStatus(self):
     status = self._register_status
     if self._register_status == SUCCESS:
-      ip, port = self._sock.sock.getpeername()
+      ip, port = self._sock.sock.getpeername()  # type: ignore #TODO(b/338318729) Fixit!
       status += f' {ip}:{int(port)}'
     return status
 
@@ -1272,7 +1272,7 @@ class Ghost:
           data, source_addr = s.recvfrom(_BUFSIZE)
           parts = data.split()
           if parts[0] == 'OVERLORD':
-            ip, port = parts[1].split(':')
+            ip, port = parts[1].split(':')  # type: ignore #TODO(b/338318729) Fixit!
             if not ip:
               ip = source_addr[0]
             self._queue.put((ip, int(port)), True)

@@ -11,11 +11,11 @@ import yaml
 
 class BaseYAMLTagHandlerMetaclass(type):
   def __init__(cls, *args, **kwargs):
-    if cls.YAML_TAG is not None and cls.TARGET_CLASS is not None:
-      for loader in cls.LOADERS:
-        yaml.add_constructor(cls.YAML_TAG, cls.YAMLConstructor, Loader=loader)
-      for dumper in cls.DUMPERS:
-        yaml.add_representer(cls.TARGET_CLASS, cls.YAMLRepresenter,
+    if cls.YAML_TAG is not None and cls.TARGET_CLASS is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      for loader in cls.LOADERS:  # type: ignore #TODO(b/338318729) Fixit!
+        yaml.add_constructor(cls.YAML_TAG, cls.YAMLConstructor, Loader=loader)  # type: ignore #TODO(b/338318729) Fixit!
+      for dumper in cls.DUMPERS:  # type: ignore #TODO(b/338318729) Fixit!
+        yaml.add_representer(cls.TARGET_CLASS, cls.YAMLRepresenter,  # type: ignore #TODO(b/338318729) Fixit!
                              Dumper=dumper)
     super().__init__(*args, **kwargs)
 

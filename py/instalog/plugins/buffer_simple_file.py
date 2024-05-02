@@ -77,7 +77,7 @@ class BufferSimpleFile(plugin_base.IBufferPlugin):
         continue
 
       self.info('Truncating database...')
-      self.buffer_file.Truncate()
+      self.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
       self.info('Truncating complete.  Sleeping %d secs...',
                 self.args.truncate_interval)
       self.Sleep(self.args.truncate_interval)
@@ -103,7 +103,7 @@ class BufferSimpleFile(plugin_base.IBufferPlugin):
     be either moved or copied into the buffer's database, or *none* at all.
     """
     try:
-      self.buffer_file.ProduceEvents(event_iter_factory)
+      self.buffer_file.ProduceEvents(event_iter_factory)  # type: ignore #TODO(b/338318729) Fixit!
       return True
     except buffer_file_common.NoAttachmentForCopying:
       return False
@@ -113,20 +113,20 @@ class BufferSimpleFile(plugin_base.IBufferPlugin):
 
   def AddConsumer(self, consumer_id):
     """See IBufferPlugin.AddConsumer."""
-    self.buffer_file.AddConsumer(consumer_id)
+    self.buffer_file.AddConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit!
 
   def RemoveConsumer(self, consumer_id):
     """See IBufferPlugin.RemoveConsumer."""
-    self.buffer_file.RemoveConsumer(consumer_id)
+    self.buffer_file.RemoveConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit!
 
   def ListConsumers(self, details=0):
     """See IBufferPlugin.ListConsumers."""
     del details
-    return self.buffer_file.ListConsumers()
+    return self.buffer_file.ListConsumers()  # type: ignore #TODO(b/338318729) Fixit!
 
   def Consume(self, consumer_id):
     """See IBufferPlugin.Consume."""
-    return self.buffer_file.Consume(consumer_id)
+    return self.buffer_file.Consume(consumer_id)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 if __name__ == '__main__':

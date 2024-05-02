@@ -104,16 +104,16 @@ class ECToolPowerControlMixin(IPowerControlMixin):
   def SetChargeState(self, state):
     """See IPowerControlMixin.SetChargeState"""
     try:
-      if state == self.ChargeState.CHARGE:
-        self._device.CheckCall(['ectool', 'chargecontrol', 'normal'])
-      elif state == self.ChargeState.IDLE:
-        self._device.CheckCall(['ectool', 'chargecontrol', 'idle'])
-      elif state == self.ChargeState.DISCHARGE:
-        self._device.CheckCall(['ectool', 'chargecontrol', 'discharge'])
+      if state == self.ChargeState.CHARGE:  # type: ignore #TODO(b/338318729) Fixit!
+        self._device.CheckCall(['ectool', 'chargecontrol', 'normal'])  # type: ignore #TODO(b/338318729) Fixit!
+      elif state == self.ChargeState.IDLE:  # type: ignore #TODO(b/338318729) Fixit!
+        self._device.CheckCall(['ectool', 'chargecontrol', 'idle'])  # type: ignore #TODO(b/338318729) Fixit!
+      elif state == self.ChargeState.DISCHARGE:  # type: ignore #TODO(b/338318729) Fixit!
+        self._device.CheckCall(['ectool', 'chargecontrol', 'discharge'])  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        raise self.Error(f'Unknown EC charge state: {state}')
+        raise self.Error(f'Unknown EC charge state: {state}')  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
-      raise self.Error(f'Unable to set charge state: {e}')
+      raise self.Error(f'Unable to set charge state: {e}')  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class AbstractPowerInfoMixin(abc.ABC):
@@ -260,7 +260,7 @@ class AbstractPowerInfoMixin(abc.ABC):
     result = {}
     for k, getter in _SysfsBatteryAttributes:
       try:
-        result[k] = getter()
+        result[k] = getter()  # type: ignore #TODO(b/338318729) Fixit!
       except Exception as e:
         exc_str = f'{e.__class__.__name__}: {e}'
         logging.error('battery attribute %s is unavailable: %s', k, exc_str)
@@ -284,7 +284,7 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
       String for the first line of file contents.
     """
     # splitlines() does not work on empty string so we have to check.
-    contents = self._device.ReadSpecialFile(file_path)
+    contents = self._device.ReadSpecialFile(file_path)  # type: ignore #TODO(b/338318729) Fixit!
     if contents:
       return contents.splitlines()[0].strip()
     return ''
@@ -302,15 +302,15 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
     reading voltage_now from all power_supply entries.
     """
     def GetValue(path, sub_path):
-      full_path = self._device.path.join(path, sub_path)
-      if not self._device.path.exists(full_path):
+      full_path = self._device.path.join(path, sub_path)  # type: ignore #TODO(b/338318729) Fixit!
+      if not self._device.path.exists(full_path):  # type: ignore #TODO(b/338318729) Fixit!
         return None
       return self.ReadOneLine(full_path)
 
-    all_power_supplies = self._device.Glob(
-        self._device.path.join(self._sys, 'class/power_supply/*'))
+    all_power_supplies = self._device.Glob(  # type: ignore #TODO(b/338318729) Fixit!
+        self._device.path.join(self._sys, 'class/power_supply/*'))  # type: ignore #TODO(b/338318729) Fixit!
 
-    if power_source == self.PowerSource.BATTERY:
+    if power_source == self.PowerSource.BATTERY:  # type: ignore #TODO(b/338318729) Fixit!
       # Some HID peripherals, for example Stylus, may has its own battery and
       # appear in power_supply as well, with scope='Device'; and we do want to
       # skip them.
@@ -338,16 +338,16 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
   def CheckACPresent(self):
     """See AbstractPowerInfoMixin.CheckACPresent"""
     try:
-      p = self.FindPowerPath(self.PowerSource.AC)
-      return self.ReadOneLine(self._device.path.join(p, 'online')) == '1'
+      p = self.FindPowerPath(self.PowerSource.AC)  # type: ignore #TODO(b/338318729) Fixit!
+      return self.ReadOneLine(self._device.path.join(p, 'online')) == '1'  # type: ignore #TODO(b/338318729) Fixit!
     except (PowerException, IOError):
       return False
 
   def GetACType(self):
     """See AbstractPowerInfoMixin.GetACType"""
     try:
-      p = self.FindPowerPath(self.PowerSource.AC)
-      return self.ReadOneLine(self._device.path.join(p, 'type'))
+      p = self.FindPowerPath(self.PowerSource.AC)  # type: ignore #TODO(b/338318729) Fixit!
+      return self.ReadOneLine(self._device.path.join(p, 'type'))  # type: ignore #TODO(b/338318729) Fixit!
     except (PowerException, IOError):
       return 'Unknown'
 
@@ -361,7 +361,7 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
       Battery path if available, None otherwise.
     """
     try:
-      return self.FindPowerPath(self.PowerSource.BATTERY)
+      return self.FindPowerPath(self.PowerSource.BATTERY)  # type: ignore #TODO(b/338318729) Fixit!
     except PowerException:
       return None
 
@@ -380,7 +380,7 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
     """
     try:
       return self.ReadOneLine(
-          self._device.path.join(self._battery_path, attribute_name))
+          self._device.path.join(self._battery_path, attribute_name))  # type: ignore #TODO(b/338318729) Fixit!
     except IOError:
       # Battery driver is not fully initialized
       return None
@@ -446,17 +446,17 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
                     the issue is fixed.
     """
     re_object = self.EC_CHARGER_CURRENT_RE.findall(
-        self._device.CheckOutput(['ectool', 'chargestate', 'show']))
+        self._device.CheckOutput(['ectool', 'chargestate', 'show']))  # type: ignore #TODO(b/338318729) Fixit!
     if re_object:
       return int(re_object[0])
-    raise self.Error('Cannot find current in ectool chargestate show')
+    raise self.Error('Cannot find current in ectool chargestate show')  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetBatteryCurrent(self):
     """See AbstractPowerInfoMixin.GetBatteryCurrent"""
     charging = (self.GetBatteryAttribute('status') == 'Charging')
     current = self.GetBatteryAttribute('current_now')
     if current is None:
-      raise self.Error(f'Cannot find {self._battery_path}/current_now')
+      raise self.Error(f'Cannot find {self._battery_path}/current_now')  # type: ignore #TODO(b/338318729) Fixit!
     current_ma = abs(int(current)) // 1000
     return current_ma if charging else -current_ma
 
@@ -464,11 +464,11 @@ class SysfsPowerInfoMixin(AbstractPowerInfoMixin):
     """See AbstractPowerInfoMixin.GetBatteryDesignCapacity"""
     design_capacity = self.GetBatteryAttribute('charge_full_design')
     if design_capacity is None:
-      raise self.Error('Design capacity not found.')
+      raise self.Error('Design capacity not found.')  # type: ignore #TODO(b/338318729) Fixit!
     try:
       return int(design_capacity) // 1000
     except Exception as e:
-      raise self.Error(f'Unable to get battery design capacity: {e}')
+      raise self.Error(f'Unable to get battery design capacity: {e}')  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetBatteryVoltage(self):
     """See AbstractPowerInfoMixin.GetBatteryVoltage"""
@@ -500,7 +500,7 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
 
   def _GetECToolBatteryFlags(self):
     re_object = self.BATTERY_FLAGS_RE.findall(
-        self._device.CallOutput(['ectool', 'battery']))
+        self._device.CallOutput(['ectool', 'battery']))  # type: ignore #TODO(b/338318729) Fixit!
     if re_object:
       return re_object[0].split()
     return []
@@ -508,10 +508,10 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
   def _GetECToolBatteryAttribute(self, key_name, item_type=str):
     re_object = re.findall(f'{key_name}'
                            r'\s+(\S+)',
-                           self._device.CallOutput(['ectool', 'battery']))
+                           self._device.CallOutput(['ectool', 'battery']))  # type: ignore #TODO(b/338318729) Fixit!
     if re_object:
       return item_type(re_object[0])
-    raise self.Error(f'Cannot find key "{key_name}" in ectool battery')
+    raise self.Error(f'Cannot find key "{key_name}" in ectool battery')  # type: ignore #TODO(b/338318729) Fixit!
 
   def CheckACPresent(self):
     """See AbstractPowerInfoMixin.CheckACPresent"""
@@ -554,8 +554,8 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
   def GetChargeState(self):
     """See AbstractPowerInfoMixin.GetWearPct"""
     if 'CHARGING' in self._GetECToolBatteryFlags():
-      return self.ChargeState.CHARGE.name
-    return self.ChargeState.DISCHARGE.name
+      return self.ChargeState.CHARGE.name  # type: ignore #TODO(b/338318729) Fixit!
+    return self.ChargeState.DISCHARGE.name  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetBatteryCurrent(self):
     """See AbstractPowerInfoMixin.GetBatteryCurrent"""
@@ -570,10 +570,10 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
   def GetChargerCurrent(self):
     """See AbstractPowerInfoMixin.GetChargerCurrent"""
     re_object = self.EC_CHARGER_CURRENT_RE.findall(
-        self._device.CheckOutput(['ectool', 'chargestate', 'show']))
+        self._device.CheckOutput(['ectool', 'chargestate', 'show']))  # type: ignore #TODO(b/338318729) Fixit!
     if re_object:
       return int(re_object[0])
-    raise self.Error('Cannot find current in ectool chargestate show')
+    raise self.Error('Cannot find current in ectool chargestate show')  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetBatteryVoltage(self):
     """See AbstractPowerInfoMixin.GetBatteryVoltage"""
@@ -629,7 +629,7 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
     Raises:
       DeviceException if power information cannot be obtained.
     """
-    return self._device.CallOutput(['ectool', 'powerinfo'])
+    return self._device.CallOutput(['ectool', 'powerinfo'])  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetUSBPDPowerInfo(self):
     """Gets USB PD power information.
@@ -643,9 +643,9 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
     """
 
     command = ['ectool', 'usbpdpower']
-    if self._pd_name:
-      command.append('--name=' + self._pd_name)
-    output = self._device.CheckOutput(command)
+    if self._pd_name:  # type: ignore #TODO(b/338318729) Fixit!
+      command.append('--name=' + self._pd_name)  # type: ignore #TODO(b/338318729) Fixit!
+    output = self._device.CheckOutput(command)  # type: ignore #TODO(b/338318729) Fixit!
 
     USBPortInfo = collections.namedtuple(
         'USBPortInfo', 'id state voltage current')
@@ -654,17 +654,17 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
     for line in output.strip().splitlines():
       match = re.match(r'Port\s+(\d+):\s+(\w+)', line)
       if not match:
-        raise self.Error(f'unexpected output: {output}')
+        raise self.Error(f'unexpected output: {output}')  # type: ignore #TODO(b/338318729) Fixit!
       port_id, port_state = int(match.group(1)), match.group(2)
       if port_state not in ['Disconnected', 'SNK', 'SRC']:
-        raise self.Error(
+        raise self.Error(  # type: ignore #TODO(b/338318729) Fixit!
             f'unexpected PD state: {port_state}\noutput="""{output}"""')
       voltage = None
       current = None
       if port_state == 'SNK':
         match = re.search(r'SNK Charger PD (\d+)mV\s+/\s+(\d+)mA', line)
         if not match:
-          raise self.Error(f'unexpected output for SNK state: {output}')
+          raise self.Error(f'unexpected output for SNK state: {output}')  # type: ignore #TODO(b/338318729) Fixit!
         voltage, current = int(match.group(1)), int(match.group(2))
 
       ports.append(USBPortInfo(port_id, port_state, voltage, current))
@@ -675,7 +675,7 @@ class PowerDaemonPowerInfoMixin(AbstractPowerInfoMixin):
   """Power info mixin that uses powerd."""
 
   def _GetDumpPowerStatus(self):
-    return self._device.CallOutput(['dump_power_status'])
+    return self._device.CallOutput(['dump_power_status'])  # type: ignore #TODO(b/338318729) Fixit!
 
   def _GetPowerAttribute(self, key_name, item_type=str):
     re_object = re.findall(r'^'
@@ -683,7 +683,7 @@ class PowerDaemonPowerInfoMixin(AbstractPowerInfoMixin):
                            r' ?(.*)$', self._GetDumpPowerStatus(), re.MULTILINE)
     if re_object:
       return item_type(re_object[0])
-    raise self.Error(f'Cannot find key "{key_name}" in dump_power_status')
+    raise self.Error(f'Cannot find key "{key_name}" in dump_power_status')  # type: ignore #TODO(b/338318729) Fixit!
 
   def CheckACPresent(self):
     """See AbstractPowerInfoMixin.CheckACPresent"""
@@ -738,7 +738,7 @@ class PowerDaemonPowerInfoMixin(AbstractPowerInfoMixin):
 
   def GetBatteryCurrent(self):
     """See AbstractPowerInfoMixin.GetBatteryCurrent"""
-    charging = self.GetChargeState() == self.ChargeState.CHARGE
+    charging = self.GetChargeState() == self.ChargeState.CHARGE  # type: ignore #TODO(b/338318729) Fixit!
     current = int(self._GetPowerAttribute('battery_current', float) * 1000)
     return current if charging else -current
 

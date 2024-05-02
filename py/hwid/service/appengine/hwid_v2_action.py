@@ -65,7 +65,7 @@ class HWIDV2Action(hwid_action.HWIDAction):
     hwids_set = set()
     for hw in self._preproc_data.bom_map:
       miss_list = self._preproc_data.bom_map[hw]['primary']['classes_missing']
-      vol_ltrs = set()
+      vol_ltrs = set()  # type: ignore #TODO(b/338318729) Fixit!
       status_fields = ['deprecated', 'eol', 'qualified', 'supported']
       for field in status_fields:
         for hw_vol in self._preproc_data.hwid_status_map[field]:

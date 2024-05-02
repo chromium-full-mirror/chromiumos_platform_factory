@@ -97,14 +97,14 @@ class InstalogCLI:
     if config_path is None:
       sys.exit('No config file found')
     with open(config_path, encoding='utf8') as f:
-      config = yaml.safe_load(f)
+      config = yaml.safe_load(f)  # type: ignore #TODO(b/338318729) Fixit!
     self._CheckDataDir(config)
 
     # logging.WARNING = 30, logging.INFO = 20, logging.DEBUG = 10
     logging_level = logging.INFO - ((args.verbose - args.quiet) * 10)
 
     self._service = InstalogService(config, logging_level)
-    self._core = jsonrpclib.Server(
+    self._core = jsonrpclib.Server(  # type: ignore #TODO(b/338318729) Fixit!
         f"http://{config['instalog']['cli_hostname']}:"
         f"{config['instalog']['cli_port']}")
 

@@ -213,17 +213,17 @@ class UpdateDeviceData(test_case.TestCase):
 
   def setUp(self):
     # Either config_name or fields must be specified.
-    if self.args.config_name is None and self.args.fields is None:
+    if self.args.config_name is None and self.args.fields is None:  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError('Either config_name or fields must be specified.')
 
     fields = []
 
-    if self.args.config_name:
+    if self.args.config_name:  # type: ignore #TODO(b/338318729) Fixit!
       fields += [(k, v, None, None) for k, v in
-                 device_data.LoadConfig(self.args.config_name).items()]
+                 device_data.LoadConfig(self.args.config_name).items()]  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.fields:
-      fields += self.args.fields
+    if self.args.fields:  # type: ignore #TODO(b/338318729) Fixit!
+      fields += self.args.fields  # type: ignore #TODO(b/338318729) Fixit!
 
     # Syntax sugar: If the sequence was replaced by a simple string, consider
     # that as data_key only.
@@ -233,10 +233,10 @@ class UpdateDeviceData(test_case.TestCase):
     ]
 
     # Setup UI and update accordingly.
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.manual_input:
+    if self.args.manual_input:  # type: ignore #TODO(b/338318729) Fixit!
       for entry in self.entries:
         self.ManualInput(entry)
     else:
@@ -245,22 +245,22 @@ class UpdateDeviceData(test_case.TestCase):
 
   def ManualInput(self, entry):
     event_subtype = 'devicedata-' + entry.key
-    event_queue = queue.Queue()
+    event_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     if isinstance(entry, SelectionDataEntry):
       self._RenderSelectBox(entry)
-      self.ui.BindKeyJS(
+      self.ui.BindKeyJS(  # type: ignore #TODO(b/338318729) Fixit!
           test_ui.ENTER_KEY,
           f'window.sendSelectValue({entry.key!r}, {event_subtype!r})')
     else:
       self._RenderInputBox(entry)
-      self.ui.BindKey(test_ui.ESCAPE_KEY,
+      self.ui.BindKey(test_ui.ESCAPE_KEY,  # type: ignore #TODO(b/338318729) Fixit!
                       lambda unused_event: event_queue.put(None))
-      self.ui.BindKeyJS(
+      self.ui.BindKeyJS(  # type: ignore #TODO(b/338318729) Fixit!
           test_ui.ENTER_KEY,
           f'window.sendInputValue({entry.key!r}, {event_subtype!r})')
 
-    self.event_loop.AddEventHandler(event_subtype, event_queue.put)
+    self.event_loop.AddEventHandler(event_subtype, event_queue.put)  # type: ignore #TODO(b/338318729) Fixit!
 
     while True:
       event = sync_utils.QueueGet(event_queue)
@@ -278,11 +278,11 @@ class UpdateDeviceData(test_case.TestCase):
         except ValueError:
           self._SetErrorMsg(_('Invalid value for {label}.', label=entry.label))
 
-    self.ui.UnbindAllKeys()
-    self.event_loop.ClearHandlers()
+    self.ui.UnbindAllKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    self.event_loop.ClearHandlers()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SetErrorMsg(self, msg):
-    self.ui.SetHTML(
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
         ['<span class="test-error">', msg, '</span>'], id='errormsg')
 
   def _RenderSelectBox(self, entry):
@@ -302,8 +302,8 @@ class UpdateDeviceData(test_case.TestCase):
         _('Select with ENTER')
     ]
 
-    self.ui.SetState(html)
-    self.ui.SetFocus(entry.key)
+    self.ui.SetState(html)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetFocus(entry.key)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _RenderInputBox(self, entry):
     html = [
@@ -318,9 +318,9 @@ class UpdateDeviceData(test_case.TestCase):
       # operator does not want to change existing serial number.
       html.append(_('(ESC to keep current value)'))
 
-    self.ui.SetState(html)
-    self.ui.SetSelected(entry.key)
-    self.ui.SetFocus(entry.key)
+    self.ui.SetState(html)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetSelected(entry.key)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetFocus(entry.key)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class AbstractDataEntry(abc.ABC):

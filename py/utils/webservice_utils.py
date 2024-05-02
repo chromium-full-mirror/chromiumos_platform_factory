@@ -248,14 +248,14 @@ def CreateWebServiceProxy(url, use_twisted=False):
   if force_wsdl:
     proxy = ZeepProxy(url)
     if use_twisted:
-      proxy = TwistedProxy(proxy)
+      proxy = TwistedProxy(proxy)  # type: ignore #TODO(b/338318729) Fixit!
   elif force_jsonrpc:
-    proxy = TXJSONRPCProxy(url) if use_twisted else JSONRPCProxy(url)
+    proxy = TXJSONRPCProxy(url) if use_twisted else JSONRPCProxy(url)  # type: ignore #TODO(b/338318729) Fixit!
   else:
-    proxy = TwistedXMLRPCProxy(url) if use_twisted else XMLRPCProxy(url)
+    proxy = TwistedXMLRPCProxy(url) if use_twisted else XMLRPCProxy(url)  # type: ignore #TODO(b/338318729) Fixit!
 
   if enable_json_filter:
     logging.info('Enabled JSON input/output filter for web service: %s', url)
-    proxy = JSONProxyFilter(proxy)
+    proxy = JSONProxyFilter(proxy)  # type: ignore #TODO(b/338318729) Fixit!
 
   return proxy

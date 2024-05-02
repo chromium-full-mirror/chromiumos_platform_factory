@@ -35,7 +35,7 @@ def ParseDUTHeader(header):
       return True
     return False
 
-  dut_info = http.cookies.SimpleCookie()
+  dut_info = http.cookies.SimpleCookie()  # type: ignore #TODO(b/338318729) Fixit!
   dut_info.load(header)
   invalid_keys = [key for key in dut_info if not ValidKey(key)]
   if invalid_keys:

@@ -157,7 +157,7 @@ class ConnectionManager:
       self._DetectProcName()
     if wlans is None:
       wlans = []
-    self.wlans = []
+    self.wlans = []  # type: ignore #TODO(b/338318729) Fixit!
     self._ConfigureWifi(wlans)
 
     logging.info('Created connection manager: wlans=[%s]',

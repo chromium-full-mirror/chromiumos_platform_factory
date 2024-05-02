@@ -42,9 +42,9 @@ def OpenSerial(**params):
   port = params.get('port')
   if not port:
     raise ValueError('Missing parameter "port".')
-  ser = serial.Serial(**params)
+  ser = serial.Serial(**params)  # type: ignore #TODO(b/338318729) Fixit!
   if not ser.isOpen():
-    raise serial.SerialException(f'Failed to open serial: {port!r}')
+    raise serial.SerialException(f'Failed to open serial: {port!r}')  # type: ignore #TODO(b/338318729) Fixit!
   return ser
 
 
@@ -184,8 +184,8 @@ class SerialDevice:
     self.Disconnect()
 
   def Connect(self, driver=None, port=None,
-              baudrate=9600, bytesize=serial.EIGHTBITS,
-              parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
+              baudrate=9600, bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit!
+              parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit!
               timeout=0.5, writeTimeout=0.5):
     """Opens a serial connection by port or by device driver name.
 
@@ -202,7 +202,7 @@ class SerialDevice:
       port = FindTtyByDriver(driver)
 
     if not port:
-      raise serial.SerialException(
+      raise serial.SerialException(  # type: ignore #TODO(b/338318729) Fixit!
           f'Serial device with driver {driver!r} not found')
 
     self._port = port
@@ -226,12 +226,12 @@ class SerialDevice:
       read_timeout: read timeout.
       write_timeout: write timeout.
     """
-    self._serial.timeout = read_timeout
-    self._serial.write_timeout = write_timeout
+    self._serial.timeout = read_timeout  # type: ignore #TODO(b/338318729) Fixit!
+    self._serial.write_timeout = write_timeout  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetTimeout(self):
     """Returns (read timeout, write timeout)."""
-    return (self._serial.timeout, self._serial.write_timeout)
+    return (self._serial.timeout, self._serial.write_timeout)  # type: ignore #TODO(b/338318729) Fixit!
 
   def Send(self, command, flush=True):
     """Sends a command.
@@ -248,22 +248,22 @@ class SerialDevice:
     """
     try:
       start_time = time.time()
-      self._serial.write(command)
+      self._serial.write(command)  # type: ignore #TODO(b/338318729) Fixit!
       if flush:
-        self._serial.flush()
+        self._serial.flush()  # type: ignore #TODO(b/338318729) Fixit!
       if self.log:
         duration = time.time() - start_time
         logging.info('Successfully sent %r. Took %.3f seconds', command,
                      duration)
-    except serial.SerialTimeoutException:
+    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit!
       error_message = (
-          f'Send {command!r} timeout after {self._serial.write_timeout:.2f} '
+          f'Send {command!r} timeout after {self._serial.write_timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit!
           f'seconds')
       if self.log:
         logging.warning(error_message)
-      raise serial.SerialTimeoutException(error_message) from None
-    except serial.SerialException:
-      raise serial.SerialException('Serial disconnected') from None
+      raise serial.SerialTimeoutException(error_message) from None  # type: ignore #TODO(b/338318729) Fixit!
+    except serial.SerialException:  # type: ignore #TODO(b/338318729) Fixit!
+      raise serial.SerialException('Serial disconnected') from None  # type: ignore #TODO(b/338318729) Fixit!
 
   def Receive(self, size=1):
     """Receives N bytes.
@@ -282,8 +282,8 @@ class SerialDevice:
     """
     start_time = time.time()
     if size == 0:
-      size = self._serial.in_waiting
-    response = self._serial.read(size)
+      size = self._serial.in_waiting  # type: ignore #TODO(b/338318729) Fixit!
+    response = self._serial.read(size)  # type: ignore #TODO(b/338318729) Fixit!
     if len(response) == size:
       if self.log:
         duration = time.time() - start_time
@@ -291,16 +291,16 @@ class SerialDevice:
                      duration)
       return response
     error_message = (
-        f'Receive {int(size)} bytes timeout after {self._serial.timeout:.2f} '
+        f'Receive {int(size)} bytes timeout after {self._serial.timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit!
         f'seconds')
     if self.log:
       logging.warning(error_message)
-    raise serial.SerialTimeoutException(error_message)
+    raise serial.SerialTimeoutException(error_message)  # type: ignore #TODO(b/338318729) Fixit!
 
   def FlushBuffer(self):
     """Flushes input/output buffer."""
-    self._serial.reset_input_buffer()
-    self._serial.reset_output_buffer()
+    self._serial.reset_input_buffer()  # type: ignore #TODO(b/338318729) Fixit!
+    self._serial.reset_output_buffer()  # type: ignore #TODO(b/338318729) Fixit!
 
   def SendReceive(self, command, size=1, retry=1, interval_secs=None,
                   suppress_log=False):
@@ -342,7 +342,7 @@ class SerialDevice:
           f'Timeout receiving {int(size)} bytes for command {command!r}')
       if not suppress_log and self.log:
         logging.warning(error_message)
-      raise serial.SerialTimeoutException(error_message) from e
+      raise serial.SerialTimeoutException(error_message) from e  # type: ignore #TODO(b/338318729) Fixit!
 
   def SendExpectReceive(self, command, expect_response, retry=0,
                         interval_secs=None):
@@ -362,7 +362,7 @@ class SerialDevice:
       response = self.SendReceive(command, len(expect_response), retry=retry,
                                   interval_secs=interval_secs,
                                   suppress_log=True)
-    except serial.SerialTimeoutException:
+    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit!
       if self.log:
         logging.warning('SendReceive timeout for command %r', command)
       return False

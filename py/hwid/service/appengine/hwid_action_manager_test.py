@@ -98,7 +98,7 @@ class HWIDActionManagerTest(unittest.TestCase):
 
     self._hwid_action_manager = hwid_action_manager.HWIDActionManager(
         self._hwid_db_data_manager,
-        preproc_data_memcache,
+        preproc_data_memcache,  # type: ignore #TODO(b/338318729) Fixit!
         [self._mock_hwid_data_cacher],
         instance_factory=self._instance_factory,
     )

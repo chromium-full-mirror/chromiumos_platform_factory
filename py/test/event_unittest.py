@@ -60,7 +60,7 @@ class Tests:
       # pylint: disable=no-member
       if callback is None:
         callback = lambda unused_event: None
-      client = self.client_class(callback=callback)
+      client = self.client_class(callback=callback)  # type: ignore #TODO(b/338318729) Fixit!
       self.clients.append(client)
       return client
 

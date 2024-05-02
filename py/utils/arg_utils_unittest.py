@@ -122,7 +122,7 @@ class ArgsTest(unittest.TestCase):
     Returns:
       A dictionary of attributes from the resultant object.
     """
-    values = self.parser.Parse(dargs)
+    values = self.parser.Parse(dargs)  # type: ignore #TODO(b/338318729) Fixit!
     return {k: v for k, v in values.__dict__.items() if not k.startswith('_')}
 
   def testNone(self):

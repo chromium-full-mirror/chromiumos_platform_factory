@@ -42,14 +42,14 @@ class ToRestrictedPatternArrayTest(unittest.TestCase):
 
     result = utils.ToRestrictedPatternArray(pattern)
 
-    self.assertListEqual(result, ['A', 'B', 'C', '1', '2', '3'])
+    self.assertListEqual(result, ['A', 'B', 'C', '1', '2', '3'])  # type: ignore #TODO(b/338318729) Fixit!
 
   def testNormalStringWithEscapeChr(self):
     pattern = r'A\-BC\[12\\3'
 
     result = utils.ToRestrictedPatternArray(pattern)
 
-    self.assertListEqual(result,
+    self.assertListEqual(result,  # type: ignore #TODO(b/338318729) Fixit!
                          ['A', r'\-', 'B', 'C', r'\[', '1', '2', r'\\', '3'])
 
   def testRestrictedRegexPatternString(self):
@@ -58,7 +58,7 @@ class ToRestrictedPatternArrayTest(unittest.TestCase):
     result = utils.ToRestrictedPatternArray(pattern)
 
     self.assertListEqual(
-        result, ['[0-9]', 'A', 'B', 'C', '[1a2b]', '1', '2', '3', '[A-Z]'])
+        result, ['[0-9]', 'A', 'B', 'C', '[1a2b]', '1', '2', '3', '[A-Z]'])  # type: ignore #TODO(b/338318729) Fixit!
 
   def testRestrictedRegexPatternStringWithEscapeChr(self):
     pattern = r'[0\-9]AB[a\]]12\[A-Z]'
@@ -66,7 +66,7 @@ class ToRestrictedPatternArrayTest(unittest.TestCase):
     result = utils.ToRestrictedPatternArray(pattern)
 
     self.assertListEqual(
-        result,
+        result,  # type: ignore #TODO(b/338318729) Fixit!
         [r'[0\-9]', 'A', 'B', r'[a\]]', '1', '2', r'\[', 'A', '-', 'Z', ']'])
 
   def testInvalidRegexPattern_ShouldRaiseError(self):

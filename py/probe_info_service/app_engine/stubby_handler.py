@@ -254,7 +254,7 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
       return response
 
     for i, lookup_result in enumerate(lookup_results):
-      if (analyzed_result.probe_info_test_results[i].result_type ==
+      if (analyzed_result.probe_info_test_results[i].result_type ==  # type: ignore #TODO(b/338318729) Fixit!
           stubby_pb2.ProbeInfoParsedResult.PASSED):
         component_identity = request.component_probe_infos[i].component_identity
         if lookup_result.source_type == stubby_pb2.ProbeMetadata.AUTO_GENERATED:

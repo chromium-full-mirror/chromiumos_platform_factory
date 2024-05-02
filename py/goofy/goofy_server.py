@@ -171,7 +171,7 @@ class GoofyServer(socketserver.ThreadingMixIn,
         self, addr, requestHandler=GoofyWebRequestHandler,
         logRequests=logRequests)
     self._generated_data = {}
-    self._generated_data_expiration = queue.PriorityQueue()
+    self._generated_data_expiration = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit!
     self._resolver = PathResolver()
 
     # Used by sync_utils.Synchronized

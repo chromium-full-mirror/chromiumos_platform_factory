@@ -654,7 +654,7 @@ class FileLock:
       retry_wrapper = sync_utils.RetryDecorator(
           timeout_sec=_timeout_secs, interval_sec=self._retry_secs,
           exceptions_to_catch=[IOError],
-          timeout_exception_to_raise=file_lock_timeout_error)
+          timeout_exception_to_raise=file_lock_timeout_error)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       # Try once and raise if there is any error
       retry_wrapper = sync_utils.RetryDecorator(
@@ -692,8 +692,8 @@ def WriteWithSudo(file_path, content):
   # Write with sudo, since only root can write this.
   process = process_utils.Spawn(f'cat > {pipes.quote(file_path)}', sudo=True,
                                 stdin=subprocess.PIPE, shell=True)
-  process.stdin.write(content)
-  process.stdin.close()
+  process.stdin.write(content)  # type: ignore #TODO(b/338318729) Fixit!
+  process.stdin.close()  # type: ignore #TODO(b/338318729) Fixit!
   if process.wait():
     raise RuntimeError(f'Unable to write {file_path}')
 
@@ -882,13 +882,13 @@ class FileLockContextManager:
     """Locks the associated file."""
     self._lock.acquire()
     self._OpenUnlocked()
-    self._filelock(self.file.fileno(), True)
+    self._filelock(self.file.fileno(), True)  # type: ignore #TODO(b/338318729) Fixit!
     return self.file
 
   def __exit__(self, ex_type, value, tb):
     """Unlocks the associated file."""
     del ex_type, value, tb
-    self._filelock(self.file.fileno(), False)
+    self._filelock(self.file.fileno(), False)  # type: ignore #TODO(b/338318729) Fixit!
     self._lock.release()
 
   def Close(self):

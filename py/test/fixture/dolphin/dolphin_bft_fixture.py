@@ -539,13 +539,13 @@ class DolphinBFTFixture(bft_fixture.BFTFixture):
     """
     if self._use_proxy:  # Dolphin(Whale)
       try:
-        self._plankton_conn.Send(self._usb_c_index, command)
+        self._plankton_conn.Send(self._usb_c_index, command)  # type: ignore #TODO(b/338318729) Fixit!
       except Exception as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin: Send {fail_message} command {command} failed: {e}')
     else:  # Dolphin Mini
       try:
-        self._plankton_conn.Send(command + '\n')
+        self._plankton_conn.Send(command + '\n')  # type: ignore #TODO(b/338318729) Fixit!
       except serial.SerialTimeoutException as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin Mini: Send {fail_message} command {command} timeout: {e}')
@@ -566,14 +566,14 @@ class DolphinBFTFixture(bft_fixture.BFTFixture):
     """
     if self._use_proxy:  # Dolphin(Whale)
       try:
-        binary_packet = self._plankton_conn.Receive(self._usb_c_index, byte)
+        binary_packet = self._plankton_conn.Receive(self._usb_c_index, byte)  # type: ignore #TODO(b/338318729) Fixit!
         return binary_packet.data
       except Exception as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin: Receive {fail_message} failed: {e}')
     else:  # Dolphin Mini
       try:
-        return self._plankton_conn.Receive(byte)
+        return self._plankton_conn.Receive(byte)  # type: ignore #TODO(b/338318729) Fixit!
       except serial.SerialTimeoutException as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin Mini: Receive {fail_message} timeout: {e}')

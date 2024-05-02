@@ -47,14 +47,14 @@ class SerialEchoTest(unittest.TestCase):
     self._send = None
     self._recv = None
 
-    if (len(self.args.send_recv) != 2 or
-        not all(isinstance(a, str) for a in self.args.send_recv)):
-      self.fail(f'Invalid dargs send_recv: {str(self.args.send_recv)}')
-    self._send = self.args.send_recv[0].encode('latin1')
-    self._recv = self.args.send_recv[1].encode('latin1')
+    if (len(self.args.send_recv) != 2 or  # type: ignore #TODO(b/338318729) Fixit!
+        not all(isinstance(a, str) for a in self.args.send_recv)):  # type: ignore #TODO(b/338318729) Fixit!
+      self.fail(f'Invalid dargs send_recv: {str(self.args.send_recv)}')  # type: ignore #TODO(b/338318729) Fixit!
+    self._send = self.args.send_recv[0].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit!
+    self._recv = self.args.send_recv[1].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit!
 
     # Will raise exception if OpenSerial fails.
-    self._serial = serial_utils.OpenSerial(**self.args.serial_param)
+    self._serial = serial_utils.OpenSerial(**self.args.serial_param)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     if self._serial:
@@ -63,11 +63,11 @@ class SerialEchoTest(unittest.TestCase):
   def runTest(self):
     self.assertTrue(self._serial is not None, 'Invalid RS-232 connection.')
     try:
-      self.assertEqual(1, self._serial.write(self._send), 'Write fail')
+      self.assertEqual(1, self._serial.write(self._send), 'Write fail')  # type: ignore #TODO(b/338318729) Fixit!
     except serial.SerialTimeoutException:
       self.fail('Write timeout')
 
     try:
-      self.assertEqual(self._recv, self._serial.read(), 'Read fail')
+      self.assertEqual(self._recv, self._serial.read(), 'Read fail')  # type: ignore #TODO(b/338318729) Fixit!
     except serial.SerialTimeoutException:
       self.fail('Read timeout')

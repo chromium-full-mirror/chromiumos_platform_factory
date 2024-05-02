@@ -30,7 +30,7 @@ class PluginControllerTest(unittest.TestCase):
     self._goofy.goofy_server = mock.Mock(goofy_server.GoofyServer)
 
     # Load the base plugin class for test.
-    self._config = {'plugins': {self.BASE_PLUGIN_MODULE: {}}}
+    self._config = {'plugins': {self.BASE_PLUGIN_MODULE: {}}}  # type: ignore #TODO(b/338318729) Fixit!
 
   def CreateController(self):
     with mock.patch('cros.factory.utils.config_utils.LoadConfig') as LoadConfig:

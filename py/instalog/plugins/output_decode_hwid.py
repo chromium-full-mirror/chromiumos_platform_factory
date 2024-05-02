@@ -81,7 +81,7 @@ class OutputDecodeHwid(plugin_base.OutputPlugin):
     }
     data = urllib.parse.urlencode(data, doseq=True)
     try:
-      response = self.authed_session.post(_HWID_API_URL, data=data,
+      response = self.authed_session.post(_HWID_API_URL, data=data,  # type: ignore #TODO(b/338318729) Fixit!
                                           headers=headers)
       if response.status_code == 200:
         return response.json()

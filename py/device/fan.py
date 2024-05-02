@@ -64,7 +64,7 @@ class ECToolFanControl(IFanControl):
       ectool_output = self._device.CallOutput(['ectool', 'pwmgetfanrpm'] + (
           [f'{int(fan_id)}'] if fan_id is not None else []))
       return [int(rpm[1])
-              for rpm in self.GET_FAN_SPEED_RE.findall(ectool_output)]
+              for rpm in self.GET_FAN_SPEED_RE.findall(ectool_output)]  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       raise self.Error(f'Unable to get fan speed: {e}')
 
@@ -137,7 +137,7 @@ class SysFSFanControl(IFanControl):
       ret = []
       for info in self._fans:
         if fan_id is None or info['fan_id'] == fan_id:
-          buf = self._device.ReadFile(self._device.path.join(
+          buf = self._device.ReadFile(self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
               info['path'], info['get_speed_filename']))
           ret.append(info['get_speed_map'](buf))
       return ret
@@ -150,13 +150,13 @@ class SysFSFanControl(IFanControl):
       for info in self._fans:
         if fan_id is None or info['fan_id'] == fan_id:
           if rpm == self.AUTO:
-            self._device.WriteFile(self._device.path.join(
+            self._device.WriteFile(self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
                 info['path'], info['control_mode_filename']), '2')
           else:
-            self._device.WriteFile(self._device.path.join(
+            self._device.WriteFile(self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
                 info['path'], info['control_mode_filename']), '1')
             buf = info['set_speed_map'](rpm)
-            self._device.WriteFile(self._device.path.join(
+            self._device.WriteFile(self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
                 info['path'], info['set_speed_filename']), buf)
     except Exception as e:
       if rpm == self.AUTO:

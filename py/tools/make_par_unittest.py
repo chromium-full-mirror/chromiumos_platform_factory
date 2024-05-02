@@ -67,8 +67,8 @@ class MakePARTest(unittest.TestCase):
     process = Spawn([link, '--help'], log=True,
                     read_stdout=True, read_stderr=True)
     self.assertEqual(0, process.returncode)
-    self.assertTrue(usage in process.stdout_data)
-    self.assertFalse('WARNING' in process.stderr_data, process.stderr_data)
+    self.assertTrue(usage in process.stdout_data)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertFalse('WARNING' in process.stderr_data, process.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Unzip it in place.  Don't check_call=True, since the extra bytes
     # in the header will cause unzip to return an exit code of 1.
@@ -86,9 +86,9 @@ class MakePARTest(unittest.TestCase):
     process = Spawn([link, '--help'], log=True,
                     read_stdout=True, read_stderr=True)
     self.assertEqual(0, process.returncode)
-    self.assertTrue(modified_usage in process.stdout_data)
+    self.assertTrue(modified_usage in process.stdout_data)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(
-        'WARNING: factory.par has been unzipped' in process.stderr_data)
+        'WARNING: factory.par has been unzipped' in process.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testInvalidModule(self):
     link = os.path.join(self.tmp, 'invalid')
@@ -96,7 +96,7 @@ class MakePARTest(unittest.TestCase):
 
     process = Spawn([link], call=True, read_stderr=True, env={}, cwd='/')
     self.assertEqual(1, process.returncode)
-    self.assertTrue('To run a file within this archive,' in process.stderr_data)
+    self.assertTrue('To run a file within this archive,' in process.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class PARSelfTest(unittest.TestCase):

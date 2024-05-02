@@ -30,7 +30,7 @@ def main():
   allow_list_set = set(rules['allow_list'])
 
   redundant_files = []
-  unknown_shebangs = {}
+  unknown_shebangs = {}  # type: ignore #TODO(b/338318729) Fixit!
   unicode_decode_error_executable_files = []
 
   def check(filepath):

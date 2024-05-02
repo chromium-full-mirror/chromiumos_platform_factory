@@ -133,16 +133,16 @@ class FanSpeedTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    if isinstance(self.args.target_rpm, int):
-      self.args.target_rpm = [self.args.target_rpm]
+    if isinstance(self.args.target_rpm, int):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.target_rpm = [self.args.target_rpm]  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(
-        self.args.spin_max_then_half or min(self.args.target_rpm) > 0,
+        self.args.spin_max_then_half or min(self.args.target_rpm) > 0,  # type: ignore #TODO(b/338318729) Fixit!
         'Either set a valid target_rpm or spin_max_then_half=True.')
     self._fan = device_utils.CreateDUTInterface().fan
 
   def tearDown(self):
     logging.info('Set auto fan speed control.')
-    self._fan.SetFanRPM(self._fan.AUTO, self.args.fan_id)
+    self._fan.SetFanRPM(self._fan.AUTO, self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
 
   def SetAndGetFanSpeed(self, target_rpm):
     """Sets fan speed and observes readings for a while (blocking call).
@@ -154,15 +154,15 @@ class FanSpeedTest(test_case.TestCase):
       List of fan speed, each fan speed if the average of the latest
       #num_samples_to_use samples as stabilized fan speed reading.
     """
-    observed_rpm = self._fan.GetFanRPM(self.args.fan_id)
+    observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
     fan_count = len(observed_rpm)
     # TODO(lschyi): separate errors after the concern of handling single fan or
     # multiple fans of SetAndGetFanSpeed is separated.
     if fan_count == 0:
-      if self.args.fan_id is None:
+      if self.args.fan_id is None:  # type: ignore #TODO(b/338318729) Fixit!
         self.FailTask('Can not find any fan')
       else:
-        self.FailTask(f'Fan {self.args.fan_id} does not report any RPM')
+        self.FailTask(f'Fan {self.args.fan_id} does not report any RPM')  # type: ignore #TODO(b/338318729) Fixit!
     spin_up = target_rpm > _Average(observed_rpm)
 
     status = _(
@@ -171,29 +171,29 @@ class FanSpeedTest(test_case.TestCase):
         observed_rpm=observed_rpm,
         target_rpm=target_rpm)
 
-    self.ui.SetHTML(status, id='fs-status')
-    self.ui.SetHTML(str(observed_rpm), id='fs-rpm')
+    self.ui.SetHTML(status, id='fs-status')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.speed_use_percentage:
-      self._fan.SetFanRPM(int(target_rpm * 100 / self.args.max_rpm),
-                          self.args.fan_id)
+    if self.args.speed_use_percentage:  # type: ignore #TODO(b/338318729) Fixit!
+      self._fan.SetFanRPM(int(target_rpm * 100 / self.args.max_rpm),  # type: ignore #TODO(b/338318729) Fixit!
+                          self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self._fan.SetFanRPM(int(target_rpm), self.args.fan_id)
+      self._fan.SetFanRPM(int(target_rpm), self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Probe fan speed for duration_secs seconds with sampling interval
     # probe_interval_secs.
-    end_time = time.time() + self.args.duration_secs
+    end_time = time.time() + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit!
     # Samples of all fan speed with sample period: probe_interval_secs.
-    ith_fan_samples = [[] for unused_i in range(fan_count)]
+    ith_fan_samples = [[] for unused_i in range(fan_count)]  # type: ignore #TODO(b/338318729) Fixit!
     while time.time() < end_time:
-      observed_rpm = self._fan.GetFanRPM(self.args.fan_id)
+      observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
       for i, ith_fan_rpm in enumerate(observed_rpm):
         ith_fan_samples[i].append(ith_fan_rpm)
-      self.ui.SetHTML(str(observed_rpm), id='fs-rpm')
+      self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Observed fan RPM: %s', observed_rpm)
-      self.Sleep(self.args.probe_interval_secs)
+      self.Sleep(self.args.probe_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
-    num_samples = self.args.num_samples_to_use
+    num_samples = self.args.num_samples_to_use  # type: ignore #TODO(b/338318729) Fixit!
     total_samples = len(ith_fan_samples[0])
     if num_samples > total_samples // 2:
       logging.error('Insufficient #samples to get average fan speed. '
@@ -223,12 +223,12 @@ class FanSpeedTest(test_case.TestCase):
       observed_rpm: a list of fan rpm readings.
       target_rpm: target fan speed.
     """
-    if self.args.error_margin_use_percentage:
-      lower_bound = target_rpm * (1 - self.args.error_margin * 0.01)
-      upper_bound = target_rpm * (1 + self.args.error_margin * 0.01)
+    if self.args.error_margin_use_percentage:  # type: ignore #TODO(b/338318729) Fixit!
+      lower_bound = target_rpm * (1 - self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit!
+      upper_bound = target_rpm * (1 + self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      lower_bound = target_rpm - self.args.error_margin
-      upper_bound = target_rpm + self.args.error_margin
+      lower_bound = target_rpm - self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit!
+      upper_bound = target_rpm + self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit!
 
     error_messages = []
     for i, rpm in enumerate(observed_rpm):
@@ -244,15 +244,15 @@ class FanSpeedTest(test_case.TestCase):
 
   def runTest(self):
     """Main test function."""
-    if self.args.spin_max_then_half:
+    if self.args.spin_max_then_half:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Spinning fan up to get max fan speed...')
-      max_rpm = self.SetAndGetFanSpeed(self.args.max_rpm)
+      max_rpm = self.SetAndGetFanSpeed(self.args.max_rpm)  # type: ignore #TODO(b/338318729) Fixit!
       if not max_rpm:
         self.FailTask('No fan RPM is reported')
       target_rpm = _Average(max_rpm) / 2
       observed_rpm = self.SetAndGetFanSpeed(target_rpm)
       self.VerifyResult(observed_rpm, target_rpm)
     else:
-      for target_rpm in self.args.target_rpm:
+      for target_rpm in self.args.target_rpm:  # type: ignore #TODO(b/338318729) Fixit!
         observed_rpm = self.SetAndGetFanSpeed(target_rpm)
         self.VerifyResult(observed_rpm, target_rpm)

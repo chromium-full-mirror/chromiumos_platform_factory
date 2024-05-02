@@ -116,7 +116,7 @@ def UnixMonotonicTime():
       ]
 
     librt_name = ctypes.util.find_library('rt')
-    librt = ctypes.cdll.LoadLibrary(librt_name)
+    librt = ctypes.cdll.LoadLibrary(librt_name)  # type: ignore #TODO(b/338318729) Fixit!
     clock_gettime = librt.clock_gettime
     clock_gettime.argtypes = [ctypes.c_int, ctypes.POINTER(TimeSpec)]
     t = TimeSpec()

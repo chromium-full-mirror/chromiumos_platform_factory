@@ -32,19 +32,19 @@ class CompassTest(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.controller = self.dut.magnetometer.GetController(
-        location=self.args.location)
+        location=self.args.location)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     for direction_label, direction in _TEST_ITEMS:
-      self.ui.SetView('main')
-      self.ui.SetInstruction(_(
+      self.ui.SetView('main')  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(_(  # type: ignore #TODO(b/338318729) Fixit!
           'Put the DUT towards {direction}', direction=direction_label))
       sync_utils.PollForCondition(
           poll_method=type_utils.BindFunction(self._CheckDirection, direction),
           timeout_secs=1000,
           poll_interval_secs=0.1)
 
-      self.ui.SetView('success')
+      self.ui.SetView('success')  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(_FLASH_STATUS_TIME)
 
   def _CalculateDirection(self, x, y):
@@ -80,12 +80,12 @@ class CompassTest(test_case.TestCase):
     degree = self._CalculateDirection(x, y)
     self._UpdateUI(degree=degree, **values)
     return (
-        self._CalculateAngle(x, y, *expected_direction) < self.args.tolerance)
+        self._CalculateAngle(x, y, *expected_direction) < self.args.tolerance)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _UpdateUI(self, degree, in_magn_x, in_magn_y, in_magn_z):
-    self.ui.SetHTML(f'{degree:.2f}', id='degree')
-    self.ui.SetHTML(in_magn_x, id='in-magn-x')
-    self.ui.SetHTML(in_magn_y, id='in-magn-y')
-    self.ui.SetHTML(in_magn_z, id='in-magn-z')
-    self.ui.RunJS(f'document.getElementById("compass").style.transform = '
+    self.ui.SetHTML(f'{degree:.2f}', id='degree')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetHTML(in_magn_x, id='in-magn-x')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetHTML(in_magn_y, id='in-magn-y')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetHTML(in_magn_z, id='in-magn-z')  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.RunJS(f'document.getElementById("compass").style.transform = '  # type: ignore #TODO(b/338318729) Fixit!
                   f'"rotate({int(degree)}deg)";')

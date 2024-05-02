@@ -23,8 +23,8 @@ class KeyboardBacklightTest(test_case.TestCase):
       self.AddTask(self.RunTask, instruction, level)
 
   def RunTask(self, instruction, level):
-    self.ui.BindStandardKeys()
-    self.ui.SetState([instruction, test_ui.FAIL_KEY_LABEL])
+    self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState([instruction, test_ui.FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit!
     process_utils.Spawn(
         ['ectool', 'pwmsetkblight', level],
         ignore_stdout=True, log_stderr_on_error=True, check_call=True)

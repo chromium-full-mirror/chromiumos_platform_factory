@@ -64,7 +64,7 @@ class AccelerometersLidAngleTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Initializes an accelerometer utility class.
     self.accelerometers = {}
@@ -91,7 +91,7 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     for location, accelerometer_controller in self.accelerometers.items():
       try:
         cal_data[location] = accelerometer_controller.GetData(
-            self.args.capture_count, self.args.sample_rate_hz)
+            self.args.capture_count, self.args.sample_rate_hz)  # type: ignore #TODO(b/338318729) Fixit!
       except accelerometer.AccelerometerException as err:
         logging.info(
             'Read %s calibrated data failed: %r.', location, err.args[0])
@@ -100,8 +100,8 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     # +X axis is aligned with the hinge.
     hinge_vec = [9.8, 0.0, 0.0]
     # The calulation requires hinge in a horizontal position.
-    min_value = -self.args.spec_offset[0]
-    max_value = self.args.spec_offset[0]
+    min_value = -self.args.spec_offset[0]  # type: ignore #TODO(b/338318729) Fixit!
+    max_value = self.args.spec_offset[0]  # type: ignore #TODO(b/338318729) Fixit!
     for data in cal_data.values():
       if not min_value <= data['in_accel_x'] <= max_value:
         self.FailTask('The hinge is not in a horizontal plane.')
@@ -119,9 +119,9 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     # We use dot product and inverse Cosine to get the angle between
     # base_vec_flattened and lid_vec_flattened in degrees.
     angle_between_vectors = math.degrees(math.acos(
-        np.dot(base_vec_flattened, lid_vec_flattened) /
-        np.linalg.norm(base_vec_flattened) /
-        np.linalg.norm(lid_vec_flattened)))
+        np.dot(base_vec_flattened, lid_vec_flattened) /  # type: ignore #TODO(b/338318729) Fixit!
+        np.linalg.norm(base_vec_flattened) /  # type: ignore #TODO(b/338318729) Fixit!
+        np.linalg.norm(lid_vec_flattened)))  # type: ignore #TODO(b/338318729) Fixit!
 
     # Based on the standard orientation described above, the sum of the
     # lid angle (between keyboard and screen) and angle_between_vectors
@@ -137,54 +137,54 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     # reversed. That means the current lid angle is >= 180 degrees and the
     # value should be (360.0 - lid_angle), where lid_angle is always the
     # smaller angle between the keyboard and the screen.
-    lid_base_cross_vec = np.cross(base_vec_flattened, lid_vec_flattened)
-    if np.dot(lid_base_cross_vec, hinge_vec) > 0.0:
+    lid_base_cross_vec = np.cross(base_vec_flattened, lid_vec_flattened)  # type: ignore #TODO(b/338318729) Fixit!
+    if np.dot(lid_base_cross_vec, hinge_vec) > 0.0:  # type: ignore #TODO(b/338318729) Fixit!
       return 360.0 - lid_angle
     return lid_angle
 
   def runTest(self):
     self.SetImage('chromebook_lid.png', 'chromebook_base.png')
-    if not self.args.autostart:
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
       key_pressed = threading.Event()
       thread = threading.Thread(group=None, target=self.WaitForStartKey,
                                 args=(key_pressed, ))
       thread.start()
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
       key_pressed.set()
       thread.join()
     else:
-      self.ui.SetState(
-          _('Please open the lid to {angle} degrees.', angle=self.args.angle))
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+          _('Please open the lid to {angle} degrees.', angle=self.args.angle))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
-    self.ui.SetState(_('Checking angle...'))
+    self.ui.SetState(_('Checking angle...'))  # type: ignore #TODO(b/338318729) Fixit!
     angle = self._CalculateLidAngle()
     if angle is None:
       self.FailTask('There is no calibration value for accelerometer in VPD.')
 
     logging.info('angle = %f', angle)
-    if not (self.args.angle - self.args.tolerance <= angle <=
-            self.args.angle + self.args.tolerance):
+    if not (self.args.angle - self.args.tolerance <= angle <=  # type: ignore #TODO(b/338318729) Fixit!
+            self.args.angle + self.args.tolerance):  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask(f'The lid angle is out of range: {angle:f}')
 
   def SetImage(self, lid_url, base_url):
     """Sets the image src."""
-    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',
+    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=lid_url)
-    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',
+    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=base_url)
 
   def RotateImage(self, degree):
     """Rotates the lid image according to the calculated lid degree."""
-    self.ui.RunJS(f'document.getElementById("chromebook_lid").style.transform '
+    self.ui.RunJS(f'document.getElementById("chromebook_lid").style.transform '  # type: ignore #TODO(b/338318729) Fixit!
                   f'="rotateX({-degree+90}deg)";')
 
   def WaitForStartKey(self, key_pressed):
     while not key_pressed.is_set():
       lid_angle = self._CalculateLidAngle()
-      self.ui.SetInstruction(
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _(
               'Please open the lid to {angle} degrees and press SPACE.',
-              angle=self.args.angle,
+              angle=self.args.angle,  # type: ignore #TODO(b/338318729) Fixit!
           ))
       self.RotateImage(lid_angle)

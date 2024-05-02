@@ -507,7 +507,7 @@ def Synchronized(f: Callable):
   @functools.wraps(f)
   def wrapped(self, *args, **kw):
     # pylint: disable=protected-access
-    if not self._lock or not isinstance(self._lock, _thread.RLock):
+    if not self._lock or not isinstance(self._lock, _thread.RLock):  # type: ignore #TODO(b/338318729) Fixit!
       raise RuntimeError(
           ("To use @Synchronized, the class must initialize self._lock as"
            " threading.RLock in its __init__ function."))

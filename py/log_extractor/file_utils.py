@@ -47,7 +47,7 @@ class LogExtractorFileReader:
     # Continue reading from the file descriptor.
     for line in self._f:
       try:
-        self._cur_record = self._loader(line, self._validate)
+        self._cur_record = self._loader(line, self._validate)  # type: ignore #TODO(b/338318729) Fixit!
         return self._cur_record
       except Exception as err:
         logging.warning('Record %s in %s is invalid! %r', line,

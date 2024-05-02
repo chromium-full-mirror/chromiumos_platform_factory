@@ -735,14 +735,14 @@ class ConverterManagerTest(unittest.TestCase):
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            identifier='converter1', probe_value_matched=True, values={
+            identifier='converter1', probe_value_matched=True, values={  # type: ignore #TODO(b/338318729) Fixit!
                 'converted_key1': 'value1',
                 'converted_key2': 'value2'
             }),
         avl_linked_db.GetComponents(comp_cls)[comp_name1].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            identifier='converter1', probe_value_matched=False, values={
+            identifier='converter1', probe_value_matched=False, values={  # type: ignore #TODO(b/338318729) Fixit!
                 'converted_key1': 'value1',
                 'converted_key2': 'value-not-2'
             }),
@@ -793,14 +793,14 @@ class ConverterManagerTest(unittest.TestCase):
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            identifier='converter1', probe_value_matched=True, values={
+            identifier='converter1', probe_value_matched=True, values={  # type: ignore #TODO(b/338318729) Fixit!
                 'converted_key1': 'value1',
                 'converted_key2': 'value2'
             }),
         avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            identifier='converter1', probe_value_matched=True, values={
+            identifier='converter1', probe_value_matched=True, values={  # type: ignore #TODO(b/338318729) Fixit!
                 'converted_key1': 'value1',
                 'converted_key2': 'another-value2'
             }),

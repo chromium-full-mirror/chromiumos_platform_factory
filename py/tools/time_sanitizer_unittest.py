@@ -33,7 +33,7 @@ class TimeSanitizerTestBase(unittest.TestCase):
         time_bump_secs=60,
         max_leap_secs=SECONDS_PER_DAY)
     self.sanitizer._time = self.fake_time
-    self.sanitizer._suppress_exceptions = False
+    self.sanitizer._suppress_exceptions = False  # type: ignore #TODO(b/338318729) Fixit!
 
   def run(self, result=None):
     with file_utils.TempDirectory(

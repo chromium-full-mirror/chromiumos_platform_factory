@@ -56,8 +56,8 @@ class TpmDiagnosisTest(test_case.TestCase):
 
   def setUp(self):
     self.assertTrue(
-        os.path.isfile(self.args.tpm_selftest),
-        msg=f'{self.args.tpm_selftest} is missing.')
+        os.path.isfile(self.args.tpm_selftest),  # type: ignore #TODO(b/338318729) Fixit!
+        msg=f'{self.args.tpm_selftest} is missing.')  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     """Runs tpm_selftest.
@@ -66,14 +66,14 @@ class TpmDiagnosisTest(test_case.TestCase):
     """
     success = threading.Event()
     def _Callback(line):
-      if self.args.success_pattern in line:
+      if self.args.success_pattern in line:  # type: ignore #TODO(b/338318729) Fixit!
         success.set()
 
-    returncode = self.ui.PipeProcessOutputToUI(
-        [self.args.tpm_selftest] + self.args.tpm_args, callback=_Callback)
+    returncode = self.ui.PipeProcessOutputToUI(  # type: ignore #TODO(b/338318729) Fixit!
+        [self.args.tpm_selftest] + self.args.tpm_args, callback=_Callback)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertTrue(
         success.is_set(),
-        f'TPM self-diagnose failed: Cannot find a success pattern: '
+        f'TPM self-diagnose failed: Cannot find a success pattern: '  # type: ignore #TODO(b/338318729) Fixit!
         f'"{self.args.success_pattern}". tpm_selftest returncode: '
         f'{int(returncode)}.')

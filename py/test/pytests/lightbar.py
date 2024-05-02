@@ -70,9 +70,9 @@ class LightbarTest(test_case.TestCase):
     self.ECToolLightbar('seq', 'stop')
     self.colors_to_test = [
         (i18n.Translated(label), color)
-        for label, color in self.args.colors_to_test
+        for label, color in self.args.colors_to_test  # type: ignore #TODO(b/338318729) Fixit!
     ]
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     self.ECToolLightbar('seq', 'run')
@@ -88,8 +88,8 @@ class LightbarTest(test_case.TestCase):
     """
     try:
       # Convert each arg to str to make subprocess module happy.
-      args = [str(x) for x in args]
-      process_utils.CheckOutput(['ectool', 'lightbar'] + args, log=True)
+      args = [str(x) for x in args]  # type: ignore #TODO(b/338318729) Fixit!
+      process_utils.CheckOutput(['ectool', 'lightbar'] + args, log=True)  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       raise type_utils.TestFailure(f'Unable to set lightbar: {e}')
 
@@ -98,9 +98,9 @@ class LightbarTest(test_case.TestCase):
       color_name = color_label['en-US']
       logging.info('Testing %s (%s)...', color_name, lrgb)
       self.ECToolLightbar(*lrgb)
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Is the lightbar {color}?<br>Press SPACE if yes, "F" if no.',
             color=color_label))
-      key = self.ui.WaitKeysOnce([test_ui.SPACE_KEY, 'F'])
+      key = self.ui.WaitKeysOnce([test_ui.SPACE_KEY, 'F'])  # type: ignore #TODO(b/338318729) Fixit!
       if key == 'F':
         self.FailTask(f'Lightbar failed to light up in {color_name}')

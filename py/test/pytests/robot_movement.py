@@ -119,12 +119,12 @@ class RobotMovement(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._robot = fixture_utils.CreateFixture(
-        self.args.robot_fixture, self.args.robot_fixture_args)
+        self.args.robot_fixture, self.args.robot_fixture_args)  # type: ignore #TODO(b/338318729) Fixit!
     self._algorithm = fixture_utils.CreateFixture(
-        self.args.algorithm, self.args.algorithm_args)
+        self.args.algorithm, self.args.algorithm_args)  # type: ignore #TODO(b/338318729) Fixit!
     self._algorithm.SetLogger(session.console)
 
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     try:
@@ -140,43 +140,43 @@ class RobotMovement(test_case.TestCase):
 
     Intializes robot and move it to the LOAD / UNLOAD position.
     """
-    self.ui.SetState(_('Initializing Robot...'))
+    self.ui.SetState(_('Initializing Robot...'))  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Intializing robot.')
     self._robot.Connect()
     self._robot.SetMotor(True)
 
   def LoadDevice(self):
     """Ask operator to load DUT."""
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Please load DUT onto the robot, connect all cables, '
           'and press <b>SPACE</b> to continue.'))
     self._robot.LoadDevice(False)
 
     session.console.info('Wait for operators to press SPACE.')
-    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('SPACE pressed by operator.')
 
-    self.ui.SetState(_('Prepare for movement.'))
+    self.ui.SetState(_('Prepare for movement.'))  # type: ignore #TODO(b/338318729) Fixit!
     self._robot.LoadDevice(True)
 
   def StartMoving(self):
     """Starts movement process."""
-    self.ui.SetState(_('Moving to start position...'))
+    self.ui.SetState(_('Moving to start position...'))  # type: ignore #TODO(b/338318729) Fixit!
 
     session.console.info('Start to move.')
     self._robot.SetLED(True)
     self._algorithm.OnStartMoving(self._dut)
 
-    for position in self.args.positions:
+    for position in self.args.positions:  # type: ignore #TODO(b/338318729) Fixit!
       session.console.info('Move to position %d.', position)
       self._robot.MoveTo(position)
-      self.Sleep(self.args.period_between_movement)
+      self.Sleep(self.args.period_between_movement)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.Sleep(self.args.period_after_movement)
+    self.Sleep(self.args.period_after_movement)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._algorithm.OnStopMoving(self._dut)
 
-    self.ui.SetState(_('Moving to LOAD / UNLOAD position...'))
+    self.ui.SetState(_('Moving to LOAD / UNLOAD position...'))  # type: ignore #TODO(b/338318729) Fixit!
     self._robot.SetLED(False)
     # Shutdown and disconnect robot here to avoid robot overload during
     # computing.
@@ -186,13 +186,13 @@ class RobotMovement(test_case.TestCase):
 
   def Compute(self):
     """Starts computing after the movement."""
-    self.ui.SetState(_('Computing...'))
+    self.ui.SetState(_('Computing...'))  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Compute for %s', self._dut.info.serial_number)
     self._algorithm.Compute(self._dut)
 
   def PushResult(self):
     """Pushes the result to the DUT."""
-    self.ui.SetState(_('Pushing the result...'))
+    self.ui.SetState(_('Pushing the result...'))  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Pushing the result.')
 
     self._algorithm.PullResult(self._dut)
@@ -209,5 +209,5 @@ class RobotMovement(test_case.TestCase):
     self.StartMoving()
     self.Compute()
     self.PushResult()
-    if self.args.upload_to_server:
+    if self.args.upload_to_server:  # type: ignore #TODO(b/338318729) Fixit!
       self._algorithm.UploadLog(self._dut, server_proxy.GetServerProxy())

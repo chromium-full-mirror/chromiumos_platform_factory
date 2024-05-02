@@ -30,8 +30,8 @@ class KeyboardEmulator:
 
   def Reset(self):
     """Resets the 2 shift registers and latchs their output."""
-    self._servo.Click(self._CONTROL.KEYBOARD_SHIFT_REGISTER_RESET)
-    self._servo.Click(self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH)
+    self._servo.Click(self._CONTROL.KEYBOARD_SHIFT_REGISTER_RESET)  # type: ignore #TODO(b/338318729) Fixit!
+    self._servo.Click(self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _Emulate(self, word, latch_shift):
     """Emulates row-column crossing.
@@ -50,17 +50,17 @@ class KeyboardEmulator:
     """
     commands = []
     for i in range(15, -1, -1):
-      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_DATA,
+      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_DATA,  # type: ignore #TODO(b/338318729) Fixit!
                        'on' if (word & (1 << i)) else 'off'))
-      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_CLOCK, 'on'))
-      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_CLOCK, 'off'))
+      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_CLOCK, 'on'))  # type: ignore #TODO(b/338318729) Fixit!
+      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_CLOCK, 'off'))  # type: ignore #TODO(b/338318729) Fixit!
       if latch_shift:
-        commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'on'))
-        commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'off'))
+        commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'on'))  # type: ignore #TODO(b/338318729) Fixit!
+        commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'off'))  # type: ignore #TODO(b/338318729) Fixit!
 
     if not latch_shift:
-      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'on'))
-      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'off'))
+      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'on'))  # type: ignore #TODO(b/338318729) Fixit!
+      commands.append((self._CONTROL.KEYBOARD_SHIFT_REGISTER_LATCH, 'off'))  # type: ignore #TODO(b/338318729) Fixit!
     self._servo.MultipleSet(commands)
 
   def SimulateKeystrokes(self):

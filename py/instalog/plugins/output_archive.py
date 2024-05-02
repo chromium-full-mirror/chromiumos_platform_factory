@@ -110,12 +110,12 @@ class OutputArchive(output_file.OutputFile):
       if self.args.enable_gcs:
         gcs_target_dir = self.args.gcs_target_dir.strip('/')
         gcs_target_path = f'/{gcs_target_dir}/{archive_filename}'
-        if not self._gcs.UploadFile(
+        if not self._gcs.UploadFile(  # type: ignore #TODO(b/338318729) Fixit!
             tmp_archive, gcs_target_path, overwrite=True):
           self.error('Unable to upload to GCS, aborting')
           return False
       if self.args.enable_disk:
-        target_path = os.path.join(self.target_dir, archive_filename)
+        target_path = os.path.join(self.target_dir, archive_filename)  # type: ignore #TODO(b/338318729) Fixit!
         self.info('Saving archive to: %s', target_path)
         shutil.move(tmp_archive, target_path)
     return True

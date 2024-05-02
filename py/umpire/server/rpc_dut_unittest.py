@@ -141,7 +141,7 @@ class DUTRPCTest(unittest.TestCase):
       for tarinfo in tar_file.getmembers():
         if tarinfo.name == 'metadata.json':
           metadata_json = json_utils.LoadStr(
-              tar_file.extractfile(tarinfo).read())
+              tar_file.extractfile(tarinfo).read())  # type: ignore #TODO(b/338318729) Fixit!
           self.assertEqual('0000000001', metadata_json['report_index'])
         else:
           digest = _ComputeHash(tar_file, tarinfo)
@@ -167,7 +167,7 @@ class DUTRPCTest(unittest.TestCase):
         for tarinfo in tar_file.getmembers():
           if tarinfo.name == 'metadata.json':
             metadata_json = json_utils.LoadStr(
-                tar_file.extractfile(tarinfo).read())
+                tar_file.extractfile(tarinfo).read())  # type: ignore #TODO(b/338318729) Fixit!
             self.assertEqual('0000000001', metadata_json['report_index'])
       for name in namestrings:
         self.assertIn(name, report_path)

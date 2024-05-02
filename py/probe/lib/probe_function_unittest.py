@@ -45,7 +45,7 @@ class ProbeFunctionTest(unittest.TestCase):
 
   def testNotProbeWhenFail(self):
     func = self.MockProbeFunction()
-    func.Probe = mock.MagicMock()
+    func.Probe = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
     ret = func(function.NOTHING)
     func.Probe.assert_not_called()
     self.assertEqual(ret, function.NOTHING)

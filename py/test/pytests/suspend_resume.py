@@ -115,25 +115,25 @@ class SuspendResumeTest(test_case.TestCase):
         os.path.exists(_KERNEL_DEBUG_SUSPEND_STATS),
         'suspend_stats file not found.')
     self.assertTrue(
-        os.path.exists(self.args.wakealarm_path),
-        f'wakealarm_path {self.args.wakealarm_path} is not found, bad path?')
+        os.path.exists(self.args.wakealarm_path),  # type: ignore #TODO(b/338318729) Fixit!
+        f'wakealarm_path {self.args.wakealarm_path} is not found, bad path?')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(
-        os.path.exists(self.args.time_path),
-        f'time_path {self.args.time_path} is not found, bad path?')
-    self.assertGreaterEqual(self.args.suspend_delay_min_secs,
+        os.path.exists(self.args.time_path),  # type: ignore #TODO(b/338318729) Fixit!
+        f'time_path {self.args.time_path} is not found, bad path?')  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertGreaterEqual(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit!
                             _MIN_SUSPEND_MARGIN_SECS, 'The '
                             'suspend_delay_min_secs is too low, bad '
                             'test_list?')
-    self.assertGreaterEqual(self.args.suspend_delay_max_secs,
-                            self.args.suspend_delay_min_secs, 'Invalid suspend '
+    self.assertGreaterEqual(self.args.suspend_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                            self.args.suspend_delay_min_secs, 'Invalid suspend '  # type: ignore #TODO(b/338318729) Fixit!
                             'timings provided in test_list (max < min).')
-    self.assertGreaterEqual(self.args.resume_delay_max_secs,
-                            self.args.resume_delay_min_secs, 'Invalid resume '
+    self.assertGreaterEqual(self.args.resume_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                            self.args.resume_delay_min_secs, 'Invalid resume '  # type: ignore #TODO(b/338318729) Fixit!
                             'timings provided in test_list (max < min).')
 
     self.goofy = state.GetInstance()
 
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.done = False
     self.suspend_type = None
@@ -242,7 +242,7 @@ class SuspendResumeTest(test_case.TestCase):
     # suspend in _MIN_SUSPEND_MARGIN_SECS seconds.
     while not self.done:
       self.Sleep(0.5)  # Wait for suspend_stats to get updated after resume.
-      if self._ReadSuspendCount() >= self.initial_suspend_count + self.run:
+      if self._ReadSuspendCount() >= self.initial_suspend_count + self.run:  # type: ignore #TODO(b/338318729) Fixit!
         break
       # A normal suspend-resume should not get here.
       cur_time = self._ReadCurrentTime()
@@ -262,8 +262,8 @@ class SuspendResumeTest(test_case.TestCase):
         logging.info('Attempted extending the wake timer %d s, resume is now '
                      'at %d.', _MIN_SUSPEND_MARGIN_SECS, self.resume_at)
       self.assertGreaterEqual(
-          self.start_time + self.args.suspend_worst_case_secs, cur_time,
-          f'Suspend timeout, device did not suspend within '
+          self.start_time + self.args.suspend_worst_case_secs, cur_time,  # type: ignore #TODO(b/338318729) Fixit!
+          f'Suspend timeout, device did not suspend within '  # type: ignore #TODO(b/338318729) Fixit!
           f'{int(self.args.suspend_worst_case_secs)} sec.')
     self.alarm_started.clear()
 
@@ -286,7 +286,7 @@ class SuspendResumeTest(test_case.TestCase):
       # wakeup_count, and we should not write to /sys/power/state if this
       # happens.
       logging.info('Writing "%s" to wakeup_count.', self.wakeup_count)
-      file_utils.WriteFile(self.args.wakeup_count_path, self.wakeup_count)
+      file_utils.WriteFile(self.args.wakeup_count_path, self.wakeup_count)  # type: ignore #TODO(b/338318729) Fixit!
     except IOError as err:
       if err.errno == errno.EINVAL:
         wake_sources = self._GetPossibleWakeupSources()
@@ -306,16 +306,16 @@ class SuspendResumeTest(test_case.TestCase):
       if err.errno == errno.EBUSY:
         logging.info('Early wake event when attempting suspend.')
         wake_sources = self._GetPossibleWakeupSources()
-        if self.args.ignore_wakeup_source in wake_sources:
+        if self.args.ignore_wakeup_source in wake_sources:  # type: ignore #TODO(b/338318729) Fixit!
           if retry_count == _MAX_EARLY_RESUME_RETRY_COUNT:
             raise RuntimeError(
-                f'Maximum re-suspend retry exceeded for ignored wakeup source '
+                f'Maximum re-suspend retry exceeded for ignored wakeup source '  # type: ignore #TODO(b/338318729) Fixit!
                 f'{self.args.ignore_wakeup_source}') from None
 
           logging.info('Wakeup source ignored, re-suspending...')
-          self.Sleep(self.args.early_resume_retry_wait_secs)
+          self.Sleep(self.args.early_resume_retry_wait_secs)  # type: ignore #TODO(b/338318729) Fixit!
           self.wakeup_count = file_utils.ReadFile(
-              self.args.wakeup_count_path).strip()
+              self.args.wakeup_count_path).strip()  # type: ignore #TODO(b/338318729) Fixit!
           self._Suspend(retry_count + 1)
           return
         raise IOError(
@@ -338,7 +338,7 @@ class SuspendResumeTest(test_case.TestCase):
       Int, the number of suspends the system has executed since last reboot.
     """
     line_content = file_utils.ReadFile(_KERNEL_DEBUG_SUSPEND_STATS).strip()
-    return int(re.search(r'[0-9]+', line_content).group(0))
+    return int(re.search(r'[0-9]+', line_content).group(0))  # type: ignore #TODO(b/338318729) Fixit!
 
   def _ReadCurrentTime(self):
     """Read the current time in seconds since_epoch.
@@ -349,7 +349,7 @@ class SuspendResumeTest(test_case.TestCase):
     Returns:
       Int, the time since_epoch in seconds.
     """
-    return int(file_utils.ReadFile(self.args.time_path).strip())
+    return int(file_utils.ReadFile(self.args.time_path).strip())  # type: ignore #TODO(b/338318729) Fixit!
 
   def _VerifySuspended(self, wake_time, wake_source, count, resume_at):
     """Verify that a reasonable suspend has taken place.
@@ -364,12 +364,12 @@ class SuspendResumeTest(test_case.TestCase):
       Boolean, True if suspend was valid, False if not.
     """
     self.assertGreaterEqual(
-        wake_time, resume_at + self.args.suspend_time_margin_min_secs,
+        wake_time, resume_at + self.args.suspend_time_margin_min_secs,  # type: ignore #TODO(b/338318729) Fixit!
         f"Premature wake detected ({int(resume_at - wake_time)} s early, "
         f"source={wake_source or 'unknown'}), spurious event? (got touched?)")
     self.assertLessEqual(
-        wake_time, resume_at + self.args.suspend_time_margin_max_secs,
-        f"Late wake detected ({int(wake_time - resume_at)}s > "
+        wake_time, resume_at + self.args.suspend_time_margin_max_secs,  # type: ignore #TODO(b/338318729) Fixit!
+        f"Late wake detected ({int(wake_time - resume_at)}s > "  # type: ignore #TODO(b/338318729) Fixit!
         f"{int(self.args.suspend_time_margin_max_secs)}s delay, "
         f"source={wake_source or 'unknown'}), timer failure?")
 
@@ -404,8 +404,8 @@ class SuspendResumeTest(test_case.TestCase):
       IOError: when raise_exception is True and writing to wakealarm file fails.
     """
     try:
-      logging.info('Writing "%s" to %s.', content, self.args.wakealarm_path)
-      file_utils.WriteFile(self.args.wakealarm_path, content)
+      logging.info('Writing "%s" to %s.', content, self.args.wakealarm_path)  # type: ignore #TODO(b/338318729) Fixit!
+      file_utils.WriteFile(self.args.wakealarm_path, content)  # type: ignore #TODO(b/338318729) Fixit!
     except IOError:
       error_msg = 'Failed to write to wakealarm.'
       if raise_exception:
@@ -427,7 +427,7 @@ class SuspendResumeTest(test_case.TestCase):
     Raises:
       RuntimeError: If raise_exception is True and wakealarm is not cleared.
     """
-    content = file_utils.ReadFile(self.args.wakealarm_path).strip()
+    content = file_utils.ReadFile(self.args.wakealarm_path).strip()  # type: ignore #TODO(b/338318729) Fixit!
     if content:
       error_msg = f'Wakealarm is not cleared after resume, value: {content}.'
       if raise_exception:
@@ -488,8 +488,8 @@ class SuspendResumeTest(test_case.TestCase):
     return wake_source
 
   def _ResolveSuspendType(self):
-    if self.args.suspend_type:
-      self.suspend_type = self.args.suspend_type
+    if self.args.suspend_type:  # type: ignore #TODO(b/338318729) Fixit!
+      self.suspend_type = self.args.suspend_type  # type: ignore #TODO(b/338318729) Fixit!
     else:
       logging.info(
           'Suspend type is not specified, auto-detect the supported one.')
@@ -506,25 +506,25 @@ class SuspendResumeTest(test_case.TestCase):
 
     random.seed(0)  # Make test deterministic
 
-    for self.run in range(1, self.args.cycles + 1):
+    for self.run in range(1, self.args.cycles + 1):  # type: ignore #TODO(b/338318729) Fixit!
       self.attempted_wake_extensions = 0
       self.actual_wake_extensions = 0
       alarm_suspend_delays = 0
       self.alarm_thread = threading.Thread(target=self._MonitorWakealarm)
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Suspend/Resume: {run} of {cycle}',
             run=self.run,
-            cycle=self.args.cycles))
+            cycle=self.args.cycles))  # type: ignore #TODO(b/338318729) Fixit!
       self.start_time = self._ReadCurrentTime()
-      suspend_time = random.randint(self.args.suspend_delay_min_secs,
-                                    self.args.suspend_delay_max_secs)
-      resume_time = random.randint(self.args.resume_delay_min_secs,
-                                   self.args.resume_delay_max_secs)
+      suspend_time = random.randint(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                                    self.args.suspend_delay_max_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      resume_time = random.randint(self.args.resume_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                                   self.args.resume_delay_max_secs)  # type: ignore #TODO(b/338318729) Fixit!
       self.resume_at = suspend_time + self.start_time
       logging.info('Suspend %d of %d for %d seconds, starting at %d.',
-                   self.run, self.args.cycles, suspend_time, self.start_time)
+                   self.run, self.args.cycles, suspend_time, self.start_time)  # type: ignore #TODO(b/338318729) Fixit!
       self.wakeup_count = file_utils.ReadFile(
-          self.args.wakeup_count_path).strip()
+          self.args.wakeup_count_path).strip()  # type: ignore #TODO(b/338318729) Fixit!
       self.alarm_thread.start()
       self.assertTrue(self.alarm_started.wait(_MIN_SUSPEND_MARGIN_SECS),
                       'Alarm thread timed out.')
@@ -534,12 +534,12 @@ class SuspendResumeTest(test_case.TestCase):
       wake_source = self._HandleMessages(messages_start)
       self._VerifySuspended(wake_time,
                             wake_source,
-                            self.initial_suspend_count + self.run,
+                            self.initial_suspend_count + self.run,  # type: ignore #TODO(b/338318729) Fixit!
                             self.resume_at)
       self._VerifyWakealarmCleared(
-          raise_exception=self.args.ensure_wakealarm_cleared)
+          raise_exception=self.args.ensure_wakealarm_cleared)  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Resumed %d of %d for %d seconds.', self.run,
-                   self.args.cycles, resume_time)
+                   self.args.cycles, resume_time)  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(resume_time)
 
       while self.alarm_thread.is_alive():
@@ -547,8 +547,8 @@ class SuspendResumeTest(test_case.TestCase):
         logging.warning('alarm thread is taking a while to return, waiting 1s.')
         self.Sleep(1)
         self.assertGreaterEqual(
-            self.start_time + self.args.suspend_worst_case_secs,
-            self._ReadCurrentTime(), f'alarm thread did not return within '
+            self.start_time + self.args.suspend_worst_case_secs,  # type: ignore #TODO(b/338318729) Fixit!
+            self._ReadCurrentTime(), f'alarm thread did not return within '  # type: ignore #TODO(b/338318729) Fixit!
             f'{int(self.args.suspend_worst_case_secs)} sec.')
       suspend_count = self._ReadSuspendCount()
       event_log.Log('suspend_resume_cycle',

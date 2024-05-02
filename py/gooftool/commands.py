@@ -913,7 +913,7 @@ def VerifyFeatureManagementFlags(options):
 
   checker = feature_compliance.LoadChecker(hwid_dir,
                                            hwid_utils.ProbeProject().upper())
-  hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(
+  hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit!
       identity)
 
   # TODO(stevesu) We should refactor this function to a Verifier class to
@@ -926,7 +926,7 @@ def VerifyFeatureManagementFlags(options):
     # matter it is actually (False, 0) or (False, n), we can always enable
     # feature by soft-branding. Overwrite it with the one in GSC.
     if feature_flags == gsctool.FeatureManagementFlags(False, 0):
-      hw_compliance_version_checker = feature_flags.hw_compliance_version
+      hw_compliance_version_checker = feature_flags.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit!
 
   if hw_compliance_version_device_data != hw_compliance_version_checker:
     raise Error(
@@ -947,7 +947,7 @@ def VerifyFeatureManagementFlags(options):
   # flow roll out to partner factory reaches steady state. Currently we
   # would like to limit the scope of change related with feature factory flow.
   brand_code = hwid_utils.GetBrandCode()
-  permitted = checker.CheckFeatureEnablement(brand_code,
+  permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit!
                                              chassis_branded_device_data)
   if not permitted:
     raise Error('Current feature enablement status is not permitted as '

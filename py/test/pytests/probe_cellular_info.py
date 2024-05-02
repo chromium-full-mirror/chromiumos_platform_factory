@@ -91,14 +91,14 @@ class ProbeCellularInfoTest(unittest.TestCase):
     names = []
     fields = []
     for name, field, enabled in (
-        ('imei', 'imei', self.args.probe_imei),
-        ('meid', 'meid', self.args.probe_meid),
-        ('lte_imei', 'Imei', self.args.probe_lte_imei),
-        ('lte_iccid', 'SimIdentifier', self.args.probe_lte_iccid)):
+        ('imei', 'imei', self.args.probe_imei),  # type: ignore #TODO(b/338318729) Fixit!
+        ('meid', 'meid', self.args.probe_meid),  # type: ignore #TODO(b/338318729) Fixit!
+        ('lte_imei', 'Imei', self.args.probe_lte_imei),  # type: ignore #TODO(b/338318729) Fixit!
+        ('lte_iccid', 'SimIdentifier', self.args.probe_lte_iccid)):  # type: ignore #TODO(b/338318729) Fixit!
       if not enabled:
         continue
 
-      field = self.args.fields[name] if name in self.args.fields else field
+      field = self.args.fields[name] if name in self.args.fields else field  # type: ignore #TODO(b/338318729) Fixit!
       names.append(name)
       fields.append(field)
 

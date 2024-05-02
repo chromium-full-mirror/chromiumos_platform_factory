@@ -14,14 +14,14 @@ class MultiprocessingFileHandler(logging.FileHandler):
 
   def createLock(self):
     """Overrides the original function, and uses multiprocessing RLock."""
-    self.lock = multiprocessing.RLock()
+    self.lock = multiprocessing.RLock()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class MultiprocessingStreamHandler(logging.StreamHandler):
 
   def createLock(self):
     """Overrides the original function, and uses multiprocessing RLock."""
-    self.lock = multiprocessing.RLock()
+    self.lock = multiprocessing.RLock()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def InitLogging(handlers, log_level=logging.DEBUG):
@@ -65,19 +65,19 @@ class LoggerMixin:
   """
 
   def debug(self, *arg, **kwargs):
-    return self.logger.debug(*arg, **kwargs)
+    return self.logger.debug(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def info(self, *arg, **kwargs):
-    return self.logger.info(*arg, **kwargs)
+    return self.logger.info(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def warning(self, *arg, **kwargs):
-    return self.logger.warning(*arg, **kwargs)
+    return self.logger.warning(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def error(self, *arg, **kwargs):
-    return self.logger.error(*arg, **kwargs)
+    return self.logger.error(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def critical(self, *arg, **kwargs):
-    return self.logger.critical(*arg, **kwargs)
+    return self.logger.critical(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def exception(self, *arg, **kwargs):
-    return self.logger.exception(*arg, **kwargs)
+    return self.logger.exception(*arg, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!

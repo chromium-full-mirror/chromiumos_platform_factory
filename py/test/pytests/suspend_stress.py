@@ -158,19 +158,19 @@ class SuspendStressTest(test_case.TestCase):
   ui_class = test_ui.ScrollableLogUI
 
   def setUp(self):
-    self.assertGreaterEqual(self.args.memory_check_size, 0)
-    self.assertTrue(self.args.memory_check or not self.args.memory_check_size,
+    self.assertGreaterEqual(self.args.memory_check_size, 0)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertTrue(self.args.memory_check or not self.args.memory_check_size,  # type: ignore #TODO(b/338318729) Fixit!
                     'Do not specify memory_check_size if memory_check is '
                     'False.')
-    self.assertGreaterEqual(self.args.suspend_delay_min_secs,
+    self.assertGreaterEqual(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit!
                             _MIN_SUSPEND_MARGIN_SECS, 'The '
                             'suspend_delay_min_secs is too low, bad '
                             'test_list?')
-    self.assertGreaterEqual(self.args.suspend_delay_max_secs,
-                            self.args.suspend_delay_min_secs, 'Invalid suspend '
+    self.assertGreaterEqual(self.args.suspend_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                            self.args.suspend_delay_min_secs, 'Invalid suspend '  # type: ignore #TODO(b/338318729) Fixit!
                             'timings provided in test_list (max < min).')
-    self.assertGreaterEqual(self.args.resume_delay_max_secs,
-                            self.args.resume_delay_min_secs, 'Invalid resume '
+    self.assertGreaterEqual(self.args.resume_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                            self.args.resume_delay_min_secs, 'Invalid resume '  # type: ignore #TODO(b/338318729) Fixit!
                             'timings provided in test_list (max < min).')
     self.dut = device_utils.CreateDUTInterface()
     self.goofy = state.GetInstance()
@@ -181,7 +181,7 @@ class SuspendStressTest(test_case.TestCase):
     while not self._suspend_stress_test_stop.is_set():
       c = handle.read()
       if c:
-        self.ui.AppendLog(c)
+        self.ui.AppendLog(c)  # type: ignore #TODO(b/338318729) Fixit!
       time.sleep(interval_sec)
 
   def runTest(self):
@@ -194,38 +194,38 @@ class SuspendStressTest(test_case.TestCase):
     command = [
         'suspend_stress_test',
         '--count',
-        str(self.args.cycles),
+        str(self.args.cycles),  # type: ignore #TODO(b/338318729) Fixit!
         '--suspend_max',
-        str(self.args.suspend_delay_max_secs),
+        str(self.args.suspend_delay_max_secs),  # type: ignore #TODO(b/338318729) Fixit!
         '--suspend_min',
-        str(self.args.suspend_delay_min_secs),
+        str(self.args.suspend_delay_min_secs),  # type: ignore #TODO(b/338318729) Fixit!
         '--wake_max',
-        str(self.args.resume_delay_max_secs),
+        str(self.args.resume_delay_max_secs),  # type: ignore #TODO(b/338318729) Fixit!
         '--wake_min',
-        str(self.args.resume_delay_min_secs),
+        str(self.args.resume_delay_min_secs),  # type: ignore #TODO(b/338318729) Fixit!
         '--suspend_time_margin_min',
-        str(self.args.suspend_time_margin_min_secs),
+        str(self.args.suspend_time_margin_min_secs),  # type: ignore #TODO(b/338318729) Fixit!
         '--suspend_time_margin_max',
-        str(self.args.suspend_time_margin_max_secs),
-        f"--{'' if self.args.fw_errors_fatal else 'no'}fw_errors_fatal",
-        f"--{'' if self.args.premature_wake_fatal else 'no'}"
+        str(self.args.suspend_time_margin_max_secs),  # type: ignore #TODO(b/338318729) Fixit!
+        f"--{'' if self.args.fw_errors_fatal else 'no'}fw_errors_fatal",  # type: ignore #TODO(b/338318729) Fixit!
+        f"--{'' if self.args.premature_wake_fatal else 'no'}"  # type: ignore #TODO(b/338318729) Fixit!
         f"premature_wake_fatal",
-        f"--{'' if self.args.late_wake_fatal else 'no'}late_wake_fatal",
+        f"--{'' if self.args.late_wake_fatal else 'no'}late_wake_fatal",  # type: ignore #TODO(b/338318729) Fixit!
         '--record_dmesg_dir',
         os.path.dirname(GetLogPath('')),
         '--pre_suspend_command',
-        self.args.pre_suspend_command,
+        self.args.pre_suspend_command,  # type: ignore #TODO(b/338318729) Fixit!
         '--post_resume_command',
-        self.args.post_resume_command,
+        self.args.post_resume_command,  # type: ignore #TODO(b/338318729) Fixit!
     ]
-    if self.args.ignore_wakeup_source:
-      command += ['--ignore_wakeup_source', self.args.ignore_wakeup_source]
-    if self.args.backup_rtc:
+    if self.args.ignore_wakeup_source:  # type: ignore #TODO(b/338318729) Fixit!
+      command += ['--ignore_wakeup_source', self.args.ignore_wakeup_source]  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.backup_rtc:  # type: ignore #TODO(b/338318729) Fixit!
       command += ['--backup_rtc']
-    if self.args.memory_check:
+    if self.args.memory_check:  # type: ignore #TODO(b/338318729) Fixit!
       command += [
           '--memory_check',
-          '--memory_check_size', str(self.args.memory_check_size)]
+          '--memory_check_size', str(self.args.memory_check_size)]  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('command: %r', command)
     testlog.LogParam('command', command)
@@ -269,7 +269,7 @@ class SuspendStressTest(test_case.TestCase):
     if match:
       testlog_elog = True
       wake_source = GetWakeSource(elog)
-      if self.args.premature_wake_fatal:
+      if self.args.premature_wake_fatal:  # type: ignore #TODO(b/338318729) Fixit!
         errors.append(f'Premature wake detected:{len(match)}')
         errors.append(f'Last elog Wake Source event: {wake_source!r}')
       else:
@@ -277,29 +277,29 @@ class SuspendStressTest(test_case.TestCase):
         logging.warning('Last elog Wake Source event: %r', wake_source)
     match = re.findall(r'Late wake detected', stdout)
     if match:
-      if self.args.late_wake_fatal:
+      if self.args.late_wake_fatal:  # type: ignore #TODO(b/338318729) Fixit!
         errors.append(f'Late wake detected:{len(match)}')
       else:
         logging.warning('Late wake detected:%d', len(match))
-    match = re.search(r'Finished (\d+) iterations', stdout)
-    if match and match.group(1) != str(self.args.cycles):
-      errors.append(f'Only finished {match.group(1)!r} cycles instead of '
+    match = re.search(r'Finished (\d+) iterations', stdout)  # type: ignore #TODO(b/338318729) Fixit!
+    if match and match.group(1) != str(self.args.cycles):  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(f'Only finished {match.group(1)!r} cycles instead of '  # type: ignore #TODO(b/338318729) Fixit!
                     f'{int(self.args.cycles)} cycles')
-    match = re.search(r'Suspend failures: (\d+)', stdout)
-    if match and match.group(1) != '0':
-      errors.append(match.group(0))
-    match = re.search(r'Wakealarm errors: (\d+)', stdout)
-    if match and match.group(1) != '0':
-      errors.append(match.group(0))
-    match = re.search(r'Firmware log errors: (\d+)', stdout)
-    if match and match.group(1) != '0':
-      if self.args.fw_errors_fatal:
-        errors.append(match.group(0))
+    match = re.search(r'Suspend failures: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit!
+    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit!
+    match = re.search(r'Wakealarm errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit!
+    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit!
+    match = re.search(r'Firmware log errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit!
+    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.fw_errors_fatal:  # type: ignore #TODO(b/338318729) Fixit!
+        errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        logging.warning(match.group(0))
-    match = re.search(r's0ix errors: (\d+)', stdout)
-    if match and match.group(1) != '0':
-      errors.append(match.group(0))
+        logging.warning(match.group(0))  # type: ignore #TODO(b/338318729) Fixit!
+    match = re.search(r's0ix errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit!
+    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit!
     if testlog_elog or errors:
       # This is the elog produced during the test.
       testlog.LogParam('elog', elog)

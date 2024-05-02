@@ -52,7 +52,7 @@ class InfoView(views.APIView):
     docker_image_islocal = os.environ.get('DOCKER_IMAGE_ISLOCAL', '1')
     # The DOCKER_IMAGE_ISLOCAL is a string '0' or '1', transform it back to
     # boolean.
-    docker_image_islocal = bool(int(docker_image_islocal))
+    docker_image_islocal = bool(int(docker_image_islocal))  # type: ignore #TODO(b/338318729) Fixit!
     docker_image_timestamp = os.environ.get('DOCKER_IMAGE_TIMESTAMP', '')
     docker_image_Latest_version = GetDockerImageLatestVersion(
         os.environ.get('RESOURCE_CROS_DOCKER_URL', ''))

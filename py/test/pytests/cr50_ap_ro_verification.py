@@ -83,13 +83,13 @@ class Cr50APROVerficationTest(test_case.TestCase):
 
   def setUp(self):
     self.gsctool = gsctool_module.GSCTool()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
     self.dut = device_utils.CreateDUTInterface()
     self.goofy = state.GetInstance()
 
     self.AddTask(self.PreCheck)
     self.AddTask(self.VerifyAPRO, reboot=True,
-                 reboot_timeout_secs=self.args.timeout_secs)
+                 reboot_timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     self.AddTask(self.CheckAPROResult)
 
   def HandleError(self, status):
@@ -101,7 +101,7 @@ class Cr50APROVerficationTest(test_case.TestCase):
     elif status == gsctool_module.APROResult.AP_RO_UNSUPPORTED_NOT_TRIGGERED:
       # If AP RO verification is not supported, the test should fail in the
       # first round.
-      if self.args.manual_test:
+      if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit!
         raise OperationError
       raise Exception('Unexpected error, please retry the test.')
     elif status == gsctool_module.APROResult.AP_RO_FAIL:
@@ -123,10 +123,10 @@ class Cr50APROVerficationTest(test_case.TestCase):
       raise Exception('Please set RO hash first.')
 
   def VerifyAPRO(self):
-    if self.args.manual_test:
-      self.ui.SetState(
+    if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please press POWER and (REFRESH*3) in {seconds} seconds.',
-            seconds=self.args.timeout_secs))
+            seconds=self.args.timeout_secs))  # type: ignore #TODO(b/338318729) Fixit!
     else:
       try:
         self.gsctool.CCDOpen()

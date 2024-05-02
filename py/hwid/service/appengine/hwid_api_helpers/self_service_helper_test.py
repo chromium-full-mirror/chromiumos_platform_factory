@@ -143,7 +143,7 @@ def _CreateFakeSelfServiceShard(
       hwid_action_manager_inst or modules.fake_hwid_action_manager,
       hwid_repo_manager, hwid_db_data_manager or
       modules.fake_hwid_db_data_manager, avl_converter_manager or
-      modules.fake_avl_converter_manager, session_cache_adapter or
+      modules.fake_avl_converter_manager, session_cache_adapter or  # type: ignore #TODO(b/338318729) Fixit!
       modules.fake_session_cache_adapter, avl_metadata_manager,
       (feature_matcher_builder_class or
        ss_helper_module.FeatureMatcherBuilderImpl), battery_config_fetcher,
@@ -507,7 +507,7 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
 
     self._AssertFeatureMatcherBuildResultSuccess(result)
     expected_converted_dlm_entry = self._CreateDLMComponentEntry(
-        cid=1, camera_property=features.CameraProperty.FromAttributes(
+        cid=1, camera_property=features.CameraProperty.FromAttributes(  # type: ignore #TODO(b/338318729) Fixit!
             is_user_facing=True, has_tnr=True, horizontal_resolution=1000,
             vertical_resolution=500))
     self.assertDictEqual(
@@ -555,7 +555,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.NOT_FOUND)
 
   def testGetHwidDbEditableSection_InternalError(self):
-    self._modules.ConfigHWID('PROJ', '2', 'db data', hwid_action=None)
+    self._modules.ConfigHWID('PROJ', '2', 'db data', hwid_action=None)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -567,7 +567,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSection_NotV3(self):
     action = hwid_action.HWIDAction()  # Default doesn't support any operations.
     action.HWID_VERSION = 0
-    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -579,7 +579,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSection_Success(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetDBEditableSection.return_value = 'aa\nbb'
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     resp = self.service.GetHwidDbEditableSection(req)
@@ -589,7 +589,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSectionChange_ProjectNotV3(self):
     action = hwid_action.HWIDAction()  # Default doesn't support any operations.
     action.HWID_VERSION = 0
-    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -601,7 +601,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testCreateHwidDbEditableSectionChangeCl_InvalidValidationToken(self):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-2', 'db data after change 2',
@@ -624,7 +624,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -654,7 +654,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -684,7 +684,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -715,7 +715,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -861,7 +861,7 @@ class SelfServiceShardTest(unittest.TestCase):
       action.GenerateBatteryConfigMetadata.return_value = None
       return action
 
-    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1',
+    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1',  # type: ignore #TODO(b/338318729) Fixit!
                              hwid_action_factory=CreateMockHWIDAction)
     req = hwid_api_messages_pb2.AnalyzeHwidDbEditableSectionRequest(
         project='proj', hwid_db_editable_section='db data after change')
@@ -1203,7 +1203,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_PreconditionErrors(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, False, [
@@ -1232,10 +1232,10 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_Pass(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     ModificationStatus = (
-        hwid_action.DBEditableSectionLineAnalysisResult.ModificationStatus)
-    Part = hwid_action.DBEditableSectionLineAnalysisResult.Part
+        hwid_action.DBEditableSectionLineAnalysisResult.ModificationStatus)  # type: ignore #TODO(b/338318729) Fixit!
+    Part = hwid_action.DBEditableSectionLineAnalysisResult.Part  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, False, [], [], [
@@ -1399,7 +1399,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_NoopChange(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, True, [], [], [], {}))
@@ -1428,7 +1428,7 @@ class SelfServiceShardTest(unittest.TestCase):
                                          {}))
       return action
 
-    self._modules.ConfigHWID('PROJ', '3', '',
+    self._modules.ConfigHWID('PROJ', '3', '',  # type: ignore #TODO(b/338318729) Fixit!
                              hwid_action_factory=CreateMockHWIDAction)
     self._ConfigHWIDRepoManager('PROJ', 3, 'db data ver 1',
                                 'db data ver 1(internal)')
@@ -1479,7 +1479,7 @@ class SelfServiceShardTest(unittest.TestCase):
               }))
       return action
 
-    self._modules.ConfigHWID('PROJ', '3', 'db data',
+    self._modules.ConfigHWID('PROJ', '3', 'db data',  # type: ignore #TODO(b/338318729) Fixit!
                              hwid_action_factory=CreateMockHWIDAction,
                              raw_db_internal='db data')
     self._ConfigHWIDRepoManager('PROJ', 3, 'db data', 'db data(internal)')
@@ -1520,7 +1520,7 @@ class SelfServiceShardTest(unittest.TestCase):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetHWIDBundleResourceInfo.return_value = (
         hwid_action.BundleResourceInfo('fingerprint_value_1', {}))
-    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       req = hwid_api_messages_pb2.CreateHwidBundleRequest(
@@ -1532,7 +1532,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_DiffStatus(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, False, [], [], [], {
@@ -1728,7 +1728,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -1752,7 +1752,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     firmware_record = _FirmwareRecord(
         model='proj', firmware_keys=[
@@ -1776,7 +1776,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(HWIDV3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -1788,7 +1788,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(HWIDV3_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     bundle_record = _FactoryBundleRecord(
         board='board', firmware_signer='BoardMPKeys-V1',
@@ -1805,7 +1805,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     bundle_record = _FactoryBundleRecord(
         board='board', firmware_signer='BoardMPKeys-V1', firmware_records=[
@@ -1831,7 +1831,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj'], supported=True))
@@ -1851,7 +1851,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     firmware_record = _FirmwareRecord(
         model='proj', ro_fp_firmware=[
@@ -1887,7 +1887,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetDBV3.return_value = mock.MagicMock(spec=database.WritableDatabase)
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     firmware_record = _FirmwareRecord(model='proj')
     bundle_record = _FactoryBundleRecord(board='board',
@@ -1907,7 +1907,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -1925,8 +1925,8 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo.CommitHWIDDB.side_effect = [123, hwid_repo.HWIDRepoError]
     action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
     action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
-    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)
-    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)
+    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)  # type: ignore #TODO(b/338318729) Fixit!
+    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))
@@ -1945,8 +1945,8 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo.CommitHWIDDB.side_effect = [123, 456]
     action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
     action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
-    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)
-    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)
+    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)  # type: ignore #TODO(b/338318729) Fixit!
+    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))
@@ -1962,7 +1962,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusRequest(
         project='proj', version_string='google_proj.1111.1.1')
@@ -1992,7 +1992,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(HWIDV3_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusRequest(
         project='proj', version_string='google_proj.2222.2.2')
@@ -2010,7 +2010,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusRequest(
         project='proj', version_string='google_proj.1111.1.1')
@@ -2038,7 +2038,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)
+    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project,
@@ -2088,7 +2088,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)
+    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     # Call AnalyzeHwidDbEditableSection without new_db_data to start a HWID DB
     # change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project, '')
@@ -2111,7 +2111,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)
+    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     self._mock_feature_matcher_builder.Build.return_value = (
         ss_helper_module.FeatureMatcherBuildResult(
             has_warnings=False, commit_message='unused msg',
@@ -2376,7 +2376,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)
+    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     mock_avl_converter_manager = CreateMockAVLConverterManager({
         'comp_cls1': [
@@ -2676,7 +2676,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)
+    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
     # Update blocklist of audio codec kernel names.
     blocklist_req = hwid_api_messages_pb2.UpdateAudioCodecKernelNamesRequest(
         blocklisted_kernel_names=['skippable_kernel_names'])
@@ -2943,7 +2943,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
         project='proj', region_comps=[
@@ -2986,7 +2986,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(HWIDV3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
         project='proj', region_comps=[
@@ -3005,7 +3005,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
         project='proj', region_comps=[
@@ -3023,7 +3023,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)
+    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit!
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
         project='proj', region_comps=[

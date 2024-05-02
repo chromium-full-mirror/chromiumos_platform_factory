@@ -120,9 +120,9 @@ class ArduinoController(serial_utils.SerialDevice):
       wait_ready: True to wait for ready_delay_secs after reset.
     """
     # Pull down DTR can reset Arduino Uno.
-    self._serial.setDTR(False)
+    self._serial.setDTR(False)  # type: ignore #TODO(b/338318729) Fixit!
     time.sleep(0.05)
-    self._serial.setDTR(True)
+    self._serial.setDTR(True)  # type: ignore #TODO(b/338318729) Fixit!
     if wait_ready:
       time.sleep(self._ready_delay_secs)
 

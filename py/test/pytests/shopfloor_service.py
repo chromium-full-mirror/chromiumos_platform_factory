@@ -186,7 +186,7 @@ class ShopfloorService(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.event = threading.Event()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetFactoryDeviceData(self):
     """Returns a dictionary in FactoryDeviceData format."""
@@ -243,7 +243,7 @@ class ShopfloorService(test_case.TestCase):
         '<button data-test-event="retry">',
         _('Retry'), '</button>'
     ] if retry else ''
-    self.ui.SetState([
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
         f'<span class="{css}">', caption,
         '</span><p><textarea rows=25 cols=90 readonly>',
         test_ui.Escape(message, False), '</textarea><p>', retry_button
@@ -257,28 +257,28 @@ class ShopfloorService(test_case.TestCase):
     self.event.clear()
 
   def runTest(self):
-    self.event_loop.AddEventHandler(
+    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit!
         'retry', lambda unused_event: self.event.set())
-    server_url = URLSpec.FindServerURL(self.args.server_url, self.dut)
+    server_url = URLSpec.FindServerURL(self.args.server_url, self.dut)  # type: ignore #TODO(b/338318729) Fixit!
     if server_url:
       server = webservice_utils.CreateWebServiceProxy(server_url)
     else:
       server = server_proxy.GetServerProxy()
-      if self.args.raw_invocation:
+      if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit!
         raise ValueError('Argument `raw_invocation` allowed only for external '
                          'server (need `server_url`).')
 
     # Prepare arguments
-    method = self.args.method
-    args = list(self.args.args or ())
-    kargs = dict(self.args.kargs or {})
+    method = self.args.method  # type: ignore #TODO(b/338318729) Fixit!
+    args = list(self.args.args or ())  # type: ignore #TODO(b/338318729) Fixit!
+    kargs = dict(self.args.kargs or {})  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.raw_invocation:
+    if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit!
       spec = ServiceSpec(has_data=False)
     else:
-      if self.args.kargs:
+      if self.args.kargs:  # type: ignore #TODO(b/338318729) Fixit!
         raise ValueError('`kargs` only allowed for `raw_invocation`.')
-      spec = self.METHODS.get(method)
+      spec = self.METHODS.get(method)  # type: ignore #TODO(b/338318729) Fixit!
       if not spec:
         raise ValueError(f'Unknown method for shopfloor service: {method}')
 

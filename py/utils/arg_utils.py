@@ -250,7 +250,7 @@ class Args:
     attributes = {}
     errors_by_name = {}
     for arg in self.args:
-      errors = []
+      errors = []  # type: ignore #TODO(b/338318729) Fixit!
       errors_by_name[arg.name] = errors
       if arg.name not in dargs and not arg.IsOptional():
         errors.append('The argument is required but isn\'t specified.')

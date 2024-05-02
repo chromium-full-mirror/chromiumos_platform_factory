@@ -423,7 +423,7 @@ class ProbeStatementDefinitionBuilder:
         probe_function_names=probe_function_names)
 
   def Build(self):
-    probe_function_fields = {n : [] for n in self._probe_function_descriptions}
+    probe_function_fields = {n : [] for n in self._probe_function_descriptions}  # type: ignore #TODO(b/338318729) Fixit!
     for field_info, probe_function_names in self._output_fields:
       if probe_function_names is self.ALL_PROBE_FUNCTIONS:
         probe_function_names = list(self._probe_function_descriptions.keys())

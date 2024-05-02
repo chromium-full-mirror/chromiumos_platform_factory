@@ -83,10 +83,10 @@ class AbstractLinuxDisplay(device_types.DeviceComponent, abc.ABC):
     interfaces = self._device.Glob(self.BACKLIGHT_SYSPATH_PATTERN)
     for i in interfaces:
       max_value = self._device.ReadFile(
-          self._device.path.join(i, 'max_brightness'))
+          self._device.path.join(i, 'max_brightness'))  # type: ignore #TODO(b/338318729) Fixit!
       new_value = int(level * float(max_value.strip()))
       self._device.WriteFile(
-          self._device.path.join(i, 'brightness'), str(new_value))
+          self._device.path.join(i, 'brightness'), str(new_value))  # type: ignore #TODO(b/338318729) Fixit!
 
   @abc.abstractmethod
   def DisplayImage(self, image_path):

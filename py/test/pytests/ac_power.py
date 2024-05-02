@@ -110,24 +110,24 @@ class ACPowerTest(test_case.TestCase):
   def setUp(self):
     self._power = device_utils.CreateDUTInterface().power
 
-    if not self.args.online:
+    if not self.args.online:  # type: ignore #TODO(b/338318729) Fixit!
       instruction = _('Unplug the charger.')
-    elif self.args.power_type:
-      instruction = _('Plug in the charger ({type})', type=self.args.power_type)
+    elif self.args.power_type:  # type: ignore #TODO(b/338318729) Fixit!
+      instruction = _('Plug in the charger ({type})', type=self.args.power_type)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       instruction = _('Plug in the charger')
 
-    self.ui.SetInstruction(instruction)
+    self.ui.SetInstruction(instruction)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         f'<div id="{_PROBE_TIMES_ID}"></div><div '
         f'id="{_AC_STATUS_ID}"></div><div id="{_AC_POWER_ID}"></div>')
 
     self._power_state = {}
     self._last_type = None
     self._last_ac_present = None
-    self._skip_warning_remains = self.args.silent_warning
-    if self.args.usbpd_power_range is not None:
+    self._skip_warning_remains = self.args.silent_warning  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.usbpd_power_range is not None:  # type: ignore #TODO(b/338318729) Fixit!
       testlog.UpdateParam(
           name='usbpd_power',
           description='Detected usbpd power.',
@@ -135,11 +135,11 @@ class ACPowerTest(test_case.TestCase):
 
     # Prepare fixture auto test if needed.
     self.fixture = None
-    if self.args.bft_fixture:
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateACPower(self, watt, min_watt, max_watt):
-    self.ui.SetHTML(
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
         _('Detected power {watt} W, '
           'required power range ({min_watt} W, {max_watt} W)',
           watt=watt,
@@ -148,12 +148,12 @@ class ACPowerTest(test_case.TestCase):
         id=_AC_POWER_ID)
 
   def UpdateACStatus(self, status):
-    self.ui.SetHTML(status, id=_AC_STATUS_ID)
+    self.ui.SetHTML(status, id=_AC_STATUS_ID)  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateProbeTimes(self, num_probes):
-    self.ui.SetHTML(
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
         _('Probed {times} / {total}', times=num_probes,
-          total=self.args.retries),
+          total=self.args.retries),  # type: ignore #TODO(b/338318729) Fixit!
         id=_PROBE_TIMES_ID)
 
   def CheckCondition(self):
@@ -165,28 +165,28 @@ class ACPowerTest(test_case.TestCase):
     # mismatched charger attached.
     if self._last_ac_present != ac_present:
       self._last_ac_present = ac_present
-      self._skip_warning_remains = self.args.silent_warning
+      self._skip_warning_remains = self.args.silent_warning  # type: ignore #TODO(b/338318729) Fixit!
       self._last_type = None
 
-    if ac_present != self.args.online:
+    if ac_present != self.args.online:  # type: ignore #TODO(b/338318729) Fixit!
       if not ac_present:
         self.UpdateACStatus(_('No AC adapter'))
       return False
 
-    if self.args.power_type and self.args.power_type != current_type:
+    if self.args.power_type and self.args.power_type != current_type:  # type: ignore #TODO(b/338318729) Fixit!
       if self._skip_warning_remains > 0:
         self.UpdateACStatus(_('Identifying AC adapter...'))
         self._skip_warning_remains -= 1
       elif self._last_type != current_type:
         self.UpdateACStatus(_('AC adapter type: {type}', type=current_type))
         session.console.warning(
-            'Expecting %s but see %s', self.args.power_type, current_type)
+            'Expecting %s but see %s', self.args.power_type, current_type)  # type: ignore #TODO(b/338318729) Fixit!
         self._last_type = current_type
       return False
 
-    if self.args.usbpd_power_range and self.args.power_type == _AC_TYPE_USB_PD:
+    if self.args.usbpd_power_range and self.args.power_type == _AC_TYPE_USB_PD:  # type: ignore #TODO(b/338318729) Fixit!
       usbpd_power_infos = self._power.GetUSBPDPowerInfo()
-      port, power_min, power_max = self.args.usbpd_power_range
+      port, power_min, power_max = self.args.usbpd_power_range  # type: ignore #TODO(b/338318729) Fixit!
       # USBPortInfo: (id, state, voltage (mV), current (mA))
       for info in usbpd_power_infos:
         if info.id != port:
@@ -206,16 +206,16 @@ class ACPowerTest(test_case.TestCase):
   def runTest(self):
     if self.fixture:
       self.fixture.SetDeviceEngaged(bft_fixture.BFTFixture.Device.AC_ADAPTER,
-                                    self.args.online)
+                                    self.args.online)  # type: ignore #TODO(b/338318729) Fixit!
     num_probes = 0
 
     while True:
-      if self.args.retries is not None:
+      if self.args.retries is not None:  # type: ignore #TODO(b/338318729) Fixit!
         self.UpdateProbeTimes(num_probes)
       if self.CheckCondition():
         break
       num_probes += 1
-      if self.args.retries is not None and num_probes > self.args.retries:
+      if self.args.retries is not None and num_probes > self.args.retries:  # type: ignore #TODO(b/338318729) Fixit!
         self.FailTask(f'Failed after probing {int(num_probes)} times')
       # Prevent busy polling.
-      self.Sleep(self.args.polling_period_secs)
+      self.Sleep(self.args.polling_period_secs)  # type: ignore #TODO(b/338318729) Fixit!

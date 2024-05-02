@@ -128,7 +128,7 @@ class _Config:
     if battery_config_setting is None:
       self.battery_config_fetcher = ss_helper_module.EmptyBatteryConfigFetcher()
     else:
-      self.battery_config_fetcher = ss_helper_module.TOTBatteryConfigFetcher(
+      self.battery_config_fetcher = ss_helper_module.TOTBatteryConfigFetcher(  # type: ignore #TODO(b/338318729) Fixit!
           battery_config_setting['gerrit_review_url'],
           battery_config_setting['gitiles_url'],
           battery_config_setting['repo_name'],

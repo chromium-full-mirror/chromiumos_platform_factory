@@ -69,12 +69,12 @@ class ModemSecurity(test_case.TestCase):
       self.WaiveTest('Modem is not L850 waived.')
     # Check whether access authority is closed already first.
     response = self.RunATCommand('AT@sec:status_info()')
-    if ACCESS_LEVEL_RE.search(response).group(0) == 'access_level = 0':
+    if ACCESS_LEVEL_RE.search(response).group(0) == 'access_level = 0':  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     # If access authority is still open then try to close it.
     self.RunATCommand('AT@sec:code_clear(0)')
     response = self.RunATCommand('AT@sec:status_info()')
-    if ACCESS_LEVEL_RE.search(response).group(0) != 'access_level = 0':
+    if ACCESS_LEVEL_RE.search(response).group(0) != 'access_level = 0':  # type: ignore #TODO(b/338318729) Fixit!
       # If we can't close the access authority then raise this failure.
       self.FailTask('Failed to set the access_level')

@@ -159,13 +159,13 @@ class CountDownTest(test_case.TestCase):
 
   def UpdateTimeAndLoad(self):
     self._elapsed_secs = time.time() - self._start_secs
-    self.ui.SetHTML(
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
         self.FormatSeconds(self._elapsed_secs),
         id='cd-elapsed-time')
-    self.ui.SetHTML(
-        self.FormatSeconds(self.args.duration_secs - self._elapsed_secs),
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+        self.FormatSeconds(self.args.duration_secs - self._elapsed_secs),  # type: ignore #TODO(b/338318729) Fixit!
         id='cd-remaining-time')
-    self.ui.SetHTML(' '.join(file_utils.ReadFile('/proc/loadavg').split()[0:3]),
+    self.ui.SetHTML(' '.join(file_utils.ReadFile('/proc/loadavg').split()[0:3]),  # type: ignore #TODO(b/338318729) Fixit!
                     id='cd-system-load')
 
   def UpdateUILog(self):
@@ -179,22 +179,22 @@ class CountDownTest(test_case.TestCase):
         f'CPU frequency (MHz): {sys_status.cpu_freq}'
     ]
     log_str = '.  '.join(log_items)
-    if self._verbose_log:
-      self._verbose_log.write(log_str + os.linesep)
-      self._verbose_log.flush()
-    self.ui.AppendHTML(f'<div>{test_ui.Escape(log_str)}</div>', id=PanelID.LOG,
+    if self._verbose_log:  # type: ignore #TODO(b/338318729) Fixit!
+      self._verbose_log.write(log_str + os.linesep)  # type: ignore #TODO(b/338318729) Fixit!
+      self._verbose_log.flush()  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.AppendHTML(f'<div>{test_ui.Escape(log_str)}</div>', id=PanelID.LOG,  # type: ignore #TODO(b/338318729) Fixit!
                        autoscroll=True)
-    self.ui.RunJS(f'const panel = document.getElementById("{PanelID.LOG}");'
+    self.ui.RunJS(f'const panel = document.getElementById("{PanelID.LOG}");'  # type: ignore #TODO(b/338318729) Fixit!
                   'if (panel.childNodes.length > 512)'
                   '  panel.removeChild(panel.firstChild);')
 
   def UpdateLegend(self, sensor_names):
     for i, sensor in enumerate(sensor_names):
-      self.ui.AppendHTML(
+      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit!
           f'<div class="cd-legend-item">[{int(i)}] {sensor}</div>',
           id=PanelID.LEGEND_ITEM)
     if sensor_names:
-      self.ui.ToggleClass(PanelID.LEGEND, 'hidden', False)
+      self.ui.ToggleClass(PanelID.LEGEND, 'hidden', False)  # type: ignore #TODO(b/338318729) Fixit!
 
   def DetectAbnormalStatus(self, status, last_status):
     def GetTemperature(sensor):
@@ -207,7 +207,7 @@ class CountDownTest(test_case.TestCase):
 
     warnings = []
 
-    if self.args.temp_max_delta:
+    if self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit!
       if len(status.temperatures) != len(last_status.temperatures):
         warnings.append(f'Number of temperature sensors differ (current: '
                         f'{len(status.temperatures)}, last: '
@@ -225,13 +225,13 @@ class CountDownTest(test_case.TestCase):
           warnings.append(
               f'Cannot read temperature sensor {sensor} (current: {current!r}, '
               f'last: {last!r})')
-        elif abs(current - last) > self.args.temp_max_delta:
+        elif abs(current - last) > self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit!
           warnings.append(
-              f'Temperature sensor {sensor} delta over '
+              f'Temperature sensor {sensor} delta over '  # type: ignore #TODO(b/338318729) Fixit!
               f'{int(self.args.temp_max_delta)} (current: {int(current)}, last:'
               f' {int(last)})')
 
-    for name, sensor, warning_temp, critical_temp in self.args.temp_criteria:
+    for name, sensor, warning_temp, critical_temp in self.args.temp_criteria:  # type: ignore #TODO(b/338318729) Fixit!
       temp = GetTemperature(sensor)
       if temp is None:
         warnings.append(f'{name} temperature unavailable')
@@ -253,15 +253,15 @@ class CountDownTest(test_case.TestCase):
         warnings.append(
             f'{name} over critical temperature (now: {temp:.1f}, critical: '
             f'{critical_temp:.1f})')
-        if self.args.terminate_on_critical_temp:
-          self.goofy.StopTest(reason=f'Stop all tests since {warnings[-1]}')
+        if self.args.terminate_on_critical_temp:  # type: ignore #TODO(b/338318729) Fixit!
+          self.goofy.StopTest(reason=f'Stop all tests since {warnings[-1]}')  # type: ignore #TODO(b/338318729) Fixit!
       elif temp >= warning_temp:
         warnings.append(
             f'{name} over warning temperature (now: {temp:.1f}, warning: '
             f'{warning_temp:.1f})')
 
     for (relation, first_sensor, second_sensor,
-         max_diff) in self.args.relative_temp_criteria:
+         max_diff) in self.args.relative_temp_criteria:  # type: ignore #TODO(b/338318729) Fixit!
       first_temp = GetTemperature(first_sensor)
       second_temp = GetTemperature(second_sensor)
       if first_temp is None or second_temp is None:
@@ -278,27 +278,27 @@ class CountDownTest(test_case.TestCase):
             f'Temperature difference between {relation} over {int(max_diff)} '
             f'(first: {int(first_temp)}, second: {int(second_temp)})')
 
-    if self.args.fan_min_expected_rpm:
+    if self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit!
       for i, fan_rpm in enumerate(status.fan_rpm):
-        if fan_rpm < self.args.fan_min_expected_rpm:
+        if fan_rpm < self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit!
           warnings.append(
-              f'Fan {int(i)} rpm {int(fan_rpm)} less than min expected '
+              f'Fan {int(i)} rpm {int(fan_rpm)} less than min expected '  # type: ignore #TODO(b/338318729) Fixit!
               f'{int(self.args.fan_min_expected_rpm)}')
 
-    if self.args.cpu_min_expected_freq:
+    if self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
       for cpu_freq in status.cpu_freq:
-        if cpu_freq < self.args.cpu_min_expected_freq:
-          warnings.append(f'CPU frequency {cpu_freq:f} MHz less than expected '
+        if cpu_freq < self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
+          warnings.append(f'CPU frequency {cpu_freq:f} MHz less than expected '  # type: ignore #TODO(b/338318729) Fixit!
                           f'{int(self.args.cpu_min_expected_freq)} MHz')
 
-    if self.args.cpu_max_expected_freq:
+    if self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
       for cpu_freq in status.cpu_freq:
-        if cpu_freq > self.args.cpu_max_expected_freq:
+        if cpu_freq > self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
           warnings.append(
-              f'CPU frequency {cpu_freq:f} MHz larger than expected '
+              f'CPU frequency {cpu_freq:f} MHz larger than expected '  # type: ignore #TODO(b/338318729) Fixit!
               f'{int(self.args.cpu_max_expected_freq)} MHz')
 
-    if not self.args.allow_invalid_temp:
+    if not self.args.allow_invalid_temp:  # type: ignore #TODO(b/338318729) Fixit!
       for sensor, temp in status.temperatures.items():
         if temp is None:
           warnings.append(f'Cannot read temperature sensor {sensor}.')
@@ -306,17 +306,17 @@ class CountDownTest(test_case.TestCase):
           warnings.append(
               f'Thermal zone {sensor} reports abnormal temperature {int(temp)}')
 
-    in_grace_period = self._elapsed_secs < self.args.grace_secs
+    in_grace_period = self._elapsed_secs < self.args.grace_secs  # type: ignore #TODO(b/338318729) Fixit!
     if warnings:
       event_log.Log('warnings', elapsed_secs=self._elapsed_secs,
                     in_grace_period=in_grace_period, warnings=warnings)
-      if not in_grace_period and self.args.show_warn_on_display:
+      if not in_grace_period and self.args.show_warn_on_display:  # type: ignore #TODO(b/338318729) Fixit!
         for w in warnings:
           session.console.warn(w)
 
     with self._group_checker:
       testlog.CheckNumericParam('elapsed', self._elapsed_secs,
-                                max=self.args.grace_secs)
+                                max=self.args.grace_secs)  # type: ignore #TODO(b/338318729) Fixit!
       testlog.LogParam('temperatures', status.temperatures)
       testlog.LogParam('fan_rpm', status.fan_rpm)
       testlog.LogParam('cpu_freq', status.cpu_freq)
@@ -339,7 +339,7 @@ class CountDownTest(test_case.TestCase):
         'cpu_freq_manager')
 
     # Disable wifi scanning in connection manager to prevent from device busy.
-    if self.args.wifi_update_interval:
+    if self.args.wifi_update_interval:  # type: ignore #TODO(b/338318729) Fixit!
       connection_manager = plugin_controller.GetPluginRPCProxy(
           'connection_manager')
       connection_manager.SetWifiScanInterval(scan_interval=0)
@@ -351,8 +351,8 @@ class CountDownTest(test_case.TestCase):
           location=_ALS_LOCATION)
     except Exception:
       # Disable the ALS scanning if the device does not support ALS.
-      self.ui.HideElement(PanelID.ALS)
-      self.args.als_update_interval = 0
+      self.ui.HideElement(PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.als_update_interval = 0  # type: ignore #TODO(b/338318729) Fixit!
 
     # Group checker for Testlog.
     self._group_checker = testlog.GroupParam(
@@ -401,57 +401,57 @@ class CountDownTest(test_case.TestCase):
 
   def ScanWiFi(self):
     """Launch WiFi scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                     id=PanelID.WIFI)
     wifi_aps: List[wifi.AccessPoint] = (  # type: ignore #TODO(b/338318729) Fixit!
         self._dut.wifi.FilterAccessPoints(log=False))
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                        id=PanelID.WIFI)
     for ap in wifi_aps:
-      self.ui.AppendHTML(
+      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit!
           f'<div>ssid: {ap.ssid!r}, strength: {ap.strength!r}</div>',
           id=PanelID.WIFI)
 
     if self._event_loop_stop:
       logging.info('Stop in ScanWiFi because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanWiFiThread,
-                                      self.args.wifi_update_interval)
+      self.event_loop.AddTimedHandler(self.StartNewScanWiFiThread,  # type: ignore #TODO(b/338318729) Fixit!
+                                      self.args.wifi_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
 
   def ScanBluetooth(self):
     """Launch bluetooth scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                     id=PanelID.BLUETOOTH)
     # There may be hundreds of bluetooth device inside the factory and the
     # scanning may be too long to be finished so we have to set a timeout.
     devices: Dict[str, Dict] = self.btmgmt.FindDevices(  # type: ignore #TODO(b/338318729) Fixit!
-        timeout_secs=self.args.bluetooth_update_interval, log=False)
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',
+        timeout_secs=self.args.bluetooth_update_interval, log=False)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                        id=PanelID.BLUETOOTH)
     for mac, data in devices.items():
-      self.ui.AppendHTML(f'<div>mac: {mac!r}, {data!r}</div>',
+      self.ui.AppendHTML(f'<div>mac: {mac!r}, {data!r}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                          id=PanelID.BLUETOOTH)
 
     if self._event_loop_stop:
       logging.info('Stop in ScanBluetooth because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanBluetoothThread,
-                                      self.args.bluetooth_update_interval)
+      self.event_loop.AddTimedHandler(self.StartNewScanBluetoothThread,  # type: ignore #TODO(b/338318729) Fixit!
+                                      self.args.bluetooth_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
 
   def ScanALS(self):
     """Launch ALS scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                     id=PanelID.ALS)
-    lux = self._als_controller.GetLuxValue()
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',
+    lux = self._als_controller.GetLuxValue()  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
                        id=PanelID.ALS)
-    self.ui.AppendHTML(f'<div>lux: {lux!r}</div>', id=PanelID.ALS)
+    self.ui.AppendHTML(f'<div>lux: {lux!r}</div>', id=PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit!
 
     if self._event_loop_stop:
       logging.info('Stop in ScanALS because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanALSThread,
-                                      self.args.als_update_interval)
+      self.event_loop.AddTimedHandler(self.StartNewScanALSThread,  # type: ignore #TODO(b/338318729) Fixit!
+                                      self.args.als_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     verbose_log_path = session.GetVerboseTestLogPath()
@@ -465,26 +465,26 @@ class CountDownTest(test_case.TestCase):
       self.UpdateLegend(self._sensors)
 
       # Loop until count-down ends.
-      self.event_loop.AddTimedHandler(self.UpdateTimeAndLoad, 0.5, repeat=True)
-      self.event_loop.AddTimedHandler(self.Log, self.args.log_interval,
+      self.event_loop.AddTimedHandler(self.UpdateTimeAndLoad, 0.5, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+      self.event_loop.AddTimedHandler(self.Log, self.args.log_interval,  # type: ignore #TODO(b/338318729) Fixit!
                                       repeat=True)
-      self.event_loop.AddTimedHandler(self.UpdateUILog,
-                                      self.args.ui_update_interval, repeat=True)
+      self.event_loop.AddTimedHandler(self.UpdateUILog,  # type: ignore #TODO(b/338318729) Fixit!
+                                      self.args.ui_update_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
 
       # For the events of components scanning,
       # we use a dict to store the {event}:{interval} pair
       event_interval_dict = {
-          self.StartNewScanWiFiThread: self.args.wifi_update_interval,
-          self.StartNewScanBluetoothThread: self.args.bluetooth_update_interval,
-          self.StartNewScanALSThread: self.args.als_update_interval
+          self.StartNewScanWiFiThread: self.args.wifi_update_interval,  # type: ignore #TODO(b/338318729) Fixit!
+          self.StartNewScanBluetoothThread: self.args.bluetooth_update_interval,  # type: ignore #TODO(b/338318729) Fixit!
+          self.StartNewScanALSThread: self.args.als_update_interval  # type: ignore #TODO(b/338318729) Fixit!
       }
       for event, interval in event_interval_dict.items():
         if interval:
-          self.event_loop.AddTimedHandler(event, interval)
+          self.event_loop.AddTimedHandler(event, interval)  # type: ignore #TODO(b/338318729) Fixit!
 
-      self.Sleep(self.args.duration_secs)
+      self.Sleep(self.args.duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
       self._event_loop_stop = True
-      self.event_loop.RemoveTimedHandler()
+      self.event_loop.RemoveTimedHandler()  # type: ignore #TODO(b/338318729) Fixit!
       self._verbose_log = None
 
     self.goofy.WaitForWebSocketUp()

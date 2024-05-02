@@ -44,7 +44,7 @@ class TestTestListFile(unittest.TestCase):
     self.test_list_file.Save()
 
     mock_save.assert_called_once_with(self.data,
-                                      self.filename.removesuffix('.test_list'),
+                                      self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit!
                                       files.TEST_LIST_STORAGE_DIR)
 
   @mock.patch.object(os, 'path')

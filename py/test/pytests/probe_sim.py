@@ -83,30 +83,30 @@ class ProbeSIMCardTest(test_case.TestCase):
           'If true, reset modem before check status.', default=True)]
 
   def setUp(self):
-    self.reset_commands = self.args.modem_reset_commands
+    self.reset_commands = self.args.modem_reset_commands  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.only_check_simcard_present:
+    if self.args.only_check_simcard_present:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckSIMCardState(CheckSimPresence,
                              'Fail to make sure sim card is present')
-    elif self.args.only_check_simcard_not_present:
+    elif self.args.only_check_simcard_not_present:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckSIMCardState(CheckSimAbsence,
                              'Fail to make sure sim card is not present')
     else:
       self.ResetModem()
-      self.ui.SetState(_('Please insert the SIM card'))
+      self.ui.SetState(_('Please insert the SIM card'))  # type: ignore #TODO(b/338318729) Fixit!
       iccid = self.WaitForSIMCard(CheckSimPresence)
       logging.info('ICCID: %s', iccid)
       event_log.Log('SIM_CARD_DETECTION', ICCID=iccid)
       testlog.LogParam('ICCID', iccid)
 
-      self.ui.SetState(_('Detected! Please remove the SIM card'))
+      self.ui.SetState(_('Detected! Please remove the SIM card'))  # type: ignore #TODO(b/338318729) Fixit!
       self.WaitForSIMCard(CheckSimAbsence)
 
   def ResetModem(self):
     """Resets modem."""
-    if self.args.enable_modem_reset:
-      for command in self.args.modem_reset_commands:
+    if self.args.enable_modem_reset:  # type: ignore #TODO(b/338318729) Fixit!
+      for command in self.args.modem_reset_commands:  # type: ignore #TODO(b/338318729) Fixit!
         process_utils.Spawn(command, call=True, log=True)
       self.Sleep(_INSERT_CHECK_PERIOD_SECS)
 

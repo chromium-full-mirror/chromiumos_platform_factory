@@ -82,7 +82,7 @@ class GoofyRPC:
     # will contain a two-element tuple (ret, exc), where ret is the
     # return value or exc is any exception thrown.  Only one will be
     # set.
-    result = queue.Queue()
+    result = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     def Target():
       try:
@@ -169,7 +169,7 @@ class GoofyRPC:
         restart_time: The time at which the system will restart (on success).
         error_msg: An error message (on failure).
     """
-    ret_value = queue.Queue()
+    ret_value = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
 
     def PostUpdateHook():
       # After update, wait REBOOT_AFTER_UPDATE_DELAY_SECS before the
@@ -286,7 +286,7 @@ class GoofyRPC:
         archive_key: A "key" that may later be used to refer to the archive.
             This is just a randomly-chosen 8-digit number.
     """
-    archive_key = f'{random.SystemRandom().randint(0, 1e8):08}'
+    archive_key = f'{random.SystemRandom().randint(0, 1e8):08}'  # type: ignore #TODO(b/338318729) Fixit!
     archive_id = '.'.join([re.sub('[^A-Za-z0-9.]', '_', x)
                            for x in (archive_key, name, serial, description)])
     output_file = factory_bug.SaveLogs(tempfile.gettempdir(),
@@ -508,7 +508,7 @@ class GoofyRPC:
         scheduled_tests_status = [t for t in tests if t['path'] in
                                   self.goofy.scheduled_run_tests]
         ret_val['run_id'] = self.goofy.run_id
-        ret_val['scheduled_tests'] = scheduled_tests_status
+        ret_val['scheduled_tests'] = scheduled_tests_status  # type: ignore #TODO(b/338318729) Fixit!
 
         if (self.goofy.test_list_iterator.GetPendingTests() or
             any(t['status'] == state.TestState.ACTIVE

@@ -53,7 +53,7 @@ class SysfsBatteryTest(unittest.TestCase):
   def runTest(self):
     success = False
     msg = ''
-    wearAllowedPct = self.args.percent_battery_wear_allowed
+    wearAllowedPct = self.args.percent_battery_wear_allowed  # type: ignore #TODO(b/338318729) Fixit!
     wearPct = None
     power = self._power
 
@@ -75,8 +75,8 @@ class SysfsBatteryTest(unittest.TestCase):
 
     if battery_present:
       cycleCount = power.GetBatteryCycleCount()
-      if success and self.args.maximum_cycle_count >= 0:
-        if cycleCount > self.args.maximum_cycle_count:
+      if success and self.args.maximum_cycle_count >= 0:  # type: ignore #TODO(b/338318729) Fixit!
+        if cycleCount > self.args.maximum_cycle_count:  # type: ignore #TODO(b/338318729) Fixit!
           msg = f'Battery cycle count is too high: {int(cycleCount)}'
           success = False
 

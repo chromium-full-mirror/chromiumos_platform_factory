@@ -345,5 +345,5 @@ class _SSHControlMasterWatcher:
       logging.debug('start monitoring control master until %d terminates', pid)
       sync_utils.PollForCondition(
           lambda: process_utils.IsProcessAlive(pid, ppid),
-          condition_method=_PollingCallback, timeout_secs=None,
+          condition_method=_PollingCallback, timeout_secs=None,  # type: ignore #TODO(b/338318729) Fixit!
           poll_interval_secs=1)

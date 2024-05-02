@@ -44,11 +44,11 @@ def GetAllIPs(iface_filter=None):
   ret = []
   if iface_filter is None:
     iface_filter = lambda x: True
-  for iface in filter(iface_filter, netifaces.interfaces()):
-    ifaddr = netifaces.ifaddresses(iface)
-    if netifaces.AF_INET not in ifaddr:
+  for iface in filter(iface_filter, netifaces.interfaces()):  # type: ignore #TODO(b/338318729) Fixit!
+    ifaddr = netifaces.ifaddresses(iface)  # type: ignore #TODO(b/338318729) Fixit!
+    if netifaces.AF_INET not in ifaddr:  # type: ignore #TODO(b/338318729) Fixit!
       continue
-    ret.extend([link['addr'] for link in ifaddr[netifaces.AF_INET]])
+    ret.extend([link['addr'] for link in ifaddr[netifaces.AF_INET]])  # type: ignore #TODO(b/338318729) Fixit!
   return ret
 
 
@@ -64,7 +64,7 @@ def _SendDhclientCommand(arguments, interface,
   Because the read-only filesystem, using dhclient in ChromeOS needs a
   little tweaks on few paths.
   """
-  expect_str = pexpect.EOF if expect_str is None else expect_str
+  expect_str = pexpect.EOF if expect_str is None else expect_str  # type: ignore #TODO(b/338318729) Fixit!
   DHCLIENT_SCRIPT = '/usr/local/sbin/dhclient-script'
   DHCLIENT_LEASE = os.path.join(paths.DATA_STATE_DIR, 'dhclient.leases')
   file_utils.TryMakeDirs(os.path.dirname(DHCLIENT_LEASE))
@@ -72,7 +72,7 @@ def _SendDhclientCommand(arguments, interface,
 
   logging.info('Starting dhclient')
   dhcp_process = (
-      pexpect.spawn(
+      pexpect.spawn(  # type: ignore #TODO(b/338318729) Fixit!
           'dhclient',
           ['-sf', DHCLIENT_SCRIPT, '-lf', DHCLIENT_LEASE, '-d',
            '-v', '--no-pid', interface] + arguments, timeout))
@@ -207,15 +207,15 @@ def GetUnmanagedEthernetInterfaces():
       shill_status = process_utils.Spawn(['status', 'shill'], read_stdout=True,
                                          sudo=True)
       return (shill_status.returncode == 0 and
-              'running' in shill_status.stdout_data)
+              'running' in shill_status.stdout_data)  # type: ignore #TODO(b/338318729) Fixit!
     except OSError:
       return False
 
   def IsShillUsingDHCP(intf):
     if dbus.MODULE_READY:
-      bus = dbus.SystemBus()
+      bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
       dev = bus.get_object("org.chromium.flimflam", f"/device/{intf}")
-      dev_intf = dbus.Interface(dev, "org.chromium.flimflam.Device")
+      dev_intf = dbus.Interface(dev, "org.chromium.flimflam.Device")  # type: ignore #TODO(b/338318729) Fixit!
       properties = dev_intf.GetProperties()
       for config in properties['IPConfigs']:
         if 'dhcp' in config:
@@ -276,11 +276,11 @@ def GetDHCPBootParameters(interface):
     p.wait()
 
     with open(dump_file, 'r', encoding='utf8') as f:
-      pcap = dpkt.pcap.Reader(f)
+      pcap = dpkt.pcap.Reader(f)  # type: ignore #TODO(b/338318729) Fixit!
       for _, buf in pcap:
-        eth = dpkt.ethernet.Ethernet(buf)
+        eth = dpkt.ethernet.Ethernet(buf)  # type: ignore #TODO(b/338318729) Fixit!
         udp = eth.ip.data
-        dhcp = dpkt.dhcp.DHCP(udp.data)
+        dhcp = dpkt.dhcp.DHCP(udp.data)  # type: ignore #TODO(b/338318729) Fixit!
 
         if dhcp['siaddr'] != 0 and dhcp['file'].strip('\x00'):
           ip = '.'.join([str(x) for x in dhcp['siaddr'].to_bytes(4, 'big')])

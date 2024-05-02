@@ -28,10 +28,10 @@ class ArgUtilsTest(unittest_test_case.I18nTestCase):
   def testI18nArg(self):
     test = MockPyTest([i18n_arg_utils.I18nArg('text', 'text.')])
     test.Parse({'text': translation.Translation('text 1')})
-    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)
+    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)  # type: ignore #TODO(b/338318729) Fixit!
 
     test.Parse({'text': 'text 1'})
-    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)
+    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)  # type: ignore #TODO(b/338318729) Fixit!
 
     error_pattern = re.compile(
         r'.*text.*The argument is required but isn\'t specified\.', re.DOTALL)
@@ -43,13 +43,13 @@ class ArgUtilsTest(unittest_test_case.I18nTestCase):
                                default={'en-US': 'en', 'zh-CN': 'zh'})])
 
     test.Parse({'text': translation.Translation('text 1')})
-    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)
+    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)  # type: ignore #TODO(b/338318729) Fixit!
 
     test.Parse({'text': 'text 1'})
-    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)
+    self.assertEqual({'en-US': 'text 1', 'zh-CN': 'text-1'}, test.args.text)  # type: ignore #TODO(b/338318729) Fixit!
 
     test.Parse({})
-    self.assertEqual({'en-US': 'en', 'zh-CN': 'zh'}, test.args.text)
+    self.assertEqual({'en-US': 'en', 'zh-CN': 'zh'}, test.args.text)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 if __name__ == '__main__':

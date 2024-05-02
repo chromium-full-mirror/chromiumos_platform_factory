@@ -79,26 +79,26 @@ class UpdateUsingFwUpdTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._allow_older = self.args.allow_older
+    self._allow_older = self.args.allow_older  # type: ignore #TODO(b/338318729) Fixit!
     self._firmware_file = None
-    self._from_release = self.args.from_release
-    self._plugin = self.args.plugin
+    self._from_release = self.args.from_release  # type: ignore #TODO(b/338318729) Fixit!
+    self._plugin = self.args.plugin  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if self.args.from_release:
+    if self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Get firmware from release rootfs...')
       with sys_utils.MountPartition(self._dut.partitions.RELEASE_ROOTFS.path,
                                     dut=self._dut) as root:
         self._firmware_file = self._dut.path.join(root,
-                                                  self.args.firmware_file[1:])
+                                                  self.args.firmware_file[1:])  # type: ignore #TODO(b/338318729) Fixit!
         self.UpdatePlugin()
     else:
       if self._dut.link.IsLocal():
-        self._firmware_file = self.args.firmware_file
+        self._firmware_file = self.args.firmware_file  # type: ignore #TODO(b/338318729) Fixit!
         self.UpdatePlugin()
       else:
         with self._dut.temp.TempFile() as dut_temp_file:
-          self._dut.SendFile(self.args.firmware_file, dut_temp_file)
+          self._dut.SendFile(self.args.firmware_file, dut_temp_file)  # type: ignore #TODO(b/338318729) Fixit!
           self._firmware_file = dut_temp_file
           self.UpdatePlugin()
 
@@ -121,9 +121,9 @@ class UpdateUsingFwUpdTest(test_case.TestCase):
       update_command += ['--allow-older']
       logging.warning('Allow downgrading plugin %s firmware.', self._plugin)
 
-    update_command += [self._firmware_file]
+    update_command += [self._firmware_file]  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Update plugins: %s', update_command)
-    returncode = self.ui.PipeProcessOutputToUI(update_command)
+    returncode = self.ui.PipeProcessOutputToUI(update_command)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(returncode, 0,
                      f'Firmware update failed: {int(returncode)}.')

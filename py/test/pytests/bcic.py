@@ -84,19 +84,19 @@ class BCICTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.action == EnumAction.SET:
+    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(
-          self.args.use_latest_hwid_bundle != bool(self.args.file_path),
+          self.args.use_latest_hwid_bundle != bool(self.args.file_path),  # type: ignore #TODO(b/338318729) Fixit!
           'Provide either a `file_path` or enable `use_latest_hwid_bundle`'
           'to indicate the battery config source')
 
   def runTest(self):
-    if self.args.use_latest_hwid_bundle:
+    if self.args.use_latest_hwid_bundle:  # type: ignore #TODO(b/338318729) Fixit!
       update_utils.UpdateHWIDDatabase(self._dut)
 
-    if self.args.action == EnumAction.SET:
+    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit!
       file_path = (
-          self.args.file_path or
+          self.args.file_path or  # type: ignore #TODO(b/338318729) Fixit!
           hwid_utils.LoadBatteryConfigIntoFile(self._dut))
       manufacturer = self._dut.power.GetBatteryManufacturer()
       device_name = self._dut.power.GetBatteryDeviceName()

@@ -72,25 +72,25 @@ class EthernetTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)
-    self.ui.SetState(
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Please plug ethernet cable into built-in ethernet port<br>'
           'Press space to start.'))
 
-    if bool(self.args.test_url) != bool(self.args.md5sum):
+    if bool(self.args.test_url) != bool(self.args.md5sum):  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError('Should both assign test_url and md5sum.')
-    if self.args.use_swconfig:
-      if not self.args.link_only:
+    if self.args.use_swconfig:  # type: ignore #TODO(b/338318729) Fixit!
+      if not self.args.link_only:  # type: ignore #TODO(b/338318729) Fixit!
         raise ValueError('Should set link_only=True if use_swconfig is set.')
-      if self.args.swconfig_ports is None:
+      if self.args.swconfig_ports is None:  # type: ignore #TODO(b/338318729) Fixit!
         raise ValueError('Should assign swconfig_ports if use_swconfig is'
                          'set.')
-    elif self.args.link_only and not self.args.iface:
+    elif self.args.link_only and not self.args.iface:  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError('Should assign iface if link_only is set.')
 
   def GetEthernetInterfaces(self):
     interfaces = []
-    for pattern in self.args.interface_name_patterns:
+    for pattern in self.args.interface_name_patterns:  # type: ignore #TODO(b/338318729) Fixit!
       interfaces += [
           self.dut.path.basename(path)
           for path in self.dut.Glob('/sys/class/net/' + pattern)
@@ -99,10 +99,10 @@ class EthernetTest(test_case.TestCase):
 
   def GetInterface(self):
     devices = self.GetEthernetInterfaces()
-    if self.args.iface:
-      if self.args.iface in devices:
-        if self.CheckNotUsbLanDongle(self.args.iface):
-          return self.args.iface
+    if self.args.iface:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.iface in devices:  # type: ignore #TODO(b/338318729) Fixit!
+        if self.CheckNotUsbLanDongle(self.args.iface):  # type: ignore #TODO(b/338318729) Fixit!
+          return self.args.iface  # type: ignore #TODO(b/338318729) Fixit!
         session.console.info('Not a built-in ethernet device.')
         return None
       return None
@@ -120,20 +120,20 @@ class EthernetTest(test_case.TestCase):
 
   def GetFile(self):
     self.dut.CheckCall(['rm', '-f', _LOCAL_FILE_PATH])
-    logging.info('Try connecting to %s', self.args.test_url)
+    logging.info('Try connecting to %s', self.args.test_url)  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       self.dut.CheckCall(['wget', '-O', _LOCAL_FILE_PATH, '-T', '2',
-                          self.args.test_url], log=True)
+                          self.args.test_url], log=True)  # type: ignore #TODO(b/338318729) Fixit!
     except Exception as e:
       session.console.info('Failed to get file: %s', e)
     else:
       md5sum_output = self.dut.CheckOutput(
           ['md5sum', _LOCAL_FILE_PATH], log=True).strip().split()[0]
       logging.info('Got local file md5sum %s', md5sum_output)
-      logging.info('Golden file md5sum %s', self.args.md5sum)
-      if md5sum_output == self.args.md5sum:
-        session.console.info('Successfully connected to %s', self.args.test_url)
+      logging.info('Golden file md5sum %s', self.args.md5sum)  # type: ignore #TODO(b/338318729) Fixit!
+      if md5sum_output == self.args.md5sum:  # type: ignore #TODO(b/338318729) Fixit!
+        session.console.info('Successfully connected to %s', self.args.test_url)  # type: ignore #TODO(b/338318729) Fixit!
         return True
       session.console.info('md5 checksum error')
     return False
@@ -156,32 +156,32 @@ class EthernetTest(test_case.TestCase):
     return False
 
   def CheckLinkSWconfig(self):
-    if isinstance(self.args.swconfig_ports, int):
-      self.args.swconfig_ports = [self.args.swconfig_ports]
+    if isinstance(self.args.swconfig_ports, int):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.swconfig_ports = [self.args.swconfig_ports]  # type: ignore #TODO(b/338318729) Fixit!
 
-    if not isinstance(self.args.swconfig_expected_speed, list):
+    if not isinstance(self.args.swconfig_expected_speed, list):  # type: ignore #TODO(b/338318729) Fixit!
       swconfig_expected_speed = (
-          [self.args.swconfig_expected_speed] * len(self.args.swconfig_ports))
+          [self.args.swconfig_expected_speed] * len(self.args.swconfig_ports))  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      swconfig_expected_speed = self.args.swconfig_expected_speed
+      swconfig_expected_speed = self.args.swconfig_expected_speed  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(
-        len(self.args.swconfig_ports),
+        len(self.args.swconfig_ports),  # type: ignore #TODO(b/338318729) Fixit!
         len(swconfig_expected_speed),
         "Length of swconfig_ports and swconfig_expcted_speed doesn't match.")
 
-    for port, speed in zip(self.args.swconfig_ports, swconfig_expected_speed):
+    for port, speed in zip(self.args.swconfig_ports, swconfig_expected_speed):  # type: ignore #TODO(b/338318729) Fixit!
       status = self.dut.CheckOutput(
-          ['swconfig', 'dev', self.args.swconfig_switch,
+          ['swconfig', 'dev', self.args.swconfig_switch,  # type: ignore #TODO(b/338318729) Fixit!
            'port', str(port), 'get', 'link'])
 
       if 'up' not in status:
         self.FailTask(
-            f'Link is down on switch {self.args.swconfig_switch} port '
+            f'Link is down on switch {self.args.swconfig_switch} port '  # type: ignore #TODO(b/338318729) Fixit!
             f'{int(port)}')
 
       session.console.info('Link is up on switch %s port %d',
-                           self.args.swconfig_switch, port)
+                           self.args.swconfig_switch, port)  # type: ignore #TODO(b/338318729) Fixit!
       if speed:
         speed_str = f'{speed}baseT'
         if speed_str not in status:
@@ -192,22 +192,22 @@ class EthernetTest(test_case.TestCase):
     self.PassTask()
 
   def runTest(self):
-    if not self.args.auto_start:
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+    if not self.args.auto_start:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.use_swconfig:
+    if self.args.use_swconfig:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckLinkSWconfig()
 
-    interval_sec = self.args.retry_interval_msecs / 1000.0
+    interval_sec = self.args.retry_interval_msecs / 1000.0  # type: ignore #TODO(b/338318729) Fixit!
 
     @sync_utils.RetryDecorator(max_attempt_count=5, interval_sec=interval_sec,
                                exceptions_to_catch=[])
     def _CheckLink():
       eth = self.GetInterface()
       if eth:
-        if self.args.link_only:
+        if self.args.link_only:  # type: ignore #TODO(b/338318729) Fixit!
           self.CheckLinkSimple(eth)
-        elif self.args.test_url:
+        elif self.args.test_url:  # type: ignore #TODO(b/338318729) Fixit!
           if self.GetFile():
             self.PassTask()
         else:
@@ -218,9 +218,9 @@ class EthernetTest(test_case.TestCase):
 
     _CheckLink()
 
-    if self.args.link_only:
-      self.FailTask(f'Cannot find interface {self.args.iface}')
-    elif self.args.test_url:
-      self.FailTask(f'Failed to download url {self.args.test_url}')
+    if self.args.link_only:  # type: ignore #TODO(b/338318729) Fixit!
+      self.FailTask(f'Cannot find interface {self.args.iface}')  # type: ignore #TODO(b/338318729) Fixit!
+    elif self.args.test_url:  # type: ignore #TODO(b/338318729) Fixit!
+      self.FailTask(f'Failed to download url {self.args.test_url}')  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self.FailTask('Cannot get ethernet IP')

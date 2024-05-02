@@ -89,23 +89,23 @@ class UpdatePSROEMData(test_case.TestCase):
 
   def setUp(self):
     self._intel_psr_tool = intel_psrtool.IntelPSRTool()
-    self._oem_data_config_path = self.args.oem_data_config_path
-    self.CheckUpdateSource(self.args.update_from_config)
+    self._oem_data_config_path = self.args.oem_data_config_path  # type: ignore #TODO(b/338318729) Fixit!
+    self.CheckUpdateSource(self.args.update_from_config)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     if not self._intel_psr_tool.IsPSRSupported():
       self.PassTask()
     try:
-      self.VerifyOEMData(self.args.update_from_config)
+      self.VerifyOEMData(self.args.update_from_config)  # type: ignore #TODO(b/338318729) Fixit!
       logging.info(
           'PSR OEM data has been set correctly. Pass the test directly.')
       return
     except intel_psrtool.IntelPSRToolError:
       logging.info('Try updating PSR OEM data.')
 
-    self.UpdateOEMData(self.args.update_from_config)
+    self.UpdateOEMData(self.args.update_from_config)  # type: ignore #TODO(b/338318729) Fixit!
     self._intel_psr_tool.CommitOEMData()
-    self.VerifyOEMData(self.args.update_from_config)
+    self.VerifyOEMData(self.args.update_from_config)  # type: ignore #TODO(b/338318729) Fixit!
 
   def CheckUpdateSource(self, update_from_config):
     if update_from_config:
@@ -114,14 +114,14 @@ class UpdatePSROEMData(test_case.TestCase):
           f'Config file not found at {self._oem_data_config_path}')
     else:
       for name in PSROEMData:
-        self.assertIn(name, self.args.oem_data_value)
+        self.assertIn(name, self.args.oem_data_value)  # type: ignore #TODO(b/338318729) Fixit!
 
   def UpdateOEMData(self, update_from_config):
     if update_from_config:
       self._intel_psr_tool.UpdateOEMDataFromConfig(self._oem_data_config_path)
     else:
       for name in PSROEMData:
-        self._intel_psr_tool.WriteNVAR(name, self.args.oem_data_value[name])
+        self._intel_psr_tool.WriteNVAR(name, self.args.oem_data_value[name])  # type: ignore #TODO(b/338318729) Fixit!
 
   def VerifyOEMData(self, update_from_config):
     if update_from_config:
@@ -133,7 +133,7 @@ class UpdatePSROEMData(test_case.TestCase):
         match_data = re.search(data_pattern, stdout)
         if not match_data:
           raise intel_psrtool.IntelPSRToolRegexError(name, data_pattern, stdout)
-        if match_data.group(1) != self.args.oem_data_value[name]:
+        if match_data.group(1) != self.args.oem_data_value[name]:  # type: ignore #TODO(b/338318729) Fixit!
           raise intel_psrtool.IntelPSRToolError(
-              f'{name} not matched. Current={match_data.group(1)};'
+              f'{name} not matched. Current={match_data.group(1)};'  # type: ignore #TODO(b/338318729) Fixit!
               f'Expected={self.args.oem_data_value[name]}')

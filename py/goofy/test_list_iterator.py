@@ -138,7 +138,7 @@ class TestListIterator:
       test_list: a FactoryTestList object this iterator should iterate.  Can be
         updated by `SetTestList()` function.
     """
-    self.stack = []
+    self.stack = []  # type: ignore #TODO(b/338318729) Fixit!
     self.test_list = test_list
     self.status_filter = status_filter or []
     self.teardown_only = False

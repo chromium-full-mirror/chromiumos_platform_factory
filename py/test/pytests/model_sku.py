@@ -112,14 +112,14 @@ class PlatformSKUModelTest(test_case.TestCase):
     self._goofy_rpc = state.GetInstance()
 
   def ApplyConfig(self):
-    if self.args.config_name is None:
+    if self.args.config_name is None:  # type: ignore #TODO(b/338318729) Fixit!
       config_name = os.path.splitext(os.path.basename(__file__))[0]
     else:
-      config_name = self.args.config_name
+      config_name = self.args.config_name  # type: ignore #TODO(b/338318729) Fixit!
     model_config = model_sku_utils.GetDesignConfig(
         self._dut, default_config_dirs=os.path.dirname(__file__),
-        product_name=self.args.product_name, sku_id=self._platform['sku'],
-        config_name=config_name, schema_name=self.args.schema_name)
+        product_name=self.args.product_name, sku_id=self._platform['sku'],  # type: ignore #TODO(b/338318729) Fixit!
+        config_name=config_name, schema_name=self.args.schema_name)  # type: ignore #TODO(b/338318729) Fixit!
     if model_config:
       logging.info('Apply model/SKU config: %r', model_config)
       device_data.UpdateDeviceData(model_config)
@@ -128,7 +128,7 @@ class PlatformSKUModelTest(test_case.TestCase):
       self._goofy_rpc.ReloadTestList()
 
   def CheckByOperator(self):
-    self.ui.SetInstruction(_('Please confirm following values'))
+    self.ui.SetInstruction(_('Please confirm following values'))  # type: ignore #TODO(b/338318729) Fixit!
 
     table = ui_templates.Table(
         rows=len(_PLATFORM_DATA) + 1, cols=2, element_id='mosys_table')
@@ -140,15 +140,15 @@ class PlatformSKUModelTest(test_case.TestCase):
           i, 1,
           self._platform[arg] if self._platform[arg] is not None else 'N/A')
 
-    self.ui.SetState([table.GenerateHTML(), test_ui.PASS_FAIL_KEY_LABEL])
+    self.ui.SetState([table.GenerateHTML(), test_ui.PASS_FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit!
 
-    key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])
+    key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
     if key == test_ui.ESCAPE_KEY:
       self.FailTask('Failed by operator')
 
   def CheckByDeviceData(self):
     try:
-      value = device_data.GetDeviceData(_KEY_COMPONENT_SKU, data_type=int,
+      value = device_data.GetDeviceData(_KEY_COMPONENT_SKU, data_type=int,  # type: ignore #TODO(b/338318729) Fixit!
                                         throw_if_none=True)
     except KeyError:
       return False

@@ -167,7 +167,7 @@ class CheckImageVersionTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    if self.args.reinstall_only_dlc:
+    if self.args.reinstall_only_dlc:  # type: ignore #TODO(b/338318729) Fixit!
       self.reinstall_reason = 'reinstall_only_dlc is set to true'
     else:
       self.reinstall_reason = 'Image version is incorrect'
@@ -175,13 +175,13 @@ class CheckImageVersionTest(test_case.TestCase):
 
   def WaitNetworkReady(self):
     while not self.dut.status.eth_on:
-      self.ui.SetInstruction(_('Please connect to ethernet.'))
+      self.ui.SetInstruction(_('Please connect to ethernet.'))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(0.5)
 
   def runTest(self):
     self.dut_image_version = self.GetAndLogDUTImageVersion()
 
-    if self.args.reinstall_only_dlc:
+    if self.args.reinstall_only_dlc:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Reinstall only DLCs...')
     else:
       # If this test stop unexpectedly during installing new image, we need to
@@ -192,36 +192,36 @@ class CheckImageVersionTest(test_case.TestCase):
       if self.CheckImageVersion() and self.VerifyRootFs():
         return
 
-      if not self.args.reimage:
+      if not self.args.reimage:  # type: ignore #TODO(b/338318729) Fixit!
         self.FailTask('Image version is incorrect. '
                       'Please re-image this device.')
 
-    if not self.args.use_netboot:
+    if not self.args.use_netboot:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(
-          self.args.check_release_image,
+          self.args.check_release_image,  # type: ignore #TODO(b/338318729) Fixit!
           'Please use netboot if you would like to re-image test image!')
 
-    if self.args.reinstall_only_dlc:
-      self.args.min_version = self.server_image_version
-      self.args.max_version = self.server_image_version
+    if self.args.reinstall_only_dlc:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.min_version = self.server_image_version  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.max_version = self.server_image_version  # type: ignore #TODO(b/338318729) Fixit!
 
       if not self.CheckImageVersion():
         self.FailTask('The release image version on factory server must match '
                       'with the release image version on DUT! Otherwise, '
                       'finalize will fail when verifying the DLCs.')
 
-    if self.args.require_space:
-      self.ui.SetInstruction(
+    if self.args.require_space:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
           _('{reason}. Press space to reinstall.',
             reason=self.reinstall_reason))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.use_netboot:
+    if self.args.use_netboot:  # type: ignore #TODO(b/338318729) Fixit!
       component = update_utils.Components.netboot_firmware
       destination = None
       callback = self.NetbootCallback
     else:
-      if self.args.reinstall_only_dlc:
+      if self.args.reinstall_only_dlc:  # type: ignore #TODO(b/338318729) Fixit!
         component = update_utils.Components.dlc_factory_cache
       else:
         component = update_utils.Components.release_image
@@ -233,10 +233,10 @@ class CheckImageVersionTest(test_case.TestCase):
     # TODO(hungte) Should we merge this with flash_netboot.py?
     del url  # Unused.
     fw_path = os.path.join(destination, component)
-    self.ui.SetInstruction(_('Flashing {component}...', component=component))
+    self.ui.SetInstruction(_('Flashing {component}...', component=component))  # type: ignore #TODO(b/338318729) Fixit!
     try:
       if self.dut.link.IsLocal():
-        self.ui.PipeProcessOutputToUI(
+        self.ui.PipeProcessOutputToUI(  # type: ignore #TODO(b/338318729) Fixit!
             ['flash_netboot', '-y', '-i', fw_path, '--no-reboot'])
       else:
         with self.dut.temp.TempFile() as temp_file:
@@ -281,24 +281,24 @@ class CheckImageVersionTest(test_case.TestCase):
 
       return expected_ver
 
-    if self.args.min_version is None and self.args.max_version is None:
+    if self.args.min_version is None and self.args.max_version is None:  # type: ignore #TODO(b/338318729) Fixit!
       # TODO(hungte) In future if we find it useful to reflash netboot for
       # updating test image, we can add test_image to update_utils and enable
       # fetching version here.
       self.assertTrue(
-          self.args.check_release_image,
+          self.args.check_release_image,  # type: ignore #TODO(b/338318729) Fixit!
           'Empty min_version and max_version only allowed for '
           'check_release_image.')
 
-      self.args.min_version = self.server_image_version
-      self.args.max_version = self.server_image_version
+      self.args.min_version = self.server_image_version  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.max_version = self.server_image_version  # type: ignore #TODO(b/338318729) Fixit!
 
-      if not self.args.min_version or not self.args.max_version:
+      if not self.args.min_version or not self.args.max_version:  # type: ignore #TODO(b/338318729) Fixit!
         self.FailTask('Release image not available on factory server.')
 
-    expected_min = self.args.min_version
-    expected_max = self.args.max_version
-    version_format = (version.LooseVersion if self.args.loose_version else
+    expected_min = self.args.min_version  # type: ignore #TODO(b/338318729) Fixit!
+    expected_max = self.args.max_version  # type: ignore #TODO(b/338318729) Fixit!
+    version_format = (version.LooseVersion if self.args.loose_version else  # type: ignore #TODO(b/338318729) Fixit!
                       version.StrictVersion)
     ver = self.dut_image_version
     logging.info('Using version format: %r', version_format.__name__)
@@ -308,14 +308,14 @@ class CheckImageVersionTest(test_case.TestCase):
     # For image built by tryjob, the image version will look like this:
     # `R89-13600.271.0-b5006899`. We do not compare the sub-verion of tryjob
     # image, which is `5006899` in this example, since it is meaningless.
-    ver_match = _RE_BRANCHED_IMAGE_VERSION.fullmatch(ver)
+    ver_match = _RE_BRANCHED_IMAGE_VERSION.fullmatch(ver)  # type: ignore #TODO(b/338318729) Fixit!
     if ver_match:
       ver = ver_match.group(1)
 
     expected_min = _GetExpectedVersion(
-        expected_min, ver_match, _RE_BRANCHED_IMAGE_VERSION, self.args.reimage)
+        expected_min, ver_match, _RE_BRANCHED_IMAGE_VERSION, self.args.reimage)  # type: ignore #TODO(b/338318729) Fixit!
     expected_max = _GetExpectedVersion(
-        expected_max, ver_match, _RE_BRANCHED_IMAGE_VERSION, self.args.reimage)
+        expected_max, ver_match, _RE_BRANCHED_IMAGE_VERSION, self.args.reimage)  # type: ignore #TODO(b/338318729) Fixit!
 
     if expected_min and expected_max:
       if version_format(expected_min) > version_format(expected_max):
@@ -331,7 +331,7 @@ class CheckImageVersionTest(test_case.TestCase):
     return True
 
   def VerifyRootFs(self):
-    if self.args.check_release_image and self.args.verify_rootfs:
+    if self.args.check_release_image and self.args.verify_rootfs:  # type: ignore #TODO(b/338318729) Fixit!
       factory_tool = deploy_utils.CreateFactoryTools(self.dut)
       exit_code = factory_tool.Call(
           ['gooftool', 'verify_rootfs', '--release_rootfs',
@@ -340,7 +340,7 @@ class CheckImageVersionTest(test_case.TestCase):
     return True
 
   def GetAndLogDUTImageVersion(self):
-    if self.args.check_release_image:
+    if self.args.check_release_image:  # type: ignore #TODO(b/338318729) Fixit!
       ver = self.dut.info.release_image_version
       name = 'release_image'
     else:
@@ -357,7 +357,7 @@ class CheckImageVersionTest(test_case.TestCase):
 
   @type_utils.LazyProperty
   def server_image_version(self):
-    if not self.args.check_release_image:
+    if not self.args.check_release_image:  # type: ignore #TODO(b/338318729) Fixit!
       return None
 
     self.WaitNetworkReady()

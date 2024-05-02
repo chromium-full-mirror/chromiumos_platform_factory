@@ -55,7 +55,7 @@ class MockServerHandler(socketserver.StreamRequestHandler):
         if output:
           self.wfile.write(output)
       else:
-        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')
+        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class LanScpiTest(unittest.TestCase):
@@ -146,7 +146,7 @@ class LanScpiTest(unittest.TestCase):
     self._AddInitialLookup()
     self.mock_server = None
     self.server_port = None
-    self.lan_scpi = None
+    self.lan_scpi = None  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     self.lan_scpi.Close()

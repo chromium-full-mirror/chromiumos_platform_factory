@@ -59,10 +59,10 @@ class BatteryCommunicationTest(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    lower, upper = self.args.design_capacity_range
+    lower, upper = self.args.design_capacity_range  # type: ignore #TODO(b/338318729) Fixit!
     capacity = self.dut.power.GetBatteryDesignCapacity()
     logging.info('Get battery design capacity: %d', capacity)
     self.assertTrue(
         lower <= capacity <= upper,
-        f'Battery design capacity {int(capacity)} out of range: '
+        f'Battery design capacity {int(capacity)} out of range: '  # type: ignore #TODO(b/338318729) Fixit!
         f'{str(self.args.design_capacity_range)}')

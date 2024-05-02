@@ -29,7 +29,7 @@ class TimeoutXMLRPCTest(unittest.TestCase):
     self.server = xmlrpc.server.SimpleXMLRPCServer(
         (net_utils.LOCALHOST, self.port),
         allow_none=True)
-    self.server.register_function(time.sleep)
+    self.server.register_function(time.sleep)  # type: ignore #TODO(b/338318729) Fixit!
     self.thread = threading.Thread(target=self.server.serve_forever)
     self.thread.daemon = True
     self.thread.start()
@@ -311,9 +311,9 @@ class ParseWirelessInterfaceStationDumpOutputTest(unittest.TestCase):
         textwrap.dedent(output))
 
     self.assertEqual(result.signal,
-                     net_utils.WiFiConnectionStatus.Signal(-54, [-55]))
+                     net_utils.WiFiConnectionStatus.Signal(-54, [-55]))  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(result.avg_signal,
-                     net_utils.WiFiConnectionStatus.Signal(-59, [-60]))
+                     net_utils.WiFiConnectionStatus.Signal(-59, [-60]))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testSignalStrengthsForFourAntennas(self):
 
@@ -328,10 +328,10 @@ class ParseWirelessInterfaceStationDumpOutputTest(unittest.TestCase):
 
     self.assertEqual(
         result.signal,
-        net_utils.WiFiConnectionStatus.Signal(-54, [-55, -56, -57, -58]))
+        net_utils.WiFiConnectionStatus.Signal(-54, [-55, -56, -57, -58]))  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(
         result.avg_signal,
-        net_utils.WiFiConnectionStatus.Signal(-59, [-60, -61, -62, -63]))
+        net_utils.WiFiConnectionStatus.Signal(-59, [-60, -61, -62, -63]))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testSignalStrengthsWithoutValueForEachAntenna(self):
 
@@ -345,9 +345,9 @@ class ParseWirelessInterfaceStationDumpOutputTest(unittest.TestCase):
         textwrap.dedent(output))
 
     self.assertEqual(result.signal,
-                     net_utils.WiFiConnectionStatus.Signal(-54, []))
+                     net_utils.WiFiConnectionStatus.Signal(-54, []))  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(result.avg_signal,
-                     net_utils.WiFiConnectionStatus.Signal(-59, []))
+                     net_utils.WiFiConnectionStatus.Signal(-59, []))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testBitRates(self):
     output = """\

@@ -75,15 +75,15 @@ class SimpleBatteryTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
 
-    if self.args.min_charge_current_mA:
-      self.assertGreater(self.args.min_charge_current_mA, 0,
+    if self.args.min_charge_current_mA:  # type: ignore #TODO(b/338318729) Fixit!
+      self.assertGreater(self.args.min_charge_current_mA, 0,  # type: ignore #TODO(b/338318729) Fixit!
                          'min_charge_current_mA must be greater than zero')
 
-    if self.args.min_discharge_current_mA:
-      self.assertLess(self.args.min_discharge_current_mA, 0,
+    if self.args.min_discharge_current_mA:  # type: ignore #TODO(b/338318729) Fixit!
+      self.assertLess(self.args.min_discharge_current_mA, 0,  # type: ignore #TODO(b/338318729) Fixit!
                       'min_discharge_current_mA must be less than zero')
 
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
   def SampleBatteryCurrent(self, duration_secs):
     """Samples battery current for a given duration.
@@ -98,7 +98,7 @@ class SimpleBatteryTest(test_case.TestCase):
     end_time = time_utils.MonotonicTime() + duration_secs
     while time_utils.MonotonicTime() < end_time:
       sampled_current.append(self._dut.power.GetBatteryCurrent())
-      self.Sleep(self.args.current_sampling_period_secs)
+      self.Sleep(self.args.current_sampling_period_secs)  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Sampled battery current: %s', sampled_current)
     return sampled_current
 
@@ -112,17 +112,17 @@ class SimpleBatteryTest(test_case.TestCase):
       TestFailure if the sampled battery charge current does not pass
       the given threshold in dargs.
     """
-    self.ui.SetState(_('Plug AC to proceed'))
+    self.ui.SetState(_('Plug AC to proceed'))  # type: ignore #TODO(b/338318729) Fixit!
     sync_utils.WaitFor(self._dut.power.CheckACPresent, timeout_secs=10)
 
-    self.ui.SetState(_('Testing battery charge...'))
+    self.ui.SetState(_('Testing battery charge...'))  # type: ignore #TODO(b/338318729) Fixit!
     self._dut.power.SetChargeState(self._dut.power.ChargeState.CHARGE)
     sampled_current = self.SampleBatteryCurrent(duration_secs)
 
-    if self.args.min_charge_current_mA:
+    if self.args.min_charge_current_mA:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertGreaterEqual(
-          max(sampled_current), self.args.min_charge_current_mA,
-          f'Battery charge current did not reach defined threshold '
+          max(sampled_current), self.args.min_charge_current_mA,  # type: ignore #TODO(b/338318729) Fixit!
+          f'Battery charge current did not reach defined threshold '  # type: ignore #TODO(b/338318729) Fixit!
           f'{self.args.min_charge_current_mA:f} mA')
     else:
       self.assertGreater(
@@ -141,20 +141,20 @@ class SimpleBatteryTest(test_case.TestCase):
       TestFailure if the sampled battery discharge current does not pass
       the given threshold in dargs.
     """
-    self.ui.SetState(_('Unplug AC to proceed'))
+    self.ui.SetState(_('Unplug AC to proceed'))  # type: ignore #TODO(b/338318729) Fixit!
 
     sync_utils.WaitFor(lambda: not self._dut.power.CheckACPresent(),
                        timeout_secs=10)
 
-    self.ui.SetState(_('Testing battery discharge...'))
+    self.ui.SetState(_('Testing battery discharge...'))  # type: ignore #TODO(b/338318729) Fixit!
     # Discharge under high system load.
     with stress_manager.StressManager(self._dut).Run(duration_secs):
       sampled_current = self.SampleBatteryCurrent(duration_secs)
 
-    if self.args.min_discharge_current_mA:
+    if self.args.min_discharge_current_mA:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertLessEqual(
-          min(sampled_current), self.args.min_discharge_current_mA,
-          f'Battery discharge current did not reach defined threshold '
+          min(sampled_current), self.args.min_discharge_current_mA,  # type: ignore #TODO(b/338318729) Fixit!
+          f'Battery discharge current did not reach defined threshold '  # type: ignore #TODO(b/338318729) Fixit!
           f'{self.args.min_discharge_current_mA:f} mA')
     else:
       self.assertLess(
@@ -167,10 +167,10 @@ class SimpleBatteryTest(test_case.TestCase):
 
     cycle_count = self._dut.power.GetBatteryCycleCount()
     self.assertLessEqual(
-        cycle_count, self.args.max_cycle_count,
-        f'Battery cycle count {int(cycle_count)} exceeds max '
+        cycle_count, self.args.max_cycle_count,  # type: ignore #TODO(b/338318729) Fixit!
+        f'Battery cycle count {int(cycle_count)} exceeds max '  # type: ignore #TODO(b/338318729) Fixit!
         f'{int(self.args.max_cycle_count)}')
 
-    self.TestCharge(self.args.charge_duration_secs)
-    self.TestDischarge(self.args.discharge_duration_secs)
-    self.TestCharge(self.args.charge_duration_secs)
+    self.TestCharge(self.args.charge_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    self.TestDischarge(self.args.discharge_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    self.TestCharge(self.args.charge_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!

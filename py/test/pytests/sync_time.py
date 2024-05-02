@@ -74,4 +74,4 @@ class SyncTime(unittest.TestCase):
     goofy_now = (datetime.datetime.utcnow() -
                  time_utils.EPOCH_ZERO).total_seconds()
 
-    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)
+    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)  # type: ignore #TODO(b/338318729) Fixit!

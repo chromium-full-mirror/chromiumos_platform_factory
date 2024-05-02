@@ -29,7 +29,7 @@ class DetermineComponentNameTest(unittest.TestCase):
     value = {
         'version': 'rev2'}
     expected = 'rev2'
-    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))
+    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testFirmwareKeys(self):
     comp_cls = 'firmware_keys'
@@ -38,7 +38,7 @@ class DetermineComponentNameTest(unittest.TestCase):
             'c14bd720b70d97394257e3e826bd8f43de48d4ed#devkeys/recovery',
         'key_root': 'b11d74edd286c144e1135b49e7f0bc20cf041f10#devkeys/rootkey'}
     expected = 'firmware_keys_dev'
-    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))
+    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testDRAM(self):
     comp_cls = 'dram'
@@ -48,7 +48,7 @@ class DetermineComponentNameTest(unittest.TestCase):
         'slot': '0',
         'timing': 'DDR3-800,DDR3-1066,DDR3-1333,DDR3-1600'}
     expected = 'ABCD_2048mb_0'
-    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))
+    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testHashSuffix(self):
     comp_cls = 'usb_hosts'
@@ -73,7 +73,7 @@ class DetermineComponentNameTest(unittest.TestCase):
         }
     }
     expected = 'usb_hosts_721f4481'
-    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))
+    self.assertEqual(expected, builder.DetermineComponentName(comp_cls, value))  # type: ignore #TODO(b/338318729) Fixit!
 
   def testHashSuffixOrder(self):
     comp_cls = 'usb_hosts'
@@ -84,7 +84,7 @@ class DetermineComponentNameTest(unittest.TestCase):
         '3': '6',
         '4': '5',
     }
-    base_hash = builder.DetermineComponentName(comp_cls, value)
+    base_hash = builder.DetermineComponentName(comp_cls, value)  # type: ignore #TODO(b/338318729) Fixit!
     value = {
         '4': '5',
         '3': '6',
@@ -92,7 +92,7 @@ class DetermineComponentNameTest(unittest.TestCase):
         '1': '8',
         '0': '9',
     }
-    reversed_hash = builder.DetermineComponentName(comp_cls, value)
+    reversed_hash = builder.DetermineComponentName(comp_cls, value)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(base_hash, reversed_hash)
 
 
@@ -450,7 +450,7 @@ class DatabaseBuilderTest(unittest.TestCase):
                                        form_factor='CONVERTIBLE')
 
     db = db_builder.Build()
-    for comp_cls in common.FORM_FACTOR_COMPS['CONVERTIBLE']:
+    for comp_cls in common.FORM_FACTOR_COMPS['CONVERTIBLE']:  # type: ignore #TODO(b/338318729) Fixit!
       if {
           comp_cls: []
       } in db.GetEncodedField(comp_cls + '_field').values():

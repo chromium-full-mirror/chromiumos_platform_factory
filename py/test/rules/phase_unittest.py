@@ -80,7 +80,7 @@ class PersistentPhaseTest(unittest.TestCase):
     phase._state_root_for_testing = tempfile.mkdtemp()
 
   def tearDown(self):
-    shutil.rmtree(phase._state_root_for_testing)
+    shutil.rmtree(phase._state_root_for_testing)  # type: ignore #TODO(b/338318729) Fixit!
     phase._current_phase = None
     phase._state_root_for_testing = None
 
@@ -92,7 +92,7 @@ class PersistentPhaseTest(unittest.TestCase):
     self.assertEqual(
         'EVT',
         file_utils.ReadFile(
-            os.path.join(phase._state_root_for_testing, 'PHASE')))
+            os.path.join(phase._state_root_for_testing, 'PHASE')))  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(phase.EVT, phase._current_phase)
 
     # Set current phase to None to force it to be re-read
@@ -126,11 +126,11 @@ class AssertionTest(unittest.TestCase):
     # These always pass, but only PROTO and EVT ones get called.
     called = []
     phase.AssertStartingAtPhase(phase.PROTO,
-                                lambda: called.append('PROTO') or True, 'msg')
+                                lambda: called.append('PROTO') or True, 'msg')  # type: ignore #TODO(b/338318729) Fixit!
     phase.AssertStartingAtPhase(phase.EVT,
-                                lambda: called.append('EVT') or True, 'msg')
+                                lambda: called.append('EVT') or True, 'msg')  # type: ignore #TODO(b/338318729) Fixit!
     phase.AssertStartingAtPhase(phase.DVT,
-                                lambda: called.append('DVT') or True, 'msg')
+                                lambda: called.append('DVT') or True, 'msg')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(['PROTO', 'EVT'], called)
 
   def testAssertionFails(self):
@@ -160,7 +160,7 @@ class AssertionTest(unittest.TestCase):
         lambda: called.append('EVT'), 'msg')
     # DVT check is not evaluated
     phase.AssertStartingAtPhase(phase.DVT,
-                                lambda: called.append('DVT') or True, 'msg')
+                                lambda: called.append('DVT') or True, 'msg')  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(['PROTO', 'EVT'], called)
 
 if __name__ == '__main__':

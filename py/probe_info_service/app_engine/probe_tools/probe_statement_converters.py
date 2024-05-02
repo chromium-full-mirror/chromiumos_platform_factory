@@ -1277,8 +1277,8 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     return dict(
         collections.ChainMap(
-            self._emmc_and_host_converter.probe_info_params,
-            self._invisible_emmc_and_nvme_converter.probe_info_params,
+            self._emmc_and_host_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit!
+            self._invisible_emmc_and_nvme_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit!
         ))
 
   def GetName(self) -> str:
@@ -1401,11 +1401,11 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
 
       if self.probe_info_params[param_name].is_restricted_re:
         return any(
-            utils.RestrictedPrefixRegexMatch(expected_pattern, probed_value)
+            utils.RestrictedPrefixRegexMatch(expected_pattern, probed_value)  # type: ignore #TODO(b/338318729) Fixit!
             for expected_pattern in expected_params[param_name])
 
       return any(
-          expected_value.startswith(probed_value)
+          expected_value.startswith(probed_value)  # type: ignore #TODO(b/338318729) Fixit!
           for expected_value in expected_params[param_name])
 
     battery_param_names = set(self.probe_info_params)

@@ -35,7 +35,7 @@ class PhaseEnumMeta(enum.EnumMeta):
     try:
       return super().__call__(value, *args, **kwargs)
     except ValueError as err:
-      values = ','.join(str(member.value) for member in iter(cls))
+      values = ','.join(str(member.value) for member in iter(cls))  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError(f'{value!r} is not a valid phase value (valid values are'
                        f' [{values}])') from err
 

@@ -107,8 +107,8 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
 
   def runTest(self):
     sections = {
-        'ro': self.args.ro_key_map,
-        'rw': self.args.rw_key_map
+        'ro': self.args.ro_key_map,  # type: ignore #TODO(b/338318729) Fixit!
+        'rw': self.args.rw_key_map  # type: ignore #TODO(b/338318729) Fixit!
     }
 
     if sections['ro'] is None and sections['rw'] is None:
@@ -116,7 +116,7 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
       sections['rw'] = device_data.DEFAULT_RW_VPD_KEY_MAP
 
     for name, key_map in sections.items():
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Reading device data from {vpd_section} VPD...',
             vpd_section=name.upper()))
       if not key_map:

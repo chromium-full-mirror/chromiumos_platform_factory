@@ -96,7 +96,7 @@ class DLMProductManagerTest(unittest.TestCase):
                                 error_re) as e:
       self._manager.UpdateDLMProduct(1, **kwargs)
 
-    invalid_args = error_re.search(str(e.exception)).group(1)
+    invalid_args = error_re.search(str(e.exception)).group(1)  # type: ignore #TODO(b/338318729) Fixit!
     invalid_args = ast.literal_eval(invalid_args)
     self.assertEqual(invalid_args, {
         'id': 1,
@@ -115,7 +115,7 @@ class DLMProductManagerTest(unittest.TestCase):
                                 error_re) as e:
       self._manager.UpdateDLMProduct(1, **kwargs)
 
-    invalid_args = error_re.search(str(e.exception)).group(1)
+    invalid_args = error_re.search(str(e.exception)).group(1)  # type: ignore #TODO(b/338318729) Fixit!
     invalid_args = ast.literal_eval(invalid_args)
     self.assertEqual(invalid_args, {
         'id': 1,

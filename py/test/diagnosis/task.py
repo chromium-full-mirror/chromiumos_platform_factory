@@ -84,14 +84,14 @@ class Task:
                               self._ui_proxy.Confirm,
                               self._ui_proxy.ConfirmStop)
         elif common.TOKEN.COMMAND in step_element:
-          step = _CommandStep(step_element[common.TOKEN.COMMAND],
+          step = _CommandStep(step_element[common.TOKEN.COMMAND],  # type: ignore #TODO(b/338318729) Fixit!
                               step_element[common.TOKEN.EXPECTED_OUTPUT],
                               step_element[common.TOKEN.TERMINATE_TIMEOUT],
                               step_element[common.TOKEN.TERMINATING_TIMEOUT],
                               step_element[common.TOKEN.ERROR_MESSAGE],
                               self._ui_proxy.AppendOutput)
         elif common.TOKEN.FINALLY in step_element:
-          step = _FinallyStep(step_element[common.TOKEN.FINALLY],
+          step = _FinallyStep(step_element[common.TOKEN.FINALLY],  # type: ignore #TODO(b/338318729) Fixit!
                               step_element[common.TOKEN.EXPECTED_OUTPUT],
                               step_element[common.TOKEN.TERMINATE_TIMEOUT],
                               step_element[common.TOKEN.TERMINATING_TIMEOUT],
@@ -279,21 +279,21 @@ class _ConfirmStep(_Step):
         timeout=self._timeout,
         default_option=self._default_option,
         callback=self._CallbackSelected)
-    self._ending_notify.wait()
+    self._ending_notify.wait()  # type: ignore #TODO(b/338318729) Fixit!
     if self._selected_option is None:
       ret = _STEP_STATE.STOPPED
     elif self._selected_option == self._expected_output:
       ret = _STEP_STATE.SUCCESS
     else:
       ret = _STEP_STATE.FAILED
-    self._ending_notify.release()
+    self._ending_notify.release()  # type: ignore #TODO(b/338318729) Fixit!
     return ret
 
   def Stop(self):
-    self._ending_notify.acquire()
+    self._ending_notify.acquire()  # type: ignore #TODO(b/338318729) Fixit!
     self._ui_stop_confirm(self._confirm_id)
-    self._ending_notify.notify()
-    self._ending_notify.release()
+    self._ending_notify.notify()  # type: ignore #TODO(b/338318729) Fixit!
+    self._ending_notify.release()  # type: ignore #TODO(b/338318729) Fixit!
 
   def _CallbackSelected(self, option):
     """A callback function, called after user selects a option.
@@ -301,10 +301,10 @@ class _ConfirmStep(_Step):
     Args:
       option: Selected option.
     """
-    self._ending_notify.acquire()
+    self._ending_notify.acquire()  # type: ignore #TODO(b/338318729) Fixit!
     self._selected_option = option
-    self._ending_notify.notify()
-    self._ending_notify.release()
+    self._ending_notify.notify()  # type: ignore #TODO(b/338318729) Fixit!
+    self._ending_notify.release()  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class _CommandStep(_Step):
@@ -381,7 +381,7 @@ class _CommandStep(_Step):
       if proc.poll() is not None:
         break
       time.sleep(_WAIT_TIMEOUT)
-      time_sum += _WAIT_TIMEOUT
+      time_sum += _WAIT_TIMEOUT  # type: ignore #TODO(b/338318729) Fixit!
       if (self._terminate_timeout is not None and
           time_sum > self._terminate_timeout):
         self._need_to_stop = True
@@ -395,7 +395,7 @@ class _CommandStep(_Step):
       time_sum = 0
       while proc.poll() is None:
         time.sleep(_WAIT_TIMEOUT)
-        time_sum += _WAIT_TIMEOUT
+        time_sum += _WAIT_TIMEOUT  # type: ignore #TODO(b/338318729) Fixit!
         if (self._terminating_timeout is not None and
             time_sum > self._terminating_timeout):
           break

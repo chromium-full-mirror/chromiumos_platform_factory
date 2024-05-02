@@ -473,7 +473,7 @@ class PluginSandbox(plugin_base.IPlugin, log_utils.LoggerMixin):
     #                 define Main, and those which do not.
     if (self._state in (UP, PAUSING, PAUSED) and
         'Main' in self._plugin.__class__.__dict__ and
-        not self._main_thread.is_alive()):
+        not self._main_thread.is_alive()):  # type: ignore #TODO(b/338318729) Fixit!
       self.debug('AdvanceState unexpected main thread dead')
       self.error('Main thread died unexpectedly, '
                  'forcing state to STOPPING')
@@ -482,10 +482,10 @@ class PluginSandbox(plugin_base.IPlugin, log_utils.LoggerMixin):
     if self._state is STARTING:
       self.debug('AdvanceState on STARTING')
       if not self._setup_thread:
-        self._setup_thread = SpawnFn(self._plugin.SetUp, sync)
+        self._setup_thread = SpawnFn(self._plugin.SetUp, sync)  # type: ignore #TODO(b/338318729) Fixit!
       if self._setup_thread and not self._setup_thread.is_alive():
         self._setup_thread = None
-        self._main_thread = SpawnFn(self._plugin.Main)
+        self._main_thread = SpawnFn(self._plugin.Main)  # type: ignore #TODO(b/338318729) Fixit!
         self._state = UP
 
     elif self._state is STOPPING:
@@ -494,7 +494,7 @@ class PluginSandbox(plugin_base.IPlugin, log_utils.LoggerMixin):
         self._main_thread.join()
       if self._main_thread and not self._main_thread.is_alive():
         self._main_thread = None
-        self._teardown_thread = SpawnFn(self._plugin.TearDown, sync)
+        self._teardown_thread = SpawnFn(self._plugin.TearDown, sync)  # type: ignore #TODO(b/338318729) Fixit!
       if self._teardown_thread and not self._teardown_thread.is_alive():
         self._teardown_thread = None
         self._plugin = None

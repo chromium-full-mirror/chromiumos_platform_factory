@@ -105,20 +105,20 @@ class WebGLAquariumTest(test_case.TestCase):
 
   def setUp(self):
     self.start_time = time.time()
-    self.end_time = self.start_time + self.args.duration_secs
+    self.end_time = self.start_time + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit!
     self.metrics = dict.fromkeys(_FACTORY_METRICS + _TAST_METRICS, float("nan"))
     self.window_sum_fps = 0
-    self.window_fps = collections.deque()
+    self.window_fps = collections.deque()  # type: ignore #TODO(b/338318729) Fixit!
     num_fish: int = self.args.num_fish  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertIn(num_fish, _FISH_SETTINGS)
-    self.ui.CallJSFunction('setSettings', _FISH_SETTINGS[num_fish])
+    self.ui.CallJSFunction('setSettings', _FISH_SETTINGS[num_fish])  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.full_screen:
-      self.ui.CallJSFunction('toggleFullScreen')
+    if self.args.full_screen:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.CallJSFunction('toggleFullScreen')  # type: ignore #TODO(b/338318729) Fixit!
 
     # bind function 'self.AddFPSToWindow' with 'AddFPSToWindow' event.
-    self.event_loop.AddEventHandler('AddFPSToWindow', self.AddFPSToWindow)
+    self.event_loop.AddEventHandler('AddFPSToWindow', self.AddFPSToWindow)  # type: ignore #TODO(b/338318729) Fixit!
 
   def FormatSeconds(self, secs):
     hours = int(secs / 3600)
@@ -130,8 +130,8 @@ class WebGLAquariumTest(test_case.TestCase):
     time_left = self.end_time - time.time()
     if time_left <= 0:
       self.PassTask()
-    self.ui.CallJSFunction('updateUI', self.FormatSeconds(time_left),
-                           self.args.hide_options)
+    self.ui.CallJSFunction('updateUI', self.FormatSeconds(time_left),  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.hide_options)  # type: ignore #TODO(b/338318729) Fixit!
 
   def AddFPSToWindow(self, event):
     """Adds the fps value received from frontend into window (FIFO queue)."""
@@ -147,12 +147,12 @@ class WebGLAquariumTest(test_case.TestCase):
 
     self.window_sum_fps += fps
     self.window_fps.append(fps)
-    if len(self.window_fps) == self.args.fps_window_size + 1:
+    if len(self.window_fps) == self.args.fps_window_size + 1:  # type: ignore #TODO(b/338318729) Fixit!
       popped_fps = self.window_fps.popleft()
       self.window_sum_fps -= popped_fps
-    if len(self.window_fps) == self.args.fps_window_size:
+    if len(self.window_fps) == self.args.fps_window_size:  # type: ignore #TODO(b/338318729) Fixit!
       self.metrics['moving_avg_fps'] = (
-          self.window_sum_fps / self.args.fps_window_size)
+          self.window_sum_fps / self.args.fps_window_size)  # type: ignore #TODO(b/338318729) Fixit!
 
   def PeriodicSampleFPS(self):
     """Periodicly samples FPS value from WebGL Aquarium test.
@@ -163,7 +163,7 @@ class WebGLAquariumTest(test_case.TestCase):
     """
     time_pass = time.time() - self.start_time
     if time_pass >= 5:
-      self.ui.CallJSFunction('sendFpsToPytest')
+      self.ui.CallJSFunction('sendFpsToPytest')  # type: ignore #TODO(b/338318729) Fixit!
 
   def PeriodicLogFPS(self):
     """Periodically logs the metrics in console."""
@@ -180,16 +180,16 @@ class WebGLAquariumTest(test_case.TestCase):
     every seconds, if not, the test failed.
     """
     moving_avg_fps = self.metrics['moving_avg_fps']
-    if moving_avg_fps < self.args.min_fps:
-      self.FailTask(f'Moving Average FPS ({moving_avg_fps:.2f}) is lower than '
+    if moving_avg_fps < self.args.min_fps:  # type: ignore #TODO(b/338318729) Fixit!
+      self.FailTask(f'Moving Average FPS ({moving_avg_fps:.2f}) is lower than '  # type: ignore #TODO(b/338318729) Fixit!
                     f'the limit of minimum FPS ({self.args.min_fps}).')
 
   def runTest(self):
-    self.event_loop.AddTimedHandler(self.PeriodicCheck, 1, repeat=True)
-    self.event_loop.AddTimedHandler(self.PeriodicSampleFPS,
-                                    self.args.fps_sample_interval, repeat=True)
-    self.event_loop.AddTimedHandler(self.PeriodicLogFPS,
-                                    self.args.fps_log_interval, repeat=True)
-    self.event_loop.AddTimedHandler(self.PeriodicCheckFPS,
-                                    self.args.fps_check_interval, repeat=True)
+    self.event_loop.AddTimedHandler(self.PeriodicCheck, 1, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.event_loop.AddTimedHandler(self.PeriodicSampleFPS,  # type: ignore #TODO(b/338318729) Fixit!
+                                    self.args.fps_sample_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.event_loop.AddTimedHandler(self.PeriodicLogFPS,  # type: ignore #TODO(b/338318729) Fixit!
+                                    self.args.fps_log_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.event_loop.AddTimedHandler(self.PeriodicCheckFPS,  # type: ignore #TODO(b/338318729) Fixit!
+                                    self.args.fps_check_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTaskEnd()

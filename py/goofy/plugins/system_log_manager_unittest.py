@@ -162,7 +162,7 @@ class TestSystemLogManager(unittest.TestCase):
         MOCK_RSYNC_DESTINATION)
     # Modifies the minimum sync log period secs in system_log_manager for
     # unittest.
-    system_log_manager.MIN_SYNC_LOG_PERIOD_SECS = MOCK_MIN_SYNC_PERIOD_SEC
+    system_log_manager.MIN_SYNC_LOG_PERIOD_SECS = MOCK_MIN_SYNC_PERIOD_SEC  # type: ignore #TODO(b/338318729) Fixit!
     self.spawn_calls = []
     self.callback_calls = []
 
@@ -176,7 +176,7 @@ class TestSystemLogManager(unittest.TestCase):
   def tearDown(self):
     logging.debug('tearDown')
     try:
-      self.manager.OnStop()
+      self.manager.OnStop()  # type: ignore #TODO(b/338318729) Fixit!
     except Exception:
       pass
     self.ClearFiles()
@@ -205,7 +205,7 @@ class TestSystemLogManager(unittest.TestCase):
                  callback=None):
     self.assertEqual(spawn_mock.call_args_list, self.spawn_calls)
 
-    if not self.fake_process.returncode and callback:
+    if not self.fake_process.returncode and callback:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertEqual(callback.call_args_list, self.callback_calls)
 
     if terminate_or_kill_process_mock:
@@ -226,7 +226,7 @@ class TestSystemLogManager(unittest.TestCase):
     """
     get_server_url_mock.return_value = MOCK_SERVER_URL
     get_server_proxy_mock.return_value = self.fake_server_proxy
-    self.fake_server_proxy.GetFactoryLogPort.return_value = MOCK_PORT
+    self.fake_server_proxy.GetFactoryLogPort.return_value = MOCK_PORT  # type: ignore #TODO(b/338318729) Fixit!
     get_device_id_mock.return_value = MOCK_DEVICE_ID
     spawn_mock.return_value = self.fake_process
 
@@ -239,7 +239,7 @@ class TestSystemLogManager(unittest.TestCase):
                                       ignore_stderr=True))
 
     self.MockPollToFinish(times=times, code=code, terminated=terminated)
-    if not self.fake_process.returncode and callback:
+    if not self.fake_process.returncode and callback:  # type: ignore #TODO(b/338318729) Fixit!
       self.callback_calls.append(mock.call(extra_files))
 
   def MockPollToFinish(self, times=3, code=0, terminated=False):
@@ -252,11 +252,11 @@ class TestSystemLogManager(unittest.TestCase):
       terminated: Rsync subprocess gets terminated after times pollings.
     """
     for unused_i in range(times):
-      self.fake_process.poll_side_effect.append(None)
+      self.fake_process.poll_side_effect.append(None)  # type: ignore #TODO(b/338318729) Fixit!
     if terminated:
       return
-    self.fake_process.poll_side_effect.append(True)
-    self.fake_process.returncode = code
+    self.fake_process.poll_side_effect.append(True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.fake_process.returncode = code  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetSystemLogManagerWithStub(self, *args, **kwargs):
     """Set self.manager to a new SystemLogManager, with some attributes stubbed
@@ -268,8 +268,8 @@ class TestSystemLogManager(unittest.TestCase):
     timer = StubTimer()
     # pylint: disable=protected-access
     self.manager._timer = timer.time
-    self.manager._queue = StubQueue(timer, self.requests, self.assertTrue)
-    self.manager._aborted = StubAbortEvent(
+    self.manager._queue = StubQueue(timer, self.requests, self.assertTrue)  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager._aborted = StubAbortEvent(  # type: ignore #TODO(b/338318729) Fixit!
         timer, self.abort_time,
         self.kick_replayed_event if self.kicks else None)
 
@@ -299,15 +299,15 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     self.MockStopAt(MOCK_SCAN_PERIOD_SEC + MOCK_POLLING_DURATION)
 
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT,
         MOCK_POLLING_PERIOD)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock)
 
@@ -322,15 +322,15 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock, code=1)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     self.MockStopAt(MOCK_SCAN_PERIOD_SEC + MOCK_POLLING_DURATION)
 
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT,
         MOCK_POLLING_PERIOD)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock)
 
@@ -348,7 +348,7 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock, times=2, terminated=True)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
 
     # Setting polling period to 1/5 of scan period, and let poll
     # returns None for 2 times. There will be two polls before it aborts by
@@ -369,8 +369,8 @@ class TestSystemLogManager(unittest.TestCase):
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT,
         mock_polling_period)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, terminate_or_kill_process_mock)
 
@@ -388,7 +388,7 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock, times=2, terminated=True)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
 
     # Setting polling period to 2/3 of scan period, and let poll
     # returns None for 2 times. There will be two polls before it aborts.
@@ -408,8 +408,8 @@ class TestSystemLogManager(unittest.TestCase):
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT,
         mock_polling_period)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, terminate_or_kill_process_mock)
 
@@ -426,7 +426,7 @@ class TestSystemLogManager(unittest.TestCase):
       self.MockSyncOnce(
           get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
           spawn_mock)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     self.MockStopAt(MOCK_SCAN_PERIOD_SEC +
                     ((MOCK_SYNC_PERIOD_SEC + MOCK_POLLING_DURATION) *
                      (number_of_period - 1)) + MOCK_POLLING_DURATION)
@@ -435,8 +435,8 @@ class TestSystemLogManager(unittest.TestCase):
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT,
         MOCK_POLLING_PERIOD)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock)
 
@@ -455,7 +455,7 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock, mock_extra_files, mock_callback)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     # manager should only sync once, which is kicked by the test.
     self.RecordKickToSync(mock_extra_files, mock_callback)
     self.MockStopAt(MOCK_POLLING_DURATION)
@@ -463,9 +463,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, None, MOCK_SCAN_PERIOD_SEC,
         MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD, [])
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, callback=mock_callback)
 
@@ -483,7 +483,7 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock, mock_extra_files, mock_callback)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     # manager should only sync once, which is kicked by the test.
     self.RecordKickToSync(mock_extra_files, mock_callback)
     self.MockStopAt(MOCK_POLLING_DURATION)
@@ -491,9 +491,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD)
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, callback=mock_callback)
 
@@ -515,7 +515,7 @@ class TestSystemLogManager(unittest.TestCase):
       self.MockSyncOnce(
           get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
           spawn_mock, mock_extra_files[kick_number], mock_callback)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     # manager should process each sync requests by the test.
     for kick_number in range(times):
       self.RecordKickToSync(
@@ -525,9 +525,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, None, MOCK_SCAN_PERIOD_SEC,
         MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD, [])
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, callback=mock_callback)
 
@@ -559,7 +559,7 @@ class TestSystemLogManager(unittest.TestCase):
       self.MockSyncOnce(
           get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
           spawn_mock)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
 
     # manager should sync twice in this time
     t = (MOCK_SCAN_PERIOD_SEC + MOCK_POLLING_DURATION +
@@ -575,9 +575,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD)
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, callback=mock_callback)
 
@@ -606,7 +606,7 @@ class TestSystemLogManager(unittest.TestCase):
       self.MockSyncOnce(
           get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
           spawn_mock)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
 
     # manager should fire a sync after this time.
     t = MOCK_SCAN_PERIOD_SEC * 1
@@ -627,9 +627,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD)
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock, callback=mock_callback)
 
@@ -648,15 +648,15 @@ class TestSystemLogManager(unittest.TestCase):
     self.MockSyncOnce(
         get_server_url_mock, get_server_proxy_mock, get_device_id_mock,
         spawn_mock)
-    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect
+    self.fake_process.poll.side_effect = self.fake_process.poll_side_effect  # type: ignore #TODO(b/338318729) Fixit!
     self.MockStopAt((MOCK_SCAN_PERIOD_SEC + MOCK_POLLING_DURATION) * 2)
 
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, MOCK_SYNC_PERIOD_SEC,
         MOCK_SCAN_PERIOD_SEC, MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD,
         clear_file_paths)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.VerifyMock(spawn_mock)
     self.assertEqual(sum([glob.glob(x) for x in clear_file_paths], []), [])
@@ -674,8 +674,8 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, None, MOCK_SCAN_PERIOD_SEC,
         MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD, clear_file_paths)
-    self.manager.Start()
-    self.manager.Stop()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(sum([glob.glob(x) for x in clear_file_paths], []), [])
 
@@ -693,9 +693,9 @@ class TestSystemLogManager(unittest.TestCase):
     self.GetSystemLogManagerWithStub(
         self.goofy, mock_sync_log_paths, None, MOCK_SCAN_PERIOD_SEC,
         MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD, clear_file_paths)
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(sum([glob.glob(x) for x in clear_file_paths], []), [])
 
@@ -719,9 +719,9 @@ class TestSystemLogManager(unittest.TestCase):
         self.goofy, mock_sync_log_paths, None, MOCK_SCAN_PERIOD_SEC,
         MOCK_RSYNC_IO_TIMEOUT, MOCK_POLLING_PERIOD, clear_file_paths,
         clear_file_excluded_paths)
-    self.manager.Start()
+    self.manager.Start()  # type: ignore #TODO(b/338318729) Fixit!
     self.ReplayKicks()
-    self.manager.Stop()
+    self.manager.Stop()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual(
         sum([glob.glob(os.path.join(TEST_DIRECTORY,

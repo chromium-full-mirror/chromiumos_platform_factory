@@ -163,7 +163,7 @@ class DownloadSlotsManager:
     # Fire another timer for oldest slot now.
     joined_dict = self.slots.copy()
     joined_dict.update(self.wait_queue)
-    oldest_slot = min(joined_dict, key=joined_dict.get)
+    oldest_slot = min(joined_dict, key=joined_dict.get)  # type: ignore #TODO(b/338318729) Fixit!
     next_time = _SLOT_ALIVE_TIME - (time.time() - joined_dict[oldest_slot]) + 1
     self._PrepareTimerForDeadSlot(next_time)
     logging.debug('Another timer is up for slot - %s', oldest_slot)

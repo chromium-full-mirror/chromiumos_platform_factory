@@ -495,7 +495,7 @@ class SensorServiceRyu(AbstractSensorService):
     Returns:
       True if the sensor data are legitimate.
     """
-    touched_cols = list(range(self.num_cols))
+    touched_cols = list(range(self.num_cols))  # type: ignore #TODO(b/338318729) Fixit!
     return super()._VerifyDeltasTouched(data, touched_cols)
 
   def ReadTRx(self, category):
@@ -657,8 +657,8 @@ def _ParseAddr(addr_str):
   result = re.search(r'(.+):(\d+)', addr_str)
   if not result:
     _Usage()
-  ip = result.group(1)
-  port = int(result.group(2))
+  ip = result.group(1)  # type: ignore #TODO(b/338318729) Fixit!
+  port = int(result.group(2))  # type: ignore #TODO(b/338318729) Fixit!
   return (ip, port)
 
 

@@ -133,53 +133,53 @@ class Scan(test_case.TestCase):
   def HandleScanValue(self, event):
     def SetError(label):
       logging.info('Scan error: %r', label['en-US'])
-      self.ui.SetHTML(
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
           ['<span class="test-error">', label, '</span>'], id='scan-status')
-      self.ui.RunJS('document.getElementById("scan-value").disabled = false;'
+      self.ui.RunJS('document.getElementById("scan-value").disabled = false;'  # type: ignore #TODO(b/338318729) Fixit!
                     'document.getElementById("scan-value").value = ""')
-      self.ui.SetFocus('scan-value')
+      self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.ui.RunJS('document.getElementById("scan-value").disabled = true')
+    self.ui.RunJS('document.getElementById("scan-value").disabled = true')  # type: ignore #TODO(b/338318729) Fixit!
     scan_value = event.data.strip()
-    if self.args.ignore_case:
+    if self.args.ignore_case:  # type: ignore #TODO(b/338318729) Fixit!
       scan_value = scan_value.upper()
     esc_scan_value = test_ui.Escape(scan_value)
     if not scan_value:
       SetError(_('The scanned value is empty.'))
       return
-    if self.args.regexp:
-      match = re.match(self.args.regexp, scan_value)
+    if self.args.regexp:  # type: ignore #TODO(b/338318729) Fixit!
+      match = re.match(self.args.regexp, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
       if not match or match.group(0) != scan_value:
         SetError(
             _('The scanned value "{value}" does not match the expected format.',
               value=esc_scan_value))
         return
 
-    if self.args.event_log_key:
-      event_log.Log('scan', key=self.args.event_log_key, value=scan_value)
-      testlog.LogParam(self.args.event_log_key, scan_value)
-    elif self.args.testlog_key:
-      event_log.Log('scan', key=self.args.testlog_key, value=scan_value)
-      testlog.LogParam(self.args.testlog_key, scan_value)
+    if self.args.event_log_key:  # type: ignore #TODO(b/338318729) Fixit!
+      event_log.Log('scan', key=self.args.event_log_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+      testlog.LogParam(self.args.event_log_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+    elif self.args.testlog_key:  # type: ignore #TODO(b/338318729) Fixit!
+      event_log.Log('scan', key=self.args.testlog_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+      testlog.LogParam(self.args.testlog_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.shared_data_key:
-      state.DataShelfSetValue(self.args.shared_data_key, scan_value)
+    if self.args.shared_data_key:  # type: ignore #TODO(b/338318729) Fixit!
+      state.DataShelfSetValue(self.args.shared_data_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.serial_number_key:
-      device_data.SetSerialNumber(self.args.serial_number_key, scan_value)
+    if self.args.serial_number_key:  # type: ignore #TODO(b/338318729) Fixit!
+      device_data.SetSerialNumber(self.args.serial_number_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.device_data_key:
-      device_data.UpdateDeviceData({self.args.device_data_key: scan_value})
+    if self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit!
+      device_data.UpdateDeviceData({self.args.device_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.dut_data_key:
-      self.dut.storage.UpdateDict({self.args.dut_data_key: scan_value})
+    if self.args.dut_data_key:  # type: ignore #TODO(b/338318729) Fixit!
+      self.dut.storage.UpdateDict({self.args.dut_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.check_device_data_key:
+    if self.args.check_device_data_key:  # type: ignore #TODO(b/338318729) Fixit!
       expected_value = device_data.GetDeviceData(
-          self.args.check_device_data_key, None)
+          self.args.check_device_data_key, None)  # type: ignore #TODO(b/338318729) Fixit!
 
-      if self.args.match_the_last_few_chars != 0:
-        expected_value = expected_value[-self.args.match_the_last_few_chars:]
+      if self.args.match_the_last_few_chars != 0:  # type: ignore #TODO(b/338318729) Fixit!
+        expected_value = expected_value[-self.args.match_the_last_few_chars:]  # type: ignore #TODO(b/338318729) Fixit!
 
       if expected_value != scan_value:
         logging.error('Expected %r but got %r', expected_value, scan_value)
@@ -195,37 +195,37 @@ class Scan(test_case.TestCase):
               expected_value=esc_expected_value))
         return
 
-    if self.args.rw_vpd_key or self.args.ro_vpd_key:
-      self.ui.SetHTML(_('Writing to VPD. Please wait...'), id='scan-status')
+    if self.args.rw_vpd_key or self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetHTML(_('Writing to VPD. Please wait...'), id='scan-status')  # type: ignore #TODO(b/338318729) Fixit!
       try:
-        if self.args.rw_vpd_key:
-          self.dut.vpd.rw.Update({self.args.rw_vpd_key: scan_value})
-        if self.args.ro_vpd_key:
-          self.dut.vpd.ro.Update({self.args.ro_vpd_key: scan_value})
+        if self.args.rw_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
+          self.dut.vpd.rw.Update({self.args.rw_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
+        if self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
+          self.dut.vpd.ro.Update({self.args.ro_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
       except Exception:
         logging.exception('Setting VPD failed')
         SetError(debug_utils.FormatExceptionOnly())
         return
 
-    if self.args.save_path:
+    if self.args.save_path:  # type: ignore #TODO(b/338318729) Fixit!
       try:
-        dirname = self.dut.path.dirname(self.args.save_path)
+        dirname = self.dut.path.dirname(self.args.save_path)  # type: ignore #TODO(b/338318729) Fixit!
         self.dut.CheckCall(['mkdir', '-p', dirname])
-        self.dut.WriteFile(self.args.save_path, scan_value)
+        self.dut.WriteFile(self.args.save_path, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
       except Exception:
         logging.exception('Save file failed')
         SetError(debug_utils.FormatExceptionOnly())
         return
 
-    self.event_loop.PostNewEvent(test_event.Event.Type.UPDATE_SYSTEM_INFO)
+    self.event_loop.PostNewEvent(test_event.Event.Type.UPDATE_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit!
     self.PassTask()
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.auto_scan_timer = None
     self.fixture = None
-    if self.args.bft_fixture:
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     if self.fixture:
@@ -236,13 +236,13 @@ class Scan(test_case.TestCase):
 
   def ScanBarcode(self):
     while True:
-      self.fixture.ScanBarcode()
-      self.Sleep(self.args.barcode_scan_interval_secs)
+      self.fixture.ScanBarcode()  # type: ignore #TODO(b/338318729) Fixit!
+      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def BFTScanSaveBarcode(self):
     while True:
-      self.fixture.TriggerScanner()
-      self.Sleep(self.args.barcode_scan_interval_secs)
+      self.fixture.TriggerScanner()  # type: ignore #TODO(b/338318729) Fixit!
+      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _GetOriginalValues(self) -> List[Tuple[str, Optional[str]]]:
     existed_data_source = {
@@ -277,14 +277,14 @@ class Scan(test_case.TestCase):
         test_ui.ENTER_KEY,
         'window.test.sendTestEvent("scan_value",'
         'document.getElementById("scan-value").value)')
-    self.event_loop.AddEventHandler('scan_value', self.HandleScanValue)
+    self.event_loop.AddEventHandler('scan_value', self.HandleScanValue)  # type: ignore #TODO(b/338318729) Fixit!
 
     if self.args.value_assigned is not None:  # type: ignore #TODO(b/338318729) Fixit!
       self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
           'window.test.sendTestEvent', 'scan_value', self.args.value_assigned)  # type: ignore #TODO(b/338318729) Fixit!
     elif self.args.bft_scan_fixture_id:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Getting fixture ID...')
-      fixture_id = self.fixture.GetFixtureId()
+      fixture_id = self.fixture.GetFixtureId()  # type: ignore #TODO(b/338318729) Fixit!
       self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value',  # type: ignore #TODO(b/338318729) Fixit!
                              str(fixture_id))
     elif self.args.bft_scan_barcode:  # type: ignore #TODO(b/338318729) Fixit!
@@ -298,7 +298,7 @@ class Scan(test_case.TestCase):
       saved_barcode_path = None
       if isinstance(self.args.bft_get_barcode, str):  # type: ignore #TODO(b/338318729) Fixit!
         saved_barcode_path = self.args.bft_get_barcode  # type: ignore #TODO(b/338318729) Fixit!
-      barcode = self.fixture.ScanBarcode(saved_barcode_path)
+      barcode = self.fixture.ScanBarcode(saved_barcode_path)  # type: ignore #TODO(b/338318729) Fixit!
       self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value', barcode)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.WaitTaskEnd()

@@ -126,7 +126,7 @@ def ReadCsvAsListOfDict(source):
     fieldnames = reader.fieldnames
 
     # Check if fieldnames are unique.
-    if len(set(fieldnames)) != len(fieldnames):
+    if len(set(fieldnames)) != len(fieldnames):  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError(f'Duplicated column name in {source}')
 
     for idx, row in enumerate(reader):
@@ -138,7 +138,7 @@ def ReadCsvAsListOfDict(source):
         logging.debug(
             'Cell without a column name is ignored during conversion\n'
             'Row[%d] - %s', idx, row[None])
-      for key in fieldnames:
+      for key in fieldnames:  # type: ignore #TODO(b/338318729) Fixit!
         converted_dict[key] = ReadSingleCell(row.get(key, ''))
       data.append(converted_dict)
   return data

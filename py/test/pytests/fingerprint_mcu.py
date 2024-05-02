@@ -175,7 +175,7 @@ class FingerprintTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._fpmcu = fpmcu_utils.FpmcuDevice(self._dut)
-    self._image_dir = os.path.join(self.ui.GetStaticDirectoryPath(), _IMAGE_DIR)
+    self._image_dir = os.path.join(self.ui.GetStaticDirectoryPath(), _IMAGE_DIR)  # type: ignore #TODO(b/338318729) Fixit!
     self._ui_table = ui_templates.Table(rows=2, cols=0,
                                         element_id='fingerprint_table')
     info = self._fpmcu.FpmcuCommand('fpinfo')
@@ -204,8 +204,8 @@ class FingerprintTest(test_case.TestCase):
       self._fpmcu.FpmcuCommand('waitevent', *args, **kwargs)
     except Exception as e:
       wait_event_fail_msg = f'Wait event fail: {e}'
-      if ('Timeout waiting for MKBP event' in e.stderr and
-          self.args.ignore_waitevent_timeout_error):
+      if ('Timeout waiting for MKBP event' in e.stderr and  # type: ignore #TODO(b/338318729) Fixit!
+          self.args.ignore_waitevent_timeout_error):  # type: ignore #TODO(b/338318729) Fixit!
         logging.error(wait_event_fail_msg)
       else:
         raise type_utils.TestFailure(wait_event_fail_msg)
@@ -217,7 +217,7 @@ class FingerprintTest(test_case.TestCase):
       logging.exception('Retrying fpframe %d times', num_retries + 1)
 
     @sync_utils.RetryDecorator(
-        max_attempt_count=self.args.fpframe_retry_count + 1,
+        max_attempt_count=self.args.fpframe_retry_count + 1,  # type: ignore #TODO(b/338318729) Fixit!
         retry_callback=_LoggingCallback, interval_sec=0)
     def _GetFpFrame():
       return self._fpmcu.FpmcuCommand('fpframe', *args, **kwargs)
@@ -225,7 +225,7 @@ class FingerprintTest(test_case.TestCase):
     return _GetFpFrame()
 
   def IsDetectZone(self, x, y):
-    for x1, y1, x2, y2 in self.args.detect_zones:
+    for x1, y1, x2, y2 in self.args.detect_zones:  # type: ignore #TODO(b/338318729) Fixit!
       if (x in range(x1, x2 + 1) and
           y in range(y1, y2 + 1)):
         return True
@@ -248,13 +248,13 @@ class FingerprintTest(test_case.TestCase):
   def CalculateMedianAndDev(self, matrix):
     # Transform the 2D array of triples in a 1-D array of triples
     pixels = matrix.reshape((-1, 3))
-    median = numpy.median([v for v, x, y in pixels])
+    median = numpy.median([v for v, x, y in pixels])  # type: ignore #TODO(b/338318729) Fixit!
     dev = [(abs(v - median), x, y) for v, x, y in pixels]
     return median, dev
 
   def ProcessCheckboardPixels(self, lines, parity):
     # Keep only type-1 or type-2 pixels depending on parity
-    matrix = numpy.array([[(int(v), x, y) for x, v
+    matrix = numpy.array([[(int(v), x, y) for x, v  # type: ignore #TODO(b/338318729) Fixit!
                            in enumerate(l.strip().split())
                            if (x + y) % 2 == parity]
                           for y, l in enumerate(lines)])
@@ -278,12 +278,12 @@ class FingerprintTest(test_case.TestCase):
     median2, dev2 = self.ProcessCheckboardPixels(pixel_lines, 1)
 
     all_dev = dev1 + dev2
-    max_dev = numpy.max([d for d, _, _ in all_dev])
+    max_dev = numpy.max([d for d, _, _ in all_dev])  # type: ignore #TODO(b/338318729) Fixit!
     # Count dead pixels (deviating too much from the median)
     dead_count = 0
     dead_detect_count = 0
     for d, x, y in all_dev:
-      if d > self.args.max_pixel_dev:
+      if d > self.args.max_pixel_dev:  # type: ignore #TODO(b/338318729) Fixit!
         dead_count += 1
         if self.IsDetectZone(x, y):
           dead_detect_count += 1
@@ -300,14 +300,14 @@ class FingerprintTest(test_case.TestCase):
                         value_unit='pixels')
     if not testlog.CheckNumericParam(name=f'dead_pixels_{short_name}',
                                      value=dead_count,
-                                     max=self.args.max_dead_pixels):
+                                     max=self.args.max_dead_pixels):  # type: ignore #TODO(b/338318729) Fixit!
       raise type_utils.TestFailure('Too many dead pixels')
     testlog.UpdateParam(name=f'dead_detect_pixels_{short_name}',
                         description='Dead pixels in detect zone',
                         value_unit='pixels')
     if not testlog.CheckNumericParam(name=f'dead_detect_pixels_{short_name}',
                                      value=dead_detect_count,
-                                     max=self.args.max_dead_detect_pixels):
+                                     max=self.args.max_dead_detect_pixels):  # type: ignore #TODO(b/338318729) Fixit!
       raise type_utils.TestFailure('Too many dead pixels in detect zone')
     # Check specified pixel range constraints
     t1 = f"{short_name}_type1"
@@ -315,22 +315,22 @@ class FingerprintTest(test_case.TestCase):
         name=t1,
         description='Median Type-1 pixel value',
         value_unit='8-bit grayscale')
-    if t1 in self.args.pixel_median and not testlog.CheckNumericParam(
+    if t1 in self.args.pixel_median and not testlog.CheckNumericParam(  # type: ignore #TODO(b/338318729) Fixit!
         name=t1,
         value=median1,
-        min=self.args.pixel_median[t1][0],
-        max=self.args.pixel_median[t1][1]):
+        min=self.args.pixel_median[t1][0],  # type: ignore #TODO(b/338318729) Fixit!
+        max=self.args.pixel_median[t1][1]):  # type: ignore #TODO(b/338318729) Fixit!
       raise type_utils.TestFailure('Out of range Type-1 pixels')
     t2 = f"{short_name}_type2"
     testlog.UpdateParam(
         name=t2,
         description='Median Type-2 pixel value',
         value_unit='8-bit grayscale')
-    if t2 in self.args.pixel_median and not testlog.CheckNumericParam(
+    if t2 in self.args.pixel_median and not testlog.CheckNumericParam(  # type: ignore #TODO(b/338318729) Fixit!
         name=t2,
         value=median2,
-        min=self.args.pixel_median[t2][0],
-        max=self.args.pixel_median[t2][1]):
+        min=self.args.pixel_median[t2][0],  # type: ignore #TODO(b/338318729) Fixit!
+        max=self.args.pixel_median[t2][1]):  # type: ignore #TODO(b/338318729) Fixit!
       raise type_utils.TestFailure('Out of range Type-2 pixels')
 
   def CalculateMedianAndDevPerColumns(self, matrix):
@@ -352,14 +352,14 @@ class FingerprintTest(test_case.TestCase):
     #     [0, 0, 0  ]
     #     [0, 0, 0  ]
     #     [0, 0, 147]
-    matrix = numpy.rot90(matrix)
-    matrix = numpy.flipud(matrix)
-    medians = [numpy.median([v for v, x, y in l]) for l in matrix]
+    matrix = numpy.rot90(matrix)  # type: ignore #TODO(b/338318729) Fixit!
+    matrix = numpy.flipud(matrix)  # type: ignore #TODO(b/338318729) Fixit!
+    medians = [numpy.median([v for v, x, y in l]) for l in matrix]  # type: ignore #TODO(b/338318729) Fixit!
     devs = [[(abs(v - medians[x]), x, y) for v, x, y in l] for l in matrix]
     return medians, devs
 
   def ProcessResetPixelImage(self, lines):
-    matrix = numpy.array([[(int(v), x, y) for x, v
+    matrix = numpy.array([[(int(v), x, y) for x, v  # type: ignore #TODO(b/338318729) Fixit!
                            in enumerate(l.strip().split())]
                           for y, l in enumerate(lines)])
     return self.CalculateMedianAndDevPerColumns(matrix)
@@ -378,10 +378,10 @@ class FingerprintTest(test_case.TestCase):
     medians, devs = self.ProcessResetPixelImage(pixel_lines)
     # Count error pixels (deviating too much from the median)
     error_count = 0
-    max_dev_per_columns = [numpy.max([d for d, _, _ in col]) for col in devs]
+    max_dev_per_columns = [numpy.max([d for d, _, _ in col]) for col in devs]  # type: ignore #TODO(b/338318729) Fixit!
     for col in devs:
       for d, _, _ in col:
-        if d > self.args.max_reset_pixel_dev:
+        if d > self.args.max_reset_pixel_dev:  # type: ignore #TODO(b/338318729) Fixit!
           error_count += 1
 
     # Log everything first for debugging
@@ -396,7 +396,7 @@ class FingerprintTest(test_case.TestCase):
     if not testlog.CheckNumericParam(
         name='error_reset_pixel',
         value=error_count,
-        max=self.args.max_error_reset_pixels):
+        max=self.args.max_error_reset_pixels):  # type: ignore #TODO(b/338318729) Fixit!
       raise type_utils.TestFailure('Too many error reset pixels')
 
   def _ShowFingerprint(self, frame: bytes, filename_prefix: str):
@@ -468,20 +468,20 @@ class FingerprintTest(test_case.TestCase):
     self.CheckerboardTest(inverted=True)
     self.ResetPixelTest()
 
-    if self.args.number_of_manual_captures:
+    if self.args.number_of_manual_captures:  # type: ignore #TODO(b/338318729) Fixit!
       if libfputils:
-        self._ManualTest(self.args.number_of_manual_captures)
+        self._ManualTest(self.args.number_of_manual_captures)  # type: ignore #TODO(b/338318729) Fixit!
       else:
         raise type_utils.TestFailure('libfputils is not available')
 
-    if self.args.rubber_finger_present:
-      self.ui.SetTitle(_('Fingerprint MQT Test'))
-      self.ui.SetInstruction(_('Touch fingerprint sensor'))
+    if self.args.rubber_finger_present:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetTitle(_('Fingerprint MQT Test'))  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction(_('Touch fingerprint sensor'))  # type: ignore #TODO(b/338318729) Fixit!
       # Test sensor image quality
       self._fpmcu.FpmcuCommand('fpmode', 'capture', 'qual')
       # wait for the end of capture (or timeout)
       self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
-                             str(self.args.timeout_secs * 1000))
+                             str(self.args.timeout_secs * 1000))  # type: ignore #TODO(b/338318729) Fixit!
       img = self.FpmcuGetFpframe('raw', encoding=None)
       # record the raw image file for quality evaluation
       testlog.AttachContent(
@@ -497,7 +497,7 @@ class FingerprintTest(test_case.TestCase):
         testlog.UpdateParam(
             name='mqt_snr', description='Image signal-to-noise ratio')
         if not testlog.CheckNumericParam(
-            name='mqt_snr', value=snr, min=self.args.min_snr):
+            name='mqt_snr', value=snr, min=self.args.min_snr):  # type: ignore #TODO(b/338318729) Fixit!
           raise type_utils.TestFailure('Bad quality image')
-      elif self.args.min_snr > 0.0:
+      elif self.args.min_snr > 0.0:  # type: ignore #TODO(b/338318729) Fixit!
         raise type_utils.TestFailure('No image quality library available')

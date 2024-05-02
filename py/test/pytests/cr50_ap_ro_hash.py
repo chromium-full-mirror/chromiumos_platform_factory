@@ -73,7 +73,7 @@ class Cr50APROHashTest(test_case.TestCase):
       session.console.warn('Unable to modify RO hash, test skipped.')
       return
 
-    action = self.args.action
+    action = self.args.action  # type: ignore #TODO(b/338318729) Fixit!
     if action == 'set':
       self.gsc_utils.Cr50SetROHash()
     elif action == 'clear':

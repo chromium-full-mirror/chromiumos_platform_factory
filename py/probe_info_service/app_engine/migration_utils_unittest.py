@@ -34,7 +34,7 @@ class MigrationManagerTest(unittest.TestCase):
 
   @classmethod
   def tearDownClass(cls):
-    sys.path.remove(cls._EXTRA_PYTHON_PATH_FOR_TEST)
+    sys.path.remove(cls._EXTRA_PYTHON_PATH_FOR_TEST)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _CreateMigrationManager(self) -> migration_utils.MigrationManager:
     importlib.reload(self._MIGRATION_SCRIPT_PKG)  # type: ignore #TODO(b/338318729) Fixit!
@@ -43,7 +43,7 @@ class MigrationManagerTest(unittest.TestCase):
     return manager
 
   def _WriteMigrationScript(self, script_name, contents):
-    fullpath = os.path.join(self._EXTRA_PYTHON_PATH_FOR_TEST,
+    fullpath = os.path.join(self._EXTRA_PYTHON_PATH_FOR_TEST,  # type: ignore #TODO(b/338318729) Fixit!
                             self._MIGRATION_SCRIPT_PKG_NAME, script_name)
     file_utils.WriteFile(fullpath, contents)
     self.addCleanup(functools.partial(file_utils.TryUnlink, fullpath))
@@ -73,7 +73,7 @@ class MigrationManagerTest(unittest.TestCase):
 
     report = manager.RunNextPendingMigrationScript()
     self.assertTupleEqual(
-        report,
+        report,  # type: ignore #TODO(b/338318729) Fixit!
         migration_utils.MigrationReport(
             'migration_script_0000.py', 0,
             migration_utils.MigrationResultCase.SUCCESS))
@@ -81,7 +81,7 @@ class MigrationManagerTest(unittest.TestCase):
 
     report = manager.RunNextPendingMigrationScript()
     self.assertTupleEqual(
-        report,
+        report,  # type: ignore #TODO(b/338318729) Fixit!
         migration_utils.MigrationReport(
             'migration_script_0001.py', 1,
             migration_utils.MigrationResultCase.FAILED_NOT_ROLLBACKED))

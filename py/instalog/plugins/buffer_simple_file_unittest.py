@@ -75,8 +75,8 @@ class TestBufferSimpleFile(unittest.TestCase):
 
   def _CreateBuffer(self, config=None):
     # Remove previous temporary folder if any.
-    if self.data_dir is not None:
-      shutil.rmtree(self.data_dir)
+    if self.data_dir is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      shutil.rmtree(self.data_dir)  # type: ignore #TODO(b/338318729) Fixit!
     self.data_dir = tempfile.mkdtemp(prefix='buffer_simple_file_unittest_')
     logging.info('Create state directory: %s', self.data_dir)
     self.sf = buffer_simple_file.BufferSimpleFile(
@@ -84,7 +84,7 @@ class TestBufferSimpleFile(unittest.TestCase):
         logger_name=self.logger.name,
         store={},
         plugin_api=None)
-    self.sf.GetDataDir = lambda: self.data_dir
+    self.sf.GetDataDir = lambda: self.data_dir  # type: ignore #TODO(b/338318729) Fixit!
     self.sf.SetUp()
     self.e1 = datatypes.Event({'test1': 'event'})
     self.e2 = datatypes.Event({'test22': 'event'})
@@ -94,7 +94,7 @@ class TestBufferSimpleFile(unittest.TestCase):
 
   def setUp(self):
     self.logger = logging.getLogger('simple_file')
-    self.data_dir = None
+    self.data_dir = None  # type: ignore #TODO(b/338318729) Fixit!
     self._CreateBuffer()
 
   def tearDown(self):
@@ -147,7 +147,7 @@ class TestBufferSimpleFile(unittest.TestCase):
          'x' * buffer_simple_file.buffer_file_common._BUFFER_SIZE_BYTES})
     self.sf.Produce(_TEST_PRODUCER, [e], True)
     # Purposely corrupt the data file.
-    with open(self.sf.buffer_file.data_path, 'r+', encoding='utf8') as f:
+    with open(self.sf.buffer_file.data_path, 'r+', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
       f.seek(1)
       f.write('x')
     self.sf.Produce(_TEST_PRODUCER, [self.e2], True)
@@ -182,12 +182,12 @@ class TestBufferSimpleFile(unittest.TestCase):
     case, the length of e2(GARBAGE) would be included in the length of event e.
     """
     self.sf.Produce(_TEST_PRODUCER, [self.e1], True)
-    e1_end = os.path.getsize(self.sf.buffer_file.data_path)
+    e1_end = os.path.getsize(self.sf.buffer_file.data_path)  # type: ignore #TODO(b/338318729) Fixit!
     self.sf.Produce(_TEST_PRODUCER, [self.e2], True)
-    e2_end = os.path.getsize(self.sf.buffer_file.data_path)
+    e2_end = os.path.getsize(self.sf.buffer_file.data_path)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Corrupt event e2 by writing garbage at the end.
-    with open(self.sf.buffer_file.data_path, 'r+', encoding='utf8') as f:
+    with open(self.sf.buffer_file.data_path, 'r+', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
       f.seek(e2_end - 10)
       f.write('x' * 5)
 
@@ -212,7 +212,7 @@ class TestBufferSimpleFile(unittest.TestCase):
     """Tests reading from a data store that has appended junk."""
     self.sf.Produce(_TEST_PRODUCER, [self.e1], True)
     # Purposely append junk to the data store
-    with open(self.sf.buffer_file.data_path, 'a', encoding='utf8') as f:
+    with open(self.sf.buffer_file.data_path, 'a', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
       f.write('xxxxxxxx')
     self.sf.Produce(_TEST_PRODUCER, [self.e2], True)
     self.sf.AddConsumer('a')
@@ -242,67 +242,67 @@ class TestBufferSimpleFile(unittest.TestCase):
 
   def testFirstLastSeq(self):
     """Checks the proper tracking of first_seq and last_seq."""
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 0)
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 0)  # type: ignore #TODO(b/338318729) Fixit!
 
-    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()
+    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(first_seq, 1)
 
-    self.sf.buffer_file.Truncate()
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 0)
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 0)  # type: ignore #TODO(b/338318729) Fixit!
 
-    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()
+    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(first_seq, 1)
 
     self.sf.Produce(_TEST_PRODUCER, [self.e1], True)
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 1)
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
 
-    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()
+    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(first_seq, 2)
 
     self.sf.Produce(_TEST_PRODUCER, [self.e1], True)
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 2)
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 2)  # type: ignore #TODO(b/338318729) Fixit!
 
-    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()
+    first_seq, _ = self.sf.buffer_file._GetFirstUnconsumedRecord()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(first_seq, 3)
 
   def testTruncate(self):
     """Checks that Truncate truncates up to the last unread event."""
     self.sf.AddConsumer('a')
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 0)
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 0)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.sf.Produce(_TEST_PRODUCER, [self.e1, self.e2], True)
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 2)
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 2)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.sf.buffer_file.Truncate()
-    self.assertEqual(self.sf.buffer_file.first_seq, 1)
-    self.assertEqual(self.sf.buffer_file.last_seq, 2)
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.first_seq, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 2)  # type: ignore #TODO(b/338318729) Fixit!
 
     stream = self.sf.Consume('a')
     self.assertEqual(self.e1, stream.Next())
     stream.Commit()
 
-    self.sf.buffer_file.Truncate()
-    self.assertEqual(self.sf.buffer_file.first_seq, 2)
-    self.assertEqual(self.sf.buffer_file.last_seq, 2)
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.first_seq, 2)  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(self.sf.buffer_file.last_seq, 2)  # type: ignore #TODO(b/338318729) Fixit!
 
   def testSeqOrder(self):
     """Checks that the order of sequence keys is consistent."""
     self.sf.AddConsumer('a')
 
-    self.sf.buffer_file.Truncate()
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
     self.sf.Produce(_TEST_PRODUCER, [self.e1], True)
     stream = self.sf.Consume('a')
     seq, _ = stream._Next()
     self.assertEqual(seq, 1)
     stream.Commit()
 
-    self.sf.buffer_file.Truncate()
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
     self.sf.Produce(_TEST_PRODUCER, [self.e1, self.e1], True)
     stream = self.sf.Consume('a')
     seq, _ = stream._Next()
@@ -325,7 +325,7 @@ class TestBufferSimpleFile(unittest.TestCase):
     # of Next and Truncate.
     self.assertEqual(1, len(stream2._Buffer()))
     self.assertEqual(self.e2, stream2.Next())
-    self.sf.buffer_file.Truncate()
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(self.e3, stream2.Next())
     stream2.Commit()
 
@@ -358,7 +358,7 @@ class TestBufferSimpleFile(unittest.TestCase):
     self.assertEqual(self.e2, stream2.Next())
     stream2.Commit()
 
-    self.sf.buffer_file.Truncate()
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
     # Verify that the metadata is consistent after running Truncate.
     self.sf.SetUp()
 
@@ -389,7 +389,7 @@ class TestBufferSimpleFile(unittest.TestCase):
     self.sf.AddConsumer('a')
     stream = self.sf.Consume('a')
     cur_seq = 1
-    record_count = collections.defaultdict(int)
+    record_count = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
     while True:
       seq, record = stream._Next()
       if not seq:
@@ -404,10 +404,10 @@ class TestBufferSimpleFile(unittest.TestCase):
   @_WithBufferSize(80)  # Each line is around ~35 characters.
   def testMultiThreadConsumeTruncate(self):
     """Tests multiple Consumers reading simultaneously when Truncate occurs."""
-    record_count_queue = queue.Queue()
+    record_count_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
     def ConsumerThread(consumer_id):
       stream = self.sf.Consume(consumer_id)
-      record_count = collections.defaultdict(int)
+      record_count = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
       count = 0
       while True:
         # Commit and start a new BufferEventStream every 10 events.
@@ -437,10 +437,10 @@ class TestBufferSimpleFile(unittest.TestCase):
       while t.is_alive():
         # Add a small sleep to prevent occupying read_lock
         time.sleep(0.01)
-        self.sf.buffer_file.Truncate()
+        self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
       t.join()
-    self.sf.buffer_file.Truncate()
-    self.assertEqual(25 * 3 + 1, self.sf.buffer_file.first_seq)
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(25 * 3 + 1, self.sf.buffer_file.first_seq)  # type: ignore #TODO(b/338318729) Fixit!
 
     while not record_count_queue.empty():
       record_count = record_count_queue.get()
@@ -522,9 +522,9 @@ class TestBufferSimpleFile(unittest.TestCase):
       event = datatypes.Event({}, {'a': path})
       self.sf.Produce(_TEST_PRODUCER, [event], True)
     self.assertEqual(1, self._CountAttachmentsInBuffer(self.sf))
-    self.sf.buffer_file.Truncate(truncate_attachments=False)
+    self.sf.buffer_file.Truncate(truncate_attachments=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(1, self._CountAttachmentsInBuffer(self.sf))
-    self.sf.buffer_file.Truncate()
+    self.sf.buffer_file.Truncate()  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(0, self._CountAttachmentsInBuffer(self.sf))
 
   def testProduceNonConsumableEvents(self):

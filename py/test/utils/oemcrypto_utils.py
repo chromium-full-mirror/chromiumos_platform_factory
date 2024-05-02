@@ -16,9 +16,9 @@ class OEMCryptoClient:
   INTERFACE = 'org.chromium.CdmFactoryDaemon'
 
   def __init__(self):
-    bus = dbus.SystemBus()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
     obj = bus.get_object(self.SERVICE_NAME, self.PATH)
-    self._interface = dbus.Interface(obj, self.INTERFACE)
+    self._interface = dbus.Interface(obj, self.INTERFACE)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetFactoryTransportKeyMaterial(self) -> (int, str):  # type: ignore #TODO(b/338318729) Fixit!
     """Get SoC model ID and SoC serial number from OEMCrypto API

@@ -52,13 +52,13 @@ class LogExporter:
 
   def CompressFilesLimitedMaxSize(self, start_date, end_date, root_dir, dst_dir,
                                   max_archive_size):
-    file_list = []
+    file_list = []  # type: ignore #TODO(b/338318729) Fixit!
     current_archive_size = 0
-    tar_files = []
+    tar_files = []  # type: ignore #TODO(b/338318729) Fixit!
     start_date_str = start_date.strftime('%Y%m%d')
     end_date_str = end_date.strftime('%Y%m%d')
     date_str = start_date_str + '-' + end_date_str
-    src_dir_with_files = defaultdict(list)
+    src_dir_with_files = defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit!
     for date in self.DateRange(start_date, end_date):
       sub_str = date.strftime('%Y%m%d')
       src_dir = os.path.join(root_dir, sub_str)
@@ -119,7 +119,7 @@ class LogExporter:
         'log': 'aux_log'
     }[log_type]
     split_bytes = self.GetBytes(split_size['size'], split_size['unit'])
-    messages = []
+    messages = []  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       if log_type == 'csv':

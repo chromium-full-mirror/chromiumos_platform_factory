@@ -92,7 +92,7 @@ def ReadImageFile(filename):
   Raise:
     CameraError on error.
   """
-  img = cv.imread(filename)
+  img = cv.imread(filename)  # type: ignore #TODO(b/338318729) Fixit!
   if img is None:
     raise CameraError(f'Can not open image file {filename}')
   return img
@@ -145,7 +145,7 @@ def FilterNonVideoCapture(uvc_vid_dirs, dut):
   result = []
   for path in uvc_vid_dirs:
     try:
-      interface_id = re.search(r'video([0-9]+)$', path).group(1)
+      interface_id = re.search(r'video([0-9]+)$', path).group(1)  # type: ignore #TODO(b/338318729) Fixit!
       v4l2_capability = v4l2_utils.QueryV4L2Capability(int(interface_id))
       if v4l2_utils.IsCaptureDevice(v4l2_capability):
         result.append(path)
@@ -238,12 +238,12 @@ class CVCameraReader(ICameraReader):
       logging.warning('Camera device is already enabled.')
       return
 
-    self._device = cv.VideoCapture(self._device_index)
+    self._device = cv.VideoCapture(self._device_index)  # type: ignore #TODO(b/338318729) Fixit!
     if not self._device.isOpened():
       raise CameraError('Unable to open video capture interface')
     if resolution:
-      self._device.set(cv.CAP_PROP_FRAME_WIDTH, resolution[0])
-      self._device.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])
+      self._device.set(cv.CAP_PROP_FRAME_WIDTH, resolution[0])  # type: ignore #TODO(b/338318729) Fixit!
+      self._device.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])  # type: ignore #TODO(b/338318729) Fixit!
 
   def DisableCamera(self):
     if self._device:
@@ -278,7 +278,7 @@ class CVCameraReader(ICameraReader):
     uvc_vid_dirs = FilterNonVideoCapture(uvc_vid_dirs, dut)
     if len(uvc_vid_dirs) > 1:
       raise CameraError('Multiple video capture interface found')
-    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))
+    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class MockCameraReader(ICameraReader):
@@ -374,7 +374,7 @@ class YavtaCameraReader(ICameraReader):
         'yavta', f'/dev/video{int(self._device_index)}',
         f'-c{int(self._skip + 1)}', '--skip',
         str(self._skip), '-n1',
-        f'-s{self._resolution[0]}x{self._resolution[1]}', '-fSRGGB10',
+        f'-s{self._resolution[0]}x{self._resolution[1]}', '-fSRGGB10',  # type: ignore #TODO(b/338318729) Fixit!
         f'-F{filename}'
     ]
     logging.info(' '.join(command))

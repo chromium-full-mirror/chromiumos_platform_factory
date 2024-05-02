@@ -129,7 +129,7 @@ def MountPartition(source_path, index=None, mount_point=None, rw=False,
     finally:
       logging.info('Unmounting %s', mount_point)
 
-      retry_wrapper = sync_utils.RetryDecorator(
+      retry_wrapper = sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit!
           max_attempt_count=5, timeout_sec=float('inf'), interval_sec=1,
           target_condition=lambda x: x == 0)
       if local_mode:
@@ -441,7 +441,7 @@ class PartitionManager(_AbstractGPTTool):
       output = self.check_output([self.cgpt, 'show', '-v', self.path])
       match = re.search(r'LBA Size \(bytes\): ([0-9]+)', output, re.MULTILINE)
 
-      return int(match.group(1))
+      return int(match.group(1))  # type: ignore #TODO(b/338318729) Fixit!
 
     @type_utils.Overrides
     def GetTypeGUID(self, index):
@@ -511,10 +511,10 @@ class PartitionManager(_AbstractGPTTool):
     if local_mode:
       self._runner = PartitionManager._PyGPT(self._path)
     elif dut.Call(['which', 'cgpt']) == 0:
-      self._runner = PartitionManager._CGPT(
+      self._runner = PartitionManager._CGPT(  # type: ignore #TODO(b/338318729) Fixit!
           'cgpt', self._check_output, self._path)
     elif dut.Call(['which', 'partx']) == 0:
-      self._runner = PartitionManager._PartX(
+      self._runner = PartitionManager._PartX(  # type: ignore #TODO(b/338318729) Fixit!
           'partx', self._check_output, self._path)
     else:
       raise Exception('Cannot find cgpt or partx on remote DUT.')

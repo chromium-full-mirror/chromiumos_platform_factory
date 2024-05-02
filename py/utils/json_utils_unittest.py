@@ -67,7 +67,7 @@ class DumpStrTest(_TestCaseBase):
     }, {
         'pretty': True
     }]:
-      json_str = json_utils.DumpStr(self._TEST_DATA, **kwargs)
+      json_str = json_utils.DumpStr(self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
       self.assertJSONObjEqual(json_utils.LoadStr(json_str), self._TEST_DATA)
 
 
@@ -83,7 +83,7 @@ class DumpFileTest(_TestCaseBase):
         'pretty': True
     }]:
       with file_utils.UnopenedTemporaryFile() as path:
-        json_utils.DumpFile(path, self._TEST_DATA, **kwargs)
+        json_utils.DumpFile(path, self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
         self.assertJSONObjEqual(json_utils.LoadFile(path), self._TEST_DATA)
 
 

@@ -54,12 +54,12 @@ class TestListDirective(code.CodeBlock):
       'list available test objects in a test list.')
 
   def run(self):
-    if len(self.content) != 1:
+    if len(self.content) != 1:  # type: ignore #TODO(b/338318729) Fixit!
       raise TestListDirectiveError(
-          f'The content of `.. {self.directive_name}` must be exact one line '
+          f'The content of `.. {self.directive_name}` must be exact one line '  # type: ignore #TODO(b/338318729) Fixit!
           f'which contains the test object name. content={self.content}.')
 
-    test_object_name = self.content[0]
+    test_object_name = self.content[0]  # type: ignore #TODO(b/338318729) Fixit!
     test_list_id, test_object_path = test_object_name.split(':', 1)
 
     test_list_manager = manager.Manager()

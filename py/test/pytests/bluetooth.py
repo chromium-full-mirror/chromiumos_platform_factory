@@ -288,44 +288,44 @@ class BluetoothTest(test_case.TestCase):
     self.bt_manager = cast(bluetooth.AbstractBluetoothManager,
                            self.dut.bluetooth)
     bluetooth_utils.VerifyAltSetting()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._strongest_rssi_mac = None
-    if self.args.input_device_mac_key:
+    if self.args.input_device_mac_key:  # type: ignore #TODO(b/338318729) Fixit!
       self._input_device_mac = (
-          ColonizeMac(state.DataShelfGetValue(self.args.input_device_mac_key)))
+          ColonizeMac(state.DataShelfGetValue(self.args.input_device_mac_key)))  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self._input_device_mac = self.args.input_device_mac
+      self._input_device_mac = self.args.input_device_mac  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)
+    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)  # type: ignore #TODO(b/338318729) Fixit!
     self.btmgmt.PowerOn()
     self.hci_device = self.btmgmt.GetHciDevice()
     self.host_mac = self.btmgmt.GetMac()
     logging.info('manufacturer_id %s: %s %s',
-                 self.args.manufacturer_id, self.hci_device, self.host_mac)
+                 self.args.manufacturer_id, self.hci_device, self.host_mac)  # type: ignore #TODO(b/338318729) Fixit!
     self.log_file = None
     self.log_tmp_file = None
 
-    if self.args.base_enclosure_serial_number:
+    if self.args.base_enclosure_serial_number:  # type: ignore #TODO(b/338318729) Fixit!
       self.log_tmp_file = file_utils.CreateTemporaryFile()
 
-      if (self.args.test_host_id_file and
-          os.path.isfile(self.args.test_host_id_file)):
-        test_host_id = file_utils.ReadFile(self.args.test_host_id_file).strip()
+      if (self.args.test_host_id_file and  # type: ignore #TODO(b/338318729) Fixit!
+          os.path.isfile(self.args.test_host_id_file)):  # type: ignore #TODO(b/338318729) Fixit!
+        test_host_id = file_utils.ReadFile(self.args.test_host_id_file).strip()  # type: ignore #TODO(b/338318729) Fixit!
       else:
         test_host_id = None
 
-      filename = '.'.join([self.args.base_enclosure_serial_number,
+      filename = '.'.join([self.args.base_enclosure_serial_number,  # type: ignore #TODO(b/338318729) Fixit!
                            str(test_host_id)])
-      if self.args.log_path:
-        self.log_file = os.path.join(self.args.log_path, filename)
+      if self.args.log_path:  # type: ignore #TODO(b/338318729) Fixit!
+        self.log_file = os.path.join(self.args.log_path, filename)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.fixture = None
-    if self.args.use_charge_fixture:
+    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
       # Import this module only when a test station needs it.
       # A base SMT test station does not need to use the charge fixture.
       # pylint: disable=no-name-in-module
-      from cros.factory.test.fixture import base_charge_fixture
+      from cros.factory.test.fixture import base_charge_fixture  # type: ignore #TODO(b/338318729) Fixit!
 
       # Note: only reset the fixture in InitializeFixture test.
       #       This will stop charging and disable the magnet initially.
@@ -334,36 +334,36 @@ class BluetoothTest(test_case.TestCase):
       #       defined in the base_host. The purpose is to keep charging the
       #       battery while executing other tests.
       self.fixture = base_charge_fixture.BaseChargeFixture(
-          reset=self.args.reset_fixture)
+          reset=self.args.reset_fixture)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.expected_adapter_count:
-      self.AddTask(self.DetectAdapter, self.args.expected_adapter_count)
+    if self.args.expected_adapter_count:  # type: ignore #TODO(b/338318729) Fixit!
+      self.AddTask(self.DetectAdapter, self.args.expected_adapter_count)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.scan_devices:
-      if self.args.prompt_scan_message:
+    if self.args.scan_devices:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.prompt_scan_message:  # type: ignore #TODO(b/338318729) Fixit!
         self.AddTask(self.WaitKeyPressed,
                      _('Enable the connection ability of bluetooth device '
                        'and press Enter'))
       self.AddTask(self.ScanDevices)
 
-    if self.args.input_device_rssi_key:
+    if self.args.input_device_rssi_key:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.DetectRSSIofTargetMAC)
 
-    if self.args.prompt_into_fixture:
+    if self.args.prompt_into_fixture:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.WaitKeyPressed,
                    _('Place the base into the fixture, '
                      'and press the space key on the test host.'),
                    test_ui.SPACE_KEY)
 
-    if self.args.read_battery_level == 1:
+    if self.args.read_battery_level == 1:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.ReadBatteryLevel, self._input_device_mac,
                    READ_BATTERY_STEP_1)
 
-    if self.args.enable_magnet and self.args.use_charge_fixture:
+    if self.args.enable_magnet and self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.FixtureControl, 'ENABLE_MAGNET')
 
-    if self.args.reset_magnet:
-      if self.args.use_charge_fixture:
+    if self.args.reset_magnet:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
         self.AddTask(self.FixtureControl, 'DISABLE_MAGNET', post_sleep=1)
         self.AddTask(self.FixtureControl, 'ENABLE_MAGNET')
       else:
@@ -372,8 +372,8 @@ class BluetoothTest(test_case.TestCase):
                        'and press the space key on the test host.'),
                      test_ui.SPACE_KEY)
 
-    if self.args.start_charging:
-      if self.args.use_charge_fixture:
+    if self.args.start_charging:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
         # Let it charge for a little while.
         self.AddTask(self.FixtureControl, 'START_CHARGING')
       else:
@@ -383,28 +383,28 @@ class BluetoothTest(test_case.TestCase):
                        'and press the space key on the test host.'),
                      test_ui.SPACE_KEY)
 
-    if self.args.check_shift_pair_keys:
+    if self.args.check_shift_pair_keys:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.CheckDisconnectionOfPairedDevice,
                    self._input_device_mac)
 
-    if self.args.unpair:
-      self.AddTask(self.Unpair, self._input_device_mac, self.args.keyword)
+    if self.args.unpair:  # type: ignore #TODO(b/338318729) Fixit!
+      self.AddTask(self.Unpair, self._input_device_mac, self.args.keyword)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.firmware_revision_string:
+    if self.args.firmware_revision_string:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.CheckFirmwareRevision, self._input_device_mac)
 
-    if self.args.pair_with_match:
-      self.AddTask(self.TestInput, self.args.finish_after_pair)
+    if self.args.pair_with_match:  # type: ignore #TODO(b/338318729) Fixit!
+      self.AddTask(self.TestInput, self.args.finish_after_pair)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.read_battery_level == 2:
+    if self.args.read_battery_level == 2:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.ReadBatteryLevel, self._input_device_mac,
                    READ_BATTERY_STEP_2)
 
-    if self.args.check_battery_level:
+    if self.args.check_battery_level:  # type: ignore #TODO(b/338318729) Fixit!
       self.AddTask(self.CheckBatteryLevel)
 
-    if self.args.stop_charging:
-      if self.args.use_charge_fixture:
+    if self.args.stop_charging:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
         self.AddTask(self.FixtureControl, 'STOP_CHARGING')
       else:
         self.AddTask(self.WaitKeyPressed,
@@ -417,12 +417,12 @@ class BluetoothTest(test_case.TestCase):
 
   def tearDown(self):
     """Close the charge test fixture."""
-    if self.args.use_charge_fixture:
-      self.fixture.Close()
+    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+      self.fixture.Close()  # type: ignore #TODO(b/338318729) Fixit!
     if self.log_file:
-      shutil.copyfile(self.log_tmp_file, self.log_file)
+      shutil.copyfile(self.log_tmp_file, self.log_file)  # type: ignore #TODO(b/338318729) Fixit!
     if self.log_tmp_file:
-      if self.args.keep_raw_logs:
+      if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
         testlog.AttachFile(
             path=self.log_tmp_file,
             mime_type='text/plain',
@@ -438,13 +438,13 @@ class BluetoothTest(test_case.TestCase):
       message: Html code containing message to show on the screen.
       key: The key to be pressed.
     """
-    self.ui.SetState(message)
+    self.ui.SetState(message)  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('wait for the user to press key %s', key)
-    self.ui.WaitKeysOnce(key)
+    self.ui.WaitKeysOnce(key)  # type: ignore #TODO(b/338318729) Fixit!
 
   def CheckFirmwareRevision(self, mac):
     """A task to read firmware revision string."""
-    self.ui.SetState(_('Read firmware revision string.'))
+    self.ui.SetState(_('Read firmware revision string.'))  # type: ignore #TODO(b/338318729) Fixit!
 
     session.console.info('Begin reading firmware revision string via %s...',
                          self.hci_device)
@@ -453,20 +453,20 @@ class BluetoothTest(test_case.TestCase):
           'reading firmware', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bluetooth_utils.GattTool.GetDeviceInfo, mac,
           'firmware revision string', hci_device=self.hci_device,
-          timeout=self.args.read_bluetooth_uuid_timeout_secs)
+          timeout=self.args.read_bluetooth_uuid_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     except bluetooth_utils.BluetoothUtilsError as e:
       self.FailTask(f'Failed to get firmware revision string: {e}')
 
     session.console.info('Expected firmware: %s',
-                         self.args.firmware_revision_string)
+                         self.args.firmware_revision_string)  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Actual firmware: %s', fw)
-    state.DataShelfSetValue(self.args.firmware_revision_string_key, fw)
+    state.DataShelfSetValue(self.args.firmware_revision_string_key, fw)  # type: ignore #TODO(b/338318729) Fixit!
 
     _AppendLog(self.log_tmp_file, f'FW: {fw}\n')
 
     self.assertEqual(
-        self.args.firmware_revision_string, fw,
-        f'Expected firmware: {self.args.firmware_revision_string}, actual '
+        self.args.firmware_revision_string, fw,  # type: ignore #TODO(b/338318729) Fixit!
+        f'Expected firmware: {self.args.firmware_revision_string}, actual '  # type: ignore #TODO(b/338318729) Fixit!
         f'firmware: {fw}')
 
   def CheckBatteryLevel(self):
@@ -476,7 +476,7 @@ class BluetoothTest(test_case.TestCase):
     2. battery_level_1 < battery_level_2
     3. battery_level_1 >= expected_battery_level
     """
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Check if the battery has charged to a higher percentage'))
 
     battery_level_1 = state.DataShelfGetValue(READ_BATTERY_STEP_1)
@@ -489,7 +489,7 @@ class BluetoothTest(test_case.TestCase):
     elif (battery_level_1 > battery_level_2 or
           (battery_level_1 == battery_level_2 and battery_level_1 < 100)):
       fail_msg = 'Base battery is not charged up. read_1: %s, read_2: %s'
-    elif battery_level_1 < self.args.expected_battery_level:
+    elif battery_level_1 < self.args.expected_battery_level:  # type: ignore #TODO(b/338318729) Fixit!
       # Note: battery_level_1 instead of battery_level_2 should be larger than
       #       the expected_battery_level since battery_level_2 is read while
       #       charging and its value is usually larger than its actual value.
@@ -505,7 +505,7 @@ class BluetoothTest(test_case.TestCase):
         READ_BATTERY_STEP_2: _('Read battery level for the 2nd time.')
     }[step]
 
-    self.ui.SetState(msg)
+    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit!
 
     session.console.info('%s via %s ...', step, self.hci_device)
     try:
@@ -513,7 +513,7 @@ class BluetoothTest(test_case.TestCase):
           step, INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bluetooth_utils.GattTool.GetDeviceInfo,
           mac, 'battery level', hci_device=self.hci_device,
-          timeout=self.args.read_bluetooth_uuid_timeout_secs))
+          timeout=self.args.read_bluetooth_uuid_timeout_secs))  # type: ignore #TODO(b/338318729) Fixit!
       session.console.info('%s: %d', step, battery_level)
     except bluetooth_utils.BluetoothUtilsError as e:
       self.FailTask(f'{step} failed to get battery level: {e}')
@@ -531,16 +531,16 @@ class BluetoothTest(test_case.TestCase):
       state.DataShelfSetValue(step, battery_level)
 
     if step == READ_BATTERY_STEP_1:
-      data = f'\nSN: {self.args.base_enclosure_serial_number}\nMAC: {mac}\n'
+      data = f'\nSN: {self.args.base_enclosure_serial_number}\nMAC: {mac}\n'  # type: ignore #TODO(b/338318729) Fixit!
     else:
       data = ''
     data += f'{step}: {battery_level}\n'
     _AppendLog(self.log_tmp_file, data)
 
-    if self.args.battery_log:
-      with open(self.args.battery_log, 'a', encoding='utf8') as f:
+    if self.args.battery_log:  # type: ignore #TODO(b/338318729) Fixit!
+      with open(self.args.battery_log, 'a', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
         f.write(
-            f'{GetCurrentTime()} {self.args.base_enclosure_serial_number} {mac}'
+            f'{GetCurrentTime()} {self.args.base_enclosure_serial_number} {mac}'  # type: ignore #TODO(b/338318729) Fixit!
             f' [{step}]: {battery_level}\n')
 
   def FixtureControl(self, operation, post_sleep=0):
@@ -556,7 +556,7 @@ class BluetoothTest(test_case.TestCase):
                              'STOP_CHARGING': 'StopCharging',
                              'ENABLE_MAGNET': 'EnableMagnet',
                              'DISABLE_MAGNET': 'DisableMagnet'}
-      fixture_method = getattr(self.fixture, FIXTURE_METHOD_DICT.get(operation))
+      fixture_method = getattr(self.fixture, FIXTURE_METHOD_DICT.get(operation))  # type: ignore #TODO(b/338318729) Fixit!
       session.console.info('Executing fixture method: %s',
                            fixture_method.__name__)
       fixture_method()
@@ -573,10 +573,10 @@ class BluetoothTest(test_case.TestCase):
     Args:
        expected_adapter_count: The expected number of bluetooth adapters.
     """
-    self.ui.SetState(_('Detect bluetooth adapter'))
+    self.ui.SetState(_('Detect bluetooth adapter'))  # type: ignore #TODO(b/338318729) Fixit!
     adapters = self.bt_manager.GetAdapters(
-        self.args.detect_adapters_retry_times,
-        self.args.detect_adapters_interval_secs)
+        self.args.detect_adapters_retry_times,  # type: ignore #TODO(b/338318729) Fixit!
+        self.args.detect_adapters_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertEqual(
         len(adapters), expected_adapter_count,
         f'DetectAdapter: expect {int(expected_adapter_count)} and find '
@@ -603,7 +603,7 @@ class BluetoothTest(test_case.TestCase):
         return False
       return device_props['Paired']
 
-    self.ui.SetState(_('Unpairing'))
+    self.ui.SetState(_('Unpairing'))  # type: ignore #TODO(b/338318729) Fixit!
 
     input_count_before_unpair = GetInputCount()
     adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
@@ -636,10 +636,10 @@ class BluetoothTest(test_case.TestCase):
     bluetooth mouse placed around it.
     """
 
-    keyword = self.args.keyword
-    average_rssi_threshold = self.args.average_rssi_threshold
-    scan_counts = self.args.scan_counts
-    timeout_secs = self.args.scan_timeout_secs
+    keyword = self.args.keyword  # type: ignore #TODO(b/338318729) Fixit!
+    average_rssi_threshold = self.args.average_rssi_threshold  # type: ignore #TODO(b/338318729) Fixit!
+    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit!
+    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit!
 
     def FilterByKeyword(devices):
       """Returns the devices filtered by keyword.
@@ -688,10 +688,10 @@ class BluetoothTest(test_case.TestCase):
     adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
 
     # Records RSSI of each scan and calculates average rssi.
-    candidate_rssis = {}
+    candidate_rssis = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     for unused_count in range(scan_counts):
-      self.ui.SetState(_('Scanning...'))
+      self.ui.SetState(_('Scanning...'))  # type: ignore #TODO(b/338318729) Fixit!
 
       with self.TimedProgressBar(timeout_secs):
         devices = self.bt_manager.ScanDevices(adapter, timeout_secs)
@@ -784,7 +784,7 @@ class BluetoothTest(test_case.TestCase):
       logging.info('Connected and paired %d device(s)', len(connected_devices))
       return not connected_devices
 
-    self.ui.SetState(_('Press shift-p-a-i-r simultaneously on the base.'))
+    self.ui.SetState(_('Press shift-p-a-i-r simultaneously on the base.'))  # type: ignore #TODO(b/338318729) Fixit!
     disconnected = self.RetryWithProgress(
         'Check disconnection of the paired base', INPUT_MAX_RETRY_TIMES,
         INPUT_RETRY_INTERVAL, _CheckDisconnection)
@@ -812,9 +812,9 @@ class BluetoothTest(test_case.TestCase):
     """
 
     mac_to_scan = self.GetInputDeviceMac()
-    scan_counts = self.args.scan_counts
-    timeout_secs = self.args.scan_timeout_secs
-    input_device_rssi_key = self.args.input_device_rssi_key
+    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit!
+    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit!
+    input_device_rssi_key = self.args.input_device_rssi_key  # type: ignore #TODO(b/338318729) Fixit!
 
     fail_msg = []
 
@@ -831,11 +831,11 @@ class BluetoothTest(test_case.TestCase):
 
     fid = session.GetDeviceID()
     average_rssi_lower_threshold = _DeriveRSSIThreshold(
-        self.args.average_rssi_lower_threshold, fid)
+        self.args.average_rssi_lower_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit!
     average_rssi_upper_threshold = _DeriveRSSIThreshold(
-        self.args.average_rssi_upper_threshold, fid)
+        self.args.average_rssi_upper_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit!
     if fail_msg:
-      fail_msg = ''.join(fail_msg)
+      fail_msg = ''.join(fail_msg)  # type: ignore #TODO(b/338318729) Fixit!
       session.console.error(fail_msg)
       self.FailTask(fail_msg)
 
@@ -844,7 +844,7 @@ class BluetoothTest(test_case.TestCase):
 
     rssis = []
     for i in range(1, 1 + scan_counts):
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Detect RSSI (count {count}/{total})', count=i, total=scan_counts))
       with self.TimedProgressBar(timeout_secs):
         devices = self.bt_manager.ScanDevices(
@@ -863,7 +863,7 @@ class BluetoothTest(test_case.TestCase):
     logging.info('RSSIs at MAC %s: %s', mac_to_scan, rssis)
     session.console.info('Average RSSI: %.2f', average_rssi)
 
-    fail_msg = ''
+    fail_msg = ''  # type: ignore #TODO(b/338318729) Fixit!
     if (average_rssi_lower_threshold is not None and
         average_rssi < average_rssi_lower_threshold):
       fail_msg += (
@@ -935,11 +935,11 @@ class BluetoothTest(test_case.TestCase):
 
     def DisplayPasskey(passkey):
       logging.info("Displaying passkey %s", passkey)
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Enter passkey {key} then press enter on the base.', key=passkey))
 
     def AuthenticationCancelled():
-      self.ui.SetState(_('Authentication failed, retrying...'))
+      self.ui.SetState(_('Authentication failed, retrying...'))  # type: ignore #TODO(b/338318729) Fixit!
 
     need_to_cleanup = True
     try:
@@ -953,7 +953,7 @@ class BluetoothTest(test_case.TestCase):
 
       bt_manager.DisconnectAndUnpairDevice(adapter, target_mac)
 
-      self.ui.SetState(_('Pairing to input device now...'))
+      self.ui.SetState(_('Pairing to input device now...'))  # type: ignore #TODO(b/338318729) Fixit!
       success_create_device = self.RetryWithProgress(
           'create paired device', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bt_manager.CreatePairedDevice, adapter, target_mac,
@@ -961,7 +961,7 @@ class BluetoothTest(test_case.TestCase):
       if not success_create_device:
         SaveLogAndFail('InputTestTask: Fail to create paired device.')
 
-      self.ui.SetState(_('Connecting to input device now...'))
+      self.ui.SetState(_('Connecting to input device now...'))  # type: ignore #TODO(b/338318729) Fixit!
       success_connect_device = self.RetryWithProgress(
           'connect input device', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bt_manager.SetDeviceConnected, adapter, target_mac, True)
@@ -977,9 +977,9 @@ class BluetoothTest(test_case.TestCase):
         return
 
       logging.info('InputTestTask: Test the input by operator now')
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please test input. Press Escape to fail and Enter to pass'))
-      key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])
+      key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
       passed = key == test_ui.ENTER_KEY
       success_to_remove = RemoveInput()
       # No need to cleanup again after the task if removal succeeds here.
@@ -998,18 +998,18 @@ class BluetoothTest(test_case.TestCase):
   @contextlib.contextmanager
   def TimedProgressBar(self, timeout_secs):
     """Show timeout on progress bar."""
-    self.ui.DrawProgressBar(timeout_secs)
+    self.ui.DrawProgressBar(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     start_time = time.time()
     stop_event = threading.Event()
     def UpdateProgressBar():
       elapsed_time = time.time() - start_time
       if stop_event.isSet() or elapsed_time >= timeout_secs:
-        self.ui.SetProgress(timeout_secs)
+        self.ui.SetProgress(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
         raise StopIteration
-      self.ui.SetProgress(elapsed_time)
+      self.ui.SetProgress(elapsed_time)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.event_loop.AddTimedHandler(UpdateProgressBar, 0.2, repeat=True)
+    self.event_loop.AddTimedHandler(UpdateProgressBar, 0.2, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
     try:
       yield
     finally:
@@ -1028,7 +1028,7 @@ class BluetoothTest(test_case.TestCase):
     Returns:
       Return the return value of the target function.
     """
-    self.ui.DrawProgressBar(max_retry_times)
+    self.ui.DrawProgressBar(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit!
 
     @sync_utils.RetryDecorator(max_attempt_count=max_retry_times,
                                interval_sec=retry_interval,
@@ -1039,7 +1039,7 @@ class BluetoothTest(test_case.TestCase):
       except Exception:
         logging.exception(action_string)
         target_result = None
-      self.ui.AdvanceProgress()
+      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
       return target_result
 
     result = None
@@ -1051,5 +1051,5 @@ class BluetoothTest(test_case.TestCase):
       logging.info('%s was done.', action_string)
 
 
-    self.ui.SetProgress(max_retry_times)
+    self.ui.SetProgress(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit!
     return result

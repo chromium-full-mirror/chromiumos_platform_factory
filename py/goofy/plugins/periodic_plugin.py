@@ -72,8 +72,8 @@ class AbstractPeriodicPlugin(plugin.Plugin):
   @type_utils.Overrides
   def OnStop(self):
     self._stop_event.set()
-    self._thread.join(self._stop_timeout_secs)
-    if self._thread.is_alive():
-      logging.warning('%s is still alive after %s.OnStop.', self._thread.name,
+    self._thread.join(self._stop_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    if self._thread.is_alive():  # type: ignore #TODO(b/338318729) Fixit!
+      logging.warning('%s is still alive after %s.OnStop.', self._thread.name,  # type: ignore #TODO(b/338318729) Fixit!
                       self.__class__.__name__)
     self._thread = None

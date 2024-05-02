@@ -66,7 +66,7 @@ class WebSocketManager:
         stdout=subprocess.PIPE)
     self.tail_thread = threading.Thread(target=self._tail_console)
     self.closed = False
-    self.tail_buffer = collections.deque()
+    self.tail_buffer = collections.deque()  # type: ignore #TODO(b/338318729) Fixit!
     self.tail_thread.start()
 
   def close(self):
@@ -87,7 +87,7 @@ class WebSocketManager:
     if self.tail_process:
       self.tail_process.kill()
       self.tail_process.wait()
-      self.tail_process.stdout.close()
+      self.tail_process.stdout.close()  # type: ignore #TODO(b/338318729) Fixit!
     if self.tail_thread:
       self.tail_thread.join()
 
@@ -126,7 +126,7 @@ class WebSocketManager:
                             'incorrect UUID')
             socket_self.close_connection()
         else:
-          self.event_client.post_event(event)
+          self.event_client.post_event(event)  # type: ignore #TODO(b/338318729) Fixit!
 
     web_socket = MyWebSocket(sock=request.connection)
 
@@ -193,7 +193,7 @@ class WebSocketManager:
     process_utils.StartDaemonThread(target=target)
 
     while True:
-      line = self.tail_process.stdout.readline()
+      line = self.tail_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
       if line == '':
         break
       with self.lock:

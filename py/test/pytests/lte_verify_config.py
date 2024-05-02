@@ -73,15 +73,15 @@ class LTEVerifyConfig(unittest.TestCase):
           'of strings indicating multiline response.')]
 
   def setUp(self):
-    if self.args.modem_path:
-      self.modem = modem.Modem(self.args.modem_path)
+    if self.args.modem_path:  # type: ignore #TODO(b/338318729) Fixit!
+      self.modem = modem.Modem(self.args.modem_path)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self.modem = modem_utils.GetModem()
 
   def EnterFactoryMode(self):
     session.console.info('LTE: Entering factory test mode')
     self.modem = modem_utils.EnterFactoryMode(
-        attempts=self.args.attempts)
+        attempts=self.args.attempts)  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('LTE: Entered factory test mode')
 
   def ExitFactoryMode(self):
@@ -95,7 +95,7 @@ class LTEVerifyConfig(unittest.TestCase):
   def runTest(self):
     try:
       self.EnterFactoryMode()
-      for cmd, expected_response in self.args.config_to_check:
+      for cmd, expected_response in self.args.config_to_check:  # type: ignore #TODO(b/338318729) Fixit!
         if isinstance(expected_response, str):
           expected_response = [expected_response, 'OK']
         else:

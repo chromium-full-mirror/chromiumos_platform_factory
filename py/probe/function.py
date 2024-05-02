@@ -62,7 +62,7 @@ def LoadFunctions():
   for loader, module_name, unused_is_pkg in pkgutil.iter_modules([module_path]):
     if module_name.endswith('unittest'):
       continue
-    module = loader.find_module(module_name).load_module(module_name)
+    module = loader.find_module(module_name).load_module(module_name)  # type: ignore #TODO(b/338318729) Fixit!
     func_classes = inspect.getmembers(module, IsFunctionClass)
     assert len(func_classes) <= 1
     if func_classes:

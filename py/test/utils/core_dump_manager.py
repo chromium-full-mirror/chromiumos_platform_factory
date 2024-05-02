@@ -57,7 +57,7 @@ class CoreDumpManager:
       CoreDumpManagerException: If CoreDumpManager fails to remove unused
           core dump files.
     """
-    watched_files = sum([glob.glob(os.path.join(self._crash_dir, x))
+    watched_files = sum([glob.glob(os.path.join(self._crash_dir, x))  # type: ignore #TODO(b/338318729) Fixit!
                          for x in self._watchlist], [])
 
     try:

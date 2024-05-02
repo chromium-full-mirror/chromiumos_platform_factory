@@ -81,7 +81,7 @@ class Rule(metaclass=RuleMeta):
   def __init__(self, **kwargs):
     """Collects arguments into `args' member."""
     self.args = {}
-    for key in self.KEYS:
+    for key in self.KEYS:  # type: ignore #TODO(b/338318729) Fixit!
       # All arguments are optional.  Ignore any missing ones.
       if key in kwargs:
         # Currently only the '==' operator is supported.

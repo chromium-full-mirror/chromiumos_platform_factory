@@ -49,7 +49,7 @@ class TemperaturesMonitor:
       # Looking at the sensors in case the any sensor is broken during the
       # monitoring. In such case, the monitor data should be showed.
       if set(self._last_temperatures) != set(temperatures):
-        self._last_temperatures = temperatures
+        self._last_temperatures = temperatures  # type: ignore #TODO(b/338318729) Fixit!
         self._sensor_array_changed = True
         self._sensor_array = self._GetSensorArray(temperatures)
     except Exception:

@@ -62,7 +62,7 @@ class Time:
   def _CheckHwclock(self):
     """Check hwclock is working by a write(retry once if fail) and a read."""
 
-    @RetryDecorator(max_attempt_count=2, timeout_sec=float('inf'),
+    @RetryDecorator(max_attempt_count=2, timeout_sec=float('inf'),  # type: ignore #TODO(b/338318729) Fixit!
                     target_condition=lambda x: x)
     def _Spawn():
       result = process_utils.Spawn(['hwclock', '-w', '--utc', '--noadjfile'],

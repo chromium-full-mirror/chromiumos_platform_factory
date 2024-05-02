@@ -509,8 +509,8 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
                                    log=True,
                                    log_stderr_on_error=True).stderr_data
       # some mount points need to be unmounted multiple times.
-      if (output.endswith(': not mounted\n') or
-          output.endswith(': not found\n')):
+      if (output.endswith(': not mounted\n') or  # type: ignore #TODO(b/338318729) Fixit!
+          output.endswith(': not found\n')):  # type: ignore #TODO(b/338318729) Fixit!
         return
       time.sleep(0.5)
     logging.error('failed to unmount %s', mount_point)
@@ -592,7 +592,7 @@ def _InformStation(ip, port, token, wipe_init_log=None, wipe_in_ramfs_log=None,
     if wipe_in_ramfs_log:
       response['wipe_in_ramfs_log'] = file_utils.ReadFile(wipe_in_ramfs_log)
 
-    sock.sendall(json.dumps(response) + '\n')
+    sock.sendall(json.dumps(response) + '\n')  # type: ignore #TODO(b/338318729) Fixit!
     sock.close()
 
 

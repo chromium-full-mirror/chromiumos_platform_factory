@@ -98,17 +98,17 @@ class ButtonTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.button = button_utils.Button(self.dut, self.args.button_key_name,
-                                      self.args.device_filter)
+    self.button = button_utils.Button(self.dut, self.args.button_key_name,  # type: ignore #TODO(b/338318729) Fixit!
+                                      self.args.device_filter)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Timestamps of starting, pressing, and releasing
     # [started, pressed, released, pressed, released, pressed, ...]
     self._action_timestamps = [time.time()]
 
-    if self.args.bft_fixture:
-      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self._fixture = None
 
@@ -131,7 +131,7 @@ class ButtonTest(test_case.TestCase):
         testlog.LogParam('time_to_release', time_to_release)
     if self._fixture:
       try:
-        self._fixture.SimulateButtonRelease(self.args.bft_button_name)
+        self._fixture.SimulateButtonRelease(self.args.bft_button_name)  # type: ignore #TODO(b/338318729) Fixit!
       except Exception:
         logging.warning('failed to release button', exc_info=True)
       try:
@@ -143,32 +143,32 @@ class ButtonTest(test_case.TestCase):
     elapsed_time = time.time() - self._action_timestamps[0]
     sync_utils.PollForCondition(
         poll_method=poll_method,
-        timeout_secs=self.args.timeout_secs - elapsed_time,
+        timeout_secs=self.args.timeout_secs - elapsed_time,  # type: ignore #TODO(b/338318729) Fixit!
         condition_name=condition_name)
     self._action_timestamps.append(time.time())
 
   def runTest(self):
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
-    for done in range(self.args.repeat_times):
-      if self.args.repeat_times == 1:
-        label = _('Press the {name} button', name=self.args.button_name)
+    for done in range(self.args.repeat_times):  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.repeat_times == 1:  # type: ignore #TODO(b/338318729) Fixit!
+        label = _('Press the {name} button', name=self.args.button_name)  # type: ignore #TODO(b/338318729) Fixit!
       else:
         label = _(
             'Press the {name} button ({count}/{total})',
-            name=self.args.button_name,
+            name=self.args.button_name,  # type: ignore #TODO(b/338318729) Fixit!
             count=done,
-            total=self.args.repeat_times)
-      self.ui.SetState(label)
+            total=self.args.repeat_times)  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(label)  # type: ignore #TODO(b/338318729) Fixit!
 
       if self._fixture:
-        self._fixture.SimulateButtonPress(self.args.bft_button_name, 0)
+        self._fixture.SimulateButtonPress(self.args.bft_button_name, 0)  # type: ignore #TODO(b/338318729) Fixit!
 
       self._PollForCondition(self.button.IsPressed, 'WaitForPress')
-      self.ui.SetState(_('Release the button'))
+      self.ui.SetState(_('Release the button'))  # type: ignore #TODO(b/338318729) Fixit!
 
       if self._fixture:
-        self._fixture.SimulateButtonRelease(self.args.bft_button_name)
+        self._fixture.SimulateButtonRelease(self.args.bft_button_name)  # type: ignore #TODO(b/338318729) Fixit!
 
       self._PollForCondition(lambda: not self.button.IsPressed(),
                              'WaitForRelease')

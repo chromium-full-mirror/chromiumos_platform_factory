@@ -104,9 +104,9 @@ class WaitExternalTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
-    self._name = self.args.run_factory_external_name
-    self.ui.SetState(_(self.args.msg, name=self._name))
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self._name = self.args.run_factory_external_name  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetState(_(self.args.msg, name=self._name))  # type: ignore #TODO(b/338318729) Fixit!
     self.ext_utils = external_test_utils.ExternalTestUtils(self._name)
     self.ext_utils.InitTest()
 

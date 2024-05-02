@@ -107,7 +107,7 @@ class VSWR(test_case.TestCase):
   def setUp(self):
     self._station = device_utils.CreateStationInterface()
     self._serial_number = device_data.GetSerialNumber(
-        self.args.serial_number_key)
+        self.args.serial_number_key)  # type: ignore #TODO(b/338318729) Fixit!
     if self._serial_number is None:
       self.fail('Serial number does not exist.')
     self.log = {
@@ -135,10 +135,10 @@ class VSWR(test_case.TestCase):
 
     logging.info(
         '(config_path: %s, timezone: %s)',
-        self.args.config_path, self.args.timezone)
+        self.args.config_path, self.args.timezone)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Set timezone.
-    os.environ['TZ'] = self.args.timezone
+    os.environ['TZ'] = self.args.timezone  # type: ignore #TODO(b/338318729) Fixit!
     # The following attributes will be overridden when loading config.
     self._config = {}
     self._ena = None
@@ -197,14 +197,14 @@ class VSWR(test_case.TestCase):
     logging.info('Loading config')
     self._config = yaml.safe_load(config_content)
 
-    self.log['config']['file_path'] = self.args.config_path
+    self.log['config']['file_path'] = self.args.config_path  # type: ignore #TODO(b/338318729) Fixit!
     self.log['config']['content'] = self._config
     testlog.UpdateParam('config_content', param_type=testlog.ParamType.argument)
     testlog.LogParam('config_content', self._config)
 
   def _LoadParametersFromLocalDisk(self):
     """Loads parameters from local disk."""
-    config_path = os.path.join(LOCAL_DIR, self.args.config_path)
+    config_path = os.path.join(LOCAL_DIR, self.args.config_path)  # type: ignore #TODO(b/338318729) Fixit!
     self._LoadConfig(file_utils.ReadFile(config_path))
 
   def _GetConfigForSerialNumber(self):
@@ -286,14 +286,14 @@ class VSWR(test_case.TestCase):
       return f'S{port_number}{port_number}'
 
     # Make sure the segment is correct.
-    self._ena.SetSweepSegments([(
+    self._ena.SetSweepSegments([(  # type: ignore #TODO(b/338318729) Fixit!
         self._config['network_analyzer']['measure_segment']['min_frequency'],
         self._config['network_analyzer']['measure_segment']['max_frequency'],
         self._config['network_analyzer']['measure_segment']['sample_points'])])
 
     # TODO(littlecvr): Name is not right.
     ports = list(measurement_sequence)
-    traces = self._ena.GetTraces(list(map(_PortName, ports)))
+    traces = self._ena.GetTraces(list(map(_PortName, ports)))  # type: ignore #TODO(b/338318729) Fixit!
     trace = self._SerializeTraces(traces)
 
     self.test_passed = True
@@ -353,9 +353,9 @@ class VSWR(test_case.TestCase):
         'fixture_id': self.log['test']['fixture_id'],
         'panel_serial': self._serial_number}
     event_log_fields.update(self.log)
-    event_log.Log(self.args.event_log_name, **event_log_fields)
+    event_log.Log(self.args.event_log_name, **event_log_fields)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.keep_raw_logs:
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
       testlog.AttachContent(
           content=yaml.safe_dump(self.log, default_flow_style=False),
           name='vswr.yaml', description='plain text log of vswr')
@@ -393,12 +393,12 @@ class VSWR(test_case.TestCase):
 
   def _ShowResults(self):
     """Displays the final result."""
-    self.ui.SetHTML(self._serial_number, id='result-serial-number')
+    self.ui.SetHTML(self._serial_number, id='result-serial-number')  # type: ignore #TODO(b/338318729) Fixit!
 
     # TODO(littlecvr): Don't construct HTML string directly.
     result_html_string = ''
     row_count = 1
-    for measurement_sequence in self._sn_config['measurement_sequence']:
+    for measurement_sequence in self._sn_config['measurement_sequence']:  # type: ignore #TODO(b/338318729) Fixit!
       for port in measurement_sequence:
         antenna_name = measurement_sequence[port]['name']
         if self._results[antenna_name] == state.TestState.PASSED:
@@ -410,7 +410,7 @@ class VSWR(test_case.TestCase):
               f'<tr><td>{row_count}</td><td>{antenna_name}</td><td '
               f'style="color:red">{self._results[antenna_name]}</td></tr>')
         row_count += 1
-    self.ui.SetHTML(result_html_string, id='result-table')
+    self.ui.SetHTML(result_html_string, id='result-table')  # type: ignore #TODO(b/338318729) Fixit!
 
   def _ShowMessageBlock(self, html_id):
     """Helper function to display HTML message block.
@@ -418,7 +418,7 @@ class VSWR(test_case.TestCase):
     This function also hides other message blocks as well. Leaving html_id the
     only block to display.
     """
-    self.ui.CallJSFunction('showMessageBlock', html_id)
+    self.ui.CallJSFunction('showMessageBlock', html_id)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     """Runs the test.
@@ -445,10 +445,10 @@ class VSWR(test_case.TestCase):
 
     # Check the network analyzer is calibrated.
     self._ShowMessageBlock('prepare-calibration')
-    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)
+    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
     self._ShowMessageBlock('check-calibration')
     ena_config = self._config['network_analyzer']
-    calibration_passed, calibration_traces = self._ena.CheckCalibration(
+    calibration_passed, calibration_traces = self._ena.CheckCalibration(  # type: ignore #TODO(b/338318729) Fixit!
         rf.Frequency.FromHz(ena_config['measure_segment']['min_frequency']),
         rf.Frequency.FromHz(ena_config['measure_segment']['max_frequency']),
         ena_config['measure_segment']['sample_points'],
@@ -463,11 +463,11 @@ class VSWR(test_case.TestCase):
 
     if not calibration_passed:
       self._ShowMessageBlock('need-calibration')
-      self.ui.WaitKeysOnce(test_ui.ENTER_KEY)
+      self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
       self.fail('The network analyzer needs calibration.')
 
     self._ShowMessageBlock('prepare-panel')
-    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)
+    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
     for measurement_sequence in self._sn_config['measurement_sequence']:
       # Pick a random letter to prevent the operator from pressing too fast.
@@ -482,9 +482,9 @@ class VSWR(test_case.TestCase):
               name=antenna_name,
               port=port))
       html.append(_('Then press key "{key}" to next stage.', key=letter))
-      self.ui.SetHTML(html, id='state-prepare-antennas')
+      self.ui.SetHTML(html, id='state-prepare-antennas')  # type: ignore #TODO(b/338318729) Fixit!
       self._ShowMessageBlock('prepare-antennas')
-      self.ui.WaitKeysOnce(letter)
+      self.ui.WaitKeysOnce(letter)  # type: ignore #TODO(b/338318729) Fixit!
 
       self._ShowMessageBlock('test-antennas')
       # TODO(littlecvr): Get rid of _sn_config.
@@ -502,7 +502,7 @@ class VSWR(test_case.TestCase):
     self._SaveLog()
     self._ShowResults()
     self._ShowMessageBlock('show-result')
-    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)
+    self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
     if not self.test_passed:
       self.fail()
 

@@ -73,7 +73,7 @@ class TouchMonitorBase:
       EVIOCGKEY = (2 << 30) | (ord('E') << 8) | 0x18 | (nbytes << 16)
       in_buf = '\0' * nbytes
       out_buf = struct.unpack(f'={int(nbytes)}B',
-                              fcntl.ioctl(device.fileno(), EVIOCGKEY, in_buf))
+                              fcntl.ioctl(device.fileno(), EVIOCGKEY, in_buf))  # type: ignore #TODO(b/338318729) Fixit!
       return {key: bool((out_buf[key >> 3] >> (key & 7)) & 1)
               for key in caps[ecodes.EV_KEY]}
 
@@ -119,12 +119,12 @@ class TouchMonitorBase:
       event: evdev.InputEvent
     """
     if event.type == ecodes.EV_ABS:
-      self._abs_queue.append(event)
+      self._abs_queue.append(event)  # type: ignore #TODO(b/338318729) Fixit!
     elif event.type == ecodes.EV_KEY:
       if event.value != 0:
-        self._key_down_queue.append(event)
+        self._key_down_queue.append(event)  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        self._key_up_queue.append(event)
+        self._key_up_queue.append(event)  # type: ignore #TODO(b/338318729) Fixit!
     elif event.type == ecodes.EV_SYN:
       self._HandleKEY(self._key_down_queue)
       self._HandleABS(self._abs_queue)
@@ -172,17 +172,17 @@ class SingleTouchMonitor(TouchMonitorBase):
     super().__init__(device)
     self._normalize_x = self._GetNormalizer(ecodes.ABS_X)
     self._normalize_y = self._GetNormalizer(ecodes.ABS_Y)
-    self._state.x = self._normalize_x(self._absinfos[ecodes.ABS_X].value)
-    self._state.y = self._normalize_y(self._absinfos[ecodes.ABS_Y].value)
+    self._state.x = self._normalize_x(self._absinfos[ecodes.ABS_X].value)  # type: ignore #TODO(b/338318729) Fixit!
+    self._state.y = self._normalize_y(self._absinfos[ecodes.ABS_Y].value)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _HandleABS(self, event_queue):
     moved = False
     for event in event_queue:
       if event.code == ecodes.ABS_X:
-        self._state.x = self._normalize_x(event.value)
+        self._state.x = self._normalize_x(event.value)  # type: ignore #TODO(b/338318729) Fixit!
         moved = True
       elif event.code == ecodes.ABS_Y:
-        self._state.y = self._normalize_y(event.value)
+        self._state.y = self._normalize_y(event.value)  # type: ignore #TODO(b/338318729) Fixit!
         moved = True
     if moved:
       self.OnMove()
@@ -253,9 +253,9 @@ class MultiTouchMonitor(TouchMonitorBase):
     ys = [self._normalize_y(value)
           for value in IoctlEVIOCGMTSLOTS(ecodes.ABS_MT_POSITION_Y)]
     tids = IoctlEVIOCGMTSLOTS(ecodes.ABS_MT_TRACKING_ID)
-    self._state.slots = [MultiTouchMonitor.MultiTouchSlot(*t)
+    self._state.slots = [MultiTouchMonitor.MultiTouchSlot(*t)  # type: ignore #TODO(b/338318729) Fixit!
                          for t in zip(xs, ys, tids)]
-    self._state.num_fingers = num_slots - tids.count(-1)
+    self._state.num_fingers = num_slots - tids.count(-1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _HandleABS(self, event_queue):
     callback = None
@@ -266,20 +266,20 @@ class MultiTouchMonitor(TouchMonitorBase):
           callback = None
         self._slot_id = event.value
       elif event.code == ecodes.ABS_MT_POSITION_X:
-        self._state.slots[self._slot_id].x = self._normalize_x(event.value)
+        self._state.slots[self._slot_id].x = self._normalize_x(event.value)  # type: ignore #TODO(b/338318729) Fixit!
         if not callback:
           callback = self.OnMove
       elif event.code == ecodes.ABS_MT_POSITION_Y:
-        self._state.slots[self._slot_id].y = self._normalize_y(event.value)
+        self._state.slots[self._slot_id].y = self._normalize_y(event.value)  # type: ignore #TODO(b/338318729) Fixit!
         if not callback:
           callback = self.OnMove
       elif event.code == ecodes.ABS_MT_TRACKING_ID:
-        self._state.slots[self._slot_id].tid = event.value
+        self._state.slots[self._slot_id].tid = event.value  # type: ignore #TODO(b/338318729) Fixit!
         if event.value >= 0:
-          self._state.num_fingers += 1
+          self._state.num_fingers += 1  # type: ignore #TODO(b/338318729) Fixit!
           callback = self.OnNew
         else:
-          self._state.num_fingers -= 1
+          self._state.num_fingers -= 1  # type: ignore #TODO(b/338318729) Fixit!
           callback = self.OnLeave
     if callback:
       callback(self._slot_id)

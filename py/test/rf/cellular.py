@@ -36,9 +36,9 @@ SIM_IFACE = 'org.freedesktop.ModemManager1.Sim'
 
 
 def _GetDbusModem(bus=None):
-  bus = bus or dbus.SystemBus()
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
   modem_manager_obj = bus.get_object(MM_BUS_NAME, MM_PATH)
-  object_manager_iface = dbus.Interface(modem_manager_obj, OM_IFACE_NAME)
+  object_manager_iface = dbus.Interface(modem_manager_obj, OM_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
   modem_objs_info = object_manager_iface.GetManagedObjects()
 
   for modem_path, interfaces in modem_objs_info.items():
@@ -113,7 +113,7 @@ def GetIMEI():
   stdout = process_utils.Spawn(
       MODEM_STATUS, read_stdout=True,
       log_stderr_on_error=True, check_call=True).stdout_data
-  match = re.search(MODEM_IMEI_REG_EX, stdout)
+  match = re.search(MODEM_IMEI_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit!
   if not match:
     logging.info('Returned stdout %r', stdout)
     raise type_utils.Error('Cannot get IMEI from modem')
@@ -125,7 +125,7 @@ def GetModemFirmware():
   stdout = process_utils.Spawn(
       MODEM_STATUS, read_stdout=True,
       log_stderr_on_error=True, check_call=True).stdout_data
-  match = re.search(MODEM_FIRMWARE_REG_EX, stdout)
+  match = re.search(MODEM_FIRMWARE_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit!
   if not match:
     logging.info('Returned stdout %r', stdout)
     raise type_utils.Error('Cannot switching firmware')

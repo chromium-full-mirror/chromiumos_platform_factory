@@ -69,7 +69,7 @@ def main():
           f'No overlay available for {args.board}! Please check if the board is'
           f' correct and you have done `setup_board --board {args.board}`.')
     print(f'Repository {repo_path}')
-    repo_full_path = os.path.join(SRC, repo_path)
+    repo_full_path = os.path.join(SRC, repo_path)  # type: ignore #TODO(b/338318729) Fixit!
 
     if not os.path.exists(repo_full_path):
       print('  >>> Repository does not exist')

@@ -281,7 +281,7 @@ class FinalizeBundle:
 
   def ProcessManifest(self):
     try:
-      CheckDictKeys(self.manifest, [
+      CheckDictKeys(self.manifest, [  # type: ignore #TODO(b/338318729) Fixit!
           'board',
           'project',
           'bundle_name',
@@ -301,13 +301,13 @@ class FinalizeBundle:
           'Invalid manifest content. '
           f'Please refer to setup/BUNDLE.md ({README_URL})') from None
 
-    self.build_board = cros_board_utils.BuildBoard(self.manifest['board'])
+    self.build_board = cros_board_utils.BuildBoard(self.manifest['board'])  # type: ignore #TODO(b/338318729) Fixit!
     self.board = self.build_board.full_name
     self.gsutil = gsutil.GSUtil(self.board)
     # assume project=board for backward compatibility
-    self.project = self.manifest.get('project', self.board).lower()
+    self.project = self.manifest.get('project', self.board).lower()  # type: ignore #TODO(b/338318729) Fixit!
     # assume designs=None for backward compatibility
-    self.designs = self.manifest.get('designs', None)
+    self.designs = self.manifest.get('designs', None)  # type: ignore #TODO(b/338318729) Fixit!
     if not (self.designs == BOXSTER_DESIGNS or self.designs is None or
             isinstance(self.designs, list)):
       raise FinalizeBundleException(
@@ -315,13 +315,13 @@ class FinalizeBundle:
           f'{BOXSTER_DESIGNS!r}, None or a list of str.')
 
     self.bundle_name: str = self.manifest['bundle_name']  # type: ignore #TODO(b/338318729) Fixit!
-    if not re.match(r'\d{8}_', self.bundle_name):
+    if not re.match(r'\d{8}_', self.bundle_name):  # type: ignore #TODO(b/338318729) Fixit!
       raise FinalizeBundleException(
           f"The bundle_name (currently {self.bundle_name!r}) should be today's "
           'date, plus an underscore, plus a description of the build, e.g.: '
           f'{time.strftime("%Y%m%d_proto")!r}')
 
-    name_blocks = self.bundle_name.split('_', 1)
+    name_blocks = self.bundle_name.split('_', 1)  # type: ignore #TODO(b/338318729) Fixit!
     self.timestamp = name_blocks[0]
     self.bundle_phase = name_blocks[1]
 
@@ -332,25 +332,25 @@ class FinalizeBundle:
     # the working directory.
     expected_dir_name = f'factory_bundle_{self.project}_{self.bundle_name}'
     logging.info('Expected bundle directory name is %r', expected_dir_name)
-    if expected_dir_name == os.path.basename(self.work_dir):
+    if expected_dir_name == os.path.basename(self.work_dir):  # type: ignore #TODO(b/338318729) Fixit!
       self.bundle_dir = self.work_dir
       logging.info('The working directory name matches the expected bundle '
                    'directory name, will finalized bundle directly in the '
                    'working directory %r', self.bundle_dir)
     else:
-      self.bundle_dir = os.path.join(self.work_dir, expected_dir_name)
+      self.bundle_dir = os.path.join(self.work_dir, expected_dir_name)  # type: ignore #TODO(b/338318729) Fixit!
       logging.info(
           'The working directory name does not match the expected '
           'bundle directory name, will create a new directory and '
           'finalize bundle in %r', self.bundle_dir)
-    self.bundle_dir = os.path.realpath(self.bundle_dir)
+    self.bundle_dir = os.path.realpath(self.bundle_dir)  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.TryMakeDirs(self.bundle_dir)
 
-    self.test_image_source = self.manifest.get('test_image')
-    self.release_image_source = self.manifest.get('release_image')
-    self.toolkit_source = self.manifest.get('toolkit')
-    self.firmware_source = self.manifest.get('firmware', 'release_image')
-    netboot_firmware_source = self.manifest.get('netboot_firmware')
+    self.test_image_source = self.manifest.get('test_image')  # type: ignore #TODO(b/338318729) Fixit!
+    self.release_image_source = self.manifest.get('release_image')  # type: ignore #TODO(b/338318729) Fixit!
+    self.toolkit_source = self.manifest.get('toolkit')  # type: ignore #TODO(b/338318729) Fixit!
+    self.firmware_source = self.manifest.get('firmware', 'release_image')  # type: ignore #TODO(b/338318729) Fixit!
+    netboot_firmware_source = self.manifest.get('netboot_firmware')  # type: ignore #TODO(b/338318729) Fixit!
     if netboot_firmware_source:
       self.netboot_firmware_source = version_module.StrictVersion(
           netboot_firmware_source)
@@ -358,7 +358,7 @@ class FinalizeBundle:
     self.readme_path = os.path.join(self.bundle_dir, 'README')
     # TODO(b/302107328): should set `self.has_firmware` to be empty when
     #                    `--no-firmware` is used.
-    self.has_firmware = self.manifest.get('has_firmware', DEFAULT_FIRMWARES)
+    self.has_firmware = self.manifest.get('has_firmware', DEFAULT_FIRMWARES)  # type: ignore #TODO(b/338318729) Fixit!
 
   @property
   def test_list_phase(self):
@@ -417,7 +417,7 @@ class FinalizeBundle:
     Returns:
       Path to the resource (if only one is found and its version matches).
     """
-    abs_search_dirs = [os.path.join(self.bundle_dir, d) for d in search_dirs]
+    abs_search_dirs = [os.path.join(self.bundle_dir, d) for d in search_dirs]  # type: ignore #TODO(b/338318729) Fixit!
 
     # TODO(crbug.com/706756): once the directory structure has been fixed, we
     #                         can just build up the path instead of searching
@@ -467,7 +467,7 @@ class FinalizeBundle:
       exists.
     """
     resource_name = 'signed factory shim'
-    abs_search_dir = os.path.join(self.bundle_dir, search_dir)
+    abs_search_dir = os.path.join(self.bundle_dir, search_dir)  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('Searching %s in %s', resource_name, search_dir)
     found_entries = glob.glob(
@@ -529,7 +529,7 @@ class FinalizeBundle:
 
   def _CheckGSUtilVersion(self):
     # Check for gsutil >= 3.32.
-    version = self.gsutil.GetVersion()
+    version = self.gsutil.GetVersion()  # type: ignore #TODO(b/338318729) Fixit!
     # Remove 'pre...' string at the end, if any
     version = re.sub('pre.*', '', version)
     version_split = [int(x) for x in version.split('.')]
@@ -549,7 +549,7 @@ class FinalizeBundle:
     need_release_image = (self.release_image_source != LOCAL and
                           self.release_image_path is None)
     need_firmware = (
-        self.firmware_source.startswith('release_image') and
+        self.firmware_source.startswith('release_image') and  # type: ignore #TODO(b/338318729) Fixit!
         not self.no_firmware)
 
     # TODO(crbug.com/707155): see #c1. We have to always download the factory
@@ -569,7 +569,7 @@ class FinalizeBundle:
     self._CheckGSUtilVersion()
 
     if self.download:
-      max_workers = 1 + (need_toolkit or need_signed_shim or
+      max_workers = 1 + (need_toolkit or need_signed_shim or  # type: ignore #TODO(b/338318729) Fixit!
                          self.signed_shim_path
                         ) + need_test_image + need_release_image + need_firmware
       max_workers = min(max_workers, self.jobs)
@@ -580,13 +580,13 @@ class FinalizeBundle:
         if need_test_image:
           download_test_image = executor.submit(
               self._DownloadTestImage, self.test_image_source,
-              os.path.join(self.bundle_dir, TEST_IMAGE_SEARCH_DIRS[0]))
+              os.path.join(self.bundle_dir, TEST_IMAGE_SEARCH_DIRS[0]))  # type: ignore #TODO(b/338318729) Fixit!
           not_done_jobs.add(download_test_image)
 
         if need_release_image:
           download_release_image = executor.submit(
               self._DownloadReleaseImage, self.release_image_source,
-              os.path.join(self.bundle_dir, RELEASE_IMAGE_SEARCH_DIRS[0]))
+              os.path.join(self.bundle_dir, RELEASE_IMAGE_SEARCH_DIRS[0]))  # type: ignore #TODO(b/338318729) Fixit!
           not_done_jobs.add(download_release_image)
         else:
           download_release_image = None
@@ -604,7 +604,7 @@ class FinalizeBundle:
           download_toolkit = None
           download_project_toolkit = None
 
-        abs_factory_shim_dir = os.path.join(self.bundle_dir,
+        abs_factory_shim_dir = os.path.join(self.bundle_dir,  # type: ignore #TODO(b/338318729) Fixit!
                                             FACTORY_SHIM_SEARCH_DIR)
 
         if need_signed_shim or self.signed_shim_path:
@@ -622,13 +622,13 @@ class FinalizeBundle:
           not_done_jobs.add(get_install_shim)
 
         if need_firmware:
-          parts = self.firmware_source.split('/', 1)
+          parts = self.firmware_source.split('/', 1)  # type: ignore #TODO(b/338318729) Fixit!
           firmware_source_version = (
               parts[1] if len(parts) == 2 else self.release_image_source)
           if firmware_source_version != self.release_image_source:
             download_firmware_image = executor.submit(
                 self._DownloadReleaseImage, firmware_source_version,
-                os.path.join(self.bundle_dir, FIRMWARE_IMAGE_SOURCE_DIR))
+                os.path.join(self.bundle_dir, FIRMWARE_IMAGE_SOURCE_DIR))  # type: ignore #TODO(b/338318729) Fixit!
             not_done_jobs.add(download_firmware_image)
           elif download_release_image:
             download_firmware_image = download_release_image
@@ -642,14 +642,14 @@ class FinalizeBundle:
               not_done_jobs, return_when=concurrent.futures.FIRST_EXCEPTION)
           for done_job in done_jobs:
             if done_job.exception():
-              raise done_job.exception()
+              raise done_job.exception()  # type: ignore #TODO(b/338318729) Fixit!
         # All jobs should be done.
         if need_test_image:
           self.test_image_path = download_test_image.result()
         if need_release_image:
-          self.release_image_path = download_release_image.result()
+          self.release_image_path = download_release_image.result()  # type: ignore #TODO(b/338318729) Fixit!
         if need_toolkit:
-          self.toolkit_path = download_toolkit.result()
+          self.toolkit_path = download_toolkit.result()  # type: ignore #TODO(b/338318729) Fixit!
         if need_signed_shim or self.signed_shim_path:
           self.signed_shim_path = get_install_shim.result()
           if self.signed_shim_path:
@@ -684,8 +684,8 @@ class FinalizeBundle:
     self.release_image_version = self._GetImageVersion(self.release_image_path)
     logging.info('Release image version: %s', self.release_image_version)
 
-    output = Spawn([self.toolkit_path, '--info'], check_output=True).stdout_data
-    match = re.match(r'Identification: .+ Factory Toolkit (.+)$', output, re.M)
+    output = Spawn([self.toolkit_path, '--info'], check_output=True).stdout_data  # type: ignore #TODO(b/338318729) Fixit!
+    match = re.match(r'Identification: .+ Factory Toolkit (.+)$', output, re.M)  # type: ignore #TODO(b/338318729) Fixit!
     assert match, f'Unable to parse toolkit info: {output!r}'
     self.toolkit_version = match.group(1)  # May be None if locally built
     logging.info('Toolkit version: %s', self.toolkit_version)
@@ -694,8 +694,8 @@ class FinalizeBundle:
     """Use project toolkit if exists and the source is not local."""
     if self.toolkit_source == LOCAL:
       return
-    package = os.path.join(self.bundle_dir, PROJECT_TOOLKIT_PACKAGES)
-    extracted_dir = os.path.join(self.bundle_dir, 'factory_project_toolkits')
+    package = os.path.join(self.bundle_dir, PROJECT_TOOLKIT_PACKAGES)  # type: ignore #TODO(b/338318729) Fixit!
+    extracted_dir = os.path.join(self.bundle_dir, 'factory_project_toolkits')  # type: ignore #TODO(b/338318729) Fixit!
     if os.path.exists(package):
       file_utils.ExtractFile(package, extracted_dir)
       os.remove(package)
@@ -703,11 +703,11 @@ class FinalizeBundle:
         extracted_dir, f'{self.project}_install_factory_toolkit.run')
     if os.path.exists(project_toolkit_path):
       logging.info('Moving %r to %r', project_toolkit_path, self.toolkit_path)
-      shutil.move(project_toolkit_path, self.toolkit_path)
+      shutil.move(project_toolkit_path, self.toolkit_path)  # type: ignore #TODO(b/338318729) Fixit!
 
   def AddDefaultCompleteScript(self):
     """Adds default complete script if not set."""
-    complete_dir = os.path.join(self.bundle_dir, 'complete')
+    complete_dir = os.path.join(self.bundle_dir, 'complete')  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.TryMakeDirs(complete_dir)
     num_complete_scripts = len(os.listdir(complete_dir))
 
@@ -719,7 +719,7 @@ class FinalizeBundle:
           f'Not having exactly one file under {complete_dir}.')
 
     default_complete_script = os.path.join(
-        self.bundle_dir, 'setup', 'complete_script_sample.sh')
+        self.bundle_dir, 'setup', 'complete_script_sample.sh')  # type: ignore #TODO(b/338318729) Fixit!
     shutil.copy(default_complete_script, complete_dir)
 
   @property
@@ -774,7 +774,7 @@ class FinalizeBundle:
     """
     if self.no_firmware:
       return
-    firmware_dir = os.path.join(self.bundle_dir, FIRMWARE_SEARCH_DIR)
+    firmware_dir = os.path.join(self.bundle_dir, FIRMWARE_SEARCH_DIR)  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.TryMakeDirs(firmware_dir)
     if self.firmware_image_source is not None:
       with MountPartition(self.firmware_image_source, 3) as f:
@@ -790,7 +790,7 @@ class FinalizeBundle:
           f'Not having exactly one file under {firmware_dir}.')
     updater_path = os.path.join(firmware_dir, updaters[0])
 
-    firmware_images_dir = os.path.join(self.bundle_dir, 'firmware_images')
+    firmware_images_dir = os.path.join(self.bundle_dir, 'firmware_images')  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.TryMakeDirs(firmware_images_dir)
 
     models = self.designs if self.is_boxster_project else [self.project]
@@ -854,7 +854,7 @@ class FinalizeBundle:
                 'No models left for signer_config.csv of the firmware updater.')
           with open(signer_config_path, 'w', encoding='utf8') as csv_out:
             # 'futility update' does not handle \r\n (csv default).
-            writer = csv.DictWriter(csv_out, fieldnames, lineterminator='\n')
+            writer = csv.DictWriter(csv_out, fieldnames, lineterminator='\n')  # type: ignore #TODO(b/338318729) Fixit!
             writer.writeheader()
             for row in rows:
               writer.writerow(row)
@@ -922,19 +922,19 @@ class FinalizeBundle:
     cros_config = os.path.join(image_path, CROS_CONFIG_YAML_PATH)
     cros_config = yaml.safe_load(file_utils.ReadFile(cros_config))
     models = models or {
-        conf.get('name')
-        for conf in cros_config['chromeos']['configs']
+        conf.get('name')  # type: ignore #TODO(b/338318729) Fixit!
+        for conf in cros_config['chromeos']['configs']  # type: ignore #TODO(b/338318729) Fixit!
     }
-    for config in cros_config['chromeos']['configs']:
-      model = config.get('name')
+    for config in cros_config['chromeos']['configs']:  # type: ignore #TODO(b/338318729) Fixit!
+      model = config.get('name')  # type: ignore #TODO(b/338318729) Fixit!
       if model not in models:
         continue
-      if 'sku-id' in config['identity']:
-        sku_ids[model].add(config['identity']['sku-id'])
-      manifest_key = config.get('firmware', {}).get('image-name') or model
+      if 'sku-id' in config['identity']:  # type: ignore #TODO(b/338318729) Fixit!
+        sku_ids[model].add(config['identity']['sku-id'])  # type: ignore #TODO(b/338318729) Fixit!
+      manifest_key = config.get('firmware', {}).get('image-name') or model  # type: ignore #TODO(b/338318729) Fixit!
       firmware_manifest_keys[manifest_key].add(model)
-      firmware_sign_ids[model].add(config['firmware-signing']['signature-id'])
-    firmware_manifest_keys = {
+      firmware_sign_ids[model].add(config['firmware-signing']['signature-id'])  # type: ignore #TODO(b/338318729) Fixit!
+    firmware_manifest_keys = {  # type: ignore #TODO(b/338318729) Fixit!
         key: sorted(value)
         for key, value in firmware_manifest_keys.items()
     }
@@ -952,7 +952,7 @@ class FinalizeBundle:
       if os.path.exists(signer_path):
         signer_output = file_utils.ReadFile(signer_path)
         match = re.search(r'.*/cros/keys/([^\s]+)', signer_output)
-        signer = match.group(1)
+        signer = match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
         firmware_record['firmware_signer'] = signer
       else:
         logging.warning(
@@ -980,7 +980,7 @@ class FinalizeBundle:
                                         f"rootkey.{row['model_name']}")
             if not os.path.exists(rootkey_path):
               # Skip rootkey if the firmware image is unsigned.
-              rootkey_path = None
+              rootkey_path = None  # type: ignore #TODO(b/338318729) Fixit!
             firmware_keys[row['key_id']] = chromeos_firmware.GetFirmwareKeys(
                 os.path.join(temp_dir, row['firmware_image']),
                 rootkey_path=rootkey_path)
@@ -1013,7 +1013,7 @@ class FinalizeBundle:
             'sku_id': str(sku_id)
         } for sku_id in sorted(sku_ids.get(model, []))]
 
-        firmware_record['firmware_records'].append(record)
+        firmware_record['firmware_records'].append(record)  # type: ignore #TODO(b/338318729) Fixit!
 
     return firmware_record, firmware_manifest_keys
 
@@ -1049,9 +1049,9 @@ class FinalizeBundle:
   def DownloadNetbootFromFactoryArchive(self):
     """Downloads netboot firmware and kernel from the factory archive."""
     # TODO(hungte) Change factory_shim/netboot/ to be netboot/ in factory.zip.
-    orig_netboot_dir = os.path.join(self.bundle_dir, 'factory_shim', 'netboot')
-    netboot_dir = os.path.join(self.bundle_dir, 'netboot')
-    netboot_backup_dir = os.path.join(self.bundle_dir, 'netboot_backup')
+    orig_netboot_dir = os.path.join(self.bundle_dir, 'factory_shim', 'netboot')  # type: ignore #TODO(b/338318729) Fixit!
+    netboot_dir = os.path.join(self.bundle_dir, 'netboot')  # type: ignore #TODO(b/338318729) Fixit!
+    netboot_backup_dir = os.path.join(self.bundle_dir, 'netboot_backup')  # type: ignore #TODO(b/338318729) Fixit!
     # Overwrite netboot_dir if we download bundle_dir again and orig_netboot_dir
     # appears again.
     if os.path.exists(orig_netboot_dir):
@@ -1075,12 +1075,12 @@ class FinalizeBundle:
     """
     urls = []
     netboot_firmware_source_version = [
-        str(k) for k in self.netboot_firmware_source.version
+        str(k) for k in self.netboot_firmware_source.version  # type: ignore #TODO(b/338318729) Fixit!
     ]
-    for index in reversed(range(len(self.netboot_firmware_source.version))):
+    for index in reversed(range(len(self.netboot_firmware_source.version))):  # type: ignore #TODO(b/338318729) Fixit!
       version_str = '.'.join(netboot_firmware_source_version)
       url_prefix = gsutil.BuildResourceBaseURL(gsutil.GSUtil.Channels.canary,
-                                               self.build_board.gsutil_name,
+                                               self.build_board.gsutil_name,  # type: ignore #TODO(b/338318729) Fixit!
                                                version_str)
       urls.append(f'{url_prefix}/ChromeOS-firmware-*.tar.bz2')
       netboot_firmware_source_version[index] = '*'
@@ -1091,8 +1091,8 @@ class FinalizeBundle:
 
     The netboot kernel is from the factory archive.
     """
-    orig_netboot_dir = os.path.join(self.bundle_dir, 'factory_shim', 'netboot')
-    netboot_dir = os.path.join(self.bundle_dir, 'netboot')
+    orig_netboot_dir = os.path.join(self.bundle_dir, 'factory_shim', 'netboot')  # type: ignore #TODO(b/338318729) Fixit!
+    netboot_dir = os.path.join(self.bundle_dir, 'netboot')  # type: ignore #TODO(b/338318729) Fixit!
     file_utils.TryMakeDirs(netboot_dir)
 
     netboot_kernel = os.path.join(orig_netboot_dir, 'vmlinuz')
@@ -1162,17 +1162,17 @@ class FinalizeBundle:
       self.DownloadNetbootFromFactoryArchive()
     else:
       self.DownloadNetbootFromFirmwareArchive()
-    netboot_dir = os.path.join(self.bundle_dir, 'netboot')
-    netboot_backup_dir = os.path.join(self.bundle_dir, 'netboot_backup')
+    netboot_dir = os.path.join(self.bundle_dir, 'netboot')  # type: ignore #TODO(b/338318729) Fixit!
+    netboot_backup_dir = os.path.join(self.bundle_dir, 'netboot_backup')  # type: ignore #TODO(b/338318729) Fixit!
 
     # Try same convention that sys-boot/chromeos-bootimage is doing:
     # bootfile=${PORTAGE_USERNAME}/${BOARD_USE}/vmlinuz
     # argfile=${PORTAGE_USERNAME}/${BOARD_USE}/cmdline
-    files_dir = os.path.join('chrome-bot', self.board)
+    files_dir = os.path.join('chrome-bot', self.board)  # type: ignore #TODO(b/338318729) Fixit!
     target_bootfile = os.path.join(files_dir, 'vmlinuz')
     target_argsfile = os.path.join(files_dir, 'cmdline')
 
-    server_url = self.manifest.get('server_url')
+    server_url = self.manifest.get('server_url')  # type: ignore #TODO(b/338318729) Fixit!
     tftp_server_ip = (urllib.parse.urlparse(server_url).hostname if server_url
                       else '')
 
@@ -1210,7 +1210,7 @@ class FinalizeBundle:
         max_workers=self.jobs) as executor:
       executor.map(SetOneNetbootImage, useful_images)
 
-    tftp_root = os.path.join(self.bundle_dir, 'netboot', 'tftp')
+    tftp_root = os.path.join(self.bundle_dir, 'netboot', 'tftp')  # type: ignore #TODO(b/338318729) Fixit!
     tftp_board_dir = os.path.join(tftp_root, files_dir)
     file_utils.TryMakeDirs(tftp_board_dir)
 
@@ -1244,7 +1244,7 @@ class FinalizeBundle:
          f'{tftpserverip_config} console=ttyS2,115200n8'))
 
   def UpdateInstallShim(self):
-    server_url = self.manifest.get('server_url')
+    server_url = self.manifest.get('server_url')  # type: ignore #TODO(b/338318729) Fixit!
 
     if not server_url:
       return
@@ -1295,14 +1295,14 @@ class FinalizeBundle:
 
     # Patch in the install shim, if present.
     has_install_shim = False
-    unsigned_shim = os.path.join(self.bundle_dir, 'factory_shim',
+    unsigned_shim = os.path.join(self.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
                                  'factory_install_shim.bin')
     if os.path.isfile(unsigned_shim):
       PatchInstallShim(unsigned_shim)
       has_install_shim = True
 
     signed_shims = glob.glob(
-        os.path.join(self.bundle_dir, 'factory_shim',
+        os.path.join(self.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
                      'chromeos_*_factory*.bin'))
     if has_install_shim and signed_shims:
       raise FinalizeBundleException(
@@ -1320,7 +1320,7 @@ class FinalizeBundle:
       logging.warning('There is no install shim in the bundle.')
 
   def PrepareProjectConfig(self):
-    config_dir = os.path.join(self.bundle_dir, 'project_config')
+    config_dir = os.path.join(self.bundle_dir, 'project_config')  # type: ignore #TODO(b/338318729) Fixit!
     if not os.path.exists(config_dir):
       logging.warning('There is no %r in the bundle.', config_dir)
       if self.designs == BOXSTER_DESIGNS:
@@ -1468,7 +1468,7 @@ class FinalizeBundle:
     readme_sections[readme_section_index['VITAL INFORMATION']][1] = (
         vital_contents + '\n\n')
 
-    with open(self.readme_path, 'w', encoding='utf8') as f:
+    with open(self.readme_path, 'w', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
       for section in readme_sections:
         sec_desc = tuple(section)
         f.write('***\n'
@@ -1510,10 +1510,10 @@ class FinalizeBundle:
            ['a beer'] * 8)[time.localtime().tm_hour])
 
       image_tool_output_file = os.path.join(
-          self.work_dir,
+          self.work_dir,  # type: ignore #TODO(b/338318729) Fixit!
           f'factory_bundle_{self.board}_{self.bundle_name}.tar.bz2')
       output_file = os.path.join(
-          self.work_dir,
+          self.work_dir,  # type: ignore #TODO(b/338318729) Fixit!
           f'factory_bundle_{self.project}_{self.bundle_name}.tar.bz2')
       args = [
           'bundle',
@@ -1524,7 +1524,7 @@ class FinalizeBundle:
           '--phase',
           self.bundle_phase,
       ]
-      self.BuildArchiveAndRMASharedArguments(args)
+      self.BuildArchiveAndRMASharedArguments(args)  # type: ignore #TODO(b/338318729) Fixit!
       Spawn(_GetImageTool() + args,
             log=True, check_call=True, cwd=self.bundle_dir)
       if image_tool_output_file != output_file:
@@ -1536,9 +1536,9 @@ class FinalizeBundle:
 
     logging.info('The README file (%s) has been updated.  Make sure to check '
                  'that it is correct!', self.readme_path)
-    if sys_utils.InChroot() and self.build_board.factory_board_files:
+    if sys_utils.InChroot() and self.build_board.factory_board_files:  # type: ignore #TODO(b/338318729) Fixit!
       factory_board_bundle_path = os.path.join(
-          self.build_board.factory_board_files, 'bundle')
+          self.build_board.factory_board_files, 'bundle')  # type: ignore #TODO(b/338318729) Fixit!
     else:
       factory_board_bundle_path = 'factory-board'
     logging.info(
@@ -1559,7 +1559,7 @@ class FinalizeBundle:
     if not self.rma_shim:
       return
     output_file = os.path.join(
-        self.work_dir,
+        self.work_dir,  # type: ignore #TODO(b/338318729) Fixit!
         f'factory_rma_{self.board}_{self.project}_{self.bundle_name}.bin')
     args = [
         'rma',
@@ -1636,7 +1636,7 @@ class FinalizeBundle:
       raise FinalizeBundleException(
           f'No {resource_name} found for version {version}')
     logging.info('Starting to download %s...', found_url)
-    downloaded_path = self.gsutil.GSDownload(found_url)
+    downloaded_path = self.gsutil.GSDownload(found_url)  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       yield (downloaded_path, found_url)
@@ -1664,9 +1664,9 @@ class FinalizeBundle:
           extracted_path = os.path.join(target_dir, extracted_path[0])
 
           # Replace '.tar.xz' with the extracted ext name ('.bin' normally).
-          unused_name, ext = os.path.splitext(extracted_path)
+          unused_name, ext = os.path.splitext(extracted_path)  # type: ignore #TODO(b/338318729) Fixit!
           dst_path = os.path.join(target_dir, image_basename[:-7] + ext)
-          shutil.move(extracted_path, dst_path)
+          shutil.move(extracted_path, dst_path)  # type: ignore #TODO(b/338318729) Fixit!
         else:
           raise ValueError(
               f"Don't know how to handle file extension of {downloaded_path!r}")
@@ -1678,7 +1678,7 @@ class FinalizeBundle:
     possible_urls = []
     for channel in RESOURCE_CHANNELS:
       url_prefix = gsutil.BuildResourceBaseURL(
-          channel, self.build_board.gsutil_name, requested_version)
+          channel, self.build_board.gsutil_name, requested_version)  # type: ignore #TODO(b/338318729) Fixit!
       url = f'{url_prefix}/*test*.tar.xz'
       possible_urls.append(url)
     return self._DownloadAndExtractImage('test image', requested_version,
@@ -1688,7 +1688,7 @@ class FinalizeBundle:
     possible_urls = []
     for channel in RESOURCE_CHANNELS:
       url_prefix = gsutil.BuildResourceBaseURL(
-          channel, self.build_board.gsutil_name, requested_version)
+          channel, self.build_board.gsutil_name, requested_version)  # type: ignore #TODO(b/338318729) Fixit!
       url = f'{url_prefix}/*recovery*.bin'
       possible_urls.append(url)
     return self._DownloadAndExtractImage('release image', requested_version,
@@ -1706,7 +1706,7 @@ class FinalizeBundle:
     possible_urls = []
     for channel in RESOURCE_CHANNELS:
       url_prefix = gsutil.BuildResourceBaseURL(
-          channel, self.build_board.gsutil_name, requested_version)
+          channel, self.build_board.gsutil_name, requested_version)  # type: ignore #TODO(b/338318729) Fixit!
       url = f'{url_prefix}/*factory*.zip'
       possible_urls.append(url)
     with self._DownloadResource(
@@ -1745,7 +1745,7 @@ class FinalizeBundle:
       return None
     branches = ['factory', 'release']
     possible_urls = [
-        (f'gs://chromeos-image-archive/{self.build_board.gsutil_name}-{branch}'
+        (f'gs://chromeos-image-archive/{self.build_board.gsutil_name}-{branch}'  # type: ignore #TODO(b/338318729) Fixit!
          f'/R*-{requested_version}/{PROJECT_TOOLKIT_PACKAGES}')
         for branch in branches
     ]
@@ -1768,7 +1768,7 @@ class FinalizeBundle:
     possible_urls = []
     for channel in RESOURCE_CHANNELS:
       url_prefix = gsutil.BuildResourceBaseURL(
-          channel, self.build_board.gsutil_name, requested_version)
+          channel, self.build_board.gsutil_name, requested_version)  # type: ignore #TODO(b/338318729) Fixit!
       url = f'{url_prefix}/chromeos_*_factory*.bin'
       possible_urls.append(url)
     try:

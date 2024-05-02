@@ -85,7 +85,7 @@ def GenerateBOMFromProbedResults(database, probed_results, device_info, vpd,
 
   if use_name_match:
     matched_components = {}
-    mismatched_components = {}
+    mismatched_components = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     for comp_cls, comps in probed_results.items():
       matched_components[comp_cls] = [comp['name'] for comp in comps]

@@ -161,7 +161,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
       self.patchers.append(mock.patch(entity))
       self.mocks[entity] = self.patchers[-1].start()
 
-    self.patchers.append(mock.patch.object(
+    self.patchers.append(mock.patch.object(  # type: ignore #TODO(b/338318729) Fixit!
         models.Project, 'GetExistingUmpirePort'))
     self.mocks['GetExistingUmpirePort'] = self.patchers[-1].start()
     self.mocks['GetExistingUmpirePort'].return_value = None

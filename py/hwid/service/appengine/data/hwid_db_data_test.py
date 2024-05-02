@@ -124,7 +124,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
     self.assertEqual('OLD-COMMIT-ID', old_metadata.commit)
 
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -150,7 +150,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_WithFeatureMatcherSource(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'UNUSED-NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -170,7 +170,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_WithBundleMetadata(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'UNUSED-NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -190,7 +190,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_CreateNewMetadata(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
 
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'NEW-COMMIT-ID'

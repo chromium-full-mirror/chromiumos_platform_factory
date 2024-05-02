@@ -62,25 +62,25 @@ class VerifyRootPartitionTest(test_case.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    if not self.args.kern_a_device:
-      self.args.kern_a_device = self.dut.partitions.RELEASE_KERNEL.path
-    if not self.args.root_device:
-      self.args.root_device = self.dut.partitions.RELEASE_ROOTFS.path
+    if not self.args.kern_a_device:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.kern_a_device = self.dut.partitions.RELEASE_KERNEL.path  # type: ignore #TODO(b/338318729) Fixit!
+    if not self.args.root_device:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.root_device = self.dut.partitions.RELEASE_ROOTFS.path  # type: ignore #TODO(b/338318729) Fixit!
 
     # Prepend '/dev/' if the device path is not absolute. This is mainly for
     # backward-compatibility as many existing test list specifies only 'sda4' or
     # 'mmcblk0p4' in dargs.
-    if not self.args.kern_a_device.startswith('/'):
-      self.args.kern_a_device = os.path.join('/dev', self.args.kern_a_device)
-    if not self.args.root_device.startswith('/'):
-      self.args.root_device = os.path.join('/dev', self.args.root_device)
+    if not self.args.kern_a_device.startswith('/'):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.kern_a_device = os.path.join('/dev', self.args.kern_a_device)  # type: ignore #TODO(b/338318729) Fixit!
+    if not self.args.root_device.startswith('/'):  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.root_device = os.path.join('/dev', self.args.root_device)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Copy out the KERN-A partition to a file, since vbutil_kernel
     # won't operate on a device, only a file
     # (http://crosbug.com/34176)
-    self.ui.SetState(f'Verifying KERN-A ({self.args.kern_a_device})...')
+    self.ui.SetState(f'Verifying KERN-A ({self.args.kern_a_device})...')  # type: ignore #TODO(b/338318729) Fixit!
     with self.dut.temp.TempFile() as kern_a_bin:
-      self.dut.toybox.dd(if_=self.args.kern_a_device, of=kern_a_bin,
+      self.dut.toybox.dd(if_=self.args.kern_a_device, of=kern_a_bin,  # type: ignore #TODO(b/338318729) Fixit!
                          conv='fsync')
       try:
         vbutil_kernel_output = self.dut.CheckOutput(
@@ -104,7 +104,7 @@ class VerifyRootPartitionTest(test_case.TestCase):
 
     DEV_REGEXP = re.compile(r'payload=\S* hashtree=\S*')
     (table_new, nsubs) = DEV_REGEXP.subn(
-        f'payload={self.args.root_device} hashtree={self.args.root_device}',
+        f'payload={self.args.root_device} hashtree={self.args.root_device}',  # type: ignore #TODO(b/338318729) Fixit!
         table)
     assert nsubs == 1, (
         f'Expected to find {DEV_REGEXP.pattern!r} in {table!r} once, but found'
@@ -122,13 +122,13 @@ class VerifyRootPartitionTest(test_case.TestCase):
         ['dmsetup', 'create', '-r', DM_DEVICE_NAME, '--table', table], log=True)
 
     # Read data from the partition; there will be an I/O error on failure
-    if self.args.max_bytes is None:
+    if self.args.max_bytes is None:  # type: ignore #TODO(b/338318729) Fixit!
       bytes_to_read = partition_size
     else:
-      bytes_to_read = min(partition_size, self.args.max_bytes)
+      bytes_to_read = min(partition_size, self.args.max_bytes)  # type: ignore #TODO(b/338318729) Fixit!
 
     if self.dut.link.IsLocal():
-      self.ui.DrawProgressBar(bytes_to_read)
+      self.ui.DrawProgressBar(bytes_to_read)  # type: ignore #TODO(b/338318729) Fixit!
       # For local link, let's show progress bar for better UX
       with open(DM_DEVICE_PATH, 'rb') as dm_device:
         bytes_read = 0
@@ -141,11 +141,11 @@ class VerifyRootPartitionTest(test_case.TestCase):
             break
           bytes_read += count
           pct_done = bytes_read / bytes_to_read
-          message = (f'Read {bytes_read / 1024 / 1024:.1f} MiB ({pct_done:.1%})'
+          message = (f'Read {bytes_read / 1024 / 1024:.1f} MiB ({pct_done:.1%})'  # type: ignore #TODO(b/338318729) Fixit!
                      f'of {self.args.root_device}')
           logging.info(message)
-          self.ui.SetState(message)
-          self.ui.SetProgress(bytes_read)
+          self.ui.SetState(message)  # type: ignore #TODO(b/338318729) Fixit!
+          self.ui.SetProgress(bytes_read)  # type: ignore #TODO(b/338318729) Fixit!
     else:
       # for remote link, read out everything at once to save time.
       with tempfile.TemporaryFile('w+') as stderr:

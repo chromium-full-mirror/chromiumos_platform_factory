@@ -135,8 +135,8 @@ class HWIDV3Test(test_case.TestCase):
 
   def AppendProjectArg(self, cmd):
     """Append the project name to the command list if the name is not None."""
-    if self.args.project:
-      cmd += ['--project', self.args.project]
+    if self.args.project:  # type: ignore #TODO(b/338318729) Fixit!
+      cmd += ['--project', self.args.project]  # type: ignore #TODO(b/338318729) Fixit!
 
   def BuildCollectMaterialCommand(self, hwid_material_file: str):
     """Build the command for `hwid collect-material`.
@@ -167,16 +167,16 @@ class HWIDV3Test(test_case.TestCase):
 
   def runTest(self):
     testlog.LogParam(name='phase', value=str(phase.GetPhase()))
-    phase.AssertStartingAtPhase(phase.EVT, self.args.verify_checksum,
+    phase.AssertStartingAtPhase(phase.EVT, self.args.verify_checksum,  # type: ignore #TODO(b/338318729) Fixit!
                                 'HWID checksum must be verified')
     phase.AssertStartingAtPhase(
-        phase.PVT, self.args.project is None,
+        phase.PVT, self.args.project is None,  # type: ignore #TODO(b/338318729) Fixit!
         'Should not use `project` option in this phase')
 
-    if self.args.enable_factory_server:
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
       update_utils.UpdateHWIDDatabase(self._dut)
 
-    self.ui.SetState(_('Collecting DUT materials...'))
+    self.ui.SetState(_('Collecting DUT materials...'))  # type: ignore #TODO(b/338318729) Fixit!
     hwid_material_file = self._dut.path.join(self.tmpdir, 'hwid_material_file')
     collect_material_cmd = self.BuildCollectMaterialCommand(hwid_material_file)
     self.factory_tools.Call(collect_material_cmd, log=True)
@@ -186,19 +186,19 @@ class HWIDV3Test(test_case.TestCase):
     testlog.UpdateParam(name='hwid_material',
                         description='materials to generate HWID string')
 
-    if self.args.generate:
-      self.ui.SetState(_('Generating HWID (v3)...'))
+    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Generating HWID (v3)...'))  # type: ignore #TODO(b/338318729) Fixit!
       generate_cmd = [
           'hwid', 'generate', '--material-file', hwid_material_file,
           '--json-output'
       ]
-      if self.args.rma_mode:
+      if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit!
         generate_cmd += ['--rma-mode']
-      if not self.args.verify_checksum:
+      if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit!
         generate_cmd += ['--no-verify-checksum']
-      if self.args.enable_configless_fields:
+      if self.args.enable_configless_fields:  # type: ignore #TODO(b/338318729) Fixit!
         generate_cmd += ['--with-configless-fields']
-      if not self.args.include_brand_code:
+      if not self.args.include_brand_code:  # type: ignore #TODO(b/338318729) Fixit!
         generate_cmd += ['--no-brand-code']
       self.AppendProjectArg(generate_cmd)
 
@@ -229,7 +229,7 @@ class HWIDV3Test(test_case.TestCase):
       self.AppendProjectArg(read_cmd)
       encoded_string = self.factory_tools.CheckOutput(read_cmd).strip()
 
-    self.ui.SetState(
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
         _('Verifying HWID (v3): {encoded_string}...',
           encoded_string=(encoded_string or _('(unchanged)'))))
 
@@ -237,11 +237,11 @@ class HWIDV3Test(test_case.TestCase):
         'hwid', 'verify', '--material-file', hwid_material_file, '--phase',
         str(phase.GetPhase())
     ]
-    if self.args.rma_mode:
+    if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit!
       verify_cmd += ['--rma-mode']
-    if not self.args.verify_checksum:
+    if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit!
       verify_cmd += ['--no-verify-checksum']
-    if not self.args.enable_component_status_check_on_pvt:
+    if not self.args.enable_component_status_check_on_pvt:  # type: ignore #TODO(b/338318729) Fixit!
       verify_cmd += ['--no-pvt-component-status-check']
     self.AppendProjectArg(verify_cmd)
     verify_cmd += [encoded_string]
@@ -250,8 +250,8 @@ class HWIDV3Test(test_case.TestCase):
     self.assertTrue('Verification passed.' in output)
     testlog.LogParam(name='verified_hwid', value=encoded_string)
 
-    if self.args.generate:
-      self.ui.SetState(
+    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Setting HWID (v3): {encoded_string}...',
             encoded_string=encoded_string))
       write_cmd = ['hwid', 'write']

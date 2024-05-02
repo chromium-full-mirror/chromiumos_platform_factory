@@ -28,8 +28,8 @@ class FeatureManagementFlagsFunction(probe_function.AbstractProbeFunction):
     # return a valid default value pair (False, 0) for HWID to work.
     if gsc_utils.GSCUtils().IsGSCFeatureManagementFlagsLocked():
       feature_flags_gsc = self._gsctool.GetFeatureManagementFlags()
-      chassis_branded = feature_flags_gsc.is_chassis_branded
-      hw_compliance_version = feature_flags_gsc.hw_compliance_version
+      chassis_branded = feature_flags_gsc.is_chassis_branded  # type: ignore #TODO(b/338318729) Fixit!
+      hw_compliance_version = feature_flags_gsc.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit!
     elif not sys_utils.InFactoryPythonArchive():
       chassis_branded_device_data = device_data.GetDeviceData(
           device_data.KEY_FM_CHASSIS_BRANDED)

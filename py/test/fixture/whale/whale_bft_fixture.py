@@ -98,7 +98,7 @@ class WhaleBFTFixture(bft.BFTFixture):
     if not whale_device:
       raise bft.BFTFixtureException('Unsupported device: ' + device)
     try:
-      return (self.Status.ON if self._servo.IsOn(whale_device)
+      return (self.Status.ON if self._servo.IsOn(whale_device)  # type: ignore #TODO(b/338318729) Fixit!
               else self.Status.OFF)
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'{action} failed. Reason: {e}')
@@ -121,14 +121,14 @@ class WhaleBFTFixture(bft.BFTFixture):
     if not whale_device:
       raise bft.BFTFixtureException('Unsupported device: ' + whale_device)
     try:
-      self._servo.Set(whale_device, 'on' if engage else 'off')
+      self._servo.Set(whale_device, 'on' if engage else 'off')  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to {action}. Reason: {e}')
 
   def Ping(self):
     # Try sending an XMLRPC command.
     try:
-      self._servo.Get(self._WHALE_CONTROL.PASS_LED)
+      self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit!
       logging.debug('ping success')
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to connect to servo. Reason: {e}')
@@ -142,11 +142,11 @@ class WhaleBFTFixture(bft.BFTFixture):
     Raises:
       BFTFixtureException if power rail is problematic.
     """
-    inas = self._servo.MultipleGet(self._WHALE_INAS)
+    inas = self._servo.MultipleGet(self._WHALE_INAS)  # type: ignore #TODO(b/338318729) Fixit!
     result = {k: int(v) for k, v in inas.items()}
 
     # Servo returns a string of list of integers
-    adc = ast.literal_eval(self._servo.Get(self._WHALE_CONTROL.ADC))
+    adc = ast.literal_eval(self._servo.Get(self._WHALE_CONTROL.ADC))  # type: ignore #TODO(b/338318729) Fixit!
     for i, v in enumerate(self._WHALE_ADC):
       result[v[0]] = adc[i] * v[1]
 
@@ -192,8 +192,8 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   def GetStatusColor(self):
     try:
-      is_pass = self._servo.Get(self._WHALE_CONTROL.PASS_LED)
-      is_fail = self._servo.Get(self._WHALE_CONTROL.FAIL_LED)
+      is_pass = self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit!
+      is_fail = self._servo.Get(self._WHALE_CONTROL.FAIL_LED)  # type: ignore #TODO(b/338318729) Fixit!
 
       for color, value in WhaleBFTFixture._STATUS_COLOR.items():
         if value == (is_pass, is_fail):
@@ -209,22 +209,22 @@ class WhaleBFTFixture(bft.BFTFixture):
       raise bft.BFTFixtureException(f'Unsupported status color {color}')
 
     try:
-      self._servo.MultipleSet([(self._WHALE_CONTROL.PASS_LED, is_pass),
-                               (self._WHALE_CONTROL.FAIL_LED, is_fail)])
+      self._servo.MultipleSet([(self._WHALE_CONTROL.PASS_LED, is_pass),  # type: ignore #TODO(b/338318729) Fixit!
+                               (self._WHALE_CONTROL.FAIL_LED, is_fail)])  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to set status color {color}. Reason {e}')
 
   def ResetKeyboard(self):
-    self._keyboard_emulator.Reset()
+    self._keyboard_emulator.Reset()  # type: ignore #TODO(b/338318729) Fixit!
 
   def SimulateKeystrokes(self):
-    self._keyboard_emulator.SimulateKeystrokes()
+    self._keyboard_emulator.SimulateKeystrokes()  # type: ignore #TODO(b/338318729) Fixit!
 
   # pylint: disable=arguments-renamed
   def SimulateKeyPress(self, bitmask, duration_secs):
     try:
-      self._keyboard_emulator.KeyPress(int(bitmask, 0), float(duration_secs))
+      self._keyboard_emulator.KeyPress(int(bitmask, 0), float(duration_secs))  # type: ignore #TODO(b/338318729) Fixit!
     except ValueError as e:
       raise bft.BFTFixtureException(f'Failed to convert bitmask. Reason {e}')
 
@@ -233,12 +233,12 @@ class WhaleBFTFixture(bft.BFTFixture):
 
     whale_device = self._WHALE_DEVICE.get(button)
     if not whale_device:
-      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)
+      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit!
     try:
       if not duration_secs:  # set duration_secs 0 for long press
-        self._servo.Set(whale_device, 'on')
+        self._servo.Set(whale_device, 'on')  # type: ignore #TODO(b/338318729) Fixit!
       else:
-        self._servo.Click(whale_device, duration_secs)
+        self._servo.Click(whale_device, duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to press {button}. Reason: {e}')
 
@@ -246,53 +246,53 @@ class WhaleBFTFixture(bft.BFTFixture):
     logging.debug('release %s', button)
     whale_device = self._WHALE_DEVICE.get(button)
     if not whale_device:
-      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)
+      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit!
     try:
-      self._servo.Set(whale_device, 'off')
+      self._servo.Set(whale_device, 'off')  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to press {button}. Reason: {e}')
 
   def SetLcmText(self, row, message):
     try:
-      self._lcm.SetLcmText(row, message)
+      self._lcm.SetLcmText(row, message)  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to show a message to LCM. Reason {e}')
 
   def IssueLcmCommand(self, action):
     try:
-      self._lcm.IssueLcmCommand(action)
+      self._lcm.IssueLcmCommand(action)  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to execute an action to LCM. Reason {e}')
 
   def IsDUTInFixture(self):
     try:
-      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.DUT_SENSOR)
+      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.DUT_SENSOR)  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
-          'Failed to check if DUT in the fixture. Reason: ' + e)
+          'Failed to check if DUT in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit!
 
   def IsBaseInFixture(self):
     try:
-      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.BASE_SENSOR)
+      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.BASE_SENSOR)  # type: ignore #TODO(b/338318729) Fixit!
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
-          'Failed to check if Base in the fixture. Reason: ' + e)
+          'Failed to check if Base in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit!
 
   def CoverStatus(self):
-    status = self._servo.MultipleIsOn(self._FEEDBACKS)
+    status = self._servo.MultipleIsOn(self._FEEDBACKS)  # type: ignore #TODO(b/338318729) Fixit!
     is_open = all([
-        status[self._FIXTURE_FEEDBACK.FB1],
-        status[self._FIXTURE_FEEDBACK.FB3],
-        not status[self._FIXTURE_FEEDBACK.FB2],
-        not status[self._FIXTURE_FEEDBACK.FB4], ])
+        status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit!
+        status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit!
+        not status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit!
+        not status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit!
 
     is_closed = all([
-        not status[self._FIXTURE_FEEDBACK.FB1],
-        not status[self._FIXTURE_FEEDBACK.FB3],
-        status[self._FIXTURE_FEEDBACK.FB2],
-        status[self._FIXTURE_FEEDBACK.FB4], ])
+        not status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit!
+        not status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit!
+        status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit!
+        status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit!
 
     if is_open:
       return self.Status.OPEN
@@ -302,7 +302,7 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   def TriggerScanner(self):
     try:
-      self._servo.Click(self._WHALE_CONTROL.FIXTURE_NC,
+      self._servo.Click(self._WHALE_CONTROL.FIXTURE_NC,  # type: ignore #TODO(b/338318729) Fixit!
                         duration_secs=0.3)
     except servo_client.ServoClientError as e:
       logging.exception('Failed to trigger scanner %s', e)
@@ -313,6 +313,6 @@ class WhaleBFTFixture(bft.BFTFixture):
     logging.info('Stopping fixture...')
 
     # Disable battery first for safety.
-    self._servo.Disable(self._WHALE_CONTROL.BATTERY)
+    self._servo.Disable(self._WHALE_CONTROL.BATTERY)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._servo.Enable(self._WHALE_BUTTON.FIXTURE_STOP)
+    self._servo.Enable(self._WHALE_BUTTON.FIXTURE_STOP)  # type: ignore #TODO(b/338318729) Fixit!

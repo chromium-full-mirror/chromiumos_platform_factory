@@ -183,9 +183,9 @@ def GuessIsBuiltinOrStdlib(module):
   # On some environment, the origin might be set as relative paths like
   # /usr/lib/python-exec/python3.6/../../../lib64/python3.6/os.py, so we have to
   # normalize it first.
-  origin = os.path.normpath(module_spec.origin)
-  return origin.startswith(
-      STANDARD_LIB_DIR) and not origin.startswith(SITE_PACKAGES_DIR)
+  origin = os.path.normpath(module_spec.origin)  # type: ignore #TODO(b/338318729) Fixit!
+  return origin.startswith(  # type: ignore #TODO(b/338318729) Fixit!
+      STANDARD_LIB_DIR) and not origin.startswith(SITE_PACKAGES_DIR)  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def GetSysPathInDir(file_dir, additional_script=''):

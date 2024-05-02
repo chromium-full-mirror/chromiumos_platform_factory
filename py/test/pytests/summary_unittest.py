@@ -83,9 +83,9 @@ class SummaryUnitTest(unittest.TestCase):
     type_utils.LazyProperty.Override(self.test, 'ui', self.ui)
     self.mock_frontend_proxy = self.ui.InitJSTestObject.return_value
 
-    self.test.test_info = mock.create_autospec(invocation.PytestInfo)
-    self.test.test_info.ReadTestList.return_value = MOCK_TEST_LIST
-    self.test.test_info.path = TEST_INFO_PATH
+    self.test.test_info = mock.create_autospec(invocation.PytestInfo)  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.test_info.ReadTestList.return_value = MOCK_TEST_LIST  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.test_info.path = TEST_INFO_PATH  # type: ignore #TODO(b/338318729) Fixit!
 
     patcher = mock.patch.object(device_utils, 'CreateDUTInterface',
                                 autospec=True)
@@ -103,15 +103,15 @@ class SummaryUnitTest(unittest.TestCase):
     self.mock_wait_task_end = patcher.start()
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
 
   def test_setUp_InitFrontendProxy(self):
     # Turn on the screensaver after 5 seconds.
-    self.test.args = FakeArgs(screensaver_timeout=5)
+    self.test.args = FakeArgs(screensaver_timeout=5)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     # Disable the screensaver.
-    self.test.args = FakeArgs(screensaver_timeout=None)
+    self.test.args = FakeArgs(screensaver_timeout=None)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.ui.InitJSTestObject.assert_has_calls([
@@ -120,7 +120,7 @@ class SummaryUnitTest(unittest.TestCase):
     ])
 
   def test_setUp_TimeoutShouldNotBeZero(self):
-    self.test.args = FakeArgs(screensaver_timeout=0)
+    self.test.args = FakeArgs(screensaver_timeout=0)  # type: ignore #TODO(b/338318729) Fixit!
     with self.assertRaisesRegex(
         AssertionError, r"False is not true : "
         r"Timeout for screensaver should be positive\."):
@@ -131,7 +131,7 @@ class SummaryUnitTest(unittest.TestCase):
     mock_test = mock_test_list.LookupPath(TEST_INFO_PATH)
     mock_state = mock.Mock()
     mock_state.get.return_value.status = 'fake_status_from_state'
-    self.test.args = FakeArgs(include_parents=True)
+    self.test.args = FakeArgs(include_parents=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     test_results = self.test._GetTestResults(mock_test, mock_state)
@@ -155,7 +155,7 @@ class SummaryUnitTest(unittest.TestCase):
     mock_test = mock_test_list.LookupPath(TEST_INFO_PATH)
     mock_state = mock.Mock()
     mock_state.get.return_value.status = 'fake_status_from_state'
-    self.test.args = FakeArgs(include_parents=False)
+    self.test.args = FakeArgs(include_parents=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     test_results = self.test._GetTestResults(mock_test, mock_state)
@@ -205,7 +205,7 @@ class SummaryUnitTest(unittest.TestCase):
         'class_name': 'fake_name',
         'params': {}
     }
-    self.test.args = FakeArgs(bft_fixture=fake_bit_fixture)
+    self.test.args = FakeArgs(bft_fixture=fake_bit_fixture)  # type: ignore #TODO(b/338318729) Fixit!
     mock_fixture = mock_create_fixture.return_value
 
     # All tests passed.
@@ -227,7 +227,7 @@ class SummaryUnitTest(unittest.TestCase):
 
   @mock.patch.object(bft_fixture, 'CreateBFTFixture', autospec=True)
   def test_SetFixtureStatusLight_Fail(self, mock_create_fixture):
-    self.test.args = FakeArgs(bft_fixture={
+    self.test.args = FakeArgs(bft_fixture={  # type: ignore #TODO(b/338318729) Fixit!
         'class_name': 'fake_name',
         'params': {}
     })
@@ -245,7 +245,7 @@ class SummaryUnitTest(unittest.TestCase):
   @mock.patch.object(summary.Report, '_SetFixtureStatusLight', autospec=True)
   def test_runTest_SetFixtureStatusLightWhenBFTFixtureIsSet(
       self, mock_set_fixture_status_light):
-    self.test.args = FakeArgs(bft_fixture={
+    self.test.args = FakeArgs(bft_fixture={  # type: ignore #TODO(b/338318729) Fixit!
         'class_name': 'fake_name',
         'params': {}
     })
@@ -256,7 +256,7 @@ class SummaryUnitTest(unittest.TestCase):
     mock_set_fixture_status_light.assert_called_once()
 
   def test_WriteResultFile_GetFilePath(self):
-    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')
+    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._WriteResultFile(all_pass=True, test_results=[])
@@ -269,7 +269,7 @@ class SummaryUnitTest(unittest.TestCase):
                      self.mock_dut.path.join.return_value)
 
   def test_WriteResultFile_TestPass(self):
-    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')
+    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._WriteResultFile(all_pass=True, test_results=[])
@@ -278,7 +278,7 @@ class SummaryUnitTest(unittest.TestCase):
         self.mock_dut.path.join.return_value, 'PASS')
 
   def test_WriteResultFile_TestFail(self):
-    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')
+    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._WriteResultFile(
@@ -291,7 +291,7 @@ class SummaryUnitTest(unittest.TestCase):
   @mock.patch.object(summary.Report, '_WriteResultFile', autospec=True)
   def test_runTest_WriteResultFileWhenExternalNameIsSet(self,
                                                         mock_write_result_file):
-    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')
+    self.test.args = FakeArgs(run_factory_external_name='fake_result_file')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -299,7 +299,7 @@ class SummaryUnitTest(unittest.TestCase):
     mock_write_result_file.assert_called_once()
 
   def test_runTest_FinishTestWhenAllTestsPassAndWithoutPrompt(self):
-    self.test.args = FakeArgs(pass_without_prompt=True)
+    self.test.args = FakeArgs(pass_without_prompt=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.mock_overall_status.return_value = state.TestState.PASSED
 
     self.test.setUp()
@@ -308,7 +308,7 @@ class SummaryUnitTest(unittest.TestCase):
     self.mock_frontend_proxy.SetPromptMessage.assert_not_called()
 
   def test_PromptMessage_TestsPass(self):
-    self.test.args = FakeArgs(pass_without_prompt=False, prompt_message='msg')
+    self.test.args = FakeArgs(pass_without_prompt=False, prompt_message='msg')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._PromptMessage(all_pass=True)
@@ -317,7 +317,7 @@ class SummaryUnitTest(unittest.TestCase):
         'msg', True)
 
   def test_PromptMessage_TestsFailAndEnableInputOnFail(self):
-    self.test.args = FakeArgs(prompt_message='msg', disable_input_on_fail=False)
+    self.test.args = FakeArgs(prompt_message='msg', disable_input_on_fail=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._PromptMessage(all_pass=False)
@@ -326,7 +326,7 @@ class SummaryUnitTest(unittest.TestCase):
         'msg', True)
 
   def test_PromptMessage_TestsFailAndDisableInputOnFail(self):
-    self.test.args = FakeArgs(disable_input_on_fail=True)
+    self.test.args = FakeArgs(disable_input_on_fail=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.test._PromptMessage(all_pass=False)
@@ -351,7 +351,7 @@ class SummaryUnitTest(unittest.TestCase):
         fake_results)
 
   def test_BindUiKeys_EnableInputOnFail(self):
-    self.test.args = FakeArgs(disable_input_on_fail=False)
+    self.test.args = FakeArgs(disable_input_on_fail=False)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._BindUiKeys(all_pass=False)
@@ -359,7 +359,7 @@ class SummaryUnitTest(unittest.TestCase):
     self.ui.BindStandardKeys.assert_called_once()
 
   def test_BindUiKeys_TestPassAndDisableInput(self):
-    self.test.args = FakeArgs(disable_input_on_fail=True)
+    self.test.args = FakeArgs(disable_input_on_fail=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._BindUiKeys(all_pass=True)
@@ -367,7 +367,7 @@ class SummaryUnitTest(unittest.TestCase):
     self.ui.BindStandardPassKeys.assert_called_once()
 
   def test_BindUiKeys_TestFailAndDisableInput(self):
-    self.test.args = FakeArgs(disable_input_on_fail=True)
+    self.test.args = FakeArgs(disable_input_on_fail=True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test._BindUiKeys(all_pass=False)
@@ -376,7 +376,7 @@ class SummaryUnitTest(unittest.TestCase):
     self.ui.BindStandardPassKeys.assert_not_called()
 
   def test_runTest_OverallStatusInPassedState(self):
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         bft_fixture={
             'class_name': 'fake_name',
             'params': {}
@@ -402,7 +402,7 @@ class SummaryUnitTest(unittest.TestCase):
       self.mock_frontend_proxy.EnableAccessibility.assert_not_called()
 
   def test_runTest_OverallStatusNotInPassedState(self):
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         bft_fixture={
             'class_name': 'fake_name',
             'params': {}

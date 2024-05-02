@@ -193,7 +193,7 @@ class TimeoutXMLRPCTransport(xmlrpc.client.Transport):
                           http.client.HTTPSConnection(chost, None,
                                                       timeout=self.timeout,
                                                       context=self.context,
-                                                      **(x509 or {})))
+                                                      **(x509 or {})))  # type: ignore #TODO(b/338318729) Fixit!
     else:
       self._connection = (host,
                           http.client.HTTPConnection(host,
@@ -244,11 +244,11 @@ def FindUsableEthDevice(raise_exception=False,
     # In case that there are several real ethernet interfaces available,
     # we favor the one that has the cable connected end-to-end.
     current_level = 0
-    if 'Supported ports:' in stat:
+    if 'Supported ports:' in stat:  # type: ignore #TODO(b/338318729) Fixit!
       current_level += 1
     # For Linksys USB-Ethernet Adapter, it won't have 'Supported ports' field
     # So we also give weight to 'Link detected: yes'
-    if 'Link detected: yes' in stat:
+    if 'Link detected: yes' in stat:  # type: ignore #TODO(b/338318729) Fixit!
       current_level += 2
     if current_level > last_level:
       good_eth = dev

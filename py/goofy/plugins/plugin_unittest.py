@@ -16,33 +16,33 @@ class PluginTest(unittest.TestCase):
 
   def setUp(self):
     self._plugin = plugin.Plugin(mock.Mock(goofy.Goofy))
-    self._plugin.OnStart = mock.Mock()
-    self._plugin.OnStop = mock.Mock()
-    self._plugin.OnDestroy = mock.Mock()
+    self._plugin.OnStart = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    self._plugin.OnStop = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    self._plugin.OnDestroy = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testStart(self):
     self._plugin.Start()
-    self._plugin.OnStart.assert_called_once_with()
+    self._plugin.OnStart.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit!
 
     # If a plugin is started, calling Start() should not run OnStart again.
-    self._plugin.OnStart.reset_mock()
+    self._plugin.OnStart.reset_mock()  # type: ignore #TODO(b/338318729) Fixit!
     self._plugin.Start()
-    self._plugin.OnStart.assert_not_called()
+    self._plugin.OnStart.assert_not_called()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testStop(self):
     # If a plugin is not started, calling Stop() should not run OnStop.
     self._plugin.Stop()
-    self._plugin.OnStop.assert_not_called()
+    self._plugin.OnStop.assert_not_called()  # type: ignore #TODO(b/338318729) Fixit!
 
     # Normal case, start and stop.
     self._plugin.Start()
     self._plugin.Stop()
-    self._plugin.OnStop.assert_called_once_with()
+    self._plugin.OnStop.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit!
 
     # If a plugin is stopped, calling Stop() again should not run OnStop again.
-    self._plugin.OnStop.reset_mock()
+    self._plugin.OnStop.reset_mock()  # type: ignore #TODO(b/338318729) Fixit!
     self._plugin.Stop()
-    self._plugin.OnStop.assert_not_called()
+    self._plugin.OnStop.assert_not_called()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testDestroy(self):
     self._plugin.Start()
@@ -50,22 +50,22 @@ class PluginTest(unittest.TestCase):
 
     # Make sure OnStop and OnDestroy are called.
     # self._plugin.OnStop.assert_called_once_with()
-    self._plugin.OnDestroy.assert_called_once_with()
+    self._plugin.OnDestroy.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit!
 
     # If a plugin is destroyed, calling Destroy() again should not run
     # OnDestroy again.
-    self._plugin.OnDestroy.reset_mock()
+    self._plugin.OnDestroy.reset_mock()  # type: ignore #TODO(b/338318729) Fixit!
     self._plugin.Destroy()
-    self._plugin.OnDestroy.assert_not_called()
+    self._plugin.OnDestroy.assert_not_called()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testError(self):
     """Make sure exceptions in OnXXX function won't crash it's user."""
     def ErrorFunction():
       raise RuntimeError
 
-    self._plugin.OnStart = ErrorFunction
-    self._plugin.OnStop = ErrorFunction
-    self._plugin.OnDestroy = ErrorFunction
+    self._plugin.OnStart = ErrorFunction  # type: ignore #TODO(b/338318729) Fixit!
+    self._plugin.OnStop = ErrorFunction  # type: ignore #TODO(b/338318729) Fixit!
+    self._plugin.OnDestroy = ErrorFunction  # type: ignore #TODO(b/338318729) Fixit!
     self._plugin.Start()
     self._plugin.Stop()
     self._plugin.Destroy()

@@ -108,8 +108,8 @@ class EmbeddedController(device_types.DeviceComponent):
     """Says hello to EC.
     """
     try:
-      if self._device.CallOutput(
-          ['ectool', 'hello']).find('EC says hello') == -1:
+      if self._device.CallOutput(  # type: ignore #TODO(b/338318729) Fixit!
+          ['ectool', 'hello']).find('EC says hello') == -1:  # type: ignore #TODO(b/338318729) Fixit!
         raise self.Error('Did not find "EC says hello".')
     except Exception as e:
       raise self.Error(f'Unable to say hello: {e}')

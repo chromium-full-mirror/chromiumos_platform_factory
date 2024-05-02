@@ -109,10 +109,10 @@ class FakeModuleCollection:
         self._ndb_connector, self._tempfs_for_hwid_db_data)
     self.fake_goldeneye_memcache = FakeMemcacheAdapter()
     self.fake_bom_data_cacher = bc_helper_module.BOMDataCacher(
-        FakeMemcacheAdapter())
+        FakeMemcacheAdapter())  # type: ignore #TODO(b/338318729) Fixit!
     self.fake_hwid_action_manager = hwid_action_manager.HWIDActionManager(
         self.fake_hwid_db_data_manager,
-        self._fake_memcache_for_hwid_preproc_data,
+        self._fake_memcache_for_hwid_preproc_data,  # type: ignore #TODO(b/338318729) Fixit!
         [self.fake_bom_data_cacher],
         instance_factory=self._fake_hwid_instance_factory,
     )

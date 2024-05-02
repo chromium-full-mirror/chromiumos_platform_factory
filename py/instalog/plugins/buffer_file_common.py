@@ -315,8 +315,8 @@ def RestoreMetadata(config_dct):
       logger.info('Metadata contains multiple versions %s; choosing %s',
                   ', '.join(data.keys()), metadata_dct['version'])
     metadata_dct.update(data[metadata_dct['version']])
-    if (metadata_dct['end_pos'] >
-        metadata_dct['start_pos'] + os.path.getsize(config_dct['data_path'])):
+    if (metadata_dct['end_pos'] >  # type: ignore #TODO(b/338318729) Fixit!
+        metadata_dct['start_pos'] + os.path.getsize(config_dct['data_path'])):  # type: ignore #TODO(b/338318729) Fixit!
       logger.error('end_pos in restored metadata is larger than start_pos + '
                    'data file; recovering metadata from data file')
       RecoverMetadata(config_dct, metadata_dct)
@@ -867,7 +867,7 @@ class NonConsumableEventsManager:
     If the producer does not exist, a new NonConsumableFile is created, updated
     to the _producers, then is returned.
     """
-    with self._producers_lock:
+    with self._producers_lock:  # type: ignore #TODO(b/338318729) Fixit!
       if producer not in self._producers:
         self._producers[producer] = NonConsumableFile(self._dir_path, producer,
                                                       self._logger_name)

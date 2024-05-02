@@ -158,9 +158,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def GetHwids(self, request):
     """Return a filtered list of HWIDs for the given project."""
     project = _NormalizeProjectString(request.project)
-    parse_filter_field = lambda value: set(filter(None, value)) or None
+    parse_filter_field = lambda value: set(filter(None, value)) or None  # type: ignore #TODO(b/338318729) Fixit!
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       hwids = action.EnumerateHWIDs(
           with_classes=parse_filter_field(request.with_classes),
           without_classes=parse_filter_field(request.without_classes),
@@ -179,7 +179,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a list of all component classes for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       classes = action.GetComponentClasses()
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentClassesResponse(
@@ -194,23 +194,23 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a filtered list of components for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
       components = action.GetComponents(
-          with_classes=set(filter(None, request.with_classes)) or None)
+          with_classes=set(filter(None, request.with_classes)) or None)  # type: ignore #TODO(b/338318729) Fixit!
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentsResponse(
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     components_list = []
     for cls, comps in components.items():
-      for comp, comp_info in comps.items():
+      for comp, comp_info in comps.items():  # type: ignore #TODO(b/338318729) Fixit!
         status = (
             common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[comp_info.status])
-        avl_info, fields = None, []
+        avl_info, fields = None, []  # type: ignore #TODO(b/338318729) Fixit!
         if request.include_avl:
           avl_info = self._bc_helper.GetAVLInfo(cls, comp)
         if request.include_fields and not comp_info.value_is_none:
-          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)
+          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit!
 
         components_list.append(
             hwid_api_messages_pb2.Component(
@@ -228,7 +228,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
-    hwid_prefixes = set()
+    hwid_prefixes = set()  # type: ignore #TODO(b/338318729) Fixit!
     for project in self._hwid_action_manager.ListProjects():
       action = self._hwid_action_manager.GetHWIDAction(project)
       try:

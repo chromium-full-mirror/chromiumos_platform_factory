@@ -111,7 +111,7 @@ class ChromeRemoteDebugger:
     with self.lock:
       command.update({'id': self.id})
       self.id += 1
-      self.active_websocket.send(json.dumps(command))
+      self.active_websocket.send(json.dumps(command))  # type: ignore #TODO(b/338318729) Fixit!
 
   def PageNavigate(self, url):
     """Navigates current page to the given URL.

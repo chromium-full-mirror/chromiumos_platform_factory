@@ -49,12 +49,12 @@ class SSHPortForwarder:
   @classmethod
   def ToRemote(cls, *args, **kwargs):
     """Calls contructor with forward_to=REMOTE."""
-    return cls(*args, forward_to=cls.REMOTE, **kwargs)
+    return cls(*args, forward_to=cls.REMOTE, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def ToLocal(cls, *args, **kwargs):
     """Calls contructor with forward_to=LOCAL."""
-    return cls(*args, forward_to=cls.LOCAL, **kwargs)
+    return cls(*args, forward_to=cls.LOCAL, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   def __init__(self,
                forward_to,
@@ -261,7 +261,7 @@ class SSHPortForwarder:
       # Figure out what went wrong.
       if not self._exception:
         logging.info('%s: SSH unexpectedly exited: %s',
-                     self, self._ssh_output.rstrip())
+                     self, self._ssh_output.rstrip())  # type: ignore #TODO(b/338318729) Fixit!
       if self._exception and self._FAILED_STR in self._exception.output:
         logging.info('%s: Port forwarding failed', self)
         # If retry_on_forward_failure is set, keep retrying.

@@ -73,7 +73,7 @@ class UpdateTouchDeviceFWTest(unittest.TestCase):
                                   log=True, read_stdout=True, shell=True)
     updater.wait()
     if updater.returncode != 0:
-      error_message = f'Touch device {self.args.device_name} update failed.'
+      error_message = f'Touch device {self.args.device_name} update failed.'  # type: ignore #TODO(b/338318729) Fixit!
       logging.error(error_message)
       logging.error('  stdout: %s', updater.stdout_data)
       logging.error('  stderr: %s', updater.stderr_data)
@@ -83,24 +83,24 @@ class UpdateTouchDeviceFWTest(unittest.TestCase):
     # Find the appropriate device sysfs file.
     devices = [
         x for x in glob.glob('/sys/bus/i2c/devices/*/name')
-        if file_utils.ReadFile(x).strip() == self.args.device_name
+        if file_utils.ReadFile(x).strip() == self.args.device_name  # type: ignore #TODO(b/338318729) Fixit!
     ]
     self.assertEqual(1, len(devices),
                      f'Expected to find one device but found {devices}')
     device_path = os.path.dirname(devices[0])
 
-    expected_ver = getattr(self.args, 'fw_version')
+    expected_ver = getattr(self.args, 'fw_version')  # type: ignore #TODO(b/338318729) Fixit!
     actual_ver = file_utils.ReadFile(os.path.join(device_path,
                                                   'fw_version')).strip()
     if expected_ver != actual_ver:
       logging.info('Updating firmware from version %s to version %s',
                    actual_ver, expected_ver)
       firmware_updater_cmd = (
-          f'{FIRMWARE_UPDATER} -f -d {self.args.device_name} -n '
+          f'{FIRMWARE_UPDATER} -f -d {self.args.device_name} -n '  # type: ignore #TODO(b/338318729) Fixit!
           f'{self.args.fw_name}')
       self.run_updater_command(firmware_updater_cmd)
 
     # Always force-update the device configuration
     logging.info('Updating device configuration.')
-    config_updater_cmd = f'{CONFIG_UPDATER} -f -d {self.args.device_name}'
+    config_updater_cmd = f'{CONFIG_UPDATER} -f -d {self.args.device_name}'  # type: ignore #TODO(b/338318729) Fixit!
     self.run_updater_command(config_updater_cmd)

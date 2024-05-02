@@ -145,15 +145,15 @@ class SerialFixtureConnection(IFixtureConnection):
     self._tty.flush()
 
   def Disconnect(self):
-    self._tty.close()
+    self._tty.close()  # type: ignore #TODO(b/338318729) Fixit!
 
   def Send(self, msg, read_response=False):
     for c in msg:
       retries = self._retries
       while True:
         try:
-          self._tty.write(str(c))
-          self._tty.flush()
+          self._tty.write(str(c))  # type: ignore #TODO(b/338318729) Fixit!
+          self._tty.flush()  # type: ignore #TODO(b/338318729) Fixit!
           time.sleep(self._serial_delay)
         except serial.SerialTimeoutException as e:
           if retries <= 0:
@@ -168,5 +168,5 @@ class SerialFixtureConnection(IFixtureConnection):
 
   def Recv(self, length=0):
     if length:
-      return self._tty.read(length)
-    return self._tty.read(self._tty.inWaiting())
+      return self._tty.read(length)  # type: ignore #TODO(b/338318729) Fixit!
+    return self._tty.read(self._tty.inWaiting())  # type: ignore #TODO(b/338318729) Fixit!

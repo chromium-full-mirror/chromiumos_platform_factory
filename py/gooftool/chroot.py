@@ -114,10 +114,10 @@ class TmpChroot:
     self.logger.warning('following binaries are not found: %s',
                         [k for (k, v) in bin_paths if not v])
     # Remove binaries that are not found
-    bin_paths = {k: v for (k, v) in bin_paths if v}
+    bin_paths = {k: v for (k, v) in bin_paths if v}  # type: ignore #TODO(b/338318729) Fixit!
     # Copy binaries and their dependencies
     process_utils.Spawn(
-        f"tar -ch $(lddtree -l {' '.join(bin_paths.values())} 2>/dev/null | "
+        f"tar -ch $(lddtree -l {' '.join(bin_paths.values())} 2>/dev/null | "  # type: ignore #TODO(b/338318729) Fixit!
         f"sort -u) | tar -C {self.new_root} -x --skip-old-files",
         check_call=True, shell=True, log=True, log_stderr_on_error=True)
 

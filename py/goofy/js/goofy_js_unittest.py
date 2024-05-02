@@ -102,8 +102,8 @@ class GoofyJSTest(unittest.TestCase):
     critical_warnings = []
     for warning in warnings:
       description = warning.get('description')
-      if (description and any(
-          pattern.fullmatch(description)
+      if (description and any(  # type: ignore #TODO(b/338318729) Fixit!
+          pattern.fullmatch(description)  # type: ignore #TODO(b/338318729) Fixit!
           for pattern in DESCRIPTION_ALLOW_LIST)):
         filtered_warnings.append(warning)
         continue

@@ -144,14 +144,14 @@ class UtilTest(unittest.TestCase):
 
     # Mock out small wrapper functions that do not need unittests.
     self._util.shell = mock.Mock(Shell)
-    self._util._IsDeviceFixed = mock.Mock()
-    self._util.FindScript = mock.Mock()
+    self._util._IsDeviceFixed = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    self._util.FindScript = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testGetPrimaryDevicePath(self):
     """Test for GetPrimaryDevice."""
 
-    self._util._IsDeviceFixed.return_value = True
-    self._util.shell.return_value = StubStdout('/dev/sda')
+    self._util._IsDeviceFixed.return_value = True  # type: ignore #TODO(b/338318729) Fixit!
+    self._util.shell.return_value = StubStdout('/dev/sda')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertEqual('/dev/sda', self._util.GetPrimaryDevicePath())
     self.assertEqual('/dev/sda1', self._util.GetPrimaryDevicePath(1))
@@ -161,44 +161,44 @@ class UtilTest(unittest.TestCase):
     self.assertEqual('/dev/sda5', self._util.GetReleaseRootPartitionPath())
     self.assertEqual('/dev/sda4', self._util.GetReleaseKernelPartitionPath())
 
-    self._util.shell.assert_any_call('rootdev -s -d')
-    self._util._IsDeviceFixed.assert_any_call('sda')
+    self._util.shell.assert_any_call('rootdev -s -d')  # type: ignore #TODO(b/338318729) Fixit!
+    self._util._IsDeviceFixed.assert_any_call('sda')  # type: ignore #TODO(b/338318729) Fixit!
 
   def testGetPrimaryDevicePathNotFixed(self):
     """Test for GetPrimaryDevice when multiple primary devices are found."""
 
-    self._util._IsDeviceFixed.return_value = False
-    self._util.shell.return_value = StubStdout('/dev/sda')
+    self._util._IsDeviceFixed.return_value = False  # type: ignore #TODO(b/338318729) Fixit!
+    self._util.shell.return_value = StubStdout('/dev/sda')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(Error, self._util.GetPrimaryDevicePath)
 
-    self._util.shell.assert_any_call('rootdev -s -d')
-    self._util._IsDeviceFixed.assert_any_call('sda')
+    self._util.shell.assert_any_call('rootdev -s -d')  # type: ignore #TODO(b/338318729) Fixit!
+    self._util._IsDeviceFixed.assert_any_call('sda')  # type: ignore #TODO(b/338318729) Fixit!
 
   def testFindRunScript(self):
     stub_result = lambda: None
-    stub_result.success = True
+    stub_result.success = True  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._util.FindScript.return_value = 'script'
-    self._util.shell.return_value = stub_result
+    self._util.FindScript.return_value = 'script'  # type: ignore #TODO(b/338318729) Fixit!
+    self._util.shell.return_value = stub_result  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script')
-    self._util.shell.assert_called_with('script')
+    self._util.shell.assert_called_with('script')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script', None)
-    self._util.shell.assert_called_with('script')
+    self._util.shell.assert_called_with('script')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script', ['a'])
-    self._util.shell.assert_called_with('script a')
+    self._util.shell.assert_called_with('script a')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script', ['a', 'b'])
-    self._util.shell.assert_called_with('script a b')
+    self._util.shell.assert_called_with('script a b')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script', ['a', 'b'], ['c=d'])
-    self._util.shell.assert_called_with('c=d script a b')
+    self._util.shell.assert_called_with('c=d script a b')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._util.FindAndRunScript('script', None, ['c=d'])
-    self._util.shell.assert_called_with('c=d script')
+    self._util.shell.assert_called_with('c=d script')  # type: ignore #TODO(b/338318729) Fixit!
 
 
 class GooftoolTest(unittest.TestCase):
@@ -248,8 +248,7 @@ class GooftoolTest(unittest.TestCase):
   @mock.patch.object(sys_utils, 'MountPartition', autospec=True)
   @mock.patch.object(pygpt, 'GPT', autospec=True)
   def testVerifyKey(self, mock_pygpt, mock_mount):
-    self._gooftool._util.GetReleaseKernelPathFromRootPartition.return_value = \
-        '/dev/zero'
+    self._gooftool._util.GetReleaseKernelPathFromRootPartition.return_value = '/dev/zero'  # type: ignore #TODO(b/338318729) Fixit!
     self._gooftool._flashrom.LoadMainFirmware.side_effect = [
         MockMainFirmware(),
         MockMainFirmware(
@@ -281,8 +280,8 @@ class GooftoolTest(unittest.TestCase):
     self._gooftool._flashrom.LoadMainFirmware.assert_called()
 
   def testVerifySystemTime(self):
-    self._gooftool._util.GetReleaseRootPartitionPath.return_value = 'root'
-    self._gooftool._util.shell.return_value = Obj(
+    self._gooftool._util.GetReleaseRootPartitionPath.return_value = 'root'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = Obj(  # type: ignore #TODO(b/338318729) Fixit!
         stdout='Filesystem created:     Mon Jan 25 16:13:18 2016\n',
         success=True)
 
@@ -292,26 +291,26 @@ class GooftoolTest(unittest.TestCase):
     self._gooftool.VerifySystemTime(system_time=good_system_time)
     self.assertRaises(Error, self._gooftool.VerifySystemTime,
                       release_rootfs='root', system_time=bad_system_time)
-    self._gooftool._util.GetReleaseRootPartitionPath.assert_called()
-    self._gooftool._util.shell.assert_called_with('dumpe2fs -h root')
+    self._gooftool._util.GetReleaseRootPartitionPath.assert_called()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_with('dumpe2fs -h root')  # type: ignore #TODO(b/338318729) Fixit!
 
   def testVerifyRootFs(self):
     fake_attrs = {'test': 'value'}
-    self._gooftool._util.GetPartitionDevice.return_value = 'root'
-    self._gooftool._util.GetCgptAttributes.return_value = fake_attrs
-    self._gooftool._util.SetCgptAttributes.return_value = None
+    self._gooftool._util.GetPartitionDevice.return_value = 'root'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetCgptAttributes.return_value = fake_attrs  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.SetCgptAttributes.return_value = None  # type: ignore #TODO(b/338318729) Fixit!
 
     self._gooftool.VerifyRootFs('root3')
-    self._gooftool._util.GetPartitionDevice.assert_called_once_with('root3')
-    self._gooftool._util.GetCgptAttributes.assert_called_once_with('root')
-    self._gooftool._util.InvokeChromeOSPostInstall.assert_called_once_with(
+    self._gooftool._util.GetPartitionDevice.assert_called_once_with('root3')  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetCgptAttributes.assert_called_once_with('root')  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.InvokeChromeOSPostInstall.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'root3')
-    self._gooftool._util.SetCgptAttributes.assert_called_once_with(fake_attrs,
+    self._gooftool._util.SetCgptAttributes.assert_called_once_with(fake_attrs,  # type: ignore #TODO(b/338318729) Fixit!
                                                                    'root')
 
   def testVerifyTPM(self):
     # It's correct tpm manager status.
-    self._gooftool._util.GetTPMManagerStatus.return_value = {
+    self._gooftool._util.GetTPMManagerStatus.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'is_enabled': 'true',
         'is_owned': 'false',
         'is_owner_password_present': 'false'
@@ -323,7 +322,7 @@ class GooftoolTest(unittest.TestCase):
   def testVerifyTPMWrongManagerStatus(self):
     # It's wrong tpm manager status, the correct should be:
     # is_enabled = true, is_owned = false, is_owner_password_present = false
-    self._gooftool._util.GetTPMManagerStatus.return_value = {
+    self._gooftool._util.GetTPMManagerStatus.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'is_enabled': 'false',
         'is_owned': 'false',
         'is_owner_password_present': 'false'
@@ -345,8 +344,7 @@ class GooftoolTest(unittest.TestCase):
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
 
     # Raise since it is an unknown SKU
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(SKU.Unknown.value)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(SKU.Unknown.value)  # type: ignore #TODO(b/338318729) Fixit!
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
@@ -358,9 +356,8 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         GetFLMSTR(consumer, board),
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.value)
-    self._gooftool._util.GetTestImageBoardName.return_value = board
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(consumer.value)  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetTestImageBoardName.return_value = board  # type: ignore #TODO(b/338318729) Fixit!
     # Pass since everything is fine
     self._gooftool.VerifyManagementEngineLocked()
 
@@ -369,8 +366,7 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         GetFLMSTR(consumer, board),
         MockFirmwareImage(MockME.FW_ME_READ_UNLOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.value)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(consumer.value)  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since the ME section is not 0xff
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -380,8 +376,7 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         MockME().DESCRIPTOR_UNLOCKED,
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(consumer.value)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(consumer.value)  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since the descriptor is not locked
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -394,40 +389,35 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         GetFLMSTR(lite, board),
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value)
-    self._gooftool._util.GetTestImageBoardName.return_value = board
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value)  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetTestImageBoardName.return_value = board  # type: ignore #TODO(b/338318729) Fixit!
     # Pass since everything is fine
     self._gooftool.VerifyManagementEngineLocked()
 
     # Read locked ME section + locked cbmem with invalid manufacturing mode
     # + locked descriptor
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value, mode='YES')
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value, mode='YES')  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since Manufacturing Mode is not NO
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
     # Read locked ME section + locked cbmem with invalid FW partition table
     # + locked descriptor
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value, fw_table='BAD')
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value, fw_table='BAD')  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since FW Partition Table is not OK
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
     # Read locked ME section + locked cbmem with WP in RO not enabled
     # + locked descriptor
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value, wp_ro_enabled='NO')
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value, wp_ro_enabled='NO')  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since WP in RO is not YES
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
     # Read locked ME section + locked cbmem + locked descriptor
     # No RO WP scope.
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value, ro_wp_vals=None)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value, ro_wp_vals=None)  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since there's no RO WP scope.
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
@@ -437,8 +427,7 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         GetFLMSTR(lite, board),
         MockFirmwareImage(MockME.FW_ME_READ_UNLOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value)  # type: ignore #TODO(b/338318729) Fixit!
     # Pass since we don't check the SI_ME content
     self._gooftool.VerifyManagementEngineLocked()
 
@@ -447,72 +436,71 @@ class GooftoolTest(unittest.TestCase):
       MockIntelMainFirmware(
         MockME().DESCRIPTOR_UNLOCKED,
         MockFirmwareImage(MockME.FW_ME_READ_LOCKED))
-    self._gooftool._util.shell.return_value = \
-      MockME().GetMockedCBMEM(lite.value)
+    self._gooftool._util.shell.return_value = MockME().GetMockedCBMEM(lite.value)  # type: ignore #TODO(b/338318729) Fixit!
     # Raise since the descriptor is not locked
     self.assertRaises(ManagementEngineError,
                       self._gooftool.VerifyManagementEngineLocked)
 
   def testGenerateStableDeviceSecretSuccess(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'
-    self._gooftool._util.shell.return_value = StubStdout('00' * 32 + '\n')
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = StubStdout('00' * 32 + '\n')  # type: ignore #TODO(b/338318729) Fixit!
 
     self._gooftool.GenerateStableDeviceSecret()
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'libhwsec_client get_random 32', log=False)
-    self._gooftool.vpd.UpdateData.assert_called_once_with(
+    self._gooftool.vpd.UpdateData.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         dict(stable_device_secret_DO_NOT_SHARE='00' * 32),
         partition=vpd.VPD_READONLY_PARTITION_NAME)
 
   def testGenerateStableDeviceSecretNoOutput(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'
-    self._gooftool._util.shell.return_value = StubStdout('')
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = StubStdout('')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Error, 'Error validating device secret',
                            self._gooftool.GenerateStableDeviceSecret)
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'libhwsec_client get_random 32', log=False)
 
   def testGenerateStableDeviceSecretShortOutput(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'
-    self._gooftool._util.shell.return_value = StubStdout('00' * 31)
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = StubStdout('00' * 31)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Error, 'Error validating device secret',
                            self._gooftool.GenerateStableDeviceSecret)
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'libhwsec_client get_random 32', log=False)
 
   def testGenerateStableDeviceSecretBadOutput(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'
-    self._gooftool._util.shell.return_value = StubStdout('Error!')
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = StubStdout('Error!')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Error, 'Error validating device secret',
                            self._gooftool.GenerateStableDeviceSecret)
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'libhwsec_client get_random 32', log=False)
 
   def testGenerateStableDeviceSecretBadReleaseImageVersion(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6886.0.0'
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6886.0.0'  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Error, 'Release image version',
                            self._gooftool.GenerateStableDeviceSecret)
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testGenerateStableDeviceSecretVPDWriteFailed(self):
-    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'
-    self._gooftool._util.shell.return_value = StubStdout('00' * 32 + '\n')
-    self._gooftool.vpd.UpdateData.side_effect = Exception()
+    self._gooftool._util.GetReleaseImageVersion.return_value = '6887.0.0'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.return_value = StubStdout('00' * 32 + '\n')  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool.vpd.UpdateData.side_effect = Exception()  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(Error, 'Error writing device secret',
                            self._gooftool.GenerateStableDeviceSecret)
-    self._gooftool._util.GetReleaseImageVersion.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.GetReleaseImageVersion.assert_any_call()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         'libhwsec_client get_random 32', log=False)
-    self._gooftool.vpd.UpdateData.assert_called_once_with(
+    self._gooftool.vpd.UpdateData.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         dict(stable_device_secret_DO_NOT_SHARE='00' * 32),
         partition=vpd.VPD_READONLY_PARTITION_NAME)
 
@@ -521,7 +509,7 @@ class GooftoolTest(unittest.TestCase):
 
     self._gooftool.WriteHWID('hwid')
 
-    self._gooftool.futility.WriteHWID.assert_called_with('firmware', 'hwid')
+    self._gooftool.futility.WriteHWID.assert_called_with('firmware', 'hwid')  # type: ignore #TODO(b/338318729) Fixit!
     self._gooftool._flashrom.LoadMainFirmware.assert_called()
 
   def testVerifyWPSwitch(self):
@@ -530,30 +518,30 @@ class GooftoolTest(unittest.TestCase):
         mock.call('ectool flashprotect')]
 
     # 1st call: AP and EC wpsw are enabled.
-    self._gooftool._util.shell.side_effect = [
+    self._gooftool._util.shell.side_effect = [  # type: ignore #TODO(b/338318729) Fixit!
         StubStdout('1'),
         StubStdout('Flash protect flags: 0x00000008 wp_gpio_asserted\n'
                    'Valid flags:...')]
 
     self._gooftool.VerifyWPSwitch()
-    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)
+    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)  # type: ignore #TODO(b/338318729) Fixit!
 
     # 2nd call: AP wpsw is disabled.
-    self._gooftool._util.shell.reset_mock()
-    self._gooftool._util.shell.side_effect = [StubStdout('0')]
+    self._gooftool._util.shell.reset_mock()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.side_effect = [StubStdout('0')]  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(Error, self._gooftool.VerifyWPSwitch)
-    self.assertEqual(self._gooftool._util.shell.call_args_list,
+    self.assertEqual(self._gooftool._util.shell.call_args_list,  # type: ignore #TODO(b/338318729) Fixit!
                      [shell_calls[0]])
 
     # 3st call: AP wpsw is enabled but EC is disabled.
-    self._gooftool._util.shell.reset_mock()
-    self._gooftool._util.shell.side_effect = [
+    self._gooftool._util.shell.reset_mock()  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.shell.side_effect = [  # type: ignore #TODO(b/338318729) Fixit!
         StubStdout('1'),
         StubStdout('Flash protect flags: 0x00000000\nValid flags:...')]
 
     self.assertRaises(Error, self._gooftool.VerifyWPSwitch)
-    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)
+    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SetupVPDMocks(self, ro=None, rw=None):
     """Set up mocks for vpd related tests.
@@ -569,11 +557,11 @@ class GooftoolTest(unittest.TestCase):
         return rw
       return None
 
-    self._gooftool.vpd.GetAllData.side_effect = GetAllDataSideEffect
+    self._gooftool.vpd.GetAllData.side_effect = GetAllDataSideEffect  # type: ignore #TODO(b/338318729) Fixit!
 
   def testVerifyReleaseChannel_CanaryChannel(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'canary-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'canary-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
 
     self.assertRaisesRegex(Error,
@@ -581,15 +569,15 @@ class GooftoolTest(unittest.TestCase):
                            self._gooftool.VerifyReleaseChannel)
 
   def testVerifyReleaseChannel_DevChannel(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'dev-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'dev-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
 
     self._gooftool.VerifyReleaseChannel()
 
   def testVerifyReleaseChannel_DevChannelFailed(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'dev-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'dev-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
     enforced_channels = ['stable', 'beta']
 
@@ -599,15 +587,15 @@ class GooftoolTest(unittest.TestCase):
                            enforced_channels)
 
   def testVerifyReleaseChannel_BetaChannel(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'beta-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'beta-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
 
     self._gooftool.VerifyReleaseChannel()
 
   def testVerifyReleaseChannel_BetaChannelFailed(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'beta-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'beta-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
     enforced_channels = ['stable']
 
@@ -617,15 +605,15 @@ class GooftoolTest(unittest.TestCase):
                            enforced_channels)
 
   def testVerifyReleaseChannel_StableChannel(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'stable-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'stable-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
 
     self._gooftool.VerifyReleaseChannel()
 
   def testVerifyReleaseChannel_InvalidEnforcedChannels(self):
-    self._gooftool._util.GetReleaseImageChannel.return_value = 'stable-channel'
-    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [
+    self._gooftool._util.GetReleaseImageChannel.return_value = 'stable-channel'  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._util.GetAllowedReleaseImageChannels.return_value = [  # type: ignore #TODO(b/338318729) Fixit!
         'dev', 'beta', 'stable']
     enforced_channels = ['canary']
 
@@ -646,7 +634,7 @@ class GooftoolTest(unittest.TestCase):
     f = MockFile()
     f.read = lambda: 'ja\nzh\nen'
     image_file = 'firmware'
-    self._gooftool._named_temporary_file.return_value = f
+    self._gooftool._named_temporary_file.return_value = f  # type: ignore #TODO(b/338318729) Fixit!
 
     shell_calls = [
         mock.call(
@@ -658,7 +646,7 @@ class GooftoolTest(unittest.TestCase):
 
     self._gooftool.SetFirmwareBitmapLocale()
     self._gooftool._flashrom.LoadMainFirmware.assert_any_call()
-    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)
+    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)  # type: ignore #TODO(b/338318729) Fixit!
 
   # TODO (b/212216855)
   @label_utils.Informational
@@ -672,8 +660,8 @@ class GooftoolTest(unittest.TestCase):
     f = MockFile()
     f.read = lambda: ''
     image_file = 'firmware'
-    self._gooftool._named_temporary_file.return_value = f
-    self._gooftool._unpack_bmpblock.return_value = {'locales': ['ja', 'zh',
+    self._gooftool._named_temporary_file.return_value = f  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._unpack_bmpblock.return_value = {'locales': ['ja', 'zh',  # type: ignore #TODO(b/338318729) Fixit!
                                                                 'en']}
     shell_calls = [
         mock.call(
@@ -686,8 +674,8 @@ class GooftoolTest(unittest.TestCase):
 
     self._gooftool.SetFirmwareBitmapLocale()
     self._gooftool._flashrom.LoadMainFirmware.assert_any_call()
-    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)
-    self._gooftool._unpack_bmpblock.assert_called_once_with(f.read())
+    self.assertEqual(self._gooftool._util.shell.call_args_list, shell_calls)  # type: ignore #TODO(b/338318729) Fixit!
+    self._gooftool._unpack_bmpblock.assert_called_once_with(f.read())  # type: ignore #TODO(b/338318729) Fixit!
 
   # TODO (b/212216855)
   @label_utils.Informational
@@ -704,11 +692,11 @@ class GooftoolTest(unittest.TestCase):
     # 'en'.
     f.read = lambda: 'ja\nzh\nfr'
     image_file = 'firmware'
-    self._gooftool._named_temporary_file.return_value = f
+    self._gooftool._named_temporary_file.return_value = f  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(Error, self._gooftool.SetFirmwareBitmapLocale)
     self._gooftool._flashrom.LoadMainFirmware.assert_any_call()
-    self._gooftool._util.shell.assert_called_once_with(
+    self._gooftool._util.shell.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
         f'cbfstool {image_file} extract -n locales -f {f.name} -r COREBOOT')
 
   def testSetFirmwareBitmapLocaleNoVPD(self):
@@ -725,7 +713,7 @@ class GooftoolTest(unittest.TestCase):
 
     self._gooftool._util.sys_interface = mock.Mock()
     self._gooftool._util.sys_interface.info = info.SystemInfo()
-    self._gooftool._util.GetSystemInfo.return_value = core.Util.GetSystemInfo(
+    self._gooftool._util.GetSystemInfo.return_value = core.Util.GetSystemInfo(  # type: ignore #TODO(b/338318729) Fixit!
         self._gooftool._util)
 
     system_summary_keys = {
@@ -745,7 +733,7 @@ class GooftoolTest(unittest.TestCase):
     }
     self.assertEqual(system_summary_keys,
                      set(self._gooftool.GetSystemDetails().keys()))
-    self._gooftool._util.GetSystemInfo.assert_called_once()
+    self._gooftool._util.GetSystemInfo.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testGSCWriteFlashInfoWithCustomType(self):
     """Test for custom label field.
@@ -755,13 +743,13 @@ class GooftoolTest(unittest.TestCase):
     """
 
     model_sku_utils.GetDesignConfig = mock.Mock()
-    self._gooftool.GSCSetBoardId = mock.Mock()
+    self._gooftool.GSCSetBoardId = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
     self._gooftool._util.sys_interface = None
 
     # custom type is 'custom_label' but no custom label field in VPD
     config = self._SIMPLE_MODEL_SKU_CONFIG_CUSTOM_LABEL
     model_sku_utils.GetDesignConfig.return_value = config
-    self._gooftool.vpd.GetValue.return_value = None
+    self._gooftool.vpd.GetValue.return_value = None  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaisesRegex(
         Error, 'This is a custom label device, but custom_label_tag is not set '

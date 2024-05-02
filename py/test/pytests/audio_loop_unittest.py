@@ -60,7 +60,7 @@ class AudioLoopUnitTest(unittest.TestCase):
 
   def setUp(self):
     self.test = audio_loop.AudioLoopTest()
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
     self.ui = mock.create_autospec(test_ui.StandardUI)
     type_utils.LazyProperty.Override(self.test, 'ui', self.ui)
     logging.disable()
@@ -85,14 +85,14 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.GetCardIndexByName.side_effect = GetCardIndex
 
   def testsetUpLoadConf(self):
-    self.test.args.audio_conf = 'conf'
+    self.test.args.audio_conf = 'conf'  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
 
     self.audio.LoadConfig.assert_called_with('conf')
 
   def testsetUpInitAction(self):
-    self.test.args.initial_actions = [["input_dev", "init_speakerdmic"]]
+    self.test.args.initial_actions = [["input_dev", "init_speakerdmic"]]  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
 
@@ -100,14 +100,14 @@ class AudioLoopUnitTest(unittest.TestCase):
                                                    INPUT_DEV_INDEX)
 
   def testsetUpInitCard(self):
-    self.test.args.initial_actions = [["input_dev", None]]
+    self.test.args.initial_actions = [["input_dev", None]]  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
 
     self.audio.Initialize.assert_called_with(INPUT_DEV_INDEX)
 
   def testsetUpCheckCrasEnabled(self):
-    self.test.args = FakeArgs(check_cras=True, cras_enabled=True)
+    self.test.args = FakeArgs(check_cras=True, cras_enabled=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.dut.CallOutput.return_value = 'start/running'
 
     self.test.setUp()
@@ -116,7 +116,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.assertRaises(Exception, self.test.setUp)
 
   def testsetUpCheckCrasDisabled(self):
-    self.test.args = FakeArgs(check_cras=True, cras_enabled=False)
+    self.test.args = FakeArgs(check_cras=True, cras_enabled=False)  # type: ignore #TODO(b/338318729) Fixit!
     self.dut.CallOutput.return_value = 'stop/waiting'
 
     self.test.setUp()
@@ -125,7 +125,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.assertRaises(Exception, self.test.setUp)
 
   def testCheckDongleStatusPlug(self):
-    self.test.args = FakeArgs(check_dongle=True, tests_to_conduct=[{
+    self.test.args = FakeArgs(check_dongle=True, tests_to_conduct=[{  # type: ignore #TODO(b/338318729) Fixit!
         'type': 'audiofun'
     }])
     self.audio.GetMicJackStatus.return_value = True
@@ -139,7 +139,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.GetHeadphoneJackStatus.assert_called_with(OUTPUT_DEV_INDEX)
 
   def testCheckDongleStatusPlugButNotRequired(self):
-    self.test.args = FakeArgs(check_dongle=True, require_dongle=False,
+    self.test.args = FakeArgs(check_dongle=True, require_dongle=False,  # type: ignore #TODO(b/338318729) Fixit!
                               tests_to_conduct=[{
                                   'type': 'sinewav'
                               }])
@@ -153,9 +153,9 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.GetHeadphoneJackStatus.assert_called_with(OUTPUT_DEV_INDEX)
 
   def testCheckDongleStatusUnplug(self):
-    self.test.args = FakeArgs(check_dongle=True, require_dongle=True)
-    self.test.args.check_dongle = True
-    self.test.args.require_dongle = True
+    self.test.args = FakeArgs(check_dongle=True, require_dongle=True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.check_dongle = True  # type: ignore #TODO(b/338318729) Fixit!
+    self.test.args.require_dongle = True  # type: ignore #TODO(b/338318729) Fixit!
     self.audio.GetMicJackStatus.return_value = False
     self.audio.GetHeadphoneJackStatus.return_value = True
     self.test.setUp()
@@ -166,7 +166,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.GetHeadphoneJackStatus.assert_called_with(OUTPUT_DEV_INDEX)
 
   def testCheckDongleStatusMicJackType(self):
-    self.test.args.mic_jack_type = 'lrgm'
+    self.test.args.mic_jack_type = 'lrgm'  # type: ignore #TODO(b/338318729) Fixit!
     self.audio.GetMicJackType.return_value = base.MicJackType.lrmg
     self.test.setUp()
 
@@ -175,7 +175,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.GetMicJackType.assert_called_with(INPUT_DEV_INDEX)
 
   def testSetupAudio(self):
-    self.test.args = FakeArgs(require_dongle=False,
+    self.test.args = FakeArgs(require_dongle=False,  # type: ignore #TODO(b/338318729) Fixit!
                               mic_source=base.InputDevices.Extmic)
     self.test.setUp()
 
@@ -188,7 +188,7 @@ class AudioLoopUnitTest(unittest.TestCase):
                                                INPUT_DEV_INDEX)
 
   def testSetupAudioDongle(self):
-    self.test.args = FakeArgs(require_dongle=True,
+    self.test.args = FakeArgs(require_dongle=True,  # type: ignore #TODO(b/338318729) Fixit!
                               mic_source=base.InputDevices.Extmic)
     self.test.setUp()
 
@@ -203,7 +203,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.image_tool, 'LSBFile', autospec=True)
   def testCheckConformance(self, mock_lsb):
     mock_lsb.GetChromeOSBoard.return_value = 'test'
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[  # type: ignore #TODO(b/338318729) Fixit!
         'output_dev', '5'
     ], conformance_rate_criteria=0.2, conformance_rate_err_criteria=90,
                               input_rate=1234, output_rate=4321)
@@ -232,7 +232,7 @@ class AudioLoopUnitTest(unittest.TestCase):
 
   @mock.patch.object(audio_loop.image_tool, 'LSBFile', autospec=True)
   def testCheckConformanceIntelSOF(self, mock_lsb):
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[  # type: ignore #TODO(b/338318729) Fixit!
         'output_dev', '5'
     ], conformance_rate_criteria=0.2, conformance_rate_err_criteria=90,
                               input_rate=1234, output_rate=4321)
@@ -265,7 +265,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.image_tool, 'LSBFile', autospec=True)
   def testCheckConformanceUnexpectedOutput(self, mock_lsb):
     mock_lsb.GetChromeOSBoard.return_value = 'test'
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], output_dev=[  # type: ignore #TODO(b/338318729) Fixit!
         'output_dev', '5'
     ], conformance_rate_criteria=0.2, conformance_rate_err_criteria=90,
                               input_rate=1234, output_rate=4321)
@@ -293,7 +293,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     ], any_order=True)
 
   def testAudioFunTestWrongChannelCount(self):
-    self.test.args = FakeArgs(input_rate=1234, output_rate=4321,
+    self.test.args = FakeArgs(input_rate=1234, output_rate=4321,  # type: ignore #TODO(b/338318729) Fixit!
                               num_output_channels=2)
     self.test.setUp()
 
@@ -322,7 +322,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.session, 'GetCurrentTestPath', autospec=True)
   def testAudioFunTest(self, mock_test_path):
     del mock_test_path  # unused
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         input_rate=1234, output_rate=4321, num_output_channels=300,
         input_dev=['input_dev', '4'], output_dev=['output_dev', '5'])
     input_channels = [0, 1]
@@ -389,7 +389,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.process_utils, 'Spawn', autospec=True)
   def testSinewavTest(self, mock_process, mock_record, mock_time):
     mock_time.return_value = 123
-    self.test.args = FakeArgs(output_volume=100, output_rate=4321,
+    self.test.args = FakeArgs(output_volume=100, output_rate=4321,  # type: ignore #TODO(b/338318729) Fixit!
                               output_dev=['output_dev', '5'])
     self.dut.temp.TempFile.return_value.__enter__.return_value = 'remote_file'
     self.audio_utils['GetGenerateSineWavArgs'].return_value = 'cmd args'
@@ -427,7 +427,7 @@ class AudioLoopUnitTest(unittest.TestCase):
 
   def testRecordAndCheck(self):
     self.dut.temp.TempFile.return_value.__enter__.return_value = 'remote_file'
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)  # type: ignore #TODO(b/338318729) Fixit!
     sox_output = mock.Mock()
 
     self.audio_utils['SoxStatOutput'].return_value = sox_output
@@ -455,7 +455,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.AudioLoopTest, 'AppendErrorMessage',
                      autospec=True)
   def testRecordAndCheckErrorTooLow(self, mock_error_msg):
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)  # type: ignore #TODO(b/338318729) Fixit!
     sox_output = mock.Mock()
     self.audio_utils['SoxStatOutput'].return_value = sox_output
     self.audio_utils['GetAudioRms'].return_value = 0.01
@@ -489,7 +489,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.AudioLoopTest, 'AppendErrorMessage',
                      autospec=True)
   def testRecordAndCheckErrorTooHigh(self, mock_error_msg):
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)  # type: ignore #TODO(b/338318729) Fixit!
     sox_output = mock.Mock()
     self.audio_utils['SoxStatOutput'].return_value = sox_output
     self.audio_utils['GetAudioRms'].return_value = 0.11
@@ -524,7 +524,7 @@ class AudioLoopUnitTest(unittest.TestCase):
                      autospec=True)
   def testRecordAndCheckErrorSinewav(self, mock_error_msg):
     del mock_error_msg  # unused
-    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)
+    self.test.args = FakeArgs(input_dev=['input_dev', '4'], input_rate=1234)  # type: ignore #TODO(b/338318729) Fixit!
     sox_output = mock.Mock()
     self.audio_utils['SoxStatOutput'].return_value = sox_output
     self.audio_utils['GetRoughFreq'].return_value = 2001
@@ -553,7 +553,7 @@ class AudioLoopUnitTest(unittest.TestCase):
         SetupAudio=mock.DEFAULT,
         CheckDongleStatus=mock.DEFAULT,
     ) as mock_methods:
-      self.test.args = FakeArgs(output_dev=['output_dev', '5'],
+      self.test.args = FakeArgs(output_dev=['output_dev', '5'],  # type: ignore #TODO(b/338318729) Fixit!
                                 check_conformance=True)
       audio_test = {
           'type': 'audiofun'
@@ -564,7 +564,7 @@ class AudioLoopUnitTest(unittest.TestCase):
       noise_test = {
           'type': 'noise'
       }
-      self.test.args.tests_to_conduct = [audio_test, sinewav_test, noise_test]
+      self.test.args.tests_to_conduct = [audio_test, sinewav_test, noise_test]  # type: ignore #TODO(b/338318729) Fixit!
       mock_methods['MayPassTest'].return_value = False
       self.test.setUp()
 
@@ -586,7 +586,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   def testRunTestAutoStart(self, mock_check_dongle, mock_setup_audio,
                            mock_test):
     del mock_check_dongle, mock_setup_audio, mock_test  # unused
-    self.test.args.autostart = True
+    self.test.args.autostart = True  # type: ignore #TODO(b/338318729) Fixit!
     self.test.setUp()
 
     self.test.runTest()
@@ -596,7 +596,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.AudioLoopTest, 'NoiseTest', autospec=True)
   def testRunTestOutputVolumeDongle(self, mock_test):
     del mock_test  # unused
-    self.test.args = FakeArgs(output_volume=10, require_dongle=True,
+    self.test.args = FakeArgs(output_volume=10, require_dongle=True,  # type: ignore #TODO(b/338318729) Fixit!
                               tests_to_conduct=[{
                                   'type': 'noise'
                               }])
@@ -609,7 +609,7 @@ class AudioLoopUnitTest(unittest.TestCase):
   @mock.patch.object(audio_loop.AudioLoopTest, 'NoiseTest', autospec=True)
   def testRunTestOutputVolume(self, mock_test):
     del mock_test  # unused
-    self.test.args = FakeArgs(output_volume=10, require_dongle=False,
+    self.test.args = FakeArgs(output_volume=10, require_dongle=False,  # type: ignore #TODO(b/338318729) Fixit!
                               tests_to_conduct=[{
                                   'type': 'noise'
                               }])
@@ -620,7 +620,7 @@ class AudioLoopUnitTest(unittest.TestCase):
     self.audio.SetSpeakerVolume.assert_called_with(10, OUTPUT_DEV_INDEX)
 
   def testRunTestUnknownTest(self):
-    self.test.args = FakeArgs(tests_to_conduct=[{
+    self.test.args = FakeArgs(tests_to_conduct=[{  # type: ignore #TODO(b/338318729) Fixit!
         'type': 'unknown'
     }])
     self.test.setUp()

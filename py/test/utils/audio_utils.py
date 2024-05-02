@@ -233,7 +233,7 @@ def GetCardIndexByName(card_name):
   """
   _RE_CARD_INDEX = re.compile(r'card (\d+):.*?\[(.+?)\]')
   output = process_utils.Spawn(['aplay', '-l'], read_stdout=True).stdout_data
-  for line in output.split('\n'):
+  for line in output.split('\n'):  # type: ignore #TODO(b/338318729) Fixit!
     m = _RE_CARD_INDEX.match(line)
     if m is not None and m.group(2) == card_name:
       return m.group(1)
@@ -282,9 +282,9 @@ class CRAS:
     Returns:
       A dbus.Interface object that can control Cras through DBus API.
     """
-    bus = dbus.SystemBus()
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
     cras_object = bus.get_object('org.chromium.cras', '/org/chromium/cras')
-    return dbus.Interface(cras_object, 'org.chromium.cras.Control')
+    return dbus.Interface(cras_object, 'org.chromium.cras.Control')  # type: ignore #TODO(b/338318729) Fixit!
 
   def EnableOutput(self):
     """Enables output by setting system mute and user mute states to False."""

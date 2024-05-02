@@ -136,7 +136,7 @@ class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
     super().__init__(device, interface, phy_name)
     self._services = [(service.ssid, service.freq) for service in services]
     self._switch_antenna_config = switch_antenna_config
-    self._signal_table = {antenna: {service: []
+    self._signal_table = {antenna: {service: []  # type: ignore #TODO(b/338318729) Fixit!
                                     for service in self._services}
                           for antenna in self._switch_antenna_config}
     self._antenna = None
@@ -153,7 +153,7 @@ class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
           interface=self._interface, frequency=service.freq,
           scan_timeout=self._scan_timeout)
 
-      same_freq_service = {s: []
+      same_freq_service = {s: []  # type: ignore #TODO(b/338318729) Fixit!
                            for s in self._services if s[1] == service.freq}
       for ap in scan_output:
         scanned_service = (ap.ssid, ap.frequency)
@@ -378,7 +378,7 @@ class RadiotapPacket:
     """Returns packet information of the radiotap header should have."""
     header_size = RadiotapPacket.MAIN_HEADER_FORMAT.size
     data_bytes = 0
-    antenna_offsets = []
+    antenna_offsets = []  # type: ignore #TODO(b/338318729) Fixit!
 
     for bitmask in field_list:
       antenna_offsets.append({})
@@ -449,7 +449,7 @@ class Capture:
   def GetSignal(self):
     """Gets signal from tcpdump."""
     while True:
-      line = self.monitor_process.stdout.readline()
+      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
       m = _RE_BEACON.search(line)
       if m:
         freq = int(m.group(1))
@@ -457,7 +457,7 @@ class Capture:
         break
     packet_bytes = b''
     while True:
-      line = self.monitor_process.stdout.readline()
+      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
       if not line.startswith('\t0x'):
         break
 
@@ -480,7 +480,7 @@ class Capture:
     path = (
         f'/sys/kernel/debug/ieee80211/{self.phy}/netdev:{self.parent_device}'
         f'/iwlmvm/bf_params')
-    if self.dut.path.exists(path):
+    if self.dut.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit!
       session.console.info('Setting beacon filter (enable=%d) for Intel WiFi',
                            value)
       self.dut.WriteFile(path, f'bf_enable_beacon_filter={int(value)}\n')
@@ -489,12 +489,12 @@ class Capture:
     if not self.created_device:
       self.CreateDevice()
     self.dut.CheckCall(
-        ['ip', 'link', 'set', self.created_device, 'up'], log=True)
+        ['ip', 'link', 'set', self.created_device, 'up'], log=True)  # type: ignore #TODO(b/338318729) Fixit!
     self.dut.CheckCall(
         ['iw', self.parent_device, 'set', 'power_save', 'off'], log=True)
     self.set_beacon_filter(0)
-    self.monitor_process = self.dut.Popen(
-        ['tcpdump', '-nUxxi', self.created_device, 'type', 'mgt',
+    self.monitor_process = self.dut.Popen(  # type: ignore #TODO(b/338318729) Fixit!
+        ['tcpdump', '-nUxxi', self.created_device, 'type', 'mgt',  # type: ignore #TODO(b/338318729) Fixit!
          'subtype', 'beacon'], stdout=subprocess.PIPE, log=True)
 
   def Destroy(self):
@@ -738,20 +738,20 @@ class WirelessTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._dut = device_utils.CreateDUTInterface()
     self._device_name = None
     self._phy_name = None
     self._services = [wifi.ServiceSpec(ssid, freq, password)
-                      for ssid, freq, password in self.args.services]
+                      for ssid, freq, password in self.args.services]  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(self._services, 'At least one service should be specified.')
     self._wifi_chip_type = None
     self._wifi_chip = None
 
-    if (self.args.wifi_chip_type == 'disable_switch' and
-        list(self.args.strength) != ['all']):
-      self.FailTask(f'Switching antenna is disabled but antenna configs are '
+    if (self.args.wifi_chip_type == 'disable_switch' and  # type: ignore #TODO(b/338318729) Fixit!
+        list(self.args.strength) != ['all']):  # type: ignore #TODO(b/338318729) Fixit!
+      self.FailTask(f'Switching antenna is disabled but antenna configs are '  # type: ignore #TODO(b/338318729) Fixit!
                     f'{list(self.args.strength)}')
 
     # Group checker for Testlog.
@@ -776,13 +776,13 @@ class WirelessTest(test_case.TestCase):
     """
     max_strength_service, max_strength = None, -sys.float_info.max
     for service in self._services:
-      strength = self._wifi_chip.GetAverageSignal(service, 'all')
+      strength = self._wifi_chip.GetAverageSignal(service, 'all')  # type: ignore #TODO(b/338318729) Fixit!
       if strength:
         session.console.info('Service %s signal strength %f.', service,
                              strength)
-        event_log.Log('service_signal', service=service.ssid, strength=strength)
+        event_log.Log('service_signal', service=service.ssid, strength=strength)  # type: ignore #TODO(b/338318729) Fixit!
         with self._service_group_checker:
-          testlog.LogParam('service', service.ssid)
+          testlog.LogParam('service', service.ssid)  # type: ignore #TODO(b/338318729) Fixit!
           testlog.LogParam('service_strength', strength)
         if strength > max_strength:
           max_strength_service, max_strength = service, strength
@@ -806,14 +806,14 @@ class WirelessTest(test_case.TestCase):
       antenna: The antenna config to scan.
     """
     for service in services:
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Scanning on device {device} frequency {freq}...',
             device=self._device_name,
             freq=service.freq))
 
-      self._wifi_chip.ScanSignal(service, antenna, self.args.scan_count)
+      self._wifi_chip.ScanSignal(service, antenna, self.args.scan_count)  # type: ignore #TODO(b/338318729) Fixit!
 
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Done scanning on device {device} frequency {freq}...',
             device=self._device_name,
             freq=service.freq))
@@ -827,7 +827,7 @@ class WirelessTest(test_case.TestCase):
       antenna: The antenna config to check.
     """
     session.console.info('Checking antenna %s spec', antenna)
-    scanned_strength = self._wifi_chip.GetAverageSignal(service, antenna)
+    scanned_strength = self._wifi_chip.GetAverageSignal(service, antenna)  # type: ignore #TODO(b/338318729) Fixit!
     spec_strength = spec_antenna_strength[antenna]
     if not scanned_strength:
       self.FailTask(
@@ -852,20 +852,20 @@ class WirelessTest(test_case.TestCase):
           ' %f', antenna, service, scanned_strength, spec_strength)
 
   def _DetectWiFiChipType(self):
-    self.ui.SetState(_('Detecting wifi chip type...'))
+    self.ui.SetState(_('Detecting wifi chip type...'))  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._wifi_chip_type = self.args.wifi_chip_type
+    self._wifi_chip_type = self.args.wifi_chip_type  # type: ignore #TODO(b/338318729) Fixit!
     if not self._wifi_chip_type or self._wifi_chip_type == 'switch_antenna':
       self._wifi_chip = SwitchAntennaWiFiChip(
           self._dut, self._device_name, self._phy_name, self._services,
-          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,
-          self.args.scan_timeout)
+          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit!
+          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
       if self._wifi_chip_type:
         return
       # If wifi_chip_type is not specified and the device is able to switch
       # antenna then we assume the chip type is switch_antenna.
       last_success_antenna = None
-      for antenna in self.args.strength:
+      for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit!
         try:
           self._wifi_chip.SwitchAntenna(antenna)
           last_success_antenna = antenna
@@ -888,25 +888,25 @@ class WirelessTest(test_case.TestCase):
 
     if not self._wifi_chip_type or self._wifi_chip_type == 'radiotap':
       self._wifi_chip = RadiotapWiFiChip(
-          device=self._dut, interface=self._device_name,
-          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,
-          scan_timeout=self.args.scan_timeout,
-          keep_monitor=self.args.keep_monitor)
+          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit!
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit!
+          scan_timeout=self.args.scan_timeout,  # type: ignore #TODO(b/338318729) Fixit!
+          keep_monitor=self.args.keep_monitor)  # type: ignore #TODO(b/338318729) Fixit!
       self._wifi_chip_type = 'radiotap'
       return
 
     if self._wifi_chip_type == 'disable_switch':
       self._wifi_chip = DisableSwitchWiFiChip(
           self._dut, self._device_name, self._phy_name, self._services,
-          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,
-          self.args.scan_timeout)
+          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit!
+          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     if self._wifi_chip_type == 'station_dump':
       self._wifi_chip = StationDumpWiFiChip(
-          device=self._dut, interface=self._device_name,
-          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,
-          scan_timeout=self.args.scan_timeout)
+          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit!
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit!
+          scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
       return
 
     raise ValueError(f'Wifi chip type {self._wifi_chip_type} is not supported.')
@@ -924,20 +924,20 @@ class WirelessTest(test_case.TestCase):
 
     resolved_service_specs: Set[wifi.ServiceSpec] = set()
     for service in self._services:
-      if not ssid_freqs[service.ssid]:
-        error_message = f'The service {service.ssid} is not found.'
+      if not ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
+        error_message = f'The service {service.ssid} is not found.'  # type: ignore #TODO(b/338318729) Fixit!
         if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('%s Ignore this service and continue the test.',
                        error_message)
           continue
         self.FailTask(error_message)
-      elif service.freq is None:
-        for freq in ssid_freqs[service.ssid]:
+      elif service.freq is None:  # type: ignore #TODO(b/338318729) Fixit!
+        for freq in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
           resolved_service_specs.add(
-              wifi.ServiceSpec(service.ssid, freq, service.password))
-      elif service.freq not in ssid_freqs[service.ssid]:
+              wifi.ServiceSpec(service.ssid, freq, service.password))  # type: ignore #TODO(b/338318729) Fixit!
+      elif service.freq not in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
         error_message = (
-            f'Frequency {service.freq} is not supported by the service '
+            f'Frequency {service.freq} is not supported by the service '  # type: ignore #TODO(b/338318729) Fixit!
             f'{service.ssid}.  Available frequencies are '
             f'{ssid_freqs[service.ssid]!r}.')
         if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
@@ -953,9 +953,9 @@ class WirelessTest(test_case.TestCase):
     """Set region for testing 6G in the factory."""
     LOWEST_6G_FREQ = 5955
     HIGHEST_6G_FREQ = 7115
-    has_6G = any(LOWEST_6G_FREQ <= service.freq <= HIGHEST_6G_FREQ
+    has_6G = any(LOWEST_6G_FREQ <= service.freq <= HIGHEST_6G_FREQ  # type: ignore #TODO(b/338318729) Fixit!
                  for service in self._services
-                 if service.freq is not None)
+                 if service.freq is not None)  # type: ignore #TODO(b/338318729) Fixit!
     if not has_6G:
       return
     # factory_iw is the binary which sets region.
@@ -971,16 +971,16 @@ class WirelessTest(test_case.TestCase):
                            factory_iw)
 
   def runTest(self):
-    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)
+    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('Selected device_name is %s.', self._device_name)
 
     self._phy_name = self._dut.wifi.DetectPhyName(self._device_name)
     session.console.info('phy name is %s.', self._phy_name)
 
-    if self.args.press_space_to_start:
+    if self.args.press_space_to_start:  # type: ignore #TODO(b/338318729) Fixit!
       # Prompts a message to tell operator to press space key when ready.
-      self.ui.SetState(_('Press space to start scanning.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+      self.ui.SetState(_('Press space to start scanning.'))  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
     self._TrySetRegionUSFor6G()
 
@@ -995,14 +995,14 @@ class WirelessTest(test_case.TestCase):
     # Gets the service with the largest strength to test for each spec.
     test_service = self._ChooseMaxStrengthService()
     if test_service is None:
-      self.FailTask(f'Services {self.args.services} are not valid.')
+      self.FailTask(f'Services {self.args.services} are not valid.')  # type: ignore #TODO(b/338318729) Fixit!
 
     # Checks 'all' since we have scanned using antenna 'all' already.
-    self._CheckSpec(test_service, self.args.strength, 'all')
+    self._CheckSpec(test_service, self.args.strength, 'all')  # type: ignore #TODO(b/338318729) Fixit!
 
     # Scans and tests for other antenna config.
-    for antenna in self.args.strength:
+    for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit!
       if antenna == 'all':
         continue
       self._ScanSignals(self._services, antenna)
-      self._CheckSpec(test_service, self.args.strength, antenna)
+      self._CheckSpec(test_service, self.args.strength, antenna)  # type: ignore #TODO(b/338318729) Fixit!

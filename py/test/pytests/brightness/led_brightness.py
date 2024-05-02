@@ -52,9 +52,9 @@ class LEDBrightnessTest(brightness.BrightnessTest):
       Arg('color', str, 'The color to test.', default=LEDColor.WHITE)])
 
   def tearDown(self):
-    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)
+    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _SetBrightnessLevel(self, level):
-    self.dut.led.SetColor(self.args.color,
-                          led_name=self.args.led_name,
+    self.dut.led.SetColor(self.args.color,  # type: ignore #TODO(b/338318729) Fixit!
+                          led_name=self.args.led_name,  # type: ignore #TODO(b/338318729) Fixit!
                           brightness=level)

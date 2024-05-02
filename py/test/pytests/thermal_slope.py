@@ -152,7 +152,7 @@ class ThermalSlopeTest(unittest.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.log = session.console if self.args.console_log else logging
+    self.log = session.console if self.args.console_log else logging  # type: ignore #TODO(b/338318729) Fixit!
 
     # Process to terminate in tear-down.
     self.process = None
@@ -185,11 +185,11 @@ class ThermalSlopeTest(unittest.TestCase):
     """
     self.snapshot = self.dut.thermal.GetPowerUsage(
         last=self.snapshot,
-        sensor_id=self.args.sensor_id)
+        sensor_id=self.args.sensor_id)  # type: ignore #TODO(b/338318729) Fixit!
     fan_rpm = self.dut.fan.GetFanRPM()
-    elapsed_time = time.time() - self.stage_start_time
+    elapsed_time = time.time() - self.stage_start_time  # type: ignore #TODO(b/338318729) Fixit!
     temperatures = self.dut.thermal.GetAllTemperatures()
-    self.log.info('%s (%.1f s): fan_rpm=%s, temp=%d°C, power=%.3f W',
+    self.log.info('%s (%.1f s): fan_rpm=%s, temp=%d°C, power=%.3f W',  # type: ignore #TODO(b/338318729) Fixit!
                   self.stage, elapsed_time, fan_rpm, self._MainTemperature(),
                   (float('nan') if self.snapshot['power'] is None else
                    self.snapshot['power']))
@@ -227,25 +227,25 @@ class ThermalSlopeTest(unittest.TestCase):
     than a second and/or there was any processing time in between
     sleeps.
     """
-    time.sleep(max(0, self.last_sleep + 1 - time.time()))
-    self.last_sleep += 1
+    time.sleep(max(0, self.last_sleep + 1 - time.time()))  # type: ignore #TODO(b/338318729) Fixit!
+    self.last_sleep += 1  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     self._StartStage('cool_down')
-    self.dut.fan.SetFanRPM(self.args.cool_down_fan_rpm)
-    for i in range(self.args.cool_down_max_duration_secs):
+    self.dut.fan.SetFanRPM(self.args.cool_down_fan_rpm)  # type: ignore #TODO(b/338318729) Fixit!
+    for i in range(self.args.cool_down_max_duration_secs):  # type: ignore #TODO(b/338318729) Fixit!
       self._Log()
-      if (i >= self.args.cool_down_min_duration_secs and
-          self._MainTemperature() <= self.args.cool_down_temperature_c):
+      if (i >= self.args.cool_down_min_duration_secs and  # type: ignore #TODO(b/338318729) Fixit!
+          self._MainTemperature() <= self.args.cool_down_temperature_c):  # type: ignore #TODO(b/338318729) Fixit!
         break
       self._Sleep()
     else:
-      max_temperature_c = (self.args.cool_down_max_temperature_c or
-                           self.args.cool_down_temperature_c)
+      max_temperature_c = (self.args.cool_down_max_temperature_c or  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.cool_down_temperature_c)  # type: ignore #TODO(b/338318729) Fixit!
       if self._MainTemperature() > max_temperature_c:
         self.fail(f'Temperature never got down to {max_temperature_c}°C')
 
-    self.dut.fan.SetFanRPM(self.args.target_fan_rpm)
+    self.dut.fan.SetFanRPM(self.args.target_fan_rpm)  # type: ignore #TODO(b/338318729) Fixit!
 
     def RunStage(stage, duration_secs):
       """Runs a stage.
@@ -269,13 +269,13 @@ class ThermalSlopeTest(unittest.TestCase):
       power_w = []
       for i in range(duration_secs + 1):
         self._Log()
-        power_w.append(self.snapshot['power'])
+        power_w.append(self.snapshot['power'])  # type: ignore #TODO(b/338318729) Fixit!
         if i != duration_secs:
           self._Sleep()
 
       temp = self._MainTemperature()
       power_w = sum(power_w[-POWER_SAMPLES:]) / POWER_SAMPLES
-      self.log.info('%s: temp=%d°C, power: %.3f W', stage, temp, power_w)
+      self.log.info('%s: temp=%d°C, power: %.3f W', stage, temp, power_w)  # type: ignore #TODO(b/338318729) Fixit!
       event_log.Log('stage_result',
                     stage=self.stage, temp=temp, power_w=power_w)
       with self.result_group_checker:
@@ -285,11 +285,11 @@ class ThermalSlopeTest(unittest.TestCase):
       return temp, power_w, duration_secs
 
     base_temp, base_power_w, _ = RunStage(
-        'spin_down', self.args.fan_spin_down_secs)
+        'spin_down', self.args.fan_spin_down_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     with stress_manager.StressManager(self.dut).Run():
       one_core_temp, one_core_power_w, one_core_duration_secs = RunStage(
-          'one_core', self.args.duration_secs)
+          'one_core', self.args.duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     slope = ((one_core_temp - base_temp) /
              (one_core_power_w - base_power_w) /
@@ -304,11 +304,11 @@ class ThermalSlopeTest(unittest.TestCase):
     testlog.LogParam('result_slope', slope)
 
     errors = []
-    if self.args.min_slope is not None and slope < self.args.min_slope:
-      errors.append(f'Slope {slope:.5f} is less than minimum slope '
+    if self.args.min_slope is not None and slope < self.args.min_slope:  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(f'Slope {slope:.5f} is less than minimum slope '  # type: ignore #TODO(b/338318729) Fixit!
                     f'{self.args.min_slope:.5f}')
-    if self.args.max_slope is not None and slope > self.args.max_slope:
-      errors.append(f'Slope {slope:.5f} is greater than maximum slope '
+    if self.args.max_slope is not None and slope > self.args.max_slope:  # type: ignore #TODO(b/338318729) Fixit!
+      errors.append(f'Slope {slope:.5f} is greater than maximum slope '  # type: ignore #TODO(b/338318729) Fixit!
                     f'{self.args.max_slope:.5f}')
     if errors:
       self.fail(', '.join(errors))

@@ -138,48 +138,48 @@ class InputEventlogFileVSWR(input_eventlog_file.InputEventlogFile):
     test_run = {}
     test_run['__testlog__'] = True
     test_run['uuid'] = dct['test']['hash']
-    test_run['type'] = 'station.test_run'
-    test_run['apiVersion'] = '0.1'
+    test_run['type'] = 'station.test_run'  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['apiVersion'] = '0.1'  # type: ignore #TODO(b/338318729) Fixit!
     test_run['time'] = DeserializeDateTime(dct['TIME'])
-    test_run['stationName'] = 'VSWR'
-    test_run['seq'] = int(dct['SEQ'])
+    test_run['stationName'] = 'VSWR'  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['seq'] = int(dct['SEQ'])  # type: ignore #TODO(b/338318729) Fixit!
     test_run['stationDeviceId'] = path.rpartition('.')[2]
     test_run['stationInstallationId'] = path.rpartition('.')[2]
     test_run['testRunId'] = dct['test']['hash']
-    test_run['testName'] = 'vswr'
-    test_run['testType'] = 'vswr'
-    test_run['arguments'] = {}
+    test_run['testName'] = 'vswr'  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['testType'] = 'vswr'  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['arguments'] = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     # TODO(kitching): Figure out how to detect PASS/FAIL.  For reference:
     #                 BOOLEAN(BIT_AND(INTEGER(CASE WHEN REGEXP_MATCH(
     #                     attr.key, r'^test\.results\.wifi_aux\.\d+\.passed$')
-    test_run['status'] = 'PASSED'
+    test_run['status'] = 'PASSED'  # type: ignore #TODO(b/338318729) Fixit!
 
     test_run['startTime'] = dct['test']['start_time']
     test_run['endTime'] = dct['test']['end_time']
-    test_run['duration'] = (test_run['endTime'] -
+    test_run['duration'] = (test_run['endTime'] -  # type: ignore #TODO(b/338318729) Fixit!
                             test_run['startTime']).total_seconds()
-    test_run['operatorId'] = 'vswr'
-    test_run['attachments'] = {}
+    test_run['operatorId'] = 'vswr'  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['attachments'] = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     # TODO(kitching): Figure out how to detect failures.  For reference:
     #                 BOOLEAN(BIT_AND(INTEGER(CASE WHEN REGEXP_MATCH(
     #                     attr.key, r'^test\.results\.wifi_aux\.\d+\.passed$')
-    test_run['failures'] = []
+    test_run['failures'] = []  # type: ignore #TODO(b/338318729) Fixit!
 
-    test_run['serialNumbers'] = {'sub': dct['panel_serial']}
-    test_run['parameters'] = {}
+    test_run['serialNumbers'] = {'sub': dct['panel_serial']}  # type: ignore #TODO(b/338318729) Fixit!
+    test_run['parameters'] = {}  # type: ignore #TODO(b/338318729) Fixit!
 
-    test_run['series'] = {}
+    test_run['series'] = {}  # type: ignore #TODO(b/338318729) Fixit!
     for antenna, measurements in dct['test']['traces'].items():
-      test_run['series'][antenna] = {}
-      test_run['series'][antenna]['keyUnit'] = 'MHz'
-      test_run['series'][antenna]['valueUnit'] = 'dB'
-      test_run['series'][antenna]['data'] = []
+      test_run['series'][antenna] = {}  # type: ignore #TODO(b/338318729) Fixit!
+      test_run['series'][antenna]['keyUnit'] = 'MHz'  # type: ignore #TODO(b/338318729) Fixit!
+      test_run['series'][antenna]['valueUnit'] = 'dB'  # type: ignore #TODO(b/338318729) Fixit!
+      test_run['series'][antenna]['data'] = []  # type: ignore #TODO(b/338318729) Fixit!
       for freq, db in measurements.items():
-        test_run['series'][antenna]['data'].append({})
-        test_run['series'][antenna]['data'][-1]['key'] = freq
-        test_run['series'][antenna]['data'][-1]['numericValue'] = db
+        test_run['series'][antenna]['data'].append({})  # type: ignore #TODO(b/338318729) Fixit!
+        test_run['series'][antenna]['data'][-1]['key'] = freq  # type: ignore #TODO(b/338318729) Fixit!
+        test_run['series'][antenna]['data'][-1]['numericValue'] = db  # type: ignore #TODO(b/338318729) Fixit!
         # TODO(kitching): Include minimum and maximum.
         # test_run['series'][antenna]['data'][-1]['expectedMinimum']
         # test_run['series'][antenna]['data'][-1]['expectedMaximum']

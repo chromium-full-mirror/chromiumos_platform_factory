@@ -117,7 +117,7 @@ def GetServerProxy(url=None, expected_project=None, timeout=None):
   proxy = net_utils.TimeoutXMLRPCServerProxy(
       url, allow_none=True, verbose=False, timeout=timeout)
   if expected_project:
-    project = proxy.Ping().get('project')
+    project = proxy.Ping().get('project')  # type: ignore #TODO(b/338318729) Fixit!
     if project is not None and project != expected_project:
       raise ServerProxyError(
           f"The expected_project ({expected_project}) doesn't match the project"

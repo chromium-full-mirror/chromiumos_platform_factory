@@ -903,7 +903,7 @@ class _NamedNumber(dict):
       common.HWIDException if failed.
     """
     # pylint:disable=unsupported-membership-test
-    if number not in self.NUMBER_RANGE:
+    if number not in self.NUMBER_RANGE:  # type: ignore #TODO(b/338318729) Fixit!
       raise common.HWIDException(
           f'The {self.NUMBER_TAG} should be one of {self.NUMBER_RANGE!r}, but '
           f'got {number!r}.')
@@ -1701,7 +1701,7 @@ class Components:
     if comp_cls == common.REGION_CLS:
       self._region_component_expr.UpdateStatus(comp_name, status)
 
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit!
         'status'].Validate(status)
 
     if comp_name not in self._components.get(comp_cls, {}):
@@ -1716,11 +1716,11 @@ class Components:
     # we only validate the external format.
     external_values = yaml.safe_load(
         yaml.safe_dump(values, default_flow_style=False))
-    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(
+    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(  # type: ignore #TODO(b/338318729) Fixit!
         external_values)
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit!
         'status'].Validate(status)
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit!
         'information'].Validate(information)
 
     if comp_name in self.GetComponents(comp_cls):
@@ -1816,11 +1816,11 @@ class Components:
       raise common.HWIDException('Region component class is not modifiable.')
     external_values = yaml.safe_load(
         yaml.safe_dump(values, default_flow_style=False))
-    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(
+    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(  # type: ignore #TODO(b/338318729) Fixit!
         external_values)
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit!
         'status'].Validate(support_status)
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit!
         'information'].Validate(information)
     self._components[comp_cls].UpdateComponent(
         old_name, new_name,
@@ -1935,7 +1935,7 @@ class Pattern:
       pattern_obj = PatternDatum(self.num_patterns,
                                  pattern_expr['encoding_scheme'], [])
       for field_expr in pattern_expr['fields']:
-        pattern_obj.fields.append(
+        pattern_obj.fields.append(  # type: ignore #TODO(b/338318729) Fixit!
             PatternField(list(field_expr)[0], next(iter(field_expr.values()))))
 
       for image_id in pattern_expr['image_ids']:
@@ -1990,8 +1990,8 @@ class Pattern:
     """
     # Casts encoding_scheme to str type for avoiding yaml dump error.
     encoding_scheme = str(encoding_scheme)
-    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)
-    self._SCHEMA.element_type.items['encoding_scheme'].Validate(encoding_scheme)
+    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)  # type: ignore #TODO(b/338318729) Fixit!
+    self._SCHEMA.element_type.items['encoding_scheme'].Validate(encoding_scheme)  # type: ignore #TODO(b/338318729) Fixit!
 
     if image_id in self._image_id_to_pattern:
       raise common.HWIDException(
@@ -2015,7 +2015,7 @@ class Pattern:
     Returns:
       The associated pattern index.
     """
-    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)
+    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)  # type: ignore #TODO(b/338318729) Fixit!
 
     if (reference_image_id is None) == (pattern_idx is None):
       raise common.HWIDException('Please specify exactly one of '
@@ -2047,12 +2047,12 @@ class Pattern:
           would be used.
       pattern_idx: The index of the pattern.
     """
-    self._SCHEMA.element_type.items['fields'].element_type.key_type.Validate(
+    self._SCHEMA.element_type.items['fields'].element_type.key_type.Validate(  # type: ignore #TODO(b/338318729) Fixit!
         field_name)
-    self._SCHEMA.element_type.items['fields'].element_type.value_type.Validate(
+    self._SCHEMA.element_type.items['fields'].element_type.value_type.Validate(  # type: ignore #TODO(b/338318729) Fixit!
         bit_length)
 
-    self.GetPattern(image_id=image_id, pattern_idx=pattern_idx).fields.append(
+    self.GetPattern(image_id=image_id, pattern_idx=pattern_idx).fields.append(  # type: ignore #TODO(b/338318729) Fixit!
         PatternField(field_name, bit_length))
 
   def GetEncodingScheme(self, image_id=None):
@@ -2132,8 +2132,8 @@ class Pattern:
     else:
       max_bit_length = min(max_bit_length, total_bit_length)
 
-    ret = []
-    field_offset_map = collections.defaultdict(int)
+    ret = []  # type: ignore #TODO(b/338318729) Fixit!
+    field_offset_map = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
     for name, bit_length in self.GetPattern(image_id=image_id,
                                             pattern_idx=pattern_idx).fields:
       # Normally when one wants to extend bit length of a field, one should

@@ -137,7 +137,7 @@ class BadBlocksTest(test_case.TestCase):
 
   def IsHDD(self):
     result = self.dut.CheckOutput(
-        ['lsblk', '-o', 'NAME,ROTA', self.args.device_path])
+        ['lsblk', '-o', 'NAME,ROTA', self.args.device_path])  # type: ignore #TODO(b/338318729) Fixit!
     second_line = result.splitlines()[1]
     if second_line[-1] == '0':
       return False
@@ -157,11 +157,11 @@ class BadBlocksTest(test_case.TestCase):
     assert isinstance(self.dut.storage, storage.Storage)
 
     # TODO(bhthompson): refactor this for a better device type detection.
-    if self.args.mode == _TestModes.file:
+    if self.args.mode == _TestModes.file:  # type: ignore #TODO(b/338318729) Fixit!
       unused_mount_on, self._filesystem = self.dut.storage.GetMountPoint(
-          self.args.device_path)
+          self.args.device_path)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self._filesystem = self.args.device_path
+      self._filesystem = self.args.device_path  # type: ignore #TODO(b/338318729) Fixit!
 
     main_storage_type = self.dut.storage.GetMainStorageType()
 
@@ -182,7 +182,7 @@ class BadBlocksTest(test_case.TestCase):
 
     self.AddTask(self._LogSmartctl)
 
-    if self._is_hdd or self.args.force_badblocks_on_ssd:
+    if self._is_hdd or self.args.force_badblocks_on_ssd:  # type: ignore #TODO(b/338318729) Fixit!
       if not self._is_hdd:
         session.console.info('The storage is not HDD. '
                              'Run badblocks because "force_badblocks_on_ssd" is'
@@ -198,57 +198,57 @@ class BadBlocksTest(test_case.TestCase):
     # Sync, so that any problems (like writing outside of our partition)
     # will show up sooner rather than later.
     self.dut.Call(['sync'])
-    if self.args.mode == _TestModes.file:
-      self.dut.Call(['rm', '-f', self.args.device_path])
+    if self.args.mode == _TestModes.file:  # type: ignore #TODO(b/338318729) Fixit!
+      self.dut.Call(['rm', '-f', self.args.device_path])  # type: ignore #TODO(b/338318729) Fixit!
     if self.message_monitor:
       self.message_monitor.kill()
       self.message_monitor = None
 
   def CheckArgs(self):
-    if self.args.max_bytes:
+    if self.args.max_bytes:  # type: ignore #TODO(b/338318729) Fixit!
       # We don't want to try running bad blocks on <1kB
-      self.assertGreaterEqual(self.args.max_bytes, 1024, 'max_bytes too small.')
-    if self.args.device_path is None:
-      if self.args.mode == _TestModes.raw:
+      self.assertGreaterEqual(self.args.max_bytes, 1024, 'max_bytes too small.')  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.device_path is None:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.mode == _TestModes.raw:  # type: ignore #TODO(b/338318729) Fixit!
         raise ValueError('In raw mode the device_path must be specified.')
-      self.args.device_path = self.dut.storage.GetMainStorageDevice()
-    if self.args.mode == _TestModes.file:
-      if self.args.device_path.startswith('/dev/'):
+      self.args.device_path = self.dut.storage.GetMainStorageDevice()  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.mode == _TestModes.file:  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.device_path.startswith('/dev/'):  # type: ignore #TODO(b/338318729) Fixit!
         # In file mode we want to use the filesystem, not a device node,
         # so we default to the stateful partition.
-        self.args.device_path = '/mnt/stateful_partition/temp_badblocks_file'
-      if self.args.max_bytes is None:
+        self.args.device_path = '/mnt/stateful_partition/temp_badblocks_file'  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.max_bytes is None:  # type: ignore #TODO(b/338318729) Fixit!
         # Default to 100MB file size for testing.
-        self.args.max_bytes = 100 * 1024 * 1024
+        self.args.max_bytes = 100 * 1024 * 1024  # type: ignore #TODO(b/338318729) Fixit!
       # Add in a file extension, to ensure we are only using our own file.
-      self.args.device_path = self.args.device_path + '.for_bad_blocks_test'
-      self.args.max_bytes = self._GenerateTestFile(self.args.device_path,
-                                                   self.args.max_bytes)
+      self.args.device_path = self.args.device_path + '.for_bad_blocks_test'  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.max_bytes = self._GenerateTestFile(self.args.device_path,  # type: ignore #TODO(b/338318729) Fixit!
+                                                   self.args.max_bytes)  # type: ignore #TODO(b/338318729) Fixit!
 
   def DetermineParameters(self):
     first_block = 0
     sector_size = 1024
-    if self.args.mode == _TestModes.file:
-      last_block = self.args.max_bytes // sector_size
+    if self.args.mode == _TestModes.file:  # type: ignore #TODO(b/338318729) Fixit!
+      last_block = self.args.max_bytes // sector_size  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Using a generated file at %s, size %dB, sector size %dB, '
-                   'last block %d.', self.args.device_path, self.args.max_bytes,
+                   'last block %d.', self.args.device_path, self.args.max_bytes,  # type: ignore #TODO(b/338318729) Fixit!
                    sector_size, last_block)
-    elif self.args.mode == _TestModes.raw:
+    elif self.args.mode == _TestModes.raw:  # type: ignore #TODO(b/338318729) Fixit!
       # For some files like dev nodes we cannot trust the stats provided by
       # the os, so we manually seek to the end of the file to determine size.
-      raw_file_bytes = self.dut.path.getsize(self.args.device_path)
-      if self.args.max_bytes is None or self.args.max_bytes > raw_file_bytes:
+      raw_file_bytes = self.dut.path.getsize(self.args.device_path)  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.max_bytes is None or self.args.max_bytes > raw_file_bytes:  # type: ignore #TODO(b/338318729) Fixit!
         logging.info('Setting max_bytes to the available size of %dB.',
                      raw_file_bytes)
-        self.args.max_bytes = raw_file_bytes
-      if self.args.device_path.startswith('/dev/'):
-        partitions = sys_utils.PartitionManager(self.args.device_path, self.dut)
+        self.args.max_bytes = raw_file_bytes  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.device_path.startswith('/dev/'):  # type: ignore #TODO(b/338318729) Fixit!
+        partitions = sys_utils.PartitionManager(self.args.device_path, self.dut)  # type: ignore #TODO(b/338318729) Fixit!
         sector_size = partitions.GetSectorSize()
-      last_block = self.args.max_bytes // sector_size
+      last_block = self.args.max_bytes // sector_size  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Using an existing file at %s, size %dB, sector size %dB, '
-                   'last block %d.', self.args.device_path, self.args.max_bytes,
+                   'last block %d.', self.args.device_path, self.args.max_bytes,  # type: ignore #TODO(b/338318729) Fixit!
                    sector_size, last_block)
-    elif self.args.mode == _TestModes.stateful_partition_free_space:
+    elif self.args.mode == _TestModes.stateful_partition_free_space:  # type: ignore #TODO(b/338318729) Fixit!
       # Determine total length of the FS
       partition_path = self.dut.storage.GetStatefulLogicalDevicePath()
       logging.info('Stateful partition path: %s', partition_path)
@@ -261,7 +261,7 @@ class BadBlocksTest(test_case.TestCase):
       fs_block_count = int(fields['Block count'])
       fs_block_size = int(fields['Block size'])
 
-      partitions = sys_utils.PartitionManager(self.args.device_path, self.dut)
+      partitions = sys_utils.PartitionManager(self.args.device_path, self.dut)  # type: ignore #TODO(b/338318729) Fixit!
       partition_index = self.dut.partitions.STATEFUL.index
       start_sector = partitions.GetPartitionOffsetInSector(partition_index)
       sector_count = partitions.GetPartitionSizeInSector(partition_index)
@@ -278,9 +278,9 @@ class BadBlocksTest(test_case.TestCase):
           fs_block_size // sector_size)
       first_block = first_unused_sector + start_sector
       sectors_to_test = sector_count - first_unused_sector
-      if self.args.max_bytes:
+      if self.args.max_bytes:  # type: ignore #TODO(b/338318729) Fixit!
         sectors_to_test = min(sectors_to_test,
-                              self.args.max_bytes // sector_size)
+                              self.args.max_bytes // sector_size)  # type: ignore #TODO(b/338318729) Fixit!
       last_block = first_block + sectors_to_test - 1
 
       local_variables = locals()
@@ -306,7 +306,7 @@ class BadBlocksTest(test_case.TestCase):
     Parameters = namedtuple('Parameters', ('first_block last_block sector_size '
                                            'device_path max_errors'))
     return Parameters(first_block, last_block, sector_size,
-                      self.args.device_path, self.args.max_errors)
+                      self.args.device_path, self.args.max_errors)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _runBadBlock(self):
     self.assertFalse(sys_utils.InChroot(),
@@ -317,7 +317,7 @@ class BadBlocksTest(test_case.TestCase):
                      1) * params.sector_size / 1024**2
     test_size_mb = (f'{test_size_tmp:.1f} MiB')
 
-    self.ui.SetInstruction(
+    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
         _('Testing {test_size_mb} region of storage',
           test_size_mb=test_size_mb))
 
@@ -330,7 +330,7 @@ class BadBlocksTest(test_case.TestCase):
     # -w = destructive write+read test
     # -n = non-destructive write+read test
     args = '-fsv'
-    args += 'w' if self.args.destructive else 'n'
+    args += 'w' if self.args.destructive else 'n'  # type: ignore #TODO(b/338318729) Fixit!
     process = self.dut.Popen(
         ['badblocks', args, '-b', str(params.sector_size)] +
         (['-e', str(params.max_errors)] if params.max_errors else []) +
@@ -341,7 +341,7 @@ class BadBlocksTest(test_case.TestCase):
     # of 4 different patterns).
     total_phases = 8
 
-    self.ui.DrawProgressBar(total_phases)
+    self.ui.DrawProgressBar(total_phases)  # type: ignore #TODO(b/338318729) Fixit!
 
     # The phase we're currently in (0-relative).
     self.current_phase = 0
@@ -349,14 +349,14 @@ class BadBlocksTest(test_case.TestCase):
     # How far we are through the current phase.
     fraction_within_phase = 0
 
-    buf = []
+    buf = []  # type: ignore #TODO(b/338318729) Fixit!
     lines = []
 
     self._UpdateSATALinkSpeed()
 
     def UpdatePhase():
       event_log.Log('start_phase', current_phase=self.current_phase)
-      self.ui.SetHTML(
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
           _('Phase {current_phase}/{total_phases}: ',
             current_phase=min(self.current_phase + 1, total_phases),
             total_phases=total_phases),
@@ -368,11 +368,11 @@ class BadBlocksTest(test_case.TestCase):
       # Assume no output in timeout_secs means hung on disk op.
       start_time = time.time()
       rlist, unused_wlist, unused_xlist = select(
-          [process.stdout], [], [], self.args.timeout_secs)
+          [process.stdout], [], [], self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
       end_time = time.time()
       self._UpdateSATALinkSpeed()
 
-      if end_time - start_time > self.args.log_threshold_secs:
+      if end_time - start_time > self.args.log_threshold_secs:  # type: ignore #TODO(b/338318729) Fixit!
         session.console.warn('Delay of %.2f s between badblocks progress lines',
                              end_time - start_time)
         event_log.Log('delay', duration_secs=end_time - start_time)
@@ -380,7 +380,7 @@ class BadBlocksTest(test_case.TestCase):
 
       self.assertTrue(
           rlist,
-          f'Timeout: No badblocks output for {self.args.timeout_secs:.2f} s')
+          f'Timeout: No badblocks output for {self.args.timeout_secs:.2f} s')  # type: ignore #TODO(b/338318729) Fixit!
 
       ch = process.stdout.read(1)
       if ch in ['', '\x08', '\r', '\n']:
@@ -390,7 +390,7 @@ class BadBlocksTest(test_case.TestCase):
           # since last log line.
           match = re.match(r'([.0-9]+)% done, ', line)
           log_elapsed_time = time.time() - last_log_time
-          if not match or log_elapsed_time > self.args.log_interval_secs:
+          if not match or log_elapsed_time > self.args.log_interval_secs:  # type: ignore #TODO(b/338318729) Fixit!
             last_log_time = time.time()
             logging.info('badblocks> %s', line)
 
@@ -402,17 +402,17 @@ class BadBlocksTest(test_case.TestCase):
                 float(match.group(1)) / 100) * (params.last_block + 1)
             fraction_within_phase = (block_offset - params.first_block) / (
                 params.last_block + 1 - params.first_block)
-            self.ui.SetHTML(line[match.end():], id='bb-progress')
+            self.ui.SetHTML(line[match.end():], id='bb-progress')  # type: ignore #TODO(b/338318729) Fixit!
             line = line[:match.start()].strip()  # Remove percentage from status
 
           line = line.rstrip(':')
 
           if line and line != 'done':
-            self.ui.SetHTML(test_ui.Escape(line), id='bb-status')
+            self.ui.SetHTML(test_ui.Escape(line), id='bb-status')  # type: ignore #TODO(b/338318729) Fixit!
 
           # Calculate overall percentage done.
           phases_done = self.current_phase + max(0, fraction_within_phase)
-          self.ui.SetProgress(phases_done)
+          self.ui.SetProgress(phases_done)  # type: ignore #TODO(b/338318729) Fixit!
 
           if line.startswith('done'):
             self.current_phase += 1
@@ -425,9 +425,9 @@ class BadBlocksTest(test_case.TestCase):
         buf = []
 
         # See if we shuold drop caches.
-        if (self.args.drop_caches_interval_secs and
+        if (self.args.drop_caches_interval_secs and  # type: ignore #TODO(b/338318729) Fixit!
             (time.time() - last_drop_caches_time >
-             self.args.drop_caches_interval_secs)):
+             self.args.drop_caches_interval_secs)):  # type: ignore #TODO(b/338318729) Fixit!
           logging.info('Dropping caches')
           self.dut.WriteFile('/proc/sys/vm/drop_caches', '1')
           last_drop_caches_time = time.time()
@@ -479,15 +479,15 @@ class BadBlocksTest(test_case.TestCase):
     if self._is_mmc:
       return
 
-    if self.args.extra_log_cmd:
+    if self.args.extra_log_cmd:  # type: ignore #TODO(b/338318729) Fixit!
       try:
         process = self.dut.Popen(
-            self.args.extra_log_cmd, stdout=subprocess.PIPE,
+            self.args.extra_log_cmd, stdout=subprocess.PIPE,  # type: ignore #TODO(b/338318729) Fixit!
             stderr=subprocess.PIPE, log=True)
       except NotImplementedError:
         # ADBLink can't separate stderr and stdout to different PIPE
         process = self.dut.Popen(
-            self.args.extra_log_cmd, stdout=subprocess.PIPE,
+            self.args.extra_log_cmd, stdout=subprocess.PIPE,  # type: ignore #TODO(b/338318729) Fixit!
             stderr=subprocess.STDOUT, log=True)
 
       stdout_data, stderr_data = process.communicate()
@@ -496,10 +496,10 @@ class BadBlocksTest(test_case.TestCase):
         logging.info('stdout:\n%s', stdout_data)
       if stderr_data:
         logging.info('stderr:\n%s', stderr_data)
-      event_log.Log('log_command', command=self.args.extra_log_cmd,
+      event_log.Log('log_command', command=self.args.extra_log_cmd,  # type: ignore #TODO(b/338318729) Fixit!
                     stdout=stdout_data, stderr=stderr_data)
       with self.command_group_checker:
-        testlog.LogParam('command', self.args.extra_log_cmd)
+        testlog.LogParam('command', self.args.extra_log_cmd)  # type: ignore #TODO(b/338318729) Fixit!
         testlog.LogParam('command_stdout', stdout_data)
         testlog.LogParam('command_stderr', stderr_data)
 
@@ -552,18 +552,18 @@ class BadBlocksTest(test_case.TestCase):
 
     if first_time:
       rlist, unused_wlist, unused_xlist = select(
-          [self.message_monitor.stdout], [], [], self.args.timeout_secs)
+          [self.message_monitor.stdout], [], [], self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
       if not rlist:
         logging.warning('UpdateSATALinkSpeed: Cannot get any line from '
                         '/var/log/messages after %d seconds',
-                        self.args.timeout_secs)
+                        self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     while True:
       rlist, unused_wlist, unused_xlist = select(
-          [self.message_monitor.stdout], [], [], 0)
+          [self.message_monitor.stdout], [], [], 0)  # type: ignore #TODO(b/338318729) Fixit!
       if not rlist:
         break
-      log_line = self.message_monitor.stdout.readline()
+      log_line = self.message_monitor.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
       if not log_line:  # this shouldn't happen
         break
       log_line = log_line.strip()

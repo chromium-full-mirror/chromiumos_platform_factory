@@ -99,11 +99,11 @@ class LineCheckItemTest(test_case.TestCase):
   def setUp(self):
     """Initializes _items"""
     self._dut = (device_utils.CreateStationInterface()
-                 if self.args.is_station else
+                 if self.args.is_station else  # type: ignore #TODO(b/338318729) Fixit!
                  device_utils.CreateDUTInterface())
     self._items = []
 
-    for item in self.args.items:
+    for item in self.args.items:  # type: ignore #TODO(b/338318729) Fixit!
       if isinstance(item, list) and len(item) == 3:
         check_item = CheckItem(i18n.Translated(item[0], translate=False),
                                item[1], item[2])
@@ -121,10 +121,10 @@ class LineCheckItemTest(test_case.TestCase):
 
   def runTest(self):
     """Main entrance of the test."""
-    self.ui.SetTitle(self.args.title)
+    self.ui.SetTitle(self.args.title)  # type: ignore #TODO(b/338318729) Fixit!
     for item in self._items:
       command = item.command
-      self.ui.SetState(item.instruction)
+      self.ui.SetState(item.instruction)  # type: ignore #TODO(b/338318729) Fixit!
 
       process = self._dut.Popen(command,
                                 stdout=subprocess.PIPE,
@@ -151,7 +151,7 @@ class LineCheckItemTest(test_case.TestCase):
         session.console.info('stderr: %s', stderr)
 
       if item.judge_to_pass:
-        self.ui.SetState(test_ui.PASS_FAIL_KEY_LABEL, append=True)
-        key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])
+        self.ui.SetState(test_ui.PASS_FAIL_KEY_LABEL, append=True)  # type: ignore #TODO(b/338318729) Fixit!
+        key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
         if key == test_ui.ESCAPE_KEY:
           self.FailTask('Judged as fail by operator.')

@@ -78,7 +78,7 @@ class ProvisionDRMKeyTest(unittest.TestCase):
     mock_oemcrypto.GetFactoryTransportKeyMaterial.return_value = (16, '7f' * 32)
     mock_oemcrypto.WrapFactoryKeybox.return_value = '7f' * 176
     self.test.oemcrypto_client = mock_oemcrypto
-    self.test.args = object()
+    self.test.args = object()  # type: ignore #TODO(b/338318729) Fixit!
     patcher = mock.patch(
         'cros.factory.test.utils.oemcrypto_utils.OEMCryptoClient')
     patcher.start()
@@ -110,7 +110,7 @@ class ProvisionDRMKeyTest(unittest.TestCase):
 
     self.test.runTest()
 
-    self.test.oemcrypto_client.WrapFactoryKeybox.assert_called_with(
+    self.test.oemcrypto_client.WrapFactoryKeybox.assert_called_with(  # type: ignore #TODO(b/338318729) Fixit!
         '115709591f9ba24e655619e1748a287897b6ec5d0ff87201633a176a4f35a2bf8c9c16'
         '666a78d74a69144fba04258cad4c9def6c55fbde6eaaafc56043dc95076a53e3018ea7'
         '701450f137d296d09422718d941971e4d39cb7cc33d557631da8d26b5eac60782ca778'

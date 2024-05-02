@@ -26,8 +26,8 @@ class CoreDumpManagerTest(unittest.TestCase):
   def setUp(self):
     self.watchlist = ['*watch*']
     self.crash_dir = tempfile.mkdtemp(prefix='core_dump_manager_unittest.')
-    self.watched_file = None
-    self.other_file = None
+    self.watched_file = None  # type: ignore #TODO(b/338318729) Fixit!
+    self.other_file = None  # type: ignore #TODO(b/338318729) Fixit!
 
   def tearDown(self):
     shutil.rmtree(self.crash_dir)

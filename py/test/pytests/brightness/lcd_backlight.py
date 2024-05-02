@@ -56,8 +56,8 @@ class LCDBacklightTest(brightness.BrightnessTest):
       ])
 
   def setUp(self):
-    if self.args.levels is None:
-      self.args.levels = [0.2, 0.4, 0.6, 0.8, 1.0]
+    if self.args.levels is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.levels = [0.2, 0.4, 0.6, 0.8, 1.0]  # type: ignore #TODO(b/338318729) Fixit!
     super().setUp()
 
   def tearDown(self):

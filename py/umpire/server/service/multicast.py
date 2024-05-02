@@ -46,7 +46,7 @@ class MulticastService(umpire_service.UmpireService):
     elif 'server_ip' in service_config:
       mgroup = (
           DEFAULT_MGROUP_PREFIX +
-          re.search(r'\.\d+\.\d+$', service_config['server_ip']).group())
+          re.search(r'\.\d+\.\d+$', service_config['server_ip']).group())  # type: ignore #TODO(b/338318729) Fixit!
     else:
       mgroup = DEFAULT_MGROUP
     assert re.match(r'\d+\.\d+\.\d+\.\d+', mgroup)
@@ -71,7 +71,7 @@ class MulticastService(umpire_service.UmpireService):
 
     required_components = service_config['required_components']
 
-    mcast_addrs = {}
+    mcast_addrs = {}  # type: ignore #TODO(b/338318729) Fixit!
     for component in sorted(payloads.keys()):
       for part in payloads[component]:
         if part == 'version':

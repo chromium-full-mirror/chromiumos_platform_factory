@@ -38,8 +38,8 @@ class CachedProbeFunction(probe_function.AbstractProbeFunction):
       return function.NOTHING
 
     if not category:
-      return sum(self._CACHED_DEVICES.values(), [])
-    return self._CACHED_DEVICES.get(category, function.NOTHING)
+      return sum(self._CACHED_DEVICES.values(), [])  # type: ignore #TODO(b/338318729) Fixit!
+    return self._CACHED_DEVICES.get(category, function.NOTHING)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def CleanCachedData(cls):
@@ -132,7 +132,7 @@ class LazyCachedProbeFunction(probe_function.AbstractProbeFunction):
   @classmethod
   def _GetCachedProbedData(cls, category):
     if cls._CACHED_DEVICES is None:
-      cls._CACHED_DEVICES = {}
+      cls._CACHED_DEVICES = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     if category not in cls._CACHED_DEVICES:
       try:
@@ -186,8 +186,8 @@ class GlobPathCachedProbeFunction(CachedProbeFunction):
   def ProbeAllDevices(cls):
     ret = {}
 
-    for globbed_path in glob.glob(cls.GLOB_PATH):
-      abs_path = os.path.abspath(os.path.realpath(globbed_path))
+    for globbed_path in glob.glob(cls.GLOB_PATH):  # type: ignore #TODO(b/338318729) Fixit!
+      abs_path = os.path.abspath(os.path.realpath(globbed_path))  # type: ignore #TODO(b/338318729) Fixit!
       if abs_path in ret:
         continue
 

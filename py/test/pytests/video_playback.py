@@ -73,21 +73,21 @@ class VideoPlaybackTest(test_case.TestCase):
   ]
 
   def runTest(self):
-    self.assertFalse(self.args.video_file and
-                     (self.args.video_device or self.args.audio_device),
+    self.assertFalse(self.args.video_file and  # type: ignore #TODO(b/338318729) Fixit!
+                     (self.args.video_device or self.args.audio_device),  # type: ignore #TODO(b/338318729) Fixit!
                      'May not request both an input device and file')
 
     logging.info('Video Playback test started')
-    if self.args.video_file:
-      logging.info('video_file=[%s]', self.args.video_file)
+    if self.args.video_file:  # type: ignore #TODO(b/338318729) Fixit!
+      logging.info('video_file=[%s]', self.args.video_file)  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      logging.info('video_device=%s', self.args.video_device)
-      logging.info('audio_device=%s', self.args.audio_device)
-    logging.info('time_limit=%s secs', self.args.time_limit)
+      logging.info('video_device=%s', self.args.video_device)  # type: ignore #TODO(b/338318729) Fixit!
+      logging.info('audio_device=%s', self.args.audio_device)  # type: ignore #TODO(b/338318729) Fixit!
+    logging.info('time_limit=%s secs', self.args.time_limit)  # type: ignore #TODO(b/338318729) Fixit!
     audio_utils.CRAS().EnableOutput()
     audio_utils.CRAS().SetActiveOutputNodeVolume(100)
-    self.ui.CallJSFunction('init', self.args.video_file,
-                           self.args.audio_device, self.args.video_device,
-                           self.args.loop, self.args.time_limit,
-                           self.args.show_controls)
+    self.ui.CallJSFunction('init', self.args.video_file,  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.audio_device, self.args.video_device,  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.loop, self.args.time_limit,  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.show_controls)  # type: ignore #TODO(b/338318729) Fixit!
     self.WaitTaskEnd()

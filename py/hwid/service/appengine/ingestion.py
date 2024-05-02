@@ -97,7 +97,7 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
     logging.info('Got %d AVL names from HWID API.', len(avl_name_mapping))
     touched_cids = self.decoder_data_manager.SyncAVLNameMapping(
         avl_name_mapping)
-    affected_projs = set()
+    affected_projs = set()  # type: ignore #TODO(b/338318729) Fixit!
     for touched_cid in touched_cids:
       affected_projs.update(cid_proj_mapping[touched_cid])
 
@@ -219,10 +219,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     response = ingestion_pb2.IngestHwidDbResponse()
     force_update = do_limit
     vp_payload_hash = self._UpdatePayloads(self.vp_manager, dryrun_upload,
-                                           limit_models, force_update,
+                                           limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
                                            live_hwid_repo, skip_model_check)
     hsp_payload_hash = self._UpdatePayloads(self.hsp_manager, dryrun_upload,
-                                            limit_models, force_update,
+                                            limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
                                             live_hwid_repo, skip_model_check)
     if force_update:
       # Reply payload hash (e2e test only).

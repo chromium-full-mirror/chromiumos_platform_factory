@@ -276,7 +276,7 @@ class SchemaTest(unittest.TestCase):
         List('patterns',
              Dict('pattern', Scalar('encoded_field', str),
                   Scalar('bit_length', int))))
-    data = [
+    data = [  # type: ignore #TODO(b/338318729) Fixit!
         {'audio_codec': 1},
         {'battery': 2},
         {'bluetooth': 2},
@@ -285,7 +285,7 @@ class SchemaTest(unittest.TestCase):
     ]
     self.assertEqual(None, schema.Validate(data))
     schema = (
-        Dict('components', Scalar('component_class', str),
+        Dict('components', Scalar('component_class', str),  # type: ignore #TODO(b/338318729) Fixit!
              Dict('component_names', Scalar('component_name', str),
                   FixedDict('component_attrs',
                             {'value': AnyOf([

@@ -33,11 +33,11 @@ class ArchiveUnittest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.test_dir = tempfile.mkdtemp()
+    cls.test_dir = tempfile.mkdtemp()  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def tearDownClass(cls):
-    shutil.rmtree(cls.test_dir)
+    shutil.rmtree(cls.test_dir)  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   @contextlib.contextmanager
@@ -71,13 +71,13 @@ class ArchiveUnittest(unittest.TestCase):
 
   def testCreateTarArchive(self):
     with tempfile.TemporaryDirectory() as d:
-      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), d)
+      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), d)  # type: ignore #TODO(b/338318729) Fixit!
     archive = output_factory_report.GetArchive(archive_path)
     self.assertIsInstance(archive, output_factory_report.TarArchive)
 
   def testCreateZipArchive(self):
     with tempfile.TemporaryDirectory() as d:
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), d)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), d)  # type: ignore #TODO(b/338318729) Fixit!
     archive = output_factory_report.GetArchive(archive_path)
     self.assertIsInstance(archive, output_factory_report.ZipArchive)
 
@@ -85,7 +85,7 @@ class ArchiveUnittest(unittest.TestCase):
   def testCreateZipWith7ZArchive(self, mock_is_zip_file):
     mock_is_zip_file.return_value = False
     with tempfile.TemporaryDirectory() as d:
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), d)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), d)  # type: ignore #TODO(b/338318729) Fixit!
     archive = output_factory_report.GetArchive(archive_path)
     self.assertIsInstance(archive, output_factory_report.ZipWith7ZArchive)
 
@@ -97,7 +97,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.GetArchive(archive_path) as archive:
       file_names = set(archive.GetNonDirFileNames())
@@ -111,7 +111,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.GetArchive(archive_path) as archive:
       file_names = set(archive.GetNonDirFileNames())
@@ -125,7 +125,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.ZipWith7ZArchive(archive_path) as archive:
       file_names = set(archive.GetNonDirFileNames())
@@ -138,7 +138,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.GetArchive(archive_path) as archive:
       self._CheckExtractedContent(archive,
@@ -152,7 +152,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateTarArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.GetArchive(archive_path) as archive:
       self._CheckExtractedContent(archive,
@@ -166,7 +166,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.ZipWith7ZArchive(archive_path) as archive:
       self._CheckExtractedContent(archive,
@@ -180,7 +180,7 @@ class ArchiveUnittest(unittest.TestCase):
     with ArchiveUnittest._PrepareTestingFileSystemStructure(
         expected_files) as path:
       os.mkdir(os.path.join(path, 'test'))
-      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)
+      archive_path = CreateZipArchive(os.path.join(self.test_dir, 'test'), path)  # type: ignore #TODO(b/338318729) Fixit!
 
     with output_factory_report.ZipWith7ZArchive(archive_path) as archive:
       self._CheckExtractedContent(archive,

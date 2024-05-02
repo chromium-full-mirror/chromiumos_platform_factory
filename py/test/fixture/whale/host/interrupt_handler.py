@@ -141,8 +141,8 @@ class InterruptHandler:
   def Init(self):
     """Resets button latch and records feedback value."""
     self._last_feedback = self._servo.MultipleIsOn(self._FEEDBACK_LIST)
-    self._servo.MultipleSet([(self._CONTROL.LCM_CMD, 'clear'),
-                             (self._CONTROL.LCM_TEXT, 'Initializing...')])
+    self._servo.MultipleSet([(self._CONTROL.LCM_CMD, 'clear'),  # type: ignore #TODO(b/338318729) Fixit!
+                             (self._CONTROL.LCM_TEXT, 'Initializing...')])  # type: ignore #TODO(b/338318729) Fixit!
     self.ResetLatch()
     self.ResetInterrupt()
     self.ResetKeyboard()
@@ -157,10 +157,10 @@ class InterruptHandler:
 
   def _SetState(self, state):
     green, red, message = self._FixtureStateParams[state]
-    self._servo.MultipleSet([(self._CONTROL.PASS_LED, green),
-                             (self._CONTROL.FAIL_LED, red),
-                             (self._CONTROL.LCM_CMD, 'clear'),
-                             (self._CONTROL.LCM_TEXT, message)])
+    self._servo.MultipleSet([(self._CONTROL.PASS_LED, green),  # type: ignore #TODO(b/338318729) Fixit!
+                             (self._CONTROL.FAIL_LED, red),  # type: ignore #TODO(b/338318729) Fixit!
+                             (self._CONTROL.LCM_CMD, 'clear'),  # type: ignore #TODO(b/338318729) Fixit!
+                             (self._CONTROL.LCM_TEXT, message)])  # type: ignore #TODO(b/338318729) Fixit!
 
     self.ShowNucIpOnLED()
 
@@ -190,14 +190,14 @@ class InterruptHandler:
       self._SetState(self._FixtureState.OPENING)
 
     # Disable battery first for safety.
-    self._servo.Disable(self._CONTROL.BATTERY)
+    self._servo.Disable(self._CONTROL.BATTERY)  # type: ignore #TODO(b/338318729) Fixit!
 
     while True:
       feedback_status = self._servo.MultipleIsOn(self._FEEDBACK_LIST)
 
-      if (not feedback_status[self._FIXTURE_FEEDBACK.FB1] or
-          not feedback_status[self._FIXTURE_FEEDBACK.FB3]):
-        self._servo.Disable(self._CONTROL.FIXTURE_PUSH_NEEDLE)
+      if (not feedback_status[self._FIXTURE_FEEDBACK.FB1] or  # type: ignore #TODO(b/338318729) Fixit!
+          not feedback_status[self._FIXTURE_FEEDBACK.FB3]):  # type: ignore #TODO(b/338318729) Fixit!
+        self._servo.Disable(self._CONTROL.FIXTURE_PUSH_NEEDLE)  # type: ignore #TODO(b/338318729) Fixit!
         continue
 
       self._starting_fixture_action = None
@@ -211,15 +211,15 @@ class InterruptHandler:
     if (self._starting_fixture_action is not None and
         self._starting_fixture_action != ActionType.FIXTURE_STARTED):
       # we are closing the fixture, check if we detect a hand
-      if feedback_status[self._FIXTURE_FEEDBACK.FB5]:
+      if feedback_status[self._FIXTURE_FEEDBACK.FB5]:  # type: ignore #TODO(b/338318729) Fixit!
         # detect hand, abort
         self._HandleStopFixture()
         return
 
-    if self._servo.IsOn(self._BUTTON.FIXTURE_START):
+    if self._servo.IsOn(self._BUTTON.FIXTURE_START):  # type: ignore #TODO(b/338318729) Fixit!
       if (self._starting_fixture_action == ActionType.PUSH_NEEDLE and
-          feedback_status[self._FIXTURE_FEEDBACK.FB2] and
-          feedback_status[self._FIXTURE_FEEDBACK.FB4]):
+          feedback_status[self._FIXTURE_FEEDBACK.FB2] and  # type: ignore #TODO(b/338318729) Fixit!
+          feedback_status[self._FIXTURE_FEEDBACK.FB4]):  # type: ignore #TODO(b/338318729) Fixit!
         logging.info('[HandleStartFixture] fixture closed')
         self._starting_fixture_action = ActionType.FIXTURE_STARTED
         self._SetState(self._FixtureState.CLOSED)
@@ -233,7 +233,7 @@ class InterruptHandler:
       logging.info('[HandleStartFixture] ACTION = FIXTURE_STARTED')
       return
 
-    if self._last_feedback[self._FIXTURE_FEEDBACK.FB5]:
+    if self._last_feedback[self._FIXTURE_FEEDBACK.FB5]:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('[HandleStartFixture] Detect Hands, stop..')
       return
 
@@ -250,14 +250,14 @@ class InterruptHandler:
 
     if self._starting_fixture_action == ActionType.PUSH_NEEDLE:
       logging.info('[HandleStartFixture] pushing needle')
-      self._servo.Enable(self._CONTROL.FIXTURE_PUSH_NEEDLE)
+      self._servo.Enable(self._CONTROL.FIXTURE_PUSH_NEEDLE)  # type: ignore #TODO(b/338318729) Fixit!
 
   @TimeClassMethodDebug
   def _ResetWhaleDeviceBeforeClosing(self):
     """Resets devices on Whale if necessary before closing fixture."""
     # Release DUT CC2 pull-high
-    self._servo.Disable(self._CONTROL.DC)
-    self._servo.Disable(self._CONTROL.OUTPUT_RESERVE_1)
+    self._servo.Disable(self._CONTROL.DC)  # type: ignore #TODO(b/338318729) Fixit!
+    self._servo.Disable(self._CONTROL.OUTPUT_RESERVE_1)  # type: ignore #TODO(b/338318729) Fixit!
 
   @TimeClassMethodDebug
   def _ResetDolphinDeviceBeforeClosing(self):
@@ -283,10 +283,10 @@ class InterruptHandler:
                     self._BATTERY_CEASE_TOGGLE_SECS)
       return
 
-    new_battery_status = ('off' if self._servo.IsOn(self._CONTROL.BATTERY)
+    new_battery_status = ('off' if self._servo.IsOn(self._CONTROL.BATTERY)  # type: ignore #TODO(b/338318729) Fixit!
                           else 'on')
     logging.info('[Toggle battery to %s]', new_battery_status)
-    self._servo.Set(self._CONTROL.BATTERY, new_battery_status)
+    self._servo.Set(self._CONTROL.BATTERY, new_battery_status)  # type: ignore #TODO(b/338318729) Fixit!
     self._last_battery_toggle_time = time.time()
 
   @TimeClassMethodDebug
@@ -299,17 +299,17 @@ class InterruptHandler:
     logging.debug('[Scanning button....]')
     status = self._servo.MultipleIsOn(self._BUTTON_LIST)
 
-    if status[self._BUTTON.FIXTURE_STOP]:
+    if status[self._BUTTON.FIXTURE_STOP]:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Calling _HandleStopFixture because FIXTURE_STOP is True.')
       self._HandleStopFixture()
       # Disable stop button, and use 'i2cset' to set it back to input mode.
-      self._servo.Disable(self._BUTTON.FIXTURE_STOP)
+      self._servo.Disable(self._BUTTON.FIXTURE_STOP)  # type: ignore #TODO(b/338318729) Fixit!
       process_utils.Spawn(['i2cset', '-y', '1', '0x77', '0x07', '0xff'])
       return True
 
     if (self._starting_fixture_action != ActionType.FIXTURE_STARTED and
         self._starting_fixture_action is not None and
-        not status[self._BUTTON.FIXTURE_START]):
+        not status[self._BUTTON.FIXTURE_START]):  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('Calling _HandleStopFixture because FIXTURE_START is False.')
       self._HandleStopFixture()
       return False
@@ -329,12 +329,12 @@ class InterruptHandler:
                       button)
         continue
 
-      if button == self._BUTTON.FIXTURE_START:
+      if button == self._BUTTON.FIXTURE_START:  # type: ignore #TODO(b/338318729) Fixit!
         if self._starting_fixture_action == ActionType.FIXTURE_STARTED:
           logging.info('[START] ACTION = FIXTURE_STARTED')
         else:
           self._HandleStartFixture()
-      elif button == self._BUTTON.RESERVE_1:
+      elif button == self._BUTTON.RESERVE_1:  # type: ignore #TODO(b/338318729) Fixit!
         self._ToggleBattery()
 
       logging.info('Button %s clicked', button)
@@ -364,7 +364,7 @@ class InterruptHandler:
   @TimeClassMethodDebug
   def ResetLatch(self):
     """Resets SR latch for buttons."""
-    self._servo.Click(self._CONTROL.INPUT_RESET)
+    self._servo.Click(self._CONTROL.INPUT_RESET)  # type: ignore #TODO(b/338318729) Fixit!
 
   @TimeClassMethodDebug
   def WaitForInterrupt(self):
@@ -403,9 +403,9 @@ class InterruptHandler:
     # Note that we skip I/O expander 0x75 byte-0 as it contains no input
     # pin, won't trigger interrupt.
     self._servo.MultipleGet([
-        self._FIXTURE_FEEDBACK.FB1, self._BUTTON.FIXTURE_START,
-        self._PLANKTON_FEEDBACK.FB1, self._WHALE_DEBUG_MODE_EN,
-        self._BUTTON.RESERVE_1])
+        self._FIXTURE_FEEDBACK.FB1, self._BUTTON.FIXTURE_START,  # type: ignore #TODO(b/338318729) Fixit!
+        self._PLANKTON_FEEDBACK.FB1, self._WHALE_DEBUG_MODE_EN,  # type: ignore #TODO(b/338318729) Fixit!
+        self._BUTTON.RESERVE_1])  # type: ignore #TODO(b/338318729) Fixit!
 
   def Run(self):
     """Waits for Whale's button click interrupt and dispatches it."""
@@ -459,8 +459,8 @@ class InterruptHandler:
       else:
         ip_address = ip_matcher.group(1)
 
-    self._servo.MultipleSet([(self._CONTROL.LCM_ROW, 'r1'),
-                             (self._CONTROL.LCM_TEXT, ip_address)])
+    self._servo.MultipleSet([(self._CONTROL.LCM_ROW, 'r1'),  # type: ignore #TODO(b/338318729) Fixit!
+                             (self._CONTROL.LCM_TEXT, ip_address)])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def ParseArgs():

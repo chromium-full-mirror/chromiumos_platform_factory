@@ -111,12 +111,12 @@ class DHCPManager:
         logging.info('DHCPManager: IFACE: %s will be assigned to %s',
                      interface.name, cidr)
       # Make sure the interface is up
-      net_utils.SetEthernetIp(str(cidr.SelectIP(1)), interface.name,
-                              str(cidr.Netmask()), force=True)
+      net_utils.SetEthernetIp(str(cidr.SelectIP(1)), interface.name,  # type: ignore #TODO(b/338318729) Fixit!
+                              str(cidr.Netmask()), force=True)  # type: ignore #TODO(b/338318729) Fixit!
 
-      used_range.append((str(cidr.SelectIP(1)), cidr.prefix))
-      ip_start = cidr.SelectIP(2)
-      ip_end = cidr.SelectIP(-3)
+      used_range.append((str(cidr.SelectIP(1)), cidr.prefix))  # type: ignore #TODO(b/338318729) Fixit!
+      ip_start = cidr.SelectIP(2)  # type: ignore #TODO(b/338318729) Fixit!
+      ip_end = cidr.SelectIP(-3)  # type: ignore #TODO(b/338318729) Fixit!
       dhcp_ranges.extend(
           ['--dhcp-range', f'{ip_start},{ip_end},{int(self._lease_time)}'])
     interfaces = [interface.name for interface in interfaces]
@@ -172,14 +172,14 @@ class DHCPManager:
 
   def StopDHCP(self):
     """Stops DHCP service."""
-    self._process.terminate()
+    self._process.terminate()  # type: ignore #TODO(b/338318729) Fixit!
     self._process = None
-    self._rpc_server.Destroy()
+    self._rpc_server.Destroy()  # type: ignore #TODO(b/338318729) Fixit!
     self._rpc_server = None
     for interface in self._handled_interfaces:
       net_utils.Ifconfig(interface, enable=False)
     callback_file_symlink = os.path.join(
-        self.RUN_DIR, f'{self.CALLBACK_PREFIX}{int(self._callback_port)}')
+        self.RUN_DIR, f'{self.CALLBACK_PREFIX}{int(self._callback_port)}')  # type: ignore #TODO(b/338318729) Fixit!
     os.unlink(callback_file_symlink)
 
   def DHCPCallback(self, argv):

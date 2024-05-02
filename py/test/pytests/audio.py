@@ -207,16 +207,16 @@ class AudioTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.audio_conf:
-      self._dut.audio.LoadConfig(self.args.audio_conf)
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
+      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
     # Tansfer output device format
-    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])
-    self._out_device = self.args.output_dev[1]
+    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
+    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.initial_actions is None:
+    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit!
       self._dut.audio.Initialize()
     else:
-      for card, action in self.args.initial_actions:
+      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
         if not card.isdigit():
           card = self._dut.audio.GetCardIndexByName(card)
         if action is None:
@@ -228,29 +228,29 @@ class AudioTest(test_case.TestCase):
     self._dut.audio.RestoreMixerControls()
 
   def runTest(self):
-    if self.args.check_headphone:
+    if self.args.check_headphone:  # type: ignore #TODO(b/338318729) Fixit!
       self.DetectHeadphone()
 
-    args = (self.ui, self._dut, self.args.port_label, self._out_card,
+    args = (self.ui, self._dut, self.args.port_label, self._out_card,  # type: ignore #TODO(b/338318729) Fixit!
             self._out_device)
     kwargs = {}
 
-    if self.args.sample_rate is not None:
-      kwargs['sample_rate'] = self.args.sample_rate
+    if self.args.sample_rate is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      kwargs['sample_rate'] = self.args.sample_rate  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.test_left_right:
+    if self.args.test_left_right:  # type: ignore #TODO(b/338318729) Fixit!
       for c in ['left', 'right']:
         TestAudioDigitPlayback(*args, channel=c, **kwargs)
     else:
       TestAudioDigitPlayback(*args, **kwargs)
 
   def DetectHeadphone(self):
-    if self.args.require_headphone:
+    if self.args.require_headphone:  # type: ignore #TODO(b/338318729) Fixit!
       instruction = _('Please plug headphone in.')
     else:
       instruction = _('Please unplug headphone.')
 
-    self.ui.SetState(instruction)
+    self.ui.SetState(instruction)  # type: ignore #TODO(b/338318729) Fixit!
     sync_utils.PollForCondition(
         poll_method=self._CheckHeadphone, poll_interval_secs=0.5,
         condition_name='CheckHeadphone', timeout_secs=10)
@@ -258,5 +258,5 @@ class AudioTest(test_case.TestCase):
   def _CheckHeadphone(self):
     headphone_status = self._dut.audio.GetHeadphoneJackStatus(self._out_card)
     logging.info('Headphone status %s, Require Headphone %s', headphone_status,
-                 self.args.require_headphone)
-    return headphone_status == self.args.require_headphone
+                 self.args.require_headphone)  # type: ignore #TODO(b/338318729) Fixit!
+    return headphone_status == self.args.require_headphone  # type: ignore #TODO(b/338318729) Fixit!

@@ -72,11 +72,11 @@ class FeatureComplianceVersionTest(test_case.TestCase):
     """
 
     database = Database.LoadFile(self._hw_db_path)
-    vpd = hwid_utils.GetVPDData(run_vpd=self.args.hwid_need_vpd)
+    vpd = hwid_utils.GetVPDData(run_vpd=self.args.hwid_need_vpd)  # type: ignore #TODO(b/338318729) Fixit!
     device_info = hwid_utils.GetDeviceInfo()
 
     identity = hwid_utils.GenerateHWID(database, hwid_utils.GetProbedResults(),
-                                       device_info, vpd, self.args.rma_mode,
+                                       device_info, vpd, self.args.rma_mode,  # type: ignore #TODO(b/338318729) Fixit!
                                        with_configless_fields=False,
                                        brand_code=hwid_utils.GetBrandCode())
     logging.info(identity)
@@ -97,11 +97,11 @@ class FeatureComplianceVersionTest(test_case.TestCase):
 
     logging.info('RMA case for feature compliance check.')
     feature_flags = GSCTool().GetFeatureManagementFlags()
-    if (feature_flags.hw_compliance_version >
+    if (feature_flags.hw_compliance_version >  # type: ignore #TODO(b/338318729) Fixit!
         feature_compliance.FEATURE_INCOMPLIANT_VERSION):
       self.assertEqual(
-          checker_hw_compliance_version, feature_flags.hw_compliance_version,
-          'The hw_compliance_version calculated from checker '
+          checker_hw_compliance_version, feature_flags.hw_compliance_version,  # type: ignore #TODO(b/338318729) Fixit!
+          'The hw_compliance_version calculated from checker '  # type: ignore #TODO(b/338318729) Fixit!
           f'({checker_hw_compliance_version}) differs from the '
           f'one in GSC ({feature_flags.hw_compliance_version}). '
           f'GSC feature flags are set as ({feature_flags.is_chassis_branded}, '
@@ -110,7 +110,7 @@ class FeatureComplianceVersionTest(test_case.TestCase):
           'check if the installed components match feature requirements. '
           'Otherwise, it is possible that GSC/MLB might need a rework here.')
 
-    device_data.SetHWComplianceVersionData(feature_flags.hw_compliance_version)
+    device_data.SetHWComplianceVersionData(feature_flags.hw_compliance_version)  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self) -> None:
 

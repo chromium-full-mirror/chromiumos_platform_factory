@@ -350,7 +350,7 @@ class KeyfulModelBase(_ModelBase):
   def _ValidateDerivedKeyMatchesEntityKey(self):
     # Expect entity key to be complete at this stage.
     model_key_path = self.DeriveKeyPathFromModelFields()
-    entity_key_path = self._entity.key.flat_path
+    entity_key_path = self._entity.key.flat_path  # type: ignore #TODO(b/338318729) Fixit!
     if len(entity_key_path) < len(model_key_path):
       raise KeyMismatchError('Entity key path is too short.')
     if any(entity_key_path[i] != model_key_path[i]

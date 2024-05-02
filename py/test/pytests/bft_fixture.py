@@ -27,12 +27,12 @@ class BFTFixture(unittest.TestCase):
     while True:
       fixture = None
       try:
-        fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)
-        getattr(fixture, self.args.method)(*self.args.args)
+        fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+        getattr(fixture, self.args.method)(*self.args.args)  # type: ignore #TODO(b/338318729) Fixit!
         break  # Success; we're done
       except Exception:
         logging.exception('BFT fixture test failed')
-        if not self.args.retry_secs:
+        if not self.args.retry_secs:  # type: ignore #TODO(b/338318729) Fixit!
           # No retry; raise the exception to fail the test
           raise
       finally:
@@ -42,5 +42,5 @@ class BFTFixture(unittest.TestCase):
           except Exception:
             logging.exception('Unable to disconnect fixture')
 
-      logging.info('Will retry in %s secs', self.args.retry_secs)
-      time.sleep(self.args.retry_secs)
+      logging.info('Will retry in %s secs', self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      time.sleep(self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit!

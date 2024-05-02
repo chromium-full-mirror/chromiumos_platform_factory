@@ -31,12 +31,12 @@ def _CreateMockListBlobsWrapper(test_files):
     if bucket_name == TEST_BUCKET and delimiter == '/':
       if prefix == '':
         return [
-            Blob(name=key, path=None)
+            Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit!
             for key in test_files
             if os.path.dirname(key) == prefix
         ]
       return [
-          Blob(name=key, path=None)
+          Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit!
           for key in test_files
           if os.path.dirname(key) + '/' == prefix
       ]

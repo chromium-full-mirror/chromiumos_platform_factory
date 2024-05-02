@@ -147,14 +147,14 @@ class HWIDV2ActionTest(unittest.TestCase):
         'flash_chip': {'gigadevice_gd25lq32', 'winbond_w25q32dw'}
     }
     self.assertEqual(components,
-                     self.action.GetComponents(with_classes={'flash_chip'}))
+                     self.action.GetComponents(with_classes={'flash_chip'}))  # type: ignore #TODO(b/338318729) Fixit!
     components = {
         'flash_chip': {'gigadevice_gd25lq32', 'winbond_w25q32dw'},
         'keyboard': {'kbd_us', 'kbd_gb'}
     }
     self.assertEqual(
         components,
-        self.action.GetComponents(with_classes={'flash_chip', 'keyboard'}))
+        self.action.GetComponents(with_classes={'flash_chip', 'keyboard'}))  # type: ignore #TODO(b/338318729) Fixit!
 
     # Test classes with multiple components
     components = {
@@ -163,7 +163,7 @@ class HWIDV2ActionTest(unittest.TestCase):
         }
     }
     self.assertEqual(components,
-                     self.action.GetComponents(with_classes={'usb_hosts'}))
+                     self.action.GetComponents(with_classes={'usb_hosts'}))  # type: ignore #TODO(b/338318729) Fixit!
 
 
 if __name__ == '__main__':

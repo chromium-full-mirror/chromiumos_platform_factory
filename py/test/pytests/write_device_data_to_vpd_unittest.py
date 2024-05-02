@@ -48,10 +48,10 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
     self.mock_flatten_data = patcher.start()
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
 
   def test_runTest_GetDeviceDataWithoutKeyMap(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -61,7 +61,7 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
          mock.call('vpd.rw', {})])
 
   def test_runTest_GetAdditionalDataWithoutKeyMap(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -77,7 +77,7 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
         }})
 
   def test_runTest_GetDeviceDataWithKeyMap(self):
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         ro_key_map={
             'fake_vpd_name1': 'fake_device_data_key1',
             'fake_vpd_name2': 'fake_device_data_key2'
@@ -101,7 +101,7 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
       } if key else default
 
     self.mock_get_device_data.side_effect = _GetFakeDeviceDataWithEmptyValue
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.test.setUp()
     self.test.runTest()
@@ -110,7 +110,7 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
         self.test, "Missing device data keys: ['serials', 'vpd.ro', 'vpd.rw']")
 
   def test_runTest_WriteDataToVPD(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
     ro_vpd = self.mock_dut.vpd.ro
     rw_vpd = self.mock_dut.vpd.rw
 
@@ -135,7 +135,7 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
 
   def test_runTest_WriteDataToVPD_SkipEmptyEntries(self):
     # Only read RO VPD data.
-    self.test.args = FakeArgs(
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
         ro_key_map={'fake_vpd_name': 'fake_device_data_key'}, rw_key_map=None)
     rw_vpd = self.mock_dut.vpd.rw
 

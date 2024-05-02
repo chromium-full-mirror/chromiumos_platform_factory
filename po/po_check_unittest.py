@@ -34,29 +34,29 @@ class PoBuildTest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.temp_dir = tempfile.mkdtemp(prefix='po_check_test.')
-    cls.po_dir = os.path.join(cls.temp_dir, 'po')
-    cls.build_dir = os.path.join(cls.temp_dir, 'build')
-    cls.locale_dir = os.path.join(cls.build_dir, 'locale')
+    cls.temp_dir = tempfile.mkdtemp(prefix='po_check_test.')  # type: ignore #TODO(b/338318729) Fixit!
+    cls.po_dir = os.path.join(cls.temp_dir, 'po')  # type: ignore #TODO(b/338318729) Fixit!
+    cls.build_dir = os.path.join(cls.temp_dir, 'build')  # type: ignore #TODO(b/338318729) Fixit!
+    cls.locale_dir = os.path.join(cls.build_dir, 'locale')  # type: ignore #TODO(b/338318729) Fixit!
 
     po_files = glob.glob(os.path.join(SCRIPT_DIR, '*.po'))
-    os.makedirs(cls.po_dir)
+    os.makedirs(cls.po_dir)  # type: ignore #TODO(b/338318729) Fixit!
     for po_file in po_files:
-      shutil.copy(po_file, cls.po_dir)
+      shutil.copy(po_file, cls.po_dir)  # type: ignore #TODO(b/338318729) Fixit!
 
-    env = {'PO_DIR': cls.po_dir, 'BUILD_DIR': cls.build_dir}
+    env = {'PO_DIR': cls.po_dir, 'BUILD_DIR': cls.build_dir}  # type: ignore #TODO(b/338318729) Fixit!
     process_utils.Spawn(['make', '-C', SCRIPT_DIR, 'build'],
                         ignore_stdout=True, ignore_stderr=True,
                         env=env, check_call=True)
 
     translation.LOCALES = [translation.DEFAULT_LOCALE] + [
         os.path.splitext(os.path.basename(po_file))[0] for po_file in po_files]
-    translation.LOCALE_DIR = cls.locale_dir
+    translation.LOCALE_DIR = cls.locale_dir  # type: ignore #TODO(b/338318729) Fixit!
 
   @classmethod
   def tearDownClass(cls):
-    if os.path.exists(cls.temp_dir):
-      shutil.rmtree(cls.temp_dir)
+    if os.path.exists(cls.temp_dir):  # type: ignore #TODO(b/338318729) Fixit!
+      shutil.rmtree(cls.temp_dir)  # type: ignore #TODO(b/338318729) Fixit!
 
   def setUp(self):
     self.formatter = string.Formatter()
@@ -93,7 +93,7 @@ class PoBuildTest(unittest.TestCase):
   def testFormatStringFormat(self):
     all_translations = translation.GetAllTranslations()
 
-    kwargs = collections.defaultdict(_MockValue)
+    kwargs = collections.defaultdict(_MockValue)  # type: ignore #TODO(b/338318729) Fixit!
     for text in all_translations:
       for locale in translation.LOCALES:
         try:
@@ -107,7 +107,7 @@ class PoBuildTest(unittest.TestCase):
         self.formatter.parse(format_str)):
       if field_name is None:
         continue
-      var_name = re.match('[a-zA-Z0-9_]*', field_name).group(0)
+      var_name = re.match('[a-zA-Z0-9_]*', field_name).group(0)  # type: ignore #TODO(b/338318729) Fixit!
       if not var_name or re.fullmatch('[0-9]+', var_name):
         self.AddError(
             f'[{locale}] "{format_str}": Positional argument {{{var_name}}} '

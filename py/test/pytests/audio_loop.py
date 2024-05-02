@@ -469,10 +469,10 @@ class AudioLoopTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.audio_conf:
-      self.GetAudio().LoadConfig(self.args.audio_conf)
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
+      self.GetAudio().LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self._output_volumes = self.args.output_volume
+    self._output_volumes = self.args.output_volume  # type: ignore #TODO(b/338318729) Fixit!
     if not isinstance(self._output_volumes, list):
       self._output_volumes = [self._output_volumes]
     self._output_volume_index = 0
@@ -488,12 +488,12 @@ class AudioLoopTest(test_case.TestCase):
         'nocheck': None,
         'lrgm': base.MicJackType.lrgm,
         'lrmg': base.MicJackType.lrmg
-    }[self.args.mic_jack_type]
+    }[self.args.mic_jack_type]  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.initial_actions is None:
+    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit!
       self.GetAudio().Initialize()
     else:
-      for card, action in self.args.initial_actions:
+      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
         if card.isdigit() is False:
           card = self.GetAudio().GetCardIndexByName(card)
         if action is None:
@@ -502,26 +502,26 @@ class AudioLoopTest(test_case.TestCase):
           self.GetAudio().ApplyAudioConfig(action, card)
 
     # Transfer input and output device format
-    self._in_card = self.GetAudio().GetCardIndexByName(self.args.input_dev[0])
+    self._in_card = self.GetAudio().GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
     self._in_channel_map = _DEFAULT_TEST_INPUT_CHANNELS
-    if self.args.input_dev[1].isdigit():
-      self._in_device = self.args.input_dev[1]
+    if self.args.input_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit!
+      self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
     else:
       # Detect _in_device from ucm config.
       self._in_device = self.GetAudio().config_mgr.GetPCMId(
-          'CapturePCM', self.args.input_dev[1], self._in_card)
+          'CapturePCM', self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
       channels_from_ucm_config = self.GetAudio().config_mgr.GetChannelMap(
-          self.args.input_dev[1], self._in_card)
+          self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
       if channels_from_ucm_config is not None:
         self._in_channel_map = channels_from_ucm_config
 
-    self._out_card = self.GetAudio().GetCardIndexByName(self.args.output_dev[0])
-    if self.args.output_dev[1].isdigit():
-      self._out_device = self.args.output_dev[1]
+    self._out_card = self.GetAudio().GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.output_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit!
+      self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
     else:
       # Detect _out_device from ucm config.
       self._out_device = self.GetAudio().config_mgr.GetPCMId(
-          'PlaybackPCM', self.args.output_dev[1], self._out_card)
+          'PlaybackPCM', self.args.output_dev[1], self._out_card)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Backward compatible for non-porting case, which use ALSA device name.
     # only works on chromebook device
@@ -529,9 +529,9 @@ class AudioLoopTest(test_case.TestCase):
     self._alsa_input_device = f'hw:{self._in_card},{self._in_device}'
     self._alsa_output_device = f'hw:{self._out_card},{self._out_device}'
 
-    if self.args.check_cras:
+    if self.args.check_cras:  # type: ignore #TODO(b/338318729) Fixit!
       # Check cras status
-      if self.args.cras_enabled:
+      if self.args.cras_enabled:  # type: ignore #TODO(b/338318729) Fixit!
         cras_status = 'start/running'
       else:
         cras_status = 'stop/waiting'
@@ -555,19 +555,19 @@ class AudioLoopTest(test_case.TestCase):
   def runTest(self):
     # If autostart, JS triggers start_run_test event.
     # Otherwise, it binds start_run_test with 's' key pressed.
-    self.ui.CallJSFunction('init',
-                           self.args.require_dongle, self.args.test_title)
-    if self.args.autostart:
-      self.ui.RunJS('window.template.innerHTML = "";')
+    self.ui.CallJSFunction('init',  # type: ignore #TODO(b/338318729) Fixit!
+                           self.args.require_dongle, self.args.test_title)  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.RunJS('window.template.innerHTML = "";')  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self.ui.WaitKeysOnce('S')
+      self.ui.WaitKeysOnce('S')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.CheckDongleStatus()
     self.SetupAudio()
-    if self.args.check_conformance:
+    if self.args.check_conformance:  # type: ignore #TODO(b/338318729) Fixit!
       self.CheckConformance()
 
-    if not self.args.tests_to_conduct:
+    if not self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit!
       logging.info('No audio loop test to be conducted because the argument '
                    '\'tests_to_conduct\' is empty')
       return
@@ -578,12 +578,12 @@ class AudioLoopTest(test_case.TestCase):
         self._output_volumes):
 
       if output_volume is not None:
-        if self.args.require_dongle:
+        if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
           self.GetAudio().SetHeadphoneVolume(output_volume, self._out_card)
         else:
           self.GetAudio().SetSpeakerVolume(output_volume, self._out_card)
 
-      for test in self.args.tests_to_conduct:
+      for test in self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit!
         if test['type'] == 'audiofun':
           # Read input_gain from ucm for audiofuntest.
           ucm_config_mgr = self.GetAudio().ucm_config_mgr
@@ -598,13 +598,13 @@ class AudioLoopTest(test_case.TestCase):
           raise ValueError(f"Test type \"{test['type']}\" not supported.")
 
       if self.MayPassTest():
-        self.ui.CallJSFunction('testPassResult')
+        self.ui.CallJSFunction('testPassResult')  # type: ignore #TODO(b/338318729) Fixit!
         self.Sleep(0.5)
         for file_path in self._audio_file_path:
           os.unlink(file_path)
         return
 
-    if self.args.keep_raw_logs:
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
       try:
         for file_path in self._audio_file_path:
           testlog.AttachFile(path=file_path, mime_type='audio/x-raw',
@@ -746,7 +746,7 @@ class AudioLoopTest(test_case.TestCase):
     self.assertLessEqual(min_frequency, max_frequency)
 
     player_cmd = (
-        f'sox -b{audiofuntest_bits:d} -c{self.args.num_output_channels:d} -e'
+        f'sox -b{audiofuntest_bits:d} -c{self.args.num_output_channels:d} -e'  # type: ignore #TODO(b/338318729) Fixit!
         f'{audiofuntest_encoding} -r{output_rate:d} -traw - -b{player_bits:d} '
         f'-e{player_encoding} -talsa {self._alsa_output_device}')
 
@@ -772,7 +772,7 @@ class AudioLoopTest(test_case.TestCase):
         '-t', audiofuntest_sample_format, '-I', f'{int(input_rate)}', '-O',
         f'{int(output_rate)}', '-T', f'{int(iteration)}', '-a',
         f'{int(output_channel)}', '-c', f'{len(input_channels)}', '-C',
-        f'{int(self.args.num_output_channels)}', '-g', f'{int(volume_gain)}',
+        f'{int(self.args.num_output_channels)}', '-g', f'{int(volume_gain)}',  # type: ignore #TODO(b/338318729) Fixit!
         '-i', f'{int(min_frequency)}', '-x', f'{int(max_frequency)}', '-p',
         f'{rms_threshold:f}'
     ]
@@ -833,7 +833,7 @@ class AudioLoopTest(test_case.TestCase):
         break
       rate_msg = ', '.join(f'Mic {int(input_channels[channel])}: {rate:.1f}%'
                            for channel, rate in last_success_rate.items())
-      self.ui.CallJSFunction('testInProgress', rate_msg)
+      self.ui.CallJSFunction('testInProgress', rate_msg)  # type: ignore #TODO(b/338318729) Fixit!
 
     threshold = test_arg.get('threshold', _DEFAULT_AUDIOFUN_TEST_THRESHOLD)
 
@@ -845,7 +845,7 @@ class AudioLoopTest(test_case.TestCase):
       self.AppendErrorMessage(
           f'For output device channel {output_channel}, the success rate is '
           f'"{rate_msg}", too low!')
-      self.ui.CallJSFunction('testFailResult', rate_msg)
+      self.ui.CallJSFunction('testFailResult', rate_msg)  # type: ignore #TODO(b/338318729) Fixit!
       success = False
       self.Sleep(1)
 
@@ -859,7 +859,7 @@ class AudioLoopTest(test_case.TestCase):
         self._audio_file_path.append(local_recorded_audio_path)
 
   def _CheckChannelArgs(self, output_channels):
-    if self.args.num_output_channels < max(output_channels):
+    if self.args.num_output_channels < max(output_channels):  # type: ignore #TODO(b/338318729) Fixit!
       raise ValueError('Incorrect number of output channels')
 
   def AudioFunTest(self, test_arg):
@@ -874,17 +874,17 @@ class AudioLoopTest(test_case.TestCase):
     self._CheckChannelArgs(output_channels)
 
     for output_channel in output_channels:
-      self._AudioFunTestWithOutputChannel(test_arg, self.args.input_rate,
-                                          self.args.output_rate, output_channel)
-      if self.args.audiofuntest_run_delay is not None:
-        self.Sleep(self.args.audiofuntest_run_delay)
+      self._AudioFunTestWithOutputChannel(test_arg, self.args.input_rate,  # type: ignore #TODO(b/338318729) Fixit!
+                                          self.args.output_rate, output_channel)  # type: ignore #TODO(b/338318729) Fixit!
+      if self.args.audiofuntest_run_delay is not None:  # type: ignore #TODO(b/338318729) Fixit!
+        self.Sleep(self.args.audiofuntest_run_delay)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _GenerateSinewav(self, dut_file_path, channel, wav_duration):
     """Generate sine .wav file locally and push it to the DUT.
     """
     with file_utils.UnopenedTemporaryFile(suffix='.wav') as file_path:
       cmd = audio_utils.GetGenerateSineWavArgs(file_path, channel,
-                                               self.args.output_rate,
+                                               self.args.output_rate,  # type: ignore #TODO(b/338318729) Fixit!
                                                _DEFAULT_FREQ_HZ, wav_duration)
       process_utils.Spawn(cmd.split(' '), log=True, check_call=True)
       self._dut.link.Push(file_path, dut_file_path)
@@ -892,7 +892,7 @@ class AudioLoopTest(test_case.TestCase):
   def SinewavTest(self, test_arg):
     """Play sinewav, record it and check if it meets the requirements.
     """
-    self.ui.CallJSFunction('testInProgress', None)
+    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit!
 
     duration = test_arg.get('duration', _DEFAULT_SINEWAV_TEST_DURATION)
     wav_duration = duration + _DEFAULT_SINEWAV_DURATION_MARGIN
@@ -919,7 +919,7 @@ class AudioLoopTest(test_case.TestCase):
   def NoiseTest(self, test_arg):
     """Record noise and check if it meets the requirements.
     """
-    self.ui.CallJSFunction('testInProgress', None)
+    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit!
 
     noise_file_path = f'/tmp/noise-{time.time()}.wav'
     self.RecordAndCheck(test_arg, noise_file_path)
@@ -942,7 +942,7 @@ class AudioLoopTest(test_case.TestCase):
       self._CheckRecordedAudio(
           test_arg,
           audio_utils.SoxStatOutput(file_path, num_channels, channel,
-                                    self.args.input_rate))
+                                    self.args.input_rate))  # type: ignore #TODO(b/338318729) Fixit!
     self._audio_file_path.append(file_path)
 
   def _RecordFile(self, duration, num_channels, file_path):
@@ -960,11 +960,11 @@ class AudioLoopTest(test_case.TestCase):
          self._dut.temp.TempFile() as dut_record_path:
       self.GetAudio().RecordRawFile(dut_record_path, self._in_card,
                                     self._in_device, duration, num_channels,
-                                    self.args.input_rate)
+                                    self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit!
       self._dut.link.Pull(dut_record_path, record_path)
       audio_utils.TrimAudioFile(
           in_path=record_path, out_path=file_path, start=_DEFAULT_TRIM_SECONDS,
-          end=None, num_channels=num_channels, sample_rate=self.args.input_rate)
+          end=None, num_channels=num_channels, sample_rate=self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _CheckRecordedAudio(self, test_arg, sox_output):
     rms_value = audio_utils.GetAudioRms(sox_output)
@@ -1044,7 +1044,7 @@ class AudioLoopTest(test_case.TestCase):
   def CheckDongleStatus(self):
     # When audio jack detection feature is ready on a platform, we can
     # enable check_dongle option to check jack status matches we expected.
-    if self.args.check_dongle:
+    if self.args.check_dongle:  # type: ignore #TODO(b/338318729) Fixit!
       mic_status = self.GetAudio().GetMicJackStatus(self._in_card)
       headphone_status = self.GetAudio().GetHeadphoneJackStatus(self._out_card)
       plug_status = mic_status or headphone_status
@@ -1052,16 +1052,16 @@ class AudioLoopTest(test_case.TestCase):
       # audio fun-plug on a few platforms; so it is suggested not to run
       # audiofuntest with HP/MIC jack
       if plug_status is True:
-        if any((t['type'] == 'audiofun') for t in self.args.tests_to_conduct):
+        if any((t['type'] == 'audiofun') for t in self.args.tests_to_conduct):  # type: ignore #TODO(b/338318729) Fixit!
           session.console.info('Audiofuntest does not require dongle.')
           raise ValueError('Audiofuntest does not require dongle.')
-        if self.args.require_dongle is False:
+        if self.args.require_dongle is False:  # type: ignore #TODO(b/338318729) Fixit!
           session.console.info('Dongle Status is wrong, don\'t need dongle.')
           raise ValueError('Dongle Status is wrong.')
 
       # for require dongle case, we need to check both microphone and headphone
       # are all detected.
-      if self.args.require_dongle:
+      if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
         if (mic_status and headphone_status) is False:
           session.console.info('Dongle Status is wrong. mic %s, headphone %s',
                                mic_status, headphone_status)
@@ -1080,13 +1080,13 @@ class AudioLoopTest(test_case.TestCase):
     # We don't use plug_status because plug_status may not be ready at early
     # stage.
     self.GetAudio().DisableAllAudioOutputs(self._out_card)
-    if self.args.require_dongle:
+    if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
       self.GetAudio().EnableHeadphone(self._out_card)
     else:
       self.GetAudio().EnableSpeaker(self._out_card)
 
     self.GetAudio().DisableAllAudioInputs(self._in_card)
-    self.GetAudio().EnableDevice(self.args.mic_source, self._in_card)
+    self.GetAudio().EnableDevice(self.args.mic_source, self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
 
   def _ParseConformanceOutput(self, conformance_output: io.TextIOBase):
     """Parse a conformance output from alsa_conformance_test.py
@@ -1189,7 +1189,7 @@ class AudioLoopTest(test_case.TestCase):
     """Run conformance test program and check the result."""
 
     # TODO(cyueh) Add simultaneous test when b/201381252 is complete.
-    self._CheckDeviceConformance(self.args.input_rate, self._alsa_input_device,
+    self._CheckDeviceConformance(self.args.input_rate, self._alsa_input_device,  # type: ignore #TODO(b/338318729) Fixit!
                                  None)
-    self._CheckDeviceConformance(self.args.output_rate, None,
+    self._CheckDeviceConformance(self.args.output_rate, None,  # type: ignore #TODO(b/338318729) Fixit!
                                  self._alsa_output_device)

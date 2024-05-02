@@ -98,13 +98,13 @@ class TouchpadHoverTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._touchpad = evdev_utils.FindDevice(self.args.touchpad_filter,
+    self._touchpad = evdev_utils.FindDevice(self.args.touchpad_filter,  # type: ignore #TODO(b/338318729) Fixit!
                                             evdev_utils.IsTouchpadDevice)
     self._hover_type = evdev_utils.GetHoverType(self._touchpad)
 
   @contextlib.contextmanager
   def WithTimer(self, timeout_secs):
-    timer_disabler = self.ui.StartCountdownTimer(timeout_secs)
+    timer_disabler = self.ui.StartCountdownTimer(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     yield
     timer_disabler.set()
 
@@ -118,8 +118,8 @@ class TouchpadHoverTest(test_case.TestCase):
         if event is None:
           return False
         if (event.timestamp() >= start_time and
-            event.type == evdev.ecodes.EV_ABS and
-            event.code == evdev.ecodes.ABS_DISTANCE and
+            event.type == evdev.ecodes.EV_ABS and  # type: ignore #TODO(b/338318729) Fixit!
+            event.code == evdev.ecodes.ABS_DISTANCE and  # type: ignore #TODO(b/338318729) Fixit!
             event.value == value):
           return True
     start_time = time.time()
@@ -130,10 +130,10 @@ class TouchpadHoverTest(test_case.TestCase):
     return True
 
   def _TestForValue(self, msg, val):
-    self.ui.SetState(msg)
-    with self.WithTimer(self.args.timeout_secs):
+    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit!
+    with self.WithTimer(self.args.timeout_secs):  # type: ignore #TODO(b/338318729) Fixit!
       self.assertTrue(
-          self._WaitForValue(val, self.args.timeout_secs), 'Timeout')
+          self._WaitForValue(val, self.args.timeout_secs), 'Timeout')  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
     if self._hover_type == evdev_utils.HoverType.NotSupported:
@@ -143,21 +143,21 @@ class TouchpadHoverTest(test_case.TestCase):
       self.WaiveTest(f'Touchpad {self._touchpad.name} is multi-touch. '
                      'This test only supports single-touch.')
 
-    if self.args.calibration_trigger:
-      self.ui.SetState(_('Calibrating touchpad...'))
-      with self.WithTimer(self.args.calibration_sleep_secs):
-        self._dut.WriteFile(self.args.calibration_trigger, '1')
-        self.Sleep(self.args.calibration_sleep_secs)
+    if self.args.calibration_trigger:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Calibrating touchpad...'))  # type: ignore #TODO(b/338318729) Fixit!
+      with self.WithTimer(self.args.calibration_sleep_secs):  # type: ignore #TODO(b/338318729) Fixit!
+        self._dut.WriteFile(self.args.calibration_trigger, '1')  # type: ignore #TODO(b/338318729) Fixit!
+        self.Sleep(self.args.calibration_sleep_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
-    for round_index in range(self.args.repeat_times):
-      progress = f'({int(round_index)}/{int(self.args.repeat_times)}) '
+    for round_index in range(self.args.repeat_times):  # type: ignore #TODO(b/338318729) Fixit!
+      progress = f'({int(round_index)}/{int(self.args.repeat_times)}) '  # type: ignore #TODO(b/338318729) Fixit!
       self._TestForValue(
           [progress, _('Please put the hover-tool into the holder.')], 1)
       self._TestForValue(
           [progress,
            _('Please pull out the hover-tool from the holder.')], 0)
 
-    self.ui.SetState(_('Checking for false positive...'))
-    with self.WithTimer(self.args.false_positive_check_duration):
-      fp = self._WaitForValue(1, self.args.false_positive_check_duration)
+    self.ui.SetState(_('Checking for false positive...'))  # type: ignore #TODO(b/338318729) Fixit!
+    with self.WithTimer(self.args.false_positive_check_duration):  # type: ignore #TODO(b/338318729) Fixit!
+      fp = self._WaitForValue(1, self.args.false_positive_check_duration)  # type: ignore #TODO(b/338318729) Fixit!
       self.assertFalse(fp, 'False Positive Detected.')

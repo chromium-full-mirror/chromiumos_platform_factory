@@ -189,13 +189,13 @@ class ThunderboltLoopbackTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
     self._dut = device_utils.CreateDUTInterface()
-    self._usbpd_port = self.args.usbpd_spec['port']
+    self._usbpd_port = self.args.usbpd_spec['port']  # type: ignore #TODO(b/338318729) Fixit!
     self._usbpd_polarity = {
         1: 'NORMAL',
         2: 'INVERTED'
-    }.get(self.args.usbpd_spec.get('polarity'))
+    }.get(self.args.usbpd_spec.get('polarity'))  # type: ignore #TODO(b/338318729) Fixit!
     self._remove_module = False
     self._card_state = None
     self._muxinfo = {}
@@ -203,7 +203,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     self._first_check_mux_info = True
 
     self._group_checker = None
-    if self.args.lane_margining:
+    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit!
       # Group checker and details for Testlog.
       self._group_checker = testlog.GroupParam(self.LOG_GROUP_NAME,
                                                self.LOG_KEYS)
@@ -261,7 +261,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     except Exception:
       if self._muxinfo.get(fail_tag) != 1:
         logging.exception('%s failed', fail_tag)
-        self.ui.SetState(_('Please unplug and replug.'))
+        self.ui.SetState(_('Please unplug and replug.'))  # type: ignore #TODO(b/338318729) Fixit!
         self._muxinfo = {
             fail_tag: 1
         }
@@ -269,16 +269,16 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     else:
       if self._muxinfo != outputs:
         logging.info('%s %r', fail_tag, outputs)
-        self.ui.SetState(
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
             f'Port {int(self._usbpd_port)}<br>{fail_tag} {outputs!r}')
         self._muxinfo = outputs
       if self._usbpd_polarity:
         if outputs['POLARITY'] != self._usbpd_polarity:
-          self.ui.SetInstruction(
+          self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
               _('Wrong USB side, please flip over {media}.',
                 media='Loopback card'))
           return False
-        self.ui.SetInstruction('')
+        self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit!
       if outputs['TBT']:
         return True
       if outputs['USB']:
@@ -294,20 +294,20 @@ class ThunderboltLoopbackTest(test_case.TestCase):
       self.args.controller_patterns to glob the path and return the result if
       there is only one match, otherwise return None.
     """
-    if self.args.debugfs_path:
-      if self._dut.path.exists(self.args.debugfs_path):
-        return self.args.debugfs_path
+    if self.args.debugfs_path:  # type: ignore #TODO(b/338318729) Fixit!
+      if self._dut.path.exists(self.args.debugfs_path):  # type: ignore #TODO(b/338318729) Fixit!
+        return self.args.debugfs_path  # type: ignore #TODO(b/338318729) Fixit!
       if self._SetCardState(_CardState.Absent):
         logging.info('No loopback card exists.')
       return None
 
     target_controller_patterns = set(
-        [self.args.controller_port] if self.args.controller_port else self.args
+        [self.args.controller_port] if self.args.controller_port else self.args  # type: ignore #TODO(b/338318729) Fixit!
         .controller_patterns)
     target_controllers = self._GlobLoopbackPath(target_controller_patterns)
     if len(target_controllers) > 1:
       if self._SetCardState(_CardState.Multiple):
-        self.ui.SetState(_('Do not insert more than one loopback card.'))
+        self.ui.SetState(_('Do not insert more than one loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
         logging.info(
             'Multiple loopback cards exist: %r with patterns: %r. '
             'Set controller_patterns to be more specific.', target_controllers,
@@ -323,7 +323,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
         non_target_controller_patterns)
     if non_target_controllers:
       if self._SetCardState(_CardState.Wrong):
-        self.ui.SetState(
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
             _('The loopback card is inserted into the wrong port.'))
         logging.info(
             'The loopback card is inserted into the wrong port: '
@@ -331,7 +331,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
             non_target_controller_patterns)
     else:
       if self._SetCardState(_CardState.Absent):
-        self.ui.SetState(_('Insert the loopback card.'))
+        self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
         logging.info('No loopback card exists with patterns: %r',
                      target_controller_patterns)
     return None
@@ -415,8 +415,8 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def _GetUITimer(self):
     """Returns the stop event flag of the timer or None if no timeout."""
-    if self.args.timeout_secs:
-      return self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
+    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
+      return self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     return None
 
   def _UploadLaneMarginingViaCSV(self, log_result: dict):
@@ -440,7 +440,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def _SaveLaneMarginingViaTestlog(self, log_result: dict):
     """Saves the result of lane margining via Testlog."""
-    with self._group_checker:
+    with self._group_checker:  # type: ignore #TODO(b/338318729) Fixit!
       for key, value in log_result.items():
         testlog.LogParam(key, value)
 
@@ -454,8 +454,8 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until Mux info becomes TBT=1."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Insert the loopback card.'))
-    sync_utils.WaitFor(self._CheckMuxinfo, self.args.timeout_secs,
+    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
+    sync_utils.WaitFor(self._CheckMuxinfo, self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
                        poll_interval=0.5)
     if stop_timer:
       stop_timer.set()
@@ -464,9 +464,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until device node appears."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Insert the loopback card.'))
+    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
     device_path = sync_utils.WaitFor(self._FindLoopbackPath,
-                                     self.args.timeout_secs, poll_interval=0.5)
+                                     self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit!
     match = _RE_ADP_DOMAIN.fullmatch(device_path)
     if not match:
       raise Exception('device_path is not in expected format.')
@@ -483,10 +483,10 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until device node disappears."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Remove the loopback card.'))
+    self.ui.SetState(_('Remove the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
 
     sync_utils.WaitFor(lambda: not self._dut.path.exists(device_path),
-                       self.args.timeout_secs, poll_interval=0.5)
+                       self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit!
     if stop_timer:
       stop_timer.set()
 
@@ -494,22 +494,22 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Performs DMA test."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Test is in progress, please do not move the device.'))
+    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
     session.console.info('The loopback card path is at %r.', device_path)
     device_test_path = self._dut.path.join(device_path, _DMA_TEST)
     # Configure the test
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'speed'),
-        ENCODE_LINK_SPEED[self.args.expected_link_speed])
+        ENCODE_LINK_SPEED[self.args.expected_link_speed])  # type: ignore #TODO(b/338318729) Fixit!
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'lanes'),
-        ENCODE_LINK_WIDTH[self.args.expected_link_width])
+        ENCODE_LINK_WIDTH[self.args.expected_link_width])  # type: ignore #TODO(b/338318729) Fixit!
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'packets_to_send'),
-        str(self.args.packets_to_send))
+        str(self.args.packets_to_send))  # type: ignore #TODO(b/338318729) Fixit!
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'packets_to_receive'),
-        str(self.args.packets_to_receive))
+        str(self.args.packets_to_receive))  # type: ignore #TODO(b/338318729) Fixit!
     # Run the test.
     self._LogAndWriteFile(self._dut.path.join(device_test_path, 'test'), '1')
     if stop_timer:
@@ -522,7 +522,7 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     match = _RE_STATUS.match(output)
     if not match:
       self._errors.append('Output format of status is changed.')
-    result = match.group(1)
+    result = match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
     if result == 'success':
       return
     if result in ('fail', 'failed', 'not run'):
@@ -532,10 +532,10 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def runTest(self):
     self._WaitMuxInfoBecomingTBT()
-    if self.args.check_muxinfo_only:
+    if self.args.check_muxinfo_only:  # type: ignore #TODO(b/338318729) Fixit!
       self.PassTask()
 
-    if self.args.load_module:
+    if self.args.load_module:  # type: ignore #TODO(b/338318729) Fixit!
       # Fail the test if the module doesn't exist.
       self._dut.CheckCall(['modinfo', _TEST_MODULE])
       # If the module is loaded before the test then do not remove it.
@@ -546,11 +546,11 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     device_path, domain, adapter = self._WaitForLoopbackCardInsertion()
     self._TestDMA(device_path)
 
-    if self.args.lane_margining:
+    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit!
       log_result = self._TestLaneMargining(domain, adapter)
       self._UploadOrSaveLaneMargining(log_result)
 
-    if self.args.check_card_removal:
+    if self.args.check_card_removal:  # type: ignore #TODO(b/338318729) Fixit!
       self._WaitForLoopbackCardRemoval(device_path)
 
     if self._errors:

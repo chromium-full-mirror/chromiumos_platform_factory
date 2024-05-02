@@ -363,7 +363,7 @@ def GenerateTestListDoc(output_dir):
       has_group_detail = False
 
       test_object_names = sorted(raw_config['definitions'])
-      cache = {}
+      cache = {}  # type: ignore #TODO(b/338318729) Fixit!
       for test_object_name in test_object_names:
         resolved_test_object = config['definitions'][test_object_name]
         raw_test_object = test_list.ResolveTestObject(
@@ -480,7 +480,7 @@ def GenerateHWIDDoc(output_dir):
   probe_statement = common.LoadUserProbeStatementFile(
       converter.DEFAULT_PROBE_STATEMENT_PATH)
 
-  table = {}
+  table = {}  # type: ignore #TODO(b/338318729) Fixit!
   for category in test_case.TestCategory.__members__.values():
     if category.hwid_name:
       table.setdefault(category.hwid_name, []).append(category)

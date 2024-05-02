@@ -80,7 +80,7 @@ class QRCodeManager(plugin.Plugin):
       raise Exception(
           f'QR code content must be a string! (current: {content!r})')
 
-    img = qrcode.make(content)
+    img = qrcode.make(content)  # type: ignore #TODO(b/338318729) Fixit!
 
     buffered = BytesIO()
     img.save(buffered, format='PNG')
@@ -134,7 +134,7 @@ class QRCodeManager(plugin.Plugin):
         'args': args
     }
 
-    self._qrcode_info = args
+    self._qrcode_info = args  # type: ignore #TODO(b/338318729) Fixit!
     self._PostEvent(message)
 
   @plugin.RPCFunction

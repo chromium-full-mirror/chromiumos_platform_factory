@@ -92,23 +92,23 @@ class AudioBasicTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.audio_conf:
-      self._dut.audio.LoadConfig(self.args.audio_conf)
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
+      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.assertEqual(2, len(self.args.input_dev))
-    self.assertEqual(2, len(self.args.output_dev))
+    self.assertEqual(2, len(self.args.input_dev))  # type: ignore #TODO(b/338318729) Fixit!
+    self.assertEqual(2, len(self.args.output_dev))  # type: ignore #TODO(b/338318729) Fixit!
 
     # Transform input and output device format
-    self._in_card = self._dut.audio.GetCardIndexByName(self.args.input_dev[0])
-    self._in_device = self.args.input_dev[1]
-    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])
-    self._out_device = self.args.output_dev[1]
+    self._in_card = self._dut.audio.GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
+    self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
+    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
 
     # Init audio card before show html
-    if self.args.initial_actions is None:
+    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit!
       self._dut.audio.Initialize()
     else:
-      for card, action in self.args.initial_actions:
+      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
         if not card.isdigit():
           card = self._dut.audio.GetCardIndexByName(card)
         if action is None:
@@ -116,36 +116,36 @@ class AudioBasicTest(test_case.TestCase):
         else:
           self._dut.audio.ApplyAudioConfig(action, card)
 
-    self.ui.ToggleTemplateClass('font-large', True)
-    self.ui.SetInstruction(self.args.audio_title)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetInstruction(self.args.audio_title)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.done_tests = set()
 
   def TestRecord(self):
     logging.info('start record')
-    self.ui.SetState(_('Start recording'))
+    self.ui.SetState(_('Start recording'))  # type: ignore #TODO(b/338318729) Fixit!
 
     dut_record_file_path = self._dut.temp.mktemp(False)
     self._dut.audio.RecordWavFile(dut_record_file_path, self._in_card,
                                   self._in_device, _RECORD_SEC,
-                                  self.args.input_channels, _RECORD_RATE)
+                                  self.args.input_channels, _RECORD_RATE)  # type: ignore #TODO(b/338318729) Fixit!
 
     logging.info('stop record and start playback')
     # playback the record file by each channel.
     with file_utils.UnopenedTemporaryFile(suffix='.wav') as full_wav_path:
       self._dut.link.Pull(dut_record_file_path, full_wav_path)
-      for channel_idx in range(1, self.args.input_channels + 1):
+      for channel_idx in range(1, self.args.input_channels + 1):  # type: ignore #TODO(b/338318729) Fixit!
         with file_utils.UnopenedTemporaryFile(suffix='.wav') as wav_path:
           # Get channel channel_idx from full_wav_path to a stereo wav_path
           # Since most devices support 2 channels.
-          remix_option = ['0'] * self.args.output_channels
+          remix_option = ['0'] * self.args.output_channels  # type: ignore #TODO(b/338318729) Fixit!
           remix_option[channel_idx - 1] = str(channel_idx)
           process_utils.Spawn(
               ['sox', full_wav_path, wav_path, 'remix'] + remix_option,
               log=True, check_call=True)
           with self._dut.temp.TempFile() as dut_path:
             self._dut.link.Push(wav_path, dut_path)
-            self.ui.SetState(
+            self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
                 _('Playback sound (Mic channel {channel})',
                   channel=channel_idx))
             self._dut.audio.PlaybackWavFile(dut_path, self._out_card,
@@ -154,8 +154,8 @@ class AudioBasicTest(test_case.TestCase):
 
   def TestPlay(self):
     logging.info('start play sample')
-    locale = self.ui.GetUILocale()
-    for channel_idx in range(1, self.args.output_channels + 1):
+    locale = self.ui.GetUILocale()  # type: ignore #TODO(b/338318729) Fixit!
+    for channel_idx in range(1, self.args.output_channels + 1):  # type: ignore #TODO(b/338318729) Fixit!
       ogg_path = os.path.join(_SOUND_DIRECTORY, locale,
                               f'{int(channel_idx)}.ogg')
       number_wav_path = f'{ogg_path}.wav'
@@ -165,14 +165,14 @@ class AudioBasicTest(test_case.TestCase):
         # we will only keep channel_idx channel and mute others.
         # We use number sound to indicate which channel to be played.
         # Create .wav file with n channels but only has one channel data.
-        remix_option = ['0'] * self.args.output_channels
+        remix_option = ['0'] * self.args.output_channels  # type: ignore #TODO(b/338318729) Fixit!
         remix_option[channel_idx - 1] = '1'
         process_utils.Spawn(
             ['sox', number_wav_path, wav_path, 'remix'] + remix_option,
             log=True, check_call=True)
         with self._dut.temp.TempFile() as dut_path:
           self._dut.link.Push(wav_path, dut_path)
-          self.ui.SetState(
+          self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
               _('Playback sound to channel {channel}', channel=channel_idx))
           self._dut.audio.PlaybackWavFile(dut_path, self._out_card,
                                           self._out_device)
@@ -180,21 +180,21 @@ class AudioBasicTest(test_case.TestCase):
     logging.info('stop play sample')
 
   def runTest(self):
-    if self.args.require_headphone:
-      self.ui.SetState(_("Please plug headphone in."))
+    if self.args.require_headphone:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_("Please plug headphone in."))  # type: ignore #TODO(b/338318729) Fixit!
       sync_utils.PollForCondition(
           poll_method=self._dut.audio.GetHeadphoneJackStatus,
-          poll_interval_secs=1, condition_name=True,
-          timeout_secs=self.args.timeout_secs)
+          poll_interval_secs=1, condition_name=True,  # type: ignore #TODO(b/338318729) Fixit!
+          timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
     while True:
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _("Press 'P' to first play a sample for each channel to ensure "
             'audio output works.<br>'
             "Press 'R' to record {record_sec} seconds, Playback will "
             'follow.<br>'
             'Press space to mark pass.',
             record_sec=_RECORD_SEC))
-      key_pressed = self.ui.WaitKeysOnce(['P', 'R', test_ui.SPACE_KEY])
+      key_pressed = self.ui.WaitKeysOnce(['P', 'R', test_ui.SPACE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
       if key_pressed == 'P':
         self.TestPlay()
         self.done_tests.add('P')

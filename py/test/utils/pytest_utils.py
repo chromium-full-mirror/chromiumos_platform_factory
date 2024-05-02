@@ -57,7 +57,7 @@ def LoadPytestModule(pytest_name):
   Returns:
     The loaded pytest module object.
   """
-  return __import__(f'cros.factory.test.pytests.{pytest_name}', fromlist=[None])
+  return __import__(f'cros.factory.test.pytests.{pytest_name}', fromlist=[None])  # type: ignore #TODO(b/338318729) Fixit!
 
 
 def FindTestCase(pytest_module):

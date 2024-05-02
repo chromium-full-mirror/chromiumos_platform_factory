@@ -82,21 +82,21 @@ class DisplayInteractiveTest(test_case.TestCase):
   def setUp(self):
     """Initialize the test."""
     self.dut = device_utils.CreateDUTInterface()
-    self.static_dir = self.ui.GetStaticDirectoryPath()
+    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.frontend_proxy = self.ui.InitJSTestObject('DisplayInteractiveTest', '')
+    self.frontend_proxy = self.ui.InitJSTestObject('DisplayInteractiveTest', '')  # type: ignore #TODO(b/338318729) Fixit!
 
     # Set firewall rules to allow xml-rpc server listen on port.
     process_utils.Spawn([
         'iptables', '-A', 'INPUT', '-p', 'tcp', '--dport',
-        str(self.args.port), '-j', 'ACCEPT'
+        str(self.args.port), '-j', 'ACCEPT'  # type: ignore #TODO(b/338318729) Fixit!
     ], check_call=True)
-    self.ui.BindStandardFailKeys()
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if not self.args.autostart:
-      self.ui.SetInstruction('Press space to start the test')
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetInstruction('Press space to start the test')  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.SetDisplayBrightness(1.0)
     # Automatically toggle fullscreen.
@@ -106,16 +106,16 @@ class DisplayInteractiveTest(test_case.TestCase):
 
   def RunAsServer(self):
     """Run the XML-RPC server."""
-    self.server = ThreadXMLRPCServer(('0.0.0.0', self.args.port),
+    self.server = ThreadXMLRPCServer(('0.0.0.0', self.args.port),  # type: ignore #TODO(b/338318729) Fixit!
                                      allow_none=True)
     self.server.register_introspection_functions()
     self.server.register_instance(self)
-    logging.info('Starting XML-RPC server on %d', self.args.port)
+    logging.info('Starting XML-RPC server on %d', self.args.port)  # type: ignore #TODO(b/338318729) Fixit!
     self.server.serve_forever()
 
   def ServerClose(self):
-    self.server.shutdown()
-    self.server.server_close()
+    self.server.shutdown()  # type: ignore #TODO(b/338318729) Fixit!
+    self.server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('XML-RPC server closed.')
 
   def tearDown(self):

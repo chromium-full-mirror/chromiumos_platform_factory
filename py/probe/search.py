@@ -37,8 +37,8 @@ def GenerateProbeStatement(comp_cls):
   """Generates the probe statement for the component class."""
   if comp_cls not in GetGenericComponentClasses():
     return {}
-  statement = {comp_cls: {}}
-  func_expression = _generic_statement[comp_cls]['generic']['eval']
+  statement = {comp_cls: {}}  # type: ignore #TODO(b/338318729) Fixit!
+  func_expression = _generic_statement[comp_cls]['generic']['eval']  # type: ignore #TODO(b/338318729) Fixit!
   logging.debug('Function expression for component [%s]: %s',
                 comp_cls, func_expression)
   results = function.InterpretFunction(func_expression)()

@@ -64,9 +64,9 @@ class GSUtil:
       return process.stdout_data
 
     stderr = process.stderr_data
-    if ('CommandException: No URLs matched' in stderr or
-        'NotFoundException:' in stderr or
-        'One or more URLs matched no objects' in stderr):
+    if ('CommandException: No URLs matched' in stderr or  # type: ignore #TODO(b/338318729) Fixit!
+        'NotFoundException:' in stderr or  # type: ignore #TODO(b/338318729) Fixit!
+        'One or more URLs matched no objects' in stderr):  # type: ignore #TODO(b/338318729) Fixit!
       raise NoSuchKey(stderr)
     raise GSUtilError(stderr)
 
@@ -78,7 +78,7 @@ class GSUtil:
 
   def GetVersion(self):
     output = self._InvokeCommand('version')
-    return re.search(r'gsutil version: (\d+\.\d+)', output).group(1)
+    return re.search(r'gsutil version: (\d+\.\d+)', output).group(1)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GetGSPrefix(self, channel):
     """Gets the common prefix of a Google storage URI for a given channel.
@@ -268,7 +268,7 @@ class GSUtil:
         base_cache_dir = '/usr/local'
       else:
         # Otherwise set it to user's home directory.
-        base_cache_dir = os.environ.get('HOME')
+        base_cache_dir = os.environ.get('HOME')  # type: ignore #TODO(b/338318729) Fixit!
       return os.path.join(base_cache_dir, 'gsutil_cache')
 
     if not cache_dir:

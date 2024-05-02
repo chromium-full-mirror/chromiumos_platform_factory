@@ -43,4 +43,4 @@ class SwtichTestListTest(test_case.TestCase):
     self.goofy = state.GetInstance()
 
   def runTest(self):
-    self.goofy.SwitchTestList(self.args.test_list_id)
+    self.goofy.SwitchTestList(self.args.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!

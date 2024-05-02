@@ -91,41 +91,41 @@ class AccelerometersTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
 
-    if self.args.limits is None:
-      self.args.limits = DEFAULT_LIMITS
-    assert self.args.limits.keys() == {'x', 'y', 'z'}, (
+    if self.args.limits is None:  # type: ignore #TODO(b/338318729) Fixit!
+      self.args.limits = DEFAULT_LIMITS  # type: ignore #TODO(b/338318729) Fixit!
+    assert self.args.limits.keys() == {'x', 'y', 'z'}, (  # type: ignore #TODO(b/338318729) Fixit!
         'Limits should be a dictionary with keys "x", "y" and "z"')
-    for unused_axis, [limit_min, limit_max] in self.args.limits.items():
+    for unused_axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit!
       assert limit_min <= limit_max
 
     self.dut = device_utils.CreateDUTInterface()
     self.accelerometer_controller = (
-        self.dut.accelerometer.GetController(self.args.location))
+        self.dut.accelerometer.GetController(self.args.location))  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    if not self.args.autostart:
-      self.ui.SetState(_('Press SPACE to continue'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(_('Press SPACE to continue'))  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
 
     # Waits for a few seconds to let machine become stable.
-    for i in range(self.args.setup_time_secs):
-      self.ui.SetState(
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Test will be started within {secs} seconds. '
             'Please do not move the device.',
-            secs=self.args.setup_time_secs - i))
+            secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
-    self.ui.SetState(_('Test is in progress, please do not move the device.'))
+    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
-      raw_data = self.accelerometer_controller.GetData(self.args.capture_count)
+      raw_data = self.accelerometer_controller.GetData(self.args.capture_count)  # type: ignore #TODO(b/338318729) Fixit!
     except accelerometer.AccelerometerException:
       self.FailTask('Read raw data failed.')
 
     passed = True
-    for axis, [limit_min, limit_max] in self.args.limits.items():
+    for axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit!
       key = 'in_accel_' + axis  # in_accel_(x|y|z)
       passed &= testlog.CheckNumericParam(
           name=key, value=raw_data[key], min=limit_min, max=limit_max)

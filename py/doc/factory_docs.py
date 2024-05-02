@@ -45,14 +45,14 @@ class RegionsList(Directive):
 
     # Import the regions_overlay if available.
     try:
-      from cros.factory.test.l10n import regions_overlay
+      from cros.factory.test.l10n import regions_overlay  # type: ignore #TODO(b/338318729) Fixit!
       overlay = regions_overlay
     except ImportError:
       overlay = None
 
     name = self.list_name
     # For both the public repo and the overlay...
-    for module in filter(None, [regions, overlay]):
+    for module in filter(None, [regions, overlay]):  # type: ignore #TODO(b/338318729) Fixit!
       # For each of the elements in the list...
       for r in sorted(getattr(module, name), key=lambda x: x.description):
         # Build a row.

@@ -338,7 +338,7 @@ class CompChangeTest(ChangeUnitTestBase):
         'field2': 'value2'
     }, 'supported', {'info1': 'val1'})
     new_comp = _CompChange(
-        _GenerateNewComponentAnalysis(3), comp_info.values,
+        _GenerateNewComponentAnalysis(3), comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
         comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
@@ -350,13 +350,13 @@ class CompChangeTest(ChangeUnitTestBase):
         v3_rule.AVLProbeValue(
             identifier='identifier1',
             probe_value_matched=True,
-            values={
+            values={  # type: ignore #TODO(b/338318729) Fixit!
                 'field1': 'value1',
                 'field2': 'value2'
             },
         ), 'supported', {'info1': 'val1'})
     new_comp = _CompChange(
-        _GenerateNewComponentAnalysis(3), comp_info.values,
+        _GenerateNewComponentAnalysis(3), comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
         comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
@@ -378,7 +378,7 @@ class CompChangeTest(ChangeUnitTestBase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
-                marked_untracked_changed=False)), comp_info.values,
+                marked_untracked_changed=False)), comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
         comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
@@ -401,7 +401,7 @@ class CompChangeTest(ChangeUnitTestBase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
-                marked_untracked_changed=False)), comp_info.values,
+                marked_untracked_changed=False)), comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
         comp_info.information, comp_info.comp_hash)
 
     with self._builder:
@@ -420,7 +420,7 @@ class CompChangeTest(ChangeUnitTestBase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
-                marked_untracked_changed=False)), comp_info.values,
+                marked_untracked_changed=False)), comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
         comp_info.information, comp_info.comp_hash)
 
     with self._builder:
@@ -827,7 +827,7 @@ class ReplaceRulesTest(ChangeUnitTestBase):
   ]
 
   def testPatchReplaceRules_Success(self):
-    replace_rules = _ReplaceRules([{
+    replace_rules = _ReplaceRules([{  # type: ignore #TODO(b/338318729) Fixit!
         'name': 'device_info.image_id',
         'evaluate': "SetImageId('PVT')"
     }, {
@@ -989,11 +989,11 @@ class MixedChangeUnitTest(ChangeUnitTestBase):
             converter_changed=False, marked_untracked_changed=False))
     comp_change_cus = [
         _CompChange(  # Add component.
-            analysis_result=comp_1_2_analysis, probe_values=comp_info_1.values,
+            analysis_result=comp_1_2_analysis, probe_values=comp_info_1.values,  # type: ignore #TODO(b/338318729) Fixit!
             information=comp_info_1.information,
             comp_hash=comp_info_1.comp_hash),
         _CompChange(  # Rename component.
-            analysis_result=comp_1_3_analysis, probe_values=comp_info_2.values,
+            analysis_result=comp_1_3_analysis, probe_values=comp_info_2.values,  # type: ignore #TODO(b/338318729) Fixit!
             information=comp_info_2.information,
             comp_hash=comp_info_2.comp_hash),
     ]
@@ -1660,7 +1660,7 @@ class ChangeUnitManagerTest(unittest.TestCase):
                                  skip_avl_check_checker=Checker)
 
     comp_change = next(iter(manager.GetChangeUnits().values()))
-    comp_analysis = comp_change.comp_analysis
+    comp_analysis = comp_change.comp_analysis  # type: ignore #TODO(b/338318729) Fixit!
     self.assertTrue(comp_analysis.skip_avl_check)
 
   def testChangeUnitManagerIsPickleable(self):

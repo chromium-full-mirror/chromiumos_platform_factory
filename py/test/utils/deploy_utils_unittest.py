@@ -16,7 +16,7 @@ class FactoryPythonArchiveUnittest(unittest.TestCase):
     self.link = mock.Mock(spec=device_types.IDeviceLink)
     self.dut = chromeos.ChromeOSBoard(self.link)
     self.remote_factory_root = '/remote/factory/root'
-    self.dut.storage.GetFactoryRoot = mock.MagicMock(
+    self.dut.storage.GetFactoryRoot = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
         return_value=self.remote_factory_root)
 
     self.remote_factory_par = '/remote/factory/root/factory.par'
@@ -28,11 +28,11 @@ class FactoryPythonArchiveUnittest(unittest.TestCase):
   def _testCallWithString(self, is_local):
     self.link.IsLocal = mock.MagicMock(return_value=is_local)
     command = 'fake_command arg1 arg2'
-    expected_call = ('sh ' + self.factory_par.remote_factory_par +
+    expected_call = ('sh ' + self.factory_par.remote_factory_par +  # type: ignore #TODO(b/338318729) Fixit!
                      ' fake_command arg1 arg2')
     return_value = 'fake_return_value'
-    self.dut.Call = mock.MagicMock(return_value=return_value)
-    self.factory_par.PushFactoryPar = mock.MagicMock()
+    self.dut.Call = mock.MagicMock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit!
+    self.factory_par.PushFactoryPar = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
     result = self.factory_par.Call(command)
 
@@ -50,8 +50,8 @@ class FactoryPythonArchiveUnittest(unittest.TestCase):
     expected_call = ['sh', self.factory_par.remote_factory_par, 'fake_command',
                      'arg1', 'arg2']
     return_value = 'fake_return_value'
-    self.dut.Call = mock.MagicMock(return_value=return_value)
-    self.factory_par.PushFactoryPar = mock.MagicMock()
+    self.dut.Call = mock.MagicMock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit!
+    self.factory_par.PushFactoryPar = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
 
     result = self.factory_par.Call(command)
 
@@ -67,20 +67,20 @@ class FactoryPythonArchiveUnittest(unittest.TestCase):
     self.link.IsLocal = mock.MagicMock(return_value=False)
     device_types.DeviceProperty.Override(
         self.factory_par, 'checksum', 'checksum_value')
-    self.dut.CheckOutput = mock.MagicMock(return_value='checksum_value')
+    self.dut.CheckOutput = mock.MagicMock(return_value='checksum_value')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.factory_par.PushFactoryPar()
-    self.dut.link.Push.assert_not_called()
+    self.dut.link.Push.assert_not_called()  # type: ignore #TODO(b/338318729) Fixit!
 
   def testPushFactoryParChecksumNotMatched(self):
     self.link.IsLocal = mock.MagicMock(return_value=False)
     device_types.DeviceProperty.Override(
         self.factory_par, 'checksum', 'checksum_value')
-    self.dut.CheckCall = mock.MagicMock(return_value='checksum_value~')
+    self.dut.CheckCall = mock.MagicMock(return_value='checksum_value~')  # type: ignore #TODO(b/338318729) Fixit!
 
     self.factory_par.PushFactoryPar()
 
-    self.dut.link.Push.assert_called_with(self.local_factory_par,
+    self.dut.link.Push.assert_called_with(self.local_factory_par,  # type: ignore #TODO(b/338318729) Fixit!
                                           self.remote_factory_par)
 
 

@@ -143,17 +143,17 @@ class ChargerTest(test_case.TestCase):
     # Group checker for Testlog.
     self._group_checker = testlog.GroupParam('charge', ['charge', 'elapsed'])
 
-    if self.args.dim_backlight:
+    if self.args.dim_backlight:  # type: ignore #TODO(b/338318729) Fixit!
       # Get initial backlight brightness
       self._init_backlight_pct = float(
           CheckOutput(['backlight_tool', '--get_brightness_percent']).strip())
       LogAndCheckCall([
           'backlight_tool',
-          f'--set_brightness_percent={self.args.dim_backlight_pct:f}'
+          f'--set_brightness_percent={self.args.dim_backlight_pct:f}'  # type: ignore #TODO(b/338318729) Fixit!
       ])
 
   def tearDown(self):
-    if self.args.dim_backlight:
+    if self.args.dim_backlight:  # type: ignore #TODO(b/338318729) Fixit!
       LogAndCheckCall([
           'backlight_tool',
           f'--set_brightness_percent={self._init_backlight_pct:f}'
@@ -166,8 +166,8 @@ class ChargerTest(test_case.TestCase):
     start_charge = self._power.GetChargePct()
     self.assertTrue(start_charge, 'Error getting battery state.')
 
-    target_charge = self.args.target_charge_pct
-    if self.args.target_charge_pct_is_delta:
+    target_charge = self.args.target_charge_pct  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.target_charge_pct_is_delta:  # type: ignore #TODO(b/338318729) Fixit!
       self.assertIsInstance(target_charge, int,
                             'target_charge must be int when '
                             'target_charge_pct_is_delta is True.')
@@ -184,10 +184,10 @@ class ChargerTest(test_case.TestCase):
       return
 
     self._power.SetChargeState(self._power.ChargeState.CHARGE)
-    self.ui.SetState(MakeSpriteHTMLTag('charging_sprite.png', 256, 256))
+    self.ui.SetState(MakeSpriteHTMLTag('charging_sprite.png', 256, 256))  # type: ignore #TODO(b/338318729) Fixit!
     logging.info('Charging starting at %d%%', start_charge)
 
-    for elapsed in range(self.args.timeout_secs):
+    for elapsed in range(self.args.timeout_secs):  # type: ignore #TODO(b/338318729) Fixit!
       charge = self._power.GetChargePct()
 
       if charge >= target_charge:
@@ -197,15 +197,15 @@ class ChargerTest(test_case.TestCase):
           testlog.CheckNumericParam('charge', charge, min=target_charge)
           testlog.LogParam('elapsed', elapsed)
         return
-      self.ui.RunJS(
+      self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit!
           f'document.getElementById("batteryIcon").style.backgroundPosition = '
           f'"-{int(elapsed % 4 * 256)}px 0px"')
-      self.ui.SetInstruction(MakeChargeTextLabel(
+      self.ui.SetInstruction(MakeChargeTextLabel(  # type: ignore #TODO(b/338318729) Fixit!
           start_charge,
           charge,
           target_charge,
           elapsed,
-          self.args.timeout_secs - elapsed))
+          self.args.timeout_secs - elapsed))  # type: ignore #TODO(b/338318729) Fixit!
 
       if elapsed % 300 == 0:
         logging.info('Battery level is %d%% after %d minutes',
@@ -214,6 +214,6 @@ class ChargerTest(test_case.TestCase):
       self.Sleep(1)
 
     event_log.Log('failed_to_charge', charge=charge, target=target_charge,
-                  timeout_sec=self.args.timeout_secs)
-    self.FailTask(f'Cannot charge battery to {int(target_charge)}% in '
+                  timeout_sec=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    self.FailTask(f'Cannot charge battery to {int(target_charge)}% in '  # type: ignore #TODO(b/338318729) Fixit!
                   f'{int(self.args.timeout_secs)} seconds.')

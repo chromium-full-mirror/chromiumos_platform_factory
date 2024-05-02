@@ -99,7 +99,7 @@ class VPDUtilsTest(unittest.TestCase):
   @mock.patch(f'{VPDUTILS}._GetInvalidVPDFields')
   @mock.patch(f'{VPDUTILS}._ClearRWVPDEntries')
   def testClearUnknownVPDEntries(self, mock_clear_vpd, mock_invalid_vpd):
-    self.vpd_utils._vpd.GetAllData.return_value = {
+    self.vpd_utils._vpd.GetAllData.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'ubind_attribute': 1
     }
     mock_invalid_vpd.return_value = ['unknown'], []
@@ -118,7 +118,7 @@ class VPDUtilsTest(unittest.TestCase):
 
   @mock.patch(f'{VPDUTILS}._GetInvalidVPDFields')
   def testClearUnknownVPDEntriesAllValid(self, mock_invalid_vpd):
-    self.vpd_utils._vpd.GetAllData.return_value = {
+    self.vpd_utils._vpd.GetAllData.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'known': 1
     }
     mock_invalid_vpd.return_value = [], []
@@ -135,7 +135,7 @@ class VPDUtilsTest(unittest.TestCase):
     with self.assertLogs() as cm:
       self.vpd_utils._ClearRWVPDEntries(keys)
 
-    self.vpd_utils._vpd.UpdateData.assert_called_with(
+    self.vpd_utils._vpd.UpdateData.assert_called_with(  # type: ignore #TODO(b/338318729) Fixit!
         {
             'key1': None,
             'key2': None
@@ -173,7 +173,7 @@ class VPDUtilsTest(unittest.TestCase):
         'component.key': 1,
         'serials.key': 1
     }
-    self.vpd_utils._vpd.GetAllData.return_value = data
+    self.vpd_utils._vpd.GetAllData.return_value = data  # type: ignore #TODO(b/338318729) Fixit!
 
     self.vpd_utils.ClearFactoryVPDEntries()
 
@@ -181,7 +181,7 @@ class VPDUtilsTest(unittest.TestCase):
 
   @mock.patch(f'{VPDUTILS}._ClearRWVPDEntries')
   def testClearFactoryVPDEntriesUnknownDot(self, mock_clear_vpd):
-    self.vpd_utils._vpd.GetAllData.return_value = {
+    self.vpd_utils._vpd.GetAllData.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'unknow.key': 1
     }
 
@@ -190,7 +190,7 @@ class VPDUtilsTest(unittest.TestCase):
 
   @mock.patch(f'{VPDUTILS}._ClearRWVPDEntries')
   def testClearFactoryVPDEntriesNonDot(self, mock_clear_vpd):
-    self.vpd_utils._vpd.GetAllData.return_value = {
+    self.vpd_utils._vpd.GetAllData.return_value = {  # type: ignore #TODO(b/338318729) Fixit!
         'key': 1
     }
 
@@ -329,7 +329,7 @@ class VPDUtilsTest(unittest.TestCase):
         return rw
       return None
 
-    self.vpd_utils._vpd.GetAllData.side_effect = GetAllDataSideEffect
+    self.vpd_utils._vpd.GetAllData.side_effect = GetAllDataSideEffect  # type: ignore #TODO(b/338318729) Fixit!
 
   # TODO (b/212216855)
   @label_utils.Informational
@@ -338,9 +338,9 @@ class VPDUtilsTest(unittest.TestCase):
                         rw=self._SIMPLE_VALID_RW_VPD_DATA)
 
     self.vpd_utils.VerifyVPD()
-    self.vpd_utils._vpd.GetAllData.assert_any_call(
+    self.vpd_utils._vpd.GetAllData.assert_any_call(  # type: ignore #TODO(b/338318729) Fixit!
         partition=vpd.VPD_READONLY_PARTITION_NAME)
-    self.vpd_utils._vpd.GetAllData.assert_any_call(
+    self.vpd_utils._vpd.GetAllData.assert_any_call(  # type: ignore #TODO(b/338318729) Fixit!
         partition=vpd.VPD_READWRITE_PARTITION_NAME)
 
   @mock.patch.object(cros_config, 'CrosConfig')
@@ -353,9 +353,9 @@ class VPDUtilsTest(unittest.TestCase):
 
     # Should not fail, since MAX98360 is not a smart amplifier.
     self.vpd_utils.VerifyVPD()
-    self.vpd_utils._vpd.GetAllData.assert_any_call(
+    self.vpd_utils._vpd.GetAllData.assert_any_call(  # type: ignore #TODO(b/338318729) Fixit!
         partition=vpd.VPD_READONLY_PARTITION_NAME)
-    self.vpd_utils._vpd.GetAllData.assert_any_call(
+    self.vpd_utils._vpd.GetAllData.assert_any_call(  # type: ignore #TODO(b/338318729) Fixit!
         partition=vpd.VPD_READWRITE_PARTITION_NAME)
     self.get_amp_info.start()  # To prevent runtime error before python 3.8
 
@@ -464,7 +464,7 @@ class VPDUtilsTest(unittest.TestCase):
   def testVerifyVPD_MissingPVSPrePVTArm(self, get_phase_mock):
     """Without PVS related VPD field should work fine on ARM platforms."""
     get_phase_mock.return_value = phase.DVT
-    self.vpd_utils._util.shell.return_value = StubStdout('arm')
+    self.vpd_utils._util.shell.return_value = StubStdout('arm')  # type: ignore #TODO(b/338318729) Fixit!
     rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
     self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
                         rw=rw_vpd_value)
@@ -476,7 +476,7 @@ class VPDUtilsTest(unittest.TestCase):
   def testVerifyVPD_MissingPVSPVTx86(self, get_phase_mock):
     """Without PVS related VPD field should work fine on x86 platforms."""
     get_phase_mock.return_value = phase.PVT
-    self.vpd_utils._util.shell.return_value = StubStdout('x86')
+    self.vpd_utils._util.shell.return_value = StubStdout('x86')  # type: ignore #TODO(b/338318729) Fixit!
     rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
     self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
                         rw=rw_vpd_value)

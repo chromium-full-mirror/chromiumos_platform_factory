@@ -51,7 +51,7 @@ def DumpStr(obj, pretty=False, newline=None, **json_dumps_kwargs):
   else:
     kwargs = {}
   kwargs.update(json_dumps_kwargs)
-  result = json.dumps(obj, **kwargs)
+  result = json.dumps(obj, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
 
   if newline:
     result += '\n'

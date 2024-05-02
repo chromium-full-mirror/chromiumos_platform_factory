@@ -162,7 +162,7 @@ class TabletRotationTest(test_case.TestCase):
   def setUp(self):
     self.accel_controllers = {}
     self.dut = device_utils.CreateDUTInterface()
-    for location, dic in self.args.degrees_to_orientations.items():
+    for location, dic in self.args.degrees_to_orientations.items():  # type: ignore #TODO(b/338318729) Fixit!
       self.accel_controllers[location] = self.dut.accelerometer.GetController(
           location=location)
       if (not set(dic).issubset(set(_TEST_DEGREES)) or
@@ -189,7 +189,7 @@ class TabletRotationTest(test_case.TestCase):
     self.state.DeviceSetDisplayProperties(display_id, {"rotation": degree})
 
   def _SetStyle(self, div_id, key, value):
-    self.ui.RunJS(f'document.getElementById("{div_id}")'
+    self.ui.RunJS(f'document.getElementById("{div_id}")'  # type: ignore #TODO(b/338318729) Fixit!
                   f'.style.{key} = "{value}"')
 
   def _PromptAndWaitForRotation(self, degree, need_test_locations):
@@ -208,25 +208,25 @@ class TabletRotationTest(test_case.TestCase):
         # `--supports-clamshell-auto-rotation`.
         self.fail('Auto rotation is not allowed.')
 
-      for loc, dic in self.args.degrees_to_orientations.items():
+      for loc, dic in self.args.degrees_to_orientations.items():  # type: ignore #TODO(b/338318729) Fixit!
         if loc not in need_test_locations:
           continue
         orientations = dic[degree]
         cal_data = self.accel_controllers[loc].GetData(
-            sample_rate=self.args.sample_rate_hz)
-        if self.args.mode == "animation":
+            sample_rate=self.args.sample_rate_hz)  # type: ignore #TODO(b/338318729) Fixit!
+        if self.args.mode == "animation":  # type: ignore #TODO(b/338318729) Fixit!
           rotate_x, rotate_y, rotate_z = self.CalculateRotateDegree(
               loc, cal_data)
           self.RotateImage(loc, rotate_x, rotate_y, rotate_z)
 
         if self.accel_controllers[loc].IsWithinOffsetRange(
-            cal_data, orientations, self.args.spec_offset):
+            cal_data, orientations, self.args.spec_offset):  # type: ignore #TODO(b/338318729) Fixit!
           need_test_locations.remove(loc)
           self._SetStyle(loc, 'color', 'green')
 
   def runTest(self):
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
-    self.ui.SetInstruction(
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
         _('Rotate the tablet to correctly align the picture, holding it at '
           'an upright 90-degree angle.'))
     self.SetImageAndMode('chromebook_lid_rotate.png',
@@ -234,7 +234,7 @@ class TabletRotationTest(test_case.TestCase):
                          'chromebook_base.png')
     for degree in _TEST_DEGREES:
       need_test_locations = set()
-      for loc, dic in self.args.degrees_to_orientations.items():
+      for loc, dic in self.args.degrees_to_orientations.items():  # type: ignore #TODO(b/338318729) Fixit!
         if degree not in dic:
           self._SetStyle(loc, 'display', 'none')
           continue
@@ -248,26 +248,26 @@ class TabletRotationTest(test_case.TestCase):
       if not need_test_locations:
         continue
 
-      self.ui.SetView('main')
+      self.ui.SetView('main')  # type: ignore #TODO(b/338318729) Fixit!
       self._PromptAndWaitForRotation(degree, need_test_locations)
-      self.ui.SetView('success')
+      self.ui.SetView('success')  # type: ignore #TODO(b/338318729) Fixit!
       self.Sleep(1)
 
   def SetImageAndMode(self, lid_instruction_url, base_instruction_url, lid_url,
                       base_url):
     """Sets the image src and the display mode."""
-    self.ui.RunJS('document.getElementById("lid_instruction").src = args.url;',
+    self.ui.RunJS('document.getElementById("lid_instruction").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=lid_instruction_url)
-    self.ui.RunJS('document.getElementById("base_instruction").src = args.url;',
+    self.ui.RunJS('document.getElementById("base_instruction").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=base_instruction_url)
-    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',
+    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=lid_url)
-    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',
+    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
                   url=base_url)
 
-    if self.args.mode == 'classic':
+    if self.args.mode == 'classic':  # type: ignore #TODO(b/338318729) Fixit!
       self._SetStyle('animation', 'display', 'none')
-    elif self.args.mode == 'animation':
+    elif self.args.mode == 'animation':  # type: ignore #TODO(b/338318729) Fixit!
       self._SetStyle('classic', 'display', 'none')
 
   def RotateImage(self, loc, degree_x, degree_y, degree_z):

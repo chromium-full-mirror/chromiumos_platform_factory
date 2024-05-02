@@ -33,17 +33,17 @@ class PlanktonCC2PullTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
     self._dut = device_utils.CreateDUTInterface()
-    self._usb_c_index = self.args.usb_c_index
+    self._usb_c_index = self.args.usb_c_index  # type: ignore #TODO(b/338318729) Fixit!
     self._pull_gpio = f'C{int(self._usb_c_index)}_CC2_DUT'
 
     self._whale_fixture = bft_fixture.CreateBFTFixture(
-        **self.args.whale_bft_fixture)
+        **self.args.whale_bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
     self._whale_fixture.SetDeviceEngaged(self._pull_gpio, engage=False)
 
     self._plankton_fixture = bft_fixture.CreateBFTFixture(
-        **self.args.plankton_bft_fixture)
+        **self.args.plankton_bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
     self._plankton_fixture.SetDeviceEngaged('USB3', engage=True)
     self.Sleep(1)  # Wait for CC line
 
@@ -68,19 +68,19 @@ class PlanktonCC2PullTest(test_case.TestCase):
 
     self._whale_fixture.SetDeviceEngaged(self._pull_gpio, engage=True)
 
-    disconnect_half_secs = self.args.disconnect_secs / 2
-    if self.args.disconnect_manually:
+    disconnect_half_secs = self.args.disconnect_secs / 2  # type: ignore #TODO(b/338318729) Fixit!
+    if self.args.disconnect_manually:  # type: ignore #TODO(b/338318729) Fixit!
       # Ask operator to manually un-plug USB type-C cable
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please remove USB type-C cable in {secs:.1f} seconds',
             secs=disconnect_half_secs))
 
     else:
       # Use automation disconnection by Plankton-Raiden
-      self.ui.SetState(
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('USB type-C port is disconnected in {secs:.1f} seconds',
-            secs=self.args.disconnect_secs))
-      self._plankton_fixture.SetFakeDisconnection(self.args.disconnect_secs)
+            secs=self.args.disconnect_secs))  # type: ignore #TODO(b/338318729) Fixit!
+      self._plankton_fixture.SetFakeDisconnection(self.args.disconnect_secs)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.Sleep(disconnect_half_secs)
     # During Whale pull-high CC2 with cable disconnected, check CC is 'CC2'.
@@ -89,8 +89,8 @@ class PlanktonCC2PullTest(test_case.TestCase):
     cc_status = self.GetCCPolarity()
     self._whale_fixture.SetDeviceEngaged(self._pull_gpio, engage=False)
 
-    if self.args.disconnect_manually:
-      self.ui.SetState(
+    if self.args.disconnect_manually:  # type: ignore #TODO(b/338318729) Fixit!
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
           _('Please attach USB type-C cable in {secs:.1f} seconds',
             secs=disconnect_half_secs))
     self.Sleep(disconnect_half_secs)

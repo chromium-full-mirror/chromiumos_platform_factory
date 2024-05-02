@@ -84,18 +84,18 @@ def GetHashes(path):
     # to avoid a bunch of unnecessary YAML parsing.
     data = file_utils.ReadFile(path)
 
-  events = data.split('\n---\n')
+  events = data.split('\n---\n')  # type: ignore #TODO(b/338318729) Fixit!
   for e in reversed(events):
     if not e.startswith('EVENT: source_hashes'):
       continue
     data = yaml.safe_load(e)
 
-    hash_function = data.get('hash_function')
+    hash_function = data.get('hash_function')  # type: ignore #TODO(b/338318729) Fixit!
     if hash_function != file_utils.SOURCE_HASH_FUNCTION_NAME:
       raise ValueError(
           f'Expected hash function {file_utils.SOURCE_HASH_FUNCTION_NAME!r} but'
           f' got {hash_function!r}')
-    return data['hashes']
+    return data['hashes']  # type: ignore #TODO(b/338318729) Fixit!
   raise AuditException(f'No source_hashes event in event log {path}')
 
 

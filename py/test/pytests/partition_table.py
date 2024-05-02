@@ -125,8 +125,8 @@ class PartitionTableTest(test_case.TestCase):
     if has_minios_b:
       logging.info('DUT is using disk_layout_v3.json.')
 
-    if pct_used < self.args.min_usage_pct:
-      if not self.args.expand_stateful:
+    if pct_used < self.args.min_usage_pct:  # type: ignore #TODO(b/338318729) Fixit!
+      if not self.args.expand_stateful:  # type: ignore #TODO(b/338318729) Fixit!
         self.FailTask('Stateful partition does not cover enough of storage '
                       'device')
 

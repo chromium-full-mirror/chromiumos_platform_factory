@@ -270,7 +270,7 @@ class _ProbeStatementGenerator:
         if err is None:
           err = e
     if not expected_fields_list:
-      raise err
+      raise err  # type: ignore #TODO(b/338318729) Fixit!
 
     try:
       return self._probe_statement_generator.GenerateProbeStatement(
@@ -295,7 +295,7 @@ def GetAllProbeStatementGenerators():
           _SameNameFieldRecord('manufacturer', str_converter),
           _SameNameFieldRecord('model_name', str_converter),
           _FieldRecord('technology', 'chemistry', str_converter,
-                       is_optional=True, skip_values=COMMON_HWID_TECHNOLOGY),
+                       is_optional=True, skip_values=COMMON_HWID_TECHNOLOGY),  # type: ignore #TODO(b/338318729) Fixit!
       ])
   ]
 
@@ -761,7 +761,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     information.
     """
 
-    primary_identifiers = collections.defaultdict(dict)
+    primary_identifiers = collections.defaultdict(dict)  # type: ignore #TODO(b/338318729) Fixit!
     for model, grouped_comp_vp_piece in grouped_comp_vp_piece_per_model.items():
       grouped_primary_comp_name = grouped_primary_comp_name_per_model[model]
       for hash_value, comp_vp_piece_list in grouped_comp_vp_piece.items():
@@ -789,7 +789,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     """
     vp_pieces.sort(key=_ComponentSortKey)
     # Map expect fields string to the component.
-    comp_expects = {}
+    comp_expects = {}  # type: ignore #TODO(b/338318729) Fixit!
 
     for vp_piece in vp_pieces:
       expect_fields = vp_piece.probe_statement.statement.get('expect')

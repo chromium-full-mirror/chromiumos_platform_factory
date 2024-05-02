@@ -73,27 +73,27 @@ class VerifyBrandedChassis(test_case.TestCase):
     branded_chassis_data = self.feature_management.get(
         device_data_constants.NAME_CHASSIS_BRANDED, None)
 
-    if (self.args.rma_mode and
+    if (self.args.rma_mode and  # type: ignore #TODO(b/338318729) Fixit!
         gsc_utils.GSCUtils().IsGSCFeatureManagementFlagsLocked()):
-      branded_chassis_data = GSCTool().GetFeatureManagementFlags(
+      branded_chassis_data = GSCTool().GetFeatureManagementFlags(  # type: ignore #TODO(b/338318729) Fixit!
       ).is_chassis_branded
       logging.info('Chassis branded already set in GSC as %s.',
                    branded_chassis_data)
 
     self.ShowPrompt()
-    key = self.ui.WaitKeysOnce(['Y', 'N'], 20)
+    key = self.ui.WaitKeysOnce(['Y', 'N'], 20)  # type: ignore #TODO(b/338318729) Fixit!
 
     operator_response = (key == 'Y')
     if operator_response:
-      self.ui.SetState(_('The DUT is a branded chassis'))
+      self.ui.SetState(_('The DUT is a branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
     else:
-      self.ui.SetState(_('The DUT is NOT branded chassis'))
+      self.ui.SetState(_('The DUT is NOT branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
 
-    if IsInconsistentResponse(branded_chassis_data, operator_response):
+    if IsInconsistentResponse(branded_chassis_data, operator_response):  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask(_('Data is inconsistent, please double check!'))
 
     device_data.SetBrandedChassisData(operator_response)
 
     session.console.info(
         f'The feature device data is: {device_data.GetFeatureDeviceData()}')
-    self.ui.WaitKeysOnce([test_ui.ENTER_KEY])
+    self.ui.WaitKeysOnce([test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit!

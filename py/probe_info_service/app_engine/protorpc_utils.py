@@ -62,19 +62,19 @@ def ProtoRPCServiceMethod(method):
   """
 
   def wrapper(self, request):
-    assert isinstance(request, wrapper.rpc_method_spec.request_type)
-    logging.debug('Request(%r): %r', wrapper.rpc_method_spec.request_type,
+    assert isinstance(request, wrapper.rpc_method_spec.request_type)  # type: ignore #TODO(b/338318729) Fixit!
+    logging.debug('Request(%r): %r', wrapper.rpc_method_spec.request_type,  # type: ignore #TODO(b/338318729) Fixit!
                   request)
     response = method(self, request)
-    assert isinstance(response, wrapper.rpc_method_spec.response_type)
-    logging.debug('Response(%r): %r', wrapper.rpc_method_spec.response_type,
+    assert isinstance(response, wrapper.rpc_method_spec.response_type)  # type: ignore #TODO(b/338318729) Fixit!
+    logging.debug('Response(%r): %r', wrapper.rpc_method_spec.response_type,  # type: ignore #TODO(b/338318729) Fixit!
                   response)
     return response
 
   # Since the service's descriptor will be parsed when the class is created,
   # which is later than the invocation time of this decorator, here it just
   # place the placeholder with dummy contents.
-  wrapper.rpc_method_spec = _ProtoRPCServiceMethodSpec(None, None)
+  wrapper.rpc_method_spec = _ProtoRPCServiceMethodSpec(None, None)  # type: ignore #TODO(b/338318729) Fixit!
   return wrapper
 
 
@@ -179,7 +179,7 @@ class _ProtoRPCServiceMethodsFlaskAppViewFunc:
       return flask.Response(status=http.HTTPStatus.NOT_FOUND)
 
     try:
-      request_msg = rpc_method.rpc_method_spec.request_type.FromString(
+      request_msg = rpc_method.rpc_method_spec.request_type.FromString(  # type: ignore #TODO(b/338318729) Fixit!
           flask.request.get_data())
       response_msg = rpc_method(request_msg)
       response_raw_body = response_msg.SerializeToString()

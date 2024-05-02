@@ -174,7 +174,7 @@ class MemcacheAdapterTest(unittest.TestCase):
   def testSetAddGetOperations_InvalidStrings(self):
     key = 'key'
     values = {'str1', 'str2', b'\xff\xff\xff'}
-    self._memadapter.AddToSet(key, values)
+    self._memadapter.AddToSet(key, values)  # type: ignore #TODO(b/338318729) Fixit!
 
     self.assertRaises(memcache_adapter.MemcacheAdapterException,
                       self._memadapter.GetStrSetElements, key)

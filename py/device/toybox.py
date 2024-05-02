@@ -82,7 +82,7 @@ class Toybox(device_types.DeviceComponent):
       if provider:
         yield provider
 
-      for arg in filter(None, args):
+      for arg in filter(None, args):  # type: ignore #TODO(b/338318729) Fixit!
         if isinstance(arg, str):
           yield arg
         else:
@@ -821,7 +821,7 @@ class Toybox(device_types.DeviceComponent):
 
     # Build named tuple
     names = ' '.join(name for i, name in enumerate(arg_names) if args[i])
-    wc_result = namedtuple('wc', names + ' filename')
+    wc_result = namedtuple('wc', names + ' filename')  # type: ignore #TODO(b/338318729) Fixit!
 
     def _convert_numbers(args):
       return (int(var) if i + 1 < len(args) else var

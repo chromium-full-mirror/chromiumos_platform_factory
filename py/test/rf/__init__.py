@@ -43,28 +43,28 @@ class Frequency:
 
   def KHzf(self):
     """Return frequency in KHz (float)."""
-    return self._f / 1e3
+    return self._f / 1e3  # type: ignore #TODO(b/338318729) Fixit!
 
   def MHzf(self):
     """Return frequency in MHz (float)."""
-    return self._f / 1e6
+    return self._f / 1e6  # type: ignore #TODO(b/338318729) Fixit!
 
   def GHzf(self):
     """return frequency in GHz (float)."""
-    return self._f / 1e9
+    return self._f / 1e9  # type: ignore #TODO(b/338318729) Fixit!
 
   def Hzi(self):
     """Return frequency in Hz (integer), may lose precision."""
-    return int(self._f)
+    return int(self._f)  # type: ignore #TODO(b/338318729) Fixit!
 
   def KHzi(self):
     """Return frequency in KHz (integer), may lose precision."""
-    return int(self._f / 1e3)
+    return int(self._f / 1e3)  # type: ignore #TODO(b/338318729) Fixit!
 
   def MHzi(self):
     """Return frequency in MHz (integer), may lose precision."""
-    return int(self._f / 1e6)
+    return int(self._f / 1e6)  # type: ignore #TODO(b/338318729) Fixit!
 
   def GHzi(self):
     """return frequency in GHz (integer), may lose precision."""
-    return int(self._f / 1e9)
+    return int(self._f / 1e9)  # type: ignore #TODO(b/338318729) Fixit!

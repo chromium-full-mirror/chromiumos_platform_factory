@@ -104,12 +104,12 @@ class CheckDeviceState(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.SetTitle(_('Checking Device State'))
+    self.ui.SetTitle(_('Checking Device State'))  # type: ignore #TODO(b/338318729) Fixit!
 
   def runTest(self):
-    sn_name = self.args.sn_name
+    sn_name = self.args.sn_name  # type: ignore #TODO(b/338318729) Fixit!
 
-    self.ui.SetState(HTML)
+    self.ui.SetState(HTML)  # type: ignore #TODO(b/338318729) Fixit!
 
     success = True
 
@@ -120,43 +120,43 @@ class CheckDeviceState(test_case.TestCase):
 
     # must have device_id
     if not self.dut.info.device_id:
-      self.ui.SetHTML('No device_id<br />', id='fail_message', append=True)
+      self.ui.SetHTML('No device_id<br />', id='fail_message', append=True)  # type: ignore #TODO(b/338318729) Fixit!
       success = False
 
     device_data_sn = proxy.DataShelfGetValue(key=f'device.serials.{sn_name}',
                                              optional=True)
-    self.ui.SetHTML(str(device_data_sn), id='device-data-value')
+    self.ui.SetHTML(str(device_data_sn), id='device-data-value')  # type: ignore #TODO(b/338318729) Fixit!
     vpd_sn = self.dut.CallOutput(f'vpd -g {sn_name}') or None
-    self.ui.SetHTML(str(vpd_sn), id='vpd-value')
+    self.ui.SetHTML(str(vpd_sn), id='vpd-value')  # type: ignore #TODO(b/338318729) Fixit!
 
     if not device_data_sn:
-      self.ui.SetHTML(f'{sn_name} not in device data<br />', id='fail_message',
+      self.ui.SetHTML(f'{sn_name} not in device data<br />', id='fail_message',  # type: ignore #TODO(b/338318729) Fixit!
                       append=True)
       success = False
 
     if not vpd_sn:
-      self.ui.SetHTML(f'{sn_name} not in VPD<br />', id='fail_message',
+      self.ui.SetHTML(f'{sn_name} not in VPD<br />', id='fail_message',  # type: ignore #TODO(b/338318729) Fixit!
                       append=True)
       success = False
 
     if vpd_sn != device_data_sn:
-      self.ui.SetHTML(
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
           'Device data and VPD doesn\'t match<br />',
           id='fail_message', append=True)
       success = False
 
     if success:
       session.console.info('OK: %s=%s', sn_name, device_data_sn)
-      if self.args.manual_check:
-        self.ui.SetHTML(
+      if self.args.manual_check:  # type: ignore #TODO(b/338318729) Fixit!
+        self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
             'Please press ENTER to pass or ESC to fail the test.<br />',
             id='pass_message', append=True)
-        self.ui.BindStandardPassKeys()
-        self.ui.BindStandardFailKeys()
+        self.ui.BindStandardPassKeys()  # type: ignore #TODO(b/338318729) Fixit!
+        self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
         self.WaitTaskEnd()
     else:
-      self.ui.SetHTML(
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
           'Failed, Press ENTER to continue<br />',
           id='message', append=True)
-      self.ui.WaitKeysOnce(keys=[test_ui.ENTER_KEY])
+      self.ui.WaitKeysOnce(keys=[test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit!
       self.FailTask(f'Invalid device state ({sn_name} error)')
