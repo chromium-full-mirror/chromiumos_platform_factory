@@ -25,10 +25,14 @@
             "use_latest_hwid_bundle": true
           }
         },
-        "FullRebootStep",
+        {
+          "inherit": "FullRebootStep",
+          "run_if": "device.factory.bcic_update_need_reboot"
+        },
         {
           "inherit": "BCIC",
           "label": "BCIC Check",
+          "run_if": "device.factory.bcic_update_need_reboot",
           "args": {
             "action": "CHECK",
             "use_latest_hwid_bundle": false

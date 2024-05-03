@@ -16,7 +16,16 @@ This is an automated test without user interaction.
 2. (Optional) Connect to the factory server to update the HWID bundle.
 3. Retrieve the required information from the battery configuration in the
    HWID bundle.
-4. Clear and write the information to the CBI.
+4. Search for the specific battery config in the JSON file:
+
+- If found, clear and write the information to the CBI.
+- If not found, check if the active battery config is valid or not. Pass the
+  test if it's valid else fail the test.
+
+  Note that since the JSON file might contain an updated config for a battery,
+  we try to update from the JSON file whenever possible, even if the active
+  battery config is already valid.
+
 5. Check the information in the CBI to ensure that battery config saved in CBI
    is identical to the active battery config.
 
@@ -28,13 +37,13 @@ Dependency
 
 Examples
 --------
-To update BCIC::
+To update BCIC from the latest hwid bundle::
 
   {
     "pytest_name": "bcic",
     "args": {
       "action": "SET",
-      "update_hwid_bundle": true
+      "use_latest_hwid_bundle": true
     }
   }
 
@@ -44,7 +53,7 @@ To check BCIC::
     "pytest_name": "bcic",
     "args": {
       "action": "CHECK",
-      "update_hwid_bundle": false
+      "use_latest_hwid_bundle": false
     }
   }
 
@@ -56,12 +65,17 @@ import subprocess
 
 from cros.factory.device import device_utils
 from cros.factory.hwid.v3 import hwid_utils
+from cros.factory.test import device_data
 from cros.factory.test import test_case
 from cros.factory.test import test_tags
 from cros.factory.test.utils import cbi_utils
 from cros.factory.test.utils import update_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import json_utils
+
+
+KEY_BCIC_UPDATE_NEED_REBOOT = device_data.JoinKeys(device_data.KEY_FACTORY,
+                                                   'bcic_update_need_reboot')
 
 
 class EnumAction(str, enum.Enum):
@@ -92,7 +106,10 @@ class BCICTest(test_case.TestCase):
 
   def runTest(self):
     if self.args.use_latest_hwid_bundle:  # type: ignore #TODO(b/338318729) Fixit!
-      update_utils.UpdateHWIDDatabase(self._dut)
+      try:
+        update_utils.UpdateHWIDDatabase(self._dut)
+      except Exception as e:
+        self.FailTask(f'Cannot update HWID database due to: {e}.')
 
     if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit!
       file_path = (
@@ -101,9 +118,19 @@ class BCICTest(test_case.TestCase):
       manufacturer = self._dut.power.GetBatteryManufacturer()
       device_name = self._dut.power.GetBatteryDeviceName()
 
-      self.VerifyBatteryConfigExists(file_path, manufacturer, device_name)
-      self.ClearExistingBatteryConfig()
-      self.ApplyNewBatteryConfig(file_path, manufacturer, device_name)
+      if self.IsBatteryConfigExisting(file_path, manufacturer, device_name):
+        # Always save battery config in CBI if a valid battery config file
+        # exists. More details at b/337226198#comment9.
+        device_data.UpdateDeviceData({KEY_BCIC_UPDATE_NEED_REBOOT: True})
+        self.ClearExistingBatteryConfig()
+        self.ApplyNewBatteryConfig(file_path, manufacturer, device_name)
+      elif self.IsActiveBatteryConfigValid(manufacturer, device_name):
+        device_data.UpdateDeviceData({KEY_BCIC_UPDATE_NEED_REBOOT: False})
+        logging.info('Pass the test without setting BCIC since the active'
+                     'battery config is valid.')
+      else:
+        self.FailTask('Active battery config is invalid and there is no valid'
+                      'battery config to load and update.')
     else:
       self.CheckBCIC()
 
@@ -111,15 +138,15 @@ class BCICTest(test_case.TestCase):
                                device_name):
     """Executes a battery config command using `ectool` with a specified file.
 
-      Args:
-        action: The action to perform (e.g., 'search', 'set').
-        file_path: The path to the battery configuration file.
-        manufacturer: The manufacturer of the battery.
-        device_name:  The name of the battery device.
+    Args:
+      action: The action to perform (e.g., 'search', 'set').
+      file_path: The path to the battery configuration file.
+      manufacturer: The manufacturer of the battery.
+      device_name:  The name of the battery device.
 
-      Raises:
-        FailTask: If the command execution fails, indicating an error occurred
-          during the battery configuration operation.
+    Raises:
+      FailTask: If the command execution fails, indicating an error occurred
+        during the battery configuration operation.
       """
 
     cmd = ['ectool', 'bcfg', action, file_path, manufacturer, device_name]
@@ -130,17 +157,24 @@ class BCICTest(test_case.TestCase):
     if stderr:
       self.FailTask(f'Unable to {action} BCIC due to error: {stderr}')
 
-  def VerifyBatteryConfigExists(self, file_path, manufacturer, device_name):
-    """Verifies the existence of a battery configuration file.
+  def IsBatteryConfigExisting(self, file_path, manufacturer,
+                              device_name) -> bool:
+    """Checks if a valid battery configuration file exists.
 
-    Ensures that the configuration file:
+    Returns:
+      True if the configuration file:
         * Exists
         * Contains a valid JSON payload
         * Includes the expected key within the JSON data
+      False otherwise.
     """
-
-    self._ExecuteBatteryConfigCmd('search', file_path, manufacturer,
-                                  device_name)
+    try:
+      self._ExecuteBatteryConfigCmd('search', file_path, manufacturer,
+                                    device_name)
+    except Exception as e:
+      logging.info('There is no valid battery config. Error message: %s', e)
+      return False
+    return True
 
   def ApplyNewBatteryConfig(self, file_path, manufacturer, device_name):
     """Applies a new battery configuration to CBI.
@@ -161,7 +195,7 @@ class BCICTest(test_case.TestCase):
       size = len(cbi_battery_config_hex)
       cbi_utils.SetCbiData(self._dut, cbi_utils.CbiDataName.BATTERY_CONFIG,
                            '0' * size)
-      logging.info('Battery config is cleared. Now it is all 0s.')
+      logging.info('Battery config in CBI is cleared. Now it is all 0s.')
 
   def CheckBCIC(self):
     """Checks between the active and a stored battery configuration.
@@ -193,16 +227,21 @@ class BCICTest(test_case.TestCase):
       error_message += '\n'.join(mismatches)
       raise ValueError(error_message)
 
-  def GetBatteryConfig(self, index: str) -> dict:
+  def GetBatteryConfig(self, index: str, flatten: bool = True) -> dict:
     """Retrieves battery configuration information from the device.
 
     Args:
       index: To specify the battery configuration you want:
         * Leave it empty ('') to get the active configuration.
         * Set it to '0' to get the first available configuration.
+      flatten: (Optional) Determines the format of the returned dictionary:
+        * True (default): Flattens the dictionary using '.' as a separator.
+        * False: Returns the dictionary in its original nested structure.
 
     Returns:
-      dict: A dictionary containing flattened battery configuration data.
+      dict: A dictionary containing battery configuration data.
+        * If `flatten` is True: Keys are flattened (e.g., 'aa.bbb.c').
+        * If `flatten` is False: Keys reflect the original structure.
 
     Raises:
       ValueError: If an error occurs while retrieving the configuration
@@ -217,17 +256,45 @@ class BCICTest(test_case.TestCase):
     stdout, stderr = process.communicate()
     if stderr:
       raise ValueError(f'Unable to get battery config due to error: {stderr}.')
-    battery_config_dict = self.FlattenDict(json_utils.LoadStr(stdout), '.')
-    logging.info('Got config in flatten dict form: %s', battery_config_dict)
+    battery_config_dict = json_utils.LoadStr(stdout)
+    if flatten:
+      battery_config_dict = self.FlattenDict(battery_config_dict, '.')
+      logging.info('Got config in flatten dict form: %s', battery_config_dict)
     return battery_config_dict
 
   def FlattenDict(self, nested_dict, separator):
+    """Flattens a nested dictionary using the specified separator."""
 
-    def _flatten(item, prefix):
-      if isinstance(item, dict):
-        for key, value in item.items():
-          yield from _flatten(value, prefix + separator + key)
-      else:
-        yield prefix, item
+    return dict(self._flatten_generator(nested_dict, '', separator))
 
-    return dict(_flatten(nested_dict, ''))
+  def _flatten_generator(self, item, prefix, separator):
+    """Generator yielding flattened key-value pairs."""
+
+    if isinstance(item, dict):
+      for key, value in item.items():
+        new_prefix = key if not prefix else prefix + separator + key
+        yield from self._flatten_generator(value, new_prefix, separator)
+    else:
+      yield prefix, item
+
+  def IsActiveBatteryConfigValid(self, probed_manufacturer: str,
+                                 probed_device_name: str) -> bool:
+    """Validates if the probed battery info matches the active config.
+
+    This function fetches the active battery configuration from the device,
+    extracts the manufacturer and device name, and then compares them to the
+    provided `probed_manufacturer` and `probed_device_name`.
+
+    Args:
+      probed_manufacturer: The manufacturer name probed from the device.
+      probed_device_name: The device name probed from the device.
+
+    Returns:
+      bool: True if IDs match, False otherwise.
+    """
+
+    active_battery_config = self.GetBatteryConfig('', flatten=False)
+    active_manufacturer, active_device_name = next(
+        iter(active_battery_config.keys())).split(',')
+    return (probed_manufacturer == active_manufacturer and
+            probed_device_name == active_device_name)
