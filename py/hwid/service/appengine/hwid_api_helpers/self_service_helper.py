@@ -14,7 +14,6 @@ from typing import Collection, Iterator, Mapping, MutableMapping, NamedTuple, Op
 import uuid
 
 from google.protobuf import json_format
-from google.protobuf import text_format
 
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine import change_unit_utils
@@ -741,7 +740,6 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     self._battery_config_fetcher = battery_config_fetcher
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
-    self._generate_avl_info_acceptor = common_helper.GenerateAVLInfoAcceptor()
 
   def _BuildBundleMetadataSource(self, action: hwid_action.HWIDAction) -> str:
     bundle_metadata = bundles_pb2.BundleMetadata()
@@ -1646,26 +1644,17 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     live_hwid_repo, action = self._GetRepoAndAction(project)
     resp = hwid_api_messages_pb2.UpdateHwidDbComponentsResponse()
 
-    avl_comps_need_updated = {
-        text_format.MessageToString(c.avl_info): c
-        for c in request.comps
-    }
+    avl_comps_need_updated = {c.name: c
+                              for c in request.comps}
     db_comps = action.GetComponents({c.component_class
                                      for c in request.comps})
     db = action.GetDBV3()
-    np_adapter = name_pattern_adapter.NamePatternAdapter()
     changed = False
 
     try:
       for comp_cls, comps in db_comps.items():
-        np = np_adapter.GetNamePattern(comp_cls)
         for comp_name, db_comp_info in comps.items():
-          avl_info = np.Matches(comp_name).Provide(
-              self._generate_avl_info_acceptor)
-          if avl_info is None:
-            continue
-          comp = avl_comps_need_updated.get(
-              text_format.MessageToString(avl_info))
+          comp = avl_comps_need_updated.get(comp_name)
           if comp is None:
             continue
           status = common_helper.HWID_STRING_OF_SUPPORT_STATUS_CASE[comp.status]

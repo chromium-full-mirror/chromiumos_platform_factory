@@ -3046,21 +3046,13 @@ class SelfServiceShardTest(unittest.TestCase):
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
         project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1', avl_info=_AvlInfoMsg(
-                cid=1, qid=1), status=_SupportStatusCase.SUPPORTED),
-            _ComponentMsg(component_class='comp_cls1',
-                          avl_info=_AvlInfoMsg(cid=1),
+            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
                           status=_SupportStatusCase.SUPPORTED),
-            _ComponentMsg(component_class='comp_cls1', avl_info=_AvlInfoMsg(
-                cid=2, is_subcomp=True), status=_SupportStatusCase.SUPPORTED),
         ])
     resp = self.service.UpdateHwidDbComponents(req)
     comps = action.GetComponents(['comp_cls1'])
 
     self.assertEqual(comps['comp_cls1']['comp_cls1_1'].status, 'supported')
-    self.assertEqual(comps['comp_cls1']['comp_cls1_1_1'].status, 'supported')
-    self.assertEqual(comps['comp_cls1']['comp_cls1_subcomp_2'].status,
-                     'supported')
     self.assertEqual(resp.commit.cl_number, 123)
     self.assertEqual(resp.commit.new_hwid_db_contents,
                      action.GetDBEditableSection())
@@ -3097,8 +3089,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
         project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1',
-                          avl_info=_AvlInfoMsg(cid=1),
+            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
                           status=_SupportStatusCase.SUPPORTED),
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -3117,8 +3108,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
         project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1',
-                          avl_info=_AvlInfoMsg(cid=1),
+            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
                           status=_SupportStatusCase.UNQUALIFIED),
         ])
     resp = self.service.UpdateHwidDbComponents(req)
