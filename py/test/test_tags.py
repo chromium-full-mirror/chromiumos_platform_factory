@@ -57,6 +57,7 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
   WWAN = enum.auto()
 
   # device feature test category
+  CHROMEBOOK_PlUS = enum.auto()
   FAN = enum.auto()
   HARDWARE_BUTTON = enum.auto()
   HARDWARE_ID = enum.auto()
@@ -133,6 +134,8 @@ cl=head#name-policy-enforcements-and-runtime-probe-in-factories and
             CategoryProperties('avl', 'Wifi / Bluetooth', 'wireless'),
         TestCategory.WWAN:
             CategoryProperties('avl', 'WWAN', 'cellular'),
+        TestCategory.CHROMEBOOK_PlUS:
+            CategoryProperties('device feature', None, None),
         TestCategory.FAN:
             CategoryProperties('device feature', None, None),
         TestCategory.HARDWARE_BUTTON:

@@ -54,7 +54,7 @@ def IsInconsistentResponse(existing_data: Union[None, bool], response: bool):
 
 class VerifyBrandedChassis(test_case.TestCase):
   """Factory Test for verifying Branded Chassis"""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.CHROMEBOOK_PlUS, )
 
 
   # This test should support RMA.
