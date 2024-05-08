@@ -448,18 +448,17 @@ class AVLProbeValue(collections.OrderedDict, InternalTags, _NoneCheckable):
   """
 
   def __init__(self, identifier: Optional[str], probe_value_matched: bool,
-               values: Optional[collections.OrderedDict], *args, **kwargs):
+               values: Union['AVLProbeValue',
+                             Optional[collections.OrderedDict]], *args,
+               **kwargs):
     # As the __init__ method might call __setitem__, we need to set
     # the _value_is_none field before it, or the NoneCheck method in __setitem__
     # call might raise AttributeError.
     self._value_is_none = IsComponentValueNone(values)
     if self._value_is_none:
-      # yapf: disable
-      values = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    super().__init__(values, *args, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+      values = collections.OrderedDict()
+    assert values is not None
+    super().__init__(values, *args, **kwargs)
     self._converter_identifier = identifier
     self._probe_value_matched = probe_value_matched
 
