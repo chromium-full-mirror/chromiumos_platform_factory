@@ -42,7 +42,7 @@ import hashlib
 import itertools
 import logging
 import re
-from typing import Any, DefaultDict, List, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Set, Tuple, Union
+from typing import Any, DefaultDict, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Sequence, Set, Tuple, Union
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import rule as v3_rule
@@ -83,7 +83,7 @@ class PatternField(NamedTuple):
 class PatternDatum(NamedTuple):
   idx: int
   encoding_scheme: str
-  fields: Sequence[PatternField]
+  fields: MutableSequence[PatternField]
 
 
 class ComponentInfo:
@@ -123,11 +123,10 @@ class ComponentInfo:
                                    values.probe_value_matched, sorted_values)
 
     if self.bundle_uuids:
-      component_dict = v3_rule.FromFactoryBundle(self.bundle_uuids)
+      component_dict: collections.OrderedDict = v3_rule.FromFactoryBundle(
+          self.bundle_uuids)
     else:
-      # yapf: disable
-      component_dict = yaml.Dict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      component_dict = yaml.Dict()
     if not suppress_support_status or (self._status !=
                                        common.ComponentStatus.supported):
       component_dict['status'] = override_support_status or self._status
@@ -866,10 +865,10 @@ class _NamedNumber(dict):
     3. Existed key-value cannot be modified or be removed.
   """
 
-  PART_TAG: Optional[str] = None
-  NUMBER_RANGE: Optional[Sequence[int]] = None
-  NUMBER_TAG: Optional[str] = None
-  NAME_TAG: Optional[str] = None
+  PART_TAG: str
+  NUMBER_RANGE: Sequence[int]
+  NUMBER_TAG: str
+  NAME_TAG: str
 
   def __init__(self, source):
     super().__init__()
@@ -904,10 +903,7 @@ class _NamedNumber(dict):
     Raises:
       common.HWIDException if failed.
     """
-    # pylint:disable=unsupported-membership-test
-    # yapf: disable
-    if number not in self.NUMBER_RANGE:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if number not in self.NUMBER_RANGE:
       raise common.HWIDException(
           f'The {self.NUMBER_TAG} should be one of {self.NUMBER_RANGE!r}, but '
           f'got {number!r}.')
@@ -1193,7 +1189,7 @@ class EncodedFields:
     """Returns a list of encoded field names."""
     return list(self._fields)
 
-  def GetField(self, field_name):
+  def GetField(self, field_name: str):
     """Gets the specific field.
 
     Args:
@@ -1207,9 +1203,7 @@ class EncodedFields:
     if field_name not in self._fields:
       raise common.HWIDException(f'The field name {field_name!r} is invalid.')
 
-    # yapf: disable
-    ret: MutableMapping[int, Mapping[str, Sequence[str]]] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    ret: MutableMapping[int, Mapping[str, Sequence[str]]] = {}
     for index, comps in self._fields[field_name].items():
       ret[index] = {c: self._StandardlizeList(n)
                     for c, n in comps.items()}
@@ -1707,9 +1701,7 @@ class Components:
     if comp_cls == common.REGION_CLS:
       self._region_component_expr.UpdateStatus(comp_name, status)
 
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'status'].Validate(status)
 
     if comp_name not in self._components.get(comp_cls, {}):
@@ -1724,17 +1716,11 @@ class Components:
     # we only validate the external format.
     external_values = yaml.safe_load(
         yaml.safe_dump(values, default_flow_style=False))
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(
         external_values)
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'status'].Validate(status)
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'information'].Validate(information)
 
     if comp_name in self.GetComponents(comp_cls):
@@ -1830,17 +1816,11 @@ class Components:
       raise common.HWIDException('Region component class is not modifiable.')
     external_values = yaml.safe_load(
         yaml.safe_dump(values, default_flow_style=False))
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.items['values'].Validate(
         external_values)
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'status'].Validate(support_status)
-    # yapf: disable
-    self._SCHEMA.value_type.items['items'].value_type.optional_items[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.value_type.items['items'].value_type.optional_items[
         'information'].Validate(information)
     self._components[comp_cls].UpdateComponent(
         old_name, new_name,
@@ -1941,25 +1921,21 @@ class Pattern:
                           min_size=1, max_size=1))
           }), min_length=1)
 
-  def __init__(self, pattern_list_expr):
+  def __init__(self, pattern_list_expr: Sequence[dict]):
     """Constructor.
 
     This constructor shouldn't be called by other modules.
     """
     self._SCHEMA.Validate(pattern_list_expr)
 
-    # yapf: disable
-    self._image_id_to_pattern: MutableMapping[int, int] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._image_id_to_pattern: MutableMapping[int, int] = {}
     self._patterns = []
 
     for pattern_expr in pattern_list_expr:
       pattern_obj = PatternDatum(self.num_patterns,
                                  pattern_expr['encoding_scheme'], [])
       for field_expr in pattern_expr['fields']:
-        # yapf: disable
-        pattern_obj.fields.append(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        pattern_obj.fields.append(
             PatternField(list(field_expr)[0], next(iter(field_expr.values()))))
 
       for image_id in pattern_expr['image_ids']:
@@ -1979,12 +1955,11 @@ class Pattern:
   def __ne__(self, rhs):
     return not self == rhs
 
-  def Export(self):
+  def Export(self) -> Sequence[Mapping[str, Any]]:
     """Exports this `pattern` part of HWID database into a serializable object
     which can be stored into a HWID database file."""
-    # yapf: disable
-    inverse_mapping: DefaultDict[int, List[int]] = collections.defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    inverse_mapping: DefaultDict[
+        int, MutableSequence[int]] = collections.defaultdict(list)
     for image_id, pattern_idx in self._image_id_to_pattern.items():
       inverse_mapping[pattern_idx].append(image_id)
 
@@ -2016,12 +1991,8 @@ class Pattern:
     """
     # Casts encoding_scheme to str type for avoiding yaml dump error.
     encoding_scheme = str(encoding_scheme)
-    # yapf: disable
-    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self._SCHEMA.element_type.items['encoding_scheme'].Validate(encoding_scheme)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)
+    self._SCHEMA.element_type.items['encoding_scheme'].Validate(encoding_scheme)
 
     if image_id in self._image_id_to_pattern:
       raise common.HWIDException(
@@ -2045,9 +2016,7 @@ class Pattern:
     Returns:
       The associated pattern index.
     """
-    # yapf: disable
-    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.element_type.items['image_ids'].element_type.Validate(image_id)
 
     if (reference_image_id is None) == (pattern_idx is None):
       raise common.HWIDException('Please specify exactly one of '
@@ -2063,14 +2032,11 @@ class Pattern:
             f'No pattern for image id {reference_image_id}.')
       pattern_idx = self._image_id_to_pattern[reference_image_id]
 
+    assert pattern_idx is not None
     if pattern_idx >= self.num_patterns:
       raise common.HWIDException(f'No such pattern at position {pattern_idx}.')
-    # yapf: disable
-    self._image_id_to_pattern[image_id] = pattern_idx  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    return pattern_idx  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._image_id_to_pattern[image_id] = pattern_idx
+    return pattern_idx
 
   def AppendField(self, field_name, bit_length, image_id=None,
                   pattern_idx=None):
@@ -2083,18 +2049,12 @@ class Pattern:
           would be used.
       pattern_idx: The index of the pattern.
     """
-    # yapf: disable
-    self._SCHEMA.element_type.items['fields'].element_type.key_type.Validate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.element_type.items['fields'].element_type.key_type.Validate(
         field_name)
-    # yapf: disable
-    self._SCHEMA.element_type.items['fields'].element_type.value_type.Validate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._SCHEMA.element_type.items['fields'].element_type.value_type.Validate(
         bit_length)
 
-    # yapf: disable
-    self.GetPattern(image_id=image_id, pattern_idx=pattern_idx).fields.append(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.GetPattern(image_id=image_id, pattern_idx=pattern_idx).fields.append(
         PatternField(field_name, bit_length))
 
   def GetEncodingScheme(self, image_id=None):
@@ -2136,9 +2096,7 @@ class Pattern:
     Returns:
       A dict mapping each encoded field to its bit length.
     """
-    # yapf: disable
-    ret = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    ret: DefaultDict[str, int] = collections.defaultdict(int)
     for field in self.GetPattern(image_id=image_id,
                                  pattern_idx=pattern_idx).fields:
       ret[field.name] += field.bit_length
@@ -2176,12 +2134,8 @@ class Pattern:
     else:
       max_bit_length = min(max_bit_length, total_bit_length)
 
-    # yapf: disable
-    ret = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    field_offset_map = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    ret: MutableSequence[BitEntry] = []
+    field_offset_map: DefaultDict[str, int] = collections.defaultdict(int)
     for name, bit_length in self.GetPattern(image_id=image_id,
                                             pattern_idx=pattern_idx).fields:
       # Normally when one wants to extend bit length of a field, one should

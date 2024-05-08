@@ -75,12 +75,16 @@ class SchemaTest(unittest.TestCase):
         SchemaException, r'Type mismatch on .*: expected .*str.*, got .*',
         schema.Validate, {0: 1})
     self.assertEqual(None, schema.Validate({0: 'bar'}))
-    schema = Dict('foo',
-                  AnyOf([Scalar('key1', int), Scalar('key2', str)],
-                        label='key'),
-                  Scalar('value', str))
-    self.assertEqual(None, schema.Validate({0: 'bar'}))
-    self.assertEqual(None, schema.Validate({'foo': 'bar'}))
+    schema2 = Dict(
+        'foo',
+        AnyOf([Scalar('key1', int), Scalar('key2', str)], label='key'),
+        Scalar('value', str))
+    self.assertEqual(None, schema2.Validate({
+        0: 'bar'
+    }))
+    self.assertEqual(None, schema2.Validate({
+        'foo': 'bar'
+    }))
 
   def testFixedDict(self):
     self.assertRaisesRegex(
@@ -239,7 +243,7 @@ class SchemaTest(unittest.TestCase):
                        Optional([Scalar('component_name', str),
                                  List('component_name_list')])))))
 
-    data = {
+    data1 = {
         'audio_codec': {
             0: {
                 'audio_codec': ['codec_0', 'hdmi_0']
@@ -267,36 +271,40 @@ class SchemaTest(unittest.TestCase):
                 'ro_main_firmware': 'ro_main_firmware_0'
             }
         }
-
     }
-    self.assertEqual(None, schema1.Validate(data))
-    self.assertEqual(None, schema2.Validate(data))
+    self.assertEqual(None, schema1.Validate(data1))
+    self.assertEqual(None, schema2.Validate(data1))
 
-    schema = (
-        List('patterns',
-             Dict('pattern', Scalar('encoded_field', str),
-                  Scalar('bit_length', int))))
-    # yapf: disable
-    data = [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        {'audio_codec': 1},
-        {'battery': 2},
-        {'bluetooth': 2},
-        {'camera': 0},
-        {'cellular': 1}
-    ]
-    self.assertEqual(None, schema.Validate(data))
-    schema = (
-        # yapf: disable
-        Dict('components', Scalar('component_class', str),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-             Dict('component_names', Scalar('component_name', str),
-                  FixedDict('component_attrs',
-                            {'value': AnyOf([
-                                List('value_list'), Scalar('value_str', str)])},
-                            {'labels': List('labels_list',
-                                            Scalar('label', str))}))))
-    data = {
+    schema3 = (
+        List(
+            'patterns',
+            Dict('pattern', Scalar('encoded_field', str),
+                 Scalar('bit_length', int))))
+    data3 = [{
+        'audio_codec': 1
+    }, {
+        'battery': 2
+    }, {
+        'bluetooth': 2
+    }, {
+        'camera': 0
+    }, {
+        'cellular': 1
+    }]
+    self.assertEqual(None, schema3.Validate(data3))
+    schema4 = (
+        Dict(
+            'components', Scalar('component_class', str),
+            Dict(
+                'component_names', Scalar('component_name', str),
+                FixedDict('component_attrs', {
+                    'value':
+                        AnyOf([List('value_list'),
+                               Scalar('value_str', str)])
+                }, {
+                    'labels': List('labels_list', Scalar('label', str))
+                }))))
+    data4 = {
         'flash_chip': {
             'flash_chip_0': {
                 'value': 'Flash Chip'
@@ -323,7 +331,7 @@ class SchemaTest(unittest.TestCase):
             }
         }
     }
-    self.assertEqual(None, schema.Validate(data))
+    self.assertEqual(None, schema4.Validate(data4))
 
 
 class JSONSchemaDictTest(unittest.TestCase):

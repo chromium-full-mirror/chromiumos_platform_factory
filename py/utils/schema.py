@@ -1,8 +1,6 @@
 # Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
-
 """A function to create a schema tree from the given schema expression.
 
 For example:
@@ -47,8 +45,16 @@ For example:
     )
 """
 
+from __future__ import annotations
+
 import abc
 import copy
+import re
+from typing import List as _List
+from typing import Literal
+from typing import Optional as _Optional
+from typing import Sequence, Set, Type, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, Generic, Iterable
 
 from .type_utils import MakeList
 
@@ -86,7 +92,7 @@ class AbstractType(abc.ABC):
   """Base type class for schema classes.
   """
 
-  def __init__(self, label):
+  def __init__(self, label: str):
     self.label = label
 
   def __repr__(self):
@@ -95,6 +101,11 @@ class AbstractType(abc.ABC):
   @abc.abstractmethod
   def Validate(self, data):
     raise NotImplementedError
+
+
+#TODO(chungsheng): Find a more specific type for "non iterable except string
+# types".
+_ScalarElementType = Any
 
 
 class Scalar(AbstractType):
@@ -110,17 +121,21 @@ class Scalar(AbstractType):
     SchemaException if argument format is incorrect.
   """
 
-  def __init__(self, label, element_type, choices=None):
+  def __init__(self, label, element_type: Type[_ScalarElementType],
+               choices: _Optional[Iterable[_ScalarElementType]] = None):
     super().__init__(label)
-    if getattr(element_type, '__iter__', None) and element_type not in (
-        str, bytes):
+    if getattr(element_type, '__iter__',
+               None) and element_type not in (str, bytes):
       raise SchemaException(
           f'element_type {element_type!r} of Scalar {label!r} is not a scalar '
           'type')
-    self.element_type = element_type
-    self.choices = set(choices) if choices else set()
+    self.element_type: Type[_ScalarElementType] = element_type
+    self.choices: Set[_ScalarElementType] = set(choices) if choices else set()
 
   def __repr__(self):
+    # Don't do type checking because sorted don't accept "Set[None]"
+    if TYPE_CHECKING:
+      return ''
     choices = f', choices={sorted(self.choices)!r}' if self.choices else ''
     return f'Scalar({self.label!r}, {self.element_type!r}{choices})'
 
@@ -142,6 +157,9 @@ class Scalar(AbstractType):
           f'Type mismatch on {data!r}: expected {self.element_type!r}, got '
           f'{type(data)!r}')
     if self.choices and data not in self.choices:
+      if TYPE_CHECKING:
+        # Don't do type checking because sorted don't accept "Set[None]"
+        raise SchemaException('')
       raise SchemaException(f'Value mismatch on {data!r}: expected one of '
                             f'{sorted(self.choices)!r}')
 
@@ -157,9 +175,9 @@ class RegexpStr(Scalar):
     SchemaException if argument format is incorrect.
   """
 
-  def __init__(self, label, regexp):
+  def __init__(self, label, regexp: re.Pattern[str]):
     super().__init__(label, str)
-    self.regexp = regexp
+    self.regexp: re.Pattern[str] = regexp
 
   def __repr__(self):
     return f'RegexpStr({self.label!r}, {self.regexp.pattern})'
@@ -185,7 +203,13 @@ class RegexpStr(Scalar):
                             f"{self.regexp.pattern}")
 
 
-class Dict(AbstractType):
+_DictKeyType = TypeVar('_DictKeyType', Scalar, 'AnyOf[Scalar]')
+_DictValueType = TypeVar('_DictValueType', AbstractType, Scalar, RegexpStr,
+                         'Dict', 'FixedDict', 'JSONSchemaDict', 'List', 'Tuple',
+                         'AnyOf', 'Optional')
+
+
+class Dict(AbstractType, Generic[_DictKeyType, _DictValueType]):
   """Dict schema class.
 
   This schema class is used to verify simple dict. Only the key type and value
@@ -204,19 +228,20 @@ class Dict(AbstractType):
     SchemaException if argument format is incorrect.
   """
 
-  def __init__(self, label, key_type, value_type, min_size=0, max_size=None):
+  def __init__(self, label, key_type: _DictKeyType, value_type: _DictValueType,
+               min_size=0, max_size=None):
     super().__init__(label)
     if not (isinstance(key_type, Scalar) or
             (isinstance(key_type, AnyOf) and
              key_type.CheckTypeOfPossibleValues(Scalar))):
       raise SchemaException(
           f'key_type {key_type!r} of Dict {self.label!r} is not Scalar')
-    self.key_type = key_type
+    self.key_type: _DictKeyType = key_type
     if not isinstance(value_type, AbstractType):
       raise SchemaException(
           f'value_type {value_type!r} of Dict {self.label!r} is not Schema '
           'object')
-    self.value_type = value_type
+    self.value_type: _DictValueType = value_type
     self.min_size = min_size
     self.max_size = max_size
 
@@ -354,6 +379,7 @@ class JSONSchemaDict(AbstractType):
     SchemaException if given schema is invalid (SchemaError) or fail
     to validate data using the schema (ValidationError).
   """
+
   def __init__(self, label, schema):
     super().__init__(label)
     self.label = label
@@ -389,7 +415,12 @@ class JSONSchemaDict(AbstractType):
                           ]})
 
 
-class List(AbstractType):
+_ListElementType = TypeVar('_ListElementType', AbstractType, Scalar, RegexpStr,
+                           'Dict', 'FixedDict', 'JSONSchemaDict', 'List',
+                           'Tuple', 'AnyOf', 'Optional', Literal[None])
+
+
+class List(AbstractType, Generic[_ListElementType]):
   """List schema class.
 
   Attributes:
@@ -402,14 +433,27 @@ class List(AbstractType):
   Raises:
     SchemaException if argument format is incorrect.
   """
+  element_type: _ListElementType
 
-  def __init__(self, label, element_type=None, min_length=0, max_length=None):
+  @overload
+  def __init__(self: 'List[_ListElementType]', label,
+               element_type: _ListElementType, min_length=0,
+               max_length=None) -> None:
+    ...
+
+  @overload
+  def __init__(self: 'List[None]', label, element_type: Literal[None] = None,
+               min_length=0, max_length=None) -> None:
+    ...
+
+  def __init__(self: 'List[_ListElementType]', label, element_type=None,
+               min_length=0, max_length=None):
     super().__init__(label)
-    if element_type and not isinstance(element_type, AbstractType):
+    if element_type is not None and not isinstance(element_type, AbstractType):
       raise SchemaException(
           f'element_type {element_type!r} of List {self.label!r} is not a '
           'Schema object')
-    self.element_type = copy.deepcopy(element_type)
+    self.element_type = cast(_ListElementType, copy.deepcopy(element_type))
     self.min_length = min_length
     self.max_length = max_length
 
@@ -496,7 +540,10 @@ class Tuple(AbstractType):
       element_type.Validate(content)
 
 
-class AnyOf(AbstractType):
+_AnyType = TypeVar('_AnyType', Scalar, AbstractType)
+
+
+class AnyOf(AbstractType, Generic[_AnyType]):
   """A Schema class which accepts any one of the given Schemas.
 
   Attributes:
@@ -504,7 +551,7 @@ class AnyOf(AbstractType):
     label: An optional string to describe this AnyOf type.
   """
 
-  def __init__(self, types, label=None):
+  def __init__(self, types: Sequence[_AnyType], label=None):
     super().__init__(label)
     if (not isinstance(types, list) or
         not all(isinstance(x, AbstractType) for x in types)):
@@ -512,7 +559,7 @@ class AnyOf(AbstractType):
           f'types in AnyOf(types={types!r}'
           f"{'' if label is None else ', label='f'{label}'}) should be a list "
           'of Schemas')
-    self.types = list(types)
+    self.types: _List[_AnyType] = list(types)
 
   def __repr__(self):
     label = '' if self.label is None else f', label={self.label!r}'
