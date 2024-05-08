@@ -1597,6 +1597,9 @@ class Goofy:
         # yapf: enable
         status_filter.append(TestState.FAILED)
       self.RunEnqueue(lambda: self._RunTests(self.test_list, status_filter))
+    else:
+      # Set iterator to allow `factory tests`
+      self.test_list_iterator = TestListIterator(test_list=self.test_list)
     # yapf: disable
     self.state_instance.DataShelfSetValue(TESTS_AFTER_SHUTDOWN, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
