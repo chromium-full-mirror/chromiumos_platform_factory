@@ -21,8 +21,8 @@ import inspect
 import json
 import logging
 import os
-import pipes
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -197,7 +197,7 @@ class SysUtils:
     if log_stderr_on_error is None:
       log_stderr_on_error = check and silent
     if not isinstance(commands, str):
-      commands = ' '.join(pipes.quote(arg) for arg in commands)
+      commands = ' '.join(shlex.quote(arg) for arg in commands)
     kargs['shell'] = True
     kargs['encoding'] = 'utf-8'
 
