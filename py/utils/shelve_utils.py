@@ -43,7 +43,9 @@ def IsShelfValid(shelf):
                                 cwd=os.path.dirname(__file__), call=True,
                                 log=True, read_stdout=True, read_stderr=True,
                                 env=env)
-  if process.returncode == 0 and process.stdout_data.endswith('SHELF OK\n'):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  if process.returncode == 0 and process.stdout_data.endswith('SHELF OK\n'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return True
 
   logging.warning('Unable to validate shelf %r: '

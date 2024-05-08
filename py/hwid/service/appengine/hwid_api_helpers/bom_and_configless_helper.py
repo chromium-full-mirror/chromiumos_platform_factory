@@ -97,7 +97,9 @@ def GenerateFieldsMessage(
       field.value = str(fvalue)
     fields.append(field)
   fields.sort(key=lambda field: field.name)
-  return fields  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return fields  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class BOMAndConfiglessHelper:
@@ -192,8 +194,12 @@ class BOMAndConfiglessHelper:
       bom = bom_configless.bom
       components = []
 
-      for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit!
-        fields = GenerateFieldsMessage(component.fields) if verbose else []  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        fields = GenerateFieldsMessage(component.fields) if verbose else []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         avl_info = self.GetAVLInfo(component.cls, component.name, no_avl_name)
         components.append(
             hwid_api_messages_pb2.Component(
@@ -202,9 +208,13 @@ class BOMAndConfiglessHelper:
 
       components.sort(key=operator.attrgetter('component_class', 'name'))
 
-      result[hwid] = BOMEntry(components, bom.phase, '',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result[hwid] = BOMEntry(components, bom.phase, '',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                               status=hwid_api_messages_pb2.Status.SUCCESS,
-                              project=bom.project or '')  # type: ignore #TODO(b/338318729) Fixit!
+                              # yapf: disable
+                              project=bom.project or '')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._bom_data_cacher.SetBOMEntryCache(project, cache_key, result[hwid])
     return result
 

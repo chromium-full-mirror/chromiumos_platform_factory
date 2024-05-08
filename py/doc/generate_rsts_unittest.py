@@ -22,7 +22,9 @@ class GenerateDocsTest(unittest.TestCase):
     class PseudoModule:
       """Module-level help."""
       class FooTest(unittest.TestCase):
-        related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         ARGS = [
             Arg('a', int, 'A', default=1),
             Arg('b', enum.Enum('b', ['b1', 'b2']), 'Foo:\n'

@@ -92,10 +92,14 @@ class _AbstractIdentityGeneratorTest:
               for key in reference_sample if key in self.NEEDED_ARGS}
     sample.update(kwargs)
     if expected_regex:
-      self.assertRaisesRegex(common.HWIDException, expected_regex,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertRaisesRegex(common.HWIDException, expected_regex,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                              self.GenerateIdentity, **sample)
     else:
-      self.assertRaises(common.HWIDException, self.GenerateIdentity, **sample)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertRaises(common.HWIDException, self.GenerateIdentity, **sample)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def CheckMatch(self, sample):
     reference_identity = Identity(
@@ -104,7 +108,9 @@ class _AbstractIdentityGeneratorTest:
     generated_identity = self.GenerateIdentity(
         **{key: sample[key] for key in sample if key in self.NEEDED_ARGS})
 
-    self.assertEqual(reference_identity, generated_identity)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(reference_identity, generated_identity)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GenerateIdentity(self, **kwargs):
     raise NotImplementedError

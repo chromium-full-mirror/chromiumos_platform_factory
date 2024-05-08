@@ -52,7 +52,9 @@ class MockServerHandler(socketserver.StreamRequestHandler):
 
   def handle(self):
     while True:
-      line = self.rfile.readline().rstrip('\r\n')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      line = self.rfile.readline().rstrip('\r\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not line:
         break
       matched = False

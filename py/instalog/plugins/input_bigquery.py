@@ -93,7 +93,9 @@ class AbstractInputBigQuery(plugin_base.InputPlugin, abc.ABC):
     job = None
     try:
       self.info('Start query')
-      job = self.client.query(query, job_id_prefix=self.JOB_ID_PREFIX)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      job = self.client.query(query, job_id_prefix=self.JOB_ID_PREFIX)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       row_iter = job.result()
       self.info('Found %d rows', row_iter.total_rows)
       assert job.state == 'DONE', 'Query job is not done'

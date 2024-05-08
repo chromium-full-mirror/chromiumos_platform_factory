@@ -187,11 +187,19 @@ class DisplayTest(test_case.TestCase):
 
   def setUp(self):
     """Initializes frontend presentation and properties."""
-    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.idle_timeout = self.args.idle_timeout  # type: ignore #TODO(b/338318729) Fixit!
-    self.items = self.args.items  # type: ignore #TODO(b/338318729) Fixit!
-    self.symptoms = self.args.symptoms  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.idle_timeout = self.args.idle_timeout  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.items = self.args.items  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.symptoms = self.args.symptoms  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self.idle_timeout is not None:
       if self.symptoms:
@@ -222,7 +230,9 @@ class DisplayTest(test_case.TestCase):
     if unknown_items:
       raise ValueError(f'Unknown item {unknown_items!r} in items.')
 
-    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest', self.items,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.frontend_proxy = self.ui.InitJSTestObject('DisplayTest', self.items,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                                    self.symptoms)
     self.checked = False
     self.fullscreen = False
@@ -232,23 +242,41 @@ class DisplayTest(test_case.TestCase):
 
   def runTest(self):
     """Sets the callback function of keys."""
-    self.event_loop.AddEventHandler('failed_lists',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('failed_lists',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                     self.LogFailedListsAndFinishTask)
-    self.event_loop.AddEventHandler('pass_subtest', self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('pass_subtest', self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if self.idle_timeout is None:
-      self.ui.BindKey(test_ui.SPACE_KEY, self.OnSpacePressed)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.BindKey(test_ui.ENTER_KEY, self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.BindKey(test_ui.SPACE_KEY, self.OnSpacePressed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.BindKey(test_ui.ENTER_KEY, self.OnEnterPressed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not self.symptoms:
         # Fail the subtest with Escape key in Normal mode.
-        self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     else:
       # Idle mode
       # Automatically enter fullscreen mode in idle mode.
       self.ToggleFullscreen()
-      self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.StartCountdownTimer(self.idle_timeout, self.PassTask)  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.show_timer:  # type: ignore #TODO(b/338318729) Fixit!
-        self.ui.ShowElement('display-timer')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.BindKey(test_ui.ESCAPE_KEY, self.OnFailPressed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.StartCountdownTimer(self.idle_timeout, self.PassTask)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.show_timer:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.ui.ShowElement('display-timer')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     self.WaitTaskEnd()
 
   def ExtractTestImages(self):
@@ -276,7 +304,9 @@ class DisplayTest(test_case.TestCase):
         self.frontend_proxy.JudgeSubTestWithSymptom()
       # If the next subtest will be in fullscreen mode, checked should be True
       self.checked = self.fullscreen
-      if self.args.quick_display and not self.fullscreen:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.quick_display and not self.fullscreen:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.ToggleFullscreen()
 
   def OnFailPressed(self, event):

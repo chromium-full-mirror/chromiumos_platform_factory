@@ -189,13 +189,19 @@ class ThunderboltLoopbackTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._dut = device_utils.CreateDUTInterface()
-    self._usbpd_port = self.args.usbpd_spec['port']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._usbpd_port = self.args.usbpd_spec['port']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._usbpd_polarity = {
         1: 'NORMAL',
         2: 'INVERTED'
-    }.get(self.args.usbpd_spec.get('polarity'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+    }.get(self.args.usbpd_spec.get('polarity'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._remove_module = False
     self._card_state = None
     self._muxinfo = {}
@@ -203,7 +209,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     self._first_check_mux_info = True
 
     self._group_checker = None
-    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Group checker and details for Testlog.
       self._group_checker = testlog.GroupParam(self.LOG_GROUP_NAME,
                                                self.LOG_KEYS)
@@ -221,7 +229,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     Args:
       controller_patterns: The set of the glob patterns.
     """
-    devices = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    devices = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for name in controller_patterns:
       device_path = self._dut.path.join(_LOOPBACK_TEST_PATH, name, _DMA_TEST)
       devices.extend(
@@ -261,7 +271,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     except Exception:
       if self._muxinfo.get(fail_tag) != 1:
         logging.exception('%s failed', fail_tag)
-        self.ui.SetState(_('Please unplug and replug.'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(_('Please unplug and replug.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._muxinfo = {
             fail_tag: 1
         }
@@ -269,16 +281,22 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     else:
       if self._muxinfo != outputs:
         logging.info('%s %r', fail_tag, outputs)
-        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             f'Port {int(self._usbpd_port)}<br>{fail_tag} {outputs!r}')
         self._muxinfo = outputs
       if self._usbpd_polarity:
         if outputs['POLARITY'] != self._usbpd_polarity:
-          self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               _('Wrong USB side, please flip over {media}.',
                 media='Loopback card'))
           return False
-        self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if outputs['TBT']:
         return True
       if outputs['USB']:
@@ -294,20 +312,30 @@ class ThunderboltLoopbackTest(test_case.TestCase):
       self.args.controller_patterns to glob the path and return the result if
       there is only one match, otherwise return None.
     """
-    if self.args.debugfs_path:  # type: ignore #TODO(b/338318729) Fixit!
-      if self._dut.path.exists(self.args.debugfs_path):  # type: ignore #TODO(b/338318729) Fixit!
-        return self.args.debugfs_path  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.debugfs_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self._dut.path.exists(self.args.debugfs_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        return self.args.debugfs_path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if self._SetCardState(_CardState.Absent):
         logging.info('No loopback card exists.')
       return None
 
     target_controller_patterns = set(
-        [self.args.controller_port] if self.args.controller_port else self.args  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        [self.args.controller_port] if self.args.controller_port else self.args  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         .controller_patterns)
     target_controllers = self._GlobLoopbackPath(target_controller_patterns)
     if len(target_controllers) > 1:
       if self._SetCardState(_CardState.Multiple):
-        self.ui.SetState(_('Do not insert more than one loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(_('Do not insert more than one loopback card.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         logging.info(
             'Multiple loopback cards exist: %r with patterns: %r. '
             'Set controller_patterns to be more specific.', target_controllers,
@@ -323,7 +351,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
         non_target_controller_patterns)
     if non_target_controllers:
       if self._SetCardState(_CardState.Wrong):
-        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('The loopback card is inserted into the wrong port.'))
         logging.info(
             'The loopback card is inserted into the wrong port: '
@@ -331,7 +361,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
             non_target_controller_patterns)
     else:
       if self._SetCardState(_CardState.Absent):
-        self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         logging.info('No loopback card exists with patterns: %r',
                      target_controller_patterns)
     return None
@@ -369,13 +401,23 @@ class ThunderboltLoopbackTest(test_case.TestCase):
         'LC_ALL': 'en_US.utf-8',
     }
     logging.info('env: %r, cmd: %r, cwd: %r', env, cmd, _TDTL_PATH)
-    stop_timer = self.ui.StartCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.lane_margining_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    stop_timer = self.ui.StartCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.lane_margining_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
-      result = subprocess.run(cmd, env=env, cwd=_TDTL_PATH,
-                              timeout=self.args.lane_margining_timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
-                              encoding='utf-8', stdout=subprocess.PIPE,
-                              check=False)
+      result = subprocess.run(
+          cmd,
+          env=env,
+          cwd=_TDTL_PATH,
+          # yapf: disable
+          timeout=self.args.lane_margining_timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          encoding='utf-8',
+          stdout=subprocess.PIPE,
+          check=False)
     except subprocess.TimeoutExpired:
       logging.exception('_TestLaneMargining timeout')
       self._errors.append('_TestLaneMargining timeout')
@@ -415,8 +457,12 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def _GetUITimer(self):
     """Returns the stop event flag of the timer or None if no timeout."""
-    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
-      return self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      return self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     return None
 
   def _UploadLaneMarginingViaCSV(self, log_result: dict):
@@ -424,7 +470,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
     csv_entries = [device_data.GetSerialNumber(), timestamp]
     csv_entries.extend(log_result[key] for key in self.LOG_KEYS)
-    self.ui.SetState(_('Trying to check server protocol...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Trying to check server protocol...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
       server = server_proxy.GetServerProxy(timeout=5)
       server.Ping()
@@ -440,13 +488,17 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def _SaveLaneMarginingViaTestlog(self, log_result: dict):
     """Saves the result of lane margining via Testlog."""
-    with self._group_checker:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._group_checker:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for key, value in log_result.items():
         testlog.LogParam(key, value)
 
   def _UploadOrSaveLaneMargining(self, log_result: dict):
     """Uploads or Saves the result of lane margining."""
-    if self.args.lane_margining_csv:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.lane_margining_csv:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._UploadLaneMarginingViaCSV(log_result)
     self._SaveLaneMarginingViaTestlog(log_result)
 
@@ -454,8 +506,12 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until Mux info becomes TBT=1."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
-    sync_utils.WaitFor(self._CheckMuxinfo, self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    sync_utils.WaitFor(self._CheckMuxinfo, self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        poll_interval=0.5)
     if stop_timer:
       stop_timer.set()
@@ -464,9 +520,13 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until device node appears."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Insert the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     device_path = sync_utils.WaitFor(self._FindLoopbackPath,
-                                     self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit!
+                                     # yapf: disable
+                                     self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     match = _RE_ADP_DOMAIN.fullmatch(device_path)
     if not match:
       raise Exception('device_path is not in expected format.')
@@ -483,10 +543,14 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Waits until device node disappears."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Remove the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Remove the loopback card.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     sync_utils.WaitFor(lambda: not self._dut.path.exists(device_path),
-                       self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit!
+                       # yapf: disable
+                       self.args.timeout_secs, poll_interval=0.5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if stop_timer:
       stop_timer.set()
 
@@ -494,22 +558,32 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     """Performs DMA test."""
     stop_timer = self._GetUITimer()
 
-    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('The loopback card path is at %r.', device_path)
     device_test_path = self._dut.path.join(device_path, _DMA_TEST)
     # Configure the test
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'speed'),
-        ENCODE_LINK_SPEED[self.args.expected_link_speed])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ENCODE_LINK_SPEED[self.args.expected_link_speed])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'lanes'),
-        ENCODE_LINK_WIDTH[self.args.expected_link_width])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ENCODE_LINK_WIDTH[self.args.expected_link_width])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'packets_to_send'),
-        str(self.args.packets_to_send))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        str(self.args.packets_to_send))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._LogAndWriteFile(
         self._dut.path.join(device_test_path, 'packets_to_receive'),
-        str(self.args.packets_to_receive))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        str(self.args.packets_to_receive))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Run the test.
     self._LogAndWriteFile(self._dut.path.join(device_test_path, 'test'), '1')
     if stop_timer:
@@ -522,7 +596,9 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     match = _RE_STATUS.match(output)
     if not match:
       self._errors.append('Output format of status is changed.')
-    result = match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    result = match.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if result == 'success':
       return
     if result in ('fail', 'failed', 'not run'):
@@ -532,10 +608,14 @@ class ThunderboltLoopbackTest(test_case.TestCase):
 
   def runTest(self):
     self._WaitMuxInfoBecomingTBT()
-    if self.args.check_muxinfo_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_muxinfo_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.PassTask()
 
-    if self.args.load_module:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.load_module:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Fail the test if the module doesn't exist.
       self._dut.CheckCall(['modinfo', _TEST_MODULE])
       # If the module is loaded before the test then do not remove it.
@@ -546,11 +626,15 @@ class ThunderboltLoopbackTest(test_case.TestCase):
     device_path, domain, adapter = self._WaitForLoopbackCardInsertion()
     self._TestDMA(device_path)
 
-    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.lane_margining:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       log_result = self._TestLaneMargining(domain, adapter)
       self._UploadOrSaveLaneMargining(log_result)
 
-    if self.args.check_card_removal:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_card_removal:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._WaitForLoopbackCardRemoval(device_path)
 
     if self._errors:

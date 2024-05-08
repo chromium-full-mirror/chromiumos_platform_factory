@@ -202,8 +202,12 @@ class CopyFileSkipBytesTest(unittest.TestCase):
 
   def testNormal(self):
     self.PrepareFile('1234567890', '')
-    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 3)  # type: ignore #TODO(b/338318729) Fixit!
-    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 3)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       result = o.read()
       self.assertEqual(result, '4567890')
 
@@ -211,27 +215,41 @@ class CopyFileSkipBytesTest(unittest.TestCase):
     self.PrepareFile('1234567890', '')
     # Skip too many bytes.
     self.assertRaises(ValueError, file_utils.CopyFileSkipBytes,
-                      self.in_file.name, self.out_file.name, 100)  # type: ignore #TODO(b/338318729) Fixit!
-    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      self.in_file.name, self.out_file.name, 100)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertEqual(len(o.read()), 0)
 
   def testNoInput(self):
     self.PrepareFile('abc', '')
     self.assertRaises(OSError, file_utils.CopyFileSkipBytes,
-                      'no_input', self.out_file.name, 1)  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      'no_input', self.out_file.name, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testOverrideOutput(self):
     self.PrepareFile('1234567890', 'abcde')
-    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 3)  # type: ignore #TODO(b/338318729) Fixit!
-    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 3)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       result = o.read()
       self.assertEqual(result, '4567890')
 
   def testSkipLargeFile(self):
     # 10000 bytes input.
     self.PrepareFile('1234567890' * 1000, '')
-    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 5)  # type: ignore #TODO(b/338318729) Fixit!
-    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_utils.CopyFileSkipBytes(self.in_file.name, self.out_file.name, 5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    with open(self.out_file.name, 'r', encoding='utf8') as o:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       result = o.read()
       self.assertEqual(len(result), 10000 - 5)
       self.assertTrue(result.startswith('67890'))
@@ -737,9 +755,13 @@ class SymlinkRelativeTest(unittest.TestCase):
       shutil.rmtree(self.temp_dir)
 
   def SymlinkRelativeAndVerify(self, **kwargs):
-    file_utils.TryMakeDirs(os.path.dirname(self.link_path))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_utils.TryMakeDirs(os.path.dirname(self.link_path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     file_utils.SymlinkRelative(self.target, self.link_path, **kwargs)
-    self.assertEqual(os.path.realpath(self.link_path), self.target)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(os.path.realpath(self.link_path), self.target)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testNormal(self):
     self.link_path = os.path.join(self.temp_dir, 'bar', 'link')

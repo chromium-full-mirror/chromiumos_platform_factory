@@ -454,8 +454,12 @@ class AVLProbeValue(collections.OrderedDict, InternalTags, _NoneCheckable):
     # call might raise AttributeError.
     self._value_is_none = IsComponentValueNone(values)
     if self._value_is_none:
-      values = {}  # type: ignore #TODO(b/338318729) Fixit!
-    super().__init__(values, *args, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      values = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    super().__init__(values, *args, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._converter_identifier = identifier
     self._probe_value_matched = probe_value_matched
 

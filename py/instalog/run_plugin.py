@@ -98,7 +98,9 @@ class PluginRunner(plugin_sandbox.ICore, log_utils.LoggerMixin):
     self.info('Saving plugin store to: %s', self._store_path)
     self.info('Saving attachments to: %s', self._att_dir)
 
-    self._event_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._event_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._plugin = plugin_sandbox.PluginSandbox(
         plugin_type, config=config, store_path=self._store_path,
         data_dir=self._data_dir, core_api=self)
@@ -193,7 +195,9 @@ class PluginRunner(plugin_sandbox.ICore, log_utils.LoggerMixin):
       self.info('Plugin state: %s', self._plugin.GetState())
       # TODO(chuntsen): Fix pylint error
       # pylint: disable=protected-access
-      self.info('Plugin data store: %s', self._plugin._plugin.store)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.info('Plugin data store: %s', self._plugin._plugin.store)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._last_status_update = time_utils.MonotonicTime()
 
   def HandleKeyboardInterrupt(self, interrupt=False):

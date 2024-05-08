@@ -31,24 +31,44 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   # Mapping of Whale controlled device to Servo control.
   _WHALE_DEVICE = {
-      bft.BFTFixture.Device.AUDIO_JACK: _WHALE_CONTROL.AUDIO_PLUG,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.BATTERY: _WHALE_CONTROL.BATTERY,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.LID_MAGNET: _WHALE_CONTROL.ELECTRO_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.C0_CC2_DUT: _WHALE_CONTROL.DC,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.C1_CC2_DUT: _WHALE_CONTROL.OUTPUT_RESERVE_1,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.LID_HALL_MAGNET: _WHALE_CONTROL.LID_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.BASE_HALL_MAGNET: _WHALE_CONTROL.BASE_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit!
-      bft.BFTFixture.Device.BASE_CHARGER: _WHALE_CONTROL.BASE_CHARGER, }  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bft.BFTFixture.Device.AUDIO_JACK: _WHALE_CONTROL.AUDIO_PLUG,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.BATTERY: _WHALE_CONTROL.BATTERY,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.LID_MAGNET: _WHALE_CONTROL.ELECTRO_MAGNET,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.C0_CC2_DUT: _WHALE_CONTROL.DC,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.C1_CC2_DUT: _WHALE_CONTROL.OUTPUT_RESERVE_1,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.LID_HALL_MAGNET: _WHALE_CONTROL.LID_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.BASE_HALL_MAGNET: _WHALE_CONTROL.BASE_HALL_MAGNET,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      bft.BFTFixture.Device.BASE_CHARGER: _WHALE_CONTROL.BASE_CHARGER, }  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   # Add 8 GPIOs on krill board PCA9534
   _WHALE_DEVICE.update({
-      f'krill_pca9534_p{int(i)}': f'krill_pca9534_p{int(i)}'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      f'krill_pca9534_p{int(i)}': f'krill_pca9534_p{int(i)}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for i in range(8)
   })
 
   # Add whale_fixture_ctrl
   _WHALE_DEVICE.update({
-      f'whale_fixture_ctrl{int(i)}': f'whale_fixture_ctrl{int(i)}'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      f'whale_fixture_ctrl{int(i)}': f'whale_fixture_ctrl{int(i)}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for i in range(1, 7)
   })
 
@@ -66,7 +86,9 @@ class WhaleBFTFixture(bft.BFTFixture):
     self._lcm = None
     self._nuc_host = None
     self._nuc_dut_serial_path = None
-    self._nuc_ssh_link: Optional[ssh.SSHLink] = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._nuc_ssh_link: Optional[ssh.SSHLink] = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Init(self, **params):
     """Sets up an XML-RPC proxy to BFTFixture's BeagleBone Servo.
@@ -98,7 +120,9 @@ class WhaleBFTFixture(bft.BFTFixture):
     if not whale_device:
       raise bft.BFTFixtureException('Unsupported device: ' + device)
     try:
-      return (self.Status.ON if self._servo.IsOn(whale_device)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return (self.Status.ON if self._servo.IsOn(whale_device)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
               else self.Status.OFF)
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'{action} failed. Reason: {e}')
@@ -117,18 +141,24 @@ class WhaleBFTFixture(bft.BFTFixture):
     action = f"{'engage' if engage else 'disengage'} device {device}"
     logging.debug(action)
 
-    whale_device: str = self._WHALE_DEVICE.get(device)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    whale_device: str = self._WHALE_DEVICE.get(device)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not whale_device:
       raise bft.BFTFixtureException('Unsupported device: ' + whale_device)
     try:
-      self._servo.Set(whale_device, 'on' if engage else 'off')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._servo.Set(whale_device, 'on' if engage else 'off')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to {action}. Reason: {e}')
 
   def Ping(self):
     # Try sending an XMLRPC command.
     try:
-      self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.debug('ping success')
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to connect to servo. Reason: {e}')
@@ -142,11 +172,15 @@ class WhaleBFTFixture(bft.BFTFixture):
     Raises:
       BFTFixtureException if power rail is problematic.
     """
-    inas = self._servo.MultipleGet(self._WHALE_INAS)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    inas = self._servo.MultipleGet(self._WHALE_INAS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     result = {k: int(v) for k, v in inas.items()}
 
     # Servo returns a string of list of integers
-    adc = ast.literal_eval(self._servo.Get(self._WHALE_CONTROL.ADC))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    adc = ast.literal_eval(self._servo.Get(self._WHALE_CONTROL.ADC))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for i, v in enumerate(self._WHALE_ADC):
       result[v[0]] = adc[i] * v[1]
 
@@ -192,8 +226,12 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   def GetStatusColor(self):
     try:
-      is_pass = self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit!
-      is_fail = self._servo.Get(self._WHALE_CONTROL.FAIL_LED)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      is_pass = self._servo.Get(self._WHALE_CONTROL.PASS_LED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      is_fail = self._servo.Get(self._WHALE_CONTROL.FAIL_LED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       for color, value in WhaleBFTFixture._STATUS_COLOR.items():
         if value == (is_pass, is_fail):
@@ -209,22 +247,32 @@ class WhaleBFTFixture(bft.BFTFixture):
       raise bft.BFTFixtureException(f'Unsupported status color {color}')
 
     try:
-      self._servo.MultipleSet([(self._WHALE_CONTROL.PASS_LED, is_pass),  # type: ignore #TODO(b/338318729) Fixit!
-                               (self._WHALE_CONTROL.FAIL_LED, is_fail)])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._servo.MultipleSet([(self._WHALE_CONTROL.PASS_LED, is_pass),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                               # yapf: enable
+                               # yapf: disable
+                               (self._WHALE_CONTROL.FAIL_LED, is_fail)])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to set status color {color}. Reason {e}')
 
   def ResetKeyboard(self):
-    self._keyboard_emulator.Reset()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._keyboard_emulator.Reset()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SimulateKeystrokes(self):
-    self._keyboard_emulator.SimulateKeystrokes()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._keyboard_emulator.SimulateKeystrokes()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   # pylint: disable=arguments-renamed
   def SimulateKeyPress(self, bitmask, duration_secs):
     try:
-      self._keyboard_emulator.KeyPress(int(bitmask, 0), float(duration_secs))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._keyboard_emulator.KeyPress(int(bitmask, 0), float(duration_secs))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except ValueError as e:
       raise bft.BFTFixtureException(f'Failed to convert bitmask. Reason {e}')
 
@@ -233,12 +281,18 @@ class WhaleBFTFixture(bft.BFTFixture):
 
     whale_device = self._WHALE_DEVICE.get(button)
     if not whale_device:
-      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     try:
       if not duration_secs:  # set duration_secs 0 for long press
-        self._servo.Set(whale_device, 'on')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._servo.Set(whale_device, 'on')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
-        self._servo.Click(whale_device, duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._servo.Click(whale_device, duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to press {button}. Reason: {e}')
 
@@ -246,53 +300,87 @@ class WhaleBFTFixture(bft.BFTFixture):
     logging.debug('release %s', button)
     whale_device = self._WHALE_DEVICE.get(button)
     if not whale_device:
-      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raise bft.BFTFixtureException('Unsupported device: ' + whale_device)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     try:
-      self._servo.Set(whale_device, 'off')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._servo.Set(whale_device, 'off')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(f'Failed to press {button}. Reason: {e}')
 
   def SetLcmText(self, row, message):
     try:
-      self._lcm.SetLcmText(row, message)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._lcm.SetLcmText(row, message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to show a message to LCM. Reason {e}')
 
   def IssueLcmCommand(self, action):
     try:
-      self._lcm.IssueLcmCommand(action)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._lcm.IssueLcmCommand(action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
           f'Failed to execute an action to LCM. Reason {e}')
 
   def IsDUTInFixture(self):
     try:
-      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.DUT_SENSOR)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.DUT_SENSOR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
-          'Failed to check if DUT in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          'Failed to check if DUT in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def IsBaseInFixture(self):
     try:
-      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.BASE_SENSOR)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return not self._servo.IsOn(self._FIXTURE_FEEDBACK.BASE_SENSOR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except servo_client.ServoClientError as e:
       raise bft.BFTFixtureException(
-          'Failed to check if Base in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          'Failed to check if Base in the fixture. Reason: ' + e)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def CoverStatus(self):
-    status = self._servo.MultipleIsOn(self._FEEDBACKS)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    status = self._servo.MultipleIsOn(self._FEEDBACKS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     is_open = all([
-        status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit!
-        status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit!
-        not status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit!
-        not status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     is_closed = all([
-        not status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit!
-        not status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit!
-        status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit!
-        status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        not status[self._FIXTURE_FEEDBACK.FB1],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not status[self._FIXTURE_FEEDBACK.FB3],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        status[self._FIXTURE_FEEDBACK.FB2],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        status[self._FIXTURE_FEEDBACK.FB4], ])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if is_open:
       return self.Status.OPEN
@@ -302,7 +390,9 @@ class WhaleBFTFixture(bft.BFTFixture):
 
   def TriggerScanner(self):
     try:
-      self._servo.Click(self._WHALE_CONTROL.FIXTURE_NC,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._servo.Click(self._WHALE_CONTROL.FIXTURE_NC,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                         duration_secs=0.3)
     except servo_client.ServoClientError as e:
       logging.exception('Failed to trigger scanner %s', e)
@@ -313,6 +403,10 @@ class WhaleBFTFixture(bft.BFTFixture):
     logging.info('Stopping fixture...')
 
     # Disable battery first for safety.
-    self._servo.Disable(self._WHALE_CONTROL.BATTERY)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._servo.Disable(self._WHALE_CONTROL.BATTERY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._servo.Enable(self._WHALE_BUTTON.FIXTURE_STOP)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._servo.Enable(self._WHALE_BUTTON.FIXTURE_STOP)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

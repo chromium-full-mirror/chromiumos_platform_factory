@@ -71,8 +71,12 @@ class DSMCalibrationTest(unittest.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._out_card = self.args.output_dev[0]  # type: ignore #TODO(b/338318729) Fixit!
-    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._out_card = self.args.output_dev[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._sox_process = None
 
   def runTest(self):

@@ -126,7 +126,9 @@ def main():
   # changed by args.commit.
   files = []
   for f in line_diffs:
-    if not f.endswith('.py') or ShouldExclude(f):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not f.endswith('.py') or ShouldExclude(f):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       continue
     if args.commit:
       result = subprocess.run(['git', 'cat-file', '-e', f'{args.commit}:{f}'],
@@ -148,8 +150,12 @@ def main():
 
   proc_args = [(args.fix, f, line_diffs[f], work_tree) for f in files]
   with multiprocessing.pool.ThreadPool() as pool:
-    failed_files = []  # type: ignore #TODO(b/338318729) Fixit!
-    uncertain_files = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    failed_files = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    uncertain_files = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for result, file in pool.imap(_ProcessOneFile, proc_args):
       if result == CheckFormatResult.FAIL:
         failed_files.append(file)
@@ -157,7 +163,9 @@ def main():
         uncertain_files.append(file)
 
   if is_not_head_commit:
-    shutil.rmtree(work_tree)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    shutil.rmtree(work_tree)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   # b/226500333
   # We didn't find a good approach to solve the conflict between isort and yapf.
@@ -170,7 +178,9 @@ def main():
     ]
     if args.commit:
       fix_cmd.append('COMMIT=HEAD')
-    fix_cmd = ' '.join(fix_cmd)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    fix_cmd = ' '.join(fix_cmd)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if is_not_head_commit:
       fix_message = ('Run the following command and then rebase: '
                      f'`git checkout {args.commit} && {fix_cmd}`')

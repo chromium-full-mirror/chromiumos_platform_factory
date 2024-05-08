@@ -23,7 +23,9 @@ _SESSION_CACHE_NAMESPACE = 'SessionCache'
 
 
 def GetAllHWIDServiceShards(
-    config, config_data) -> Collection[common_helper.HWIDServiceShardBase]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config, config_data) -> Collection[common_helper.HWIDServiceShardBase]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   goldeneye_memcache_adapter = memcache_adapter.MemcacheAdapter(
       namespace=ingestion.GOLDENEYE_MEMCACHE_NAMESPACE)
   bc_helper = bc_helper_module.BOMAndConfiglessHelper(

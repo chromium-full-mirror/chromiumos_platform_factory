@@ -48,7 +48,9 @@ class UrandomTest(unittest.TestCase):
   ]
 
   def runTest(self):
-    duration_secs = self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    duration_secs = self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Getting /dev/urandom for %d seconds', duration_secs)
 
     with open('/dev/urandom', 'rb') as f:

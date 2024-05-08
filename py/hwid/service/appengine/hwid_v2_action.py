@@ -65,7 +65,9 @@ class HWIDV2Action(hwid_action.HWIDAction):
     hwids_set = set()
     for hw in self._preproc_data.bom_map:
       miss_list = self._preproc_data.bom_map[hw]['primary']['classes_missing']
-      vol_ltrs = set()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      vol_ltrs = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       status_fields = ['deprecated', 'eol', 'qualified', 'supported']
       for field in status_fields:
         for hw_vol in self._preproc_data.hwid_status_map[field]:
@@ -127,8 +129,12 @@ class HWIDV2Action(hwid_action.HWIDAction):
     classes_set.update(self._preproc_data.volatile_value_map.keys())
     return classes_set
 
-  def GetComponents(self, with_classes: List[Optional[str]] = None):  # type: ignore #TODO(b/338318729) Fixit!
-    components = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def GetComponents(self, with_classes: List[Optional[str]] = None):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    components = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     all_comps = []
     for bom in self._preproc_data.bom_map.values():
       if bom['primary']['components']:

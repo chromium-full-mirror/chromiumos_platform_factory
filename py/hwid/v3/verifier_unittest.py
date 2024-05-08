@@ -87,7 +87,9 @@ class VerifyPhaseTest(unittest.TestCase):
       raise ValueError(
           'firmware_key_name and empty_firmware_keys are mutually exclusive.')
 
-    components = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    components = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if empty_firmware_keys:
       components['firmware_keys'] = []

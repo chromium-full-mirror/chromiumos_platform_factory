@@ -132,8 +132,12 @@ class AlsaAudioControl(base.AbstractAudioControl):
 
     # Factory json audio config does not exist. Use UCM config manager.
     try:
-      config_mgr = config_manager.UCMConfigManager(  # type: ignore #TODO(b/338318729) Fixit!
-          self._device, self.mixer_controller, self.ucm_card_map,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      config_mgr = config_manager.UCMConfigManager(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self._device, self.mixer_controller, self.ucm_card_map,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.ucm_device_map, self.ucm_verb)
       if exceptions:
         logging.info(

@@ -40,4 +40,6 @@ class ThermalMonitor(plugin.Plugin):
 
   @type_utils.Overrides
   def OnStop(self):
-    self._thermal_watcher.terminate()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._thermal_watcher.terminate()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

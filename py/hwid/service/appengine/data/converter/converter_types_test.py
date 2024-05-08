@@ -45,11 +45,15 @@ class FormattedStrTypeTest(unittest.TestCase):
       return f'(prefix){s}'
 
     format_self = converter_types.FormattedStrType(
-        'foo', formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(format_self, '(prefix)foo')
 
     format_other = converter_types.FormattedStrType(
-        '(prefix)foo', formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        '(prefix)foo', formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(format_other, 'foo')
 
   def testFormatterException(self):
@@ -58,11 +62,15 @@ class FormattedStrTypeTest(unittest.TestCase):
       raise converter_types.StrFormatterError
 
     format_self = converter_types.FormattedStrType(
-        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertNotEqual(format_self, 'foo')
 
     format_other = converter_types.FormattedStrType(
-        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertNotEqual(format_other, 'foo')
 
   def testCallable(self):
@@ -71,11 +79,15 @@ class FormattedStrTypeTest(unittest.TestCase):
       return f'(prefix){s}'
 
     callable_self = converter_types.FormattedStrType.CreateInstanceFactory(
-        formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        formatter_self=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(callable_self('foo'), '(prefix)foo')
 
     callable_other = converter_types.FormattedStrType.CreateInstanceFactory(
-        formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        formatter_other=_PrefixFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(callable_other('(prefix)foo'), 'foo')
 
 
@@ -96,11 +108,15 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       return f'5{s}'
 
     format_self = converter_types.FormattedRegexStrType(
-        'foo', formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(format_self, '5foo')
 
     format_other = converter_types.FormattedRegexStrType(
-        '[0-9]foo', formatter_other=_PrefixNumberFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        '[0-9]foo', formatter_other=_PrefixNumberFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(format_other, 'foo')
 
   def testFormatterException(self):
@@ -109,11 +125,15 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       raise converter_types.StrFormatterError
 
     format_self = converter_types.FormattedRegexStrType(
-        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_self=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertNotEqual(format_self, 'foo')
 
     format_other = converter_types.FormattedRegexStrType(
-        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'foo', formatter_other=_FormatterWithException)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertNotEqual(format_other, 'foo')
 
   def testCallable(self):
@@ -125,12 +145,16 @@ class FormattedRegexStrTypeTest(unittest.TestCase):
       return f'5{s}'
 
     callable_self = converter_types.FormattedRegexStrType.CreateInstanceFactory(
-        formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        formatter_self=_PrefixRegexFormatter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(callable_self('foo'), '5foo')
 
     callable_other = (
         converter_types.FormattedRegexStrType.CreateInstanceFactory(
-            formatter_other=_PrefixNumberFormatter))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            formatter_other=_PrefixNumberFormatter))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(callable_other('[0-9]foo'), 'foo')
 
 

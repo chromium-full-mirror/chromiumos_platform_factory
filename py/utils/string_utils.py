@@ -51,7 +51,9 @@ def _ParseDictRecursive(lines, delimiter=':'):
     if len(node.childs) == 0:
       return key, value
 
-    output_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    output_dict = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for child in node.childs:
       output_dict.update([_BuildDictRecursive(child)])
 

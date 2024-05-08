@@ -6,10 +6,15 @@ import functools
 import http
 import logging
 
-import flask  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.probe_info_service.app_engine import protorpc_utils
+
+
+# yapf: enable
+
 
 
 _CONFIG_DATA = config_data.CONFIG

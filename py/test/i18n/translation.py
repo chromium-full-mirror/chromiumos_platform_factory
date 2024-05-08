@@ -120,7 +120,9 @@ def GetAllTranslations():
     if not isinstance(translations, gettext.GNUTranslations):
       continue
     # pylint: disable=protected-access
-    all_keys.update(translations._catalog)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    all_keys.update(translations._catalog)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   all_translations = []
   for key in all_keys:

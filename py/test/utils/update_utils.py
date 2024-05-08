@@ -83,7 +83,9 @@ class Updater:
   def __init__(self, component: Union[str, Components], proxy=None, spawn=None):
     self._component = component
     self._url = None
-    self._payload = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._payload = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._proxy = proxy
     self._loaded = False
     self._spawn = spawn or (

@@ -133,16 +133,24 @@ class FanSpeedTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    if isinstance(self.args.target_rpm, int):  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.target_rpm = [self.args.target_rpm]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if isinstance(self.args.target_rpm, int):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.target_rpm = [self.args.target_rpm]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self.assertTrue(
-        self.args.spin_max_then_half or min(self.args.target_rpm) > 0,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.spin_max_then_half or min(self.args.target_rpm) > 0,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'Either set a valid target_rpm or spin_max_then_half=True.')
     self._fan = device_utils.CreateDUTInterface().fan
 
   def tearDown(self):
     logging.info('Set auto fan speed control.')
-    self._fan.SetFanRPM(self._fan.AUTO, self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._fan.SetFanRPM(self._fan.AUTO, self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SetAndGetFanSpeed(self, target_rpm):
     """Sets fan speed and observes readings for a while (blocking call).
@@ -154,15 +162,21 @@ class FanSpeedTest(test_case.TestCase):
       List of fan speed, each fan speed if the average of the latest
       #num_samples_to_use samples as stabilized fan speed reading.
     """
-    observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     fan_count = len(observed_rpm)
     # TODO(lschyi): separate errors after the concern of handling single fan or
     # multiple fans of SetAndGetFanSpeed is separated.
     if fan_count == 0:
-      if self.args.fan_id is None:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.fan_id is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.FailTask('Can not find any fan')
       else:
-        self.FailTask(f'Fan {self.args.fan_id} does not report any RPM')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.FailTask(f'Fan {self.args.fan_id} does not report any RPM')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     spin_up = target_rpm > _Average(observed_rpm)
 
     status = _(
@@ -171,29 +185,53 @@ class FanSpeedTest(test_case.TestCase):
         observed_rpm=observed_rpm,
         target_rpm=target_rpm)
 
-    self.ui.SetHTML(status, id='fs-status')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(status, id='fs-status')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.speed_use_percentage:  # type: ignore #TODO(b/338318729) Fixit!
-      self._fan.SetFanRPM(int(target_rpm * 100 / self.args.max_rpm),  # type: ignore #TODO(b/338318729) Fixit!
-                          self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.speed_use_percentage:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._fan.SetFanRPM(int(target_rpm * 100 / self.args.max_rpm),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                          # yapf: enable
+                          # yapf: disable
+                          self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self._fan.SetFanRPM(int(target_rpm), self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._fan.SetFanRPM(int(target_rpm), self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Probe fan speed for duration_secs seconds with sampling interval
     # probe_interval_secs.
-    end_time = time.time() + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    end_time = time.time() + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Samples of all fan speed with sample period: probe_interval_secs.
-    ith_fan_samples = [[] for unused_i in range(fan_count)]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ith_fan_samples = [[] for unused_i in range(fan_count)]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     while time.time() < end_time:
-      observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      observed_rpm = self._fan.GetFanRPM(self.args.fan_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for i, ith_fan_rpm in enumerate(observed_rpm):
         ith_fan_samples[i].append(ith_fan_rpm)
-      self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(str(observed_rpm), id='fs-rpm')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Observed fan RPM: %s', observed_rpm)
-      self.Sleep(self.args.probe_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.Sleep(self.args.probe_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    num_samples = self.args.num_samples_to_use  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    num_samples = self.args.num_samples_to_use  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     total_samples = len(ith_fan_samples[0])
     if num_samples > total_samples // 2:
       logging.error('Insufficient #samples to get average fan speed. '
@@ -223,12 +261,22 @@ class FanSpeedTest(test_case.TestCase):
       observed_rpm: a list of fan rpm readings.
       target_rpm: target fan speed.
     """
-    if self.args.error_margin_use_percentage:  # type: ignore #TODO(b/338318729) Fixit!
-      lower_bound = target_rpm * (1 - self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit!
-      upper_bound = target_rpm * (1 + self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.error_margin_use_percentage:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      lower_bound = target_rpm * (1 - self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      upper_bound = target_rpm * (1 + self.args.error_margin * 0.01)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      lower_bound = target_rpm - self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit!
-      upper_bound = target_rpm + self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      lower_bound = target_rpm - self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      upper_bound = target_rpm + self.args.error_margin  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     error_messages = []
     for i, rpm in enumerate(observed_rpm):
@@ -244,15 +292,21 @@ class FanSpeedTest(test_case.TestCase):
 
   def runTest(self):
     """Main test function."""
-    if self.args.spin_max_then_half:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.spin_max_then_half:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Spinning fan up to get max fan speed...')
-      max_rpm = self.SetAndGetFanSpeed(self.args.max_rpm)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      max_rpm = self.SetAndGetFanSpeed(self.args.max_rpm)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not max_rpm:
         self.FailTask('No fan RPM is reported')
       target_rpm = _Average(max_rpm) / 2
       observed_rpm = self.SetAndGetFanSpeed(target_rpm)
       self.VerifyResult(observed_rpm, target_rpm)
     else:
-      for target_rpm in self.args.target_rpm:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for target_rpm in self.args.target_rpm:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         observed_rpm = self.SetAndGetFanSpeed(target_rpm)
         self.VerifyResult(observed_rpm, target_rpm)

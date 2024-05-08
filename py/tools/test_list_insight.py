@@ -285,7 +285,9 @@ class TestListInsightConfigList(config_utils._ConfigList):
                             source_object['args'], source_name)
 
 # pylint: disable=protected-access
-config_utils._ConfigList = TestListInsightConfigList  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+config_utils._ConfigList = TestListInsightConfigList  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 
 
 class TestListInsightManager(manager.Manager):

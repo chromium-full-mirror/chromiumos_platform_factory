@@ -14,11 +14,17 @@ class TestListInsightManagerTest(unittest.TestCase):
 
   def setUp(self):
     # Use example test lists in the manager_unittest dir
-    manager_unittest.TestListLoaderTest.setUp(self)  # type: ignore #TODO(b/338318729) Fixit!
-    self.manager = test_list_insight.TestListInsightManager(loader=self.loader)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    manager_unittest.TestListLoaderTest.setUp(self)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.manager = test_list_insight.TestListInsightManager(loader=self.loader)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
-    manager_unittest.TestListLoaderTest.tearDown(self)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    manager_unittest.TestListLoaderTest.tearDown(self)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testFindTarget(self):
     factory_test_objects = self.manager.FindTarget('halt', 'a')

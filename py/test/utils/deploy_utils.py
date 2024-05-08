@@ -106,7 +106,9 @@ class FactoryPythonArchive(AbstractFactoryTools):
 
   @type_utils.LazyProperty
   def checksum(self):
-    if not os.path.exists(self.local_factory_par):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not os.path.exists(self.local_factory_par):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise IOError(f'No such file: {self.local_factory_par}')
     return process_utils.CheckOutput(
         self.CHECKSUM_COMMAND.format(self.local_factory_par), shell=True)
@@ -131,7 +133,9 @@ class FactoryPythonArchive(AbstractFactoryTools):
   def DryRun(self, command):
     """Returns the command that will be executed."""
     if isinstance(command, str):
-      command = 'sh ' + self.remote_factory_par + ' ' + command  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      command = 'sh ' + self.remote_factory_par + ' ' + command  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       command = ['sh', self.remote_factory_par] + command
     return command

@@ -44,7 +44,9 @@ class OutputBigQueryHWID(output_bigquery.AbstractOutputBigQuery):
     if not event.get('__hwid__', False):
       return None
 
-    row = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    row = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     row['components'] = []
     for component_dict in event.get('components', []):

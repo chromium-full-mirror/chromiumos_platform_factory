@@ -44,7 +44,9 @@ class RequestHandler(http_server.SimpleHTTPRequestHandler):
     body = json.dumps(data).encode()
     self.send_response(status)
     self.send_header('Content-Type', 'application/json')
-    self.send_header('Content-Length', len(body))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.send_header('Content-Length', len(body))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.send_header('Access-Control-Allow-Origin', '*')
     self.end_headers()
     self.wfile.write(body)
@@ -57,7 +59,9 @@ class RequestHandler(http_server.SimpleHTTPRequestHandler):
     if self.headers.get('Content-Type') != 'application/json':
       raise APIError('Only accept json as post payload.',
                      http.HTTPStatus.BAD_REQUEST)
-    length = int(self.headers.get('Content-Length'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    length = int(self.headers.get('Content-Length'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return json.loads(self.rfile.read(length))
 
   def _GetArgument(self, arg_name):

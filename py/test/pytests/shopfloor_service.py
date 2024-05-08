@@ -186,7 +186,9 @@ class ShopfloorService(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.event = threading.Event()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetFactoryDeviceData(self):
     """Returns a dictionary in FactoryDeviceData format."""
@@ -243,7 +245,9 @@ class ShopfloorService(test_case.TestCase):
         '<button data-test-event="retry">',
         _('Retry'), '</button>'
     ] if retry else ''
-    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         f'<span class="{css}">', caption,
         '</span><p><textarea rows=25 cols=90 readonly>',
         test_ui.Escape(message, False), '</textarea><p>', retry_button
@@ -257,28 +261,46 @@ class ShopfloorService(test_case.TestCase):
     self.event.clear()
 
   def runTest(self):
-    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'retry', lambda unused_event: self.event.set())
-    server_url = URLSpec.FindServerURL(self.args.server_url, self.dut)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    server_url = URLSpec.FindServerURL(self.args.server_url, self.dut)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if server_url:
       server = webservice_utils.CreateWebServiceProxy(server_url)
     else:
       server = server_proxy.GetServerProxy()
-      if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise ValueError('Argument `raw_invocation` allowed only for external '
                          'server (need `server_url`).')
 
     # Prepare arguments
-    method = self.args.method  # type: ignore #TODO(b/338318729) Fixit!
-    args = list(self.args.args or ())  # type: ignore #TODO(b/338318729) Fixit!
-    kargs = dict(self.args.kargs or {})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    method = self.args.method  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    args = list(self.args.args or ())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    kargs = dict(self.args.kargs or {})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.raw_invocation:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       spec = ServiceSpec(has_data=False)
     else:
-      if self.args.kargs:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.kargs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise ValueError('`kargs` only allowed for `raw_invocation`.')
-      spec = self.METHODS.get(method)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      spec = self.METHODS.get(method)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not spec:
         raise ValueError(f'Unknown method for shopfloor service: {method}')
 

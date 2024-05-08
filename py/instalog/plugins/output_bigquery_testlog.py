@@ -125,7 +125,9 @@ class OutputBigQueryTestlog(output_bigquery.AbstractOutputBigQuery):
         return obj
       return None
 
-    row = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    row = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # history
     row['history'] = []
@@ -184,18 +186,24 @@ class OutputBigQueryTestlog(output_bigquery.AbstractOutputBigQuery):
         if data_dct.get('numericValue') is not None:
           numeric_value = float(data_dct.get('numericValue'))
           if math.isinf(numeric_value) or math.isnan(numeric_value):
-            numeric_value = None  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            numeric_value = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           row['parameters'][-1]['data'][-1]['numericValue'] = numeric_value
         if data_dct.get('expectedMinimum') is not None:
           expected_minimum = float(data_dct.get('expectedMinimum'))
           if math.isinf(expected_minimum) or math.isnan(expected_minimum):
-            expected_minimum = None  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            expected_minimum = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           row['parameters'][-1]['data'][-1][
               'expectedMinimum'] = expected_minimum
         if data_dct.get('expectedMaximum') is not None:
           expected_maximum = float(data_dct.get('expectedMaximum'))
           if math.isinf(expected_maximum) or math.isnan(expected_maximum):
-            expected_maximum = None  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            expected_maximum = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           row['parameters'][-1]['data'][-1][
               'expectedMaximum'] = expected_maximum
         row['parameters'][-1]['data'][-1]['textValue'] = data_dct.get(

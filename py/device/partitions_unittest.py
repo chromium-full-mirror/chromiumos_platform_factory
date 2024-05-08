@@ -23,21 +23,41 @@ class PartitionsTest(unittest.TestCase):
     disk = partitions.Partitions(self.dut)
     self.dut.CheckOutput.return_value = '/dev/mmcblk0\n'
 
-    self.assertEqual('/dev/mmcblk0p1', disk.STATEFUL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/mmcblk0p2', disk.FACTORY_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/mmcblk0p3', disk.FACTORY_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/mmcblk0p4', disk.RELEASE_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/mmcblk0p5', disk.RELEASE_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('/dev/mmcblk0p1', disk.STATEFUL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/mmcblk0p2', disk.FACTORY_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/mmcblk0p3', disk.FACTORY_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/mmcblk0p4', disk.RELEASE_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/mmcblk0p5', disk.RELEASE_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.dut.CheckOutput.assert_called_with(['rootdev', '-s', '-d'])
 
     disk = partitions.Partitions(self.dut)
     self.dut.CheckOutput.return_value = '/dev/sda\n'
 
-    self.assertEqual('/dev/sda1', disk.STATEFUL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/sda2', disk.FACTORY_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/sda3', disk.FACTORY_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/sda4', disk.RELEASE_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('/dev/sda5', disk.RELEASE_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('/dev/sda1', disk.STATEFUL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/sda2', disk.FACTORY_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/sda3', disk.FACTORY_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/sda4', disk.RELEASE_KERNEL.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('/dev/sda5', disk.RELEASE_ROOTFS.path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.dut.CheckOutput.assert_called_with(['rootdev', '-s', '-d'])
 
 if __name__ == '__main__':

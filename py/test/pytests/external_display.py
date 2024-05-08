@@ -278,8 +278,12 @@ class SysfsDisplayInfo:
   def __init__(self, dut: device_types.DeviceBoard, sysfs_path: str,
                retry_times: int = 3):
     self.sysfs_path = sysfs_path
-    self.status_path = dut.path.join(sysfs_path, 'status')  # type: ignore #TODO(b/338318729) Fixit!
-    self.edid_path = dut.path.join(sysfs_path, 'edid')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.status_path = dut.path.join(sysfs_path, 'status')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.edid_path = dut.path.join(sysfs_path, 'edid')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.status = None
     self.edid = None
 
@@ -309,7 +313,9 @@ class SysfsDisplayInfo:
       RuntimeError: If the status is 'connected' but the edid is invalid.
     """
     self.edid = None
-    self.status = dut.ReadFile(self.status_path).strip()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.status = dut.ReadFile(self.status_path).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if self.status != 'connected':
       return
     edid_probe_func = probe_function.GetFunctionClass("edid")
@@ -321,8 +327,12 @@ class SysfsDisplayInfo:
       raise RuntimeError(f"Multiple display found in {self.sysfs_path}")
     self.edid = edid_data[0]
     try:
-      self.edid['manufacturerId'] = self.edid.pop('vendor')  # type: ignore #TODO(b/338318729) Fixit!
-      self.edid['productId'] = self.edid.pop('product_id').upper()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.edid['manufacturerId'] = self.edid.pop('vendor')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.edid['productId'] = self.edid.pop('product_id').upper()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except KeyError as err:
       raise RuntimeError(f'Bad edid {edid_data!r} found from drm_sysfs_path: '
                          f'{self.sysfs_path}') from err
@@ -350,7 +360,9 @@ class SysfsDisplayInfo:
       return None
     for info in display_info:
       for key in ('manufacturerId', 'productId'):
-        if info['edid'][key] != self.edid[key]:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if info['edid'][key] != self.edid[key]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           break
       else:
         return info
@@ -442,35 +454,60 @@ class ExtDisplayTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self._display_manager: display_manager.DisplayManager = (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._display_manager: display_manager.DisplayManager = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         plugin_controller.GetPluginRPCProxy('display_manager.display_manager'))
 
     self._fixture = None
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.buttons = []
-    if self.args.hw_buttons:  # type: ignore #TODO(b/338318729) Fixit!
-      for btn in self.args.hw_buttons:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.hw_buttons:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      for btn in self.args.hw_buttons:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.buttons.append((button_utils.Button(
-            self._dut, btn[0], self.args.device_filter), btn[1]))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._dut, btn[0], self.args.device_filter), btn[1]))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       random.shuffle(self.buttons)
 
     self.assertLessEqual(
-        [self.args.start_output_only, self.args.connect_only,  # type: ignore #TODO(b/338318729) Fixit!
-         self.args.stop_output_only].count(True),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        [
+            self.args.start_output_only,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            self.args.connect_only,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            self.args.stop_output_only  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        ].count(True),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         1,
         'Only one of start_output_only, connect_only '
         'and stop_output_only can be true.')
 
     self.do_connect, self.do_output, self.do_disconnect = False, False, False
 
-    if self.args.start_output_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.start_output_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.do_connect = True
       self.do_output = True
-    elif self.args.connect_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.connect_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.do_connect = True
-    elif self.args.stop_output_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.stop_output_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.do_disconnect = True
     else:
       self.do_connect = True
@@ -486,7 +523,9 @@ class ExtDisplayTest(test_case.TestCase):
 
   def runTest(self):
     visited = []
-    for info in self.args.display_info:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for info in self.args.display_info:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       args = self.ParseDisplayInfo(info)
       if args in visited:
         self.FailTask('This port has been tested already.')
@@ -547,7 +586,9 @@ class ExtDisplayTest(test_case.TestCase):
       audio_device = audio_info[1]
       init_actions = audio_info[2]
     #TODO(jimmysun) Provide more specific instructions on which port to connect
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Connect external display and wait until it becomes primary.'))
 
     usbpd_spec = None
@@ -559,13 +600,17 @@ class ExtDisplayTest(test_case.TestCase):
           display_label, TYPE_FROM_LABEL, 'display_id is not specified. It can '
           f'be auto detected only if display_label is in {TYPE_FROM_LABEL}.')
       info['display_id'] = sync_utils.WaitFor(
-          lambda: self._FetchDisplayID(display_type), self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          lambda: self._FetchDisplayID(display_type), self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           _CONNECTION_CHECK_PERIOD_SECS)
     if 'usbpd_spec' in info:
       usbpd_spec = usb_c.MigrateUSBPDSpec(info['usbpd_spec'])
     elif display_label == 'Type-C' and not usbpd_spec:
       port = sync_utils.WaitFor(self._GetSingleActiveDPPort,
-                                self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                                # yapf: disable
+                                self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                # yapf: enable
                                 _CONNECTION_CHECK_PERIOD_SECS)
       usbpd_spec = usb_c.MigrateUSBPDSpec(port[0])
 
@@ -577,12 +622,16 @@ class ExtDisplayTest(test_case.TestCase):
   def _GetSingleActiveDPPort(self):
     ports = self._dut.usb_c.GetActivePorts('DP')
     if len(ports) > 1:
-      self.ui.SetState(_('Please connect to one external display only.'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Please connect to one external display only.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return False
     return ports
 
   def CheckVideo(self, args):
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     original, target = self.VerifyDisplayConfig()
     logging.info('original=%r, target=%r', original, target)
     # We need to check ``target != original`` because when we test MST ports on
@@ -611,30 +660,40 @@ class ExtDisplayTest(test_case.TestCase):
       pass_event = lambda: (
           pass_button[0].IsPressed() or not self._IsDisplayConnected(args))
     else:
-      key_pressed = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      key_pressed = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fail_key = ['ESCAPE']
       keys = fail_key + [str(i) for i in range(10)]
       for key in keys:
-        self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             key, (lambda k: lambda unused_event: key_pressed.put(k))(key))
 
       pass_input = str(random.randrange(10))
       pass_event = lambda: (not key_pressed.empty() or not self.
                             _IsDisplayConnected(args))
 
-    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Do you see video on {display}?', display=args.display_label),
         _('Press {key} to pass the test.', key=pass_input)
     ])
 
-    sync_utils.WaitFor(pass_event, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sync_utils.WaitFor(pass_event, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if not self._IsDisplayConnected(args):
       self.FailTask('Display disconnected during the test')
 
     if not self.buttons:
       for key in keys:
-        self.ui.UnbindKey(key)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.UnbindKey(key)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       key = key_pressed.get()
       if key in fail_key:
@@ -655,9 +714,13 @@ class ExtDisplayTest(test_case.TestCase):
     check_interval_secs = 1
     retry_times = 10
     # Show light green background for Fixture's light sensor checking.
-    self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'window.template.classList.add("green-background")')
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Fixture is checking if video is displayed on {display}?',
           display=args.display_label))
 
@@ -665,7 +728,9 @@ class ExtDisplayTest(test_case.TestCase):
                                interval_sec=check_interval_secs)
     def _CheckExtDisplay():
       try:
-        self._fixture.CheckExtDisplay()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._fixture.CheckExtDisplay()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.PassTask()
       except bft_fixture.BFTFixtureException:
         logging.info(
@@ -712,8 +777,12 @@ class ExtDisplayTest(test_case.TestCase):
     self.assertEqual(len(primary), 1, "invalid number of primary displays")
     current = primary[0]['id']
 
-    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit!
-      target_info = self._target_display_info.JoinTargetInfo(display_info)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      target_info = self._target_display_info.JoinTargetInfo(display_info)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if target_info:
         return (current, target_info['id'])
       self.FailTask(
@@ -749,17 +818,27 @@ class ExtDisplayTest(test_case.TestCase):
       self._dut.audio.ApplyAudioConfig(action, card)
 
   def WaitConnect(self, args):
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState(_('Connect external display: {display} and wait until '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState(_('Connect external display: {display} and wait until '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        'it becomes primary.',
                        display=args.display_label))
 
     self._WaitDisplayConnection(args, True)
-    self.edid = copy.deepcopy(self._target_display_info.edid)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.edid = copy.deepcopy(self._target_display_info.edid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def WaitDisconnect(self, args):
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Disconnect external display: {display}', display=args.display_label))
     self._WaitDisplayConnection(args, False)
 
@@ -769,20 +848,28 @@ class ExtDisplayTest(test_case.TestCase):
     if usbpd_spec is not None:
       usbpd_verified, mismatch = self._dut.usb_c.VerifyPDStatus(usbpd_spec)
       if usbpd_verified or 'connected' in mismatch:
-        self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetInstruction('')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       elif 'polarity' in mismatch:
-        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('Wrong USB side, please flip over {media}.',
               media=args.display_label))
       else:
         mismatch_mux = set(usb_c.MUX_INFO_VALUES) & set(mismatch)
         messages = ','.join(f'{key}={mismatch[key]}' for key in mismatch_mux)
-        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('Wrong MUX information: {messages}.', messages=messages))
     return usbpd_verified
 
   def _GetInfoFromSysfs(self, display_id):
-    candidates = self._dut.Glob(self.args.drm_sysfs_path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    candidates = self._dut.Glob(self.args.drm_sysfs_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     not_found_files = []
     # Get display status from sysfs path.
     for candidate in candidates:
@@ -799,7 +886,9 @@ class ExtDisplayTest(test_case.TestCase):
 
     messages = '\n'.join(not_found_files)
     self.FailTask(
-        f'No display found from drm_sysfs_path: {self.args.drm_sysfs_path}.\n'  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'No display found from drm_sysfs_path: {self.args.drm_sysfs_path}.\n'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'{messages}')
     return None
 
@@ -827,10 +916,14 @@ class ExtDisplayTest(test_case.TestCase):
   def _IsDisplayConnected(self, args: ExtDisplayTaskArg,
                           display_info: Optional[List[Dict[str, Any]]] = None):
     """Gets connection status."""
-    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       display_info = display_info or self._display_manager.ListDisplayInfo()
       # Check that the target exists in Chrome API.
-      return bool(self._target_display_info.JoinTargetInfo(display_info))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return bool(self._target_display_info.JoinTargetInfo(display_info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Get display status from drm_utils.
     try:
@@ -851,14 +944,20 @@ class ExtDisplayTest(test_case.TestCase):
 
   def _IsDisplayDisconnected(self, args: ExtDisplayTaskArg):
     """Gets disconnection status."""
-    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.drm_sysfs_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._FetchTargetInfo(args.display_id)
-      return self._target_display_info.status == 'disconnected'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._target_display_info.status == 'disconnected'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     return not self._IsDisplayConnected(args)
 
   def _WaitDisplayConnection(self, args, connect):
-    if self._fixture and not (connect and self.args.already_connect):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._fixture and not (connect and self.args.already_connect):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         self._fixture.SetDeviceEngaged(
             bft_fixture.BFTFixture.Device.EXT_DISPLAY, connect)
@@ -874,10 +973,14 @@ class ExtDisplayTest(test_case.TestCase):
         usbpd_spec['DP'] = connect
 
     # Waits for sysfs being ready.
-    if self.args.drm_sysfs_path and connect:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.drm_sysfs_path and connect:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       while True:
         self._FetchTargetInfo(args.display_id)
-        if self._target_display_info.status == 'connected':  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self._target_display_info.status == 'connected':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           break
         self.Sleep(_CONNECTION_CHECK_PERIOD_SECS)
 

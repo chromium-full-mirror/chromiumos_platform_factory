@@ -128,7 +128,9 @@ class HWIDDBDataManager:
       logging.exception('Missing HWID file: %r', path)
       raise HWIDDBNotFoundError(
           f'HWID file missing for the requested project: {e!r}') from None
-    return raw_hwid_yaml  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return raw_hwid_yaml  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _CreateHWIDDBMetadata(self, repo_metadata: hwid_repo.HWIDDBMetadata,
                             commit_id: str) -> HWIDDBMetadata:
@@ -151,7 +153,9 @@ class HWIDDBDataManager:
         metadata.project)
     path = self._LivePathForFeatureMatcher(metadata.path)
     try:
-      return self._fs_adapter.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._fs_adapter.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       logging.info('Missing feature matcher data file: %r.', path)
       return None
@@ -172,7 +176,9 @@ class HWIDDBDataManager:
                   metadata.project)
     path = self._LivePathForBundleMetadata(metadata.path)
     try:
-      return self._fs_adapter.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._fs_adapter.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       logging.info('Missing bundle metadata data file: %r.', path)
       return None
@@ -188,10 +194,14 @@ class HWIDDBDataManager:
     """
     try:
       metadata = self.GetHWIDDBMetadataOfProject(repo_metadata.name)
-      metadata.commit = gerrit_cl_hwid_repo.commit_id  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      metadata.commit = gerrit_cl_hwid_repo.commit_id  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except HWIDDBNotFoundError:
       metadata = self._CreateHWIDDBMetadata(repo_metadata,
-                                            gerrit_cl_hwid_repo.commit_id)  # type: ignore #TODO(b/338318729) Fixit!
+                                            # yapf: disable
+                                            gerrit_cl_hwid_repo.commit_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       metadata.put()
     file_changes = self._LoadProjectFiles(gerrit_cl_hwid_repo, metadata)
@@ -330,16 +340,23 @@ class HWIDDBDataManager:
           self._LivePath(live_file_id): project_data
       }
     if hwid_metadata.version == '3':
-      project_data = hwid_repo_view.LoadV3HWIDDBByName(hwid_db_name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      project_data = hwid_repo_view.LoadV3HWIDDBByName(hwid_db_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return {
-          self._LivePath(live_file_id):
-              project_data.external_db,  # type: ignore #TODO(b/338318729) Fixit!
-          self._LivePath(live_file_id, internal=True):
-              project_data.internal_db,  # type: ignore #TODO(b/338318729) Fixit!
-          self._LivePathForFeatureMatcher(live_file_id):
-              project_data.feature_matcher_source,  # type: ignore #TODO(b/338318729) Fixit!
-          self._LivePathForBundleMetadata(live_file_id):
-              project_data.bundle_metadata_source  # type: ignore #TODO(b/338318729) Fixit!
+          self._LivePath(live_file_id):  # yapf: disable
+              project_data.external_db,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          self._LivePath(live_file_id, internal=True):  # yapf: disable
+              project_data.internal_db,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          self._LivePathForFeatureMatcher(live_file_id):  # yapf: disable
+              project_data.feature_matcher_source,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          self._LivePathForBundleMetadata(live_file_id):  # yapf: disable
+              project_data.
+              bundle_metadata_source  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       }
     raise AssertionError('Unexpected call path.')
 

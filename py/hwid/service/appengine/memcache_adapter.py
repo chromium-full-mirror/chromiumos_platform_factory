@@ -9,7 +9,10 @@ import os
 import pickle
 from typing import Collection, Optional, Union
 
-import redis  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import redis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 PICKLE_PROTOCOL_VERSION = 2

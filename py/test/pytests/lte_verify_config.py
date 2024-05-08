@@ -52,7 +52,10 @@ from cros.factory.utils.arg_utils import Arg
 
 try:
   # TODO(littlecvr) Make dummy implementation.
-  from cros.factory.board import modem_utils  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  from cros.factory.board import modem_utils  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+  # yapf: enable
 except ImportError:
   pass
 
@@ -73,15 +76,21 @@ class LTEVerifyConfig(unittest.TestCase):
           'of strings indicating multiline response.')]
 
   def setUp(self):
-    if self.args.modem_path:  # type: ignore #TODO(b/338318729) Fixit!
-      self.modem = modem.Modem(self.args.modem_path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.modem_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.modem = modem.Modem(self.args.modem_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       self.modem = modem_utils.GetModem()
 
   def EnterFactoryMode(self):
     session.console.info('LTE: Entering factory test mode')
     self.modem = modem_utils.EnterFactoryMode(
-        attempts=self.args.attempts)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        attempts=self.args.attempts)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('LTE: Entered factory test mode')
 
   def ExitFactoryMode(self):
@@ -95,7 +104,9 @@ class LTEVerifyConfig(unittest.TestCase):
   def runTest(self):
     try:
       self.EnterFactoryMode()
-      for cmd, expected_response in self.args.config_to_check:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for cmd, expected_response in self.args.config_to_check:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if isinstance(expected_response, str):
           expected_response = [expected_response, 'OK']
         else:

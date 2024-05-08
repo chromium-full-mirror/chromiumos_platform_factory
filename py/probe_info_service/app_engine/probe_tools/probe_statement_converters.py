@@ -134,7 +134,9 @@ class _ParamValueConverter:
 
 
 class _ProbeParamInput(NamedTuple):
-  index: int  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  index: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   raw_value: _ProbeParameter
 
 
@@ -279,7 +281,9 @@ class _SingleProbeStatementParam(_IProbeStatementParam):
         if not self._is_informational:
           # Attempt to trigger the probe statement generator directly to see if
           # it's convertible.
-          self._ps_gen_checker(value)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._ps_gen_checker(value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
         converted_values.append(value)
       except _IncompatibleError as e:
         raise _IncompatibleError(
@@ -351,7 +355,9 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
   """
 
   class _ConvertedValue(NamedTuple):
-    index: int  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    index: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     value: str
 
   def __init__(self, name: str,
@@ -367,14 +373,18 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
   def probe_info_params(self) -> Mapping[str, _IProbeStatementParam]:
     ret: Mapping[str, _SingleProbeStatementParam] = {}
     for param in self._sub_probe_info_params:
-      ret.update(param.probe_info_params)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ret.update(param.probe_info_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     return ret
 
   @property
   def probe_info_param_definitions(
       self) -> Mapping[str, _ProbeParameterDefinition]:
     """See base class."""
-    definitions = collections.defaultdict()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    definitions = collections.defaultdict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for probe_info_param in self.probe_info_params.values():
       definitions.update(probe_info_param.probe_info_param_definitions)
 
@@ -389,8 +399,12 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
       self, probe_parameters: Mapping[str, Sequence[_ProbeParamInput]]
   ) -> Tuple[List[Any], Sequence[_ProbeParameterSuggestion]]:
     """See base class."""
-    converted_values = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit!
-    suggestions = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    converted_values = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    suggestions = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for param_name, probe_info_param in self.probe_info_params.items():
       converted_values[param_name] = []
       for probe_parameter in probe_parameters[param_name]:
@@ -431,7 +445,9 @@ class _ConcatProbeStatementParam(_IProbeStatementParam):
     converted_probe_vals = []
     probe_val = probe_values[self._name]
     for param_name, probe_info_param in self.probe_info_params.items():
-      sub_converted_vals = probe_info_param.ConvertProbeValuesWithInformational(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      sub_converted_vals = probe_info_param.ConvertProbeValuesWithInformational(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           {param_name: probe_val})
       converted_probe_vals.extend(sub_converted_vals)
 
@@ -586,7 +602,9 @@ def ConvertProbeParamInputsToProbeStatementValues(
   probe_param_names = {
       probe_info_param_name
       for probe_param in probe_params
-      for probe_info_param_name in probe_param.probe_info_param_definitions  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for probe_info_param_name in probe_param.probe_info_param_definitions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
   }
   probe_param_input_names = set(probe_param_inputs)
 
@@ -604,9 +622,15 @@ def ConvertProbeParamInputsToProbeStatementValues(
   probe_param_errors = []
 
   for probe_param in probe_params:
-    values, suggestions = probe_param.ConvertProbeParams(probe_param_inputs)  # type: ignore #TODO(b/338318729) Fixit!
-    if values and probe_param.probe_statement_param_name:  # type: ignore #TODO(b/338318729) Fixit!
-      expected_values_of_field[probe_param.probe_statement_param_name] = values  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    values, suggestions = probe_param.ConvertProbeParams(probe_param_inputs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if values and probe_param.probe_statement_param_name:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      expected_values_of_field[probe_param.probe_statement_param_name] = values  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     for suggestion in suggestions:
       probe_param_errors.append(suggestion)
@@ -690,7 +714,9 @@ class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
       if self.probe_info_params[param_name].is_restricted_re:
         matchers[param_name] = _ProbeParameterReMatcher(param_name, param_vals)
       else:
-        matchers[param_name] = _ProbeParameterEqMatcher(param_name, param_vals)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        matchers[param_name] = _ProbeParameterEqMatcher(param_name, param_vals)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     return matchers
 
@@ -771,8 +797,11 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     """See base class."""
     return dict(
-        collections.ChainMap(*(probe_param.probe_info_params  # type: ignore #TODO(b/338318729) Fixit!
-                               for probe_param in self._probe_params)))
+        # yapf: disable
+        collections.ChainMap(*(
+            probe_param.probe_info_params  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            for probe_param in self._probe_params)))
 
   @property
   def probe_params(self) -> Sequence[_IProbeStatementParam]:
@@ -815,10 +844,14 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       _ProbeParameterError: when ConvertProbeParamInputsToProbeStatementValues
         returns suggestions.
     """
-    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     expected_values_of_field, probe_param_errors = (
         ConvertProbeParamInputsToProbeStatementValues(
-            self._probe_params, probe_param_inputs, allow_missing_params))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._probe_params, probe_param_inputs, allow_missing_params))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if probe_param_errors:
       raise _ProbeParameterError(probe_param_errors)
@@ -837,7 +870,9 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str],
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See `ParseProbeParams()` for more details."""
     try:
       ps_expected_fields = self.CollectExpectedFields(
@@ -873,7 +908,9 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
   def ParseProbeParams(
       self, probe_params: Sequence[_ProbeParameter], allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     return self.ParseProbeParamInputs(
         _ToProbeParamInputs(probe_params),
@@ -889,7 +926,9 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
                                              [])
     parsed_results = []
     for probe_values in category_probe_result:
-      res = []  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      res = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for param in self.probe_params:
         try:
           converted_values = param.ConvertProbeValues(probe_values)
@@ -915,7 +954,9 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
       probe_parameters[probe_param.name].append(probe_param)
 
     normalized_params = []
-    for probe_param in self.probe_info_params.values():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for probe_param in self.probe_info_params.values():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       normalized_params.extend(
           probe_param.NormalizeProbeParams(probe_parameters))
 
@@ -962,8 +1003,11 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
   @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     return dict(
-        collections.ChainMap(*(converter.probe_info_params  # type: ignore #TODO(b/338318729) Fixit!
-                               for converter in self._sub_converters.values())))
+        # yapf: disable
+        collections.ChainMap(*(
+            converter.probe_info_params  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            for converter in self._sub_converters.values())))
 
   def GetName(self) -> str:
     """See base class."""
@@ -983,7 +1027,9 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str],
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See `ParseProbeParams()` for more details."""
     remaining_probe_param_inputs = copy.deepcopy(probe_param_inputs)
 
@@ -993,7 +1039,9 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       for param in sub_converter.probe_params:
         for param_name in param.probe_info_param_definitions:
           if param_name in remaining_probe_param_inputs:
-            probe_param_inputs[param_name] = remaining_probe_param_inputs.pop(  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            probe_param_inputs[param_name] = remaining_probe_param_inputs.pop(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                 param_name)
       sub_comp_name = (f'{comp_name_for_probe_statement}-{sub_converter_name}'
                        if comp_name_for_probe_statement else None)
@@ -1022,14 +1070,18 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
         aggregated_parsed_result,
         list(
             itertools.chain.from_iterable(
-                a.output for a in sub_probe_info_artifacts)))  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                a.output for a in sub_probe_info_artifacts)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def ParseProbeParams(
       self,
       probe_params: Sequence[_ProbeParameter],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None,
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     return self.ParseProbeParamInputs(
         _ToProbeParamInputs(probe_params), allow_missing_params,
@@ -1048,7 +1100,9 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
       self,
       probe_params: Sequence[_ProbeParameter]) -> Sequence[_ProbeParameter]:
     """See base class."""
-    normalized_params = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    normalized_params = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for converter in self._sub_converters.values():
       normalized_params.extend(converter.GetNormalizedProbeParams(probe_params))
     return normalized_params
@@ -1277,8 +1331,12 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
     return dict(
         collections.ChainMap(
-            self._emmc_and_host_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit!
-            self._invisible_emmc_and_nvme_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._emmc_and_host_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            self._invisible_emmc_and_nvme_converter.probe_info_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ))
 
   def GetName(self) -> str:
@@ -1308,16 +1366,22 @@ class MMCWithBridgeProbeStatementConverter(_ProbeFuncConverter):
       probe_params: Sequence[_ProbeParameter],
       allow_missing_params: bool,
       comp_name_for_probe_statement: Optional[str] = None,
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     probe_param_inputs = _ToProbeParamInputs(probe_params)
 
     # Treat "empty or N/A NVMe model string" as not exist.
-    nvme_model_params = probe_param_inputs.pop(self._NVME_MODEL, [])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    nvme_model_params = probe_param_inputs.pop(self._NVME_MODEL, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for nvme_model_param in nvme_model_params:
       if (nvme_model_param.raw_value.string_value and
           nvme_model_param.raw_value.string_value.upper().strip() != self._NA):
-        probe_param_inputs[self._NVME_MODEL].append(nvme_model_param)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        probe_param_inputs[self._NVME_MODEL].append(nvme_model_param)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     if self._NVME_MODEL not in probe_param_inputs:
       return self._emmc_and_host_converter.ParseProbeParamInputs(
@@ -1401,16 +1465,22 @@ class BatteryProbeInfoConverter(_SingleProbeFuncConverter):
 
       if self.probe_info_params[param_name].is_restricted_re:
         return any(
-            utils.RestrictedPrefixRegexMatch(expected_pattern, probed_value)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            utils.RestrictedPrefixRegexMatch(expected_pattern, probed_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             for expected_pattern in expected_params[param_name])
 
       return any(
-          expected_value.startswith(probed_value)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          expected_value.startswith(probed_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           for expected_value in expected_params[param_name])
 
     battery_param_names = set(self.probe_info_params)
 
-    mismatch_battery_params = list(mismatch_param_names & battery_param_names)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    mismatch_battery_params = list(mismatch_param_names & battery_param_names)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if mismatch_battery_params:
       for comp_idx in range(
@@ -1477,13 +1547,17 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
       comp_name_for_probe_statement: Optional[str],
   ) -> Sequence[Mapping[str, Any]]:
     del allow_missing_params
-    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ps_expected_fields = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for sub_probe_param_inputs in self.ConvertToMultipleProbeParamInputs(
         probe_param_inputs[self._JOINED_ATTR_NAME]):
       try:
         expected_values_of_field, probe_param_errors = (
             ConvertProbeParamInputsToProbeStatementValues(
-                self.probe_params,  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                self.probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 sub_probe_param_inputs,
                 self._allow_missing_params,
             ))

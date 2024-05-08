@@ -8,6 +8,7 @@ import re
 import tempfile
 import threading
 
+
 DEFAULT_MAX_ERRORS = 1000
 STRESSAPPTEST_PATH = 'factory_stressapptest'
 
@@ -123,11 +124,15 @@ class StressManager:
 
     # If stressapptest get killed before its initialization fully done, it
     # will not output the status lines. This case should consider as success.
-    if duration_secs is None and not re.search(r'Log: User exiting early',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if duration_secs is None and not re.search(r'Log: User exiting early',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                                self.output, re.MULTILINE):
       return
 
-    if not re.search(r'Status: PASS', self.output, re.MULTILINE):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not re.search(r'Status: PASS', self.output, re.MULTILINE):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise StressManagerError(self.output)
 
   def _CallStressAppTest(self, duration_secs, num_threads, mem_usage,

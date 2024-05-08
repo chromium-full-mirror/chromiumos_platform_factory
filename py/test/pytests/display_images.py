@@ -88,16 +88,22 @@ class DisplayImageTest(test_case.TestCase):
     """Initializes frontend presentation and properties."""
     self._dut = device_utils.CreateDUTInterface()
 
-    self.ui.SetHTML(self.args.title, id='display-title')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(self.args.title, id='display-title')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._dut_temp_dir = self._dut.temp.mktemp(True, '', 'display')
     self._image_index = -1
     self._uploaded_index = -1
     self._can_pass = False
 
-    self._extract_dir = os.path.join(self.ui.GetStaticDirectoryPath(),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._extract_dir = os.path.join(self.ui.GetStaticDirectoryPath(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                      _IMAGE_DIR)
     file_utils.ExtractFile(
-        os.path.join(_IMAGE_ROOT, self.args.compressed_image_file),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.path.join(_IMAGE_ROOT, self.args.compressed_image_file),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._extract_dir)
 
     image_paths = sorted(
@@ -126,7 +132,9 @@ class DisplayImageTest(test_case.TestCase):
 
     images = ''.join(f'<img src="{path}" class="image-thumb">'
                      for path in self._station_image_urls)
-    self.ui.SetHTML(images, id='display-table')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(images, id='display-table')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     self._dut.display.StopDisplayImage()
@@ -137,7 +145,9 @@ class DisplayImageTest(test_case.TestCase):
   def runTest(self):
     """Sets the callback function of keys and run the test."""
     while True:
-      pressed_key = self.ui.WaitKeysOnce([test_ui.SPACE_KEY, test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pressed_key = self.ui.WaitKeysOnce([test_ui.SPACE_KEY, test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if pressed_key == test_ui.SPACE_KEY:
         self.OnSpacePressed()
       elif pressed_key == test_ui.ENTER_KEY:
@@ -149,7 +159,9 @@ class DisplayImageTest(test_case.TestCase):
     for i, (station_path, dut_path) in enumerate(zip(image_paths,
                                                      self._dut_image_paths)):
       name = os.path.basename(station_path)
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('({index}/{total}) Uploading images {name}',
             index=i + 1,
             total=len(image_paths),
@@ -157,7 +169,9 @@ class DisplayImageTest(test_case.TestCase):
           id='upload')
       self._dut.link.Push(station_path, dut_path)
       self._uploaded_index = i
-    self.ui.SetHTML(_('All images uploaded.'), id='upload')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(_('All images uploaded.'), id='upload')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def OnSpacePressed(self):
     """Display next image."""
@@ -170,7 +184,9 @@ class DisplayImageTest(test_case.TestCase):
     # on the DUT.
     path = self._station_image_urls[display_index]
     tag = f'{int(display_index)}: <img src="{path}" class="image-info">'
-    self.ui.SetHTML(tag, id='display-image-info')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(tag, id='display-image-info')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Display image on DUT.
     dut_path = self._dut_image_paths[display_index]
     logging.info('Display image index %d, image %s, dut path %s',

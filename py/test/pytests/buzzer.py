@@ -74,16 +74,26 @@ class BuzzerTest(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self._pass_digit = random.randint(1, _MAX_BEEP_TIMES)
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
     max_total_duration = _MAX_BEEP_TIMES * (
-        self.args.beep_duration_secs + self.args.mute_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.beep_duration_secs + self.args.mute_duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.ui.SetState(_('How many beeps do you hear? <br>Press space to start.'))  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('How many beeps do you hear? <br>Press space to start.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('How many beeps do you hear? <br>'
           'Press the number you hear to pass the test.<br>'
           "Press 'r' to play again."))
@@ -91,14 +101,20 @@ class BuzzerTest(test_case.TestCase):
     while True:
       start_time = time.time()
       for unused_i in range(self._pass_digit):
-        self.BeepOnce(self.args.beep_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
-        self.Sleep(self.args.mute_duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.BeepOnce(self.args.beep_duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.Sleep(self.args.mute_duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       # Try to make the test always run for about same duration, to avoid
       # cheating by looking at when the buttons appear.
       self.Sleep(max_total_duration - (time.time() - start_time))
 
       all_keys = [str(num + 1) for num in range(_MAX_BEEP_TIMES)] + ['R']
-      key = self.ui.WaitKeysOnce(all_keys)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      key = self.ui.WaitKeysOnce(all_keys)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if key != 'R':
         self.assertEqual(self._pass_digit, int(key), 'Wrong number to press.')
         return
@@ -111,7 +127,9 @@ class BuzzerTest(test_case.TestCase):
   def BeepOnce(self, beep_duration):
     t1 = datetime.datetime.now()
     beep_sec = datetime.timedelta(seconds=beep_duration)
-    index = self.args.gpio_index  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    index = self.args.gpio_index  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.dut.WriteSpecialFile('/sys/class/gpio/export', index)
     self.dut.WriteSpecialFile(f'/sys/class/gpio/gpio{index}/direction', 'out')

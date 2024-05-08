@@ -134,7 +134,9 @@ class InstalogService(umpire_service.UmpireService):
     if os.path.exists(config_path):
       os.remove(config_path)
     with open(config_path, 'w', encoding='utf8') as f:
-      yaml.safe_dump(instalog_config, f, default_flow_style=False)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      yaml.safe_dump(instalog_config, f, default_flow_style=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     config_link = os.path.join(os.path.expanduser('~'), '.instalog.yaml')
     if not os.path.exists(config_link):
       os.symlink(config_path, config_link)

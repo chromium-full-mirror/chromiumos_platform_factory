@@ -111,13 +111,17 @@ class CameraProperty(NamedTuple):
   def FromAttributes(cls, is_user_facing: bool, has_tnr: bool,
                      horizontal_resolution: int,
                      vertical_resolution: int) -> DisplayProperty:
-    return cls(is_user_facing, has_tnr, horizontal_resolution,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls(is_user_facing, has_tnr, horizontal_resolution,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                vertical_resolution, None)
 
   @classmethod
   def FromCompatibleVersions(
       cls, compatible_versions: Collection[int]) -> DisplayProperty:
-    return cls(None, None, None, None, compatible_versions)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls(None, None, None, None, compatible_versions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class DLMComponentEntry(NamedTuple):
@@ -494,10 +498,16 @@ class _AbstractSatisfiedEncodedValueResolver(abc.ABC):
   def __init__(self, db: db_module.Database, dlm_db: DLMComponentDatabase):
     self._db = db
     self._dlm_db = dlm_db
-    self._compatibility_of_hwid_component = {}  # type: ignore #TODO(b/338318729) Fixit!
-    self._compatibility_of_dlm_id = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._compatibility_of_hwid_component = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._compatibility_of_dlm_id = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._name_pattern_adapter = npa_module.NamePatternAdapter()
-    self._name_patterns = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._name_patterns = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._create_dlm_comp_entry_acceptor = CreateDLMCompEntryAcceptor()
 
   @abc.abstractmethod
@@ -587,7 +597,9 @@ class CPUV1Spec(HWIDSpec):
         self, dlm_entry: DLMComponentEntry) -> bool:
       """See base class."""
       return bool(dlm_entry.cpu_property) and (
-          self._TARGET_VERSION in dlm_entry.cpu_property.compatible_versions)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._TARGET_VERSION in dlm_entry.cpu_property.compatible_versions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def GetName(self) -> str:
     return 'CPUv1'
@@ -642,7 +654,9 @@ class MemoryV1Spec(HWIDSpec):
       return None
     comp_info = db.GetComponents(self._DRAM_COMPONENT_TYPE)[hwid_component_name]
     try:
-      size_in_mb = int(comp_info.values['size'])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      size_in_mb = int(comp_info.values['size'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except (KeyError, ValueError):
       return None
     return size_in_mb if size_in_mb > 0 else None
@@ -670,7 +684,9 @@ class MemoryV1Spec(HWIDSpec):
       ]
       if any(dimm_size is None for dimm_size in dimm_sizes):
         continue
-      if sum(dimm_sizes) >= self._MIN_MEMORY_SIZE_IN_MB:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if sum(dimm_sizes) >= self._MIN_MEMORY_SIZE_IN_MB:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         compliant_encoded_values.append(encoded_value)
 
     return ({
@@ -699,7 +715,9 @@ class StorageV1Spec(HWIDSpec):
         self, dlm_entry: DLMComponentEntry) -> bool:
       """See base class."""
       return bool(dlm_entry.storage_function_property) and (
-          dlm_entry.storage_function_property.size_in_gb >=  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          dlm_entry.storage_function_property.size_in_gb >=  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self._MIN_STORAGE_SIZE_IN_GB)
 
   def GetName(self) -> str:
@@ -742,8 +760,12 @@ class DisplayPanelV1Spec(HWIDSpec):
         return self._TARGET_VERSION in properties.compatible_versions
       return all((
           properties.panel_type != DisplayPanelType.TN,
-          properties.horizontal_resolution >= self._FHD_HORIZONTAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit!
-          properties.vertical_resolution >= self._FHD_VERTICAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          properties.horizontal_resolution >= self._FHD_HORIZONTAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          properties.vertical_resolution >= self._FHD_VERTICAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       ))
 
   def GetName(self) -> str:
@@ -787,8 +809,12 @@ class CameraV1Spec(HWIDSpec):
       return all((
           properties.has_tnr,
           properties.is_user_facing,
-          properties.horizontal_resolution >= self._MIN_HORIZONTAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit!
-          properties.vertical_resolution >= self._MIN_VERTICAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          properties.horizontal_resolution >= self._MIN_HORIZONTAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          properties.vertical_resolution >= self._MIN_VERTICAL_RESOLUTION,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       ))
 
   def GetName(self) -> str:

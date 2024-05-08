@@ -9,7 +9,8 @@ import re
 import time
 import xmlrpc.client
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.fixture import dummy_bft_fixture
@@ -17,6 +18,10 @@ from cros.factory.test.utils import serial_utils
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
+
+
+# yapf: enable
+
 
 
 _RE_INA_VOLTAGE = re.compile(r'^\s*Bus voltage\s+:\s+\w+\s+=>\s+(-?\d+)\s+mV',
@@ -539,13 +544,17 @@ class DolphinBFTFixture(bft_fixture.BFTFixture):
     """
     if self._use_proxy:  # Dolphin(Whale)
       try:
-        self._plankton_conn.Send(self._usb_c_index, command)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._plankton_conn.Send(self._usb_c_index, command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except Exception as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin: Send {fail_message} command {command} failed: {e}')
     else:  # Dolphin Mini
       try:
-        self._plankton_conn.Send(command + '\n')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._plankton_conn.Send(command + '\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except serial.SerialTimeoutException as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin Mini: Send {fail_message} command {command} timeout: {e}')
@@ -566,14 +575,18 @@ class DolphinBFTFixture(bft_fixture.BFTFixture):
     """
     if self._use_proxy:  # Dolphin(Whale)
       try:
-        binary_packet = self._plankton_conn.Receive(self._usb_c_index, byte)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        binary_packet = self._plankton_conn.Receive(self._usb_c_index, byte)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return binary_packet.data
       except Exception as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin: Receive {fail_message} failed: {e}')
     else:  # Dolphin Mini
       try:
-        return self._plankton_conn.Receive(byte)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        return self._plankton_conn.Receive(byte)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except serial.SerialTimeoutException as e:
         raise bft_fixture.BFTFixtureException(
             f'Dolphin Mini: Receive {fail_message} timeout: {e}')

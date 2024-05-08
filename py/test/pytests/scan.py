@@ -133,53 +133,103 @@ class Scan(test_case.TestCase):
   def HandleScanValue(self, event):
     def SetError(label):
       logging.info('Scan error: %r', label['en-US'])
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           ['<span class="test-error">', label, '</span>'], id='scan-status')
-      self.ui.RunJS('document.getElementById("scan-value").disabled = false;'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.RunJS('document.getElementById("scan-value").disabled = false;'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                     'document.getElementById("scan-value").value = ""')
-      self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self.ui.RunJS('document.getElementById("scan-value").disabled = true')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS('document.getElementById("scan-value").disabled = true')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     scan_value = event.data.strip()
-    if self.args.ignore_case:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.ignore_case:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       scan_value = scan_value.upper()
     esc_scan_value = test_ui.Escape(scan_value)
     if not scan_value:
       SetError(_('The scanned value is empty.'))
       return
-    if self.args.regexp:  # type: ignore #TODO(b/338318729) Fixit!
-      match = re.match(self.args.regexp, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.regexp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      match = re.match(self.args.regexp, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not match or match.group(0) != scan_value:
         SetError(
             _('The scanned value "{value}" does not match the expected format.',
               value=esc_scan_value))
         return
 
-    if self.args.event_log_key:  # type: ignore #TODO(b/338318729) Fixit!
-      event_log.Log('scan', key=self.args.event_log_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit!
-      testlog.LogParam(self.args.event_log_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
-    elif self.args.testlog_key:  # type: ignore #TODO(b/338318729) Fixit!
-      event_log.Log('scan', key=self.args.testlog_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit!
-      testlog.LogParam(self.args.testlog_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.event_log_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      event_log.Log('scan', key=self.args.event_log_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      testlog.LogParam(self.args.event_log_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    elif self.args.testlog_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      event_log.Log('scan', key=self.args.testlog_key, value=scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      testlog.LogParam(self.args.testlog_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.shared_data_key:  # type: ignore #TODO(b/338318729) Fixit!
-      state.DataShelfSetValue(self.args.shared_data_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.shared_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      state.DataShelfSetValue(self.args.shared_data_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.serial_number_key:  # type: ignore #TODO(b/338318729) Fixit!
-      device_data.SetSerialNumber(self.args.serial_number_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.serial_number_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      device_data.SetSerialNumber(self.args.serial_number_key, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit!
-      device_data.UpdateDeviceData({self.args.device_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      device_data.UpdateDeviceData({self.args.device_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.dut_data_key:  # type: ignore #TODO(b/338318729) Fixit!
-      self.dut.storage.UpdateDict({self.args.dut_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.dut_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.dut.storage.UpdateDict({self.args.dut_data_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.check_device_data_key:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_device_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       expected_value = device_data.GetDeviceData(
-          self.args.check_device_data_key, None)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.check_device_data_key, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      if self.args.match_the_last_few_chars != 0:  # type: ignore #TODO(b/338318729) Fixit!
-        expected_value = expected_value[-self.args.match_the_last_few_chars:]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.match_the_last_few_chars != 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        expected_value = expected_value[-self.args.match_the_last_few_chars:]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       if expected_value != scan_value:
         logging.error('Expected %r but got %r', expected_value, scan_value)
@@ -195,37 +245,61 @@ class Scan(test_case.TestCase):
               expected_value=esc_expected_value))
         return
 
-    if self.args.rw_vpd_key or self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetHTML(_('Writing to VPD. Please wait...'), id='scan-status')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.rw_vpd_key or self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetHTML(_('Writing to VPD. Please wait...'), id='scan-status')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
-        if self.args.rw_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
-          self.dut.vpd.rw.Update({self.args.rw_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
-        if self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit!
-          self.dut.vpd.ro.Update({self.args.ro_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.rw_vpd_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.dut.vpd.rw.Update({self.args.rw_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+        # yapf: disable
+        if self.args.ro_vpd_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.dut.vpd.ro.Update({self.args.ro_vpd_key: scan_value})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       except Exception:
         logging.exception('Setting VPD failed')
         SetError(debug_utils.FormatExceptionOnly())
         return
 
-    if self.args.save_path:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.save_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
-        dirname = self.dut.path.dirname(self.args.save_path)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        dirname = self.dut.path.dirname(self.args.save_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.dut.CheckCall(['mkdir', '-p', dirname])
-        self.dut.WriteFile(self.args.save_path, scan_value)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.dut.WriteFile(self.args.save_path, scan_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except Exception:
         logging.exception('Save file failed')
         SetError(debug_utils.FormatExceptionOnly())
         return
 
-    self.event_loop.PostNewEvent(test_event.Event.Type.UPDATE_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.PostNewEvent(test_event.Event.Type.UPDATE_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.PassTask()
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.auto_scan_timer = None
     self.fixture = None
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def tearDown(self):
     if self.fixture:
@@ -236,21 +310,38 @@ class Scan(test_case.TestCase):
 
   def ScanBarcode(self):
     while True:
-      self.fixture.ScanBarcode()  # type: ignore #TODO(b/338318729) Fixit!
-      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.fixture.ScanBarcode()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def BFTScanSaveBarcode(self):
     while True:
-      self.fixture.TriggerScanner()  # type: ignore #TODO(b/338318729) Fixit!
-      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.fixture.TriggerScanner()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.Sleep(self.args.barcode_scan_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def _GetOriginalValues(self) -> List[Tuple[str, Optional[str]]]:
     existed_data_source = {
         'serial_number_key': (
-            self.args.serial_number_key, device_data.GetSerialNumber),  # type: ignore #TODO(b/338318729) Fixit!
-        'device_data': (self.args.device_data_key, device_data.GetDeviceData),  # type: ignore #TODO(b/338318729) Fixit!
-        'ro_vpd': (self.args.ro_vpd_key, self.dut.vpd.ro.get),  # type: ignore #TODO(b/338318729) Fixit!
-        'rw_vpd': (self.args.rw_vpd_key, self.dut.vpd.rw.get),  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.args.serial_number_key,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            device_data.GetSerialNumber),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'device_data': (self.args.device_data_key, device_data.GetDeviceData),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'ro_vpd': (self.args.ro_vpd_key, self.dut.vpd.ro.get),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'rw_vpd': (self.args.rw_vpd_key, self.dut.vpd.rw.get),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
     return [
         (f'{display_key_name}={data_key}', cast(Optional[str],
@@ -260,45 +351,83 @@ class Scan(test_case.TestCase):
     ]
 
   def runTest(self) -> None:
-    self.ui.SetTitle(_('Scan {label}', label=self.args.label))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetTitle(_('Scan {label}', label=self.args.label))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     original_values = self._GetOriginalValues()
 
-    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
-        _('Please scan the {label} and press ENTER.', label=self.args.label),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        _('Please scan the {label} and press ENTER.', label=self.args.label),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         '<input id="scan-value" type="text" size="20">'
         '<p id="scan-status">&nbsp;</p>'
     ] + [
         _('<p>original value from {source}: {value}</p>', source=source,
           value=value) for source, value in original_values
     ])
-    self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.BindKeyJS(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetFocus('scan-value')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.BindKeyJS(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         test_ui.ENTER_KEY,
         'window.test.sendTestEvent("scan_value",'
         'document.getElementById("scan-value").value)')
-    self.event_loop.AddEventHandler('scan_value', self.HandleScanValue)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('scan_value', self.HandleScanValue)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.value_assigned is not None:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
-          'window.test.sendTestEvent', 'scan_value', self.args.value_assigned)  # type: ignore #TODO(b/338318729) Fixit!
-    elif self.args.bft_scan_fixture_id:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.value_assigned is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          'window.test.sendTestEvent', 'scan_value', self.args.value_assigned)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    elif self.args.bft_scan_fixture_id:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Getting fixture ID...')
-      fixture_id = self.fixture.GetFixtureId()  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      fixture_id = self.fixture.GetFixtureId()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                              str(fixture_id))
-    elif self.args.bft_scan_barcode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.bft_scan_barcode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Triggering barcode scanner...')
       self.ScanBarcode()
-    elif self.args.bft_save_barcode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.bft_save_barcode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Triggering barcode scanner...')
       self.BFTScanSaveBarcode()
-    elif self.args.bft_get_barcode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.bft_get_barcode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Getting barcode from BFT...')
       saved_barcode_path = None
-      if isinstance(self.args.bft_get_barcode, str):  # type: ignore #TODO(b/338318729) Fixit!
-        saved_barcode_path = self.args.bft_get_barcode  # type: ignore #TODO(b/338318729) Fixit!
-      barcode = self.fixture.ScanBarcode(saved_barcode_path)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value', barcode)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if isinstance(self.args.bft_get_barcode, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        saved_barcode_path = self.args.bft_get_barcode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      barcode = self.fixture.ScanBarcode(saved_barcode_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.CallJSFunction('window.test.sendTestEvent', 'scan_value', barcode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.WaitTaskEnd()

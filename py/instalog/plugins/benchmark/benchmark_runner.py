@@ -135,20 +135,30 @@ class _BaseBenchmarkPluginAPIImpl:
   def GetDataDir(self, _plugin: PluginSandbox) -> str:
     return self._data_dir_path
 
-  def IsStopping(self, plugin: PluginSandbox) -> bool:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def IsStopping(self, plugin: PluginSandbox) -> bool:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     pass
 
-  def IsFlushing(self, plugin: PluginSandbox) -> bool:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def IsFlushing(self, plugin: PluginSandbox) -> bool:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     pass
 
-  def Emit(self, plugin: PluginSandbox, events: List[datatypes.Event]) -> bool:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def Emit(self, plugin: PluginSandbox, events: List[datatypes.Event]) -> bool:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     pass
 
-  def PreEmit(self, plugin: PluginSandbox,  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def PreEmit(self, plugin: PluginSandbox,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
               events: List[datatypes.Event]) -> bool:
     pass
 
-  def NewStream(self, plugin: PluginSandbox) -> datatypes.EventStream:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def NewStream(self, plugin: PluginSandbox) -> datatypes.EventStream:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     pass
 
   def EventStreamNext(self, plugin: PluginSandbox,

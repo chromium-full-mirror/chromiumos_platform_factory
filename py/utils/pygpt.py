@@ -493,26 +493,36 @@ class GPT:
 
     def IsUnused(self):
       """Returns if the partition is unused and can be allocated."""
-      return self.TypeGUID == GPT.TYPE_GUID_UNUSED  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.TypeGUID == GPT.TYPE_GUID_UNUSED  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     def IsChromeOSKernel(self):
       """Returns if the partition is a Chrome OS kernel partition."""
-      return self.TypeGUID == GPT.TYPE_GUID_CHROMEOS_KERNEL  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.TypeGUID == GPT.TYPE_GUID_CHROMEOS_KERNEL  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @property
     def blocks(self):
       """Return size of partition in blocks (see block_size)."""
-      return self.LastLBA - self.FirstLBA + 1  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.LastLBA - self.FirstLBA + 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @property
     def offset(self):
       """Returns offset to partition in bytes."""
-      return self.FirstLBA * self.block_size  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.FirstLBA * self.block_size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @property
     def size(self):
       """Returns size of partition in bytes."""
-      return self.blocks * self.block_size  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.blocks * self.block_size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   class Partition(PartitionBase):
     """The partition entry in GPT.
@@ -527,7 +537,9 @@ class GPT:
     __slots__ = [f.name for f in FIELDS] + METADATA
 
     def __str__(self):
-      return f'{self.image}#{self.number}'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return f'{self.image}#{self.number}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def __init__(self):
     """GPT constructor.
@@ -659,13 +671,17 @@ class GPT:
     Use 'number' property to find the real location of partition in
     self.partitions.
     """
-    return [p for p in self.partitions if not p.IsUnused()]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return [p for p in self.partitions if not p.IsUnused()]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetMaxUsedLBA(self):
     """Returns the max LastLBA from all used partitions."""
     parts = self.GetUsedPartitions()
     return (max(p.LastLBA for p in parts)
-            if parts else self.header.FirstUsableLBA - 1)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            if parts else self.header.FirstUsableLBA - 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetPartitionTableBlocks(self, header=None):
     """Returns the blocks (or LBA) of partition table from given header."""
@@ -683,9 +699,13 @@ class GPT:
     Args:
       number: an integer as 1-based partition number.
     """
-    if not 0 < number <= len(self.partitions):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not 0 < number <= len(self.partitions):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise GPTError(f'Invalid partition number {number}.')
-    return self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def UpdatePartition(self, part, number):
     """Updates the entry in partition table by given Partition object.
@@ -697,12 +717,18 @@ class GPT:
       part: a Partition GPT object.
       number: an integer as 1-based partition number.
     """
-    ref = self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit!
-    self.partitions[number - 1] = self.Partition(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ref = self.partitions[number - 1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.partitions[number - 1] = self.Partition(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         *part, image=ref.image, number=number, block_size=ref.block_size)
 
   def GetSize(self):
-    return self.block_size * (self.header.BackupLBA + 1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self.block_size * (self.header.BackupLBA + 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Resize(self, new_size, check_overlap=True):
     """Adjust GPT for a disk image in given size.
@@ -728,20 +754,30 @@ class GPT:
 
     # Expected location
     backup_lba = new_blocks - 1
-    last_usable_lba = backup_lba - self.header.FirstUsableLBA  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    last_usable_lba = backup_lba - self.header.FirstUsableLBA  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if check_overlap and last_usable_lba < self.header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if check_overlap and last_usable_lba < self.header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       max_used_lba = self.GetMaxUsedLBA()
       if last_usable_lba < max_used_lba:
         raise GPTError('Backup partition tables will overlap used partitions')
 
-    self.header.Update(BackupLBA=backup_lba, LastUsableLBA=last_usable_lba)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.header.Update(BackupLBA=backup_lba, LastUsableLBA=last_usable_lba)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetFreeSpace(self):
     """Returns the free (available) space left according to LastUsableLBA."""
     max_lba = self.GetMaxUsedLBA()
-    assert max_lba <= self.header.LastUsableLBA, "Partitions too large."  # type: ignore #TODO(b/338318729) Fixit!
-    return self.block_size * (self.header.LastUsableLBA - max_lba)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert max_lba <= self.header.LastUsableLBA, "Partitions too large."  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    return self.block_size * (self.header.LastUsableLBA - max_lba)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def ExpandPartition(self, number, reserved_blocks=0):
     """Expands a given partition to last usable LBA - reserved blocks.
@@ -766,7 +802,9 @@ class GPT:
       raise GPTError(f'Cannot expand {p} because it is not allocated at last.')
 
     old_blocks = p.blocks
-    p.Update(LastLBA=self.header.LastUsableLBA - reserved_blocks)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    p.Update(LastLBA=self.header.LastUsableLBA - reserved_blocks)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     new_blocks = p.blocks
     logging.warning(
         '%s size changed in LBA: %d -> %d.', p, old_blocks, new_blocks)
@@ -778,26 +816,40 @@ class GPT:
     # PartitionEntriesStartingLBA should be all outside [FirstUsableLBA,
     # LastUsableLBA].
     header = self.header
-    entries_first_lba = header.PartitionEntriesStartingLBA  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    entries_first_lba = header.PartitionEntriesStartingLBA  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     entries_last_lba = entries_first_lba + self.GetPartitionTableBlocks() - 1
 
     def CheckOutsideUsable(name, lba, outside_entries=False):
       if lba < 1:
         raise GPTError(f'{name} should not live in LBA {lba}.')
-      if lba > max(header.BackupLBA, header.CurrentLBA):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if lba > max(header.BackupLBA, header.CurrentLBA):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         # Note this is "in theory" possible, but we want to report this as
         # error as well, since it usually leads to error.
-        raise GPTError(f'{name} ({lba}) should not be larger than BackupLBA ('  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        raise GPTError(f'{name} ({lba}) should not be larger than BackupLBA ('  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                        f'{header.BackupLBA}).')
-      if header.FirstUsableLBA <= lba <= header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
-        raise GPTError(f'{name} ({lba}) should not be included in usable LBAs ['  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if header.FirstUsableLBA <= lba <= header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        raise GPTError(f'{name} ({lba}) should not be included in usable LBAs ['  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                        f'{header.FirstUsableLBA},{header.LastUsableLBA}]')
       if outside_entries and entries_first_lba <= lba <= entries_last_lba:
         raise GPTError(f'{name} ({lba}) should be outside partition entries ['
                        f'{entries_first_lba},{entries_last_lba}]')
 
-    CheckOutsideUsable('Header', header.CurrentLBA, True)  # type: ignore #TODO(b/338318729) Fixit!
-    CheckOutsideUsable('Backup header', header.BackupLBA, True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    CheckOutsideUsable('Header', header.CurrentLBA, True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    CheckOutsideUsable('Backup header', header.BackupLBA, True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     CheckOutsideUsable('Partition entries', entries_first_lba)
     CheckOutsideUsable('Partition entries end', entries_last_lba)
 
@@ -814,30 +866,52 @@ class GPT:
     # Now, check the first and last partition.
     if lba_list:
       p = lba_list[0][2]
-      if p.FirstLBA < header.FirstUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
-        raise GPTError(f'Partition {p} must not go earlier ({p.FirstLBA}) than '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if p.FirstLBA < header.FirstUsableLBA:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        raise GPTError(f'Partition {p} must not go earlier ({p.FirstLBA}) than '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                        f'FirstUsableLBA={header.FirstLBA}')
       p = lba_list[-1][2]
-      if p.LastLBA > header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit!
-        raise GPTError(f'Partition {p} must not go further ({p.LastLBA}) than '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if p.LastLBA > header.LastUsableLBA:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        raise GPTError(f'Partition {p} must not go further ({p.LastLBA}) than '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                        f'LastUsableLBA={header.LastLBA}')
     # Check if UniqueGUIDs are not unique.
     if len(set(p.UniqueGUID for p in parts)) != len(parts):
       raise GPTError('Partition UniqueGUIDs are duplicated.')
     # Check if CRCs match.
-    if (binascii.crc32(b''.join(p.blob for p in self.partitions)) !=  # type: ignore #TODO(b/338318729) Fixit!
-        header.PartitionArrayCRC32):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (binascii.crc32(b''.join(p.blob for p in self.partitions)) !=  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        header.PartitionArrayCRC32):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise GPTError('GPT Header PartitionArrayCRC32 does not match.')
-    header_crc = header.Clone()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    header_crc = header.Clone()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     header_crc.UpdateChecksum()
-    if header_crc.CRC32 != header.CRC32:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if header_crc.CRC32 != header.CRC32:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise GPTError('GPT Header CRC32 does not match.')
 
   def UpdateChecksum(self):
     """Updates all checksum fields in GPT objects."""
-    parts = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit!
-    self.header.Update(PartitionArrayCRC32=binascii.crc32(parts))  # type: ignore #TODO(b/338318729) Fixit!
-    self.header.UpdateChecksum()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    parts = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.header.Update(PartitionArrayCRC32=binascii.crc32(parts))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.header.UpdateChecksum()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetBackupHeader(self, header):
     """Returns the backup header according to given header.
@@ -936,14 +1010,24 @@ class GPT:
 
     self.UpdateChecksum()
     self.CheckIntegrity()
-    parts_blob = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    parts_blob = b''.join(p.blob for p in self.partitions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     header = self.header
-    WriteData('GPT Header', header.blob, header.CurrentLBA)  # type: ignore #TODO(b/338318729) Fixit!
-    WriteData('GPT Partitions', parts_blob, header.PartitionEntriesStartingLBA)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    WriteData('GPT Header', header.blob, header.CurrentLBA)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    WriteData('GPT Partitions', parts_blob, header.PartitionEntriesStartingLBA)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info(
-        'Usable LBA: First=%d, Last=%d', header.FirstUsableLBA,  # type: ignore #TODO(b/338318729) Fixit!
-        header.LastUsableLBA)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'Usable LBA: First=%d, Last=%d', header.FirstUsableLBA,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        header.LastUsableLBA)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if not self.is_secondary:
       # When is_secondary is True, the header we have is actually backup header.
@@ -1155,7 +1239,9 @@ class GPTCommands:
           raise GPTError('Sorry, the disk already has primary GPT ignored.')
         args.image_file.seek(gpt.header.CurrentLBA * gpt.block_size)
         args.image_file.write(gpt.header.SIGNATURE_IGNORE)
-        gpt.header = gpt.GetBackupHeader(self.header)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        gpt.header = gpt.GetBackupHeader(self.header)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         gpt.is_secondary = True
       else:
         new_signature = gpt.Header.SIGNATURES[0 if args.efi else 1]
@@ -1459,10 +1545,14 @@ class GPTCommands:
           f = args.image_file
           f.seek(gpt.header.BackupLBA * gpt.block_size)
           header = gpt.Header.ReadFrom(f)
-        print(fmt % (header.PartitionEntriesStartingLBA,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        print(fmt % (header.PartitionEntriesStartingLBA,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                      gpt.GetPartitionTableBlocks(header), '',
                      'Sec GPT table'))
-        print(fmt % (header.CurrentLBA, 1, '', 'Sec GPT header'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        print(fmt % (header.CurrentLBA, 1, '', 'Sec GPT header'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       # Check integrity after showing all fields.
       gpt.CheckIntegrity()
@@ -1625,7 +1715,9 @@ class GPTCommands:
               Unmatch(args.type_guid, p.TypeGUID)):
             continue
           if match_pattern:
-            with open(drive, 'rb') as f:  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            with open(drive, 'rb') as f:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f.seek(p.offset + args.offset)
               if f.read(len(match_pattern)) != match_pattern:
                 continue

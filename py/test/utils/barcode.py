@@ -10,6 +10,7 @@ from cros.factory.external.py_lib import cv2 as cv
 from cros.factory.external.py_lib import numpy as np
 from cros.factory.external.py_lib import zbar
 
+
 if not zbar.MODULE_READY:
   logging.warning('zbar is not installed')
 
@@ -24,11 +25,19 @@ def ScanQRCode(cv_image):
     List of scanned text.
   """
   width, height = cv_image.shape[1], cv_image.shape[0]
-  raw_str = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).astype(np.uint8).tostring()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  raw_str = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).astype(np.uint8).tostring()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
-  scanner = zbar.ImageScanner()  # type: ignore #TODO(b/338318729) Fixit!
-  scanner.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 1)  # type: ignore #TODO(b/338318729) Fixit!
-  zbar_img = zbar.Image(width, height, 'Y800', raw_str)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  scanner = zbar.ImageScanner()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  scanner.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  zbar_img = zbar.Image(width, height, 'Y800', raw_str)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   scanner.scan(zbar_img)
 
   return [symbol.data for symbol in zbar_img]

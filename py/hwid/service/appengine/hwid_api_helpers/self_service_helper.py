@@ -160,7 +160,9 @@ def _ConvertValidationErrorCode(code):
 def _ConvertSupportStatsCase(
     hwid_value: str) -> hwid_api_messages_pb2.ComponentSupportStatus.Case:
   try:
-    return common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[hwid_value]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[hwid_value]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   except KeyError as ex:
     raise HWIDStatusConversionError(
         f'Unrecognizable HWID support status value: {hwid_value!r}.') from ex
@@ -350,7 +352,9 @@ def _SplitIntoDBSnapshots(
 
 
 def _IsCLReadyForCQ(cl_info: hwid_repo.HWIDDBCLInfo) -> bool:
-  return cl_info.bot_commit or (cl_info.verified and cl_info.review_status  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return cl_info.bot_commit or (cl_info.verified and cl_info.review_status  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
                                 == hwid_repo.HWIDDBCLReviewStatus.APPROVED)
 
 
@@ -439,14 +443,18 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
     """
     self._db = db
     self._extra_resource = extra_resource
-    self._warnings = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._warnings = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._npa = name_pattern_adapter.NamePatternAdapter()
     self._create_dlm_comp_entry_acceptor = features.CreateDLMCompEntryAcceptor()
 
   @classmethod
   def Create(
       cls, db: database.Database,
-      extra_resource: hwid_api_messages_pb2.HwidDbExternalResource) -> 'cls':  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      extra_resource: hwid_api_messages_pb2.HwidDbExternalResource) -> 'cls':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return cls(db, extra_resource)
 
   def _GetCPUProperty(
@@ -585,9 +593,13 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
       if any(v < 0 for v in camera_info.feature_compatible_versions):
         raise ValueError('Invalid camera feature versions: '
                          f'{camera_info.feature_compatible_versions}.')
-      return features.CameraProperty.FromCompatibleVersions(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return features.CameraProperty.FromCompatibleVersions(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           camera_info.feature_compatible_versions)
-    return features.CameraProperty.FromAttributes(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return features.CameraProperty.FromAttributes(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         is_user_facing=camera_info.position == camera_info.USER_FACING,
         has_tnr=camera_info.has_tnr,
         horizontal_resolution=camera_info.horizontal_resolution,
@@ -716,7 +728,9 @@ class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
         auth_cookie=git_util.GetGerritAuthCookie())
 
 
-class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(
       self,
@@ -755,7 +769,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def GetHwidDbEditableSection(self, request):
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       editable_section = action.GetDBEditableSection()
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -797,9 +813,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           protorpc_utils.RPCCanonicalErrorCode.ABORTED,
           detail='The validation token is expired.')
     try:
-      self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       analysis = action.AnalyzeDBEditableSection(
           cache.new_hwid_db_editable_section, derive_fingerprint_only=False,
           require_hwid_db_lines=False, internal=True,
@@ -815,7 +835,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           detail='The validation token is expired.')
 
     feature_matcher_build_result = self._feature_matcher_builder_class.Create(
-        database.Database.LoadData(analysis.new_hwid_db_contents_internal),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        database.Database.LoadData(analysis.new_hwid_db_contents_internal),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         request.db_external_resource).Build()
 
     commit_title = ('HWID Config Update' if cache.new_hwid_db_editable_section
@@ -839,13 +861,19 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           f'DLM-VALIDATION-EXEMPTION={request.dlm_validation_exemption}')
 
     commit_msg.append(f'BUG=b:{request_metadata.bug_number}')
-    commit_msg = '\n'.join(commit_msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    commit_msg = '\n'.join(commit_msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          name=project,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           hwid_db_contents=analysis.new_hwid_db_contents_external,
-          commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
@@ -901,8 +929,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       model = _NormalizeProjectString(firmware_record.model)
       # Load HWID DB
       try:
-        self._UpdateHWIDDBDataIfNeed(live_hwid_repo, model)  # type: ignore #TODO(b/338318729) Fixit!
-        action = self._hwid_action_manager.GetHWIDAction(model)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._UpdateHWIDDBDataIfNeed(live_hwid_repo, model)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        action = self._hwid_action_manager.GetHWIDAction(model)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except hwid_repo.InvalidProjectError:
         logging.warning('%s not found in HWID database.', model)
         continue
@@ -964,8 +996,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           live_hwid_repo.ResetRepo()
         try:
           cl_number = live_hwid_repo.CommitHWIDDB(
-              name=model_name, hwid_db_contents=external_db,  # type: ignore #TODO(b/338318729) Fixit!
-              commit_msg=commit_msg, reviewers=request_metadata.reviewer_emails,
+              # yapf: disable
+              name=model_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              hwid_db_contents=external_db,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              commit_msg=commit_msg,
+              reviewers=request_metadata.reviewer_emails,
               cc_list=request_metadata.cc_emails,
               bot_commit=request_metadata.auto_approved,
               commit_queue=request_metadata.auto_approved,
@@ -996,7 +1032,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def _AbandonParentCLs(self, cl_info: hwid_repo.HWIDDBCLInfo):
     parent_cl_reject_reason = (f'CL:*{cl_info.cl_number} is rejected by the '
                                'reviewer.')
-    for parent_cl_number, unused_parent_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for parent_cl_number, unused_parent_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(parent_cl_number)
       if parent_cl_info.status != hwid_repo.HWIDDBCLStatus.ABANDONED:
         self._hwid_repo_manager.AbandonCL(parent_cl_number,
@@ -1010,7 +1048,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       put_cq.append(cl_info.cl_number)
 
     # Collect parent CLs which have Bot-Commit+1 votes.
-    for cl_number, unused_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for cl_number, unused_change_id in cl_info.parent_cl_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         parent_cl_info = self._hwid_repo_manager.GetHWIDDBCLInfo(cl_number)
         if not _IsCLReadyForCQ(parent_cl_info):
@@ -1148,7 +1188,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     require_hwid_db_lines = request.require_hwid_db_lines
 
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       report = action.AnalyzeDBEditableSection(
           request.hwid_db_editable_section or None, False,
           require_hwid_db_lines,
@@ -1160,7 +1202,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     response.validation_token = report.fingerprint
     self._session_cache_adapter.Put(
         report.fingerprint,
-        SessionCache(project, request.hwid_db_editable_section or None),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SessionCache(project, request.hwid_db_editable_section or None),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         expiry=_SESSION_TIMEOUT)
     response.analysis_report.noop_for_external_db = (
         report.noop_for_external_db)
@@ -1183,9 +1227,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     if require_hwid_db_lines:
       for line in report.lines:
         response_line = response.analysis_report.hwid_config_lines.add()
-        if line.modification_status == line.ModificationStatus.MODIFIED:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if line.modification_status == line.ModificationStatus.MODIFIED:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           response_line.modification_status = response_line.MODIFIED
-        elif line.modification_status == line.ModificationStatus.NEWLY_ADDED:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        elif line.modification_status == line.ModificationStatus.NEWLY_ADDED:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           response_line.modification_status = response_line.NEWLY_ADDED
         else:
           response_line.modification_status = response_line.NOT_MODIFIED
@@ -1210,7 +1258,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def BatchGenerateAvlComponentName(self, request):
     response = hwid_api_messages_pb2.BatchGenerateAvlComponentNameResponse()
     np_adapter = name_pattern_adapter.NamePatternAdapter()
-    nps = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    nps = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for mat in request.component_name_materials:
       try:
         np = nps[mat.component_class]
@@ -1222,7 +1272,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         name_info = name_pattern_adapter.LinkAVLNameSubcompInfo(cid=mat.avl_cid)
       else:
         qid = None if mat.avl_qid == 0 else mat.avl_qid
-        name_info = name_pattern_adapter.LinkAVLNameRegularInfo(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name_info = name_pattern_adapter.LinkAVLNameRegularInfo(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             cid=mat.avl_cid, qid=qid)
       response.component_names.append(
           np.GenerateAVLName(name_info, seq=mat.seq_no))
@@ -1234,13 +1286,21 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     project = _NormalizeProjectString(request.project)
     try:
       gerrit_hwid_repo = self._hwid_repo_manager.GetGerritToTHWIDRepo()
-      metadata = gerrit_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit!
-      self._hwid_db_data_manager.UpdateProjectContent(gerrit_hwid_repo,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      metadata = gerrit_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._hwid_db_data_manager.UpdateProjectContent(gerrit_hwid_repo,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                                       metadata)
       self._hwid_action_manager.ReloadMemcacheCacheFromFiles(
-          limit_models=[project])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          limit_models=[project])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       resource_info = action.GetHWIDBundleResourceInfo()
     except (KeyError, ValueError, RuntimeError, hwid_repo.HWIDRepoError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -1248,7 +1308,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     response = hwid_api_messages_pb2.GetHwidBundleResourceInfoResponse(
         bundle_creation_token=resource_info.fingerprint)
 
-    for reference_id, comp_info in resource_info.hwid_components.items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for reference_id, comp_info in resource_info.hwid_components.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       response.resource_info.db_info.component_infos[reference_id].CopyFrom(
           _ConvertCompInfoToMsg(comp_info))
     return response
@@ -1258,7 +1320,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def CreateHwidBundle(self, request):
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       resource_info = action.GetHWIDBundleResourceInfo(fingerprint_only=True)
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
@@ -1291,7 +1355,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       raise common_helper.ConvertExceptionToProtoRPCException(
           ValueError('Bug number is required.'))
     try:
-      live_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      live_hwid_repo.GetHWIDDBMetadataByName(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except ValueError:
       pass
     else:
@@ -1299,7 +1365,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           ValueError(f'Project: {project} already exists.'))
 
     init_db = v3_builder.DatabaseBuilder.FromEmpty(
-        project=project, image_name=request.phase).Build()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        project=project, image_name=request.phase).Build()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     db_content = init_db.DumpDataWithoutChecksum(internal=True)
     checksum_updater = v3_builder.ChecksumUpdater()
     db_content = checksum_updater.ReplaceChecksum(db_content)
@@ -1322,10 +1390,16 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
         BUG=b:{request_metadata.bug_number}
         """)
-    new_metadata = hwid_repo.HWIDDBMetadata(project, board, 3, f'v3/{project}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    new_metadata = hwid_repo.HWIDDBMetadata(project, board, 3, f'v3/{project}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project, hwid_db_contents=db_content, commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          name=project,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          hwid_db_contents=db_content,
+          commit_msg=commit_msg,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
@@ -1366,17 +1440,23 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def SetFirmwareInfoSupportStatus(self, request):
     request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
-    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     resp = hwid_api_messages_pb2.SetFirmwareInfoSupportStatusResponse()
 
-    firmware_comps = action.GetComponents(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    firmware_comps = action.GetComponents(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         with_classes=list(v3_common.FirmwareComps))
 
     def _GetBundleUUIDsByVersionString(ro_main_firmware_comps):
       # TODO(wyuang): currently it is possible to create multiple UUIDs for
       # the same component. Need to investigate how to avoid duplicated
       # firmware components.
-      bundle_uuids = set()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bundle_uuids = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       pattern = re.compile(r'(?:google_\w+\.)?(\d+\.\d+\.\d+)', flags=re.I)
       match = pattern.fullmatch(request.version_string)
       if not match:
@@ -1392,7 +1472,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
     bundle_uuids = _GetBundleUUIDsByVersionString(
         firmware_comps.get(v3_common.FirmwareComps.RO_MAIN_FIRMWARE, {}))
-    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     changed = False
     for comp_cls, comps in firmware_comps.items():
       for comp_name, comp_info in comps.items():
@@ -1409,10 +1491,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       return resp
 
     # Create commit
-    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=True,
                                    suppress_support_status=False))
-    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=False,
                                    suppress_support_status=False))
 
@@ -1427,7 +1513,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         BUG=b:{request_metadata.bug_number}""") % request_metadata.description
 
     try:
-      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
@@ -1496,14 +1584,22 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
             f'Invalid CL number {request.cl_number}') from None
-      cl_change_id_suggestions[1] = cl_info.change_id  # type: ignore #TODO(b/338318729) Fixit!
-      if len(cl_info.parent_cl_ids) > 1:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cl_change_id_suggestions[1] = cl_info.change_id  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if len(cl_info.parent_cl_ids) > 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
             f'Multiple parent CLs {cl_info.parent_cl_ids} are not supported.'
         ) from None
-      unused_cl_number, cl_change_id_suggestions[0] = next(  # type: ignore #TODO(b/338318729) Fixit!
-          iter(cl_info.parent_cl_ids), (None, None))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      unused_cl_number, cl_change_id_suggestions[0] = next(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          iter(cl_info.parent_cl_ids), (None, None))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     (
         split_result,
@@ -1517,7 +1613,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         request.original_requester,
         request.description,
         request.bug_number,
-        cl_change_id_suggestions=tuple(cl_change_id_suggestions),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        cl_change_id_suggestions=tuple(cl_change_id_suggestions),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     )
     resp = hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsResponse(
         auto_mergeable_change_cl_created_or_refreshed=(
@@ -1566,10 +1664,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def CreateHwidRegionCl(self, request):
     request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
-    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     resp = hwid_api_messages_pb2.CreateHwidRegionClResponse()
 
-    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     region_comps = db.GetActiveRegionComponents()
     new_regions = {
         comp.name
@@ -1599,10 +1701,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       return resp
 
     # Create commit
-    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=True,
                                    suppress_support_status=False))
-    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=False,
                                    suppress_support_status=False))
 
@@ -1617,7 +1723,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         BUG=b:{request_metadata.bug_number}""") % request_metadata.description
 
     try:
-      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
@@ -1641,14 +1749,20 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def UpdateHwidDbComponents(self, request):
     request_metadata = request.request_metadata
     project = _NormalizeProjectString(request.project)
-    live_hwid_repo, action = self._GetRepoAndAction(project)
+    # yapf: disable
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     resp = hwid_api_messages_pb2.UpdateHwidDbComponentsResponse()
 
     avl_comps_need_updated = {c.name: c
                               for c in request.comps}
-    db_comps = action.GetComponents({c.component_class
+    # yapf: disable
+    db_comps = action.GetComponents({c.component_class  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                      for c in request.comps})
-    db = action.GetDBV3()
+    # yapf: disable
+    db = action.GetDBV3()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     changed = False
 
     try:
@@ -1670,10 +1784,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       return resp
 
     # Create commit
-    internal_db = action.PatchHeader(
+    # yapf: disable
+    internal_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=True,
                                    suppress_support_status=False))
-    external_db = action.PatchHeader(
+    # yapf: disable
+    external_db = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         db.DumpDataWithoutChecksum(internal=False,
                                    suppress_support_status=False))
 
@@ -1688,7 +1806,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         BUG=b:{request_metadata.bug_number}""") % request_metadata.description
 
     try:
-      cl_number = live_hwid_repo.CommitHWIDDB(
+      # yapf: disable
+      cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
@@ -1711,7 +1831,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     live_repo = self._hwid_repo_manager.GetLiveHWIDRepo()
     try:
       self._UpdateHWIDDBDataIfNeed(live_repo, project)
-      return live_repo, self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return live_repo, self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except (KeyError, ValueError, RuntimeError, hwid_repo.HWIDRepoError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
@@ -1856,26 +1978,38 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           suppress_support_status=False, internal=True)
       new_hwid_db_editable_section_external = db.DumpDataWithoutChecksum(
           suppress_support_status=False)
-      new_hwid_db_contents_external = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      new_hwid_db_contents_external = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           new_hwid_db_editable_section_external)
-      new_hwid_db_contents_internal = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      new_hwid_db_contents_internal = action.PatchHeader(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           new_hwid_db_editable_section_internal)
 
-      reviewers = set()  # type: ignore #TODO(b/338318729) Fixit!
-      ccs = set()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      reviewers = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      ccs = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for identity in change_unit_identities:
         ccs.update(approval_infos[identity].ccs)
         reviewers.update(approval_infos[identity].reviewers)
 
       if include_feature_matcher_source:
         build_result = self._feature_matcher_builder_class.Create(
-            db, session_cache.avl_resource).Build()  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            db, session_cache.avl_resource).Build()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         feature_matcher_generation_commit_msg = build_result.commit_message
         feature_matcher_source = build_result.feature_matcher_source
       else:
         feature_matcher_generation_commit_msg = ''
         feature_matcher_source = None
-      bundle_metadata_source = self._BuildBundleMetadataSource(action)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bundle_metadata_source = self._BuildBundleMetadataSource(action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       commit_msg = '\n\n'.join(
           filter(None, [
@@ -1886,7 +2020,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
               f'BUG=b:{bug_number}',
           ]))
       try:
-        cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        cl_number = live_hwid_repo.CommitHWIDDB(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             name=project,
             hwid_db_contents=new_hwid_db_contents_external,
             commit_msg=commit_msg,
@@ -1913,11 +2049,17 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     session_cache = self._GetSessionCache(session_token)
     change_unit_manager = session_cache.change_unit_manager
     project = session_cache.project
-    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit!
-    approval_infos = _CollectApprovalInfos(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    live_hwid_repo, action = self._GetRepoAndAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    approval_infos = _CollectApprovalInfos(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Perform change unit related actions.
-    split_result = _SplitIntoDBSnapshots(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    split_result = _SplitIntoDBSnapshots(change_unit_manager, approval_status)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     auto_mergeable_change_cl_number = review_required_change_cl_number = 0
     final_hwid_db_content = ''
@@ -1976,7 +2118,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     for to_be_abandoned_change_id in to_be_abandoned:
       if to_be_abandoned_change_id is not None:
         self._hwid_repo_manager.AbandonCL(
-            to_be_abandoned_change_id,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            to_be_abandoned_change_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             reason='Obsoleted by refreshing AVL alignment status')
 
     return (

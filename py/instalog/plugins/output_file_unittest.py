@@ -46,7 +46,9 @@ class TestOutputFile(unittest.TestCase):
     plugin = sandbox._plugin
     event = datatypes.Event({'plugin': 'file'})
     self.stream.Queue([event])
-    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sandbox.Flush()
     sandbox.Stop()
 
@@ -69,7 +71,9 @@ class TestOutputFile(unittest.TestCase):
     plugin = sandbox._plugin
     event = datatypes.Event(payload={'key': 'data w/o history'})
     self.stream.Queue([event])
-    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sandbox.Flush()
     sandbox.Stop()
 
@@ -99,7 +103,9 @@ class TestOutputFile(unittest.TestCase):
     file_utils.WriteFile(att_path, att_data)
     event = datatypes.Event({'plugin': 'file'}, {'att': att_path})
     self.stream.Queue([event])
-    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sandbox.Flush()
     sandbox.Stop()
 

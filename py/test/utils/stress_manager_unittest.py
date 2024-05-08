@@ -14,6 +14,7 @@ from cros.factory.device import memory
 from cros.factory.device import temp
 from cros.factory.test.utils import stress_manager
 
+
 STRESSAPPTEST_PATH = stress_manager.STRESSAPPTEST_PATH
 
 
@@ -44,7 +45,9 @@ class StressManagerUnittest(unittest.TestCase):
     max_errors = 1000
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=total_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.manager._CallStressAppTest.side_effect = (
         self._CallStressAppTestSideEffect)
 
@@ -68,7 +71,9 @@ class StressManagerUnittest(unittest.TestCase):
     max_errors = 1000
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=total_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=None,
         side_effect=self._CallStressAppTestSideEffect)
 
@@ -94,7 +99,9 @@ class StressManagerUnittest(unittest.TestCase):
       self.manager.output = 'Log: User exiting early'
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=total_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=None,
         side_effect=SideEffect)
 
@@ -121,7 +128,9 @@ class StressManagerUnittest(unittest.TestCase):
       self.manager.output = ''
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=total_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=None,
         side_effect=SideEffect)
 
@@ -144,7 +153,9 @@ class StressManagerUnittest(unittest.TestCase):
     max_errors = 1000
 
     self.dut.memory.GetFreeMemoryKB = mock.Mock(return_value=free_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.manager._CallStressAppTest.side_effect = (
         self._CallStressAppTestSideEffect)
 
@@ -173,7 +184,9 @@ class StressManagerUnittest(unittest.TestCase):
     max_errors = 1000
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=total_memory)
-    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.manager._CallStressAppTest.side_effect = (
         self._CallStressAppTestSideEffect)
 
@@ -195,7 +208,9 @@ class StressManagerUnittest(unittest.TestCase):
     max_errors = 1000
 
     self.dut.memory.GetTotalMemoryKB = mock.Mock(return_value=100 * 1024)
-    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.manager._CallStressAppTest = mock.MagicMock(return_value=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.manager._CallStressAppTest.side_effect = (
         self._CallStressAppTestSideEffect)
 
@@ -301,7 +316,9 @@ class StressManagerUnittest(unittest.TestCase):
           STRESSAPPTEST_PATH, '--max_errors', '1001', '-m', '1', '-M', '32',
           '-s', mock.ANY
       ], stdout=output)
-      self.manager.stop.wait.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.manager.stop.wait.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.dut.toybox.pkill.assert_called_with(STRESSAPPTEST_PATH, full=True)
       self.fake_process.wait.assert_called_with()
 

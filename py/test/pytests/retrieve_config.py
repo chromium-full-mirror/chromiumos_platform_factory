@@ -112,7 +112,9 @@ class RetrieveConfig(unittest.TestCase):
       |__ config
           |__ als_fixture.schema.json
   """
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
   ARGS = [
@@ -142,24 +144,40 @@ class RetrieveConfig(unittest.TestCase):
   ]
 
   def setUp(self):
-    self.args.config_save_dir = (self.args.config_save_dir or  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.args.config_save_dir = (self.args.config_save_dir or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                  config_utils.GetRuntimeConfigDirectory())
-    self.args.config_save_name = self.args.config_save_name or os.path.basename(  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit!
-    if not self.args.config_save_name.endswith('.json'):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.args.config_save_name = self.args.config_save_name or os.path.basename(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if not self.args.config_save_name.endswith('.json'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RetrieveConfigException('Config name should suffix with ".json".')
 
-    self.config_save_path = os.path.join(self.args.config_save_dir,  # type: ignore #TODO(b/338318729) Fixit!
-                                         self.args.config_save_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_save_path = os.path.join(self.args.config_save_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                         # yapf: enable
+                                         # yapf: disable
+                                         self.args.config_save_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.usb_dev_path = None
     self.usb_ready_event = None
 
   def runTest(self):
     file_utils.TryMakeDirs(os.path.dirname(self.config_save_path))
-    if self.args.data_method == DataMethod.USB:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.data_method == DataMethod.USB:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RetrieveConfigFromUSB()
-    elif self.args.data_method == DataMethod.FACTORY_SERVER:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.data_method == DataMethod.FACTORY_SERVER:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RetrieveConfigFromFactoryServer()
     else:
       raise ValueError('Unknown data_method.')
@@ -168,10 +186,14 @@ class RetrieveConfig(unittest.TestCase):
     """Loads parameters from a factory server."""
     try:
       session.console.info('Retrieving %s from factory server.',
-                           self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit!
+                           # yapf: disable
+                           self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       proxy = server_proxy.GetServerProxy()
       content = proxy.GetParameter(
-          self.args.config_retrieve_path).data  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.config_retrieve_path).data  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       file_utils.WriteFile(self.config_save_path, content)
       logging.info('Saved config to %s.', self.config_save_path)
     except Exception as e:
@@ -193,11 +215,17 @@ class RetrieveConfig(unittest.TestCase):
 
   def _MountUSBAndCopyFile(self):
     session.console.info('Mounting USB (%s, %s).', self.usb_dev_path,
-                         self.args.usb_dev_partition)  # type: ignore #TODO(b/338318729) Fixit!
+                         # yapf: disable
+                         self.args.usb_dev_partition)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     with media_utils.MountedMedia(self.usb_dev_path,
-                                  self.args.usb_dev_partition) as mount_point:  # type: ignore #TODO(b/338318729) Fixit!
+                                  # yapf: disable
+                                  self.args.usb_dev_partition) as mount_point:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       time.sleep(0.5)
-      pathname = os.path.join(mount_point, self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pathname = os.path.join(mount_point, self.args.config_retrieve_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('Retrieving %s from USB.', pathname)
       if not os.path.exists(pathname):
         raise ValueError(
@@ -211,9 +239,13 @@ class RetrieveConfig(unittest.TestCase):
 
   def _OnUSBInsertion(self, device):
     self.usb_dev_path = device.device_node
-    self.usb_ready_event.set()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.usb_ready_event.set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _OnUSBRemoval(self, device):
     del device  # unused
-    self.usb_ready_event.clear()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.usb_ready_event.clear()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.usb_dev_path = None

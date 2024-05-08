@@ -62,7 +62,9 @@ class AbstractMixerController(abc.ABC):
     Also, clear _restore_mixer_control_stack.
     """
     # Merge all restore command sets to one set
-    final_settings = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    final_settings = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     while self._restore_mixer_control_stack:
       mixer_settings, card = self._restore_mixer_control_stack.pop()
       if card in final_settings:
@@ -121,8 +123,12 @@ class AbstractAudioControl(device_types.DeviceComponent, abc.ABC):
       self.ucm_config_mgr = self.config_mgr
     else:
       self.ucm_config_mgr = config_manager.UCMConfigManager(
-          self._device, self.mixer_controller, self.ucm_card_map,  # type: ignore #TODO(b/338318729) Fixit!
-          self.ucm_device_map, self.ucm_verb)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._device, self.mixer_controller, self.ucm_card_map,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.ucm_device_map, self.ucm_verb)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def GetCardIndexByName(self, card_name):
     """See AbstractMixerController.GetCardIndexByName."""
@@ -378,7 +384,9 @@ class AbstractAudioControl(device_types.DeviceComponent, abc.ABC):
       channels: number of channels.
       rate: Sampling rate.
     """
-    with self._device.temp.TempFile() as wav_path:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._device.temp.TempFile() as wav_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.RecordWavFile(wav_path, card, device, duration, channels, rate)
       self._device.CheckCall([
           'dd', f'skip={int(WAV_HEADER_SIZE)}', f'if={wav_path}', f'of={path}',
@@ -388,7 +396,9 @@ class AbstractAudioControl(device_types.DeviceComponent, abc.ABC):
   def _GetPIDByName(self, name):
     """Used to get process ID"""
     output = self._device.CallOutput(['toybox', 'pidof', name])
-    pids = output.strip().split() if output else []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    pids = output.strip().split() if output else []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # we sholud only have one PID.
     if len(pids) > 1:
       raise RuntimeError(f'Find more than one PID({pids!r}) of {name}!')
@@ -423,8 +433,13 @@ class AbstractAudioControl(device_types.DeviceComponent, abc.ABC):
     """
     for evdev in self._device.Glob('/dev/input/event*'):
       evdev_name = self._device.ReadFile(
-          self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
-              '/sys/class/input/', self._device.path.basename(evdev),  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              # yapf: disable
+              '/sys/class/input/',
+              self._device.path.basename(evdev),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               'device/name'))
       if evdev_name.find(name) != -1:
         logging.info('Find %s Event Device %s', name, evdev)

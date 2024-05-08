@@ -9,11 +9,18 @@ import logging
 from typing import List, NamedTuple, Optional
 import urllib.parse
 
-import certifi  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import certifi  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 import google.auth
-import urllib3  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import urllib3  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.utils import json_utils
+
+
+# yapf: enable
+
 
 
 class GerritConnectorError(Exception):

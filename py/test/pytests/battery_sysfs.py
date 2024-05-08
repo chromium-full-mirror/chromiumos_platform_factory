@@ -53,7 +53,9 @@ class SysfsBatteryTest(unittest.TestCase):
   def runTest(self):
     success = False
     msg = ''
-    wearAllowedPct = self.args.percent_battery_wear_allowed  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    wearAllowedPct = self.args.percent_battery_wear_allowed  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     wearPct = None
     power = self._power
 
@@ -75,8 +77,12 @@ class SysfsBatteryTest(unittest.TestCase):
 
     if battery_present:
       cycleCount = power.GetBatteryCycleCount()
-      if success and self.args.maximum_cycle_count >= 0:  # type: ignore #TODO(b/338318729) Fixit!
-        if cycleCount > self.args.maximum_cycle_count:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if success and self.args.maximum_cycle_count >= 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        if cycleCount > self.args.maximum_cycle_count:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           msg = f'Battery cycle count is too high: {int(cycleCount)}'
           success = False
 

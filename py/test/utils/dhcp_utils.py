@@ -111,12 +111,22 @@ class DHCPManager:
         logging.info('DHCPManager: IFACE: %s will be assigned to %s',
                      interface.name, cidr)
       # Make sure the interface is up
-      net_utils.SetEthernetIp(str(cidr.SelectIP(1)), interface.name,  # type: ignore #TODO(b/338318729) Fixit!
-                              str(cidr.Netmask()), force=True)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      net_utils.SetEthernetIp(str(cidr.SelectIP(1)), interface.name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                              # yapf: enable
+                              # yapf: disable
+                              str(cidr.Netmask()), force=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      used_range.append((str(cidr.SelectIP(1)), cidr.prefix))  # type: ignore #TODO(b/338318729) Fixit!
-      ip_start = cidr.SelectIP(2)  # type: ignore #TODO(b/338318729) Fixit!
-      ip_end = cidr.SelectIP(-3)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      used_range.append((str(cidr.SelectIP(1)), cidr.prefix))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      ip_start = cidr.SelectIP(2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      ip_end = cidr.SelectIP(-3)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       dhcp_ranges.extend(
           ['--dhcp-range', f'{ip_start},{ip_end},{int(self._lease_time)}'])
     interfaces = [interface.name for interface in interfaces]
@@ -172,14 +182,20 @@ class DHCPManager:
 
   def StopDHCP(self):
     """Stops DHCP service."""
-    self._process.terminate()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._process.terminate()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._process = None
-    self._rpc_server.Destroy()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._rpc_server.Destroy()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._rpc_server = None
     for interface in self._handled_interfaces:
       net_utils.Ifconfig(interface, enable=False)
     callback_file_symlink = os.path.join(
-        self.RUN_DIR, f'{self.CALLBACK_PREFIX}{int(self._callback_port)}')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.RUN_DIR, f'{self.CALLBACK_PREFIX}{int(self._callback_port)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     os.unlink(callback_file_symlink)
 
   def DHCPCallback(self, argv):

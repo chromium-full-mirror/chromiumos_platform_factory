@@ -89,8 +89,12 @@ class ComponentNameImpl(probe_info_analytics.IComponentName):
     if not component_identity.qual_id and not component_identity.component_id:
       raise ValueError('ComponentIdentity must have either CID or QID.')
 
-    return cls(cid=component_identity.component_id,  # type: ignore #TODO(b/338318729) Fixit!
-               qid=component_identity.qual_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls(cid=component_identity.component_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+               # yapf: enable
+               # yapf: disable
+               qid=component_identity.qual_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 ProbeInfoServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
@@ -98,7 +102,9 @@ ProbeInfoServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
     stubby_pb2.DESCRIPTOR.services_by_name['ProbeInfoService'])
 
 
-class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   MSG_NO_PROBE_STATEMENT_PREVIEW_INVALID_AVL_DATA = (
       '(no preview available due to the invalid data from AVL)')
@@ -254,7 +260,9 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
       return response
 
     for i, lookup_result in enumerate(lookup_results):
-      if (analyzed_result.probe_info_test_results[i].result_type ==  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if (analyzed_result.probe_info_test_results[i].result_type ==  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           stubby_pb2.ProbeInfoParsedResult.PASSED):
         component_identity = request.component_probe_infos[i].component_identity
         if lookup_result.source_type == stubby_pb2.ProbeMetadata.AUTO_GENERATED:
@@ -262,7 +270,9 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
               component_identity.component_id, component_identity.qual_id)
           if not avl_entry:
             raise protorpc_utils.ProtoRPCException(
-                protorpc_utils.RPCCANONICALErrorCode.INVALID_ARGUMENT,  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                protorpc_utils.RPCCANONICALErrorCode.INVALID_ARGUMENT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 'Invalid AVL ID.')
           if not avl_entry.is_tested:
             avl_entry.is_tested = True

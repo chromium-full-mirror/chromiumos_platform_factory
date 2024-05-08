@@ -18,12 +18,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
-from backend import common  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: enable
+# yapf: disable
+from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend import views
-from django.conf.urls import url  # type: ignore #TODO(b/338318729) Fixit!
-from django.views.generic import TemplateView  # type: ignore #TODO(b/338318729) Fixit!
-from rest_framework.authtoken import views as drf_views  # type: ignore #TODO(b/338318729) Fixit!
-from rest_framework.urlpatterns import format_suffix_patterns  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from django.conf.urls import url  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from django.views.generic import TemplateView  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from rest_framework.authtoken import views as drf_views  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from rest_framework.urlpatterns import format_suffix_patterns  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 # TODO(littlecvr): move to common config with umpire.

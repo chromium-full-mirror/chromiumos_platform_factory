@@ -93,7 +93,9 @@ class CryptohomeUtilsTest(unittest.TestCase):
   def test_SetFwManagementParameters_Failed(self, checkoutput_mock,
                                             binary_mock):
     binary_mock.return_value = 'cryptohome'
-    checkoutput_mock.side_effect = process_utils.CalledProcessError(1, None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    checkoutput_mock.side_effect = process_utils.CalledProcessError(1, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     checkoutput_mock.return_value = textwrap.dedent("""
         [user_data_auth.SetFirmwareManagementParametersReply] {
           error: CRYPTOHOME_ERROR_FIRMWARE_MANAGEMENT_PARAMETERS_CANNOT_STORE

@@ -18,5 +18,7 @@ def ProbeInfoFromMapping(
           'name': name
       }
       kwargs['string_value' if isinstance(value, str) else 'int_value'] = value
-      probe_parameters.append(stubby_pb2.ProbeParameter(**kwargs))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      probe_parameters.append(stubby_pb2.ProbeParameter(**kwargs))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
   return stubby_pb2.ProbeInfo(probe_parameters=probe_parameters)

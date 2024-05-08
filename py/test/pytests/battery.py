@@ -59,10 +59,14 @@ class BatteryCommunicationTest(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    lower, upper = self.args.design_capacity_range  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    lower, upper = self.args.design_capacity_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     capacity = self.dut.power.GetBatteryDesignCapacity()
     logging.info('Get battery design capacity: %d', capacity)
     self.assertTrue(
         lower <= capacity <= upper,
-        f'Battery design capacity {int(capacity)} out of range: '  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'Battery design capacity {int(capacity)} out of range: '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'{str(self.args.design_capacity_range)}')

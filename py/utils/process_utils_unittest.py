@@ -335,14 +335,18 @@ class TestRedirectStdout(unittest.TestCase):
     mock_file = MockFile()
     with self.assertRaises(IOError):
       with process_utils.RedirectStandardStreams(stdout=mock_file):
-        sys.stdout = MockFile()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        sys.stdout = MockFile()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def testRedirectStdoutWithinContext(self):
     mock_file = MockFile()
     print('before')
     with process_utils.RedirectStandardStreams(stdout=None):
       print('SHOULD_OUTPUT')
-      sys.stdout = mock_file  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      sys.stdout = mock_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       print('SHOULD_NOT_OUTPUT')
     print('after')
     self.assertEqual('before\nSHOULD_OUTPUT\n', self.mock_stdout.getvalue())
@@ -351,14 +355,18 @@ class TestRedirectStdout(unittest.TestCase):
 class TestPipeStdoutLines(unittest.TestCase):
 
   def testBasic(self):
-    buf = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buf = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = Spawn('echo foo', stdout=PIPE, shell=True)
     PipeStdoutLines(process, buf.append)
     self.assertEqual(0, process.returncode)
     self.assertEqual(['foo'], buf)
 
   def testTwoReads(self):
-    buf = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buf = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = Spawn(
         'echo -n foo; sleep 0.01; echo bar', stdout=PIPE, shell=True)
     PipeStdoutLines(process, buf.append)
@@ -381,7 +389,9 @@ class TestPipeStdoutLines(unittest.TestCase):
       self.assertEqual(['foo', 'bar'], buf)
 
   def testPartialLines(self):
-    buf = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buf = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = Spawn(
         'echo -n "foo\nbar"\n'
         'sleep 0.01\n'
@@ -397,7 +407,9 @@ class TestPipeStdoutLines(unittest.TestCase):
     self.assertEqual(['foo', 'barbaz', 'www', 'vvv^vvv'], buf)
 
   def testStdoutClosedEarly(self):
-    buf = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buf = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = Spawn(
         'echo "foo"\n'
         'exec 1>&- # Close stdout\n'
@@ -409,7 +421,9 @@ class TestPipeStdoutLines(unittest.TestCase):
     self.assertEqual(['foo'], buf)
 
   def testStdoutGrabbedByChild(self):
-    buf = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buf = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = Spawn(
         'echo "parent"\n'
         '(sleep 0.5; echo "child") &\n'

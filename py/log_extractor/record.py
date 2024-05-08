@@ -105,7 +105,9 @@ class TestlogRecord(FactoryRecord):
   _STATION_TO_STR_TEMPLATE = '[{log_level}] {time} {msg}'
 
   def __init__(self, data: testlog.EventBase):
-    super().__init__(data)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    super().__init__(data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._time = self._data['time']
     if isinstance(self._data, testlog.StationTestRun):
       # The `time` field should store the timestamp that the event is generated.
@@ -129,7 +131,9 @@ class TestlogRecord(FactoryRecord):
     return cls(data)
 
   def GetEventType(self) -> str:
-    return self._data.GetEventType()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._data.GetEventType()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _BuildStrFromStationMessage(self) -> str:
     msg_list = []

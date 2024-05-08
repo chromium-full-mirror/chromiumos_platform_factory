@@ -63,10 +63,16 @@ class FakeProbedOutcomeInfo:
   def __init__(self, testdata_name):
     testdata_filename = f'fake_probed_outcome_info-{testdata_name}.yaml'
     raw_data = yaml.safe_load(_ReadTestdataFile(testdata_filename))
-    self.component_testdata_names: typing.List[str] = raw_data[  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.component_testdata_names: typing.List[str] = raw_data[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'component_testdata_names']
-    self.envs: typing.Mapping[str, str] = raw_data['envs']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.envs: typing.Mapping[str, str] = raw_data['envs']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.probed_outcome = client_payload_pb2.ProbedOutcome()
-    self.probe_config_payload: str = raw_data['probe_config_payload']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.probe_config_payload: str = raw_data['probe_config_payload']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     text_format.Parse(raw_data['probed_outcome_prototxt'], self.probed_outcome)

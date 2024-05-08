@@ -83,13 +83,17 @@ class Ti50APROVerficationTest(test_case.TestCase):
 
   def ProvisionSPIData(self):
     # Enable software write protect.
-    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('Enable SWWP.')
       self.ap_wp_target.SetProtectionStatus(enable=True, skip_enable_check=True)
 
     # Set board ID.
     session.console.info('Set board ID.')
-    self.gsc_utils.GSCSetBoardId(two_stages=self.args.two_stages)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.gsc_utils.GSCSetBoardId(two_stages=self.args.two_stages)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Set Addressing mode and WPSR.
     # Skip provisioning SPI data only if not in initial factory mode
@@ -98,7 +102,9 @@ class Ti50APROVerficationTest(test_case.TestCase):
         not self.gsctool.IsWpsrProvisioned()):
       session.console.info('Set Addressing mode and WPSR.')
       self.gsc_utils.Ti50ProvisionSPIData(
-          no_write_protect=(not self.args.enable_swwp))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          no_write_protect=(not self.args.enable_swwp))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def VerifyAPRO(self):
     # Reboot GSC.
@@ -140,6 +146,8 @@ class Ti50APROVerficationTest(test_case.TestCase):
     session.console.info('Ti50 AP RO Verification passed.')
 
   def tearDown(self):
-    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('Disable SWWP.')
       self.ap_wp_target.SetProtectionStatus(enable=False)

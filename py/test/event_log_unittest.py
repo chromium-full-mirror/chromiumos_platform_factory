@@ -39,7 +39,9 @@ _TestNamedTuple = collections.namedtuple('_TestNamedTuple', ['a', 'b', 'c'])
 
 def Reset():
   # Deletes state files and resets global variables.
-  event_log.device_id = event_log.reimage_id = None  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  event_log.device_id = event_log.reimage_id = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   shutil.rmtree(event_log.EVENT_LOG_DIR, ignore_errors=True)
   for f in [session.DEVICE_ID_PATH, event_log.SEQUENCE_PATH,
             event_log.BOOT_SEQUENCE_PATH, event_log.EVENTS_PATH]:
@@ -101,7 +103,9 @@ class GlobalSeqTest(unittest.TestCase):
                      dump(('v1', 'v2', 'v3')))
     # A subclass of an unicode, treating as a str
     self.assertEqual('\n'.join(['a dbus string', '...']),
-                     dump(dbus.String('a dbus string')))  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     dump(dbus.String('a dbus string')))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # A general object
     self.assertEqual('\n'.join(['attr_foo: Foo']),
                      dump(OtherType('Foo')))

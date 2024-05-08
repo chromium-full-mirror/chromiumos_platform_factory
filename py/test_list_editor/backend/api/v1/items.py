@@ -2,13 +2,18 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from flask import Blueprint  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import Blueprint  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test_list_editor.backend.controller import test_list as test_list_controller
 from cros.factory.test_list_editor.backend.middleware import validation
 from cros.factory.test_list_editor.backend.models import files as files_model
 from cros.factory.test_list_editor.backend.models import test_list as test_list_model
 from cros.factory.test_list_editor.backend.schema import test_list as test_list_schema
+
+
+# yapf: enable
+
 
 
 def CreateBP():

@@ -213,7 +213,9 @@ def GenerateTestDocs(
 
 def LinkToAVL(component: test_case.TestCategory):
   url = 'https://chromeos.google.com/partner/dlm/avl/component'
-  encoded_args = urllib.parse.quote_plus(component.avl_name)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  encoded_args = urllib.parse.quote_plus(component.avl_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   return f'`{component.avl_name} <{url}?q=componentType:"{encoded_args}">`_'
 
 
@@ -238,9 +240,15 @@ def GenerateOneTypeOfPyTestsDoc(
 @DocGenerator('pytests')
 def GeneratePyTestsDoc(pytests_output_dir):
   # Map of pytest name to info returned by GenerateTestDocs.
-  pytest_description: Dict[str, str] = {}  # type: ignore #TODO(b/338318729) Fixit!
-  uncategorized_tests: List[str] = []  # type: ignore #TODO(b/338318729) Fixit!
-  component_to_tests: Dict[test_case.TestCategory, List[str]] = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  pytest_description: Dict[str, str] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  uncategorized_tests: List[str] = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  component_to_tests: Dict[test_case.TestCategory, List[str]] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   for relpath in pytest_utils.GetPytestList(paths.FACTORY_DIR):
     pytest_name = pytest_utils.RelpathToPytestName(relpath)
@@ -363,7 +371,9 @@ def GenerateTestListDoc(output_dir):
       has_group_detail = False
 
       test_object_names = sorted(raw_config['definitions'])
-      cache = {}  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cache = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for test_object_name in test_object_names:
         resolved_test_object = config['definitions'][test_object_name]
         raw_test_object = test_list.ResolveTestObject(
@@ -480,7 +490,9 @@ def GenerateHWIDDoc(output_dir):
   probe_statement = common.LoadUserProbeStatementFile(
       converter.DEFAULT_PROBE_STATEMENT_PATH)
 
-  table = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  table = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for category in test_case.TestCategory.__members__.values():
     if category.hwid_name:
       table.setdefault(category.hwid_name, []).append(category)

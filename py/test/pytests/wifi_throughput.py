@@ -354,7 +354,9 @@ class _ServiceTest:
 
   def _Log(self, text, *args):
     f_name = sys._getframe(1).f_code.co_name  # pylint: disable=protected-access
-    session.console.info('[%s] INFO [%s] ' + text, self._ap_config.ssid, f_name,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    session.console.info('[%s] INFO [%s] ' + text, self._ap_config.ssid, f_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                          *args)
 
   def Run(self, ap_config):
@@ -416,7 +418,9 @@ class _ServiceTest:
       except self._TestException as e:
         logging.exception('Failed to run %s(**kwargs=%s)', fn.__name__, kwargs)
         message = f'[{ap_config.ssid}] FAIL [{fn.__name__}] {str(e)}'
-        self._log['failures'].append(message)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._log['failures'].append(message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         session.console.error(message)
         if abort:
           raise
@@ -487,10 +491,16 @@ class _ServiceTest:
     # Check signal strength.
     if min_strength is None:
       return None
-    strength = self._ap.strength  # type: ignore #TODO(b/338318729) Fixit!
-    self._log['pass_strength'] = (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    strength = self._ap.strength  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._log['pass_strength'] = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         strength is not None and strength >= min_strength)
-    if not self._log['pass_strength']:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self._log['pass_strength']:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise self._TestException(
           f'strength {strength} < {int(min_strength)} [fail]')
     return f'strength {strength} >= {int(min_strength)} [pass]'
@@ -499,10 +509,16 @@ class _ServiceTest:
     # Check signal quality.
     if min_quality is None:
       return None
-    quality = self._ap.quality  # type: ignore #TODO(b/338318729) Fixit!
-    self._log['pass_quality'] = (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    quality = self._ap.quality  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._log['pass_quality'] = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         quality is not None and quality >= min_quality)
-    if not self._log['pass_quality']:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self._log['pass_quality']:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise self._TestException(
           f'quality {quality} < {int(min_quality)} [fail]')
     return f'quality {quality} >= {int(min_quality)} [pass]'
@@ -518,7 +534,9 @@ class _ServiceTest:
           connect_timeout=_WIFI_TIMEOUT_SECS,
           dhcp_timeout=_WIFI_TIMEOUT_SECS,
           ip_address_family=net_utils.ConvertIPtoFamily(
-              self._ap_config.iperf_host),  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              self._ap_config.iperf_host),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       )
     except self._wifi.WiFiError:
       unused_exc_class, exc, tb = sys.exc_info()
@@ -531,18 +549,34 @@ class _ServiceTest:
 
   def _LogConnection(self):
     # Save network ssid details.
-    self._log['ap'] = {  # type: ignore #TODO(b/338318729) Fixit!
-        'ssid': self._ap.ssid,  # type: ignore #TODO(b/338318729) Fixit!
-        'bssid': self._ap.bssid,  # type: ignore #TODO(b/338318729) Fixit!
-        'encryption': self._ap.encryption_type,  # type: ignore #TODO(b/338318729) Fixit!
-        'strength': self._ap.strength,  # type: ignore #TODO(b/338318729) Fixit!
-        'quality': self._ap.quality,  # type: ignore #TODO(b/338318729) Fixit!
-        'frequency': self._ap.frequency}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._log['ap'] = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'ssid': self._ap.ssid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'bssid': self._ap.bssid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'encryption': self._ap.encryption_type,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'strength': self._ap.strength,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'quality': self._ap.quality,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'frequency': self._ap.frequency}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return 'Saved connection information'
 
   def _LogConnectionSummaryStatus(self):
     # Save network ssid details.
-    self._log['iw_connection_status'] = self._conn.GetStatus()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._log['iw_connection_status'] = self._conn.GetStatus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return 'Saved connection summary status'
 
   def _RunIperf(self, iperf_host, iperf_port, bind_wifi, reverse, tx_rx,
@@ -551,7 +585,9 @@ class _ServiceTest:
     # running on a wired device).
     if bind_wifi:
       bind_dev = self._interface
-      bind_ip = self._conn.ip  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bind_ip = self._conn.ip  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('%s binding to %s on device %s', tx_rx, bind_ip, bind_dev)
 
     # Invoke iperf3.  If another client is currently running a test, wait
@@ -574,8 +610,12 @@ class _ServiceTest:
             ),
             condition_method=lambda x: (
                 # Success if no error, or if non-busy error.
-                ('error' not in x) or  # type: ignore #TODO(b/338318729) Fixit!
-                (x.get('error') == Iperf3Client.ERROR_MSG_BUSY)),  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                ('error' not in x) or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                (x.get('error') == Iperf3Client.ERROR_MSG_BUSY)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             timeout_secs=_IPERF_TIMEOUT_SECS,
             poll_interval_secs=_DEFAULT_POLL_INTERVAL_SECS,
             condition_name=log_msg)
@@ -598,7 +638,9 @@ class _ServiceTest:
         break
 
     # Save output.
-    self._log[log_key] = iperf_output  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._log[log_key] = iperf_output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Show any errors from iperf, but only fail if NO intervals.
     if 'error' in iperf_output:
@@ -615,7 +657,9 @@ class _ServiceTest:
         [f'{int(_BitsToMbits(x))}' for x in throughputs])
     self._Log(f'{tx_rx} iperf throughputs (Mbits/sec): {throughputs_string}')
     num_zero_throughputs = len([x for x in throughputs if x == 0])
-    self._log[log_key]['num_zero_throughputs'] = num_zero_throughputs  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._log[log_key]['num_zero_throughputs'] = num_zero_throughputs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Test for success based on number of intervals transferred.
     min_intervals = transmit_time / transmit_interval
@@ -633,7 +677,9 @@ class _ServiceTest:
 
   def _CheckIperfThroughput(self, ssid, tx_rx, log_key, log_pass_key,
                             min_throughput):
-    iperf_avg = self._log[log_key]['end']['sum_sent']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    iperf_avg = self._log[log_key]['end']['sum_sent']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Ensure the average throughput is over its minimum.
     param_name = f'{ssid}_{tx_rx.lower()}_avg_bits_per_second'
@@ -648,9 +694,13 @@ class _ServiceTest:
     if min_throughput is None:
       return None
 
-    self._log[log_pass_key] = (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._log[log_pass_key] = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _BitsToMbits(iperf_avg['bits_per_second']) > min_throughput)
-    if not self._log[log_pass_key]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self._log[log_pass_key]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise self._TestException(
           f"{tx_rx} throughput {_BitsToMbits(iperf_avg['bits_per_second']):.2f}"
           f" < {min_throughput:.2f} Mbits/s didn't meet the minimum")
@@ -663,7 +713,9 @@ class _ServiceTest:
     # Try disconnecting.
     self._Log('Disconnecting from %s...', ssid)
     try:
-      self._conn.Disconnect()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._conn.Disconnect()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except self._wifi.WiFiError as e:
       raise self._TestException(
           f'Unable to disconnect from {ssid}: {e.message}')
@@ -795,12 +847,16 @@ class WiFiThroughput(test_case.TestCase):
   ] + _SHARED_ARGS  # note the concatenation of "shared" arguments
 
   def _Log(self):
-    event_log.Log(self.args.event_log_name, **self.log)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    event_log.Log(self.args.event_log_name, **self.log)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _StartOperatorFeedback(self):
     # In case we're in a chamber without a monitor, store blinking keyboard LEDs
     # object to inform the operator that we're still working.
-    if self.args.blink_leds:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.blink_leds:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._leds_blinker = kbd_leds.Blinker(
           [(0, 0.5),
            (kbd_leds.LED_NUM | kbd_leds.LED_CAP | kbd_leds.LED_SCR, 0.5)])
@@ -812,10 +868,14 @@ class WiFiThroughput(test_case.TestCase):
 
     # If arduino_high_pins is provided as an argument, then set the requested
     # pins in the list to high.
-    if self.args.arduino_high_pins:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.arduino_high_pins:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       arduino_controller = arduino.ArduinoDigitalPinController()
       arduino_controller.Connect()
-      for high_pin in self.args.arduino_high_pins:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for high_pin in self.args.arduino_high_pins:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         arduino_controller.SetPin(high_pin)
       arduino_controller.Disconnect()
 
@@ -846,11 +906,17 @@ class WiFiThroughput(test_case.TestCase):
     # When Iperf server is executed on the host machine, and the IP is retrieved
     # from DHCP server, we can fill the CIDR at iperf_host first, then replace
     # it with the DHCP IP when running the pytest.
-    if isinstance(self.args.iperf_host, str) and '/' in self.args.iperf_host:  # type: ignore #TODO(b/338318729) Fixit!
-      if not self.args.enable_iperf_server:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if isinstance(self.args.iperf_host, str) and '/' in self.args.iperf_host:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if not self.args.enable_iperf_server:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.fail('CIDR format is valid only when '
                   '`enable_iperf_server` argument is enabled')
-      ip, _unused_char, prefix = self.args.iperf_host.partition('/')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ip, _unused_char, prefix = self.args.iperf_host.partition('/')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       cidr = net_utils.CIDR(ip, int(prefix))
       session.console.info('Try to find the host IP in CIDR: %s...', cidr)
       for interface in net_utils.GetNetworkInterfaces():
@@ -859,16 +925,24 @@ class WiFiThroughput(test_case.TestCase):
           continue
         if net_utils.IP(ip).IsIn(cidr):
           session.console.info('Set the iperf host IP: %s', ip)
-          self.args.iperf_host = str(ip)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.iperf_host = str(ip)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           break
       else:
         self.fail(f'There is no host IP in CIDR: {cidr}')
 
     # If only one service is provided as a dict, wrap a list around it.
     # Ensure that each service SSID is only specified once.
-    if not isinstance(self.args.services, list):  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.services = [self.args.services]  # type: ignore #TODO(b/338318729) Fixit!
-    ssids = [service['ssid'] for service in self.args.services]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not isinstance(self.args.services, list):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.services = [self.args.services]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    ssids = [service['ssid'] for service in self.args.services]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if len(ssids) != len(set(ssids)):
       raise ValueError("['services'] argument may only specify each SSID once")
 
@@ -876,7 +950,9 @@ class WiFiThroughput(test_case.TestCase):
     # argument values as default if "service-level" argument is absent.  Now,
     # we only need to read the self.args.services dictionary to get any
     # _SERVICE_ARGS or _SHARED_ARGS values.
-    args_dict = self.args.ToDict()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    args_dict = self.args.ToDict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     service_args = []
     for arg in self._SERVICE_ARGS + self._SHARED_ARGS:
       service_args.append(Arg(
@@ -886,25 +962,41 @@ class WiFiThroughput(test_case.TestCase):
           default=args_dict.get(arg.name, arg.default)))
 
     service_arg_parser = arg_utils.Args(*service_args)
-    if not isinstance(self.args.services, list):  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.services = [self.args.services]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not isinstance(self.args.services, list):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.services = [self.args.services]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     new_services = []
-    for service_dict in self.args.services:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for service_dict in self.args.services:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       new_services.append(service_arg_parser.Parse(service_dict))
-    self.args.services = new_services  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.args.services = new_services  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def setUp(self):
-    self._leds_blinker = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._leds_blinker = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Services should inherit from provided "test-level" arguments.
     self._ProcessArgs()
     self._dut = device_utils.CreateDUTInterface()
 
     # Run our pre-command.
-    if self.args.pre_command:  # type: ignore #TODO(b/338318729) Fixit!
-      session.console.info('Running pre-command: %s', self.args.pre_command)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.pre_command:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      session.console.info('Running pre-command: %s', self.args.pre_command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
-        output = self._dut.CheckOutput(self.args.pre_command)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        output = self._dut.CheckOutput(self.args.pre_command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except CalledProcessError as e:
         session.console.info('Exit code: %d', e.returncode)
       else:
@@ -912,27 +1004,35 @@ class WiFiThroughput(test_case.TestCase):
 
     # Initialize the log dict, which will later be fed into event log.
     self.log = {
-        'args': self.args.ToDict(),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'args': self.args.ToDict(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'run': {
             'path': session.GetCurrentTestPath(),
-            'invocation': session.GetCurrentTestInvocation()},
+            'invocation': session.GetCurrentTestInvocation()
+        },
         'dut': {
-            'device_id': session.GetDeviceID(),
-            'serial_number': self._dut.storage.LoadDict().get(
-                'serial_number', None),
-            'sub_serial_number': self._dut.storage.LoadDict().get(
-                'sub_serial_number', None),
-            'mlb_serial_number': self._dut.storage.LoadDict().get(
-                'mlb_serial_number', None)},
+            'device_id':
+                session.GetDeviceID(),
+            'serial_number':
+                self._dut.storage.LoadDict().get('serial_number', None),
+            'sub_serial_number':
+                self._dut.storage.LoadDict().get('sub_serial_number', None),
+            'mlb_serial_number':
+                self._dut.storage.LoadDict().get('mlb_serial_number', None)
+        },
         'ssid_list': {},
         'test': {},
-        'failures': []}
+        'failures': []
+    }
 
     # Keyboard lights and arduino pins.
     self._StartOperatorFeedback()
 
     # Disable ethernet interfaces if needed.
-    if self.args.disable_eth:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.disable_eth:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Disabling ethernet interfaces')
       net_utils.SwitchEthernetInterfaces(False)
 
@@ -941,7 +1041,9 @@ class WiFiThroughput(test_case.TestCase):
     self._wifi = self._dut.wifi
     self._iperf3 = Iperf3Client(self._dut)
 
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Group checker and details for Testlog.
     self._group_checker = testlog.GroupParam(
@@ -963,38 +1065,60 @@ class WiFiThroughput(test_case.TestCase):
     self._EndOperatorFeedback()
 
     # Run our post-command.
-    if self.args.post_command:  # type: ignore #TODO(b/338318729) Fixit!
-      session.console.info('Running post-command: %s', self.args.post_command)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.post_command:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      session.console.info('Running post-command: %s', self.args.post_command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
-        output = self._dut.CheckOutput(self.args.post_command)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        output = self._dut.CheckOutput(self.args.post_command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       except CalledProcessError as e:
         session.console.info('Exit code: %d', e.returncode)
       else:
         session.console.info('Success. Output: %s', output)
 
     # Enable ethernet interfaces if needed.
-    if self.args.disable_eth:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.disable_eth:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Enabling ethernet interfaces')
       net_utils.SwitchEthernetInterfaces(True)
 
   def runTest(self):
     # Choose the WLAN interface to use for this test, either from the test
     # arguments, or by choosing the only one listed on the device.
-    self._interface = self._wifi.SelectInterface(self.args.interface)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._interface = self._wifi.SelectInterface(self.args.interface)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('Selected interface: %s', self._interface)
 
     # Run a basic SSID list test (if none found will fail).
     found_aps = self._RunBasicSSIDList()
 
     # Test WiFi signal and throughput speed for each service.
-    if self.args.services:  # type: ignore #TODO(b/338318729) Fixit!
-      with (Iperf3Server(Iperf3Client.DEFAULT_PORT)  # type: ignore #TODO(b/338318729) Fixit!
-            if self.args.enable_iperf_server else DummyContextManager()):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.services:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      with (Iperf3Server(Iperf3Client.DEFAULT_PORT)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            if self.args.enable_iperf_server else DummyContextManager()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         service_test = _ServiceTest(self._wifi, self._interface, found_aps,
-                                    self._iperf3, self.ui, self.args.bind_wifi,  # type: ignore #TODO(b/338318729) Fixit!
-                                    self.args.use_ui_retry)  # type: ignore #TODO(b/338318729) Fixit!
+                                    # yapf: disable
+                                    self._iperf3, self.ui, self.args.bind_wifi,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                    # yapf: enable
+                                    # yapf: disable
+                                    self.args.use_ui_retry)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
-        for ap_config in self.args.services:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        for ap_config in self.args.services:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           test_result = service_test.Run(ap_config)
           self.log['test'][ap_config.ssid] = test_result
 

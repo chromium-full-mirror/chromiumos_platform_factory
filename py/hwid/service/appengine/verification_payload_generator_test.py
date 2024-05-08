@@ -55,7 +55,9 @@ class GenericBatteryProbeStatementGeneratorTest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls._GenerateBatteryProbeStatement = staticmethod(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cls._GenerateBatteryProbeStatement = staticmethod(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         GetProbeStatementGenerator('battery'))
 
   def testTryGenerate_CommonTechnology(self):
@@ -65,7 +67,9 @@ class GenericBatteryProbeStatementGeneratorTest(unittest.TestCase):
             'model_name': 'bar',
             'technology': 'Li-ion'
         }, hwid_common.ComponentStatus.supported)
-    vp_piece = self._GenerateBatteryProbeStatement('sysfs_battery', comp)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vp_piece = self._GenerateBatteryProbeStatement('sysfs_battery', comp)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         vp_piece.probe_statement,
         probe_config_types.ComponentProbeStatement(
@@ -87,7 +91,9 @@ class GenericBatteryProbeStatementGeneratorTest(unittest.TestCase):
             'model_name': 'bar',
             'technology': 'OOI0'
         }, hwid_common.ComponentStatus.supported)
-    vp_piece = self._GenerateBatteryProbeStatement('ec_battery', comp)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vp_piece = self._GenerateBatteryProbeStatement('ec_battery', comp)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         vp_piece.probe_statement,
         probe_config_types.ComponentProbeStatement(
@@ -108,7 +114,9 @@ class GenericBatteryProbeStatementGeneratorTest(unittest.TestCase):
             'manufacturer': 'foo',
             'technology': 'Li-ion'
         }, hwid_common.ComponentStatus.supported)
-    vp_piece = self._GenerateBatteryProbeStatement('name', comp)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vp_piece = self._GenerateBatteryProbeStatement('name', comp)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertIsNone(vp_piece)
 
 

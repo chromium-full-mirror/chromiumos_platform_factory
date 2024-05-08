@@ -146,7 +146,9 @@ class TestHTTPAE(unittest.TestCase):
     self.gpg_output_homedir = os.path.join(self._tmp_dir, 'gpg_output')
 
     # Step 2. Import keys.
-    gpg_input = gnupg.GPG(gnupghome=self.gpg_input_homedir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    gpg_input = gnupg.GPG(gnupghome=self.gpg_input_homedir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     gpg_input.import_keys(
         file_utils.ReadFile(os.path.join(gpg_input_data, 'key.txt')))
     self.assertEqual(len(gpg_input.list_keys()), 1)
@@ -155,7 +157,9 @@ class TestHTTPAE(unittest.TestCase):
                      ['HTTP_Input (insecure!) <chuntsen@google.com>'])
     self.assertEqual(gpg_input.list_keys(True)[0]['uids'],
                      ['HTTP_Input (insecure!) <chuntsen@google.com>'])
-    gpg_output = gnupg.GPG(gnupghome=self.gpg_output_homedir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    gpg_output = gnupg.GPG(gnupghome=self.gpg_output_homedir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     gpg_output.import_keys(
         file_utils.ReadFile(os.path.join(gpg_output_data, 'key.txt')))
     self.assertEqual(len(gpg_output.list_keys()), 1)

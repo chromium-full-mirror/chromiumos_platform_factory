@@ -26,7 +26,10 @@ import sys
 import threading
 import urllib.request
 
-from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 DEFAULT_CHROME_DEBUG_URL = 'http://127.0.0.1:9222'
@@ -109,9 +112,13 @@ class ChromeRemoteDebugger:
     """
     command = command.copy()
     with self.lock:
-      command.update({'id': self.id})
+      command.update({
+          'id': self.id
+      })
       self.id += 1
-      self.active_websocket.send(json.dumps(command))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.active_websocket.send(json.dumps(command))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def PageNavigate(self, url):
     """Navigates current page to the given URL.

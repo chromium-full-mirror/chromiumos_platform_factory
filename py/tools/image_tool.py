@@ -712,20 +712,30 @@ class GPT(pygpt.GPT):
         check_equal: True to raise exception if the sizes of partitions are
                      different.
       """
-      if self.size != dest.size:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.size != dest.size:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if check_equal:
           raise RuntimeError(
-              f'Partition size is different ({int(self.size)}, {int(dest.size)}'  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'Partition size is different ({int(self.size)}, {int(dest.size)}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               ').')
-        if self.size > dest.size:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.size > dest.size:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           raise RuntimeError(
-              f'Source partition ({self.size}) is larger than destination ('  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'Source partition ({self.size}) is larger than destination ('  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f'{dest.size}).')
       if verbose:
         logging.info('Copying partition %s => %s...', self, dest)
 
       with self.OpenAsStream() as src_stream:
-        SysUtils.PartialCopyFromStream(src_stream, self.size, dest.image,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SysUtils.PartialCopyFromStream(src_stream, self.size, dest.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                        dest.offset, sync=sync)
 
   class ZeroedPartition(pygpt.GPT.PartitionBase, CopyablePartitionMixin):
@@ -799,7 +809,9 @@ class GPT(pygpt.GPT):
     def Map(self):
       """Maps given partition to loop block device."""
       logging.debug('Map %s: %s(+%s)', self, self.offset, self.size)
-      return self._Map(self.image, self.offset, self.size)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._Map(self.image, self.offset, self.size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @classmethod
     def MapAll(cls, image, partscan=True, block_size=None):
@@ -832,9 +844,13 @@ class GPT(pygpt.GPT):
         auto_umount: True to un-mount when leaving context.
         silent: True to hide all warning and error messages.
       """
-      if GPT.IsBlockDevice(self.image):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if GPT.IsBlockDevice(self.image):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         try:
-          mount_dev = MakePartition(self.image, self.number)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          mount_dev = MakePartition(self.image, self.number)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           mounted_dir = Shell(['lsblk', '-n', '-o', 'MOUNTPOINT', mount_dev],
                               output=True).strip()
           if mounted_dir:
@@ -860,7 +876,9 @@ class GPT(pygpt.GPT):
           temp_dir = tempfile.mkdtemp(prefix='imgtool_')
           mount_point = temp_dir
 
-        args += [self.image, mount_point]  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        args += [self.image, mount_point]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         logging.debug('Partition.Mount: %s', ' '.join(args))
         Sudo(args, silent=silent)
@@ -974,14 +992,18 @@ class GPT(pygpt.GPT):
       Returns:
         A ZeroedPartition object with 1 block.
       """
-      p = GPT.ZeroedPartition(*self, block_size=self.block_size)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      p = GPT.ZeroedPartition(*self, block_size=self.block_size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       p.Update(FirstLBA=0, LastLBA=0)
       return p
 
     @contextlib.contextmanager
     def OpenAsStream(self):
       """CopyablePartitionMixin override."""
-      with open(self.image, 'rb') as src:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with open(self.image, 'rb') as src:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         src.seek(self.offset)
         yield src
 
@@ -1420,7 +1442,9 @@ class UserInput:
         if answer not in options_dict:
           print(f'Invalid option: {answer}')
           continue
-        selected = answer  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        selected = answer  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       break
     return selected
 
@@ -2398,7 +2422,9 @@ class ChromeOSFactoryBundle:
     """
 
     def _ResolveDuplicate(entries):
-      board_map = {}  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      board_map = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for entry in entries:
         if entry.board not in board_map:
           board_map[entry.board] = []
@@ -2634,7 +2660,9 @@ class ChromeOSFactoryBundle:
     output_tar_path = os.path.join(output_dir, output_tar_name)
     bundle_dir = os.path.join(self._temp_dir, 'bundle')
     SysUtils.CreateDirectories(bundle_dir)
-    symlink_resources = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    symlink_resources = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     try:
       part = Partition(self.release_image, PART_CROS_ROOTFS_A)
@@ -2648,7 +2676,9 @@ class ChromeOSFactoryBundle:
         # are {'proto', 'evt', 'dvt', 'pvt', 'mp'}
         raise
       logging.warning('Failed to get firmware updater from release image',
-                      exc_info=1)  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      exc_info=1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       release_firmware_updater = None
 
     # The 'vmlinuz' may be in netboot/ folder (factory zip style) or
@@ -2806,7 +2836,9 @@ class ChromeOSFactoryBundle:
         if config['name'] in designs
     ]
     for config in configs_for_designs:
-      identity: Dict[str, Any] = config['identity']  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      identity: Dict[str, Any] = config['identity']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # According to https://crbug.com/1070692, 'platform-name' is not a part of
       # identity info.  We shouldn't check it.
       identity.pop('platform-name', None)
@@ -2962,7 +2994,9 @@ class SubCommandNamespace(AbstractSubCommand):
   def __init__(self, parser, subparsers):
     super().__init__(parser, subparsers)
     title = f'{self.name} subcommands'
-    namespace_subparser = self.subparser.add_subparsers(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    namespace_subparser = self.subparser.add_subparsers(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         title=title, dest='namespace_subcommand')
     namespace_subparser.required = True
 
@@ -2986,19 +3020,27 @@ class HelpCommand(AbstractSubCommand):
   name = 'help'
 
   def Init(self):
-    self.subparser.add_argument('command', metavar='COMMAND', nargs='*')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('command', metavar='COMMAND', nargs='*')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Run(self):
     parser = self.parser
     # When called by "image_tool help rma create", `self.args.command` will be
     # ['rma', 'create'], where 'rma' is a subparser of top layer parser, and
     # 'create' is a subparser of 'rma' parser.
-    for v in self.args.command:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for v in self.args.command:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         parser = GetSubparsers(parser).choices[v]
       except Exception:
-        sys.exit(f"Unknown subcommand {' '.join(self.args.command)!r}")  # type: ignore #TODO(b/338318729) Fixit!
-    parser.print_help()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        sys.exit(f"Unknown subcommand {' '.join(self.args.command)!r}")  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+    # yapf: disable
+    parser.print_help()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class MountPartitionCommand(AbstractSubCommand):
@@ -3010,44 +3052,66 @@ class MountPartitionCommand(AbstractSubCommand):
   aliases = ['mount_partition']
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-rw', '--rw', action='store_true',
         help='mount partition read/write')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-ro', '--ro', dest='rw', action='store_false',
         help='mount partition read-only')
-    self.subparser.add_argument('image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='path to the Chromium OS image')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'partition_number', type=int,
         help='which partition (1-based) to mount')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'mount_point', type=ArgTypes.ExistsPath,
         help='the path to mount partition')
 
   def Run(self):
-    part = Partition(self.args.image, self.args.partition_number)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    part = Partition(self.args.image, self.args.partition_number)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     mode = ''
     rw = True
     silent = True
     try_ro = True
-    if self.args.rw is not None:  # type: ignore #TODO(b/338318729) Fixit!
-      rw = self.args.rw  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.rw is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      rw = self.args.rw  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       silent = False
       try_ro = False
 
     try:
-      with part.Mount(self.args.mount_point, rw=rw, auto_umount=False,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with part.Mount(self.args.mount_point, rw=rw, auto_umount=False,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                       silent=silent):
         mode = 'RW' if rw else 'RO'
     except subprocess.CalledProcessError:
       if not try_ro:
         raise
       logging.debug('Failed mounting %s, try again as ro/ext2...', part)
-      with part.MountAsCrOSRootfs(self.args.mount_point, auto_umount=False):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with part.MountAsCrOSRootfs(self.args.mount_point, auto_umount=False):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         mode = 'RO'
 
-    print(f'OK: Mounted {part} as {mode} on {self.args.mount_point}.')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    print(f'OK: Mounted {part} as {mode} on {self.args.mount_point}.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class GetFirmwareCommand(AbstractSubCommand):
@@ -3057,15 +3121,23 @@ class GetFirmwareCommand(AbstractSubCommand):
   aliases = ['extract_firmware_updater']
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 required=True,
                                 help='path to the Chrome OS (release) image')
-    self.subparser.add_argument('-o', '--output_dir', default='.',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-o', '--output_dir', default='.',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='directory to save output file(s)')
 
   def Run(self):
-    part = Partition(self.args.image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit!
-    output = part.CopyFile(PATH_CROS_FIRMWARE_UPDATER, self.args.output_dir,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    part = Partition(self.args.image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    output = part.CopyFile(PATH_CROS_FIRMWARE_UPDATER, self.args.output_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                            fs_type=FS_TYPE_CROS_ROOTFS)
     print(f'OK: Extracted {part}:{PATH_CROS_FIRMWARE_UPDATER} to: {output}')
 
@@ -3093,7 +3165,9 @@ class GPTCommand(AbstractSubCommand):
     self.gpt.DefineArgs(self.subparser)
 
   def Run(self):
-    self.gpt.Execute(self.args)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.gpt.Execute(self.args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ResizeFileSystemCommand(AbstractSubCommand):
@@ -3102,30 +3176,48 @@ class ResizeFileSystemCommand(AbstractSubCommand):
   aliases = ['resize_image_fs']
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 required=True,
                                 help='path to the Chromium OS disk image')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-p', '--partition_number', type=int, default=1,
         help='file system on which partition to resize')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-s', '--size_mb', type=int, default=1024,
         help='file system size to change (set or add, see --append) in MB')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-a', '--append', dest='append', action='store_true', default=True,
         help='append (increase) file system by +size_mb')
-    self.subparser.add_argument('--no-append', dest='append',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--no-append', dest='append',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 action='store_false',
                                 help='set file system to a new size of size_mb')
 
   def Run(self):
-    part = Partition(self.args.image, self.args.partition_number)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    part = Partition(self.args.image, self.args.partition_number)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     curr_size = part.GetFileSystemSize()
 
-    if self.args.append:  # type: ignore #TODO(b/338318729) Fixit!
-      new_size = curr_size + self.args.size_mb * MEGABYTE  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.append:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      new_size = curr_size + self.args.size_mb * MEGABYTE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      new_size = self.args.size_mb * MEGABYTE  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      new_size = self.args.size_mb * MEGABYTE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if new_size > part.size:
       raise RuntimeError(
@@ -3150,14 +3242,20 @@ class CreatePreflashImageCommand(AbstractSubCommand):
   def Init(self):
     ChromeOSFactoryBundle.DefineBundleArguments(
         self.subparser, ChromeOSFactoryBundle.PREFLASH)
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--sectors', type=int, default=31277232,
         help=('size of image in sectors (see --sector-size). '
               'default: %(default)s'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--sector-size', type=int, default=DEFAULT_BLOCK_SIZE,
         help='size of each sector. default: %(default)s')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         # Allocate 1G for toolkit and another 1G for run time overhead.
         # (see b/219670647#comment32)
         '--stateful_free_space',
@@ -3165,7 +3263,9 @@ class CreatePreflashImageCommand(AbstractSubCommand):
         default=2048,
         help=('extra space to claim in stateful partition in MB. '
               'default: %(default)s'))
-    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='path to the output disk image file.')
 
   def Run(self):
@@ -3173,23 +3273,45 @@ class CreatePreflashImageCommand(AbstractSubCommand):
       bundle = ChromeOSFactoryBundle(
           temp_dir=temp_dir,
           board=PREFLASH_DEFAULT_BOARD,
-          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit!
-          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit!
-          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           factory_shim=None,
           enable_firmware=False,
-          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           complete=None,
-          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit!
-          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit!
-          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       )
-      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         bundle.VerifyCrosConfig()
       new_size = bundle.CreateDiskImage(
-          self.args.output, self.args.sectors, self.args.sector_size,  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.stateful_free_space, self.args.verbose)  # type: ignore #TODO(b/338318729) Fixit!
-    print(f'OK: Generated pre-flash disk image at {self.args.output} ['  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.output, self.args.sectors, self.args.sector_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.stateful_free_space, self.args.verbose)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    print(f'OK: Generated pre-flash disk image at {self.args.output} ['  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
           f'{new_size // GIGABYTE_STORAGE} G]')
 
 
@@ -3198,12 +3320,16 @@ class ShowPreflashImageCommand(AbstractSubCommand):
   name = 'preflash-show'
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 type=ArgTypes.ExistsPath,
                                 help='Path to input preflash image.')
 
   def Run(self):
-    ChromeOSFactoryBundle.ShowDiskImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ChromeOSFactoryBundle.ShowDiskImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class CreateRMAImageCommmand(AbstractSubCommand):
@@ -3221,43 +3347,89 @@ class CreateRMAImageCommmand(AbstractSubCommand):
   def Init(self):
     ChromeOSFactoryBundle.DefineBundleArguments(self.subparser,
                                                 ChromeOSFactoryBundle.RMA)
-    self.subparser.add_argument('--active_test_list', default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--active_test_list', default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='active test list')
-    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Overwrite existing output image file.')
-    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='path to the output RMA image file')
 
   def Run(self):
-    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
-    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError(
           f'Output already exists (add -f to overwrite): {output}')
 
     with SysUtils.TempDirectory(prefix='rma_') as temp_dir:
       bundle = ChromeOSFactoryBundle(
           temp_dir=temp_dir,
-          board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit!
-          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit!
-          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit!
-          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit!
-          factory_shim=self.args.factory_shim,  # type: ignore #TODO(b/338318729) Fixit!
-          enable_firmware=self.args.enable_firmware,  # type: ignore #TODO(b/338318729) Fixit!
-          firmware=self.args.firmware,  # type: ignore #TODO(b/338318729) Fixit!
-          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit!
-          complete=self.args.complete,  # type: ignore #TODO(b/338318729) Fixit!
-          toolkit_config=self.args.toolkit_config,  # type: ignore #TODO(b/338318729) Fixit!
-          description=self.args.description,  # type: ignore #TODO(b/338318729) Fixit!
-          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit!
-          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit!
-          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          factory_shim=self.args.factory_shim,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          enable_firmware=self.args.enable_firmware,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          firmware=self.args.firmware,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          complete=self.args.complete,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          toolkit_config=self.args.toolkit_config,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          description=self.args.description,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       )
-      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         bundle.VerifyCrosConfig()
-      bundle.CreateRMAImage(self.args.output,  # type: ignore #TODO(b/338318729) Fixit!
-                            active_test_list=self.args.active_test_list)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bundle.CreateRMAImage(self.args.output,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
+                            # yapf: disable
+                            active_test_list=self.args.active_test_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ChromeOSFactoryBundle.ShowRMAImage(output)
-      print(f'OK: Generated {bundle.board} RMA image at {self.args.output}')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      print(f'OK: Generated {bundle.board} RMA image at {self.args.output}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
 
 class MergeRMAImageCommand(AbstractSubCommand):
@@ -3267,14 +3439,22 @@ class MergeRMAImageCommand(AbstractSubCommand):
   aliases = ['merge_rma', 'rma-merge']
 
   def Init(self):
-    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Overwrite existing output image file.')
-    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Path to the merged output image.')
-    self.subparser.add_argument('-i', '--images', required=True, nargs='+',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--images', required=True, nargs='+',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 type=ArgTypes.ExistsPath,
                                 help='Path to input RMA images')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-a', '--auto_select', action='store_true',
         help='Automatically resolve duplicate boards (use the last one).')
 
@@ -3285,16 +3465,28 @@ class MergeRMAImageCommand(AbstractSubCommand):
     The RMA images should be created by 'image_tool rma' command, with different
     board names.
     """
-    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
-    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError(
           f'Output already exists (add -f to overwrite): {output}')
-    if len(self.args.images) < 2:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if len(self.args.images) < 2:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError('Need > 1 input image files to merge.')
 
-    print(f'Scanning {len(self.args.images)} input image files...')  # type: ignore #TODO(b/338318729) Fixit!
-    ChromeOSFactoryBundle.MergeRMAImage(self.args.output, self.args.images,  # type: ignore #TODO(b/338318729) Fixit!
-                                        self.args.auto_select)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    print(f'Scanning {len(self.args.images)} input image files...')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    ChromeOSFactoryBundle.MergeRMAImage(self.args.output, self.args.images,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                        # yapf: enable
+                                        # yapf: disable
+                                        self.args.auto_select)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ChromeOSFactoryBundle.ShowRMAImage(output)
     print(f'OK: Merged successfully in new image: {output}')
 
@@ -3306,14 +3498,22 @@ class ExtractRMAImageCommand(AbstractSubCommand):
   aliases = ['extract_rma', 'rma-extract']
 
   def Init(self):
-    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-f', '--force', action='store_true',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Overwrite existing output image file.')
-    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-o', '--output', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Path to the merged output image.')
-    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 type=ArgTypes.ExistsPath,
                                 help='Path to input RMA image.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-s', '--select', default=None,
         help='Select the SELECT-th board in the shim to extract.')
 
@@ -3323,14 +3523,22 @@ class ExtractRMAImageCommand(AbstractSubCommand):
     The RMA image should be created by 'image_tool rma create' or
     'image_tool rma merge' command.
     """
-    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
-    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    output = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if os.path.exists(output) and not self.args.force:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError(
           f'Output already exists (add -f to overwrite): {output}')
 
     print('Scanning input image file...')
-    ChromeOSFactoryBundle.ExtractRMAImage(self.args.output, self.args.image,  # type: ignore #TODO(b/338318729) Fixit!
-                                          self.args.select)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ChromeOSFactoryBundle.ExtractRMAImage(self.args.output, self.args.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                          # yapf: enable
+                                          # yapf: disable
+                                          self.args.select)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ChromeOSFactoryBundle.ShowRMAImage(output)
     print(f'OK: Extracted successfully in new image: {output}')
 
@@ -3341,13 +3549,17 @@ class UnsignRMAImageCommand(AbstractSubCommand):
   name = 'unsign'
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 type=ArgTypes.ExistsPath,
                                 help='Path of the RMA image to be resigned.')
 
   def Run(self):
     path_futility = SysUtils.FindCommand('futility')
-    image = self.args.image  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    image = self.args.image  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     gpt = GPT.LoadFromFile(image)
 
     first_kernel = gpt.GetPartition(PART_CROS_KERNEL_A)
@@ -3369,12 +3581,16 @@ class ShowRMAImageCommand(AbstractSubCommand):
   aliases = ['show_rma', 'rma-show']
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', required=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 type=ArgTypes.ExistsPath,
                                 help='Path to input RMA image.')
 
   def Run(self):
-    ChromeOSFactoryBundle.ShowRMAImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ChromeOSFactoryBundle.ShowRMAImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ReplaceRMAComponentCommand(AbstractSubCommand):
@@ -3386,20 +3602,30 @@ class ReplaceRMAComponentCommand(AbstractSubCommand):
   def Init(self):
     ChromeOSFactoryBundle.DefineBundleArguments(
         self.subparser, ChromeOSFactoryBundle.REPLACEABLE)
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-i', '--image', required=True,
         type=ArgTypes.ExistsPath,
         help='Path to input RMA image.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--firmware_from_release', action='store_true',
         help='Replace firmware with the one in the provided release image.')
 
   def Run(self):
     with SysUtils.TempDirectory(prefix='rma_') as temp_dir:
       # Get firmware from release_image.
-      if self.args.release_image and self.args.firmware_from_release:  # type: ignore #TODO(b/338318729) Fixit!
-        part = Partition(self.args.release_image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.firmware = part.CopyFile(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.release_image and self.args.firmware_from_release:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        part = Partition(self.args.release_image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.firmware = part.CopyFile(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             PATH_CROS_FIRMWARE_UPDATER, temp_dir, fs_type=FS_TYPE_CROS_ROOTFS)
       # Replacing factory shim is different from replacing other payloads.
       # Other payloads are stored as compressed files in stateful partition. We
@@ -3410,16 +3636,30 @@ class ReplaceRMAComponentCommand(AbstractSubCommand):
       # their sizes, so we can only use the factory shim to create a new RMA
       # shim and overwrite the original image.
       single_board_image = None
-      if self.args.factory_shim:  # type: ignore #TODO(b/338318729) Fixit!
-        if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.factory_shim:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
         logging.warning('Replacing factory shim for board %s. '
-                        'lsb-factory configs will be cleared.', self.args.board)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        'lsb-factory configs will be cleared.', self.args.board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         single_board_image = os.path.join(temp_dir, 'single_board.bin')
         bundle = ChromeOSFactoryBundle(
-            temp_dir=temp_dir, board=self.args.board, release_image=None,  # type: ignore #TODO(b/338318729) Fixit!
-            test_image=None, toolkit=None, factory_shim=self.args.factory_shim)  # type: ignore #TODO(b/338318729) Fixit!
-        with Partition(self.args.image, PART_CROS_STATEFUL).Mount() as stateful:  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            temp_dir=temp_dir, board=self.args.board, release_image=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            test_image=None, toolkit=None, factory_shim=self.args.factory_shim)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        with Partition(self.args.image, PART_CROS_STATEFUL).Mount() as stateful:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           DIR_CROS_PAYLOADS = CrosPayloadUtils.GetCrosPayloadsDir()
           src_payloads_dir = os.path.join(stateful, DIR_CROS_PAYLOADS)
           bundle.CreateRMAImage(
@@ -3428,29 +3668,56 @@ class ReplaceRMAComponentCommand(AbstractSubCommand):
           rma_metadata = _ReadRMAMetadata(stateful)
 
       target_image = (
-          single_board_image if single_board_image else self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          single_board_image if single_board_image else self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ChromeOSFactoryBundle.ReplaceRMAPayload(
-          target_image, board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit!
-          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit!
-          test_image=self.args.test_image, toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit!
-          firmware=self.args.firmware, hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit!
-          complete=self.args.complete, toolkit_config=self.args.toolkit_config,  # type: ignore #TODO(b/338318729) Fixit!
-          project_config=self.args.project_config)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          target_image, board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          test_image=self.args.test_image, toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          firmware=self.args.firmware, hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          complete=self.args.complete, toolkit_config=self.args.toolkit_config,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project_config=self.args.project_config)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      if self.args.factory_shim:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.factory_shim:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if len(rma_metadata) > 1:
           # If the original shim is a multi-board shim, we need to replace the
           # board in the multi-board shim with the new single-board shim.
           multi_board_image = os.path.join(temp_dir, 'multi_board.bin')
           ChromeOSFactoryBundle.MergeRMAImage(
-              multi_board_image, [self.args.image, single_board_image],  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              multi_board_image,
+              [self.args.image, single_board_image],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               auto_select=True)
-          Shell(['mv', multi_board_image, self.args.image])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          Shell(['mv', multi_board_image, self.args.image])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
         else:
-          Shell(['mv', single_board_image, self.args.image])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          Shell(['mv', single_board_image, self.args.image])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
-    ChromeOSFactoryBundle.ShowRMAImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
-    print(f'OK: Replaced components successfully in image: {self.args.image}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ChromeOSFactoryBundle.ShowRMAImage(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    print(f'OK: Replaced components successfully in image: {self.args.image}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ToolkitCommand(AbstractSubCommand):
@@ -3459,28 +3726,44 @@ class ToolkitCommand(AbstractSubCommand):
   name = 'toolkit'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-i', '--image', required=True,
         type=ArgTypes.ExistsPath,
         help='Path to input RMA image.')
-    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Board to get toolkit.')
-    self.subparser.add_argument('--unpack', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--unpack', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Path to unpack the toolkit.')
-    self.subparser.add_argument('--repack', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--repack', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Path to repack the toolkit.')
 
   def Run(self):
     # Check that exactly one of --unpack and --repack is specified.
     # When unpacking, check that the unpack directory doesn't exist yet.
     # When repacking, check that the repack directory exists.
-    if not bool(self.args.unpack) ^ bool(self.args.repack):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not bool(self.args.unpack) ^ bool(self.args.repack):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError('Please specify exactly one of --unpack and --repack.')
-    target_path = self.args.unpack or self.args.repack  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.unpack:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    target_path = self.args.unpack or self.args.repack  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.unpack:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if os.path.exists(target_path):
         raise RuntimeError(f'Extract path "{target_path}" already exists.')
-    if self.args.repack:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.repack:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not os.path.isdir(target_path):
         raise RuntimeError('PATH should be a directory.')
 
@@ -3488,25 +3771,39 @@ class ToolkitCommand(AbstractSubCommand):
       old_toolkit_path = os.path.join(temp_dir, 'old_toolkit')
       new_toolkit_path = os.path.join(temp_dir, 'new_toolkit')
       # Extract old_toolkit.
-      with Partition(self.args.image, PART_CROS_STATEFUL).Mount() as stateful:  # type: ignore #TODO(b/338318729) Fixit!
-        if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with Partition(self.args.image, PART_CROS_STATEFUL).Mount() as stateful:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           rma_metadata = _ReadRMAMetadata(stateful)
           if len(rma_metadata) == 1:
-            self.args.board = rma_metadata[0].board  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.args.board = rma_metadata[0].board  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           else:
             raise RuntimeError('Board not set.')
         DIR_CROS_PAYLOADS = CrosPayloadUtils.GetCrosPayloadsDir()
         old_payloads_dir = os.path.join(stateful, DIR_CROS_PAYLOADS)
         old_json_path = CrosPayloadUtils.GetJSONPath(old_payloads_dir,
-                                                     self.args.board)  # type: ignore #TODO(b/338318729) Fixit!
+                                                     # yapf: disable
+                                                     self.args.board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         CrosPayloadUtils.GetToolkit(old_json_path, old_toolkit_path)
       # Unpack toolkit
-      if self.args.unpack:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.unpack:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         Shell([old_toolkit_path, '--target', target_path, '--noexec'])
-        print(f'OK: Unpacked {self.args.board} toolkit to directory "'  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        print(f'OK: Unpacked {self.args.board} toolkit to directory "'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
               f'{target_path}".')
       # Repack toolkit.
-      if self.args.repack:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.repack:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         Shell([
             old_toolkit_path, '--', '--repack', target_path, '--pack-into',
             new_toolkit_path
@@ -3514,14 +3811,22 @@ class ToolkitCommand(AbstractSubCommand):
         # Replace old_toolkit in image with new_toolkit.
         with CrosPayloadUtils.TempPayloadsDir() as new_payloads_dir:
           CrosPayloadUtils.CopyComponentsInImage(
-              self.args.image, self.args.board, [], new_payloads_dir)  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              self.args.image, self.args.board, [], new_payloads_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           new_json_path = CrosPayloadUtils.GetJSONPath(new_payloads_dir,
-                                                       self.args.board)  # type: ignore #TODO(b/338318729) Fixit!
+                                                       # yapf: disable
+                                                       self.args.board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           CrosPayloadUtils.ReplaceComponent(
               new_json_path, PAYLOAD_TYPE_TOOLKIT, new_toolkit_path)
           CrosPayloadUtils.ReplaceComponentsInImage(
-              self.args.image, self.args.board, new_payloads_dir)  # type: ignore #TODO(b/338318729) Fixit!
-        print(f'OK: Repacked {self.args.board} toolkit from directory "'  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              self.args.image, self.args.board, new_payloads_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+        # yapf: disable
+        print(f'OK: Repacked {self.args.board} toolkit from directory "'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
               f'{target_path}".')
 
 
@@ -3532,39 +3837,83 @@ class CreateBundleCommand(AbstractSubCommand):
   def Init(self):
     ChromeOSFactoryBundle.DefineBundleArguments(self.subparser,
                                                 ChromeOSFactoryBundle.BUNDLE)
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-o', '--output_dir', default='.',
         help='directory for the output factory bundle file')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--timestamp', help='override the timestamp field in output file name')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-n', '--notes', help='additional notes or comments for bundle release')
 
   def Run(self):
     with SysUtils.TempDirectory(prefix='bundle_') as temp_dir:
       bundle = ChromeOSFactoryBundle(
           temp_dir=temp_dir,
-          board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit!
-          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit!
-          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit!
-          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit!
-          factory_shim=self.args.factory_shim,  # type: ignore #TODO(b/338318729) Fixit!
-          enable_firmware=self.args.enable_firmware,  # type: ignore #TODO(b/338318729) Fixit!
-          firmware=self.args.firmware,  # type: ignore #TODO(b/338318729) Fixit!
-          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit!
-          complete=self.args.complete,  # type: ignore #TODO(b/338318729) Fixit!
-          netboot=self.args.netboot,  # type: ignore #TODO(b/338318729) Fixit!
-          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit!
-          setup_dir=self.args.setup_dir,  # type: ignore #TODO(b/338318729) Fixit!
-          server_url=self.args.server_url,  # type: ignore #TODO(b/338318729) Fixit!
-          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit!
-          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          board=self.args.board,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          release_image=self.args.release_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          test_image=self.args.test_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          toolkit=self.args.toolkit,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          factory_shim=self.args.factory_shim,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          enable_firmware=self.args.enable_firmware,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          firmware=self.args.firmware,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          hwid=self.args.hwid,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          complete=self.args.complete,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          netboot=self.args.netboot,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project_config=self.args.project_config,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          setup_dir=self.args.setup_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          server_url=self.args.server_url,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          project=self.args.project,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       )
-      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.verify_cros_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         bundle.VerifyCrosConfig()
-      output_file = bundle.CreateBundle(self.args.output_dir, self.args.phase,  # type: ignore #TODO(b/338318729) Fixit!
-                                        self.args.notes,  # type: ignore #TODO(b/338318729) Fixit!
-                                        timestamp=self.args.timestamp)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      output_file = bundle.CreateBundle(self.args.output_dir, self.args.phase,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                        # yapf: enable
+                                        # yapf: disable
+                                        self.args.notes,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                        # yapf: enable
+                                        # yapf: disable
+                                        timestamp=self.args.timestamp)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       print(f'OK: Created {bundle.board} factory bundle: {output_file}')
 
 
@@ -3577,7 +3926,9 @@ class CreateDockerImageCommand(AbstractSubCommand):
   name = 'docker'
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 required=True,
                                 help='path to the Chromium OS image')
 
@@ -3613,8 +3964,12 @@ class CreateDockerImageCommand(AbstractSubCommand):
     return docker_name
 
   def Run(self):
-    rootfs_part = Partition(self.args.image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit!
-    state_part = Partition(self.args.image, PART_CROS_STATEFUL)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    rootfs_part = Partition(self.args.image, PART_CROS_ROOTFS_A)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    state_part = Partition(self.args.image, PART_CROS_STATEFUL)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with state_part.Mount() as state:
       with rootfs_part.MountAsCrOSRootfs() as rootfs:
@@ -3625,9 +3980,13 @@ class CreateDockerImageCommand(AbstractSubCommand):
         ])
         Sudo(['mount', '--bind', os.path.join(state, 'dev_image'),
               os.path.join(rootfs, 'usr', 'local')])
-        docker_name = self._CreateDocker(self.args.image, rootfs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        docker_name = self._CreateDocker(self.args.image, rootfs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
-    print(f'OK: Successfully built docker image [{docker_name}] from '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    print(f'OK: Successfully built docker image [{docker_name}] from '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
           f'{self.args.image}.')
 
 
@@ -3641,21 +4000,31 @@ class InstallChromiumOSImageCommand(AbstractSubCommand):
   name = 'install'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-i', '--image', type=ArgTypes.ExistsPath, required=True,
         help='path to a Chromium OS disk image or USB stick device')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-o', '--output', type=ArgTypes.ExistsPath, required=False,
         help=('install to given path of a disk image or USB stick device; '
               'default to boot disk'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-x', '--exclude', type=str, default='dev_image/telemetry/*',
         help='pattern to tar --exclude when copying stateful partition.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--no-stateful-partition', dest='do_stateful', action='store_false',
         default=True,
         help='skip copying stateful partition')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-p', '--partition_number', type=int, required=False, help=(
             'kernel partition number to install (rootfs will be +1); default '
             f'to {PART_CROS_KERNEL_A} or {PART_CROS_KERNEL_B} if active kernel '
@@ -3664,10 +4033,18 @@ class InstallChromiumOSImageCommand(AbstractSubCommand):
   def Run(self):
     # TODO(hungte) Auto-detect by finding removable and fixed storage for from
     # and to.
-    from_image = self.args.image  # type: ignore #TODO(b/338318729) Fixit!
-    to_image = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
-    arg_part = self.args.partition_number  # type: ignore #TODO(b/338318729) Fixit!
-    exclude = self.args.exclude  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    from_image = self.args.image  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    to_image = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    arg_part = self.args.partition_number  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    exclude = self.args.exclude  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     to_part = arg_part if arg_part is not None else PART_CROS_KERNEL_A
 
     if to_image is None:
@@ -3716,7 +4093,9 @@ class InstallChromiumOSImageCommand(AbstractSubCommand):
     # Note stateful may not support mount with rw=False.
     with gpt_from.GetPartition(PART_CROS_STATEFUL).Mount(rw=True) as from_dir:
       dev_image_from = os.path.join(from_dir, 'dev_image')
-      if self.args.do_stateful and os.path.exists(dev_image_from):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.do_stateful and os.path.exists(dev_image_from):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         print('Copying stateful partition...')
         with gpt_to.GetPartition(PART_CROS_STATEFUL).Mount(rw=True) as to_dir:
           dev_image_old = os.path.join(to_dir, 'dev_image.old')
@@ -3748,10 +4127,14 @@ class EditLSBCommand(AbstractSubCommand):
   lsb = None
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 required=True,
                                 help='Path to the factory_install image.')
-    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Board to edit lsb file.')
 
   def _DoURL(self, title, keys, default_port=8080, suffix=''):
@@ -3764,28 +4147,38 @@ class EditLSBCommand(AbstractSubCommand):
       port = str(default_port)
     url = f'http://{host}:{port}{suffix}'
     for key in keys:
-      self.lsb.SetValue(key, url)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.SetValue(key, url)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def _DoOptions(self, title, key, options):
     selected = UserInput.Select(f'{title} ({key})', options)
     value = options[selected]
-    self.lsb.SetValue(key, value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lsb.SetValue(key, value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return value
 
   def _DoOptionalNumber(self, title, key, min_value, max_value):
     selected = UserInput.GetNumber(f'{title} ({key})', min_value=min_value,
                                    max_value=max_value, optional=True)
     if selected is not None:
-      self.lsb.SetValue(key, str(selected))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.SetValue(key, str(selected))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self.lsb.DeleteValue(key)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.DeleteValue(key)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     return selected
 
   def EditBoard(self):
     """Modify board to install."""
     board = UserInput.GetString('Enter board name', optional=True)
     if board:
-      self.lsb.SetValue('CHROMEOS_RELEASE_BOARD', board)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.SetValue('CHROMEOS_RELEASE_BOARD', board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def EditServerAddress(self):
     """Modify Chrome OS Factory Server address."""
@@ -3798,15 +4191,21 @@ class EditLSBCommand(AbstractSubCommand):
         'Enter default action (empty to remove)', max_length=1, optional=True)
     key = 'FACTORY_INSTALL_DEFAULT_ACTION'
     if action:
-      self.lsb.SetValue(key, action)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.SetValue(key, action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self.lsb.DeleteValue(key)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.DeleteValue(key)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def EditActionCountdown(self):
     """Enable/disable countdown before default action."""
     answer = UserInput.YesNo(
         'Enable (y) or disable (n) default action countdown?')
-    self.lsb.SetValue('FACTORY_INSTALL_ACTION_COUNTDOWN',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lsb.SetValue('FACTORY_INSTALL_ACTION_COUNTDOWN',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                       'true' if answer else 'false')
 
   def EditCompletePrompt(self):
@@ -3816,7 +4215,9 @@ class EditLSBCommand(AbstractSubCommand):
     """
     answer = UserInput.YesNo(
         'Enable (y) or disable (n) complete prompt in RMA?')
-    self.lsb.SetValue('FACTORY_INSTALL_COMPLETE_PROMPT',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lsb.SetValue('FACTORY_INSTALL_COMPLETE_PROMPT',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                       'true' if answer else 'false')
 
   def EditRMAAutorun(self):
@@ -3826,7 +4227,9 @@ class EditLSBCommand(AbstractSubCommand):
     depending on HWWP status.
     """
     answer = UserInput.YesNo('Enable (y) or disable (n) autorun in RMA?')
-    self.lsb.SetValue('RMA_AUTORUN', 'true' if answer else 'false')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lsb.SetValue('RMA_AUTORUN', 'true' if answer else 'false')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def EditCutoff(self):
     """Modify cutoff config in cros payload (only for old devices).
@@ -3863,23 +4266,34 @@ class EditLSBCommand(AbstractSubCommand):
     """
     answer = UserInput.YesNo(
         'Enable (y) or disable (n) qrcode when factory reset?')
-    self.lsb.SetValue('DISPLAY_QRCODE', 'true' if answer else 'false')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lsb.SetValue('DISPLAY_QRCODE', 'true' if answer else 'false')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if answer:
       display_info = UserInput.GetString(
           'Enter the fields needed to display. The fields separated by space '
           'will be in the same QR code, the fields separated by comma will be '
           'in the different QR code', optional=True)
-      self.lsb.SetValue('DISPLAY_INFO', display_info)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lsb.SetValue('DISPLAY_INFO', display_info)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DoMenu(self, *args, **kargs):
     while True:
       Shell(['clear'])
       title = '\n'.join([
-          ('Current LSB config:' if self.old_data == self.lsb.AsRawData() else  # type: ignore #TODO(b/338318729) Fixit!
-           'Current LSB config (modified):'),
+          # yapf: disable
+          (
+              'Current LSB config:'
+              if self.old_data == self.lsb.AsRawData() else  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              'Current LSB config (modified):'),
           SPLIT_LINE,
-          self.lsb.AsRawData(),  # type: ignore #TODO(b/338318729) Fixit!
-          SPLIT_LINE])
+          # yapf: disable
+          self.lsb.AsRawData(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          SPLIT_LINE
+      ])
       options_list = [arg.__doc__.splitlines()[0] for arg in args]
       options_dict = {
           k: v.__doc__.splitlines()[0] for k, v in kargs.items()}
@@ -3895,19 +4309,32 @@ class EditLSBCommand(AbstractSubCommand):
         return
 
   def Run(self):
-    if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     with CrosPayloadUtils.TempPayloadsDir() as temp_dir:
       CrosPayloadUtils.CopyComponentsInImage(
-          self.args.image, self.args.board, [PAYLOAD_TYPE_LSB_FACTORY],  # type: ignore #TODO(b/338318729) Fixit!
-          temp_dir, create_metadata=True)
-      json_path = CrosPayloadUtils.GetJSONPath(temp_dir, self.args.board)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          self.args.board,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          [PAYLOAD_TYPE_LSB_FACTORY],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          temp_dir,
+          create_metadata=True)
+      # yapf: disable
+      json_path = CrosPayloadUtils.GetJSONPath(temp_dir, self.args.board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       with tempfile.NamedTemporaryFile('w') as lsb_file:
         # variables for legacy lsb-factory
         legacy_lsb = False
-        stateful_part = Partition(self.args.image, PART_CROS_STATEFUL)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        stateful_part = Partition(self.args.image, PART_CROS_STATEFUL)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         try:
           CrosPayloadUtils.InstallComponents(
@@ -3932,8 +4359,12 @@ class EditLSBCommand(AbstractSubCommand):
 
         def Write():
           """Apply changes and exit."""
-          if self.old_data != self.lsb.AsRawData():  # type: ignore #TODO(b/338318729) Fixit!
-            SysUtils.WriteFile(lsb_file, self.lsb.AsRawData() + '\n')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          if self.old_data != self.lsb.AsRawData():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            SysUtils.WriteFile(lsb_file, self.lsb.AsRawData() + '\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             if legacy_lsb:
               with stateful_part.Mount(rw=True) as stateful:
                 lsb_path = os.path.join(stateful, PATH_LSB_FACTORY)
@@ -3943,7 +4374,9 @@ class EditLSBCommand(AbstractSubCommand):
               CrosPayloadUtils.ReplaceComponent(
                   json_path, PAYLOAD_TYPE_LSB_FACTORY, lsb_file.name)
               CrosPayloadUtils.ReplaceComponentsInImage(
-                  self.args.image, self.args.board, temp_dir)  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  self.args.image, self.args.board, temp_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
             print('DONE. All changes saved properly.')
           else:
             print('QUIT. No modifications.')
@@ -3968,17 +4401,25 @@ class EditToolkitConfigCommand(AbstractSubCommand):
   config_wip = None
 
   def Init(self):
-    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('-i', '--image', type=ArgTypes.ExistsPath,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 required=True,
                                 help='Path to the factory_install image.')
-    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--board', type=str, default=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Board to edit toolkit config.')
 
   def Update(self, key, value):
-    self.config_wip.update({key: value})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_wip.update({key: value})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def DeleteKey(self, key):
-    self.config_wip.pop(key, None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_wip.pop(key, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _DoUpdate(self):
     types = ['string', 'integer', 'boolean']
@@ -4030,14 +4471,20 @@ class EditToolkitConfigCommand(AbstractSubCommand):
   def EditActiveTestList(self):
     """Modify active test list."""
     subconfig_key = TOOLKIT_SUBCONFIG_ACTIVE_TEST_LIST
-    self.config_wip = self.toolkit_config.get(subconfig_key, {}).copy()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_wip = self.toolkit_config.get(subconfig_key, {}).copy()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._DoString('Enter active test list id (e.g. main)', 'id', optional=True)
-    self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def EditTestListConstants(self):
     """Modify test list constants."""
     subconfig_key = TOOLKIT_SUBCONFIG_TEST_LIST_CONSTANTS
-    self.config_wip = self.toolkit_config.get(subconfig_key, {}).copy()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_wip = self.toolkit_config.get(subconfig_key, {}).copy()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     options_list = ['Add/edit key', 'Delete key']
     options_dict = {
         'q': 'Return to menu without saving changes',
@@ -4058,7 +4505,9 @@ class EditToolkitConfigCommand(AbstractSubCommand):
         break
       else:
         # option == 'w'.
-        self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         break
 
   def EditCutoff(self):
@@ -4089,14 +4538,18 @@ class EditToolkitConfigCommand(AbstractSubCommand):
         answer, None)
     self._DoURL('Chrome OS Factory Server for OQC ReFinalize',
                 ['FACTORY_SERVER_URL'])
-    self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.toolkit_config[subconfig_key] = self.config_wip  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def EditContinueKey(self):
     """Enable or disable a confirmation before battery cutoff."""
     key = UserInput.GetString(
         'Enter the key needed to be pressed to continue the cutoff process, '
         'the characters should be pressed in order.', optional=True)
-    self.toolkit_config[TOOLKIT_SUBCONFIG_CUTOFF]['CONTINUE_KEY'] = key  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.toolkit_config[TOOLKIT_SUBCONFIG_CUTOFF]['CONTINUE_KEY'] = key  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def EditQrcodeInfo(self):
     """Enable or disable qrcode right before cutoff.
@@ -4110,7 +4563,9 @@ class EditToolkitConfigCommand(AbstractSubCommand):
         'Enter the fields needed to display. The fields separated by space '
         'will be in the same QR code, the fields separated by comma will be '
         'in the different QR code', optional=True)
-    self.toolkit_config[TOOLKIT_SUBCONFIG_CUTOFF]['QRCODE_INFO'] = display_info  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.toolkit_config[TOOLKIT_SUBCONFIG_CUTOFF]['QRCODE_INFO'] = display_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def EditCustomResetProcess(self):
     """Modify the config to perform customized reset process."""
@@ -4118,13 +4573,17 @@ class EditToolkitConfigCommand(AbstractSubCommand):
     path = UserInput.GetString('Enter the path of the config file.',
                                optional=True)
     if not path:
-      del self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      del self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
     if not os.path.exists(path):
       print('QUIT. File not exist.')
       return
     with open(path, encoding='utf-8') as f:
-      self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS] = json.load(f)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.toolkit_config[TOOLKIT_SUBCONFIG_CUSTOM_RESET_PROCESS] = json.load(f)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DoMenu(self, *args, **kargs):
     while True:
@@ -4152,7 +4611,9 @@ class EditToolkitConfigCommand(AbstractSubCommand):
 
   def GetRootfsCutoffConfig(self):
     # Get the shim cutoff config in rootfs.
-    with Partition(self.args.image, PART_CROS_ROOTFS_A).Mount() as rootfs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with Partition(self.args.image, PART_CROS_ROOTFS_A).Mount() as rootfs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         cutoff_config_path = os.path.join(
             rootfs, 'usr', 'share', 'cutoff', 'cutoff.json')
@@ -4164,15 +4625,26 @@ class EditToolkitConfigCommand(AbstractSubCommand):
 
   def Run(self):
 
-    if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.board is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.board = _GetBoardName(self.args.image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Modify toolkit config in cros_payload.
     with CrosPayloadUtils.TempPayloadsDir() as temp_dir:
       CrosPayloadUtils.CopyComponentsInImage(
-          self.args.image, self.args.board, [PAYLOAD_TYPE_TOOLKIT_CONFIG],  # type: ignore #TODO(b/338318729) Fixit!
-          temp_dir, create_metadata=True)
-      json_path = CrosPayloadUtils.GetJSONPath(temp_dir, self.args.board)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          self.args.board,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          [PAYLOAD_TYPE_TOOLKIT_CONFIG],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          temp_dir,
+          create_metadata=True)
+      # yapf: disable
+      json_path = CrosPayloadUtils.GetJSONPath(temp_dir, self.args.board)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with tempfile.NamedTemporaryFile('r+') as config_file:
         try:
           CrosPayloadUtils.InstallComponents(
@@ -4201,7 +4673,9 @@ class EditToolkitConfigCommand(AbstractSubCommand):
             CrosPayloadUtils.ReplaceComponent(
                 json_path, PAYLOAD_TYPE_TOOLKIT_CONFIG, config_file.name)
             CrosPayloadUtils.ReplaceComponentsInImage(
-                self.args.image, self.args.board, temp_dir)  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                self.args.image, self.args.board, temp_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             print('DONE. All changes saved properly.')
           else:
             print('QUIT. No modifications.')

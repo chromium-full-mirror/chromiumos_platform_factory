@@ -116,7 +116,9 @@ def UnixMonotonicTime():
       ]
 
     librt_name = ctypes.util.find_library('rt')
-    librt = ctypes.cdll.LoadLibrary(librt_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    librt = ctypes.cdll.LoadLibrary(librt_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     clock_gettime = librt.clock_gettime
     clock_gettime.argtypes = [ctypes.c_int, ctypes.POINTER(TimeSpec)]
     t = TimeSpec()

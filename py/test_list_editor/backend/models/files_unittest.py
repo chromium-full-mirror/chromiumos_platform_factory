@@ -43,9 +43,12 @@ class TestTestListFile(unittest.TestCase):
   def testSaveToDisk(self, mock_save: mock.Mock):
     self.test_list_file.Save()
 
-    mock_save.assert_called_once_with(self.data,
-                                      self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit!
-                                      files.TEST_LIST_STORAGE_DIR)
+    mock_save.assert_called_once_with(
+        self.data,
+        # yapf: disable
+        self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        files.TEST_LIST_STORAGE_DIR)
 
   @mock.patch.object(os, 'path')
   @mock.patch.object(json, 'load')

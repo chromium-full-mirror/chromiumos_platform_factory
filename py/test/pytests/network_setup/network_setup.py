@@ -109,18 +109,24 @@ class NetworkConnectionSetup(test_case.TestCase):
   ]
 
   def runTest(self):
-    self.ui.SetState(_STATE_HTML)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_STATE_HTML)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # make config_name absolute path, however, this might not work in PAR
     config_path = os.path.join(os.path.dirname(__file__),
-                               self.args.config_name)  # type: ignore #TODO(b/338318729) Fixit!
+                               # yapf: disable
+                               self.args.config_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     settings = connection_manager.LoadNetworkConfig(config_path)
 
     proxy = connection_manager.GetConnectionManagerProxy()
 
     for interface in settings:
       interface_name = settings[interface].pop('interface_name', interface)
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Setting up interface {interface}',
             interface=f'<b>{interface}</b>'), id=_ID_SUBTITLE_DIV)
 
@@ -136,7 +142,9 @@ class NetworkConnectionSetup(test_case.TestCase):
         if error_code is None:
           return True
         # Hint operators what might go wrong.
-        self.ui.SetHTML(_ErrorCodeToMessage(error_code, interface_name),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetHTML(_ErrorCodeToMessage(error_code, interface_name),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                         id=_ID_MESSAGE_DIV)
         return False
 
@@ -150,10 +158,16 @@ class NetworkConnectionSetup(test_case.TestCase):
       if not success:
         # Failed, wait operators to press space when they think cables are
         # connected correctly.
-        self.ui.SetHTML(_('Press space to continue'), id=_ID_INSTRUCTION_DIV)  # type: ignore #TODO(b/338318729) Fixit!
-        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetHTML(_('Press space to continue'), id=_ID_INSTRUCTION_DIV)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         # Polling until success or timeout (operators don't need to press
         # space anymore).
         sync_utils.PollForCondition(_TryOnce,
-                                    timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+                                    # yapf: disable
+                                    timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable

@@ -185,7 +185,9 @@ class UpdateFirmwareTest(test_case.TestCase):
         the firmware by flashing only the SI_DESC region from the updater.
     """
     _, dut_locked = fw_image.GenerateAndCheckLockedDescriptor()
-    updater_locked = not self.args.unlock_csme  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    updater_locked = not self.args.unlock_csme  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Intel descriptor status: %s',
                  'Locked' if dut_locked else 'Unlocked')
     logging.info('Updater descriptor status: %s',
@@ -211,11 +213,15 @@ class UpdateFirmwareTest(test_case.TestCase):
 
   def RunUpdaterAndCheckResult(self, command: List[str],
                                error_msg: str = 'Firmware update failed'):
-    returncode = self.ui.PipeProcessOutputToUI(command)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    returncode = self.ui.PipeProcessOutputToUI(command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Updates system info so EC and Firmware version in system info box
     # are correct.
-    self.event_loop.PostEvent(event.Event(event.Event.Type.UPDATE_SYSTEM_INFO))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.PostEvent(event.Event(event.Event.Type.UPDATE_SYSTEM_INFO))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(returncode, 0, f'{error_msg}: {int(returncode)}.')
 
@@ -233,16 +239,24 @@ class UpdateFirmwareTest(test_case.TestCase):
       if process.returncode == 0:
         # Found a chromeos-firmwareupdate alive.
         self.FailTask(
-            f"Lock file {LOCK_FILE} is present and firmware update already "  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            f"Lock file {LOCK_FILE} is present and firmware update already "  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             f"running (PID {', '.join(process.stdout_data.split())})")
         return
       logging.warning('Removing %s', LOCK_FILE)
       os.unlink(LOCK_FILE)
 
-    command = [self.args.firmware_updater, '--force']  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.host_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    command = [self.args.firmware_updater, '--force']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.host_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       command += ['--host_only']
-    if self.args.rw_only:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.rw_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       command += ['--mode=recovery', '--wp=1']
     else:
       command += ['--mode=factory']
@@ -262,36 +276,48 @@ class UpdateFirmwareTest(test_case.TestCase):
 
   def runTest(self):
     # Either download_from_server or from_release can be True.
-    self.assertFalse(self.args.download_from_server and self.args.from_release)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertFalse(self.args.download_from_server and self.args.from_release)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if self._is_ti50:
       logging.info('Current RLZ code in RO_GSCVD: %s',
                    futility.Futility().GetRLZFromROGSCVD())
 
     @contextlib.contextmanager
     def GetUpdater():
-      if self.args.download_from_server:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.download_from_server:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         # The temporary folder will not be removed after this test finished
         # for the convenient of debugging.
         temp_path = os.path.join(
             tempfile.mkdtemp(prefix='test_fw_update_', dir='/usr/local/tmp'),
             _FIRMWARE_UPDATER_NAME)
         if self.DownloadFirmware(
-            self.args.force_update, temp_path):  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.args.force_update, temp_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           yield temp_path
         else:
           raise NoUpdatesException
-      elif self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      elif self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         with sys_utils.MountPartition(
             self._dut.partitions.RELEASE_ROOTFS.path, dut=self._dut) as root:
           yield os.path.join(root, _FIRMWARE_RELATIVE_PATH)
       else:
-        yield self.args.firmware_updater  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        yield self.args.firmware_updater  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     try:
       with GetUpdater() as updater_path:
         self.assertTrue(
             os.path.isfile(updater_path), msg=f'{updater_path} is missing.')
-        self.args.firmware_updater = updater_path  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.firmware_updater = updater_path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.UpdateFirmware()
     except NoUpdatesException:
       pass

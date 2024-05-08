@@ -315,23 +315,33 @@ class AudioConfigManager(IConfigManager):
     if is_script:
       card = _SCRIPT_CARD_INDEX
 
-    if card not in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card not in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Card %s does not exist', card)
       return False
 
-    if action not in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if action not in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Action %s cannot be found in card %s', action, card)
       return False
 
     if is_script:
-      script = self.audio_config[card][action]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      script = self.audio_config[card][action]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Execute \'%s\'', script)
-      self._device.CheckCall(script)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._device.CheckCall(script)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       logging.info('\nvvv-- Do(%d) \'%s\' on card %s Start --vvv',
                    self._audio_config_sn, action, card)
       self._mixer_controller.SetMixerControls(
-          self.audio_config[card][action], card)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.audio_config[card][action], card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('\n^^^-- Do(%d) \'%s\' on card %s End   --^^^',
                    self._audio_config_sn, action, card)
       self._audio_config_sn += 1
@@ -341,64 +351,112 @@ class AudioConfigManager(IConfigManager):
   def SetSpeakerVolume(self, volume=0, card='0'):
     if not isinstance(volume, int) or volume < 0:
       raise ValueError('Volume should be positive integer.')
-    if card in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit!
-      if 'set_speaker_volume' in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-        for name in list(self.audio_config[card]['set_speaker_volume']):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if 'set_speaker_volume' in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        for name in list(self.audio_config[card]['set_speaker_volume']):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           if 'Volume' in name:
-            self.audio_config[card]['set_speaker_volume'][name] = str(volume)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.audio_config[card]['set_speaker_volume'][name] = str(volume)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             self._mixer_controller.SetMixerControls(
-                self.audio_config[card]['set_speaker_volume'], card)  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                self.audio_config[card]['set_speaker_volume'], card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             break
 
   def SetHeadphoneVolume(self, volume=0, card='0'):
     if not isinstance(volume, int) or volume < 0:
       raise ValueError('Volume should be positive integer.')
-    if card in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit!
-      if 'set_headphone_volume' in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-        for name in list(self.audio_config[card]['set_headphone_volume']):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if 'set_headphone_volume' in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        for name in list(self.audio_config[card]['set_headphone_volume']):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           if 'Volume' in name:
-            self.audio_config[card]['set_headphone_volume'][name] = str(volume)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.audio_config[card]['set_headphone_volume'][name] = str(volume)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             self._mixer_controller.SetMixerControls(
-                self.audio_config[card]['set_headphone_volume'], card)  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                self.audio_config[card]['set_headphone_volume'], card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             break
 
   def GetHeadphoneJackStatus(self, card='0'):
-    if card in self.audio_config and HP_JACK_DETECT in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-      command = self.audio_config[card][HP_JACK_DETECT]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config and HP_JACK_DETECT in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      command = self.audio_config[card][HP_JACK_DETECT]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Getting headphone jack status by %s', command)
-      jack_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      jack_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       status = jack_status == '1'
       logging.info('headphone jack status %s', status)
       return status
     raise NotImplementedError  # cannot determined by config file
 
   def GetHeadphoneJackPossibleNames(self, card='0'):
-    if card in self.audio_config and HP_JACK_NAME in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-      return [self.audio_config[card][HP_JACK_NAME]]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config and HP_JACK_NAME in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      return [self.audio_config[card][HP_JACK_NAME]]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     raise NotImplementedError  # cannot determined by config file
 
   def GetMicJackStatus(self, card='0'):
-    if card in self.audio_config and MIC_JACK_DETECT in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-      command = self.audio_config[card][MIC_JACK_DETECT]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config and MIC_JACK_DETECT in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      command = self.audio_config[card][MIC_JACK_DETECT]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Getting microphone jack status by %s', command)
-      jack_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      jack_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       status = jack_status == '1'
       logging.info('microphone jack status %s', status)
       return status
     raise NotImplementedError  # cannot determined by config file
 
   def GetMicJackPossibleNames(self, card='0'):
-    if card in self.audio_config and MIC_JACK_NAME in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit!
-      return [self.audio_config[card][MIC_JACK_NAME]]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if card in self.audio_config and MIC_JACK_NAME in self.audio_config[card]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      return [self.audio_config[card][MIC_JACK_NAME]]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     raise NotImplementedError  # cannot determined by config file
 
   def GetMicJackType(self, card='0'):
     mictype = None
-    if (card in self.audio_config and  # type: ignore #TODO(b/338318729) Fixit!
-        MIC_JACK_TYPE_DETECT in self.audio_config[card]):  # type: ignore #TODO(b/338318729) Fixit!
-      command = self.audio_config[card][MIC_JACK_TYPE_DETECT]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (card in self.audio_config and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        MIC_JACK_TYPE_DETECT in self.audio_config[card]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      command = self.audio_config[card][MIC_JACK_TYPE_DETECT]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Getting mic jack type by %s', command)
-      type_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      type_status = self._device.CallOutput(command).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if type_status == MIC_JACK_TYPE_RETURN_LRGM:
         mictype = MicJackType.lrgm
       elif type_status == MIC_JACK_TYPE_RETURN_LRMG:
@@ -541,21 +599,37 @@ class UCMConfigManager(IConfigManager):
       ucm_suffix = self._device.CallOutput(
           ['cros_config', '/audio/main', 'ucm-suffix'])
       if ucm_suffix:
-        ucm_dir = f'{card_name}.{ucm_suffix}'  # type: ignore #TODO(b/338318729) Fixit!
-        ucm_path = self._device.path.join(self._AlsaUCMPath, ucm_dir)  # type: ignore #TODO(b/338318729) Fixit!
-        if self._device.path.isdir(ucm_path):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ucm_dir = f'{card_name}.{ucm_suffix}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        ucm_path = self._device.path.join(self._AlsaUCMPath, ucm_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        if self._device.path.isdir(ucm_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           return ucm_dir
 
       # The legacy directory is named as "<card-name>".
-      legacy_ucm_path = self._device.path.join(self._AlsaUCMPath, card_name)  # type: ignore #TODO(b/338318729) Fixit!
-      if self._device.path.isdir(legacy_ucm_path):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      legacy_ucm_path = self._device.path.join(self._AlsaUCMPath, card_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self._device.path.isdir(legacy_ucm_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return card_name
       return None
 
     output = self._device.CallOutput(['aplay', '-l'])
-    card_map = {}  # type: ignore #TODO(b/338318729) Fixit!
-    for line in output.splitlines():  # type: ignore #TODO(b/338318729) Fixit!
-      m = self._RE_CARD_NAME.match(line)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    card_map = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    for line in output.splitlines():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      m = self._RE_CARD_NAME.match(line)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if m is not None:
         card = m.group(1)
         card_name = m.group(2)
@@ -661,7 +735,9 @@ class UCMConfigManager(IConfigManager):
 
     content = '\n'.join(commands)
     logging.info('Running \'printf \'\'\'%s\'\'\' | alsaucm -n -b -\'', content)
-    with self._device.temp.TempFile() as bash_path:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._device.temp.TempFile() as bash_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._device.WriteFile(bash_path, content)
 
       process = self._device.Popen(['alsaucm', '-n', '-b', bash_path],
@@ -788,7 +864,9 @@ class UCMConfigManager(IConfigManager):
     identity = f'{INPUT_SENSITIVITY_NAME}/{device_name}'
     try:
       output = self._InvokeDeviceCommands(card, f'get "{identity}"')
-      sensitivity = re.search(r'^(.+)=(.+)$', output, re.MULTILINE).group(2)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      sensitivity = re.search(r'^(.+)=(.+)$', output, re.MULTILINE).group(2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       input_gain = (DEFAULT_CAPTURE_VOLUME_DBFS - int(sensitivity)) / 100
       return input_gain
     except Exception:

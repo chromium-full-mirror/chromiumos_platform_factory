@@ -3,7 +3,10 @@
 # found in the LICENSE file.
 from enum import Enum
 
-from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 class StatusEnum(str, Enum):

@@ -43,7 +43,9 @@ def WebSocketHandshake(request):
     return False
 
   version = request.headers.get('Sec-WebSocket-Version')
-  if not version or version not in [str(x) for x in ws4py.WS_VERSION]:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  if not version or version not in [str(x) for x in ws4py.WS_VERSION]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     send_error(f'Unsupported WebSocket version {version}')
     return False
 
@@ -53,7 +55,9 @@ def WebSocketHandshake(request):
   request.send_header(
       'Sec-WebSocket-Accept',
       base64.b64encode(hashlib.sha1(
-          encoded_key + ws4py.WS_KEY).digest()).decode('utf-8'))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          encoded_key + ws4py.WS_KEY).digest()).decode('utf-8'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   request.end_headers()
   request.wfile.flush()
 

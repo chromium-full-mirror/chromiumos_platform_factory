@@ -66,7 +66,9 @@ class PSRToolTest(test_case.TestCase):
     self._intel_psr_tool = intel_psrtool.IntelPSRTool()
 
   def runTest(self):
-    action = self.args.action  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    action = self.args.action  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if action == EnumAction.set:
       self._intel_psr_tool.CloseManufacturing()
       device_data.UpdateDeviceData({KEY_PSR_UPDATE_NEED_REBOOT: True})

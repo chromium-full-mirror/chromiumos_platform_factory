@@ -100,7 +100,9 @@ class CountDownTest(test_case.TestCase):
   related_components = tuple()
 
 
-  ui_class = test_ui.UI  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  ui_class = test_ui.UI  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('duration_secs', int, 'Duration of time to countdown.'),
       Arg('log_interval', int,
@@ -159,13 +161,21 @@ class CountDownTest(test_case.TestCase):
 
   def UpdateTimeAndLoad(self):
     self._elapsed_secs = time.time() - self._start_secs
-    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self.FormatSeconds(self._elapsed_secs),
         id='cd-elapsed-time')
-    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
-        self.FormatSeconds(self.args.duration_secs - self._elapsed_secs),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.FormatSeconds(self.args.duration_secs - self._elapsed_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         id='cd-remaining-time')
-    self.ui.SetHTML(' '.join(file_utils.ReadFile('/proc/loadavg').split()[0:3]),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(' '.join(file_utils.ReadFile('/proc/loadavg').split()[0:3]),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     id='cd-system-load')
 
   def UpdateUILog(self):
@@ -179,22 +189,36 @@ class CountDownTest(test_case.TestCase):
         f'CPU frequency (MHz): {sys_status.cpu_freq}'
     ]
     log_str = '.  '.join(log_items)
-    if self._verbose_log:  # type: ignore #TODO(b/338318729) Fixit!
-      self._verbose_log.write(log_str + os.linesep)  # type: ignore #TODO(b/338318729) Fixit!
-      self._verbose_log.flush()  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.AppendHTML(f'<div>{test_ui.Escape(log_str)}</div>', id=PanelID.LOG,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._verbose_log:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._verbose_log.write(log_str + os.linesep)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._verbose_log.flush()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    self.ui.AppendHTML(f'<div>{test_ui.Escape(log_str)}</div>', id=PanelID.LOG,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        autoscroll=True)
-    self.ui.RunJS(f'const panel = document.getElementById("{PanelID.LOG}");'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS(f'const panel = document.getElementById("{PanelID.LOG}");'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   'if (panel.childNodes.length > 512)'
                   '  panel.removeChild(panel.firstChild);')
 
   def UpdateLegend(self, sensor_names):
     for i, sensor in enumerate(sensor_names):
-      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           f'<div class="cd-legend-item">[{int(i)}] {sensor}</div>',
           id=PanelID.LEGEND_ITEM)
     if sensor_names:
-      self.ui.ToggleClass(PanelID.LEGEND, 'hidden', False)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.ToggleClass(PanelID.LEGEND, 'hidden', False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DetectAbnormalStatus(self, status, last_status):
     def GetTemperature(sensor):
@@ -207,7 +231,9 @@ class CountDownTest(test_case.TestCase):
 
     warnings = []
 
-    if self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if len(status.temperatures) != len(last_status.temperatures):
         warnings.append(f'Number of temperature sensors differ (current: '
                         f'{len(status.temperatures)}, last: '
@@ -225,13 +251,19 @@ class CountDownTest(test_case.TestCase):
           warnings.append(
               f'Cannot read temperature sensor {sensor} (current: {current!r}, '
               f'last: {last!r})')
-        elif abs(current - last) > self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        elif abs(current - last) > self.args.temp_max_delta:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           warnings.append(
-              f'Temperature sensor {sensor} delta over '  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'Temperature sensor {sensor} delta over '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f'{int(self.args.temp_max_delta)} (current: {int(current)}, last:'
               f' {int(last)})')
 
-    for name, sensor, warning_temp, critical_temp in self.args.temp_criteria:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for name, sensor, warning_temp, critical_temp in self.args.temp_criteria:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       temp = GetTemperature(sensor)
       if temp is None:
         warnings.append(f'{name} temperature unavailable')
@@ -253,15 +285,21 @@ class CountDownTest(test_case.TestCase):
         warnings.append(
             f'{name} over critical temperature (now: {temp:.1f}, critical: '
             f'{critical_temp:.1f})')
-        if self.args.terminate_on_critical_temp:  # type: ignore #TODO(b/338318729) Fixit!
-          self.goofy.StopTest(reason=f'Stop all tests since {warnings[-1]}')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.terminate_on_critical_temp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.goofy.StopTest(reason=f'Stop all tests since {warnings[-1]}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       elif temp >= warning_temp:
         warnings.append(
             f'{name} over warning temperature (now: {temp:.1f}, warning: '
             f'{warning_temp:.1f})')
 
     for (relation, first_sensor, second_sensor,
-         max_diff) in self.args.relative_temp_criteria:  # type: ignore #TODO(b/338318729) Fixit!
+         # yapf: disable
+         max_diff) in self.args.relative_temp_criteria:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       first_temp = GetTemperature(first_sensor)
       second_temp = GetTemperature(second_sensor)
       if first_temp is None or second_temp is None:
@@ -278,27 +316,47 @@ class CountDownTest(test_case.TestCase):
             f'Temperature difference between {relation} over {int(max_diff)} '
             f'(first: {int(first_temp)}, second: {int(second_temp)})')
 
-    if self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for i, fan_rpm in enumerate(status.fan_rpm):
-        if fan_rpm < self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if fan_rpm < self.args.fan_min_expected_rpm:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           warnings.append(
-              f'Fan {int(i)} rpm {int(fan_rpm)} less than min expected '  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'Fan {int(i)} rpm {int(fan_rpm)} less than min expected '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f'{int(self.args.fan_min_expected_rpm)}')
 
-    if self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for cpu_freq in status.cpu_freq:
-        if cpu_freq < self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
-          warnings.append(f'CPU frequency {cpu_freq:f} MHz less than expected '  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if cpu_freq < self.args.cpu_min_expected_freq:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          warnings.append(f'CPU frequency {cpu_freq:f} MHz less than expected '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                           f'{int(self.args.cpu_min_expected_freq)} MHz')
 
-    if self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for cpu_freq in status.cpu_freq:
-        if cpu_freq > self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if cpu_freq > self.args.cpu_max_expected_freq:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           warnings.append(
-              f'CPU frequency {cpu_freq:f} MHz larger than expected '  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'CPU frequency {cpu_freq:f} MHz larger than expected '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f'{int(self.args.cpu_max_expected_freq)} MHz')
 
-    if not self.args.allow_invalid_temp:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.allow_invalid_temp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for sensor, temp in status.temperatures.items():
         if temp is None:
           warnings.append(f'Cannot read temperature sensor {sensor}.')
@@ -306,17 +364,23 @@ class CountDownTest(test_case.TestCase):
           warnings.append(
               f'Thermal zone {sensor} reports abnormal temperature {int(temp)}')
 
-    in_grace_period = self._elapsed_secs < self.args.grace_secs  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    in_grace_period = self._elapsed_secs < self.args.grace_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if warnings:
       event_log.Log('warnings', elapsed_secs=self._elapsed_secs,
                     in_grace_period=in_grace_period, warnings=warnings)
-      if not in_grace_period and self.args.show_warn_on_display:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not in_grace_period and self.args.show_warn_on_display:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         for w in warnings:
           session.console.warn(w)
 
     with self._group_checker:
       testlog.CheckNumericParam('elapsed', self._elapsed_secs,
-                                max=self.args.grace_secs)  # type: ignore #TODO(b/338318729) Fixit!
+                                # yapf: disable
+                                max=self.args.grace_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       testlog.LogParam('temperatures', status.temperatures)
       testlog.LogParam('fan_rpm', status.fan_rpm)
       testlog.LogParam('cpu_freq', status.cpu_freq)
@@ -339,7 +403,9 @@ class CountDownTest(test_case.TestCase):
         'cpu_freq_manager')
 
     # Disable wifi scanning in connection manager to prevent from device busy.
-    if self.args.wifi_update_interval:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.wifi_update_interval:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       connection_manager = plugin_controller.GetPluginRPCProxy(
           'connection_manager')
       connection_manager.SetWifiScanInterval(scan_interval=0)
@@ -351,8 +417,12 @@ class CountDownTest(test_case.TestCase):
           location=_ALS_LOCATION)
     except Exception:
       # Disable the ALS scanning if the device does not support ALS.
-      self.ui.HideElement(PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.als_update_interval = 0  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.HideElement(PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.als_update_interval = 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Group checker for Testlog.
     self._group_checker = testlog.GroupParam(
@@ -368,7 +438,9 @@ class CountDownTest(test_case.TestCase):
     self.goofy = state.GetInstance()
     self.btmgmt = bluetooth_utils.BtMgmt()
     self.btmgmt.PowerOn()
-    self._last_thread: Dict[str, threading.Thread] = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._last_thread: Dict[str, threading.Thread] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Log(self):
     """Add event log and detects abnormal status."""
@@ -401,57 +473,95 @@ class CountDownTest(test_case.TestCase):
 
   def ScanWiFi(self):
     """Launch WiFi scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     id=PanelID.WIFI)
-    wifi_aps: List[wifi.AccessPoint] = (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    wifi_aps: List[wifi.AccessPoint] = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self._dut.wifi.FilterAccessPoints(log=False))
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        id=PanelID.WIFI)
     for ap in wifi_aps:
-      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.AppendHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           f'<div>ssid: {ap.ssid!r}, strength: {ap.strength!r}</div>',
           id=PanelID.WIFI)
 
     if self._event_loop_stop:
       logging.info('Stop in ScanWiFi because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanWiFiThread,  # type: ignore #TODO(b/338318729) Fixit!
-                                      self.args.wifi_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.StartNewScanWiFiThread,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                      # yapf: enable
+                                      # yapf: disable
+                                      self.args.wifi_update_interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def ScanBluetooth(self):
     """Launch bluetooth scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     id=PanelID.BLUETOOTH)
     # There may be hundreds of bluetooth device inside the factory and the
     # scanning may be too long to be finished so we have to set a timeout.
-    devices: Dict[str, Dict] = self.btmgmt.FindDevices(  # type: ignore #TODO(b/338318729) Fixit!
-        timeout_secs=self.args.bluetooth_update_interval, log=False)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    devices: Dict[str, Dict] = self.btmgmt.FindDevices(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        timeout_secs=self.args.bluetooth_update_interval, log=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        id=PanelID.BLUETOOTH)
     for mac, data in devices.items():
-      self.ui.AppendHTML(f'<div>mac: {mac!r}, {data!r}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.AppendHTML(f'<div>mac: {mac!r}, {data!r}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                          id=PanelID.BLUETOOTH)
 
     if self._event_loop_stop:
       logging.info('Stop in ScanBluetooth because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanBluetoothThread,  # type: ignore #TODO(b/338318729) Fixit!
-                                      self.args.bluetooth_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.StartNewScanBluetoothThread,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                      # yapf: enable
+                                      # yapf: disable
+                                      self.args.bluetooth_update_interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def ScanALS(self):
     """Launch ALS scan in another thread."""
-    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(f'<div>scan start time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     id=PanelID.ALS)
-    lux = self._als_controller.GetLuxValue()  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    lux = self._als_controller.GetLuxValue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.AppendHTML(f'<div>scan end time: {self._elapsed_secs}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                        id=PanelID.ALS)
-    self.ui.AppendHTML(f'<div>lux: {lux!r}</div>', id=PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AppendHTML(f'<div>lux: {lux!r}</div>', id=PanelID.ALS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self._event_loop_stop:
       logging.info('Stop in ScanALS because event loop stopped.')
     else:
-      self.event_loop.AddTimedHandler(self.StartNewScanALSThread,  # type: ignore #TODO(b/338318729) Fixit!
-                                      self.args.als_update_interval)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.StartNewScanALSThread,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                      # yapf: enable
+                                      # yapf: disable
+                                      self.args.als_update_interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def runTest(self):
     verbose_log_path = session.GetVerboseTestLogPath()
@@ -465,26 +575,50 @@ class CountDownTest(test_case.TestCase):
       self.UpdateLegend(self._sensors)
 
       # Loop until count-down ends.
-      self.event_loop.AddTimedHandler(self.UpdateTimeAndLoad, 0.5, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
-      self.event_loop.AddTimedHandler(self.Log, self.args.log_interval,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.UpdateTimeAndLoad, 0.5, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.Log, self.args.log_interval,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                       repeat=True)
-      self.event_loop.AddTimedHandler(self.UpdateUILog,  # type: ignore #TODO(b/338318729) Fixit!
-                                      self.args.ui_update_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.AddTimedHandler(self.UpdateUILog,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                      # yapf: enable
+                                      # yapf: disable
+                                      self.args.ui_update_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       # For the events of components scanning,
       # we use a dict to store the {event}:{interval} pair
       event_interval_dict = {
-          self.StartNewScanWiFiThread: self.args.wifi_update_interval,  # type: ignore #TODO(b/338318729) Fixit!
-          self.StartNewScanBluetoothThread: self.args.bluetooth_update_interval,  # type: ignore #TODO(b/338318729) Fixit!
-          self.StartNewScanALSThread: self.args.als_update_interval  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.StartNewScanWiFiThread:
+              self.args.wifi_update_interval,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.StartNewScanBluetoothThread:
+              self.args.bluetooth_update_interval,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.StartNewScanALSThread:
+              self.args.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              als_update_interval  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       }
       for event, interval in event_interval_dict.items():
         if interval:
-          self.event_loop.AddTimedHandler(event, interval)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.event_loop.AddTimedHandler(event, interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
-      self.Sleep(self.args.duration_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.Sleep(self.args.duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._event_loop_stop = True
-      self.event_loop.RemoveTimedHandler()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.RemoveTimedHandler()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._verbose_log = None
 
     self.goofy.WaitForWebSocketUp()

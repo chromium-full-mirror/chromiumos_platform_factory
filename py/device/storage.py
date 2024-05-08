@@ -37,12 +37,16 @@ class Storage(device_types.DeviceComponent):
 
   def GetDictFilePath(self):
     """Returns the path to saved key-value pairs file on device."""
-    return self._device.path.join(self.GetDataRoot(), self._DICT_FILENAME)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.path.join(self.GetDataRoot(), self._DICT_FILENAME)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def LoadDict(self):
     """Returns a dictionary of key-value pairs stored in device."""
     data = {}
-    if self._device.path.exists(self.GetDictFilePath()):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._device.path.exists(self.GetDictFilePath()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         data = json.loads(self._device.ReadFile(self.GetDictFilePath()))
       except ValueError:
@@ -79,7 +83,9 @@ class Storage(device_types.DeviceComponent):
     device_data_file_path = self.GetDictFilePath()
 
     self._device.CheckCall(
-        ['mkdir', '-p', self._device.path.dirname(device_data_file_path)])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ['mkdir', '-p', self._device.path.dirname(device_data_file_path)])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # TODO(stimim): we might need to lock the file while writing.
     self._device.WriteFile(
         self.GetDictFilePath(), json.dumps(data, sort_keys=True))
@@ -123,7 +129,9 @@ class Storage(device_types.DeviceComponent):
     Unlike GetMountPoint, path is directly passed to df even if it doesn't
     exist.
     """
-    filesystems = self._device.toybox.df(path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    filesystems = self._device.toybox.df(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not filesystems:
       logging.warning('cannot find mount point of %s', path)
       return None, None
@@ -136,8 +144,12 @@ class Storage(device_types.DeviceComponent):
     each component in the path until new path exists. Then use
     _GetMountPointByDiskFree to get the mount point and device of new path.
     """
-    while not self._device.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit!
-      new_path = self._device.path.dirname(path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    while not self._device.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      new_path = self._device.path.dirname(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if new_path == path:
         break
       path = new_path
@@ -210,7 +222,9 @@ class Storage(device_types.DeviceComponent):
 
   def GetStatefulLogicalDevicePath(self):
     state_dev = self.GetMainStorageDevice(
-        self._device.partitions.STATEFUL.index)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._device.partitions.STATEFUL.index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Check if the stateful partition is LVM format.
     try:
@@ -241,13 +255,17 @@ class Storage(device_types.DeviceComponent):
       A MainStorageType enum.
     """
     dut = self._device
-    dev_basename = dut.path.basename(self.GetMainStorageDevice())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dev_basename = dut.path.basename(self.GetMainStorageDevice())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if dev_basename.startswith('nvme'):
       return MainStorageType.NVME
 
     dev_node = f'/sys/block/{dev_basename}/device'
-    type_file = dut.path.realpath(dut.path.join(dev_node, 'type'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    type_file = dut.path.realpath(dut.path.join(dev_node, 'type'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if 'mmc' in type_file:
       return MainStorageType(dut.ReadFile(type_file).strip())
@@ -263,11 +281,19 @@ class Storage(device_types.DeviceComponent):
       #         -> /sys/devices/pcixxx/host0/target0:0:0/0:0:0:0/type
       # driver_path: /sys/devices/pcixxx/driver
       #           -> /sys/bus/pci/drivers/ufshcd
-      dirname = dut.path.dirname  # type: ignore #TODO(b/338318729) Fixit!
-      dev_node_realpath = dut.path.realpath(dev_node)  # type: ignore #TODO(b/338318729) Fixit!
-      driver_path = dut.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dirname = dut.path.dirname  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      dev_node_realpath = dut.path.realpath(dev_node)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      driver_path = dut.path.join(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           dirname(dirname(dirname(dev_node_realpath))), 'driver')
-      driver_realpath = dut.path.realpath(driver_path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      driver_realpath = dut.path.realpath(driver_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if driver_realpath.endswith('/ufshcd'):
         return MainStorageType.UFS
 

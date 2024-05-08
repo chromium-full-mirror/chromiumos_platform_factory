@@ -13,6 +13,7 @@ from unittest import mock
 
 from cros.factory.tools import disk_space
 
+
 FakeStatVFSResult = collections.namedtuple(
     'FakeStatVFSResult',
     ['f_bavail', 'f_blocks', 'f_favail', 'f_files'])
@@ -57,7 +58,9 @@ class DiskSpaceTest(unittest.TestCase):
         mock.call('/media/usb')]
 
     self.patched_open.assert_called_once_with('/etc/mtab', encoding='utf8')
-    self.assertEqual(os.statvfs.call_args_list, statvfs_calls)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(os.statvfs.call_args_list, statvfs_calls)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testGetAllVFSInfo(self):
     self.assertEqual(

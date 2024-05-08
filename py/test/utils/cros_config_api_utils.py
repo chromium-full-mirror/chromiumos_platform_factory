@@ -9,7 +9,10 @@ from google.protobuf import json_format
 
 
 try:
-  from chromiumos.config.payload import config_bundle_pb2  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  from chromiumos.config.payload import config_bundle_pb2  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+  # yapf: enable
   MODULE_READY = True
 except ImportError:
   MODULE_READY = False

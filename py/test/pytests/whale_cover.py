@@ -63,7 +63,9 @@ class WhaleCoverTest(test_case.TestCase):
 
   def CheckCoverStatus(self):
     """Checks the cover until it's open or closed."""
-    if self.args.check_open:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_open:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       hint = _('Please open the cover!')
       expect_status = self._bft.Status.OPEN
     else:
@@ -75,8 +77,12 @@ class WhaleCoverTest(test_case.TestCase):
       while not done:
         done = self._bft.CoverStatus() == expect_status
         if not done:
-          self.ui.SetState(hint)  # type: ignore #TODO(b/338318729) Fixit!
-          self.Sleep(self.args.check_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ui.SetState(hint)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.Sleep(self.args.check_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
     except Exception:
       logging.exception('Failed to check cover status')
       self.FailTask('Failed to check cover status')
@@ -84,8 +90,12 @@ class WhaleCoverTest(test_case.TestCase):
     self.PassTask()
 
   def setUp(self):
-    self._bft = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._bft = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    self.ui.SetState(_('Checking The Cover'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Checking The Cover'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.CheckCoverStatus()

@@ -123,20 +123,28 @@ class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
 
   def CreateDatasetAndTable(self):
     """Creates the BigQuery dataset/table if it doesn't exist."""
-    dataset_ref = self.client.dataset(self.args.dataset_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dataset_ref = self.client.dataset(self.args.dataset_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
-      dataset = self.client.get_dataset(dataset_ref)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dataset = self.client.get_dataset(dataset_ref)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('The dataset %s is created from %s',
                 self.args.dataset_id, dataset.created)
     except exceptions.NotFound:
       _dataset = bigquery.Dataset(dataset_ref)
-      dataset = self.client.create_dataset(_dataset)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dataset = self.client.create_dataset(_dataset)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('The dataset %s does not exist. Creating...',
                 self.args.dataset_id)
 
     self.table_ref = dataset.table(self.args.table_id)
     try:
-      table = self.client.get_table(self.table_ref)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      table = self.client.get_table(self.table_ref)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('The table %s is created from %s',
                 self.args.table_id, table.created)
     except exceptions.NotFound:
@@ -146,7 +154,9 @@ class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
           'type': 'DAY',
           'expirationMs': None,
           'field': 'time'}
-      table = self.client.create_table(_table)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      table = self.client.create_table(_table)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('The table %s does not exist. Creating...',
                 self.args.table_id)
 
@@ -189,7 +199,9 @@ class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
       target_filename = file_utils.SHA1InHex(att_path)
       target_dir = self.args.gcs_target_dir.strip('/')
       target_path = f'/{target_dir}/{target_filename}'
-      if not self._gcs.UploadFile(att_path, target_path, overwrite=True):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not self._gcs.UploadFile(att_path, target_path, overwrite=True):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return False
 
       # Relocate the attachments entry into the event payload.
@@ -229,7 +241,9 @@ class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
                                           big_event_filename)
             self.warning('Find a too big event (row size = %d bytes), and save '
                          'it to %s', len(json_row), big_event_path)
-            file_utils.Write(big_event_path, event.Serialize() + '\n')  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            file_utils.Write(big_event_path, event.Serialize() + '\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           else:
             f.write(json_row + '\n')
             row_count += 1
@@ -273,7 +287,9 @@ class AbstractOutputBigQuery(plugin_base.OutputPlugin, abc.ABC):
           job_config.source_format = _JSON_MIMETYPE
           # No need to run job.begin() since upload_from_file() takes care of
           # this.
-          job = self.client.load_table_from_file(  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          job = self.client.load_table_from_file(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               file_obj=f, destination=self.table_ref,
               size=os.path.getsize(json_path),
               num_retries=_BIGQUERY_REQUEST_MAX_FAILURES,

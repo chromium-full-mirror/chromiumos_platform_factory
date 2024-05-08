@@ -223,7 +223,9 @@ class UmpireEnv:
 
   @property
   def umpire_host_port(self):
-    return int(os.environ.get(PROJECT_PORT_ENV_KEY))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return int(os.environ.get(PROJECT_PORT_ENV_KEY))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @type_utils.LazyProperty
   def factory_drives(self):
@@ -411,7 +413,9 @@ class UmpireEnv:
     """
     active_files = set()
 
-    for bundle in self.config['bundles']:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for bundle in self.config['bundles']:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for unused_type, unused_part, res_name in self.GetPayloadFiles(
           bundle['payloads']):
         active_files.add(res_name)

@@ -159,7 +159,9 @@ class InputLogFile(plugin_base.InputPlugin):
     the task queue after running.
     """
     # Kick the task queue off with the initial ScanLogFilesTask.
-    task_queue = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    task_queue = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     task_queue.put((0, self.ScanLogFilesTask, []))
 
     while not self.IsStopping():

@@ -13,7 +13,9 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class BFTFixture(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
       Arg('method', str, 'BFTFixture method to call.'),
@@ -27,12 +29,18 @@ class BFTFixture(unittest.TestCase):
     while True:
       fixture = None
       try:
-        fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
-        getattr(fixture, self.args.method)(*self.args.args)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        getattr(fixture, self.args.method)(*self.args.args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         break  # Success; we're done
       except Exception:
         logging.exception('BFT fixture test failed')
-        if not self.args.retry_secs:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if not self.args.retry_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           # No retry; raise the exception to fail the test
           raise
       finally:
@@ -42,5 +50,9 @@ class BFTFixture(unittest.TestCase):
           except Exception:
             logging.exception('Unable to disconnect fixture')
 
-      logging.info('Will retry in %s secs', self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit!
-      time.sleep(self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      logging.info('Will retry in %s secs', self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      time.sleep(self.args.retry_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable

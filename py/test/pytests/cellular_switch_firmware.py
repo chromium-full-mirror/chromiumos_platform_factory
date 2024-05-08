@@ -45,6 +45,12 @@ class CellularFirmwareSwitching(test_case.TestCase):
       Arg('target', str, 'The firmware name to switch.')]
 
   def runTest(self):
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
-        _('Switching firmware to {target!r}', target=self.args.target))  # type: ignore #TODO(b/338318729) Fixit!
-    cellular.SwitchModemFirmware(self.args.target)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        _('Switching firmware to {target!r}', target=self.args.target))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    cellular.SwitchModemFirmware(self.args.target)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

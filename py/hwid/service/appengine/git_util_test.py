@@ -14,13 +14,20 @@ from typing import Optional, Sequence, Tuple
 import unittest
 from unittest import mock
 
-from dulwich import objects as dw_objects  # type: ignore #TODO(b/338318729) Fixit!
-import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from dulwich import objects as dw_objects  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.v3 import filesystem_adapter
 from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
+
+
+# yapf: enable
+
 
 
 def _BuildGitTreeByFiles(files) -> Tuple[git_util.MemoryRepo, dw_objects.Tree]:
@@ -326,7 +333,9 @@ class GetCLInfoTest(unittest.TestCase):
     }
     if parent_cls_info:
       for commit_id, cl_number in parent_cls_info:
-        json_obj['changes'][-1]['commit']['parents'].append(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        json_obj['changes'][-1]['commit']['parents'].append(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             {'commit': commit_id})
         json_obj['changes'].append({
             'commit': {
@@ -654,7 +663,9 @@ class GetCLInfoTest(unittest.TestCase):
     actual_cl_info = git_util.GetCLInfo(
         'unused_review_host', self._THE_CHANGE_ID, include_comment_thread=True)
 
-    self.assertCountEqual(actual_cl_info.comment_threads, [  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertCountEqual(actual_cl_info.comment_threads, [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         git_util.CLCommentThread(
             path=None, context=None, comments=[
                 git_util.CLComment('author1@not_google.com', 'Message 1.'),
@@ -689,7 +700,9 @@ class GetCLInfoTest(unittest.TestCase):
     self.assertEqual(cl_number, actual_cl_info.cl_number)
     self.assertCountEqual(
         [(n, f'I{n}') for n in range(cl_number + 1, cl_number + 10)],
-        actual_cl_info.parent_cl_ids)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        actual_cl_info.parent_cl_ids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testGetCLInfo_WithHashtags(self):
     # Arrange.
@@ -758,7 +771,9 @@ class GetCLInfoTest(unittest.TestCase):
             author_email='author2@not_google.com',
             revision_number=2,
         ),
-    ], actual_cl_info.messages)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+    ], actual_cl_info.messages)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class GetFileContentTest(unittest.TestCase):
@@ -963,7 +978,9 @@ class GitFilesystemAdapterTest(unittest.TestCase):
         self.repo.get_object, self.file_path.encode())
     self.assertEqual(
         sha.decode(),
-        hashlib.sha1((b'blob %d\x00%b' % (len(content), content))).hexdigest())  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        hashlib.sha1((b'blob %d\x00%b' % (len(content), content))).hexdigest())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testReadOnly(self):
     # Test if GitFilesystemAdapter is unsupported for WriteFile and DeleteFile.

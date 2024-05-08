@@ -3,11 +3,16 @@
 # found in the LICENSE file.
 import unittest
 
-from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test_list_editor.backend.exceptions import config
 from cros.factory.test_list_editor.backend.schema import common
 from cros.factory.utils import config_utils
+
+
+# yapf: enable
+
 
 
 class ErrorHandlerTestCase(unittest.TestCase):

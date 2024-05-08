@@ -11,6 +11,7 @@ from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import hwid_v2_action
 from cros.factory.utils import file_utils
 
+
 GOLDEN_HWIDV2_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'testdata/v2-golden.yaml')
 
@@ -147,14 +148,18 @@ class HWIDV2ActionTest(unittest.TestCase):
         'flash_chip': {'gigadevice_gd25lq32', 'winbond_w25q32dw'}
     }
     self.assertEqual(components,
-                     self.action.GetComponents(with_classes={'flash_chip'}))  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     self.action.GetComponents(with_classes={'flash_chip'}))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     components = {
         'flash_chip': {'gigadevice_gd25lq32', 'winbond_w25q32dw'},
         'keyboard': {'kbd_us', 'kbd_gb'}
     }
     self.assertEqual(
         components,
-        self.action.GetComponents(with_classes={'flash_chip', 'keyboard'}))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.action.GetComponents(with_classes={'flash_chip', 'keyboard'}))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Test classes with multiple components
     components = {
@@ -163,7 +168,9 @@ class HWIDV2ActionTest(unittest.TestCase):
         }
     }
     self.assertEqual(components,
-                     self.action.GetComponents(with_classes={'usb_hosts'}))  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     self.action.GetComponents(with_classes={'usb_hosts'}))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 if __name__ == '__main__':

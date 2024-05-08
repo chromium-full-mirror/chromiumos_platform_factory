@@ -33,7 +33,9 @@ class TestWaivedException(Exception):
   """The exception to waive a test."""
 
 
-_Task = collections.namedtuple('Task',  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+_Task = collections.namedtuple('Task',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
                                ['name', 'run', 'reboot', 'reboot_timeout_secs'])
 TestCategory = test_tags.TestCategory
 
@@ -54,7 +56,9 @@ class TestCase(unittest.TestCase):
     self.__method_name = methodName
     self.__task_end_event = threading.Event()
     self.__task_stopped = False
-    self.__tasks = collections.deque()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.__tasks = collections.deque()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.__exceptions = []
     self.__exceptions_lock = threading.Lock()
@@ -168,7 +172,9 @@ class TestCase(unittest.TestCase):
               reboot_timeout_secs=reboot_timeout_secs))
 
   def GetNextTaskStage(self) -> None:
-    return device_data.GetDeviceData(self._next_task_stage_key, default=0)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return device_data.GetDeviceData(self._next_task_stage_key, default=0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def UpdateNextTaskStage(self, next_task_stage) -> None:
     device_data.UpdateDeviceData({self._next_task_stage_key: next_task_stage})
@@ -205,7 +211,9 @@ class TestCase(unittest.TestCase):
     """The main test procedure that would be run by unittest."""
     thread = process_utils.StartDaemonThread(target=self.__RunTasks)
     try:
-      end_event = self.event_loop.Run()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      end_event = self.event_loop.Run()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if end_event.status != state.TestState.PASSED:
         exc_idx = getattr(end_event, 'exception_index', None)
 
@@ -221,7 +229,9 @@ class TestCase(unittest.TestCase):
             raise TestWaivedException(getattr(end_event, 'waive_msg', None))
 
         # pylint: disable=invalid-sequence-index
-        raise pytest_utils.IndirectException(*self.__exceptions[exc_idx])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        raise pytest_utils.IndirectException(*self.__exceptions[exc_idx])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     finally:
       # Ideally, the background would be the one calling FailTask / PassTask,
       # or would be waiting in WaitTaskEnd when an exception is thrown, so the
@@ -247,7 +257,9 @@ class TestCase(unittest.TestCase):
 
   def __CheckAndSkipPassedTasks(self):
     """Checks the next_task_stage flag and skips the tasks that have passed."""
-    next_task_stage = self.GetNextTaskStage()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    next_task_stage = self.GetNextTaskStage()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Fails the pytest if last executed task triggered an unexpected reboot.
     if next_task_stage > 0:
@@ -268,7 +280,9 @@ class TestCase(unittest.TestCase):
 
       if tasks_with_reboot:
         # Updates the next task stage for stage checking before running.
-        self.UpdateNextTaskStage(self.GetNextTaskStage() + 1)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.UpdateNextTaskStage(self.GetNextTaskStage() + 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       if task.reboot:
         # Saves pending test list for restoring test list after reboot.
@@ -289,8 +303,12 @@ class TestCase(unittest.TestCase):
       self.__HandleException()
     finally:
       self.__task_end_event.set()
-      self.event_loop.ClearHandlers()  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.UnbindAllKeys()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.ClearHandlers()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.UnbindAllKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def __RunTasks(self):
     """Run the tasks in background daemon thread."""
@@ -322,7 +340,9 @@ class TestCase(unittest.TestCase):
               'Test finished. Clear the data of next task stage.')
           self.ClearNextTaskStage()
 
-      self.event_loop.PostNewEvent(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.PostNewEvent(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           test_event.Event.Type.END_EVENT_LOOP, status=state.TestState.PASSED)
 
   def __HandleException(self):
@@ -343,7 +363,9 @@ class TestCase(unittest.TestCase):
           state.TestState.FAILED_AND_WAIVED if isinstance(
               exception, TestWaivedException) else state.TestState.FAILED)
 
-      self.event_loop.PostNewEvent(test_event.Event.Type.END_EVENT_LOOP,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.event_loop.PostNewEvent(test_event.Event.Type.END_EVENT_LOOP,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                    status=test_status, exception_index=exc_idx)
       self.__task_stopped = True
 
@@ -372,5 +394,9 @@ class TestCase(unittest.TestCase):
                            output_filename)
 
     file_utils.TryMakeDirs('/var/factory/log/screenshots')
-    self.event_loop.AddEventHandler('goofy_ui_task_end', TestResultHandler)  # type: ignore #TODO(b/338318729) Fixit!
-    self.event_loop.AddEventHandler('goofy_ui_screenshot', ScreenshotHandler)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('goofy_ui_task_end', TestResultHandler)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.event_loop.AddEventHandler('goofy_ui_screenshot', ScreenshotHandler)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

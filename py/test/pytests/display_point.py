@@ -41,7 +41,9 @@ from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 
 
-_TestItem = collections.namedtuple('TestItem', 'num_point bg_color point_color')  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+_TestItem = collections.namedtuple('TestItem', 'num_point bg_color point_color')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 
 
 class DisplayPointTest(test_case.TestCase):
@@ -65,20 +67,36 @@ class DisplayPointTest(test_case.TestCase):
 
   def setUp(self):
     """Initializes frontend presentation and properties."""
-    if self.args.max_point_count >= 10:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.max_point_count >= 10:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise ValueError('>= 10 points is not supported')
 
     self.items = [
         _TestItem(
-            random.randint(1, self.args.max_point_count), 'white', 'black'),  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            random.randint(1, self.args.max_point_count),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            'white',
+            'black'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         _TestItem(
-            random.randint(1, self.args.max_point_count), 'black', 'white')  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            random.randint(1, self.args.max_point_count),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            'black',
+            'white')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     ]
     logging.info('testing point: %s',
                  ', '.join(str(item.num_point) for item in self.items))
-    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
-        'DisplayPointTest', self.args.point_size)  # type: ignore #TODO(b/338318729) Fixit!
-    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'DisplayPointTest', self.args.point_size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'toggle-display', lambda unused_event: self.ToggleDisplay())
     self.display = False
     self.checked = False
@@ -86,7 +104,9 @@ class DisplayPointTest(test_case.TestCase):
   def runTest(self):
     """Sets the callback function of keys and run the test."""
     all_keys = [test_ui.SPACE_KEY, test_ui.ESCAPE_KEY]
-    all_keys.extend(str(k) for k in range(1, self.args.max_point_count + 1))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    all_keys.extend(str(k) for k in range(1, self.args.max_point_count + 1))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for idx, item in enumerate(self.items):
       self._frontend_proxy.SetupPoints(item.num_point, item.bg_color,
                                        item.point_color)
@@ -94,7 +114,9 @@ class DisplayPointTest(test_case.TestCase):
         self.ToggleDisplay()
 
       while True:
-        key = self.ui.WaitKeysOnce(all_keys)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        key = self.ui.WaitKeysOnce(all_keys)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if key == test_ui.SPACE_KEY:
           self.ToggleDisplay()
         elif key == test_ui.ESCAPE_KEY:

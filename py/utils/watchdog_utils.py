@@ -11,6 +11,7 @@ import array
 import fcntl
 import struct
 
+
 IO_WRITE = 0x40000000
 IO_READ = 0x80000000
 IO_READ_WRITE = 0xC0000000
@@ -90,7 +91,9 @@ class Watchdog:
     fcntl.ioctl(self.fd, WDIOC_GETSUPPORT, buf, True)
     options = struct.unpack_from('I', buf[0:4])[0]
     firmware_version = struct.unpack_from('I', buf[4:8])[0]
-    identity = buf[8:].tostring().rstrip('\0')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    identity = buf[8:].tostring().rstrip('\0')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return {'options': options,
             'firmware_version': firmware_version,
             'identity': identity}

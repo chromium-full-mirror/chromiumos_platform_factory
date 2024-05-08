@@ -54,7 +54,9 @@ def RetryCommand(callback, message_prefix, max_retry_times, interval):
     RetryError: When the command fails `max_retry_times` times.
 
   """
-  results = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  results = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   tries = 0
   # Currently we do endless retry, if interval is assigned.
   while not callback(results):
@@ -247,10 +249,18 @@ def FtpUpload(source_path, ftp_url,
   url_struct = urllib.parse.urlparse(ftp_url)
   regexp = '(([^:]*)(:([^@]*))?@)?([^:]*)(:(.*))?'
   tokens = re.match(regexp, url_struct.netloc)
-  userid = tokens.group(2)  # type: ignore #TODO(b/338318729) Fixit!
-  passwd = tokens.group(4)  # type: ignore #TODO(b/338318729) Fixit!
-  host = tokens.group(5)  # type: ignore #TODO(b/338318729) Fixit!
-  port = tokens.group(7)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  userid = tokens.group(2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  passwd = tokens.group(4)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  host = tokens.group(5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  port = tokens.group(7)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   # Check and specify default parameters
   if not host:
@@ -281,7 +291,9 @@ def FtpUpload(source_path, ftp_url,
 
   def FtpCallback(result):
     try:
-      ftp.connect(host=host, port=port, timeout=retry_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ftp.connect(host=host, port=port, timeout=retry_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception as e:
       result['message'] = f'{e}'
       return False

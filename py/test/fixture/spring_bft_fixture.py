@@ -4,10 +4,15 @@
 
 import logging
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.utils import serial_utils
+
+
+# yapf: enable
+
 
 
 def _CommandStr(command):
@@ -95,7 +100,9 @@ class SpringBFTFixture(bft_fixture.BFTFixture):
     self._Send(cmd['code'], cmd['fail_message'])
     fixture_status = self._Recv(cmd['fail_message'])
     if fixture_status in cmd['status_map']:
-      return cmd['status_map'][fixture_status]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return cmd['status_map'][fixture_status]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     raise bft_fixture.BFTFixtureException(cmd['fail_message'])
 
   def Init(self, **serial_params):
@@ -163,7 +170,9 @@ class SpringBFTFixture(bft_fixture.BFTFixture):
       The response string.
     """
     try:
-      return self._serial.read()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._serial.read()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except serial.SerialTimeoutException as e:
       raise bft_fixture.BFTFixtureException(
           f'{fail_message}Receive timeout: {e}')

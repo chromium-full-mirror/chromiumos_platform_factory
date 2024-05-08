@@ -75,7 +75,9 @@ class OutputCSVReader(plugin_base.OutputPlugin):
       self.info('Parsing CSV file: %s', object_id)
       csv_path = os.path.join(self.GetDataDir(), 'temp.csv')
       try:
-        self.gcs.DownloadFile(object_id, csv_path, overwrite=True)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.gcs.DownloadFile(object_id, csv_path, overwrite=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         csv_events.extend(self.ReadCSV(csv_path, object_id))
       except Exception:
         self.exception('Failed to parse the file: %s', object_id)

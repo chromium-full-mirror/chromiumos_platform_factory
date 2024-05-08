@@ -47,7 +47,9 @@ class LogExtractorFileReader:
     # Continue reading from the file descriptor.
     for line in self._f:
       try:
-        self._cur_record = self._loader(line, self._validate)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._cur_record = self._loader(line, self._validate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return self._cur_record
       except Exception as err:
         logging.warning('Record %s in %s is invalid! %r', line,
@@ -170,7 +172,9 @@ def ExtractAndWriteRecordByTestRun(
     run event.
   """
   state_machine = LogExtractorStateMachine()
-  cur_start_event_cnt_map = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  cur_start_event_cnt_map = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   test_run_info_list = []
   for record in reader:
     status = test_run_handler.StatusHandler().Parse(record)
@@ -228,7 +232,9 @@ def ExtractAndWriteRecordByTimeStamp(reader, output_dir: str, output_fname: str,
 
 
 def GetStartEventCnt(reader) -> Dict[str, int]:
-  start_cnt = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  start_cnt = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for record in reader:
     status = test_run_handler.StatusHandler().Parse(record)
     _, test_run_id = test_run_handler.TestRunNameHandler().Parse(record)

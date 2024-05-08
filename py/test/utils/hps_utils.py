@@ -73,7 +73,9 @@ class HPSDevice:
                               stderr=subprocess.PIPE, log=True)
     output, stderr = process.communicate()
     errors = []
-    results = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    results = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for pattern in (MCU_ID_RE, CAMERA_ID_RE, SPI_FLASH_RE):
       match = pattern.search(output)
       if match is None:

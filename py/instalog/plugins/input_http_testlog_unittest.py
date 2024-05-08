@@ -13,13 +13,18 @@ import tempfile
 import time
 import unittest
 
-import requests  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import requests  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog import log_utils
 from cros.factory.instalog import plugin_sandbox
 from cros.factory.instalog import testing
 from cros.factory.utils import net_utils
+
+
+# yapf: enable
+
 
 
 class TestInputHTTPTestlog(unittest.TestCase):

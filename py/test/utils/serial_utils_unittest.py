@@ -28,7 +28,9 @@ class OpenSerialTest(unittest.TestCase):
 
   def testOpenSerial(self):
     # Sequence matters: create a serial mock then stub out serial.Serial.
-    mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     mock_serial.isOpen = lambda: True
 
     with mock.patch(
@@ -183,7 +185,9 @@ class SerialDeviceCtorTest(unittest.TestCase):
   @mock.patch('cros.factory.test.utils.serial_utils.FindTtyByDriver')
   def testConnect(self, find_tty_by_driver_mock, open_serial_mock):
     find_tty_by_driver_mock.return_value = _DEFAULT_PORT
-    mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     open_serial_mock.return_value = mock_serial
 
     device = serial_utils.SerialDevice()
@@ -191,20 +195,32 @@ class SerialDeviceCtorTest(unittest.TestCase):
 
     find_tty_by_driver_mock.assert_called_once_with(_DEFAULT_DRIVER)
     open_serial_mock.assert_called_once_with(
-        port=_DEFAULT_PORT, baudrate=9600, bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit!
-        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit!
-        timeout=0.5, writeTimeout=0.5)
+        # yapf: disable
+        port=_DEFAULT_PORT,
+        baudrate=9600,
+        bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        parity=serial.PARITY_NONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        timeout=0.5,
+        writeTimeout=0.5)
 
   def testConnectPortDriverMissing(self):
     device = serial_utils.SerialDevice()
-    self.assertRaises(serial.SerialException, device.Connect)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialException, device.Connect)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('cros.factory.test.utils.serial_utils.FindTtyByDriver')
   def testConnectDriverLookupFailure(self, find_tty_by_driver_mock):
     find_tty_by_driver_mock.return_value = ''
 
     device = serial_utils.SerialDevice()
-    self.assertRaises(serial.SerialException, device.Connect,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialException, device.Connect,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                       driver='UnknownDriver')
     find_tty_by_driver_mock.assert_called_once_with('UnknownDriver')
 
@@ -216,8 +232,12 @@ class SerialDeviceCtorTest(unittest.TestCase):
     device = serial_utils.SerialDevice()
     device.Connect(driver='UnknownDriver', port=_DEFAULT_PORT)
     open_serial_mock.assert_called_once_with(
-        port=_DEFAULT_PORT, baudrate=9600, bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit!
-        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        port=_DEFAULT_PORT, baudrate=9600, bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         timeout=0.5, writeTimeout=0.5)
 
 
@@ -227,7 +247,9 @@ class SerialDeviceSendAndReceiveTest(unittest.TestCase):
     self.device = serial_utils.SerialDevice()
 
     # Mock Serial and inject it.
-    self.mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.mock_serial = mock.Mock(serial.Serial)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.device._serial = self.mock_serial  # pylint: disable=protected-access
 
   def tearDown(self):
@@ -241,17 +263,25 @@ class SerialDeviceSendAndReceiveTest(unittest.TestCase):
     self.mock_serial.flush.assert_called_once_with()
 
   def testSendTimeout(self):
-    self.mock_serial.write.side_effect = serial.SerialTimeoutException  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.mock_serial.write.side_effect = serial.SerialTimeoutException  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.mock_serial.write_timeout = 0.5
 
-    self.assertRaises(serial.SerialTimeoutException, self.device.Send, _COMMAND)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialTimeoutException, self.device.Send, _COMMAND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.mock_serial.write.assert_called_once_with(_COMMAND)
 
   def testSendDisconnected(self):
-    self.mock_serial.write.side_effect = serial.SerialException  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.mock_serial.write.side_effect = serial.SerialException  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.assertRaises(serial.SerialException, self.device.Send, _COMMAND)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialException, self.device.Send, _COMMAND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.mock_serial.write.assert_called_once_with(_COMMAND)
 
@@ -266,7 +296,9 @@ class SerialDeviceSendAndReceiveTest(unittest.TestCase):
     self.mock_serial.read.return_value = ''
     self.mock_serial.timeout = 0.5
 
-    self.assertRaises(serial.SerialTimeoutException, self.device.Receive)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialTimeoutException, self.device.Receive)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.mock_serial.read.assert_called_once_with(1)
 
@@ -275,7 +307,9 @@ class SerialDeviceSendAndReceiveTest(unittest.TestCase):
     self.mock_serial.read.return_value = 'None'
     self.mock_serial.timeout = 0.5
 
-    self.assertRaises(serial.SerialTimeoutException, self.device.Receive, 5)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialTimeoutException, self.device.Receive, 5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.mock_serial.read.assert_called_once_with(5)
 
@@ -295,52 +329,84 @@ class SerialDeviceSendReceiveTest(unittest.TestCase):
     self.device = serial_utils.SerialDevice()
 
     # Mock methods to facilitate SendReceive testing.
-    self.device.Send = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.device.Receive = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.device.FlushBuffer = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Send = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.device.Receive = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.device.FlushBuffer = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     del self.device
 
   @mock.patch('time.sleep')
   def testSendReceive(self, sleep_mock):
-    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(_RESPONSE, self.device.SendReceive(_COMMAND))
 
-    self.device.Send.assert_called_once_with(_COMMAND)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Send.assert_called_once_with(_COMMAND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sleep_mock.assert_called_once_with(_SEND_RECEIVE_INTERVAL_SECS)
-    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit!
-    self.device.FlushBuffer.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.device.FlushBuffer.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('time.sleep')
   def testSendReceiveOverrideIntervalSecs(self, sleep_mock):
     override_interval_secs = 1
-    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(
         _RESPONSE,
         self.device.SendReceive(_COMMAND,
                                 interval_secs=override_interval_secs))
-    self.device.Send.assert_called_once_with(_COMMAND)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Send.assert_called_once_with(_COMMAND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sleep_mock.assert_called_once_with(override_interval_secs)
-    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit!
-    self.device.FlushBuffer.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.device.FlushBuffer.assert_called_once_with()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('time.sleep')
   def testSendReceiveWriteTimeoutRetrySuccess(self, sleep_mock):
     # Send timeout at first time & retry ok.
-    self.device.Send.side_effect = [serial.SerialTimeoutException, None]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Send.side_effect = [serial.SerialTimeoutException, None]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     send_calls = [mock.call(_COMMAND), mock.call(_COMMAND)]
     sleep_calls = [
         mock.call(_SEND_RECEIVE_INTERVAL_SECS)]
-    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(_RESPONSE, self.device.SendReceive(_COMMAND, retry=1))
-    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(sleep_mock.call_args_list, sleep_calls)
-    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit!
-    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.device.Receive.assert_called_once_with(_RECEIVE_SIZE)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('cros.factory.utils.sync_utils.GetPollingSleepFunction')
   @mock.patch('time.sleep')
@@ -354,16 +420,26 @@ class SerialDeviceSendReceiveTest(unittest.TestCase):
         mock.call(_RETRY_INTERVAL_SECS),
         mock.call(_SEND_RECEIVE_INTERVAL_SECS)]
     # Read timeout at first time & retry ok.
-    self.device.Receive.side_effect = [  # type: ignore #TODO(b/338318729) Fixit!
-        serial.SerialTimeoutException,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Receive.side_effect = [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        serial.SerialTimeoutException,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         _RESPONSE]
     receive_calls = [mock.call(_RECEIVE_SIZE), mock.call(_RECEIVE_SIZE)]
 
     self.assertEqual(_RESPONSE, self.device.SendReceive(_COMMAND, retry=1))
-    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(sleep_mock.call_args_list, sleep_calls)
-    self.assertEqual(self.device.Receive.call_args_list, receive_calls)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.device.Receive.call_args_list, receive_calls)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('cros.factory.utils.sync_utils.GetPollingSleepFunction')
   @mock.patch('time.sleep')
@@ -372,16 +448,28 @@ class SerialDeviceSendReceiveTest(unittest.TestCase):
 
     polling_sleep_mock.return_value = sleep_mock
     # Send timeout & retry still fail.
-    self.device.Send.side_effect = [  # type: ignore #TODO(b/338318729) Fixit!
-        serial.SerialTimeoutException,  # type: ignore #TODO(b/338318729) Fixit!
-        serial.SerialTimeoutException]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.Send.side_effect = [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        serial.SerialTimeoutException,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        serial.SerialTimeoutException]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     send_calls = [mock.call(_COMMAND), mock.call(_COMMAND)]
 
-    self.assertRaises(serial.SerialTimeoutException, self.device.SendReceive,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertRaises(serial.SerialTimeoutException, self.device.SendReceive,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                       _COMMAND, retry=1)
-    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.device.Send.call_args_list, send_calls)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sleep_mock.assert_called_once_with(_RETRY_INTERVAL_SECS)
-    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(2, self.device.FlushBuffer.call_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class SerialDeviceSendExpectReceiveTest(unittest.TestCase):
@@ -390,32 +478,46 @@ class SerialDeviceSendExpectReceiveTest(unittest.TestCase):
     self.device = serial_utils.SerialDevice()
 
     # Mock methods to facilitate SendExpectReceive testing.
-    self.device.SendReceive = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     del self.device
 
   def testSendExpectReceive(self):
-    self.device.SendReceive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.return_value = _RESPONSE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertTrue(self.device.SendExpectReceive(_COMMAND, _RESPONSE))
-    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _COMMAND, _RECEIVE_SIZE, retry=0, interval_secs=None,
         suppress_log=True)
 
   def testSendExpectReceiveMismatch(self):
-    self.device.SendReceive.return_value = 'x'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.return_value = 'x'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertFalse(self.device.SendExpectReceive(_COMMAND, _RESPONSE))
-    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _COMMAND, _RECEIVE_SIZE, retry=0, interval_secs=None,
         suppress_log=True)
 
   def testSendExpectReceiveTimeout(self):
-    self.device.SendReceive.side_effect = serial.SerialTimeoutException  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.side_effect = serial.SerialTimeoutException  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertFalse(self.device.SendExpectReceive(_COMMAND, _RESPONSE))
-    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.SendReceive.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _COMMAND, _RECEIVE_SIZE, retry=0, interval_secs=None,
         suppress_log=True)
 

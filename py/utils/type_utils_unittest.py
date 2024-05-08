@@ -76,15 +76,25 @@ class AttrDictTest(unittest.TestCase):
         'keydict': {'key2': 'value_key2_2'},
         'keylist': [0, 1, 2, {'key3': 'value_keylist_3_key3'}, 4]}
     adict = type_utils.AttrDict(init_value)
-    self.assertEqual('value_1', adict.key)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('value_key2_2', adict.keydict.key2)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('value_keylist_3_key3', adict.keylist[3].key3)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('value_1', adict.key)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('value_key2_2', adict.keydict.key2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('value_keylist_3_key3', adict.keylist[3].key3)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testAttrDictSetGet(self):
     adict = type_utils.AttrDict()
     adict['foo'] = 'bar'
-    self.assertEqual('bar', adict.foo)  # type: ignore #TODO(b/338318729) Fixit!
-    adict.somekey = 'blah'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('bar', adict.foo)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    adict.somekey = 'blah'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual('blah', adict['somekey'])
 
 
@@ -172,14 +182,18 @@ class LazyObjectTest(unittest.TestCase):
       self.output['inc'] = True
 
   def testLazyCreation(self):
-    o = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    o = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     a = type_utils.LazyObject(self.BaseClass, o)
     self.assertEqual(o.get('init'), None)
     self.assertEqual(a.x, 0)
     self.assertEqual(o.get('init'), True)
 
   def testVariableMember(self):
-    o = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    o = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     a = type_utils.LazyObject(self.BaseClass, o)
     self.assertEqual(a.x, 0)
     a.inc()

@@ -9,9 +9,14 @@ import logging
 import time
 import xmlrpc.client
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils import serial_utils
+
+
+# yapf: enable
+
 
 
 class SerialServerError(Exception):

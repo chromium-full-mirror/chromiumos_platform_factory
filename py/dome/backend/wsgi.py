@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
 
 import os
 
-from django.core.wsgi import get_wsgi_application  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from django.core.wsgi import get_wsgi_application  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 

@@ -256,7 +256,9 @@ class ParallelDownloader:
     """
     target_path, local_path = args
     global _global_gcs  # pylint: disable=global-variable-not-assigned
-    if _global_gcs.DownloadFile(target_path, local_path, overwrite=True):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if _global_gcs.DownloadFile(target_path, local_path, overwrite=True):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return target_path, local_path
     return target_path, None
 

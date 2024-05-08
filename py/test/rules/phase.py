@@ -24,7 +24,9 @@ class PhaseAssertionError(Exception):
 class PhaseEnumMeta(enum.EnumMeta):
   """Meta class allows constructing Phase from name."""
 
-  def __getitem__(cls, name) -> 'Phase':  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def __getitem__(cls, name) -> 'Phase':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
       return super().__getitem__(name)
     except KeyError as err:
@@ -35,7 +37,9 @@ class PhaseEnumMeta(enum.EnumMeta):
     try:
       return super().__call__(value, *args, **kwargs)
     except ValueError as err:
-      values = ','.join(str(member.value) for member in iter(cls))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      values = ','.join(str(member.value) for member in iter(cls))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise ValueError(f'{value!r} is not a valid phase value (valid values are'
                        f' [{values}])') from err
 
@@ -185,12 +189,16 @@ def SetPersistentPhase(phase: Union[Phase, str, None]):
     phase = _CoerceToPhase(phase)
     logging.info('Setting phase to %s in %s', phase, path)
     file_utils.TryMakeDirs(os.path.dirname(path))
-    file_utils.WriteFile(path, phase.name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_utils.WriteFile(path, phase.name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   else:
     logging.info('Deleting phase in %s', path)
     file_utils.TryUnlink(path)
 
-  _current_phase = phase  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  _current_phase = phase  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def OverridePhase(phase: Union[Phase, str, None]):

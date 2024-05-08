@@ -13,7 +13,9 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class WriteProtectSwitchTest(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('has_ectool', bool, 'Has ectool utility or not.', default=True)
   ]
@@ -29,7 +31,9 @@ class WriteProtectSwitchTest(unittest.TestCase):
     self.assertEqual(1, int(self.dut.CheckOutput(['crossystem', 'wpsw_cur'],
                                                  log=True).strip()))
 
-    if self.args.has_ectool:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.has_ectool:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ectool_flashprotect = self.dut.CheckOutput(
           ['ectool', 'flashprotect'], log=True)
 

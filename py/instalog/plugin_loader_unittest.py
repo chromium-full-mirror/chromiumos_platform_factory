@@ -44,7 +44,9 @@ class TestPluginLoader(unittest.TestCase):
   def tearDown(self):
     """Unloads and deletes the temporary plugin directory."""
     self.assertEqual(self._plugin_dir, sys.path.pop(0))
-    shutil.rmtree(self._plugin_dir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    shutil.rmtree(self._plugin_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _createPluginFile(self, content):
     """Creates a plugin in the temporary directory on disk.

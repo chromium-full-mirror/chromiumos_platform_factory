@@ -2,8 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
-from flask_cors import CORS  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from flask_cors import CORS  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test_list_editor.backend.api import status
 from cros.factory.test_list_editor.backend.api.v1 import files
@@ -11,6 +14,10 @@ from cros.factory.test_list_editor.backend.api.v1 import items
 from cros.factory.test_list_editor.backend.api.v1 import tests
 from cros.factory.test_list_editor.backend.exceptions import config as config_exception
 from cros.factory.test_list_editor.backend.middleware import validation_exception
+
+
+# yapf: enable
+
 
 
 def CreateApp():

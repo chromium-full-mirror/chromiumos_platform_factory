@@ -16,7 +16,9 @@ class SafeFormatterTest(unittest.TestCase):
 
   def setUp(self):
     self.formatter = string_utils.SafeFormatter()
-    self.formatter.Warn = lambda msg, *args: self.warnings.append(msg % args)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.formatter.Warn = lambda msg, *args: self.warnings.append(msg % args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.warnings = []
 
   def AssertHasWarningRegexp(self, pattern):

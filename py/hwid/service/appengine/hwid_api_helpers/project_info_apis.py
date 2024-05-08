@@ -37,7 +37,9 @@ _ImageVersionTypeMsg = _SoftBrandEligibilityMsg.ImageVersionType
 
 def _ConvertImageVersionTypeToMsg(
     image_version_type: _ImageVersionType,
-) -> _ImageVersionTypeMsg.ValueType:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+) -> _ImageVersionTypeMsg.ValueType:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if image_version_type == _ImageVersionType.LATEST_PUSHED_STABLE:
     return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE
   if image_version_type == _ImageVersionType.LATEST_PUSHED_LTS:
@@ -68,7 +70,9 @@ class _ErrorSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
   def __init__(
       self,
-      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       error: _SoftBrandEligibilityMsg.Error,
   ):
     super().__init__()
@@ -94,7 +98,9 @@ class _NormalSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
   def __init__(
       self,
-      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      version_type: _ImageVersionTypeMsg.ValueType,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       feature_matcher: feature_matching.HWIDFeatureMatcher,
   ):
     super().__init__()
@@ -119,14 +125,18 @@ class _NormalSoftBrandEligibilityChecker(_SoftBrandEligibilityChecker):
 
 
 class _SoftBrandEligibilityCheckerSpec(NamedTuple):
-  version_type: _ImageVersionTypeMsg.ValueType  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  version_type: _ImageVersionTypeMsg.ValueType  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   image_version: release_version_utils.ImageVersion
   db: db_module.Database
   repo_name: str
   payload_config: config_data.CLSetting
 
 
-class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(
       self,
@@ -158,9 +168,13 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def GetHwids(self, request):
     """Return a filtered list of HWIDs for the given project."""
     project = _NormalizeProjectString(request.project)
-    parse_filter_field = lambda value: set(filter(None, value)) or None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    parse_filter_field = lambda value: set(filter(None, value)) or None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       hwids = action.EnumerateHWIDs(
           with_classes=parse_filter_field(request.with_classes),
           without_classes=parse_filter_field(request.without_classes),
@@ -179,7 +193,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a list of all component classes for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       classes = action.GetComponentClasses()
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentClassesResponse(
@@ -194,23 +210,33 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a filtered list of components for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       components = action.GetComponents(
-          with_classes=set(filter(None, request.with_classes)) or None)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          with_classes=set(filter(None, request.with_classes)) or None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentsResponse(
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     components_list = []
     for cls, comps in components.items():
-      for comp, comp_info in comps.items():  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for comp, comp_info in comps.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         status = (
             common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[comp_info.status])
-        avl_info, fields = None, []  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        avl_info, fields = None, []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if request.include_avl:
           avl_info = self._bc_helper.GetAVLInfo(cls, comp)
         if request.include_fields and not comp_info.value_is_none:
-          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
         components_list.append(
             hwid_api_messages_pb2.Component(
@@ -228,7 +254,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
-    hwid_prefixes = set()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hwid_prefixes = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for project in self._hwid_action_manager.ListProjects():
       action = self._hwid_action_manager.GetHWIDAction(project)
       try:
@@ -323,7 +351,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
                            f'{proj}.'))))
     else:
       checkers.append(
-          _NormalSoftBrandEligibilityChecker(  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          _NormalSoftBrandEligibilityChecker(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               version_type=_ImageVersionTypeMsg.TOT,
               feature_matcher=feature_matcher,
           ))
@@ -363,7 +393,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
               payload_config,
           ))
       if checker is not None:
-        checkers.append(checker)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        checkers.append(checker)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     return checkers
 
   def _CreateEligibilityCheckerBySpec(

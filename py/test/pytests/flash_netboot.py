@@ -67,10 +67,14 @@ class FlashNetbootTest(test_case.TestCase):
 
   def ShowResult(self, message):
     logging.info(message.strip())
-    self.ui.AppendLog(message)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AppendLog(message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    netboot_flasher = flash_netboot.FlashNetboot(self.args.image,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    netboot_flasher = flash_netboot.FlashNetboot(self.args.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                                  on_output=self.ShowResult)
     self.ShowResult(netboot_flasher.WarningMessage())
     netboot_flasher.Run()

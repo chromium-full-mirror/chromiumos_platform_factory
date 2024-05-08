@@ -4,7 +4,10 @@
 
 from __future__ import unicode_literals
 
-from django.apps import AppConfig  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from django.apps import AppConfig  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 class BackendConfig(AppConfig):

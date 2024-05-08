@@ -86,12 +86,16 @@ class WriteDeviceDataToVPD(test_case.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    data = {  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    data = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'ro': {},
         'rw': {},
     }
 
-    if self.args.ro_key_map is None and self.args.rw_key_map is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.ro_key_map is None and self.args.rw_key_map is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       data['ro'] = device_data.GetDeviceData(device_data.KEY_VPD_RO, {})
       data['rw'] = device_data.GetDeviceData(device_data.KEY_VPD_RW, {})
       # Device serial number and OEM name (an optional field) are usually not
@@ -108,11 +112,15 @@ class WriteDeviceDataToVPD(test_case.TestCase):
     else:
       data['ro'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          for vpd_name, data_key in (self.args.ro_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          for vpd_name, data_key in (self.args.ro_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       }
       data['rw'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          for vpd_name, data_key in (self.args.rw_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          for vpd_name, data_key in (self.args.rw_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       }
 
     missing_keys = [
@@ -122,7 +130,9 @@ class WriteDeviceDataToVPD(test_case.TestCase):
       self.FailTask(f'Missing device data keys: {sorted(missing_keys)!r}')
 
     for section, entries in data.items():
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Writing device data to {vpd_section} VPD...',
             vpd_section=section.upper()))
       if not entries:

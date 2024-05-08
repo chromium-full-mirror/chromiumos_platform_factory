@@ -44,7 +44,9 @@ class JSONRPCServer:
 
   def _ServeRPCForever(self):
     while not self._aborted.isSet():
-      self._server.handle_request()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.handle_request()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def Start(self):
     self._server = SimpleJSONRPCServer.SimpleJSONRPCServer(
@@ -71,7 +73,9 @@ class JSONRPCServer:
     except Exception:
       pass
     self._server_thread.join()
-    self._server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._server.server_close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 def GetJSONRPCCallerIP():
@@ -152,7 +156,9 @@ class MultiPathJSONRPCServer(SimpleJSONRPCServer.SimpleJSONRPCServer):
     This function is called by SimpleJSONRPCRequestHandler to dispatch request.
     """
     # TODO (shunhsingou): find other way instead of using inspect.
-    handler = inspect.currentframe().f_back.f_locals['self']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    handler = inspect.currentframe().f_back.f_locals['self']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     path = handler.path
     # pylint: disable=protected-access
     return self.dispatchers[path]._marshaled_dispatch(

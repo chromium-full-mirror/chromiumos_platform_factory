@@ -68,14 +68,20 @@ class WSGISession(type_utils.AttrDict):
       remote address.
     """
     try:
-      return self.HTTP_X_FORWARDED_FOR.split(',')[-1].strip()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.HTTP_X_FORWARDED_FOR.split(',')[-1].strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
-      return self.REMOTE_ADDR  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.REMOTE_ADDR  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   @property
   def content_length(self):
     """Gets numeric request content length."""
-    return int(self.CONTENT_LENGTH)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return int(self.CONTENT_LENGTH)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Read(self, size=None):
     """Reads HTTP request body.
@@ -85,8 +91,12 @@ class WSGISession(type_utils.AttrDict):
       request content.
     """
     if size:
-      return self.wsgi_input.read(size)  # type: ignore #TODO(b/338318729) Fixit!
-    return self.wsgi_input.read(self.content_length)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self.wsgi_input.read(size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    return self.wsgi_input.read(self.content_length)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetMessage(self, code):
     """Gets HTTP response code and message.
@@ -143,9 +153,15 @@ class WebAppDispatcher(dict):
   def __call__(self, environ, start_response):
     session = WSGISession(environ, start_response)
     try:
-      if session.PATH_INFO in self:  # type: ignore #TODO(b/338318729) Fixit!
-        return self[session.PATH_INFO](environ, start_response)  # type: ignore #TODO(b/338318729) Fixit!
-      logging.error('request path does not exist: %s', session.PATH_INFO)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if session.PATH_INFO in self:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        return self[session.PATH_INFO](environ, start_response)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      logging.error('request path does not exist: %s', session.PATH_INFO)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.error('  : keys = %s', list(self))
       return session.MethodNotAllowed405()
     except Exception:

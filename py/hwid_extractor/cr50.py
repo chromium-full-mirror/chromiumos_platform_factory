@@ -8,7 +8,10 @@ import logging
 import re
 import time
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 # The classes here supporting Cr50 also support Ti50.

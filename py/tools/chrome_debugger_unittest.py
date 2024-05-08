@@ -11,9 +11,14 @@ from unittest import mock
 import urllib.error
 import urllib.request
 
-from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.client.threadedclient import WebSocketClient  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.tools import chrome_debugger
+
+
+# yapf: enable
+
 
 
 class ChromeRemoteDebuggerTest(unittest.TestCase):
@@ -75,7 +80,9 @@ class ChromeRemoteDebuggerTest(unittest.TestCase):
 
   @mock.patch('cros.factory.tools.chrome_debugger.WebSocketClient')
   def testSetActivePage(self, web_socket_client_mock):
-    self.chrome.GetPages = mock.Mock(return_value=self.mock_pageset[1:])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.chrome.GetPages = mock.Mock(return_value=self.mock_pageset[1:])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     web_socket_client_mock.return_value = self.mock_websocket
     self.mock_websocket.connect()
     self.mock_websocket.close()
@@ -87,9 +94,16 @@ class ChromeRemoteDebuggerTest(unittest.TestCase):
         self.mock_pageset[1]["webSocketDebuggerUrl"])
 
   def testSendCommand(self):
-    command = {"method": "test", "params": {"param1": "value1"}}
+    command = {
+        "method": "test",
+        "params": {
+            "param1": "value1"
+        }
+    }
     expected = command.copy()
-    expected.update({"id": 1})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    expected.update({"id": 1})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.chrome.active_websocket = self.mock_websocket
 
     self.assertEqual(1, self.chrome.id)
@@ -102,8 +116,15 @@ class ChromeRemoteDebuggerTest(unittest.TestCase):
 
   def testPageNavigate(self):
     url = "http://blah"
-    expected = {"method": "Page.navigate", "params": {"url": url}}
-    expected.update({"id": 1})  # type: ignore #TODO(b/338318729) Fixit!
+    expected = {
+        "method": "Page.navigate",
+        "params": {
+            "url": url
+        }
+    }
+    # yapf: disable
+    expected.update({"id": 1})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.chrome.active_websocket = self.mock_websocket
 
     self.chrome.PageNavigate(url)

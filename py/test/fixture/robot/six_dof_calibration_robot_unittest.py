@@ -7,9 +7,14 @@
 import unittest
 from unittest import mock
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.fixture.robot import six_dof_calibration_robot
+
+
+# yapf: enable
+
 
 
 Robot = six_dof_calibration_robot.SixDoFCalibrationRobot
@@ -35,7 +40,9 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
 
   def tearDown(self):
     disconnect = mock.Mock(spec=self._robot.Disconnect)
-    self._robot.Disconnect = disconnect  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot.Disconnect = disconnect  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     del self._robot
 
@@ -58,7 +65,9 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
 
     self._robot.Disconnect()
 
-    self._serial.close.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.close.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testSendCommand(self):
     self._MockConnect()
@@ -66,16 +75,26 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
     args = ['5', '5', '6', '6']
     data = f"{Robot._CMD_PREFIX}{cmd},{','.join(args)}"
     res = 'Cmd5566 OK'
-    self._serial.write.return_value = len(data)  # type: ignore #TODO(b/338318729) Fixit!
-    self._serial.readline.return_value = res  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.write.return_value = len(data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._serial.readline.return_value = res  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot._SendCommand(cmd, *args)
 
-    self._serial.write.assert_called_with(data)  # type: ignore #TODO(b/338318729) Fixit!
-    self._serial.readline.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.write.assert_called_with(data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._serial.readline.assert_called_with()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testSetMotorOn(self):
-    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.SetMotor(True)
 
@@ -88,8 +107,12 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
     self._robot._SendCommand.assert_has_calls(calls)
 
   def testSetMotorOff(self):
-    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
-    self._robot.LoadDevice = mock.Mock(spec=self._robot.LoadDevice)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._robot.LoadDevice = mock.Mock(spec=self._robot.LoadDevice)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.SetMotor(False)
 
@@ -97,14 +120,18 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
     self._robot._SendCommand.assert_called_with(Robot.CMD_POWER_OFF)
 
   def testLoadDevice(self):
-    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.LoadDevice(True)
 
     self._robot._SendCommand.assert_called_with(Robot.CMD_LOAD)
 
   def testUnloadDevice(self):
-    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=self._robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.LoadDevice(False)
 
@@ -113,23 +140,28 @@ class SixDoFCalibrationRobotTest(unittest.TestCase):
   def testMoveTo(self):
     position = Robot.POSITION_ORIGIN
 
-    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.MoveTo(position)
 
-    self._robot._SendCommand.assert_called_with(
-        Robot.CMD_MOVE_TO, position, Robot.MOVEMENT_STOP)
+    self._robot._SendCommand.assert_called_with(Robot.CMD_MOVE_TO, position,
+                                                Robot.MOVEMENT_STOP)
 
   def testSetLEDOn(self):
-    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.SetLED(True)
 
-    self._robot._SendCommand.assert_called_with(
-        Robot.CMD_LED, Robot.LED_ON)
+    self._robot._SendCommand.assert_called_with(Robot.CMD_LED, Robot.LED_ON)
 
   def testSetLEDOff(self):
-    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._robot._SendCommand = mock.Mock(spec=Robot._SendCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._robot.SetLED(False)
 

@@ -29,7 +29,9 @@ _HWIDIngestionProtoRPCShardBase = protorpc_utils.CreateProtoRPCServiceShardBase(
     ingestion_pb2.DESCRIPTOR.services_by_name['HwidIngestion'])
 
 
-class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   @classmethod
   def CreateInstance(cls, config):
@@ -97,7 +99,9 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
     logging.info('Got %d AVL names from HWID API.', len(avl_name_mapping))
     touched_cids = self.decoder_data_manager.SyncAVLNameMapping(
         avl_name_mapping)
-    affected_projs = set()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    affected_projs = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for touched_cid in touched_cids:
       affected_projs.update(cid_proj_mapping[touched_cid])
 
@@ -111,7 +115,9 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
     return ingestion_pb2.SyncNameMappingResponse()
 
 
-class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   @classmethod
   def CreateInstance(cls, config, config_data):
@@ -139,7 +145,9 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
                       dryrun: bool, limit_models: bool, force_update: bool,
                       live_hwid_repo: hwid_repo.HWIDRepo,
                       skip_model_check: bool = False) -> Mapping[str, str]:
-    board_result = payload_manager.Update(dryrun, limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    board_result = payload_manager.Update(dryrun, limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                           live_hwid_repo, skip_model_check)
     change_ids = {
         board: result.change_id
@@ -219,10 +227,14 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     response = ingestion_pb2.IngestHwidDbResponse()
     force_update = do_limit
     vp_payload_hash = self._UpdatePayloads(self.vp_manager, dryrun_upload,
-                                           limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
+                                           # yapf: disable
+                                           limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                           # yapf: enable
                                            live_hwid_repo, skip_model_check)
     hsp_payload_hash = self._UpdatePayloads(self.hsp_manager, dryrun_upload,
-                                            limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit!
+                                            # yapf: disable
+                                            limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                            # yapf: enable
                                             live_hwid_repo, skip_model_check)
     if force_update:
       # Reply payload hash (e2e test only).

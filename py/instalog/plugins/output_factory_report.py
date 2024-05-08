@@ -92,13 +92,19 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
         logger=self.logger, impersonated_account=self.args.impersonated_account)
 
   def TearDown(self):
-    if os.path.exists(self._tmp_dir):  # type: ignore #TODO(b/338318729) Fixit!
-      shutil.rmtree(self._tmp_dir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if os.path.exists(self._tmp_dir):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      shutil.rmtree(self._tmp_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self._process_pool.close()
     self._process_pool.join()
 
-    self._downloader.Close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._downloader.Close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Main(self):
     """Main thread of the plugin."""
@@ -114,12 +120,18 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
     if not event_stream:
       return False
 
-    if os.path.exists(self._tmp_dir):  # type: ignore #TODO(b/338318729) Fixit!
-      shutil.rmtree(self._tmp_dir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if os.path.exists(self._tmp_dir):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      shutil.rmtree(self._tmp_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     file_utils.TryMakeDirs(self._tmp_dir)
 
     total_archive_size = 0
-    event_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    event_dict = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for event in event_stream.iter(count=_PROCESSES_NUMBER):
       archive_process_event = datatypes.Event({
           '__process__': True,
@@ -130,7 +142,9 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
       })
       for key in ('objectId', 'time', 'size', 'md5'):
         if key not in event:
-          SetProcessEventStatus(ERROR_CODE.EventInvalid, archive_process_event,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          SetProcessEventStatus(ERROR_CODE.EventInvalid, archive_process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                                 event.Serialize())
           self.PreEmit([archive_process_event])
           self.error('Receive an invalid event: %s', event.Serialize())
@@ -139,7 +153,9 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
       gcs_path = event['objectId']
       archive_extension = os.path.splitext(gcs_path)[1]
       archive_path = os.path.join(
-          self._tmp_dir,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._tmp_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f"archive_{int(event['time'])}_{event['md5']}{archive_extension}")
 
       event['archive_path'] = archive_path
@@ -162,7 +178,9 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
     download_list = []
     for gcs_path, event in event_dict.items():
       download_list.append((gcs_path, event['archive_path']))
-    downloader_results = self._downloader.Download(download_list)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    downloader_results = self._downloader.Download(download_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for gcs_path, archive_path in downloader_results:
       event = event_dict[gcs_path]
@@ -174,7 +192,9 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
       # None.
       if not archive_path:
         self.error('Download failed and skip the archive: %s', gcs_path)
-        SetProcessEventStatus(ERROR_CODE.DownloadError, archive_process_event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.DownloadError, archive_process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.PreEmit([archive_process_event])
         continue
 
@@ -191,15 +211,21 @@ class OutputFactoryReport(plugin_base.OutputPlugin):
                     len(report_parsers), gcs_path)
       except NotImplementedError:
         self.error('The archive is invalid: %s', gcs_path)
-        SetProcessEventStatus(ERROR_CODE.ArchiveInvalidFormat,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveInvalidFormat,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event)
       except Exception as e:
         self.exception('Exception encountered when creating report parsers')
-        SetProcessEventStatus(ERROR_CODE.ArchiveUnknownError,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveUnknownError,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event, e)
       else:
         if not report_parsers:
-          SetProcessEventStatus(ERROR_CODE.ArchiveReportNotFound,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          SetProcessEventStatus(ERROR_CODE.ArchiveReportNotFound,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                                 archive_process_event)
         else:
           for report_parser in report_parsers:
@@ -293,7 +319,9 @@ class ReportParser(log_utils.LoggerMixin):
     """Processes the archive and remove it after processing it."""
     processed = 0
     report_num_by_external_tool = None
-    args_queue = multiprocessing.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    args_queue = multiprocessing.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     result_queue = multiprocessing.Manager().Queue()
     total_reports = 0
     decompress_process = None
@@ -307,7 +335,9 @@ class ReportParser(log_utils.LoggerMixin):
       # If a ZIP file is corrupted, 7zip may decompress part reports from it.
       elif self.archive_path.endswith('zip'):
         self.warning('Using 7zip to decompress the archive %s', self._gcs_path)
-        SetProcessEventStatus(ERROR_CODE.ArchiveCorrupted,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveCorrupted,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event)
         decompress_process = multiprocessing.Process(
             target=self.Decompress7zArchive, args=(args_queue, ))
@@ -320,7 +350,9 @@ class ReportParser(log_utils.LoggerMixin):
             self.archive_path, archive_process_event)
       else:
         # We only support tar file and zip file.
-        SetProcessEventStatus(ERROR_CODE.ArchiveInvalidFormat,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveInvalidFormat,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event)
         return total_reports
       decompress_process.start()
@@ -338,7 +370,9 @@ class ReportParser(log_utils.LoggerMixin):
       args_queue.close()
       archive_process_event['decompressEndTime'] = time.time()
       if isinstance(received_obj, Exception):
-        SetProcessEventStatus(ERROR_CODE.ArchiveUnknownError,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveUnknownError,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event, received_obj)
 
       for unused_i in range(total_reports):
@@ -359,13 +393,17 @@ class ReportParser(log_utils.LoggerMixin):
         error_msg = 'Cannot check processed report number due to not getting '\
                     'the number with external tool'
         self.error(error_msg)
-        SetProcessEventStatus(ERROR_CODE.ArchiveReportNumNotMatch,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveReportNumNotMatch,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event, error_msg)
       elif report_num_by_external_tool != processed:
         error_msg = f'Processed report number ({processed}) does not match to '\
           f'the one reported by external tool ({report_num_by_external_tool})!'
         self.error(error_msg)
-        SetProcessEventStatus(ERROR_CODE.ArchiveReportNumNotMatch,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ArchiveReportNumNotMatch,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               archive_process_event, error_msg)
     except Exception:
       self.exception('Exception encountered')
@@ -412,7 +450,9 @@ class ReportParser(log_utils.LoggerMixin):
       member_list_process = process_utils.Spawn(
           ['7z', 'l', self.archive_path, '-slt'], read_stdout=True)
       member_list_output = member_list_process.stdout_data
-      member_list = re.findall('Path = (.*)', member_list_output, re.M)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      member_list = re.findall('Path = (.*)', member_list_output, re.M)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       basename_to_filepath = {}
       for member_name in member_list:
         member_basename = os.path.basename(member_name)
@@ -464,7 +504,9 @@ class ReportParser(log_utils.LoggerMixin):
           report_path = file_utils.CreateTemporaryFile(dir=self._tmp_dir)
           with open(report_path, 'wb') as dst_f:
             report_obj = archive_obj.extractfile(archive_member)
-            shutil.copyfileobj(report_obj, dst_f)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            shutil.copyfileobj(report_obj, dst_f)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
           args_queue.put((member_name, report_path))
     except Exception as e:
       self.exception('Exception encountered when decompressing archive file')
@@ -539,7 +581,9 @@ class ReportParser(log_utils.LoggerMixin):
       process_event['time'] = report_time
       self.DecompressAndParse(report_path, report_event, process_event)
     except Exception as e:
-      SetProcessEventStatus(ERROR_CODE.ReportUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.ReportUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.exception('Exception encountered when processing factory report')
     finally:
       file_utils.TryUnlink(report_path)
@@ -552,7 +596,9 @@ class ReportParser(log_utils.LoggerMixin):
     """Decompresses the factory report and parse it."""
     with file_utils.TempDirectory(dir=self._tmp_dir) as report_dir:
       if not tarfile.is_tarfile(report_path):
-        SetProcessEventStatus(ERROR_CODE.ReportInvalidFormat, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.ReportInvalidFormat, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return
       with tarfile.open(report_path, 'r:xz', ignore_zeros=True) as report_tar:
         report_tar.extractall(report_dir)
@@ -572,7 +618,9 @@ class ReportParser(log_utils.LoggerMixin):
                                     process_event):
           report_event.payload = eventlog_report_event.payload
       else:
-        SetProcessEventStatus(ERROR_CODE.EventlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.EventlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       testlog_path = os.path.join(report_dir, 'var', 'factory', 'testlog',
                                   'events.json')
@@ -582,7 +630,9 @@ class ReportParser(log_utils.LoggerMixin):
                                    process_event):
           report_event.payload = testlog_report_event.payload
       else:
-        SetProcessEventStatus(ERROR_CODE.TestlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.TestlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       if 'hwid' not in report_event:
         factory_log_path = os.path.join(report_dir, 'var', 'factory', 'log',
@@ -592,10 +642,14 @@ class ReportParser(log_utils.LoggerMixin):
           report_event['hwid'] = extracted_hwid
           report_event['modelName'] = extracted_hwid.split(' ')[0]
         except FileNotFoundError:
-          SetProcessEventStatus(ERROR_CODE.FactorylogFileNotFound,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          SetProcessEventStatus(ERROR_CODE.FactorylogFileNotFound,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                                 process_event)
         except HWIDNotFoundInFactoryLogError:
-          SetProcessEventStatus(ERROR_CODE.FactorylogNoHWID, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          SetProcessEventStatus(ERROR_CODE.FactorylogNoHWID, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
       return
 
@@ -604,7 +658,9 @@ class ReportParser(log_utils.LoggerMixin):
 
     def SetSerialNumber(sn_key, sn_value):
       if not isinstance(sn_value, str):
-        SetProcessEventStatus(ERROR_CODE.EventlogWrongType, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.EventlogWrongType, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         sn_value = str(sn_value)
       if sn_value != 'null':
         report_event['serialNumbers'][sn_key] = sn_value
@@ -629,7 +685,9 @@ class ReportParser(log_utils.LoggerMixin):
             if b'\0' in line:
               splited_line = line.split(b'\0')
               data_lines += splited_line[0]
-              SetProcessEventStatus(ERROR_CODE.EventlogNullCharactersExist,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              SetProcessEventStatus(ERROR_CODE.EventlogNullCharactersExist,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
                                     process_event, data_lines)
 
               data_lines = splited_line[-1]
@@ -640,10 +698,14 @@ class ReportParser(log_utils.LoggerMixin):
             data_lines = b''
             event = None
             try:
-              event = yaml.load(raw_event, Loader=yaml_loader)  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              event = yaml.load(raw_event, Loader=yaml_loader)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
 
               if not isinstance(event, dict):
-                SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent,  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                                       process_event, raw_event)
                 continue
 
@@ -655,7 +717,9 @@ class ReportParser(log_utils.LoggerMixin):
                   return
 
                 if is_string and not isinstance(data, str):
-                  SetProcessEventStatus(ERROR_CODE.EventlogWrongType,  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  SetProcessEventStatus(ERROR_CODE.EventlogWrongType,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  # yapf: enable
                                         process_event)
                   data = str(dct[key])
 
@@ -664,7 +728,9 @@ class ReportParser(log_utils.LoggerMixin):
                     return
                   if report_event[field] != data:
                     SetProcessEventStatus(
-                        ERROR_CODE.EventlogDataChange, process_event,  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        ERROR_CODE.EventlogDataChange, process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         (f'Field={field}, Old data={report_event[field]}, New '
                          f'data={data}, Replace={replace}'))
 
@@ -672,7 +738,9 @@ class ReportParser(log_utils.LoggerMixin):
 
               serial_numbers = event.get('serial_numbers', {})
               if not isinstance(serial_numbers, dict):
-                SetProcessEventStatus(ERROR_CODE.EventlogWrongType,  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                SetProcessEventStatus(ERROR_CODE.EventlogWrongType,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                                       process_event)
               else:
                 for sn_key, sn_value in serial_numbers.items():
@@ -724,7 +792,9 @@ class ReportParser(log_utils.LoggerMixin):
                 GetField('dutDeviceId', event, 'device_id')
                 GetField('toolkitVersion', event, 'toolkit_version')
               elif event_name == 'test_states':
-                test_states_list = []  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                test_states_list = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 testlist_name = None
                 testlist_station_set = set()
 
@@ -741,15 +811,21 @@ class ReportParser(log_utils.LoggerMixin):
                 report_event['testlistStation'] = json.dumps(
                     list(testlist_station_set))
             except yaml.YAMLError as e:
-              SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
                                     process_event, e)
             except Exception as e:
-              SetProcessEventStatus(ERROR_CODE.EventlogUnknownError,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              SetProcessEventStatus(ERROR_CODE.EventlogUnknownError,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
                                     process_event, e)
 
       # There should not have data after the last END_TOKEN.
       if data_lines:
-        SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent, process_event,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        SetProcessEventStatus(ERROR_CODE.EventlogBrokenEvent, process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                               data_lines)
 
       # Some reports doesn't have serial_numbers field. However, serial numbers
@@ -764,7 +840,9 @@ class ReportParser(log_utils.LoggerMixin):
           sn_list = []
           for line in line_list:
             try:
-              sn = yaml.load(line, Loader=yaml_loader)[sn_key]  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              sn = yaml.load(line, Loader=yaml_loader)[sn_key]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               if sn != 'null':
                 sn_list.append(sn)
             except Exception:
@@ -776,7 +854,9 @@ class ReportParser(log_utils.LoggerMixin):
 
       return True
     except Exception as e:
-      SetProcessEventStatus(ERROR_CODE.EventlogUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.EventlogUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.exception('Failed to parse eventlog events')
       return False
 
@@ -788,7 +868,9 @@ class ReportParser(log_utils.LoggerMixin):
           # If the log file is not sync to disk correctly, it may have null
           # characters.
           if '\0' in line:
-            SetProcessEventStatus(ERROR_CODE.TestlogNullCharactersExist,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            SetProcessEventStatus(ERROR_CODE.TestlogNullCharactersExist,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                                   process_event)
           # If the log file is not sync to disk correctly, a line may have a
           # broken event and a new event. We can use the EVENT_START to find
@@ -796,7 +878,9 @@ class ReportParser(log_utils.LoggerMixin):
           EVENT_START = '{"payload":'
           new_event_index = line.rfind(EVENT_START)
           if new_event_index > 0:
-            SetProcessEventStatus(ERROR_CODE.TestlogBrokenEvent, process_event)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            SetProcessEventStatus(ERROR_CODE.TestlogBrokenEvent, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             line = line[new_event_index:]
 
           try:
@@ -805,7 +889,9 @@ class ReportParser(log_utils.LoggerMixin):
             if 'serialNumbers' in event:
               for sn_key, sn_value in event['serialNumbers'].items():
                 if not isinstance(sn_value, str):
-                  SetProcessEventStatus(ERROR_CODE.TestlogWrongType,  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  SetProcessEventStatus(ERROR_CODE.TestlogWrongType,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  # yapf: enable
                                         process_event)
                   sn_value = str(sn_value)
                 report_event['serialNumbers'][sn_key] = sn_value
@@ -833,7 +919,9 @@ class ReportParser(log_utils.LoggerMixin):
                   return
                 if report_event[field] != data:
                   SetProcessEventStatus(
-                      ERROR_CODE.TestlogDataChange, process_event,  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      ERROR_CODE.TestlogDataChange, process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                      # yapf: enable
                       (f'Field={field}, Old data={report_event[field]}, New '
                        f'data={data}, Replace={replace}'))
               report_event[field] = data
@@ -844,14 +932,20 @@ class ReportParser(log_utils.LoggerMixin):
               if 'hwid' in report_event:
                 report_event['modelName'] = report_event['hwid'].split(' ')[0]
           except json.JSONDecodeError as e:
-            SetProcessEventStatus(ERROR_CODE.TestlogBrokenEvent, process_event,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            SetProcessEventStatus(ERROR_CODE.TestlogBrokenEvent, process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                                   e)
           except Exception as e:
-            SetProcessEventStatus(ERROR_CODE.TestlogUnknownError, process_event,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            SetProcessEventStatus(ERROR_CODE.TestlogUnknownError, process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                                   e)
       return True
     except Exception as e:
-      SetProcessEventStatus(ERROR_CODE.TestlogUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.TestlogUnknownError, process_event, e)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.exception('Failed to parse testlog events')
       return False
 
@@ -862,9 +956,13 @@ class ReportParser(log_utils.LoggerMixin):
       for line in f:
         match_result = PATTERN_HWID_LOG.match(line)
         if match_result is not None:
-          hwid_candidate = match_result.group('hwid')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          hwid_candidate = match_result.group('hwid')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
     if hwid_candidate:
-      return hwid_candidate.decode('utf-8')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return hwid_candidate.decode('utf-8')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     raise HWIDNotFoundInFactoryLogError
 
   def _GetReportNumInZip(self, zip_path):
@@ -882,13 +980,17 @@ class ReportParser(log_utils.LoggerMixin):
       # https://linux.die.net/man/1/unzip: return code 1 means the processing
       # completed successfully, and empty zip makes the return code 1 with
       # stderr logs the string `zipfile is empty`.
-      if result.returncode == 1 and 'zipfile is empty' in stderr:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if result.returncode == 1 and 'zipfile is empty' in stderr:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return 0
       self.error(
           'Failed to get number of reports in %s due to unzip exit status %d',
           zip_path, result.returncode)
       return None
-    lines = stdout.split('\n')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    lines = stdout.split('\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return sum(map(lambda line: self.IsValidReportName(line.strip()), lines))
 
   def _GetReportNumInTar(self, tar_path, archive_process_event):
@@ -903,10 +1005,14 @@ class ReportParser(log_utils.LoggerMixin):
     result = process_utils.Spawn(['tar', 'tvf', tar_path], read_stdout=True,
                                  read_stderr=True)
     stdout, stderr = result.communicate()
-    if result.returncode == 2 and 'Unexpected EOF in archive' in stderr:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if result.returncode == 2 and 'Unexpected EOF in archive' in stderr:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # If the tar file is corrupted or incomplete, the plugin should also
       # process the factory reports in it.
-      SetProcessEventStatus(ERROR_CODE.ArchiveCorrupted, archive_process_event,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.ArchiveCorrupted, archive_process_event,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                             stderr)
       # The number may always be incorrect, so we should just return None.
       return None
@@ -915,7 +1021,9 @@ class ReportParser(log_utils.LoggerMixin):
           'Failed to get number of reports in %s due to tar exit status %d',
           tar_path, result.returncode)
       return None
-    lines = stdout.split('\n')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    lines = stdout.split('\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return sum(map(lambda line: self.IsValidReportName(line.strip()), lines))
 
 
@@ -1015,18 +1123,24 @@ class AbstractArchive(abc.ABC):
     raise NotImplementedError
 
   def _CloseArchive(self):
-    self._file.close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._file.close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ZipArchive(AbstractArchive):
 
   def GetNonDirFileNames(self):
     return [
-        info.filename for info in self._file.infolist() if not info.is_dir()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        info.filename for info in self._file.infolist() if not info.is_dir()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     ]
 
   def Extract(self, member_name, dst_path):
-    with self._file.open(member_name, 'r') as member, open(dst_path, 'wb') as dst_file:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._file.open(member_name, 'r') as member, open(dst_path, 'wb') as dst_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       shutil.copyfileobj(member, dst_file)
 
   def _OpenArchive(self):
@@ -1081,7 +1195,9 @@ class TarArchive(AbstractArchive):
   def GetNonDirFileNames(self):
     member_list = []
     try:
-      for member in self._file:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for member in self._file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if not member.isdir():
           member_list.append(member.name)
     except EOFError:
@@ -1092,7 +1208,9 @@ class TarArchive(AbstractArchive):
     return member_list
 
   def Extract(self, member_name, dst_path):
-    with self._file.extractfile(member_name) as member, open(dst_path, 'wb') as dst_file:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._file.extractfile(member_name) as member, open(dst_path, 'wb') as dst_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       shutil.copyfileobj(member, dst_file)
 
   def _OpenArchive(self):

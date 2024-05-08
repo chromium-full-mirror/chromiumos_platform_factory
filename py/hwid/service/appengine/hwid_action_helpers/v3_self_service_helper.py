@@ -104,7 +104,9 @@ class HWIDV3SelfServiceActionHelper:
       new_db_components = new_db.GetComponents(comp_cls)
       for comp_name, comp_info in old_db.GetComponents(comp_cls).items():
         if comp_info.bundle_uuids and comp_name in new_db_components:
-          new_db.SetBundleUUIDs(comp_cls, comp_name, comp_info.bundle_uuids)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          new_db.SetBundleUUIDs(comp_cls, comp_name, comp_info.bundle_uuids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
     return self.PatchHeader(
         new_db.DumpDataWithoutChecksum(internal=True,
                                        suppress_support_status=False))
@@ -156,9 +158,13 @@ class HWIDV3SelfServiceActionHelper:
 
     if internal:
       new_hwid_db_contents = new_hwid_db_contents_internal = (
-          self.ConvertToInternalHWIDDBContent(avl_converter_manager,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ConvertToInternalHWIDDBContent(avl_converter_manager,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                              # yapf: enable
                                               new_hwid_db_contents_external,
-                                              avl_resource))  # type: ignore #TODO(b/338318729) Fixit!
+                                              # yapf: disable
+                                              avl_resource))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       curr_hwid_db_contents = curr_hwid_db_contents_internal
     else:
       new_hwid_db_contents = new_hwid_db_contents_external

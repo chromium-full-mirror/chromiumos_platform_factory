@@ -148,23 +148,33 @@ class LEDTest(test_case.TestCase):
     self._led = device.led
     self._usb_c = None
     self._fixture = None
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self._SetAllLED(LEDColor.OFF)
 
-    if not self.args.colors:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.colors:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.colors = self._GetColorsFromLEDInfo()
     else:
       # Transform the colors to a list of [led_name, color, pd_port].
       self.colors = []
-      for item in self.args.colors:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for item in self.args.colors:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if isinstance(item, str):
           self.colors.append((None, item, None))
         elif isinstance(item, list) and len(item) == 2:
           self.colors.append((item[0], item[1], None))
         else:
-          if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             raise ValueError('bft_fixture does not support pd_port')
           # Only initialize usb_c if we need it.
           if self._usb_c is None:
@@ -173,29 +183,45 @@ class LEDTest(test_case.TestCase):
 
     # Shuffle the colors for interactive challenge, so operators can't guess
     # the sequence.
-    if self.args.group_by_led_id:  # type: ignore #TODO(b/338318729) Fixit!
-      group_indices = {}  # type: ignore #TODO(b/338318729) Fixit!
-      groups = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.group_by_led_id:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      group_indices = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      groups = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for item in self.colors:
         key = (item[0], item[2])
         if key not in group_indices:
           group_indices[key] = len(group_indices)
           groups.append([])
         groups[group_indices[key]].append(item)
-      if self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         for group in groups:
           random.shuffle(group)
       self.colors = sum(groups, [])
-    elif self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       random.shuffle(self.colors)
 
-    if not self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     for test_id, [led_name, color, pd_port] in enumerate(self.colors, 1):
       if self._fixture:
         self.AddTask(self.RunFixtureTask, led_name, color)
-      elif self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      elif self.args.challenge:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.AddTask(self.RunChallengeTask, test_id, led_name, color, pd_port)
       else:
         self.AddTask(self.RunNormalTask, led_name, color, pd_port)
@@ -209,7 +235,9 @@ class LEDTest(test_case.TestCase):
   def _GetColorsFromLEDInfo(self):
     colors = []
     for index, infoes in self._led.led_infoes.items():
-      if self.args.target_leds and index not in self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.target_leds and index not in self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         continue
       for color in infoes:
         colors.append([index, color.upper(), None])
@@ -235,8 +263,12 @@ class LEDTest(test_case.TestCase):
             '<strong>{color}</strong>, press ENTER.',
             name=led_name_label,
             color=color_label)
-      self.ui.SetState(instruction)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(instruction)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.WaitTaskEnd()
     finally:
       self._TurnOffLED(led_name)
@@ -276,17 +308,25 @@ class LEDTest(test_case.TestCase):
           set(color for unused_index, color, unused_pd_port in self.colors))
       answer = color_options.index(color)
 
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           self._CreateChallengeTaskUI(test_id, led_name, color_options))
 
       keys = [str(i) for i in range(1, len(color_options) + 1)]
-      pressed_key = int(self.ui.WaitKeysOnce(keys)) - 1  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pressed_key = int(self.ui.WaitKeysOnce(keys)) - 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if pressed_key == answer:
-        self.ui.SetHTML('<span class="result-pass">PASS</span>', id='result')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetHTML('<span class="result-pass">PASS</span>', id='result')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.Sleep(0.5)
         self.PassTask()
       else:
-        self.ui.SetHTML('<span class="result-fail">FAIL</span>', id='result')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetHTML('<span class="result-fail">FAIL</span>', id='result')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.Sleep(0.5)
         self.FailTask(f'correct color for {led_name} is {color} but got '
                       f'{color_options[pressed_key]}.')
@@ -298,7 +338,9 @@ class LEDTest(test_case.TestCase):
     try:
       self._SetLEDColor(led_name, color)
       try:
-        if self._fixture.IsLEDColor(color):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self._fixture.IsLEDColor(color):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.PassTask()
         else:
           # Fail later to detect all colors.
@@ -329,8 +371,12 @@ class LEDTest(test_case.TestCase):
     Args:
       color: One of LEDColor.
     """
-    if self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit!
-      for led in self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      for led in self.args.target_leds:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._led.SetColor(color, led_name=led)
     else:
       self._led.SetColor(color)
@@ -346,7 +392,9 @@ class LEDTest(test_case.TestCase):
     if expected_port is None:
       return
     while True:
-      current_pd_status: Dict[int, Dict] = self._usb_c.GetPDPowerStatus()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      current_pd_status: Dict[int, Dict] = self._usb_c.GetPDPowerStatus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if expected_port != -1 and expected_port not in current_pd_status.keys():
         self.FailTask(f'Unable to detect port {int(expected_port)}.')
       plug_ports = []
@@ -362,7 +410,9 @@ class LEDTest(test_case.TestCase):
           unplug_ports.append(port)
       if not plug_ports and not unplug_ports:
         return
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _(
               'Plug power into ports: {plug_ports}<br>'
               'Unplug power from ports: {unplug_ports}<br>'

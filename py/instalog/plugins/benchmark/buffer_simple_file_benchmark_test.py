@@ -7,7 +7,8 @@
 import tempfile
 from typing import List
 
-import psutil  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import psutil  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog.plugins.benchmark import benchmark
@@ -17,6 +18,10 @@ from cros.factory.instalog.plugins.benchmark.benchmark_runner import BenchmarkTe
 from cros.factory.instalog.plugins.benchmark import events
 from cros.factory.instalog.plugins import buffer_simple_file
 from cros.factory.utils import file_utils
+
+
+# yapf: enable
+
 
 
 EVENT_NUM = 10000
@@ -65,7 +70,9 @@ class BenchmarkBufferSimpleFile(benchmark.BenchmarkCase):
     sf = buffer_simple_file.BufferSimpleFile(config={}, logger_name='',
                                              store={}, plugin_api=None)
     data_dir = tempfile.mkdtemp(prefix='buffer_simple_file_benchmark_')
-    sf.GetDataDir = lambda: data_dir  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sf.GetDataDir = lambda: data_dir  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sf.SetUp()
 
     memory_before_produce = psutil.Process().memory_info().vms

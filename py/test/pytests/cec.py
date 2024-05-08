@@ -220,36 +220,68 @@ class CecTest(test_case.TestCase):
     status = self.GetDisplayStatus()
     if status == Status.ERROR:
       raise RuntimeError('The CEC connection is broken.')
-    if status != self.args.initial_status:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if status != self.args.initial_status:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError(
-          f'The TV is in wrong power state. Current status: {status}; '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'The TV is in wrong power state. Current status: {status}; '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'Expected status: {self.args.initial_status}.')
-    if self.args.power_off:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.power_off:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Turning off the TV...')
       self.CheckDisplayTurnOff()
-    if self.args.power_on:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.power_on:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Turning on the TV...')
       self.CheckDisplayTurnOn()
 
   def setUp(self):
     """ Initializes CEC environment. """
-    self.ui.AppendCSS(_CSS_CEC)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState(_HTML_CEC)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetHTML(_MSG_CEC_INFO, id='cec-title')  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.manual_mode:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.AppendCSS(_CSS_CEC_MANUAL)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(_HTML_CEC_MANUAL, append=True)  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetHTML(_MSG_CEC_MANUAL_INFO, id='cec-manual')  # type: ignore #TODO(b/338318729) Fixit!
-    self.Sleep(self.args.description_wait_time)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AppendCSS(_CSS_CEC)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState(_HTML_CEC)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetHTML(_MSG_CEC_INFO, id='cec-title')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.manual_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.AppendCSS(_CSS_CEC_MANUAL)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(_HTML_CEC_MANUAL, append=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetHTML(_MSG_CEC_MANUAL_INFO, id='cec-manual')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    self.Sleep(self.args.description_wait_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.controller_type == 'EC':  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.controller_type == 'EC':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.cec = IEcCecController(self._dut)
-    elif self.args.controller_type == 'AP':  # type: ignore #TODO(b/338318729) Fixit!
-      self.cec = ApCecController(self._dut, self.args.index)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.controller_type == 'AP':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.cec = ApCecController(self._dut, self.args.index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       raise ValueError(
-          f'Controller type {self.args.controller_type} not supported.')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Controller type {self.args.controller_type} not supported.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.cec.SetUp()
 
@@ -266,7 +298,9 @@ class CecTest(test_case.TestCase):
       RuntimeError if the display status if not Status.ON or Status.TO_ON.
     """
     self.cec.DisplayTurnOn()
-    self.Sleep(self.args.image_view_on_wait_time)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.image_view_on_wait_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     status = self.GetDisplayStatus()
     logging.info('Display status: %s.', status)
@@ -287,7 +321,9 @@ class CecTest(test_case.TestCase):
       RuntimeError if the display status if not Status.OFF or Status.TO_OFF.
     """
     self.cec.DisplayTurnOff()
-    self.Sleep(self.args.standby_wait_time)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.standby_wait_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     status = self.GetDisplayStatus()
     logging.info('Display status: %s.', status)
@@ -305,7 +341,11 @@ class CecTest(test_case.TestCase):
     Returns:
       A status defined in ``class Status``.
     """
-    if self.args.manual_mode:  # type: ignore #TODO(b/338318729) Fixit!
-      key_pressed = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.SPACE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.manual_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      key_pressed = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.SPACE_KEY])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return Status.ON if key_pressed == test_ui.ENTER_KEY else Status.OFF
     return self.cec.GetDisplayStatus()

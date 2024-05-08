@@ -7,7 +7,10 @@ import os
 import signal
 import sys
 
-from django.core.management import execute_from_command_line  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from django.core.management import execute_from_command_line  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 def handler(signum, frame):

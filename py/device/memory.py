@@ -37,11 +37,15 @@ class LinuxMemory(IMemory):
 
   def GetTotalMemoryKB(self):
     """Gets total memory of system in kB"""
-    return self._device.toybox.free('k').mem_total  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.toybox.free('k').mem_total  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetFreeMemoryKB(self):
     """Gets free memory of system in kB"""
-    return self._device.toybox.free('k').mem_max_free  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.toybox.free('k').mem_max_free  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class AndroidMemory(LinuxMemory):

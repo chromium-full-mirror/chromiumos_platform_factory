@@ -12,6 +12,7 @@ from cros.factory.multicast import server
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 
+
 FAKE_UFTP_ARGS = server.UftpArgs('/path/to/resources/fake_file',
                                  '224.1.1.1:8093', '/path/to/log_dir',
                                  '192.168.1.1')
@@ -58,7 +59,9 @@ class UftpProcessTest(unittest.TestCase):
   @mock.patch('cros.factory.multicast.server.UftpProcess.Spawn')
   def testRespawnIfDiedAnnounceTimedOut(self, mock_spawn):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock(returncode=7)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.uftp_proc._process = mock.Mock(returncode=7)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.uftp_proc.RespawnIfDied()
 
@@ -68,7 +71,9 @@ class UftpProcessTest(unittest.TestCase):
   @mock.patch('cros.factory.multicast.server.UftpProcess.Spawn')
   def testRespawnIfDiedUnexpectedError(self, mock_spawn):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock(returncode=1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.uftp_proc._process = mock.Mock(returncode=1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.uftp_proc.RespawnIfDied()
 
@@ -77,12 +82,18 @@ class UftpProcessTest(unittest.TestCase):
 
   def testKill(self):
     # pylint: disable=protected-access
-    self.uftp_proc._process = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.uftp_proc._process = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.uftp_proc.Kill()
 
-    self.uftp_proc._process.kill.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
-    self.uftp_proc._process.wait.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.uftp_proc._process.kill.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.uftp_proc._process.wait.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class GetLoggerTest(unittest.TestCase):

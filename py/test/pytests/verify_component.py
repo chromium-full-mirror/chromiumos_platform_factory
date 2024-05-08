@@ -46,7 +46,9 @@ class VerifyComponentTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.SetupStaticFiles()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetupStaticFiles()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.dut = device_utils.CreateDUTInterface()
     self.factory_tools = deploy_utils.CreateFactoryTools(self.dut)
     self.tmpdir = self.dut.temp.mktemp(is_dir=True, prefix='verify_component')
@@ -64,7 +66,9 @@ class VerifyComponentTest(test_case.TestCase):
   def runTest(self):
     converted_statement, converted_checksum = self._GetConvertedStatement()
 
-    if self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       expected_checksum = hashlib.sha1(
           converted_statement.encode('utf-8')).hexdigest()
       if expected_checksum != converted_checksum:
@@ -74,8 +78,15 @@ class VerifyComponentTest(test_case.TestCase):
 
     self.probed_results = json_utils.LoadStr(
         self.factory_tools.CheckOutput([
-            'probe', 'probe', '--config-file', self.converted_statement_file,
-            '--approx-match', '--max-mismatch', f'{self.args.max_mismatch}'  # type: ignore #TODO(b/338318729) Fixit!
+            'probe',
+            'probe',
+            '--config-file',
+            self.converted_statement_file,
+            # yapf: disable
+            '--approx-match',
+            '--max-mismatch',
+            f'{self.args.max_mismatch}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ]))
     self.perfect_match_results = self._GetPerfectMatchProbeResult()
     self.component_data = {k[4:]: int(v) for k, v in
@@ -86,14 +97,22 @@ class VerifyComponentTest(test_case.TestCase):
     self._VerifyNotSupported()
 
     if self.num_mismatch or self.not_supported:
-      self.ui.CallJSFunction('setFailedMessage')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.CallJSFunction('setFailedMessage')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self.num_mismatch:
-        self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             'createNumMismatchResult', self.num_mismatch,
-            self.args.approx_match, self.probed_results)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.args.approx_match, self.probed_results)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       if self.not_supported:
-        self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             'createNotSupportedResult', self.not_supported)
 
       self.WaitTaskEnd()
@@ -132,7 +151,9 @@ class VerifyComponentTest(test_case.TestCase):
             self.not_supported.append((comp_cls, comp_item['name'], status))
 
   def _GetConvertedStatement(self):
-    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       update_utils.UpdateHWIDDatabase(self.dut)
 
     converted_checksum_file = self.dut.path.join(

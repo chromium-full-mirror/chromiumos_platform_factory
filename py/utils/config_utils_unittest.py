@@ -172,12 +172,24 @@ class ResolvedConfigTest(unittest.TestCase):
 
     # it can be passed to AttrDict
     attr_dict = type_utils.AttrDict(resolved_config)
-    self.assertEqual(attr_dict.a, 1)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(attr_dict.b, "string")  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(attr_dict.c, [1, 2, 3])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(attr_dict.d, {'x': 1, 'y': 2})  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(attr_dict.d.x, 1)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(attr_dict.d.y, 2)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(attr_dict.a, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(attr_dict.b, "string")  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(attr_dict.c, [1, 2, 3])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(attr_dict.d, {'x': 1, 'y': 2})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(attr_dict.d.x, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(attr_dict.d.y, 2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 if __name__ == '__main__':

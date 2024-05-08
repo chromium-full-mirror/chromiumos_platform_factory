@@ -53,7 +53,9 @@ class _AudioChecker(_SkipAVLChecker):
     if comp_info.value_is_none:
       return False
 
-    kernel_name = comp_info.values.get('name')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    kernel_name = comp_info.values.get('name')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if kernel_name is None or not isinstance(kernel_name, str):
       return False
     try:

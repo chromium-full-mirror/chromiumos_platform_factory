@@ -226,7 +226,9 @@ class TestInvocation:
     encountered. Note we are not stacking the options because most DUT targets
     don't share any options.
     """
-    dut_options = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dut_options = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     test_node = self.test
     while test_node and not dut_options:
       dut_options = test_node.dut_options
@@ -309,10 +311,16 @@ class TestInvocation:
     except Exception as e:
       return TestState.FAILED, f'Unable to retrieve pytest results: {e!r}'
     finally:
-      for f in files_to_delete:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for f in files_to_delete:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         try:
-          if os.path.exists(f):  # type: ignore #TODO(b/338318729) Fixit!
-            os.unlink(f)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          if os.path.exists(f):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            os.unlink(f)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         except Exception:
           logging.exception('Unable to delete temporary file %s', f)
 
@@ -430,7 +438,9 @@ class TestInvocation:
     except Exception:
       logging.exception('Unable to log %s event by event_log', event_name)
 
-    syslog.syslog(f'Test {self.test.path} ({self.uuid}) {progressing_verb}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    syslog.syslog(f'Test {self.test.path} ({self.uuid}) {progressing_verb}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     return status, error_msg
 
@@ -467,7 +477,9 @@ class TestInvocation:
     except Exception:
       logging.exception('Unable to post DESTROY_TEST event')
 
-    syslog.syslog(f'Test {self.test.path} ({self.uuid}) completed: {status}'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    syslog.syslog(f'Test {self.test.path} ({self.uuid}) completed: {status}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   f'{f" ({error_msg})" if error_msg else ""}')
 
     end_time = time.time()

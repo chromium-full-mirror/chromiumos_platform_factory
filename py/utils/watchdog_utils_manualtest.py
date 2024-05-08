@@ -34,7 +34,9 @@ class WatchdogTest(unittest.TestCase):
 
   def tearDown(self):
     self.watchdog.Stop()
-    self.watchdog = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.watchdog = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _CheckOption(self, flag):
     ident = self.watchdog.GetSupport()

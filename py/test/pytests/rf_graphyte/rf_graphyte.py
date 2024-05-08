@@ -115,10 +115,14 @@ class RFGraphyteTest(test_case.TestCase):
     self._dut = device_utils.CreateDUTInterface()
 
     timestamp = time.strftime('%H%M%S')
-    self.config_dir = os.path.join(self.args.graphyte_package,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.config_dir = os.path.join(self.args.graphyte_package,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                    RELATIVE_CONFIG_DIR)
     self.config_file_path = os.path.join(self.config_dir,
-                                         self.args.graphyte_config_file)  # type: ignore #TODO(b/338318729) Fixit!
+                                         # yapf: disable
+                                         self.args.graphyte_config_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.result_file_path = self.GetLogPath(timestamp, RESULT_FILENAME)
     self.log_file_path = self.GetLogPath(timestamp, LOG_FILENAME)
 
@@ -142,7 +146,9 @@ class RFGraphyteTest(test_case.TestCase):
       self.fail(f'Graphyte config file {self.config_file_path} does not exist.')
 
     # Patch the DUT config with DHCP IP.
-    if self.args.patch_dhcp_ssh_dut_ip:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.patch_dhcp_ssh_dut_ip:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.PatchSSHLinkConfig()
 
     testlog.AttachFile(
@@ -153,15 +159,23 @@ class RFGraphyteTest(test_case.TestCase):
         delete=False)
 
     # Execute Graphyte.
-    self.ui.SetInstruction(_('Executing Graphyte'))  # type: ignore #TODO(b/338318729) Fixit!
-    cmd = [os.path.join(self.args.graphyte_package, "main.py"),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Executing Graphyte'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    cmd = [os.path.join(self.args.graphyte_package, "main.py"),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
            '--config-file', self.config_file_path,
            '--result-file', self.result_file_path,
            '--log-file', self.log_file_path]
-    if self.args.verbose:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.verbose:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       cmd.append('-v')
     session.console.info('Call the Graphyte command: %s', ' '.join(cmd))
-    return_value = self.ui.PipeProcessOutputToUI(cmd)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return_value = self.ui.PipeProcessOutputToUI(cmd)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Save the log file.
     if os.path.exists(self.log_file_path):

@@ -62,4 +62,7 @@ class AndroidBoard(linux.LinuxBoard):
   @device_types.DeviceProperty
   def vpd(self):
     from cros.factory.device import vpd
-    return vpd.AndroidVitalProductData(self)  # type: ignore #TODO(b/338318729) Fixit!
+
+    # yapf: disable
+    return vpd.AndroidVitalProductData(self)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

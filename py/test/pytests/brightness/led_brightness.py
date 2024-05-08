@@ -35,8 +35,8 @@ An example::
 """
 
 from cros.factory.device import led as led_module
-from cros.factory.test import test_tags
 from cros.factory.test.pytests.brightness import brightness
+from cros.factory.test import test_tags
 from cros.factory.utils import arg_utils
 from cros.factory.utils.arg_utils import Arg
 
@@ -52,9 +52,15 @@ class LEDBrightnessTest(brightness.BrightnessTest):
       Arg('color', str, 'The color to test.', default=LEDColor.WHITE)])
 
   def tearDown(self):
-    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _SetBrightnessLevel(self, level):
-    self.dut.led.SetColor(self.args.color,  # type: ignore #TODO(b/338318729) Fixit!
-                          led_name=self.args.led_name,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.dut.led.SetColor(self.args.color,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                          # yapf: enable
+                          # yapf: disable
+                          led_name=self.args.led_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                          # yapf: enable
                           brightness=level)

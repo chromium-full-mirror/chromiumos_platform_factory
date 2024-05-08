@@ -135,8 +135,12 @@ class HWIDV3Test(test_case.TestCase):
 
   def AppendProjectArg(self, cmd):
     """Append the project name to the command list if the name is not None."""
-    if self.args.project:  # type: ignore #TODO(b/338318729) Fixit!
-      cmd += ['--project', self.args.project]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.project:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      cmd += ['--project', self.args.project]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def BuildCollectMaterialCommand(self, hwid_material_file: str):
     """Build the command for `hwid collect-material`.
@@ -157,9 +161,15 @@ class HWIDV3Test(test_case.TestCase):
 
     collect_material_cmd = ['hwid', 'collect-material']
     collect_material_cmd.extend(['--device-info-file', device_info_file])
-    if self.args.vpd_data_file:  # type: ignore #TODO(b/338318729) Fixit!
-      collect_material_cmd.extend(['--vpd-data-file', self.args.vpd_data_file])  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.run_vpd:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.vpd_data_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      collect_material_cmd.extend(['--vpd-data-file', self.args.vpd_data_file])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    if self.args.run_vpd:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       collect_material_cmd.append('--run-vpd')
 
     collect_material_cmd.extend(['--output-file', hwid_material_file])
@@ -167,16 +177,24 @@ class HWIDV3Test(test_case.TestCase):
 
   def runTest(self):
     testlog.LogParam(name='phase', value=str(phase.GetPhase()))
-    phase.AssertStartingAtPhase(phase.EVT, self.args.verify_checksum,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    phase.AssertStartingAtPhase(phase.EVT, self.args.verify_checksum,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 'HWID checksum must be verified')
     phase.AssertStartingAtPhase(
-        phase.PVT, self.args.project is None,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        phase.PVT, self.args.project is None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'Should not use `project` option in this phase')
 
-    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_factory_server:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       update_utils.UpdateHWIDDatabase(self._dut)
 
-    self.ui.SetState(_('Collecting DUT materials...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Collecting DUT materials...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     hwid_material_file = self._dut.path.join(self.tmpdir, 'hwid_material_file')
     collect_material_cmd = self.BuildCollectMaterialCommand(hwid_material_file)
     self.factory_tools.Call(collect_material_cmd, log=True)
@@ -186,19 +204,31 @@ class HWIDV3Test(test_case.TestCase):
     testlog.UpdateParam(name='hwid_material',
                         description='materials to generate HWID string')
 
-    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(_('Generating HWID (v3)...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(_('Generating HWID (v3)...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       generate_cmd = [
           'hwid', 'generate', '--material-file', hwid_material_file,
           '--json-output'
       ]
-      if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         generate_cmd += ['--rma-mode']
-      if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         generate_cmd += ['--no-verify-checksum']
-      if self.args.enable_configless_fields:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.enable_configless_fields:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         generate_cmd += ['--with-configless-fields']
-      if not self.args.include_brand_code:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not self.args.include_brand_code:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         generate_cmd += ['--no-brand-code']
       self.AppendProjectArg(generate_cmd)
 
@@ -229,7 +259,9 @@ class HWIDV3Test(test_case.TestCase):
       self.AppendProjectArg(read_cmd)
       encoded_string = self.factory_tools.CheckOutput(read_cmd).strip()
 
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Verifying HWID (v3): {encoded_string}...',
           encoded_string=(encoded_string or _('(unchanged)'))))
 
@@ -237,11 +269,17 @@ class HWIDV3Test(test_case.TestCase):
         'hwid', 'verify', '--material-file', hwid_material_file, '--phase',
         str(phase.GetPhase())
     ]
-    if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.rma_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       verify_cmd += ['--rma-mode']
-    if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.verify_checksum:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       verify_cmd += ['--no-verify-checksum']
-    if not self.args.enable_component_status_check_on_pvt:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.enable_component_status_check_on_pvt:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       verify_cmd += ['--no-pvt-component-status-check']
     self.AppendProjectArg(verify_cmd)
     verify_cmd += [encoded_string]
@@ -250,8 +288,12 @@ class HWIDV3Test(test_case.TestCase):
     self.assertTrue('Verification passed.' in output)
     testlog.LogParam(name='verified_hwid', value=encoded_string)
 
-    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.generate:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Setting HWID (v3): {encoded_string}...',
             encoded_string=encoded_string))
       write_cmd = ['hwid', 'write']

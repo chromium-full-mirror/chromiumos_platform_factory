@@ -16,11 +16,17 @@ class OEMCryptoClient:
   INTERFACE = 'org.chromium.CdmFactoryDaemon'
 
   def __init__(self):
-    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     obj = bus.get_object(self.SERVICE_NAME, self.PATH)
-    self._interface = dbus.Interface(obj, self.INTERFACE)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._interface = dbus.Interface(obj, self.INTERFACE)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-  def GetFactoryTransportKeyMaterial(self) -> (int, str):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def GetFactoryTransportKeyMaterial(self) -> (int, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """Get SoC model ID and SoC serial number from OEMCrypto API
 
     Returns:
@@ -45,6 +51,10 @@ class OEMCryptoClient:
     Returns:
       The re-encrypted keybox in hex string format.
     """
-    keybox_for_dbus = dbus.Array(  # type: ignore #TODO(b/338318729) Fixit!
-        [dbus.Byte(b) for b in bytes.fromhex(encrypted_keybox)], signature='y')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    keybox_for_dbus = dbus.Array(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        [dbus.Byte(b) for b in bytes.fromhex(encrypted_keybox)], signature='y')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return bytes(self._interface.WrapFactoryKeybox(keybox_for_dbus)).hex()

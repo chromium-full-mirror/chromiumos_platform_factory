@@ -207,16 +207,28 @@ class AudioTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
-      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     # Tansfer output device format
-    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
-    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._dut.audio.Initialize()
     else:
-      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if not card.isdigit():
           card = self._dut.audio.GetCardIndexByName(card)
         if action is None:
@@ -228,29 +240,43 @@ class AudioTest(test_case.TestCase):
     self._dut.audio.RestoreMixerControls()
 
   def runTest(self):
-    if self.args.check_headphone:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_headphone:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.DetectHeadphone()
 
-    args = (self.ui, self._dut, self.args.port_label, self._out_card,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    args = (self.ui, self._dut, self.args.port_label, self._out_card,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
             self._out_device)
     kwargs = {}
 
-    if self.args.sample_rate is not None:  # type: ignore #TODO(b/338318729) Fixit!
-      kwargs['sample_rate'] = self.args.sample_rate  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.sample_rate is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      kwargs['sample_rate'] = self.args.sample_rate  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.test_left_right:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.test_left_right:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for c in ['left', 'right']:
         TestAudioDigitPlayback(*args, channel=c, **kwargs)
     else:
       TestAudioDigitPlayback(*args, **kwargs)
 
   def DetectHeadphone(self):
-    if self.args.require_headphone:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.require_headphone:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       instruction = _('Please plug headphone in.')
     else:
       instruction = _('Please unplug headphone.')
 
-    self.ui.SetState(instruction)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(instruction)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sync_utils.PollForCondition(
         poll_method=self._CheckHeadphone, poll_interval_secs=0.5,
         condition_name='CheckHeadphone', timeout_secs=10)
@@ -258,5 +284,9 @@ class AudioTest(test_case.TestCase):
   def _CheckHeadphone(self):
     headphone_status = self._dut.audio.GetHeadphoneJackStatus(self._out_card)
     logging.info('Headphone status %s, Require Headphone %s', headphone_status,
-                 self.args.require_headphone)  # type: ignore #TODO(b/338318729) Fixit!
-    return headphone_status == self.args.require_headphone  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 self.args.require_headphone)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    return headphone_status == self.args.require_headphone  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

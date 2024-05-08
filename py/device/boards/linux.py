@@ -287,7 +287,9 @@ class LinuxBoard(device_types.DeviceBoard):
 
     with file_utils.UnopenedTemporaryFile() as local_temp:
       file_utils.WriteFile(local_temp, content)
-      with self.temp.TempFile() as remote_temp:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with self.temp.TempFile() as remote_temp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.link.Push(local_temp, remote_temp)
         self.CheckOutput(['dd', f'if={remote_temp}', f'of={path}'])
 
@@ -402,12 +404,16 @@ class LinuxBoard(device_types.DeviceBoard):
                     '(This is normal on an non-Intel systems).')
 
     try:
-      res['ec_console_log'] = self.ec.GetECConsoleLog()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      res['ec_console_log'] = self.ec.GetECConsoleLog()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       logging.exception('Error retrieving EC console log')
 
     try:
-      res['ec_panic_info'] = self.ec.GetECPanicInfo()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      res['ec_panic_info'] = self.ec.GetECPanicInfo()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       logging.exception('Error retrieving EC panic info')
 

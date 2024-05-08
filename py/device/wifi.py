@@ -64,7 +64,9 @@ class WiFi(device_types.DeviceComponent):
     Can be overridden in a subclass to send custom arguments to the Connection
     class.
     """
-    return Connection(*args, dhcp_method=Connection.DHCP_DHCPCD, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return Connection(*args, dhcp_method=Connection.DHCP_DHCPCD, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetInterfaces(self, name_patterns=None):
     """Returns the interfaces for wireless LAN devices.
@@ -80,7 +82,9 @@ class WiFi(device_types.DeviceComponent):
       name_patterns = self._WLAN_NAME_PATTERNS
     interfaces = []
     for pattern in name_patterns:
-      interfaces += [self._device.path.basename(path) for path in  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      interfaces += [self._device.path.basename(path) for path in  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                      self._device.Glob('/sys/class/net/' + pattern) or []]
     return interfaces
 
@@ -570,8 +574,12 @@ class Connection:
     if self._user_tmp_dir:
       self._tmp_dir = self._user_tmp_dir
     else:
-      self._tmp_dir_handle = self._device.temp.TempDirectory()  # type: ignore #TODO(b/338318729) Fixit!
-      self._tmp_dir = self._tmp_dir_handle.__enter__()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._tmp_dir_handle = self._device.temp.TempDirectory()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._tmp_dir = self._tmp_dir_handle.__enter__()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # First, bring the device up.  If it is already up, this will succeed
     # anyways.
@@ -586,7 +594,9 @@ class Connection:
         'wpa3-sae': self._AuthenticateWPA,
     }
     auth_process = auth_fns.get(
-        self.ap.encryption_type, self._AuthenticateOpen)()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ap.encryption_type, self._AuthenticateOpen)()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     next(auth_process)
 
     # Grab an IP address.
@@ -669,7 +679,9 @@ class Connection:
   def _RunDHCPClient(self, dhclient_script_path=None, **kwargs):
     """Grabs an IP for the device using the dhclient command."""
     del kwargs
-    PID_FILE = os.path.join(self._tmp_dir, 'dhclient.pid')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    PID_FILE = os.path.join(self._tmp_dir, 'dhclient.pid')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     clear_ifconfig_command = f'ifconfig {self.interface} 0.0.0.0'
     dhcp_command = (
         'echo "" | '  # dhclient expects STDIN for some reason
@@ -808,8 +820,12 @@ class Connection:
     if self.passkey is None:
       raise WiFiError('Passkey is needed for WPA/WPA2 authentication')
 
-    PID_FILE = os.path.join(self._tmp_dir, 'wpa_supplicant.pid')  # type: ignore #TODO(b/338318729) Fixit!
-    WPA_FILE = os.path.join(self._tmp_dir, 'wpa.conf')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    PID_FILE = os.path.join(self._tmp_dir, 'wpa_supplicant.pid')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    WPA_FILE = os.path.join(self._tmp_dir, 'wpa.conf')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     wpa_supplicant_command = (
         'wpa_supplicant '
         '-B '  # daemonize
@@ -851,7 +867,9 @@ class ServiceSpec(type_utils.Obj):
     super().__init__(ssid=ssid, freq=freq, password=password)
 
   def __hash__(self):
-    return hash((self.ssid, self.freq, self.password))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return hash((self.ssid, self.freq, self.password))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class AbstractWiFiChip(abc.ABC):

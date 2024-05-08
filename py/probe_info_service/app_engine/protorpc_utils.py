@@ -10,7 +10,9 @@ import logging
 from typing import Any, Callable, Collection, Mapping, Optional, Type
 import uuid
 
-import flask  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import symbol_database
@@ -62,19 +64,29 @@ def ProtoRPCServiceMethod(method):
   """
 
   def wrapper(self, request):
-    assert isinstance(request, wrapper.rpc_method_spec.request_type)  # type: ignore #TODO(b/338318729) Fixit!
-    logging.debug('Request(%r): %r', wrapper.rpc_method_spec.request_type,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert isinstance(request, wrapper.rpc_method_spec.request_type)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    logging.debug('Request(%r): %r', wrapper.rpc_method_spec.request_type,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   request)
     response = method(self, request)
-    assert isinstance(response, wrapper.rpc_method_spec.response_type)  # type: ignore #TODO(b/338318729) Fixit!
-    logging.debug('Response(%r): %r', wrapper.rpc_method_spec.response_type,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert isinstance(response, wrapper.rpc_method_spec.response_type)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    logging.debug('Response(%r): %r', wrapper.rpc_method_spec.response_type,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   response)
     return response
 
   # Since the service's descriptor will be parsed when the class is created,
   # which is later than the invocation time of this decorator, here it just
   # place the placeholder with dummy contents.
-  wrapper.rpc_method_spec = _ProtoRPCServiceMethodSpec(None, None)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  wrapper.rpc_method_spec = _ProtoRPCServiceMethodSpec(None, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   return wrapper
 
 
@@ -179,7 +191,9 @@ class _ProtoRPCServiceMethodsFlaskAppViewFunc:
       return flask.Response(status=http.HTTPStatus.NOT_FOUND)
 
     try:
-      request_msg = rpc_method.rpc_method_spec.request_type.FromString(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      request_msg = rpc_method.rpc_method_spec.request_type.FromString(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           flask.request.get_data())
       response_msg = rpc_method(request_msg)
       response_raw_body = response_msg.SerializeToString()

@@ -70,7 +70,9 @@ class StylusMonitor(touch_monitor.SingleTouchMonitor):
   def OnMove(self):
     """See SingleTouchMonitor.OnMove."""
     cur_state = self.GetState()
-    if cur_state.keys[evdev.ecodes.BTN_TOUCH]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if cur_state.keys[evdev.ecodes.BTN_TOUCH]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Instead of directly call JavaScript function 'handler' here, we buffer
       # the events to reduce the latency from CallJSFunction.
       self._buffer.append([cur_state.x, cur_state.y])
@@ -131,10 +133,16 @@ class StylusTest(test_case.TestCase):
 
   def setUp(self):
     filters = [evdev_utils.IsStylusDevice]
-    if isinstance(self.args.device_filter, list):  # type: ignore #TODO(b/338318729) Fixit!
-      filters += self.args.device_filter  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if isinstance(self.args.device_filter, list):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      filters += self.args.device_filter  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      filters += [self.args.device_filter]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      filters += [self.args.device_filter]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self._device = evdev_utils.FindDevice(*filters)
     self._monitor = None
@@ -142,18 +150,32 @@ class StylusTest(test_case.TestCase):
     self._daemon = None
     self._state = state.GetInstance()
 
-    assert self.args.error_margin >= 0  # type: ignore #TODO(b/338318729) Fixit!
-    assert 0 < self.args.begin_ratio < self.args.end_ratio < 1  # type: ignore #TODO(b/338318729) Fixit!
-    assert 0 < self.args.step_ratio < 1  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert self.args.error_margin >= 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    assert 0 < self.args.begin_ratio < self.args.end_ratio < 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    assert 0 < self.args.step_ratio < 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    assert len(self.args.endpoints_ratio) == 2  # type: ignore #TODO(b/338318729) Fixit!
-    assert self.args.endpoints_ratio[0] != self.args.endpoints_ratio[1]  # type: ignore #TODO(b/338318729) Fixit!
-    for point in self.args.endpoints_ratio:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert len(self.args.endpoints_ratio) == 2  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    assert self.args.endpoints_ratio[0] != self.args.endpoints_ratio[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    for point in self.args.endpoints_ratio:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       assert isinstance(point, list) and len(point) == 2
       assert all(0 <= x_or_y <= 1 for x_or_y in point)
       assert any(x_or_y in [0, 1] for x_or_y in point)
 
-    assert self.args.flush_interval > 0  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert self.args.flush_interval > 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     if self._dispatcher is not None:
@@ -162,21 +184,37 @@ class StylusTest(test_case.TestCase):
     self._SetInternalDisplayRotation(-1)
 
   def runTest(self):
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Please extend the green line with stylus to the other end.<br>'
             'Stay between the two red lines.<br>'
             'Press SPACE to start; Esc to fail.'),
           id='msg')
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self._SetInternalDisplayRotation(self.args.angle_compensation)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetInternalDisplayRotation(self.args.angle_compensation)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Waits the screen rotates, then starts the test.
     self.Sleep(1)
-    self.ui.CallJSFunction('setupStylusTest', self.args.error_margin,  # type: ignore #TODO(b/338318729) Fixit!
-                           self.args.begin_ratio, self.args.end_ratio,  # type: ignore #TODO(b/338318729) Fixit!
-                           self.args.step_ratio, self.args.endpoints_ratio)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('setupStylusTest', self.args.error_margin,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                           # yapf: enable
+                           # yapf: disable
+                           self.args.begin_ratio, self.args.end_ratio,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                           # yapf: enable
+                           # yapf: disable
+                           self.args.step_ratio, self.args.endpoints_ratio)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._device = evdev_utils.DeviceReopen(self._device)
     self._device.grab()
     self._monitor = StylusMonitor(self._device, self.ui)
@@ -185,7 +223,9 @@ class StylusTest(test_case.TestCase):
     self._dispatcher.StartDaemon()
     while True:
       self._monitor.Flush()
-      self.Sleep(self.args.flush_interval)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.Sleep(self.args.flush_interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def _SetInternalDisplayRotation(self, degree):
     # degree should be one of [0, 90, 180, 270, -1], where -1 means auto-rotate

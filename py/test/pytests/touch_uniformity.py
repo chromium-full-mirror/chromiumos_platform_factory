@@ -77,9 +77,15 @@ class TouchUniformity(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.controller = self.dut.touch.GetController(self.args.device_index)  # type: ignore #TODO(b/338318729) Fixit!
-    self.check_list = [CheckItem(*item) for item in self.args.check_list]  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.controller = self.dut.touch.GetController(self.args.device_index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.check_list = [CheckItem(*item) for item in self.args.check_list]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Group checker for Testlog.
     self.group_checker = testlog.GroupParam(
         'data', ['frame_idx', 'min_value', 'max_value', 'standard_deviation'])
@@ -91,7 +97,9 @@ class TouchUniformity(test_case.TestCase):
 
   def CheckInterface(self):
     if not self.controller.CheckInterface():
-      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           '<span class="test-status-failed">',
           _('ERROR: Touch device not found'), '</span>'
       ])
@@ -99,9 +107,13 @@ class TouchUniformity(test_case.TestCase):
       self.FailTask('Touch controller not found.')
 
   def Calibrate(self):
-    self.ui.SetState(_('Calibrating Touch device'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Calibrating Touch device'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not self.controller.Calibrate():
-      self.ui.SetState(_LABEL_FAIL, append=True)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_LABEL_FAIL, append=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.Sleep(_MESSAGE_DELAY_SECS)
       self.FailTask('Touch device calibration failed.')
 
@@ -122,10 +134,14 @@ class TouchUniformity(test_case.TestCase):
               'Raw data out of range: [%d, %d] = %s', row_index, col_index, val)
           check_passed = False
 
-    merged_data = sum(data, [])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    merged_data = sum(data, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     actual_min_val = min(merged_data)
     actual_max_val = max(merged_data)
-    standard_deviation = float(numpy.std(merged_data))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    standard_deviation = float(numpy.std(merged_data))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Lowest value: %s', actual_min_val)
     logging.info('Highest value: %s', actual_max_val)
     logging.info('Standard deviation %f', standard_deviation)
@@ -150,7 +166,9 @@ class TouchUniformity(test_case.TestCase):
         [item.frame_idx for item in self.check_list])
     fails = []
     to_log = []
-    self.ui.SetState('')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState('')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for item, matrix in zip(self.check_list, matrices):
       status = None
       if self._CheckSingleRawData(item, matrix):
@@ -160,13 +178,17 @@ class TouchUniformity(test_case.TestCase):
         status = _LABEL_FAIL
         fails.append(item.frame_idx)
         to_log.append([dict(item._asdict()), 'FAIL', matrix])
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           ['<div>',
            _('Testing {item}...', item=item.label), status, '</div>'],
           append=True)
     self.Sleep(_MESSAGE_DELAY_SECS)
 
-    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with file_utils.UnopenedTemporaryFile() as temp_path:
         with open(temp_path, 'w', encoding='utf8') as f:
           for obj in to_log:

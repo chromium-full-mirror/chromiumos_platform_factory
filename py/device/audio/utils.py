@@ -42,7 +42,9 @@ def CreateAudioControl(dut, config_path=None):
     controller = Controllers.TINYALSA
 
   # Read from controllers.
-  constructor = controllers.get(controller)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  constructor = controllers.get(controller)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   if constructor is None:
     raise NotImplementedError

@@ -300,7 +300,9 @@ class FactoryState:
       A merged value, can be any JSON supported types.
     """
     DUMMY_KEY = 'result'
-    value = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    value = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for layer in self.layers:
       try:

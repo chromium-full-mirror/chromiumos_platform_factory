@@ -45,8 +45,12 @@ class EvtestButton(AbstractButton):
     """
 
     def dev_filter(dev):
-      return (evdev.ecodes.__dict__[self._name] in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit!
-          evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return (evdev.ecodes.__dict__[self._name] in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     super().__init__(dut)
     self._name = name

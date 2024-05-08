@@ -145,7 +145,9 @@ class LogLineParser:
     Raises:
       KeyError: If no timestamp found in matched groupdict of log line.
     """
-    match = self._line_pattern.match(line)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    match = self._line_pattern.match(line)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if match:
       return {
           'logLevel': match.groupdict().get('log_level', 'INFO'),
@@ -155,7 +157,9 @@ class LogLineParser:
     return None
 
   def IsMatched(self, line):
-    return self._line_pattern.match(line)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._line_pattern.match(line)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class GenericSysLogParser(LogLineParser):
@@ -285,7 +289,9 @@ class FactoryLogParser:
     if override_utc and not timezone_offset:
       raise FactoryLogParserError('Please add timezone_offset to override.')
 
-    if not self._parser.is_timestamp_utc and not timezone_offset:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self._parser.is_timestamp_utc and not timezone_offset:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise FactoryLogParserError(('The log is matching with system timezone, '
                                    'please provide timezone information.'))
 
@@ -302,8 +308,12 @@ class FactoryLogParser:
           time_pattern_match.groupdict()['minutes']) * multiplier
 
   def _TimeStampToEpoch(self, timestamp):
-    datetime_fmt = datetime.strptime(timestamp, self._parser.strftime_str)  # type: ignore #TODO(b/338318729) Fixit!
-    if not self._parser.is_timestamp_utc or self._override_utc:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    datetime_fmt = datetime.strptime(timestamp, self._parser.strftime_str)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if not self._parser.is_timestamp_utc or self._override_utc:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       datetime_fmt += timedelta(hours=self._time_diff_hours,
                                 minutes=self._time_diff_minutes)
     return datetime_fmt.replace(tzinfo=timezone.utc).timestamp()
@@ -345,10 +355,14 @@ class FactoryLogParser:
     Raises:
       ValueError: Raised when converting invalid originalTimestamp to epoch.
     """
-    buffered_data = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    buffered_data = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     buffered_line_number = None
     for line_number, line in enumerate(self._file, start=1):
-      regex_matched_data = self._parser.GetMatchedRawData(line)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      regex_matched_data = self._parser.GetMatchedRawData(line)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if regex_matched_data:
         if buffered_data:
           self._FlushDataAsLineJson(buffered_data, buffered_line_number)

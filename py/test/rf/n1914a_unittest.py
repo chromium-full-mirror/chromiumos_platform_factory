@@ -82,7 +82,9 @@ class MockServerHandler(socketserver.StreamRequestHandler):
         if output:
           self.wfile.write(output)
       else:
-        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
 
 class N1914ATest(unittest.TestCase):
@@ -246,7 +248,9 @@ class N1914ATest(unittest.TestCase):
     self._AddInitialLookup()
     self.mock_server = None
     self.server_port = None
-    self.n1914a = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.n1914a = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     self.n1914a.Close()

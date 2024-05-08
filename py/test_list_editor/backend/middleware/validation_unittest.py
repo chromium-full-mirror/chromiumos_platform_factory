@@ -6,8 +6,12 @@ from typing import Tuple
 import unittest
 from unittest import mock
 
-from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
-from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: enable
+# yapf: disable
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from pydantic import Field
 
 from cros.factory.test_list_editor.backend.middleware import validation
@@ -113,7 +117,9 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponse(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -129,10 +135,14 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponseTupleType(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     class UserResponseHeader(common.BaseHeader):
-      custom_header: str = Field(alias='custom-header')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      custom_header: str = Field(alias='custom-header')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @self.app.route('/export/users/', methods=['GET'])
     @validation.Validate
@@ -153,10 +163,14 @@ class TestValidateResponse(unittest.TestCase):
   def testValidResponseDifferentClass(self):
 
     class UserResponse(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     class AnotherUserResponse(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -171,10 +185,14 @@ class TestValidateResponse(unittest.TestCase):
   def testInvalidResponse(self):
 
     class UserResponse(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     class BadUserResponse(BaseModel):
-      user_id: str  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: str  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @self.app.route('/users/', methods=['GET'])
     @validation.Validate
@@ -190,10 +208,14 @@ class TestValidateResponse(unittest.TestCase):
   def testInvalidResponseUnknownType(self):
 
     class UserResponseBody(BaseModel):
-      user_id: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      user_id: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     class BadUserResponse(BaseModel):
-      bad_data: int  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bad_data: int  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     @self.app.route('/export/bad/users/', methods=['GET'])
     @validation.Validate

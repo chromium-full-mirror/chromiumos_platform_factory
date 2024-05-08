@@ -41,6 +41,7 @@ import subprocess
 from cros.factory.test.env import paths
 from cros.factory.utils import process_utils
 
+
 NUM_PRESPAWNED_PROCESSES = 1
 PYTEST_PRESPAWNER_PATH = os.path.join(paths.FACTORY_DIR,
                                       'py/test/pytest_runner.py')
@@ -49,7 +50,9 @@ PYTEST_PRESPAWNER_PATH = os.path.join(paths.FACTORY_DIR,
 class Prespawner:
 
   def __init__(self, prespawner_path, prespawner_args, pipe_stdout=False):
-    self.prespawned = queue.Queue(NUM_PRESPAWNED_PROCESSES)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.prespawned = queue.Queue(NUM_PRESPAWNED_PROCESSES)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.thread = None
     self.terminated = False
     self.prespawner_path = prespawner_path

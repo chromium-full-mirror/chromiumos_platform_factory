@@ -157,15 +157,21 @@ class PlanktonChargeBFTTest(test_case.TestCase):
   _DISCHARGE_VOLT = 5  # discharging voltage
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._dut = device_utils.CreateDUTInterface()
     self._power = self._dut.power
     self.VerifyArgs()
-    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._adb_remote_test = isinstance(self._dut.link, adb.ADBLink)
     self._remote_test = not self._dut.link.IsLocal()
     if self._adb_remote_test:
-      self.ui.SetState(_('Waiting for ADB device connection...'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Waiting for ADB device connection...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._bft_fixture.SetDeviceEngaged('ADB_HOST', engage=True)
 
   def tearDown(self):
@@ -181,35 +187,69 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     Raises:
       TestFailure: If arguments are not reasonable.
     """
-    if (self.args.check_protect_ina_current and  # type: ignore #TODO(b/338318729) Fixit!
-        (self.args.protect_ina_current_range[0] >  # type: ignore #TODO(b/338318729) Fixit!
-         self.args.protect_ina_current_range[1])):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.check_protect_ina_current and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        (self.args.protect_ina_current_range[0] >  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+         # yapf: enable
+         # yapf: disable
+         self.args.protect_ina_current_range[1])):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'protect_ina_current_range range is invalid')
-    if (self.args.check_ina_current and  # type: ignore #TODO(b/338318729) Fixit!
-        (self.args.ina_current_charge_range[0] >  # type: ignore #TODO(b/338318729) Fixit!
-         self.args.ina_current_charge_range[1])):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.check_ina_current and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        (self.args.ina_current_charge_range[0] >  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+         # yapf: enable
+         # yapf: disable
+         self.args.ina_current_charge_range[1])):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'ina_current_charge_range range is invalid')
-    if (self.args.check_ina_current and  # type: ignore #TODO(b/338318729) Fixit!
-        (self.args.ina_current_discharge_range[0] >  # type: ignore #TODO(b/338318729) Fixit!
-         self.args.ina_current_discharge_range[1])):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.check_ina_current and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        (self.args.ina_current_discharge_range[0] >  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+         # yapf: enable
+         # yapf: disable
+         self.args.ina_current_discharge_range[1])):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'ina_current_discharge_range range is invalid')
-    if (self.args.min_charge_5V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.min_charge_5V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.min_charge_5V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.min_charge_5V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'min_charge_5V_current_mA must not be less than zero')
-    if (self.args.min_charge_12V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.min_charge_12V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.min_charge_12V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.min_charge_12V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'min_charge_12V_current_mA must not be less than zero')
-    if (self.args.min_charge_20V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.min_charge_20V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.min_charge_20V_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.min_charge_20V_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'min_charge_20V_current_mA must not be less than zero')
-    if (self.args.min_discharge_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit!
-        not self.args.min_discharge_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.min_discharge_current_mA is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not self.args.min_discharge_current_mA < 0):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestFailure(
           'min_discharge_current_mA must be less than zero')
 
@@ -236,7 +276,9 @@ class PlanktonChargeBFTTest(test_case.TestCase):
       ina_values = self._bft_fixture.ReadINAValues()
       sampled_ina_current.append(ina_values['current'])
       sampled_ina_voltage.append(ina_values['voltage'])
-      self.Sleep(self.args.current_sampling_period_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.Sleep(self.args.current_sampling_period_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if not (self._remote_test and not charging):
       logging.info('Sampled battery current: %s', str(sampled_battery_current))
@@ -254,7 +296,10 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     Returns:
       True if voltage meets as expected during polling cycle; otherwise False.
     """
-    tolerance = testing_volt * 1000 * self.args.ina_voltage_tolerance  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    tolerance = testing_volt * 1000 * self.args.ina_voltage_tolerance  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
     def _PollINAVoltage():
       ina_voltage = self._bft_fixture.ReadINAValues()['voltage']
       logging.info('Monitored ina voltage: %d', ina_voltage)
@@ -262,7 +307,9 @@ class PlanktonChargeBFTTest(test_case.TestCase):
 
     try:
       sync_utils.WaitFor(_PollINAVoltage, timeout_secs,
-                         self.args.current_sampling_period_secs)  # type: ignore #TODO(b/338318729) Fixit!
+                         # yapf: disable
+                         self.args.current_sampling_period_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return True
     except type_utils.TimeoutError:
       ina_voltage = self._bft_fixture.ReadINAValues()['voltage']
@@ -276,15 +323,25 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     If charge-5V current is within range, returns immediately. Otherwise, retry
     args.protect_ina_retry_times before failing the test.
     """
-    if not self.args.check_protect_ina_current:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.check_protect_ina_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
-    current_min, current_max = self.args.protect_ina_current_range  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState(_('Checking Plankton INA current for protection...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    current_min, current_max = self.args.protect_ina_current_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState(_('Checking Plankton INA current for protection...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._bft_fixture.SetDeviceEngaged('CHARGE_5V', engage=True)
-    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     ina_current = 0
-    retry = self.args.protect_ina_retry_times  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    retry = self.args.protect_ina_retry_times  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     @sync_utils.RetryDecorator(max_attempt_count=retry, interval_sec=1,
                                target_condition=bool)
@@ -298,7 +355,9 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     try:
       _ReadValues()
     except type_utils.MaxRetryError:
-      self.fail(f'Plankton INA current {int(ina_current)} mA out of range '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.fail(f'Plankton INA current {int(ina_current)} mA out of range '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                 f'[{int(current_min)}, {int(current_max)}] after '
                 f'{int(self.args.protect_ina_retry_times)} retry.')
 
@@ -325,22 +384,32 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     command_device = f'CHARGE_{int(testing_volt)}V'
     logging.info('Testing %s...', command_device)
 
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Testing battery {voltage}V charging...', voltage=testing_volt))
 
     # Plankton-Raiden board setting: engage
     self._bft_fixture.SetDeviceEngaged(command_device, engage=True)
-    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.monitor_plankton_voltage_only:  # type: ignore #TODO(b/338318729) Fixit!
-      if not self.MonitorINAVoltage(self.args.charge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.monitor_plankton_voltage_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if not self.MonitorINAVoltage(self.args.charge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                     testing_volt):
         raise type_utils.TestFailure(
             'INA voltage did not meet the expected one.')
       return
 
     (sampled_battery_current, sampled_ina_current, sampled_ina_voltage) = (
-        self.SampleCurrentAndVoltage(self.args.charge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.SampleCurrentAndVoltage(self.args.charge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                      charging=True))
     # Fail if all battery current samples are below threshold.
     if not any(c > current_min_threshold for c in sampled_battery_current):
@@ -366,17 +435,27 @@ class PlanktonChargeBFTTest(test_case.TestCase):
       TestFailure: If the sampled battery discharge current does not pass
           the given threshold in dargs.
     """
-    current_min_threshold = self.args.min_discharge_current_mA  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    current_min_threshold = self.args.min_discharge_current_mA  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if current_min_threshold is None:
       return
 
     logging.info('Testing discharge...')
-    self.ui.SetState(_('Testing battery discharging...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Testing battery discharging...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._bft_fixture.SetDeviceEngaged('CHARGE_5V', engage=False)
-    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.wait_after_engage_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.monitor_plankton_voltage_only:  # type: ignore #TODO(b/338318729) Fixit!
-      if not self.MonitorINAVoltage(self.args.charge_duration_secs, 5):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.monitor_plankton_voltage_only:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if not self.MonitorINAVoltage(self.args.charge_duration_secs, 5):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise type_utils.TestFailure(
             'INA voltage did not meet the expected one.')
       return
@@ -384,14 +463,21 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     if self._remote_test:
       (unused_sampled_battery_current, sampled_ina_current,
        sampled_ina_voltage) = (self.SampleCurrentAndVoltage(
-           self.args.discharge_duration_secs, charging=False))  # type: ignore #TODO(b/338318729) Fixit!
+           # yapf: disable
+           self.args.discharge_duration_secs, charging=False))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       # Discharge under high system load.
       with stress_manager.StressManager(self._dut).Run(
-          self.args.discharge_duration_secs):  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.discharge_duration_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         (sampled_battery_current, sampled_ina_current, sampled_ina_voltage) = (
-            self.SampleCurrentAndVoltage(self.args.discharge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit!
-                                         charging=False))
+            # yapf: disable
+            self.SampleCurrentAndVoltage(
+                self.args.discharge_duration_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                charging=False))
       # Fail if all samples are over threshold.
       if not any(c < current_min_threshold for c in sampled_battery_current):
         raise type_utils.TestFailure(
@@ -416,7 +502,9 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     Raises:
       TestFailure if samples are not within range.
     """
-    tolerance = testing_volt * 1000 * self.args.ina_voltage_tolerance  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    tolerance = testing_volt * 1000 * self.args.ina_voltage_tolerance  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Fail if error ratios of all voltage samples are higher than tolerance
     if not any(abs(v - testing_volt * 1000.0) <= tolerance for v in ina_sample):
       raise type_utils.TestFailure(
@@ -434,12 +522,18 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     Raises:
       TestFailure if samples are not within range.
     """
-    if not self.args.check_ina_current:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.check_ina_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
     if charging:
-      ina_min, ina_max = self.args.ina_current_charge_range  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ina_min, ina_max = self.args.ina_current_charge_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      ina_min, ina_max = self.args.ina_current_discharge_range  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ina_min, ina_max = self.args.ina_current_discharge_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     # Fail if average is not within range.
     # Neglect first 2 samples since they may on current up-lifting stage.
     ina_sample = ina_sample if len(ina_sample) < 2 else ina_sample[2:]
@@ -459,9 +553,15 @@ class PlanktonChargeBFTTest(test_case.TestCase):
     """
     if not self._power.CheckBatteryPresent():
       raise type_utils.TestFailure('Cannot detect battery. Missing battery?')
-    if (self.args.check_battery_cycle and  # type: ignore #TODO(b/338318729) Fixit!
-        self._power.GetBatteryCycleCount() > self.args.battery_cycle_threshold):  # type: ignore #TODO(b/338318729) Fixit!
-      raise type_utils.TestFailure(f'Battery cycle count is higher than '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.check_battery_cycle and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self._power.GetBatteryCycleCount() > self.args.battery_cycle_threshold):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      raise type_utils.TestFailure(f'Battery cycle count is higher than '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                    f'{int(self.args.battery_cycle_threshold)}')
 
     if self._remote_test:
@@ -477,7 +577,13 @@ class PlanktonChargeBFTTest(test_case.TestCase):
       logging.info('Set charge state: CHARGE')
 
     self.Check5VINACurrent()
-    self.TestCharging(self.args.min_charge_5V_current_mA, testing_volt=5)  # type: ignore #TODO(b/338318729) Fixit!
-    self.TestCharging(self.args.min_charge_12V_current_mA, testing_volt=12)  # type: ignore #TODO(b/338318729) Fixit!
-    self.TestCharging(self.args.min_charge_20V_current_mA, testing_volt=20)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.TestCharging(self.args.min_charge_5V_current_mA, testing_volt=5)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.TestCharging(self.args.min_charge_12V_current_mA, testing_volt=12)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.TestCharging(self.args.min_charge_20V_current_mA, testing_volt=20)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.TestDischarging()

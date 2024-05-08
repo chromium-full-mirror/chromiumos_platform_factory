@@ -86,10 +86,14 @@ class InputGCSScan(plugin_base.InputPlugin):
     """Scans Google Cloud Storage and finds unprocessed files."""
     try:
       if not self.args.blob_prefix:
-        all_blobs = self.gcs.client.list_blobs(self.args.bucket_id)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        all_blobs = self.gcs.client.list_blobs(self.args.bucket_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         all_blobs = itertools.chain(*[
-            self.gcs.client.list_blobs(self.args.bucket_id, prefix=prefix)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.gcs.client.list_blobs(self.args.bucket_id, prefix=prefix)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             for prefix in self.args.blob_prefix
         ])
 
@@ -107,7 +111,9 @@ class InputGCSScan(plugin_base.InputPlugin):
 
       if blob_dict or self.waiting_blob:
         self.info('Found %d (+ %d unstable) new ReportArchives', len(blob_dict),
-                  len(self.waiting_blob))  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  len(self.waiting_blob))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if blob_dict:
         events = list(blob_dict.values())
         if self.Emit(events):
@@ -146,7 +152,9 @@ class InputGCSScan(plugin_base.InputPlugin):
 
   def RemoveProcessedBlob(self, blob_dict):
     """Removes the processed blobs from blob_dict."""
-    with open(self.record_path, 'r', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with open(self.record_path, 'r', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for line in f:
         blob_event = datatypes.Event.Deserialize(line)
         processed_object_id = blob_event['objectId']
@@ -161,10 +169,16 @@ class InputGCSScan(plugin_base.InputPlugin):
     waiting_blob. We download them after an interval if the blob doesn't change.
     """
     for object_id, blob_event in list(blob_dict.items()):
-      if blob_event == self.waiting_blob.get(object_id, None):  # type: ignore #TODO(b/338318729) Fixit!
-        self.waiting_blob.pop(object_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if blob_event == self.waiting_blob.get(object_id, None):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.waiting_blob.pop(object_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
-        self.waiting_blob[object_id] = blob_event  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.waiting_blob[object_id] = blob_event  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         blob_dict.pop(object_id)
 
 

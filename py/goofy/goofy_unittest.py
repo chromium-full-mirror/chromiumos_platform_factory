@@ -19,7 +19,8 @@ import traceback
 import unittest
 from unittest import mock
 
-from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.device import info as device_info
 from cros.factory.goofy import goofy
@@ -36,6 +37,10 @@ from cros.factory.unittest_utils import label_utils
 from cros.factory.utils import log_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils import process_utils
+
+
+# yapf: enable
+
 
 
 _PytestInfo = collections.namedtuple('_PytestInfo',
@@ -90,7 +95,9 @@ class GoofyTest(unittest.TestCase):
     self.env.lock = mock.MagicMock()
     self.state = state.StubFactoryState()
 
-    state.FactoryState = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    state.FactoryState = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test_list_manager = mock.Mock(manager.Manager)
 
@@ -120,12 +127,16 @@ class GoofyTest(unittest.TestCase):
       self.assertEqual([], extra_threads)
     finally:
       state.GetInstance = self.original_get_state_instance
-      state.FactoryState = self.original_factory_state  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      state.FactoryState = self.original_factory_state  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def InitGoofy(self, restart=True):
     """Initializes and returns a Goofy."""
     new_goofy = Goofy()
-    new_goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    new_goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     args = []
     if restart:
       args.append('--restart')
@@ -143,7 +154,9 @@ class GoofyTest(unittest.TestCase):
     self.goofy = new_goofy
 
   def RecordGoofyInit(self):
-    state.FactoryState.return_value = self.state  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    state.FactoryState.return_value = self.state  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self.test_list:
       test_list = manager.BuildTestListForUnittest(
@@ -230,11 +243,15 @@ class GoofyUITest(GoofyTest):
         # this log could run after goofy.Destroy is called, which triggers
         # logger to re-open log file without further closing.
         # logging.info('Test client received %s', event)
-        self.events.append(event)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.events.append(event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if event.type == Event.Type.HELLO:
-          socket_self.send(Event(Event.Type.KEEPALIVE,
-                                 uuid=event.uuid).to_json())
-          self.ws_start.set()  # type: ignore #TODO(b/338318729) Fixit!
+          socket_self.send(
+              Event(Event.Type.KEEPALIVE, uuid=event.uuid).to_json())
+          # yapf: disable
+          self.ws_start.set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
     ws = MyClient(
         f'ws://{net_utils.LOCALHOST}:{int(goofy_proxy.DEFAULT_GOOFY_PORT)}'
@@ -243,16 +260,22 @@ class GoofyUITest(GoofyTest):
     def OpenWebSocket():
       ws.connect()
       ws.run()
-      self.ws_done.set()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ws_done.set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # After goofy.Init(), it should be ready to accept a web socket
     process_utils.StartDaemonThread(target=OpenWebSocket)
 
   def WaitForWebSocketStart(self):
-    self.ws_start.wait()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ws_start.wait()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def WaitForWebSocketStop(self):
-    self.ws_done.wait()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ws_done.wait()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 # A simple test list with three tests.
@@ -280,15 +303,18 @@ class BasicTest(GoofyUITest):
     self.CheckOneTest('test:b', 'b_B', TestState.FAILED, 'Uh-oh', spawn_mock)
     self.CheckOneTest('test:c', 'c_C', TestState.FAILED, 'Uh-oh', spawn_mock)
     self.assertEqual(
-        dict(id=None, path='test:', subtests=[
-            dict(count=1, error_msg=None, id='a', path='test:a',
-                 status='PASSED'),
-            dict(count=1, error_msg='Uh-oh', id='b', path='test:b',
-                 status='FAILED'),
-            dict(count=1, error_msg='Uh-oh', id='c', path='test:c',
-                 status='FAILED'),
-        ]),
-        self.goofy.test_list.ToFactoryTestList().AsDict(  # type: ignore #TODO(b/338318729) Fixit!
+        dict(
+            id=None, path='test:', subtests=[
+                dict(count=1, error_msg=None, id='a', path='test:a',
+                     status='PASSED'),
+                dict(count=1, error_msg='Uh-oh', id='b', path='test:b',
+                     status='FAILED'),
+                dict(count=1, error_msg='Uh-oh', id='c', path='test:c',
+                     status='FAILED'),
+            ]),
+        # yapf: disable
+        self.goofy.test_list.ToFactoryTestList().AsDict(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             state.GetInstance().GetTestStates()))
 
 
@@ -302,7 +328,9 @@ class WebSocketTest(GoofyUITest):
     # The Goofy Server should receive the events in 2 seconds.
     for unused_t in range(20):
       statuses = []
-      for event in self.events:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for event in self.events:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if event.type == Event.Type.STATE_CHANGE and event.path == test_id:
           statuses.append(event.state['status'])
       if statuses == [TestState.UNTESTED, TestState.ACTIVE, test_state]:
@@ -331,7 +359,9 @@ class WebSocketTest(GoofyUITest):
     self.WaitForWebSocketStop()
 
     hello_event = 0
-    for event in self.events:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for event in self.events:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if event.type == Event.Type.HELLO:
         hello_event += 1
 
@@ -592,7 +622,9 @@ class RequireRunTest(GoofyUITest):
   @mock.patch('cros.factory.goofy.prespawner.Prespawner.spawn')
   def runTest(self, spawn_mock):
     self.goofy.RestartTests(
-        root=self.goofy.test_list.LookupPath('b'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        root=self.goofy.test_list.LookupPath('b'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.CheckOneTest('test:b', 'b_B', TestState.FAILED,
                       'Required tests [test:a] have not been run yet',
                       spawn_mock, does_not_start=True)
@@ -869,15 +901,29 @@ class NoHostTest(GoofyUITest):
 
   test_list = {
       'tests': [
-          {'id': 'a', 'pytest_name': 'exec_python', 'no_host': True,
-           'args': {'script': 'assert "Tomato" == "Tomato"'}},
-          {'id': 'b', 'pytest_name': 'exec_python', 'no_host': False,
-           'args': {'script': 'assert "Tomato" == "Tomato"'}},
+          {
+              'id': 'a',
+              'pytest_name': 'exec_python',
+              'no_host': True,
+              'args': {
+                  'script': 'assert "Tomato" == "Tomato"'
+              }
+          },
+          {
+              'id': 'b',
+              'pytest_name': 'exec_python',
+              'no_host': False,
+              'args': {
+                  'script': 'assert "Tomato" == "Tomato"'
+              }
+          },
       ]
   }
 
   def runTest(self):
-    self.goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.goofy.InitUI = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # No UI for test 'a', should not call InitUI
     self.goofy.RunOnce()
@@ -898,6 +944,8 @@ class NoHostTest(GoofyUITest):
 
 if __name__ == '__main__':
   log_utils.InitLogging()
-  goofy.suppress_chroot_warning = True  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  goofy.suppress_chroot_warning = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   unittest.main()

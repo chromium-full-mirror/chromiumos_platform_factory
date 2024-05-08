@@ -46,4 +46,6 @@ class CheckTestListTest(test_case.TestCase):
     test_list_ids = {list["id"]
                      for list in self.goofy.GetTestLists()}
 
-    self.assertIn(self.args.test_list_id, test_list_ids)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertIn(self.args.test_list_id, test_list_ids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

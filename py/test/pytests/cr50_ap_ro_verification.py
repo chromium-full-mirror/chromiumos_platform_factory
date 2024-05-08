@@ -83,13 +83,17 @@ class Cr50APROVerficationTest(test_case.TestCase):
 
   def setUp(self):
     self.gsctool = gsctool_module.GSCTool()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.dut = device_utils.CreateDUTInterface()
     self.goofy = state.GetInstance()
 
     self.AddTask(self.PreCheck)
     self.AddTask(self.VerifyAPRO, reboot=True,
-                 reboot_timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 reboot_timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.AddTask(self.CheckAPROResult)
 
   def HandleError(self, status):
@@ -101,7 +105,9 @@ class Cr50APROVerficationTest(test_case.TestCase):
     elif status == gsctool_module.APROResult.AP_RO_UNSUPPORTED_NOT_TRIGGERED:
       # If AP RO verification is not supported, the test should fail in the
       # first round.
-      if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise OperationError
       raise Exception('Unexpected error, please retry the test.')
     elif status == gsctool_module.APROResult.AP_RO_FAIL:
@@ -123,10 +129,16 @@ class Cr50APROVerficationTest(test_case.TestCase):
       raise Exception('Please set RO hash first.')
 
   def VerifyAPRO(self):
-    if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.manual_test:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Please press POWER and (REFRESH*3) in {seconds} seconds.',
-            seconds=self.args.timeout_secs))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            seconds=self.args.timeout_secs))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       try:
         self.gsctool.CCDOpen()

@@ -200,7 +200,9 @@ def GetSystemSummary(
     filter_vpd: bool = False
 ) -> Dict[str, Optional[Union[Dict, bool, int, str]]]:
   """See common.Util.GetSystemInfo()"""
-  return Util().GetSystemInfo(filter_vpd, FACTORY_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return Util().GetSystemInfo(filter_vpd, FACTORY_SYSTEM_INFO)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def PrintSystemSummary(filter_vpd: bool = False,

@@ -11,6 +11,7 @@ import sys
 import unittest
 from unittest import mock
 
+
 sys.modules['google.cloud.storage'] = mock.Mock()
 from cros.factory.utils import gcs_utils  # pylint: disable=wrong-import-position
 
@@ -35,7 +36,10 @@ class TestParallelDownloader(unittest.TestCase):
       local_path = f'/path/to/local{num}'
       download_list.append((target_path, local_path))
 
-    queue = multiprocessing.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    queue = multiprocessing.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
 
     def MockDownloadFile(target_path, local_path, overwrite=False):
       del overwrite

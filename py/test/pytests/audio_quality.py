@@ -173,15 +173,29 @@ class AudioQualityTest(test_case.TestCase):
   ]
 
   def setUpAudioDevice(self):
-    logging.info('audio conf %s', self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
-      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.info('audio conf %s', self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._dut.audio.LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Tansfer input and output device format
-    self._in_card = self._dut.audio.GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
-    self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
-    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
-    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._in_card = self._dut.audio.GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._out_card = self._dut.audio.GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Backward compatible for non-porting case, which use ALSA device name.
     # only works on chromebook device.
@@ -225,26 +239,42 @@ class AudioQualityTest(test_case.TestCase):
         'looptest': LoopType.looptest,
         'tinyloop': LoopType.tinyloop,
         'hwloop': LoopType.hwloop
-    }[self.args.loop_type]  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+    }[self.args.loop_type]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._use_multitone = self.args.use_multitone  # type: ignore #TODO(b/338318729) Fixit!
-    self._loop_buffer_count = self.args.loop_buffer_count  # type: ignore #TODO(b/338318729) Fixit!
-    self._parameters = self.args.fixture_param  # type: ignore #TODO(b/338318729) Fixit!
-    self._local_ip = self.args.network_setting.get('local_ip', _LOCAL_IP)  # type: ignore #TODO(b/338318729) Fixit!
-    self._port = self.args.network_setting.get('port', _PORT)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._use_multitone = self.args.use_multitone  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._loop_buffer_count = self.args.loop_buffer_count  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._parameters = self.args.fixture_param  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._local_ip = self.args.network_setting.get('local_ip', _LOCAL_IP)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._port = self.args.network_setting.get('port', _PORT)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._listen_thread = None
     self._aplay_process = None
     self._tone_process = None
     self._loop_process = None
     self._caches_dir = os.path.join(goofy.CACHES_DIR, 'parameters')
-    self._file_path = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._file_path = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # /var/factory/tests/<TestID>-<UUID>/
     self._test_dir = os.path.join(
         paths.DATA_TESTS_DIR, session.GetCurrentTestPath())
 
-    self.event_loop.AddEventHandler('mock_command', self.MockCommand)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('mock_command', self.MockCommand)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process_utils.Spawn(
         ['iptables', '-A', 'INPUT', '-p', 'tcp', '--dport', str(self._port),
          '-j', 'ACCEPT'], check_call=True)
@@ -254,7 +284,9 @@ class AudioQualityTest(test_case.TestCase):
     net_utils.UnsetAliasEthernetIp(0, self._eth)
 
   def SetMessage(self, message):
-    self.ui.SetHTML(message, id='message')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(message, id='message')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _HandleCommands(self, conn, command_list):
     """Handle commands"""
@@ -359,7 +391,9 @@ class AudioQualityTest(test_case.TestCase):
     if self._dut.audio.ApplyAudioConfig(_RESTORE_SCRIPT, 0, True):
       return
     self._dut.audio.RestoreMixerControls()
-    for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not card.isdigit():
         card = self._dut.audio.GetCardIndexByName(card)
       self._dut.audio.ApplyAudioConfig(action, card)
@@ -417,7 +451,9 @@ class AudioQualityTest(test_case.TestCase):
         self.SendResponse(rawdata, args)
     except IOError:
       session.console.error('No such file or directory: %s', file_path)
-      self.SendResponse(f"NO_CONFIG;0;{binascii.b2a_hex(b'')}", args)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.SendResponse(f"NO_CONFIG;0;{binascii.b2a_hex(b'')}", args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DecompressZip(self, file_path, target_path):
     """Decompresses ZIP format file
@@ -455,7 +491,9 @@ class AudioQualityTest(test_case.TestCase):
     with open(write_path, 'wb') as f:
       f.write(real_data)
 
-    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       testlog.AttachFile(
           path=write_path,
           name=file_name,
@@ -463,7 +501,9 @@ class AudioQualityTest(test_case.TestCase):
 
     if self.DecompressZip(write_path, tempfile.gettempdir()):
       file_path = os.path.join(tempfile.gettempdir(), 'description.yaml')
-      if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         testlog.AttachFile(
             path=file_path,
             name='audio_quality_result.yaml',
@@ -488,7 +528,9 @@ class AudioQualityTest(test_case.TestCase):
     with open(write_path, 'wb') as f:
       f.write(received_data)
 
-    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       testlog.AttachFile(
           path=write_path,
           name=file_name,
@@ -545,9 +587,15 @@ class AudioQualityTest(test_case.TestCase):
       frequencies = {row[0]: row[1:] for row in table}
       test_result['frequencies'] = frequencies
       test_result['header_row'] = header_row
-      test_result['serial_number'] = serial_number  # type: ignore #TODO(b/338318729) Fixit!
-      test_result['timestamp'] = timestamp  # type: ignore #TODO(b/338318729) Fixit!
-      test_result['test_index'] = test_index  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      test_result['serial_number'] = serial_number  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      test_result['timestamp'] = timestamp  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      test_result['test_index'] = test_index  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       with file_utils.UnopenedTemporaryFile() as path:
         with open(path, 'w', encoding='utf8') as f:
@@ -645,7 +693,9 @@ class AudioQualityTest(test_case.TestCase):
       self._dut.audio.EnableHeadphone(self._out_card)
     if self._use_multitone:
       self.HandleMultitone()
-    elif self.args.wav_file is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.wav_file is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.HandlePlaybackWavFile()
     else:
       self.HandleLoop()
@@ -684,7 +734,9 @@ class AudioQualityTest(test_case.TestCase):
       self._dut.audio.EnableSpeaker(self._out_card)
     if self._use_multitone:
       self.HandleMultitone()
-    elif self.args.wav_file is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.wav_file is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.HandlePlaybackWavFile()
     else:
       self.HandleLoop()
@@ -733,7 +785,9 @@ class AudioQualityTest(test_case.TestCase):
 
   def HandlePlaybackWavFile(self, *args):
     """Play a specific wav file."""
-    self.PlayWav(self.args.wav_file)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.PlayWav(self.args.wav_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SendResponse(None, args)
 
   def ListenForever(self, sock):
@@ -790,9 +844,15 @@ class AudioQualityTest(test_case.TestCase):
 
   def runTest(self):
     self.SetMessage(_LABEL_SPACE_TO_START)
-    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.HideElement('msg-utility')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.HideElement('fa-utility')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.HideElement('msg-utility')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.HideElement('fa-utility')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.RunAudioServer()
 

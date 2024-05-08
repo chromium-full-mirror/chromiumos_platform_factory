@@ -123,40 +123,68 @@ class StartTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def WaitHWButton(self):
-    button = button_utils.Button(self.dut, self.args.button_key_name, None)  # type: ignore #TODO(b/338318729) Fixit!
-    sync_utils.WaitFor(button.IsPressed, timeout_secs=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    button = button_utils.Button(self.dut, self.args.button_key_name, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    sync_utils.WaitFor(button.IsPressed, timeout_secs=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SetStateWithPrompt(self, message):
     html = []
-    if self.args.prompt:  # type: ignore #TODO(b/338318729) Fixit!
-      html += [self.args.prompt, '<br><br>']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.prompt:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      html += [self.args.prompt, '<br><br>']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     html += [message]
-    self.ui.SetState(html)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(html)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if self.args.init_shared_data:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.init_shared_data:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.InitializeSharedData()
 
-    if self.args.check_factory_install_complete:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_factory_install_complete:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckFactoryInstallComplete()
 
-    if self.args.require_external_power:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.require_external_power:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckExternalPower()
 
-    if self.args.key_to_continue == _KeyType.SPACE:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.key_to_continue == _KeyType.SPACE:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.SetStateWithPrompt(_('Hit SPACE to start testing...'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
-    elif self.args.key_to_continue == _KeyType.HW_BUTTON:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    elif self.args.key_to_continue == _KeyType.HW_BUTTON:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.SetStateWithPrompt(
-          _('Hit {name} to start testing...', name=self.args.button_name))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          _('Hit {name} to start testing...', name=self.args.button_name))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.WaitHWButton()
 
   def CheckExternalPower(self):
     logger = log_utils.NoisyLogger(logging.info)
-    self.ui.SetState(_('Plug in external power to continue.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Plug in external power to continue.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     while True:
       ac_present = self.dut.power.CheckACPresent()
@@ -169,7 +197,9 @@ class StartTest(test_case.TestCase):
   def CheckFactoryInstallComplete(self):
     if not os.path.exists(_LSB_FACTORY_PATH):
       session.console.error('%s is missing', _LSB_FACTORY_PATH)
-      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           '<span class="test-error">',
           _('Factory install process did not complete. '
             'Auto-testing stopped.<br><br>'
@@ -181,7 +211,11 @@ class StartTest(test_case.TestCase):
     Log('factory_installed')
 
   def InitializeSharedData(self):
-    self.ui.SetState(_('Initialize some shared data...'))  # type: ignore #TODO(b/338318729) Fixit!
-    for key, value in self.args.init_shared_data.items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Initialize some shared data...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    for key, value in self.args.init_shared_data.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.debug('DataShelfSetValue[%s] = "%s"', key, value)
       state.DataShelfSetValue(key, value)

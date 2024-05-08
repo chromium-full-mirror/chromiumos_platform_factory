@@ -29,9 +29,14 @@ import time
 import traceback
 import xmlrpc.client
 
-import django  # type: ignore #TODO(b/338318729) Fixit!
-import rest_framework.exceptions  # type: ignore #TODO(b/338318729) Fixit!
-import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import django  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import rest_framework.exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.umpire import common as umpire_common
 from cros.factory.umpire.server import resource as umpire_resource
@@ -40,6 +45,10 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils import process_utils
+
+
+# yapf: enable
+
 
 
 # TODO(littlecvr): pull out the common parts between umpire and dome, and put
@@ -103,7 +112,9 @@ class DomeException(rest_framework.exceptions.APIException):
   """Virtual base class of all Dome exceptions."""
 
   def __init__(self, detail=None, status_code=None):
-    self.status_code = status_code or self.status_code  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.status_code = status_code or self.status_code  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     super().__init__(detail)
 
 

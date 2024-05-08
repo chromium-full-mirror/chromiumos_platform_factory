@@ -186,7 +186,9 @@ class ADBLink(device_types.IDeviceLink):
       wrapper = LegacyADBProcess
     else:
       command = ['adb', 'shell', f'( {command} ) {redirections}; {delete_tmps}']
-      wrapper = RawADBProcess  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      wrapper = RawADBProcess  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     logging.debug('ADBLink: Run %r', command)
     return wrapper(

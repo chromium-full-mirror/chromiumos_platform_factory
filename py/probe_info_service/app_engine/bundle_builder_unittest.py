@@ -48,7 +48,9 @@ class ProbeConfigBundleBuilderTest(unittest.TestCase):
   def testUnpackToSpecificFolder(self):
     for args in ([], ['-n']):
       with file_utils.TempDirectory() as path:
-        self._RunBundle(args + ['-d', path])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._RunBundle(args + ['-d', path])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.assertCountEqual(os.listdir(path),
                               ['reg_file', 'exec_file', 'runner'])
 

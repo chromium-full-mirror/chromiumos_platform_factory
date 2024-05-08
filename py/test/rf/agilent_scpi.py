@@ -10,7 +10,9 @@ class AgilentSCPI(lan_scpi.LANSCPI):
 
   def __init__(self, expected_model, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.id_fields = [x.strip() for x in self.id.split(b',')]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.id_fields = [x.strip() for x in self.id.split(b',')]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     model = self.id_fields[1].decode('utf-8')
     if model != expected_model:
       raise lan_scpi.Error(f'Expected model {expected_model} but got {model}')

@@ -55,7 +55,9 @@ class RegionTest(unittest.TestCase):
 
   def testFirmwareLanguages(self):
     bmpblk_dir = os.path.join(
-        os.environ.get('CROS_WORKON_SRCROOT'), 'src', 'platform', 'bmpblk')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.environ.get('CROS_WORKON_SRCROOT'), 'src', 'platform', 'bmpblk')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not os.path.exists(bmpblk_dir):
       logging.warning('Skipping testFirmwareLanguages, since %r is missing',
                       bmpblk_dir)

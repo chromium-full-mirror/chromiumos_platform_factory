@@ -90,7 +90,9 @@ class HwidValidator:
         raise ValidationError(report_of_firmware.errors)
 
     db = analyzer.curr_db_instance
-    vpg_target = config_data.CONFIG.vpg_targets.get(db.project)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vpg_target = config_data.CONFIG.vpg_targets.get(db.project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if vpg_target:
       errors = vpg_module.GenerateVerificationPayload(
           [(db, vpg_target)], encryption_key=_ENCRYPTION_TEST_KEY).error_msgs

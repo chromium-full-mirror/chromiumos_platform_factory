@@ -92,7 +92,9 @@ class MemorySize(test_case.TestCase):
   ]
 
   def runTest(self):
-    self.ui.SetState(_('Checking memory info...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Checking memory info...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Get memory info using mosys.
     ret = process_utils.CheckOutput(
@@ -101,20 +103,29 @@ class MemorySize(test_case.TestCase):
 
     # Get kernel meminfo.
     kernel_mem_mb = int(
-        re.search(r'^MemTotal:\s*([0-9]+)\s*kB',  # type: ignore #TODO(b/338318729) Fixit!
-                  file_utils.ReadFile('/proc/meminfo')).group(1)) // 1024
+        # yapf: disable
+        re.search(
+            r'^MemTotal:\s*([0-9]+)\s*kB',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            file_utils.ReadFile('/proc/meminfo')).group(1)) // 1024
 
-    if abs(1.0 - kernel_mem_mb / mosys_mem_mb) > self.args.max_diff_ratio:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if abs(1.0 - kernel_mem_mb / mosys_mem_mb) > self.args.max_diff_ratio:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.fail(f'Kernel and mosys report different memory sizes: '
                 f'mosys={int(mosys_mem_mb)}mb, kernel={int(kernel_mem_mb)}mb.')
       return
 
-    if not self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     mosys_mem_gb = round(mosys_mem_mb / 1024.0, 1)
     sf_mem_gb = round(float(device_data.GetDeviceData(
-        self.args.device_data_key)), 1)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.device_data_key)), 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # The memory size info in mosys should be the same as that in device data.
     if abs(mosys_mem_gb - sf_mem_gb) > 10e-6:

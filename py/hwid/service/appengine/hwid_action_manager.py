@@ -101,14 +101,23 @@ class InstanceFactoryImpl(IInstanceFactory):
     if metadata.version == '3':
       logging.debug('Processing as version 3 file.')
       return hwid_preproc_data.HWIDV3PreprocData(
-          metadata.board, metadata.project, raw_db, raw_db_internal,  # type: ignore #TODO(b/338318729) Fixit!
-          metadata.commit, feature_matcher_source, bundle_metadata_source)
+          # yapf: disable
+          metadata.board,
+          metadata.project,
+          raw_db,
+          raw_db_internal,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          metadata.commit,
+          feature_matcher_source,
+          bundle_metadata_source)
 
     raise ProjectNotSupportedError(
         f'Project {metadata.project!r} has invalid version '
         f'{metadata.version!r}.')
 
-  def CreateHWIDAction(self, hwid_data: _HWIDPreprocData):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def CreateHWIDAction(self, hwid_data: _HWIDPreprocData):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if isinstance(hwid_data, hwid_preproc_data.HWIDV2PreprocData):
       return hwid_v2_action.HWIDV2Action(hwid_data)
 
@@ -157,7 +166,9 @@ class InMemoryCachedHWIDActionGetter(IHWIDActionGetter):
     """
     self._hwid_action_getter = hwid_action_getter
     self._cached_hwid_actions: MutableMapping[str, hwid_action.HWIDAction] = {}
-    self._cached_errors: MutableMapping[str, self._ErrorType] = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._cached_errors: MutableMapping[str, self._ErrorType] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetHWIDAction(self, project: str) -> hwid_action.HWIDAction:
     """See base class."""
@@ -208,7 +219,9 @@ class HWIDActionManager(IHWIDActionGetter):
       self._SaveHWIDPreprocDataToCache(project, hwid_preproc_data_inst)
       self.InvalidateDataCache([project])
 
-    return self._instance_factory.CreateHWIDAction(hwid_preproc_data_inst)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._instance_factory.CreateHWIDAction(hwid_preproc_data_inst)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _LoadHWIDPreprocData(self, metadata: _HWIDDBMetadata) -> _HWIDPreprocData:
     """Load preprocessed HWID DB from the backend datastore.

@@ -476,7 +476,9 @@ class GSCUtils:
     if isinstance(args, str):
       cmd = [path, args]
     elif isinstance(args, list):
-      cmd = [path] + args  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cmd = [path] + args  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     p = phase.GetPhase()
     result = self._shell(cmd)

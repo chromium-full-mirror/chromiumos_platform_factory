@@ -94,14 +94,26 @@ class MessageTest(test_case.TestCase):
 
   def setUp(self):
     css = (CSS_TEMPLATE %
-           dict(text_size=self.args.text_size,  # type: ignore #TODO(b/338318729) Fixit!
-                text_color=self.args.text_color,  # type: ignore #TODO(b/338318729) Fixit!
-                background_color=self.args.background_color))  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.AppendCSS(css)  # type: ignore #TODO(b/338318729) Fixit!
+           # yapf: disable
+           dict(text_size=self.args.text_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                text_color=self.args.text_color,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                background_color=self.args.background_color))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.AppendCSS(css)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     press_button_hint = ''
-    if self.args.show_press_button_hint:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.manual_check:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.show_press_button_hint:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.manual_check:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         press_button_hint = _(
             '<div>Press <strong>Enter</strong> to continue, '
             'or <strong>ESC</strong> if things are not going right.</div>')
@@ -109,15 +121,29 @@ class MessageTest(test_case.TestCase):
         press_button_hint = _(
             '<div>Press <strong>Enter</strong> to continue.</div>')
 
-    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
-        '<span class="message">', self.args.html, '</span>', press_button_hint  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        '<span class="message">', self.args.html, '</span>', press_button_hint  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     ])
 
-    self.ui.BindStandardPassKeys()  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.manual_check:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardPassKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.manual_check:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def runTest(self):
-    if self.args.seconds:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.StartCountdownTimer(self.args.seconds, self.PassTask)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.seconds:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.StartCountdownTimer(self.args.seconds, self.PassTask)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self.WaitTaskEnd()

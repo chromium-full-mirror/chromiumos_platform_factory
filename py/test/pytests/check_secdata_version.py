@@ -66,5 +66,7 @@ class SecdataVersionTest(test_case.TestCase):
 
   def runTest(self):
     out = int(self.dut.CallOutput(['tpmc', 'read', '0x1008', '1']), 16)
-    expect = self.args.major_version << 4 | self.args.minor_version << 0  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    expect = self.args.major_version << 4 | self.args.minor_version << 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(out, expect, 'Secdata version is incorrect')

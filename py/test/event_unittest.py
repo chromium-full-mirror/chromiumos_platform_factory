@@ -60,7 +60,9 @@ class Tests:
       # pylint: disable=no-member
       if callback is None:
         callback = lambda unused_event: None
-      client = self.client_class(callback=callback)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      client = self.client_class(callback=callback)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.clients.append(client)
       return client
 

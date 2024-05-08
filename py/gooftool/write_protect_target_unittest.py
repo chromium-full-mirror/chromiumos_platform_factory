@@ -16,7 +16,9 @@ class WriteProtectTargetUnittest(unittest.TestCase):
 
   def testCreateTargetWithWrongType(self):
     with self.assertRaises(TypeError):
-      write_protect_target.CreateWriteProtectTarget('inexistent_type')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      write_protect_target.CreateWriteProtectTarget('inexistent_type')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
 
 if __name__ == '__main__':

@@ -88,37 +88,63 @@ class Gyroscope(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.gyroscope = self.dut.gyroscope.GetController(
-        location=self.args.location,  # type: ignore #TODO(b/338318729) Fixit!
-        gyro_id=self.args.gyro_id,  # type: ignore #TODO(b/338318729) Fixit!
-        freq=self.args.freq)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        location=self.args.location,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        gyro_id=self.args.gyro_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        freq=self.args.freq)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.gyroscope.SetupMotionSensor()
 
     logging.info('%r', self.gyroscope)
 
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Please put device on a horizontal plane then press space to '
             'start testing.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _(
               'Test will be started within {secs} seconds. '
               'Please do not move the device.',
-              secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.Sleep(1)
 
     logging.info('Wait for device stop.')
-    self.ui.SetInstruction(_('Please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._WaitForDeviceStop()
 
     logging.info('Wait for device rotate.')
-    self.ui.SetInstruction(_('Please rotate the device.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Please rotate the device.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage('chromebook.png')
     self._WaitForDeviceRotate()
 
@@ -127,7 +153,9 @@ class Gyroscope(test_case.TestCase):
     degree_x, degree_y, degree_z = 0, 0, 0
     for k, v in data.items():
       state = ('test-status-passed' if is_passed[k] else 'test-status-failed')
-      axis = re.match(r'in_anglvel_(?P<axis>x|y|z)', k).group('axis')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      axis = re.match(r'in_anglvel_(?P<axis>x|y|z)', k).group('axis')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if axis == 'x':
         degree_x = int(rotation_degree[k])
       elif axis == 'y':
@@ -139,7 +167,9 @@ class Gyroscope(test_case.TestCase):
                   f'{rotation_degree[k]:.2f} deg</div>')
 
     self.RotateImage(degree_x, degree_y, degree_z)
-    self.ui.SetHTML(''.join(html), id='state')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(''.join(html), id='state')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _UpdateRotationDegree(self, data, rotation_degree, time_period):
     for k, v in data.items():
@@ -149,31 +179,51 @@ class Gyroscope(test_case.TestCase):
   def _WaitForDeviceStop(self):
     """Wait until absolute value of all sensors less than stop_threshold."""
 
-    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
 
     def CheckSensorState():
       data = self.gyroscope.GetData()
       logging.info('sensor value: %r', data)
       is_passed = {
-          k: abs(v) < self.args.stop_threshold  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          k:
+              abs(v) < self.args.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              stop_threshold  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           for k, v in data.items()
       }
-      self._UpdateState(data, is_passed, f'< {self.args.stop_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._UpdateState(data, is_passed, f'< {self.args.stop_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                         rotation_degree)
       return all(is_passed.values())
 
-    sync_utils.WaitFor(CheckSensorState, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sync_utils.WaitFor(CheckSensorState, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _WaitForDeviceRotate(self):
     """Wait until all sensors has absolute value > rotation_threshold."""
 
-    max_values = collections.defaultdict(float)  # type: ignore #TODO(b/338318729) Fixit!
-    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    max_values = collections.defaultdict(float)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    rotation_degree = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
 
     def CheckSensorMaxValues():
       before_get_data = time.time()
-      data = self.gyroscope.GetData(capture_count=self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit!
-                                    sample_rate=self.args.sample_rate,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      data = self.gyroscope.GetData(capture_count=self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                    # yapf: enable
+                                    # yapf: disable
+                                    sample_rate=self.args.sample_rate,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                    # yapf: enable
                                     average=False)
 
       cleaned_data = collections.defaultdict(float)
@@ -187,35 +237,49 @@ class Gyroscope(test_case.TestCase):
       for sensor_name, value in cleaned_data.items():
         max_values[sensor_name] = max(max_values[sensor_name], abs(value))
       is_passed = {
-          k: v > self.args.rotation_threshold  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          k: v > self.args.rotation_threshold  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           for k, v in max_values.items()
       }
       after_get_data = time.time()
       self._UpdateRotationDegree(cleaned_data, rotation_degree,
                                  after_get_data - before_get_data)
       self._UpdateState(max_values, is_passed,
-                        f'> {self.args.rotation_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        f'> {self.args.rotation_threshold:.10f}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         rotation_degree)
       return all(is_passed.values())
 
     sync_utils.WaitFor(condition=CheckSensorMaxValues,
-                       timeout_secs=self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+                       # yapf: disable
+                       timeout_secs=self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                       # yapf: enable
                        poll_interval=_DEFAULT_POLL_INTERVAL)
 
   def SetImage(self, url):
     """Sets the image src."""
-    self.ui.RunJS('document.getElementById("chromebook_img").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS('document.getElementById("chromebook_img").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   url=url)
 
   def RotateImage(self, degree_x, degree_y, degree_z):
     """Rotates the image according to the degree captured."""
-    if self.args.location == 'base':  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.location == 'base':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Switch y and z axis as the image follows the axes of the screen
       degree_y, degree_z = degree_z, degree_y
-    if self.args.location == 'lid':  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.location == 'lid':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Turn y and z values into negative as the axes have opposite direction
       degree_y, degree_z = -degree_y, -degree_z
 
-    self.ui.RunJS(f'document.getElementById("chromebook_img").style.transform '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS(f'document.getElementById("chromebook_img").style.transform '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   f'="rotateX({degree_x}deg) rotateY({degree_y}deg) '
                   f'rotateZ({degree_z}deg)";')

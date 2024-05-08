@@ -69,7 +69,9 @@ card 2: card_2 [card_2], device 8: Audio (*) []
 
   def MockWriteFile(unused_path: str, content: str):
     match = _RE_CARD_NAME_FROM_COMMANDS.fullmatch(content.splitlines()[0])
-    card_name = match.group(1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    card_name = match.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     processes.append(MockProcess(card_name))
 
   device.WriteFile.side_effect = MockWriteFile
@@ -129,13 +131,17 @@ class UCMConfigManagerTest(unittest.TestCase):
     # '\tCaptureChannelMap/Front Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n'.
     prefix = '\tCaptureChannelMap/'
     # pylint: disable=protected-access
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Front Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic,
                                             '2')
     self.assertEqual(return_value, [0, 1])
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Rear Mic=2 3 -1 -1 -1 -1 -1 -1 -1\n')
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic2,
                                             '2')
@@ -143,24 +149,32 @@ class UCMConfigManagerTest(unittest.TestCase):
 
     # It's normal that there are no CaptureChannelMap defined. In this case, we
     # should use default channels.
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         side_effect=device_types.CalledProcessError(1, cmd=[],
                                                     output='Not exist'))
     return_value = config_mgr.GetChannelMap(config_manager.InputDevices.Dmic,
                                             '2')
     self.assertEqual(return_value, None)
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Front Mic=-1 -1 -1 -1\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Front Mic=1 2 3 evil\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
 
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Evil Mic=0 1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
     self.assertRaises(ValueError, config_mgr.GetChannelMap,
                       config_manager.InputDevices.Dmic, '2')
@@ -179,14 +193,18 @@ class UCMConfigManagerTest(unittest.TestCase):
     # with an intrinsic sensitivity of -2600 should be 20 (db).
     prefix = '\tIntrinsicSensitivity/'
     # pylint: disable=protected-access
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         return_value=f'{prefix}Internal Mic=-2600\n')
     return_value = config_mgr.GetDefaultInputGain('2')
     self.assertEqual(return_value, 20)
 
     # It's normal that there are no IntrinsicSensitivity defined.
     # In this case, we should use return 0 to ignore input gain.
-    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    config_mgr._InvokeDeviceCommands = mock.MagicMock(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         side_effect=device_types.CalledProcessError(1, cmd=[],
                                                     output='Not exist'))
     return_value = config_mgr.GetDefaultInputGain('2')

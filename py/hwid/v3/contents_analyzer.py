@@ -94,12 +94,16 @@ class ValidationReport(NamedTuple):
 
 class DBLineAnalysisResult(NamedTuple):
 
-  class ModificationStatus(enum.Enum):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  class ModificationStatus(enum.Enum):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     NOT_MODIFIED = enum.auto()
     MODIFIED = enum.auto()
     NEWLY_ADDED = enum.auto()
 
-  class Part(NamedTuple):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  class Part(NamedTuple):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     class Type(enum.Enum):
       TEXT = enum.auto()
@@ -113,8 +117,12 @@ class DBLineAnalysisResult(NamedTuple):
     def reference_id(self):
       return self.text  # Reuse the existing field.
 
-  modification_status: ModificationStatus  # type: ignore #TODO(b/338318729) Fixit!
-  parts: List[Part]  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  modification_status: ModificationStatus  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  parts: List[Part]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class HWIDComponentAnalysisResult(NamedTuple):
@@ -197,7 +205,9 @@ class ContentsAnalyzer:
                             form_factor=form_factor)
       ]
       for validation_func in validate_funcs:
-        keep_going = validation_func(report, self._curr_db.instance)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        keep_going = validation_func(report, self._curr_db.instance)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if not keep_going:
           break
     return report
@@ -271,10 +281,15 @@ class ContentsAnalyzer:
     for comps in self._ExtractHWIDComponents().values():
       for comp in comps:
         if (comp.from_factory_bundle and not comp.is_newly_added and
-            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           report.errors.append(
               Error(
-                  ErrorCode.CONTENTS_ERROR, 'Modifying firmware component '  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  ErrorCode.CONTENTS_ERROR,
+                  'Modifying firmware component '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  # yapf: enable
                   f'{comp.diff_prev.prev_comp_name!r} which is generated from '
                   'the system. Is this change proposal mistakenly based on a '
                   'legacy HWID bundle?'))
@@ -287,7 +302,9 @@ class ContentsAnalyzer:
       A boolean indicates whether to keep performing the rest of validation
           steps.
     """
-    if not self._curr_db.instance.can_encode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self._curr_db.instance.can_encode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       report.errors.append(
           Error(
               ErrorCode.CONTENTS_ERROR,
@@ -296,7 +313,9 @@ class ContentsAnalyzer:
               'pattern.'))
       return False
 
-    region_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    region_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not region_field_legacy_info or any(region_field_legacy_info.values()):
       report.errors.append(
           Error(ErrorCode.CONTENTS_ERROR,
@@ -313,8 +332,12 @@ class ContentsAnalyzer:
     """
     # If the old database follows the new pattern rule, so does the new
     # database.
-    if (self._prev_db.instance.can_encode and  # type: ignore #TODO(b/338318729) Fixit!
-        not self._curr_db.instance.can_encode):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self._prev_db.instance.can_encode and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not self._curr_db.instance.can_encode):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       report.errors.append(
           Error(
               ErrorCode.COMPATIBLE_ERROR,
@@ -324,14 +347,22 @@ class ContentsAnalyzer:
       return False
 
     visited_patterns = set()
-    for image_id in self._prev_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
-      old_bit_mapping = self._prev_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit!
-      if image_id not in self._curr_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for image_id in self._prev_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      old_bit_mapping = self._prev_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if image_id not in self._curr_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         report.errors.append(
             Error(ErrorCode.COMPATIBLE_ERROR,
                   f'Image id {image_id} is deleted.'))
         continue
-      new_bit_mapping = self._curr_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      new_bit_mapping = self._curr_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       # Make sure all the encoded fields in the existing patterns are not
       # changed.
@@ -348,15 +379,23 @@ class ContentsAnalyzer:
 
       # Make sure no new component field is added to existing pattern after
       # PVT.
-      pattern_id = self._curr_db.instance.GetPattern(image_id).idx  # type: ignore #TODO(b/338318729) Fixit!
-      image_name = self._curr_db.instance.GetImageName(image_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pattern_id = self._curr_db.instance.GetPattern(image_id).idx  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      image_name = self._curr_db.instance.GetImageName(image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if (pattern_id not in visited_patterns and
           re.fullmatch(r'(PVT|MP).*', image_name, flags=re.IGNORECASE)):
         visited_patterns.add(pattern_id)
         old_field_set = set(
-            self._prev_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._prev_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         new_field_set = set(
-            self._curr_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._curr_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         added_fields = new_field_set - old_field_set
         if added_fields:
           report.errors.append(
@@ -366,8 +405,12 @@ class ContentsAnalyzer:
                   f'appended in the existing pattern(#{pattern_id}) except in '
                   'early phases. Please create a new pattern instead.'))
 
-    old_reg_field_legacy_info = self._prev_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
-    new_reg_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    old_reg_field_legacy_info = self._prev_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    new_reg_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for field_name, is_legacy_style in new_reg_field_legacy_info.items():
       orig_is_legacy_style = old_reg_field_legacy_info.get(field_name)
       if orig_is_legacy_style is None:
@@ -401,12 +444,18 @@ class ContentsAnalyzer:
                     f'modify it from {comp.name!r} to {expected_comp_name!r}'
                     '.'))
             continue
-        if (not comp.is_newly_added and comp.diff_prev.name_changed and  # type: ignore #TODO(b/338318729) Fixit!
-            comp.diff_prev.values_changed):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if (not comp.is_newly_added and comp.diff_prev.name_changed and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            comp.diff_prev.values_changed):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           report.errors.append(
               Error(
                   ErrorCode.COMPATIBLE_ERROR,
-                  'Modifying both the component name '  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  'Modifying both the component name '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  # yapf: enable
                   f'({comp.diff_prev.prev_comp_name!r} -> {comp.name!r}) '
                   'and values often causes compatibility issues. Is this '
                   'change proposal mistakenly based on a legacy HWID bundle?'))
@@ -414,12 +463,16 @@ class ContentsAnalyzer:
   def _AnalyzeDBLines(self, db_contents_patcher, all_placeholders,
                       db_placeholder_options):
     dumped_db_lines = db_contents_patcher(
-        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             suppress_support_status=False,
             magic_placeholder_options=db_placeholder_options)).splitlines()
 
     no_placeholder_dumped_db_lines = db_contents_patcher(
-        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             suppress_support_status=False)).splitlines()
     if len(dumped_db_lines) != len(no_placeholder_dumped_db_lines):
       # Unexpected case, skip deriving the line diffs.
@@ -430,15 +483,21 @@ class ContentsAnalyzer:
       prev_db_contents_lines = db_contents_patcher(
           self._prev_db.instance.DumpDataWithoutChecksum(
               suppress_support_status=False)).splitlines()
-      diff_view_line_it = difflib.ndiff(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      diff_view_line_it = difflib.ndiff(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           prev_db_contents_lines, no_placeholder_dumped_db_lines, charjunk=None)
 
     removed_line_count = 0
 
     splitter = _LineSplitter(
         all_placeholders,
-        functools.partial(DBLineAnalysisResult.Part,  # type: ignore #TODO(b/338318729) Fixit!
-                          DBLineAnalysisResult.Part.Type.TEXT))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        functools.partial(DBLineAnalysisResult.Part,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                          # yapf: enable
+                          # yapf: disable
+                          DBLineAnalysisResult.Part.Type.TEXT))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     line_analysis_result = []
     for line in dumped_db_lines:
       while True:
@@ -450,12 +509,18 @@ class ContentsAnalyzer:
         removed_line_count += 1
       if diff_view_line.startswith('  '):
         removed_line_count = 0
-        mod_status = DBLineAnalysisResult.ModificationStatus.NOT_MODIFIED  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        mod_status = DBLineAnalysisResult.ModificationStatus.NOT_MODIFIED  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       elif removed_line_count > 0:
         removed_line_count -= 1
-        mod_status = DBLineAnalysisResult.ModificationStatus.MODIFIED  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        mod_status = DBLineAnalysisResult.ModificationStatus.MODIFIED  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
-        mod_status = DBLineAnalysisResult.ModificationStatus.NEWLY_ADDED  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        mod_status = DBLineAnalysisResult.ModificationStatus.NEWLY_ADDED  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       parts = splitter.SplitText(line)
       line_analysis_result.append(DBLineAnalysisResult(mod_status, parts))
@@ -473,32 +538,44 @@ class ContentsAnalyzer:
     rules_change_status = HWIDSectionTouchCase.UNTOUCHED
     framework_version_change_status = HWIDSectionTouchCase.UNTOUCHED
     encoded_fields_change_status = {}
-    if prev_db.image_ids != curr_db.image_ids:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if prev_db.image_ids != curr_db.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       image_id_change_status = HWIDSectionTouchCase.TOUCHED
       pattern_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for image_id in prev_db.image_ids:
-        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           image_id_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
       for image_id in prev_db.image_ids:
-        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
-        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             image_id=image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    curr_encoded_fields = set(curr_db.encoded_fields)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    curr_encoded_fields = set(curr_db.encoded_fields)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     prev_encoded_fields = set(prev_db.encoded_fields)
     for encoded_field in curr_encoded_fields - prev_encoded_fields:
       encoded_fields_change_status[encoded_field] = (
           HWIDSectionTouchCase.TOUCHED)
     for encoded_field in curr_encoded_fields & prev_encoded_fields:
-      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           encoded_field):
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.TOUCHED)
@@ -506,20 +583,30 @@ class ContentsAnalyzer:
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.UNTOUCHED)
 
-    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       components_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for comp_cls in prev_db.GetComponentClasses():
-        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           components_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    if prev_db.device_info_rules != curr_db.device_info_rules:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if prev_db.device_info_rules != curr_db.device_info_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       rules_change_status = HWIDSectionTouchCase.TOUCHED
-    elif prev_db.verify_rules != curr_db.verify_rules:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif prev_db.verify_rules != curr_db.verify_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       rules_change_status = HWIDSectionTouchCase.TOUCHED
 
-    if prev_db.framework_version != curr_db.framework_version:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if prev_db.framework_version != curr_db.framework_version:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       framework_version_change_status = HWIDSectionTouchCase.TOUCHED
 
     return TouchHWIDSections(image_id_change_status, pattern_change_status,
@@ -567,14 +654,24 @@ class ContentsAnalyzer:
             f'component-{comp_cls}-{comp.name}')
         comp_status_replacer = _LineSplitter.GeneratePlaceholderKey(
             f'support_status-{comp_cls}-{comp.name}')
-        db_placeholder_options.components[(comp_cls, comp.name)] = (  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        db_placeholder_options.components[(comp_cls, comp.name)] = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             database.MagicPlaceholderComponentOptions(comp_name_replacer,
                                                       comp_status_replacer))
 
-        all_placeholders[comp_name_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit!
-            DBLineAnalysisResult.Part.Type.COMPONENT_NAME, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit!
-        all_placeholders[comp_status_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit!
-            DBLineAnalysisResult.Part.Type.COMPONENT_STATUS, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        all_placeholders[comp_name_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            DBLineAnalysisResult.Part.Type.COMPONENT_NAME, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        all_placeholders[comp_status_replacer] = DBLineAnalysisResult.Part(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            DBLineAnalysisResult.Part.Type.COMPONENT_STATUS, comp_name_replacer)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         if (comp.extracted_seq_no is not None and
             comp.extracted_seq_no != str(comp.expected_seq_no)):
@@ -625,15 +722,21 @@ class ContentsAnalyzer:
       skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
                                                 bool]] = None
   ) -> Dict[str, List['_HWIDComponentMetadata']]:
-    ret = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ret = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     adapter = name_pattern_adapter.NamePatternAdapter()
-    for comp_cls in self._curr_db.instance.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for comp_cls in self._curr_db.instance.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ret[comp_cls] = []
       name_pattern = adapter.GetNamePattern(comp_cls)
       prev_items = (() if
                     (self._prev_db is None or self._prev_db.instance is None)
                     else self._prev_db.instance.GetComponents(comp_cls).items())
-      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       for expected_seq, (curr_item, prev_item) in enumerate(
           itertools.zip_longest(curr_items, prev_items, fillvalue=None), 1):
@@ -670,7 +773,9 @@ class ContentsAnalyzer:
           elif prev_comp_info.value_is_none != comp_info.value_is_none:
             values_changed = True
           else:
-            values_changed = not dict.__eq__(prev_comp_info.values,  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            values_changed = not dict.__eq__(prev_comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                                              comp_info.values)
 
           prev_alignment_status = (

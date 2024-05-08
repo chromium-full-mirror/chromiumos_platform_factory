@@ -92,7 +92,9 @@ class OutputClassify(output_file.OutputFile):
       else:
         subdir_name = str(
             type_utils.GetDict(event, classifier_name, '__UNKNOWN__'))
-      self.subdir_path = os.path.join(self.subdir_path, subdir_name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.subdir_path = os.path.join(self.subdir_path, subdir_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     for att_id, att_path in event.attachments.items():
       if os.path.isfile(att_path):

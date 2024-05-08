@@ -118,7 +118,9 @@ def IdentityToBOM(database, identity):
     encoded_fields[field] += int(identity.components_bitset[i], 2) << bit_offset
 
   # Construct the components dict.
-  components = {comp_cls: [] for comp_cls in database.GetComponentClasses()}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  components = {comp_cls: [] for comp_cls in database.GetComponentClasses()}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for field, index in encoded_fields.items():
     database_encoded_field = database.GetEncodedField(field)
     if index not in database_encoded_field:

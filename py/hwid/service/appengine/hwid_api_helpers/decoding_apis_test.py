@@ -53,8 +53,12 @@ class GetDUTLabelShardTest(unittest.TestCase):
             self._module_collection.fake_decoder_data_manager))
     self.service = decoding_apis.GetDUTLabelShard(
         self._module_collection.fake_decoder_data_manager,
-        self._module_collection.fake_goldeneye_memcache, self._bc_helper,  # type: ignore #TODO(b/338318729) Fixit!
-        self._sku_helper, self._module_collection.fake_hwid_action_manager)
+        # yapf: disable
+        self._module_collection.fake_goldeneye_memcache,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        self._bc_helper,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        self._sku_helper,
+        self._module_collection.fake_hwid_action_manager)
 
     self._module_collection.fake_goldeneye_memcache.Put('regexp_to_device', [
         ('r1.*', 'b1', []),

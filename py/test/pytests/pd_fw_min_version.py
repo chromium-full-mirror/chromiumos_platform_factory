@@ -52,7 +52,9 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class PdFwMinVersion(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   ARGS = [
       Arg('ports', (int, list), 'Specify which PD ports are checked.',
@@ -62,10 +64,16 @@ class PdFwMinVersion(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    if isinstance(self.args.ports, int):  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.ports = [self.args.ports]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if isinstance(self.args.ports, int):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.ports = [self.args.ports]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    for port in self.args.ports:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for port in self.args.ports:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       info = self.dut.CheckOutput(['ectool', 'pdchipinfo', f'{port}'], log=True)
       logging.info('pdchipinfo of port %d:\n%s.', port, info)
       res = re.search(r'^min_req_fw_version: (0x\w+)$', info, re.MULTILINE)

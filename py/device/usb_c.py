@@ -250,7 +250,9 @@ class USBTypeC(device_types.DeviceComponent):
       if not match:
         raise self.Error(f'Unable to parse USB PD Mux from: {response}')
       if int(match.group(1)) == 1:
-        ret.append(int(re_port.match(line).group(1)))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ret.append(int(re_port.match(line).group(1)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     return ret
 
   def VerifyPDStatus(self, spec):

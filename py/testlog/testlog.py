@@ -397,7 +397,9 @@ def CollectExpiredSessions(log_root,
       test_name, test_run_id = LogFinalTestRun(session_log_path,
                                                station_test_run)
       expired_session.append([test_name, test_run_id])
-  return expired_session  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return expired_session  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def LogTestRun(session_json_path, station_test_run=None) -> Tuple[str, str]:
@@ -656,12 +658,22 @@ class JSONLogFile(file_utils.FileLockContextManager):
     line = event.ToJSON() + '\n'
     with self:
       if override:
-        self.file.seek(0)  # type: ignore #TODO(b/338318729) Fixit!
-      self.file.write(line)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.file.seek(0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      self.file.write(line)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if override:
-        self.file.truncate()  # type: ignore #TODO(b/338318729) Fixit!
-      self.file.flush()  # type: ignore #TODO(b/338318729) Fixit!
-      os.fsync(self.file.fileno())  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.file.truncate()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      self.file.flush()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      os.fsync(self.file.fileno())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self._thread_data.in_log = False
 
@@ -852,7 +864,9 @@ class EventBase:
     for cls in mro:
       if cls is object:
         break
-      for field_name, metadata in cls.FIELDS.items():  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for field_name, metadata in cls.FIELDS.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if metadata[0] and field_name not in self._data:
           missing_fields.append(field_name)
 
@@ -940,10 +954,14 @@ class EventBase:
   def _TypeClassMap(cls):
     """Returns a map of EVENT_TYPE to EVENT_CLASS."""
     if not hasattr(cls, '_type_class_map_cache'):
-      cls._type_class_map_cache = {event_cls.GetEventType(): event_cls  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cls._type_class_map_cache = {event_cls.GetEventType(): event_cls  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                    for event_cls in cls._AllSubclasses()
                                    if event_cls.GetEventType()}
-    return cls._type_class_map_cache  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls._type_class_map_cache  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def DetermineClass(cls, data):
@@ -1139,7 +1157,9 @@ class StationStatus(_StationBase):
       if regex:
         value_dict['expectedRegex'] = regex
     elif isinstance(value, (int, float)):
-      value_dict['numericValue'] = value  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      value_dict['numericValue'] = value  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if regex:
         raise ValueError('This should not happen!')
       if min_val is not None:

@@ -80,24 +80,36 @@ class FormattedStrType(str, ConvertedValueType):
   def __new__(cls, *args, formatter_self: Optional[IStrFormatter] = None,
               formatter_other: Optional[IStrFormatter] = None, **kwargs):
     instance = super().__new__(cls, *args, **kwargs)
-    instance._formatter_self = formatter_self  # type: ignore #TODO(b/338318729) Fixit!
-    instance._formatter_other = formatter_other  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    instance._formatter_self = formatter_self  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    instance._formatter_other = formatter_other  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return instance
 
   def __eq__(self, other: Any):
     if isinstance(other, str):
-      if self._formatter_self:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._formatter_self:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         try:
-          formatted_self = self._formatter_self(self)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          formatted_self = self._formatter_self(self)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
         except StrFormatterError:
           logging.exception('Invalid value %r for str formatter.', self)
           return False
       else:
         formatted_self = self
 
-      if self._formatter_other:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._formatter_other:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         try:
-          formatted_other = self._formatter_other(other)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          formatted_other = self._formatter_other(other)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
         except StrFormatterError:
           logging.exception('Invalid value %r for str formatter.', other)
           return False

@@ -162,7 +162,9 @@ def VerifyBOM(database, decoded_bom, probed_bom):
     HWIDException if the BOM objects mismatch.
   """
   def _GetExtraComponents(comps1, comps2):
-    num_comps = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    num_comps = collections.defaultdict(int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for comp in comps1:
       num_comps[comp] += 1
 

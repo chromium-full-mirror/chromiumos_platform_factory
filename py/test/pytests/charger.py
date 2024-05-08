@@ -91,10 +91,16 @@ class ChargerTest(test_case.TestCase):
     _board and _power."""
     self._dut = device_utils.CreateDUTInterface()
     self._power = self._dut.power
-    self._min_starting_charge = float(self.args.min_starting_charge_pct)  # type: ignore #TODO(b/338318729) Fixit!
-    self._max_starting_charge = float(self.args.max_starting_charge_pct)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._min_starting_charge = float(self.args.min_starting_charge_pct)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._max_starting_charge = float(self.args.max_starting_charge_pct)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    for spec in self.args.spec_list:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for spec in self.args.spec_list:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertTrue(2 <= len(spec) <= 3,
                       f'spec_list item {spec!r} should have length 2 or 3')
 
@@ -109,7 +115,9 @@ class ChargerTest(test_case.TestCase):
     testlog.UpdateParam('target', param_type=testlog.ParamType.argument)
 
   def _GetLabelWithUnit(self, value):
-    return f"{value:.2f}{'%' if self.args.use_percentage else 'mAh'}"  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return f"{value:.2f}{'%' if self.args.use_percentage else 'mAh'}"  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _GetRegulateChargeText(self, charge, target, timeout, load,
                              battery_current):
@@ -139,7 +147,9 @@ class ChargerTest(test_case.TestCase):
     ]
 
   def _NormalizeCharge(self, charge_pct):
-    if self.args.use_percentage:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.use_percentage:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return charge_pct
     return charge_pct * self._power.GetChargeFull() / 100.0
 
@@ -147,8 +157,12 @@ class ChargerTest(test_case.TestCase):
     """Checks battery and AC power adapter are present."""
     self.assertTrue(self._power.CheckBatteryPresent(), 'Cannot find battery.')
     self.assertTrue(self._power.CheckACPresent(), 'Cannot find AC power.')
-    if self.args.charger_type:  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertEqual(self._power.GetACType(), self.args.charger_type,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.charger_type:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.assertEqual(self._power.GetACType(), self.args.charger_type,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                        f'Incorrect charger type: {self._power.GetACType()}')
 
   def _GetCharge(self, use_percentage=True):
@@ -218,7 +232,9 @@ class ChargerTest(test_case.TestCase):
     if load is None:
       load = self._dut.info.cpu_count
 
-    charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     battery_current = self._GetBatteryCurrent()
     target = charge + charge_change
     moving_up = None
@@ -240,14 +256,18 @@ class ChargerTest(test_case.TestCase):
       logging.info('Current charge is %s, discharge the battery to %s.',
                    self._GetLabelWithUnit(charge),
                    self._GetLabelWithUnit(target))
-      self.ui.SetState(_('Testing discharge'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Testing discharge'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._SetDischarge()
       moving_up = False
     elif charge < target:
       logging.info('Current charge is %s, charge the battery to %s.',
                    self._GetLabelWithUnit(charge),
                    self._GetLabelWithUnit(target))
-      self.ui.SetState(_('Testing charger'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Testing charger'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._SetCharge()
       moving_up = True
 
@@ -256,7 +276,9 @@ class ChargerTest(test_case.TestCase):
     if load > 0:
       stress_manager_instance = stress_manager.StressManager(self._dut)
     else:
-      stress_manager_instance = stress_manager.DummyStressManager()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      stress_manager_instance = stress_manager.DummyStressManager()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     with stress_manager_instance.Run(num_threads=load):
       start_time = time.time()
@@ -265,11 +287,15 @@ class ChargerTest(test_case.TestCase):
       spec_end_time = start_time + timeout_secs
       while time.time() < spec_end_time:
         elapsed = time.time() - start_time
-        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             self._GetRegulateChargeText(charge, target, timeout_secs - elapsed,
                                         load, battery_current))
         self._CheckPower()
-        charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         battery_current = self._GetBatteryCurrent()
 
         with self._group_checker:
@@ -292,12 +318,16 @@ class ChargerTest(test_case.TestCase):
             testlog.LogParam('load', load)
             testlog.LogParam('elapsed', elapsed)
             testlog.LogParam('status', 'meet')
-          self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               _('OK! Meet {target}', target=self._GetLabelWithUnit(target)))
           self.Sleep(1)
           return
 
-        if elapsed >= self.args.battery_check_delay_sec:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if elapsed >= self.args.battery_check_delay_sec:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           charger_current = self._GetChargerCurrent()
 
           if (not last_verbose_log_time or
@@ -351,12 +381,16 @@ class ChargerTest(test_case.TestCase):
     """Checks current in charging state"""
     if charger_current:
       self.assertGreater(charger_current, 0, 'Abnormal charger current')
-    if self.args.check_battery_current:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_battery_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertGreater(battery_current, 0, 'Abnormal battery current')
 
   def _CheckDischarge(self, battery_current):
     """Checks current in discharging state"""
-    if self.args.check_battery_current:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_battery_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertLess(battery_current, 0, 'Abnormal battery current')
 
   def _SetCharge(self, teardown=False):
@@ -381,7 +415,9 @@ class ChargerTest(test_case.TestCase):
   def runTest(self):
     """Main entrance of charger test."""
     self._CheckPower()
-    charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    charge = self._GetCharge(self.args.use_percentage)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     min_charge = self._NormalizeCharge(self._min_starting_charge)
     max_charge = self._NormalizeCharge(self._max_starting_charge)
@@ -397,11 +433,15 @@ class ChargerTest(test_case.TestCase):
     # When trying to charge, use 0 load.
     # When trying to discharge, use full load.
     if start_charge_diff:
-      self._RegulateCharge(start_charge_diff, self.args.starting_timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._RegulateCharge(start_charge_diff, self.args.starting_timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                            (0 if start_charge_diff > 0 else None))
     # Start testing the specs when battery charge is between
     # min_starting_charge_pct and max_starting_charge_pct.
-    for spec in self.args.spec_list:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for spec in self.args.spec_list:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RegulateCharge(*spec)
 
   def tearDown(self):

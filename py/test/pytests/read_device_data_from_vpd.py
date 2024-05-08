@@ -107,8 +107,15 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
 
   def runTest(self):
     sections = {
-        'ro': self.args.ro_key_map,  # type: ignore #TODO(b/338318729) Fixit!
-        'rw': self.args.rw_key_map  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'ro':
+            self.args.ro_key_map,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'rw':
+            self.args.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            rw_key_map  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
 
     if sections['ro'] is None and sections['rw'] is None:
@@ -116,7 +123,9 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
       sections['rw'] = device_data.DEFAULT_RW_VPD_KEY_MAP
 
     for name, key_map in sections.items():
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Reading device data from {vpd_section} VPD...',
             vpd_section=name.upper()))
       if not key_map:

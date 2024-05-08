@@ -7,10 +7,15 @@
 import unittest
 from unittest import mock
 
-import dbus  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import dbus  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils import connection_manager
 from cros.factory.utils.net_utils import WLAN
+
+
+# yapf: enable
+
 
 
 _FAKE_MANAGER = 'flimflam'
@@ -97,7 +102,9 @@ class ConnectionManagerTest(unittest.TestCase):
       cmd = f'start {service}'
       if (service in [_FAKE_MANAGER] and
           self.fakeData['override_blocklisted_devices'] is not None):
-        cmd += (f" BLOCKED_DEVICES=\""  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        cmd += (f" BLOCKED_DEVICES=\""  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                 f"{','.join(self.fakeData['override_blocklisted_devices'])}\"")
       subprocess_call_calls.append(
           mock.call(cmd, shell=True, stdout=mock.ANY, stderr=mock.ANY))
@@ -127,7 +134,9 @@ class ConnectionManagerTest(unittest.TestCase):
         'SecurityClass': 'psk',
         'Passphrase': 'test0000'
     }, signature=mock.ANY)
-    connection_manager.GetBaseNetworkManager.assert_called()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    connection_manager.GetBaseNetworkManager.assert_called()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     glob_mock.assert_called_with('/sys/class/net/*')
     self.assertEqual(glob_call_count, glob_mock.call_count)
 

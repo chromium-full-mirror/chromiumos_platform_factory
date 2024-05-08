@@ -58,7 +58,9 @@ class URLSpecTest(unittest.TestCase):
     self.assertEqual(actual, 'server_url')
 
   def testInvalidFormat(self):
-    for param in [None, ['url'], {}, {  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for param in [None, ['url'], {}, {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'matched_domain': ''
     }]:
       with self.subTest(param=param):

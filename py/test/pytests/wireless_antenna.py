@@ -136,7 +136,9 @@ class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
     super().__init__(device, interface, phy_name)
     self._services = [(service.ssid, service.freq) for service in services]
     self._switch_antenna_config = switch_antenna_config
-    self._signal_table = {antenna: {service: []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._signal_table = {antenna: {service: []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                     for service in self._services}
                           for antenna in self._switch_antenna_config}
     self._antenna = None
@@ -153,7 +155,9 @@ class SwitchAntennaWiFiChip(wifi.AbstractWiFiChip):
           interface=self._interface, frequency=service.freq,
           scan_timeout=self._scan_timeout)
 
-      same_freq_service = {s: []  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      same_freq_service = {s: []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                            for s in self._services if s[1] == service.freq}
       for ap in scan_output:
         scanned_service = (ap.ssid, ap.frequency)
@@ -299,7 +303,9 @@ _RE_BEACON = re.compile(r'(\d+) MHz.*Beacon \((.+)\)')
 
 
 class RadiotapPacket:
-  FIELD = collections.namedtuple('Field', ['name', 'struct', 'align'])  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  FIELD = collections.namedtuple('Field', ['name', 'struct', 'align'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ANTENNA_SIGNAL_FIELD = FIELD('Antenna Signal', struct.Struct('b'), 0)
   ANTENNA_INDEX_FIELD = FIELD('Antenna Index', struct.Struct('B'), 0)
   EXTENDED_BIT = 31
@@ -334,7 +340,9 @@ class RadiotapPacket:
       None,
       None]
   MAIN_HEADER_FORMAT = struct.Struct('BBhI')
-  PARSE_INFO = collections.namedtuple('AntennaData', ['header_size',  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  PARSE_INFO = collections.namedtuple('AntennaData', ['header_size',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
                                                       'data_bytes',
                                                       'antenna_offsets'])
 
@@ -378,7 +386,9 @@ class RadiotapPacket:
     """Returns packet information of the radiotap header should have."""
     header_size = RadiotapPacket.MAIN_HEADER_FORMAT.size
     data_bytes = 0
-    antenna_offsets = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    antenna_offsets = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for bitmask in field_list:
       antenna_offsets.append({})
@@ -449,7 +459,9 @@ class Capture:
   def GetSignal(self):
     """Gets signal from tcpdump."""
     while True:
-      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       m = _RE_BEACON.search(line)
       if m:
         freq = int(m.group(1))
@@ -457,7 +469,9 @@ class Capture:
         break
     packet_bytes = b''
     while True:
-      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      line = self.monitor_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not line.startswith('\t0x'):
         break
 
@@ -480,7 +494,9 @@ class Capture:
     path = (
         f'/sys/kernel/debug/ieee80211/{self.phy}/netdev:{self.parent_device}'
         f'/iwlmvm/bf_params')
-    if self.dut.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.dut.path.exists(path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('Setting beacon filter (enable=%d) for Intel WiFi',
                            value)
       self.dut.WriteFile(path, f'bf_enable_beacon_filter={int(value)}\n')
@@ -489,12 +505,18 @@ class Capture:
     if not self.created_device:
       self.CreateDevice()
     self.dut.CheckCall(
-        ['ip', 'link', 'set', self.created_device, 'up'], log=True)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ['ip', 'link', 'set', self.created_device, 'up'], log=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.dut.CheckCall(
         ['iw', self.parent_device, 'set', 'power_save', 'off'], log=True)
     self.set_beacon_filter(0)
-    self.monitor_process = self.dut.Popen(  # type: ignore #TODO(b/338318729) Fixit!
-        ['tcpdump', '-nUxxi', self.created_device, 'type', 'mgt',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.monitor_process = self.dut.Popen(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        ['tcpdump', '-nUxxi', self.created_device, 'type', 'mgt',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
          'subtype', 'beacon'], stdout=subprocess.PIPE, log=True)
 
   def Destroy(self):
@@ -525,8 +547,12 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
   def ScanSignal(self, service: wifi.ServiceSpec, antenna: Antenna,
                  scan_count: int) -> None:
     """See wifi.AbstractWiFiChip.ScanSignal."""
-    ssid = service.ssid  # type: ignore #TODO(b/338318729) Fixit!
-    freq = service.freq  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ssid = service.ssid  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    freq = service.freq  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     assert freq is not None
 
     record_count = len(self._signal_mapping[(ssid, freq, antenna)])
@@ -535,7 +561,9 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
 
     session.console.info(f'Switching to AP {ssid} {freq:d}...')
     if not self._ConnectService(ssid=ssid, freq=freq,
-                                password=service.password):  # type: ignore #TODO(b/338318729) Fixit!
+                                # yapf: disable
+                                password=service.password):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     self._MeasureSignalStrength(ssid, freq, scan_count - record_count)
@@ -558,8 +586,12 @@ class AbstractNonSwitchableWiFiChip(wifi.AbstractWiFiChip):
   def GetAverageSignal(self, service: wifi.ServiceSpec,
                        antenna: Antenna) -> Optional[float]:
     """See wifi.AbstractWiFiChip.GetAverageSignal."""
-    assert service.freq is not None  # type: ignore #TODO(b/338318729) Fixit!
-    result = self._signal_mapping[(service.ssid, service.freq, antenna)]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert service.freq is not None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    result = self._signal_mapping[(service.ssid, service.freq, antenna)]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return sum(result) / len(result) if result else None
 
   def _ConnectService(self, ssid: str, freq: int,
@@ -738,20 +770,30 @@ class WirelessTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._dut = device_utils.CreateDUTInterface()
     self._device_name = None
     self._phy_name = None
     self._services = [wifi.ServiceSpec(ssid, freq, password)
-                      for ssid, freq, password in self.args.services]  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      for ssid, freq, password in self.args.services]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._services, 'At least one service should be specified.')
     self._wifi_chip_type = None
     self._wifi_chip = None
 
-    if (self.args.wifi_chip_type == 'disable_switch' and  # type: ignore #TODO(b/338318729) Fixit!
-        list(self.args.strength) != ['all']):  # type: ignore #TODO(b/338318729) Fixit!
-      self.FailTask(f'Switching antenna is disabled but antenna configs are '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.wifi_chip_type == 'disable_switch' and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        list(self.args.strength) != ['all']):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.FailTask(f'Switching antenna is disabled but antenna configs are '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                     f'{list(self.args.strength)}')
 
     # Group checker for Testlog.
@@ -776,13 +818,19 @@ class WirelessTest(test_case.TestCase):
     """
     max_strength_service, max_strength = None, -sys.float_info.max
     for service in self._services:
-      strength = self._wifi_chip.GetAverageSignal(service, 'all')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      strength = self._wifi_chip.GetAverageSignal(service, 'all')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if strength:
         session.console.info('Service %s signal strength %f.', service,
                              strength)
-        event_log.Log('service_signal', service=service.ssid, strength=strength)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        event_log.Log('service_signal', service=service.ssid, strength=strength)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         with self._service_group_checker:
-          testlog.LogParam('service', service.ssid)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          testlog.LogParam('service', service.ssid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           testlog.LogParam('service_strength', strength)
         if strength > max_strength:
           max_strength_service, max_strength = service, strength
@@ -806,14 +854,20 @@ class WirelessTest(test_case.TestCase):
       antenna: The antenna config to scan.
     """
     for service in services:
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Scanning on device {device} frequency {freq}...',
             device=self._device_name,
             freq=service.freq))
 
-      self._wifi_chip.ScanSignal(service, antenna, self.args.scan_count)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._wifi_chip.ScanSignal(service, antenna, self.args.scan_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Done scanning on device {device} frequency {freq}...',
             device=self._device_name,
             freq=service.freq))
@@ -827,7 +881,9 @@ class WirelessTest(test_case.TestCase):
       antenna: The antenna config to check.
     """
     session.console.info('Checking antenna %s spec', antenna)
-    scanned_strength = self._wifi_chip.GetAverageSignal(service, antenna)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    scanned_strength = self._wifi_chip.GetAverageSignal(service, antenna)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     spec_strength = spec_antenna_strength[antenna]
     if not scanned_strength:
       self.FailTask(
@@ -852,20 +908,30 @@ class WirelessTest(test_case.TestCase):
           ' %f', antenna, service, scanned_strength, spec_strength)
 
   def _DetectWiFiChipType(self):
-    self.ui.SetState(_('Detecting wifi chip type...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Detecting wifi chip type...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._wifi_chip_type = self.args.wifi_chip_type  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._wifi_chip_type = self.args.wifi_chip_type  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not self._wifi_chip_type or self._wifi_chip_type == 'switch_antenna':
       self._wifi_chip = SwitchAntennaWiFiChip(
           self._dut, self._device_name, self._phy_name, self._services,
-          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self._wifi_chip_type:
         return
       # If wifi_chip_type is not specified and the device is able to switch
       # antenna then we assume the chip type is switch_antenna.
       last_success_antenna = None
-      for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         try:
           self._wifi_chip.SwitchAntenna(antenna)
           last_success_antenna = antenna
@@ -888,35 +954,59 @@ class WirelessTest(test_case.TestCase):
 
     if not self._wifi_chip_type or self._wifi_chip_type == 'radiotap':
       self._wifi_chip = RadiotapWiFiChip(
-          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit!
-          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit!
-          scan_timeout=self.args.scan_timeout,  # type: ignore #TODO(b/338318729) Fixit!
-          keep_monitor=self.args.keep_monitor)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          scan_timeout=self.args.scan_timeout,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          keep_monitor=self.args.keep_monitor)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._wifi_chip_type = 'radiotap'
       return
 
     if self._wifi_chip_type == 'disable_switch':
       self._wifi_chip = DisableSwitchWiFiChip(
           self._dut, self._device_name, self._phy_name, self._services,
-          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.switch_antenna_config, self.args.switch_antenna_sleep_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     if self._wifi_chip_type == 'station_dump':
       self._wifi_chip = StationDumpWiFiChip(
-          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit!
-          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit!
-          scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          device=self._dut, interface=self._device_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          phy_name=self._phy_name, connect_timeout=self.args.connect_timeout,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     raise ValueError(f'Wifi chip type {self._wifi_chip_type} is not supported.')
 
   def _ScanAllServices(self) -> None:
-    self.ui.SetState(_('Checking frequencies...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Checking frequencies...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     scan_result = self._dut.wifi.FilterAccessPoints(
-        interface=self._device_name, scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit!
-    ssid_freqs = {service.ssid: set() for service in self._services}  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        interface=self._device_name, scan_timeout=self.args.scan_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    ssid_freqs = {service.ssid: set() for service in self._services}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for scanned_service in scan_result:
       if scanned_service.ssid in ssid_freqs:
@@ -924,23 +1014,41 @@ class WirelessTest(test_case.TestCase):
 
     resolved_service_specs: Set[wifi.ServiceSpec] = set()
     for service in self._services:
-      if not ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
-        error_message = f'The service {service.ssid} is not found.'  # type: ignore #TODO(b/338318729) Fixit!
-        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        error_message = f'The service {service.ssid} is not found.'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           logging.info('%s Ignore this service and continue the test.',
                        error_message)
           continue
         self.FailTask(error_message)
-      elif service.freq is None:  # type: ignore #TODO(b/338318729) Fixit!
-        for freq in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      elif service.freq is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        for freq in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           resolved_service_specs.add(
-              wifi.ServiceSpec(service.ssid, freq, service.password))  # type: ignore #TODO(b/338318729) Fixit!
-      elif service.freq not in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              wifi.ServiceSpec(service.ssid, freq, service.password))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+      # yapf: disable
+      elif service.freq not in ssid_freqs[service.ssid]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         error_message = (
-            f'Frequency {service.freq} is not supported by the service '  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            f'Frequency {service.freq} is not supported by the service '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             f'{service.ssid}.  Available frequencies are '
             f'{ssid_freqs[service.ssid]!r}.')
-        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.ignore_missing_services:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           logging.info('%s Ignore this service and continue the test.',
                        error_message)
           continue
@@ -953,9 +1061,13 @@ class WirelessTest(test_case.TestCase):
     """Set region for testing 6G in the factory."""
     LOWEST_6G_FREQ = 5955
     HIGHEST_6G_FREQ = 7115
-    has_6G = any(LOWEST_6G_FREQ <= service.freq <= HIGHEST_6G_FREQ  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    has_6G = any(LOWEST_6G_FREQ <= service.freq <= HIGHEST_6G_FREQ  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                  for service in self._services
-                 if service.freq is not None)  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 if service.freq is not None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not has_6G:
       return
     # factory_iw is the binary which sets region.
@@ -971,16 +1083,24 @@ class WirelessTest(test_case.TestCase):
                            factory_iw)
 
   def runTest(self):
-    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('Selected device_name is %s.', self._device_name)
 
     self._phy_name = self._dut.wifi.DetectPhyName(self._device_name)
     session.console.info('phy name is %s.', self._phy_name)
 
-    if self.args.press_space_to_start:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.press_space_to_start:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Prompts a message to tell operator to press space key when ready.
-      self.ui.SetState(_('Press space to start scanning.'))  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Press space to start scanning.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self._TrySetRegionUSFor6G()
 
@@ -995,14 +1115,22 @@ class WirelessTest(test_case.TestCase):
     # Gets the service with the largest strength to test for each spec.
     test_service = self._ChooseMaxStrengthService()
     if test_service is None:
-      self.FailTask(f'Services {self.args.services} are not valid.')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.FailTask(f'Services {self.args.services} are not valid.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Checks 'all' since we have scanned using antenna 'all' already.
-    self._CheckSpec(test_service, self.args.strength, 'all')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._CheckSpec(test_service, self.args.strength, 'all')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Scans and tests for other antenna config.
-    for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for antenna in self.args.strength:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if antenna == 'all':
         continue
       self._ScanSignals(self._services, antenna)
-      self._CheckSpec(test_service, self.args.strength, antenna)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._CheckSpec(test_service, self.args.strength, antenna)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable

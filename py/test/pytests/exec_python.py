@@ -45,13 +45,19 @@ from cros.factory.utils.arg_utils import Arg
 
 class ExecPythonTest(unittest.TestCase):
   """A simple test that just executes a Python script."""
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   ARGS = [
       Arg('script', str, 'Python code to execute'),
   ]
 
   def runTest(self):
-    logging.info("Executing Python script: '''%s'''", self.args.script)  # type: ignore #TODO(b/338318729) Fixit!
-    exec(self.args.script, {'test_info': self.test_info}, {})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.info("Executing Python script: '''%s'''", self.args.script)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    exec(self.args.script, {'test_info': self.test_info}, {})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Script succeeded')

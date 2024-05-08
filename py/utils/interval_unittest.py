@@ -40,7 +40,9 @@ class IntervalTest(unittest.TestCase):
   def testMergeAndExcludeIntervals_AllExcluded(self):
     include_intervals = self.MakeIntervals([(1, 3), (4, 6), (5, 7)])
     exclude_intervals = self.MakeIntervals([(1, 5), (5, 7)])
-    result = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    result = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         interval.MergeAndExcludeIntervals(include_intervals, exclude_intervals),
         result)

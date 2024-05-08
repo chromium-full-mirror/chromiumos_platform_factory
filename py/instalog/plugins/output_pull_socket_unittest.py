@@ -60,18 +60,26 @@ class TestOutputPullSocket(unittest.TestCase):
     return data
 
   def testQing(self):
-    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
 
   def testInvalidQing(self):
     self.sock.recvfrom.return_value = '*'
-    self.assertFalse(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertFalse(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testPing(self):
-    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
     sender = output_socket.OutputSocketSender(
-        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sender.Ping()
     time.sleep(1)
     self.assertEqual(
@@ -88,10 +96,14 @@ class TestOutputPullSocket(unittest.TestCase):
         self.assertFalse(self.stream.Empty())
 
   def testInvalidPong(self):
-    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self._GetSentData(), socket_common.QING_RESPONSE)  # Qong.
     sender = output_socket.OutputSocketSender(
-        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.sock.recv.return_value = 'x'
     self.assertFalse(sender.Ping())
 

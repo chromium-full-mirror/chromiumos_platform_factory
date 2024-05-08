@@ -203,7 +203,9 @@ class ConditionalPatchTest(unittest.TestCase):
 class EvaluateRunIfTest(unittest.TestCase):
   def setUp(self):
     state_instance = state.StubFactoryState()
-    constants = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    constants = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test = type_utils.AttrDict(run_if=None, path='path.to.test')
     # run_if function should only use these attributes
@@ -216,48 +218,68 @@ class EvaluateRunIfTest(unittest.TestCase):
 
   def _ReplaceIsEngineeringModeInRunIf(self, is_engineering_mode):
     return test_list_module.AbstractTestList.ReplaceIsEngineeringModeInRunIf(
-        self.test.run_if, is_engineering_mode)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.test.run_if, is_engineering_mode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testReplaceIsEngineeringModeInRunIf_Match(self):
     is_engineering_mode = True
 
-    self.test.run_if = 'is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode), 'True')
 
-    self.test.run_if = ' is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = ' is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode), ' True')
 
-    self.test.run_if = 'is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode), 'True ')
 
-    self.test.run_if = ' is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = ' is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode), ' True ')
 
-    self.test.run_if = 'is_engineering_mode or device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'is_engineering_mode or device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'True or device.foo.bar')
 
-    self.test.run_if = ' is_engineering_mode or device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = ' is_engineering_mode or device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         ' True or device.foo.bar')
 
-    self.test.run_if = 'device.foo.bar or is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'device.foo.bar or is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'device.foo.bar or True')
 
-    self.test.run_if = 'device.foo.bar or is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'device.foo.bar or is_engineering_mode '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'device.foo.bar or True ')
 
-    self.test.run_if = 'device.foo.bar or is_engineering_mode or constants.foo'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'device.foo.bar or is_engineering_mode or constants.foo'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'device.foo.bar or True or constants.foo')
@@ -265,108 +287,178 @@ class EvaluateRunIfTest(unittest.TestCase):
   def testReplaceIsEngineeringModeInRunIf_NotMatch(self):
     is_engineering_mode = True
 
-    self.test.run_if = 'not_is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'not_is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'not_is_engineering_mode')
 
-    self.test.run_if = 'is_engineering_mode_and_something'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'is_engineering_mode_and_something'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'is_engineering_mode_and_something')
 
-    self.test.run_if = 'device.foo.is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'device.foo.is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self._ReplaceIsEngineeringModeInRunIf(is_engineering_mode),
         'device.foo.is_engineering_mode')
 
   def testInvalidRunIfString(self):
-    self.test.run_if = '!device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = '!device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
   def testDeviceData(self):
-    self.test.run_if = 'device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'device.foo.bar'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
   def testConstant(self):
-    self.test.run_if = 'constants.foo.bar'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'constants.foo.bar'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.constants['foo'] = {'bar': True}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['foo'] = {'bar': True}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.constants['foo'] = {'bar': False}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['foo'] = {'bar': False}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
   def testIsEngineeringMode(self):
-    self.test.run_if = 'is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'is_engineering_mode'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertIsNone(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
   def testExpression(self):
-    self.test.run_if = 'constants.phase == "PVT"'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = 'constants.phase == "PVT"'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.constants['phase'] = 'DVT'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['phase'] = 'DVT'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.constants['phase'] = 'PVT'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['phase'] = 'PVT'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
   def testComplexExpression(self):
-    self.test.run_if = ('not device.foo.bar or constants.x.y '  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.run_if = ('not device.foo.bar or constants.x.y '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                         'and is_engineering_mode')
 
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': False}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self._EvaluateRunIf())
 
-    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit!
-    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test_list.state_instance.data_shelf['device.foo.bar'].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.constants['x'] = {'y': True}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test_list.state_instance.data_shelf[KEY_ENGINEERING_MODE].Set(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self._EvaluateRunIf())
 
 

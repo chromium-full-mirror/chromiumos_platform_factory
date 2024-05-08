@@ -83,30 +83,44 @@ class ProbeSIMCardTest(test_case.TestCase):
           'If true, reset modem before check status.', default=True)]
 
   def setUp(self):
-    self.reset_commands = self.args.modem_reset_commands  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.reset_commands = self.args.modem_reset_commands  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if self.args.only_check_simcard_present:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.only_check_simcard_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckSIMCardState(CheckSimPresence,
                              'Fail to make sure sim card is present')
-    elif self.args.only_check_simcard_not_present:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.only_check_simcard_not_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckSIMCardState(CheckSimAbsence,
                              'Fail to make sure sim card is not present')
     else:
       self.ResetModem()
-      self.ui.SetState(_('Please insert the SIM card'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Please insert the SIM card'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       iccid = self.WaitForSIMCard(CheckSimPresence)
       logging.info('ICCID: %s', iccid)
       event_log.Log('SIM_CARD_DETECTION', ICCID=iccid)
       testlog.LogParam('ICCID', iccid)
 
-      self.ui.SetState(_('Detected! Please remove the SIM card'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Detected! Please remove the SIM card'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.WaitForSIMCard(CheckSimAbsence)
 
   def ResetModem(self):
     """Resets modem."""
-    if self.args.enable_modem_reset:  # type: ignore #TODO(b/338318729) Fixit!
-      for command in self.args.modem_reset_commands:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_modem_reset:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      for command in self.args.modem_reset_commands:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         process_utils.Spawn(command, call=True, log=True)
       self.Sleep(_INSERT_CHECK_PERIOD_SECS)
 
@@ -118,12 +132,16 @@ class ProbeSIMCardTest(test_case.TestCase):
     return status
 
   def CheckSIMCardState(self, predicator, fail_string: str) -> None:
-    self.ui.SetState(_('Checking SIM card is present or not...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Checking SIM card is present or not...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.ResetModem()
 
     output = predicator()
-    if self.args.poll_modem_status:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.poll_modem_status:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       total_delay = 0
       while not output:
         self.Sleep(_INSERT_CHECK_PERIOD_SECS)

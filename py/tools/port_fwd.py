@@ -49,12 +49,16 @@ class SSHPortForwarder:
   @classmethod
   def ToRemote(cls, *args, **kwargs):
     """Calls contructor with forward_to=REMOTE."""
-    return cls(*args, forward_to=cls.REMOTE, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls(*args, forward_to=cls.REMOTE, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def ToLocal(cls, *args, **kwargs):
     """Calls contructor with forward_to=LOCAL."""
-    return cls(*args, forward_to=cls.LOCAL, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return cls(*args, forward_to=cls.LOCAL, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def __init__(self,
                forward_to,
@@ -261,7 +265,9 @@ class SSHPortForwarder:
       # Figure out what went wrong.
       if not self._exception:
         logging.info('%s: SSH unexpectedly exited: %s',
-                     self, self._ssh_output.rstrip())  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     self, self._ssh_output.rstrip())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if self._exception and self._FAILED_STR in self._exception.output:
         logging.info('%s: Port forwarding failed', self)
         # If retry_on_forward_failure is set, keep retrying.

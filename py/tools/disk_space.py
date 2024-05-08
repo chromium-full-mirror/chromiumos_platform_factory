@@ -189,9 +189,13 @@ class DiskSpace:
         usage is larger than threshold.
     """
     max_partition, max_usage_type, max_usage = GetMaxStatefulPartitionUsage()
-    if max_usage > self.args.stateful_partition_threshold:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if max_usage > self.args.stateful_partition_threshold:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise DiskException(
-          f'{max_partition} partition {max_usage_type} usage {int(max_usage)}% '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'{max_partition} partition {max_usage_type} usage {int(max_usage)}% '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'is above threshold {int(self.args.stateful_partition_threshold)}%')
 
 

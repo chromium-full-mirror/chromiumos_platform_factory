@@ -11,7 +11,8 @@ from typing import Callable, Optional
 import unittest
 from unittest import mock
 
-from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import feature_matching
@@ -23,6 +24,10 @@ from cros.factory.hwid.service.appengine import release_version_utils
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.v3 import database
 from cros.factory.test.l10n import regions
+
+
+# yapf: enable
+
 
 
 AVLInfoMsg = hwid_api_messages_pb2.AvlInfo

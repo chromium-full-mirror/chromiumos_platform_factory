@@ -59,7 +59,9 @@ class CommandTest(unittest.TestCase):
     self.env.Close()
 
   def cleanupTwistedPort(self):
-    self.port.stopListening()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.port.stopListening()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Workaround: we need to close the file by ourselves.
     # Issue: https://github.com/twisted/twisted/issues/11842
     from twisted.internet import tcp

@@ -27,8 +27,13 @@ except ImportError:
 
 try:
   from cros.factory.test.utils import flimflam_test_path  # isort: skip  # pylint: disable=unused-import
-  import dbus  # type: ignore #TODO(b/338318729) Fixit!
-  import flimflam  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  import dbus  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  import flimflam  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+  # yapf: enable
 except ImportError:
   # E.g., in chroot
   pass
@@ -157,7 +162,9 @@ class ConnectionManager:
       self._DetectProcName()
     if wlans is None:
       wlans = []
-    self.wlans = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.wlans = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._ConfigureWifi(wlans)
 
     logging.info('Created connection manager: wlans=[%s]',

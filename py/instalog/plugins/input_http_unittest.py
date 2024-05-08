@@ -16,7 +16,8 @@ import threading
 import unittest
 import urllib.parse
 
-import requests  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import requests  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog import log_utils
@@ -26,6 +27,10 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import net_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
+
+
+# yapf: enable
+
 
 
 def _TempAvailSpaceMB():
@@ -92,15 +97,22 @@ class TestInputHTTP(unittest.TestCase):
 
   def _ClientConnected(self):
     # pylint: disable=protected-access
-    return len(self.plugin._http_server._threads) > 0  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return len(self.plugin._http_server._threads) > 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @unittest.skipIf(_TempAvailSpaceMB() < 256, 'Test requires 256mb disk space.')
   def testShutdown(self):
     """Tests that a request thread should terminate before shutting down."""
-    event = datatypes.Event({}, {'att_id': 'att'})
+    event = datatypes.Event({}, {
+        'att_id': 'att'
+    })
     big_att_path = self._GeneratePayload(128)  # 128mb
     # Use a queue to get the request object out of the thread.
-    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
     def PostBig():
       event_str = datatypes.Event.Serialize(event)
       r = self._CurlPost(f'event={event_str}', f'att=@{big_att_path}')
@@ -284,11 +296,16 @@ class TestInputHTTP(unittest.TestCase):
     event1 = datatypes.Event({'size': 'big'}, {'att_id': 'att'})
     event2 = datatypes.Event({'size': 'small'}, {'att_id': 'att'})
     big_att_path = self._GeneratePayload(128)  # 128mb
-    small_data = {'event': datatypes.Event.Serialize(event2),
-                  'att': '!' * 1024}  # 1kb
+    small_data = {
+        'event': datatypes.Event.Serialize(event2),
+        'att': '!' * 1024
+    }  # 1kb
 
     # Use a queue to get the request object out of the thread.
-    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    q = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
     def PostBig():
       event_str = datatypes.Event.Serialize(event1)
       r = self._CurlPost(f'event={event_str}', f'att=@{big_att_path}')

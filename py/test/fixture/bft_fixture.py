@@ -512,7 +512,9 @@ def main():
     print(f'GetDeviceStatus({device}): {fixture.GetDeviceStatus(device)}')
   elif command == 'SystemStatus':
     component = args.component
-    print(f'GetSystemStatus({device}): {fixture.GetSystemStatus(component)}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    print(f'GetSystemStatus({device}): {fixture.GetSystemStatus(component)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   elif command == 'IsLEDColor':
     color = args.color
     print(f'IsLEDColor({color}): {fixture.IsLEDColor(color)}')

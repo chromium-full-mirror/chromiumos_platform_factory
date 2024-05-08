@@ -438,7 +438,9 @@ class Util:
   def GetSystemInfo(
       self,
       filter_vpd: bool = False,
-      properties: List = _DEFAULT_SYSTEM_INFO,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      properties: List = _DEFAULT_SYSTEM_INFO,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
   ) -> Dict[str, Optional[Union[Dict, bool, int, str]]]:
     """Returns the system information in type of dict.
 

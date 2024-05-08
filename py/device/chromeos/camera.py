@@ -56,7 +56,9 @@ class ChromeOSCamera(camera.Camera):
       index_to_vid_pid[index] = f'{vid}:{pid}'
 
     num_camera = int(
-        self._device.CallOutput(['cros_config', '/camera', 'count']))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._device.CallOutput(['cros_config', '/camera', 'count']))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if num_camera == 0:
       raise camera_utils.CameraError('No camera detected')
@@ -99,16 +101,24 @@ class ChromeOSCamera(camera.Camera):
             f'No camera has the usb_vid_pid ({vid_pid}) Please submit a CL to '
             'update the camera_characteristics.conf file. See sample CL at '
             'https://crrev.com/c/419375')
-      camera_id = int(camera_id[0])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      camera_id = int(camera_id[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       index_to_camera_id[index] = camera_id
 
     for index, camera_id in index_to_camera_id.items():
       camera_facing = int(
-          re.search(r'^camera'  # type: ignore #TODO(b/338318729) Fixit!
-                    f'{camera_id:d}'
-                    r'\.lens_facing=(\d+)$', camera_config,
-                    re.MULTILINE).group(1))
-      camera_facing = {  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          re.search(
+              r'^camera'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              f'{camera_id:d}'
+              r'\.lens_facing=(\d+)$',
+              camera_config,
+              re.MULTILINE).group(1))
+      # yapf: disable
+      camera_facing = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           0: 'front',
           1: 'rear'
       }[camera_facing]

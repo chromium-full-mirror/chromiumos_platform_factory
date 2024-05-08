@@ -80,7 +80,9 @@ class QRCodeManager(plugin.Plugin):
       raise Exception(
           f'QR code content must be a string! (current: {content!r})')
 
-    img = qrcode.make(content)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    img = qrcode.make(content)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     buffered = BytesIO()
     img.save(buffered, format='PNG')
@@ -134,7 +136,9 @@ class QRCodeManager(plugin.Plugin):
         'args': args
     }
 
-    self._qrcode_info = args  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._qrcode_info = args  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._PostEvent(message)
 
   @plugin.RPCFunction

@@ -20,8 +20,12 @@ import unittest
 from cros.factory.test.utils.media_utils import MediaMonitor
 from cros.factory.test.utils.media_utils import MountedMedia
 
-from cros.factory.external.py_lib import glib  # type: ignore #TODO(b/338318729) Fixit!
-from cros.factory.external.py_lib import gtk  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: enable
+# yapf: enable
+# yapf: disable
+# yapf: disable
+from cros.factory.external.py_lib import glib  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+from cros.factory.external.py_lib import gtk  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from cros.factory.external.py_lib import pyudev
 
 
@@ -155,28 +159,38 @@ class TestMediaMonitor(unittest.TestCase):
       gtk.main_quit()
 
     def one_time_timer_mock_insert():
-      monitor._observer.emit('device-event',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      monitor._observer.emit('device-event',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                              _UDEV_ACTION_INSERT,
                              self._mock_device)
       return False
 
     def one_time_timer_mock_remove():
-      monitor._observer.emit('device-event',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      monitor._observer.emit('device-event',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                              _UDEV_ACTION_REMOVE,
                              self._mock_device)
       return False
 
     self._media_inserted = False
     self._media_removed = False
-    self._context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit!
-    self._mock_device = pyudev.Device.from_name(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._mock_device = pyudev.Device.from_name(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self._context, 'block',
         os.path.basename(self._free_loop_device))
 
     # Start the monitor.
     TIMEOUT_SECOND = 1
     monitor = MediaMonitor('block', 'disk')
-    monitor.start(on_insert=on_insert, on_remove=on_remove)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    monitor.start(on_insert=on_insert, on_remove=on_remove)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Simulating the insertion of a valid media device.
     timer_tag = glib.timeout_add_seconds(TIMEOUT_SECOND,
                                          one_time_timer_mock_insert)
@@ -187,7 +201,9 @@ class TestMediaMonitor(unittest.TestCase):
                                          one_time_timer_mock_remove)
     gtk.main()
 
-    monitor.stop()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    monitor.stop()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(True, self._media_inserted)
     self.assertEqual(True, self._media_removed)
 

@@ -6,7 +6,9 @@ import http
 import logging
 import os
 
-import flask  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 from google.cloud import logging as gc_logging
 
 from cros.factory.probe_info_service.app_engine import admin_service

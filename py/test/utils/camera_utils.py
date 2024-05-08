@@ -19,7 +19,6 @@ from cros.factory.utils import process_utils
 from cros.factory.external.py_lib import cv2 as cv
 
 
-
 # sysfs camera paths.
 GLOB_CAMERA_PATH = '/sys/bus/usb/drivers/uvcvideo/*/video4linux/video*'
 RE_CAMERA_INDEX = r'/sys/bus/usb/drivers/uvcvideo/.*/video4linux/video(\d+)'
@@ -69,7 +68,9 @@ def GetCameraTypeFromCameraFacing(facing: CameraFacing):
                       f'{list(CameraFacing.__members__)}')
 
   #TODO(jimmysun) remove this line after changing rear to back in pytest.
-  facing = 'back' if facing == CameraFacing.rear else facing  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  facing = 'back' if facing == CameraFacing.rear else facing  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for index in (0, 1):
     command = ['cros_config', f'/camera/devices/{index}']
     if process_utils.SpawnOutput(command + ['facing']) == facing:
@@ -92,7 +93,9 @@ def ReadImageFile(filename):
   Raise:
     CameraError on error.
   """
-  img = cv.imread(filename)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  img = cv.imread(filename)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if img is None:
     raise CameraError(f'Can not open image file {filename}')
   return img
@@ -145,7 +148,9 @@ def FilterNonVideoCapture(uvc_vid_dirs, dut):
   result = []
   for path in uvc_vid_dirs:
     try:
-      interface_id = re.search(r'video([0-9]+)$', path).group(1)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      interface_id = re.search(r'video([0-9]+)$', path).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       v4l2_capability = v4l2_utils.QueryV4L2Capability(int(interface_id))
       if v4l2_utils.IsCaptureDevice(v4l2_capability):
         result.append(path)
@@ -238,12 +243,18 @@ class CVCameraReader(ICameraReader):
       logging.warning('Camera device is already enabled.')
       return
 
-    self._device = cv.VideoCapture(self._device_index)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._device = cv.VideoCapture(self._device_index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not self._device.isOpened():
       raise CameraError('Unable to open video capture interface')
     if resolution:
-      self._device.set(cv.CAP_PROP_FRAME_WIDTH, resolution[0])  # type: ignore #TODO(b/338318729) Fixit!
-      self._device.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._device.set(cv.CAP_PROP_FRAME_WIDTH, resolution[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._device.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DisableCamera(self):
     if self._device:
@@ -278,7 +289,9 @@ class CVCameraReader(ICameraReader):
     uvc_vid_dirs = FilterNonVideoCapture(uvc_vid_dirs, dut)
     if len(uvc_vid_dirs) > 1:
       raise CameraError('Multiple video capture interface found')
-    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class MockCameraReader(ICameraReader):
@@ -371,10 +384,16 @@ class YavtaCameraReader(ICameraReader):
     file_utils.TryUnlink(filename)
 
     command = [
-        'yavta', f'/dev/video{int(self._device_index)}',
-        f'-c{int(self._skip + 1)}', '--skip',
-        str(self._skip), '-n1',
-        f'-s{self._resolution[0]}x{self._resolution[1]}', '-fSRGGB10',  # type: ignore #TODO(b/338318729) Fixit!
+        'yavta',
+        f'/dev/video{int(self._device_index)}',
+        f'-c{int(self._skip + 1)}',
+        '--skip',
+        str(self._skip),
+        '-n1',
+        # yapf: disable
+        f'-s{self._resolution[0]}x{self._resolution[1]}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        '-fSRGGB10',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'-F{filename}'
     ]
     logging.info(' '.join(command))

@@ -13,7 +13,10 @@ from cros.factory.instalog import plugin_base
 from cros.factory.instalog import plugin_sandbox
 
 # pylint: disable=no-name-in-module
-from cros.factory.external.py_lib.jsonrpclib import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from cros.factory.external.py_lib.jsonrpclib import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 # Possible daemon states.

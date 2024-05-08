@@ -11,6 +11,7 @@ from unittest import mock
 from cros.factory.umpire.server.service import multicast
 from cros.factory.utils import json_utils
 
+
 DEFAULT_PORT = 8080
 TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
 
@@ -127,7 +128,9 @@ class MulticastServiceTest(unittest.TestCase):
   _DUMMY_MCAST_CONFIG = {
       'dummy_key': 'dummy_value'
   }
-  _FAKE_UMPIRE_CONFIG = {  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  _FAKE_UMPIRE_CONFIG = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
       'services': {
           'multicast': {}
       }

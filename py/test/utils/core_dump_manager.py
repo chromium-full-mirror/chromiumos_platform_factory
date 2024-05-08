@@ -9,6 +9,7 @@ import os
 from cros.factory.utils import file_utils
 from cros.factory.utils import sys_utils
 
+
 DEFAULT_CRASH_PATH = '/var/factory/crash'
 
 
@@ -57,7 +58,9 @@ class CoreDumpManager:
       CoreDumpManagerException: If CoreDumpManager fails to remove unused
           core dump files.
     """
-    watched_files = sum([glob.glob(os.path.join(self._crash_dir, x))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    watched_files = sum([glob.glob(os.path.join(self._crash_dir, x))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                          for x in self._watchlist], [])
 
     try:

@@ -6,9 +6,14 @@
 import unittest
 from unittest import mock
 
-import dbus  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import dbus  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils.oemcrypto_utils import OEMCryptoClient
+
+
+# yapf: enable
+
 
 
 class MockInterface:

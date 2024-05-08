@@ -27,7 +27,10 @@ try:
       'depot_tools')
   if DEPOT_TOOLS_PATH not in sys.path:
     sys.path.append(DEPOT_TOOLS_PATH)
-  import gerrit_util  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  import gerrit_util  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+  # yapf: enable
 except ImportError:
   logging.exception('cannot find module gerrit_util, which should be found '
                     'under %s, are you in chroot?', DEPOT_TOOLS_PATH)

@@ -89,18 +89,26 @@ class ProbeDeviceInfo(test_case.TestCase):
     rw_firmware_version = self.dut.CheckOutput(['crossystem', 'fwid'])
     release_image_version = self.dut.info.release_image_version
     self.wifi_mac_address = self.dut.info.wlan0_mac
-    if self.args.manufacturer_id is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.manufacturer_id is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('No bluetooth manufacturer id specified, use default value.')
     self.bt_mac_address = bluetooth_utils.BtMgmt(
-        self.args.manufacturer_id).GetMac()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.manufacturer_id).GetMac()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Wi-Fi MAC address: %s, Bluetooth MAC address: %s',
                  self.wifi_mac_address, self.bt_mac_address)
     if self.wifi_mac_address is None or self.bt_mac_address is None:
       self.FailTask('Test fail due to the mac address is None.')
-    if self.args.filter_colon:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.filter_colon:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.wifi_mac_address = self.wifi_mac_address.replace(':', '')
       self.bt_mac_address = self.bt_mac_address.replace(':', '')
-    if self.args.is_upper:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.is_upper:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.wifi_mac_address = self.wifi_mac_address.upper()
       self.bt_mac_address = self.bt_mac_address.upper()
 

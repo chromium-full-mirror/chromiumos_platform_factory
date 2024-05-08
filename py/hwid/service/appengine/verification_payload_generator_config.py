@@ -35,7 +35,9 @@ class VerificationPayloadGeneratorConfig(NamedTuple):
 
     return cls(ignore_error=ignore_error,
                waived_comp_categories=waived_comp_categories,
-               encrypted=encrypted)  # type: ignore #TODO(b/338318729) Fixit!
+               # yapf: disable
+               encrypted=encrypted)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def BatchCreate(

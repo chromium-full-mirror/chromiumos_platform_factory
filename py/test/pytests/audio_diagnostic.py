@@ -47,7 +47,9 @@ class AudioDiagnosticTest(test_case.TestCase):
 
   def setUp(self):
     """Setup CRAS and bind events to corresponding tasks at backend."""
-    self.event_loop.AddEventHandler('select_cras_node', self.SelectCrasNode)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler('select_cras_node', self.SelectCrasNode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._cras = audio_utils.CRAS()
     self._cras.UpdateIONodes()
@@ -62,11 +64,17 @@ class AudioDiagnosticTest(test_case.TestCase):
 
   def UpdateCrasNodes(self):
     self._cras.UpdateIONodes()
-    self.ui.CallJSFunction('showCrasNodes', 'output',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('showCrasNodes', 'output',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                            [node.__dict__ for node in self._cras.output_nodes])
-    self.ui.CallJSFunction('showCrasNodes', 'input',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('showCrasNodes', 'input',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                            [node.__dict__ for node in self._cras.input_nodes])
 
   def runTest(self):
-    self.ui.CallJSFunction('init')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('init')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.WaitTaskEnd()

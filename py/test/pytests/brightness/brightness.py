@@ -24,18 +24,30 @@ class BrightnessTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState([self.args.msg, test_ui.PASS_FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState([self.args.msg, test_ui.PASS_FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
     """Starts an infinite loop to change brightness."""
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     while True:
-      for level in self.args.levels:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for level in self.args.levels:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._SetBrightnessLevel(level)
-        self.Sleep(self.args.interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.Sleep(self.args.interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def _SetBrightnessLevel(self, level):
     raise NotImplementedError

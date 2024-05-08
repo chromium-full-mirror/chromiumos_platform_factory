@@ -65,7 +65,9 @@ class FactoryLogExtractorError(Exception):
 class FactoryLogExtractor:
 
   def __init__(self, input_paths: List, output_path: str,
-               fields_to_keep: List = DEFAULT_FIELDS_TO_KEEP):  # type: ignore #TODO(b/338318729) Fixit!
+               # yapf: disable
+               fields_to_keep: List = DEFAULT_FIELDS_TO_KEEP):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._input_paths = input_paths
     self._output_f = open(output_path, 'w', encoding='utf-8')  # pylint: disable=consider-using-with
     if not fields_to_keep:

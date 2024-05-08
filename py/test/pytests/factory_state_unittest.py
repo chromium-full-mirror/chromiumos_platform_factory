@@ -65,11 +65,19 @@ class FactoryStateUnittest(unittest.TestCase):
     self.station_state.UpdateTestState(path='test:a.b', status='ACTIVE')
     self.station_state.UpdateTestState(path='test:a.c', status='UNTESTED')
 
-    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                          include_tests=True)
-    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.DoCopy(self.device_state, self.station_state)
 
@@ -128,11 +136,19 @@ class FactoryStateUnittest(unittest.TestCase):
     self.station_state.UpdateTestState(path='test:a.b', status='ACTIVE')
     self.station_state.UpdateTestState(path='test:a.c', status='UNTESTED')
 
-    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                          include_tests=True)
-    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.DoCopy(self.device_state, self.station_state)
 
@@ -183,11 +199,19 @@ class FactoryStateUnittest(unittest.TestCase):
     self.station_state.UpdateTestState(path='test:a.b', status='ACTIVE')
     self.station_state.UpdateTestState(path='test:a.c', status='UNTESTED')
 
-    self.test.args = type_utils.AttrDict(exclude_current_test_list=False,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = type_utils.AttrDict(exclude_current_test_list=False,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                          include_tests=True)
-    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.DoCopy(self.station_state, self.device_state)
 
@@ -246,11 +270,19 @@ class FactoryStateUnittest(unittest.TestCase):
     self.station_state.UpdateTestState(path='test:a.b', status='ACTIVE')
     self.station_state.UpdateTestState(path='test:a.c', status='UNTESTED')
 
-    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                          include_tests=False)
-    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.DoCopy(self.station_state, self.device_state)
 
@@ -291,11 +323,19 @@ class FactoryStateUnittest(unittest.TestCase):
                 {'id': 'a', 'pytest_name': 'a'},
                 {'id': 'b', 'pytest_name': 'b'},
                 {'id': 'c', 'pytest_name': 'c'}, ]}, ]})
-    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = type_utils.AttrDict(exclude_current_test_list=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                          include_tests=False)
-    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.path = 'test:a.b'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.test_info.ReadTestList.return_value = station_test_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Both source and destination doesn't have device data
     self.test.DoCopy(self.device_state, self.station_state)

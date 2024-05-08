@@ -7,8 +7,12 @@
 
 import os
 
-from backend import common  # type: ignore #TODO(b/338318729) Fixit!
-from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: enable
+# yapf: disable
+from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend.models import DomeConfig
 from backend.models import FactoryDriveComponent
 from backend.models import FactoryDriveDirectory
@@ -20,7 +24,9 @@ from backend.models import Resource
 from backend.models import Service
 from backend.models import TemporaryUploadedFile
 from backend.models import UpdateDuplicateResource
-from backend.serializers import BundleSerializer  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: enable
+# yapf: disable
+from backend.serializers import BundleSerializer  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend.serializers import ConfigSerializer
 from backend.serializers import FactoryDriveComponentSerializer
 from backend.serializers import FactoryDriveDirectorySerializer
@@ -33,11 +39,17 @@ from backend.serializers import ProjectSerializer
 from backend.serializers import ResourceSerializer
 from backend.serializers import ServiceSerializer
 from backend.serializers import UploadedFileSerializer
-from django.http import StreamingHttpResponse  # type: ignore #TODO(b/338318729) Fixit!
-from rest_framework import generics  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from django.http import StreamingHttpResponse  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: enable
+# yapf: enable
+# yapf: disable
+from rest_framework import generics  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from rest_framework import mixins
 from rest_framework import permissions
-from rest_framework.response import Response  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from rest_framework.response import Response  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from rest_framework import status
 from rest_framework import views
 
@@ -52,7 +64,9 @@ class InfoView(views.APIView):
     docker_image_islocal = os.environ.get('DOCKER_IMAGE_ISLOCAL', '1')
     # The DOCKER_IMAGE_ISLOCAL is a string '0' or '1', transform it back to
     # boolean.
-    docker_image_islocal = bool(int(docker_image_islocal))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    docker_image_islocal = bool(int(docker_image_islocal))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     docker_image_timestamp = os.environ.get('DOCKER_IMAGE_TIMESTAMP', '')
     docker_image_Latest_version = GetDockerImageLatestVersion(
         os.environ.get('RESOURCE_CROS_DOCKER_URL', ''))

@@ -1,7 +1,6 @@
 # Copyright 2013 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """A factory test to verify the functionality of bluetooth device.
 
 Description
@@ -108,7 +107,7 @@ def ColonizeMac(mac):
   Example: ABCDEF123456 -> AB:CD:EF:12:34:56
   """
   mac_no_colons = ''.join(mac.strip().split(':'))
-  groups = (mac_no_colons[x:x+2] for x in range(0, len(mac_no_colons), 2))
+  groups = (mac_no_colons[x:x + 2] for x in range(0, len(mac_no_colons), 2))
   return ':'.join(groups)
 
 
@@ -129,6 +128,7 @@ def WaitForInputCount(expected_input_count, timeout=10):
   Raises:
     type_utils.TimeoutError if timeout.
   """
+
   def _CheckInputCount():
     return GetInputCount() == expected_input_count
 
@@ -153,44 +153,33 @@ class BluetoothTest(test_case.TestCase):
   related_components = (test_case.TestCategory.WIFI, )
   ARGS = [
       Arg('expected_adapter_count', int,
-          'Number of bluetooth adapters on the machine.',
-          default=0),
-      Arg('manufacturer_id', int,
-          'ID of the manufacturer.',
-          default=None),
+          'Number of bluetooth adapters on the machine.', default=0),
+      Arg('manufacturer_id', int, 'ID of the manufacturer.', default=None),
       Arg('detect_adapters_retry_times', int,
-          'Maximum retry time to detect adapters.',
-          default=10),
+          'Maximum retry time to detect adapters.', default=10),
       Arg('detect_adapters_interval_secs', int,
           'Interval in seconds between each retry to detect adapters.',
           default=2),
       Arg('read_bluetooth_uuid_timeout_secs', int,
-          'Timeout to read bluetooth characteristics via uuid.',
-          default=None),
-      Arg('scan_devices', bool,
-          'Scan bluetooth device.',
-          default=False),
-      Arg('prompt_scan_message', bool,
+          'Timeout to read bluetooth characteristics via uuid.', default=None),
+      Arg('scan_devices', bool, 'Scan bluetooth device.', default=False),
+      Arg(
+          'prompt_scan_message', bool,
           'Prompts a message to tell user to enable remote devices discovery '
-          'mode.',
-          default=True),
+          'mode.', default=True),
       Arg('keyword', str,
           'Only cares remote devices whose "Name" contains keyword.',
           default=None),
-      Arg('average_rssi_threshold', float,
+      Arg(
+          'average_rssi_threshold', float,
           'Checks the largest average RSSI among scanned device is equal to or '
           'greater than average_rssi_threshold. The thresholds recommended by '
           'Google are -60.0 at 3ft (0.9144m) distance over the air or -70.0 at '
-          '6ft (1.8288m) distance over the air.',
-          default=-70.0),
-      Arg('scan_counts', int,
-          'Number of scans to calculate average RSSI.',
+          '6ft (1.8288m) distance over the air.', default=-70.0),
+      Arg('scan_counts', int, 'Number of scans to calculate average RSSI.',
           default=3),
-      Arg('scan_timeout_secs', int,
-          'Timeout to do one scan.',
-          default=10),
-      Arg('input_device_mac', str,
-          'The mac address of bluetooth input device.',
+      Arg('scan_timeout_secs', int, 'Timeout to do one scan.', default=10),
+      Arg('input_device_mac', str, 'The mac address of bluetooth input device.',
           default=None),
       Arg('input_device_mac_key', str,
           'A key for factory shared data containing the mac address.',
@@ -201,76 +190,53 @@ class BluetoothTest(test_case.TestCase):
       Arg('firmware_revision_string_key', str,
           'A key of factory shared data containing firmware revision string.',
           default=None),
-      Arg('firmware_revision_string', str,
-          'The firmware revision string.',
+      Arg('firmware_revision_string', str, 'The firmware revision string.',
           default=None),
-      Arg('average_rssi_lower_threshold', (float, dict),
+      Arg(
+          'average_rssi_lower_threshold', (float, dict),
           'Checks the average RSSI of the target mac is equal to or '
-          'greater than this threshold.',
-          default=None),
-      Arg('average_rssi_upper_threshold', (float, dict),
+          'greater than this threshold.', default=None),
+      Arg(
+          'average_rssi_upper_threshold', (float, dict),
           'Checks the average RSSI of the target mac is equal to or '
-          'less than this threshold.',
-          default=None),
-      Arg('pair_with_match', bool,
-          'Whether to pair with the strongest match.',
+          'less than this threshold.', default=None),
+      Arg('pair_with_match', bool, 'Whether to pair with the strongest match.',
           default=False),
       Arg('finish_after_pair', bool,
           'Whether the test should end immediately after pairing completes.',
           default=False),
-      Arg('unpair', bool,
-          'Whether to unpair matching devices instead of pair.',
+      Arg('unpair', bool, 'Whether to unpair matching devices instead of pair.',
           default=False),
       Arg('check_shift_pair_keys', bool,
-          'Check if shift-p-a-i-r keys are pressed.',
-          default=False),
+          'Check if shift-p-a-i-r keys are pressed.', default=False),
       Arg('check_battery_charging', bool,
-          'Whether to check if the battery is charging.',
-          default=False),
-      Arg('read_battery_level', int,
-          'Read the battery level.',
-          default=None),
-      Arg('check_battery_level', bool,
-          'Whether to check the battery level.',
+          'Whether to check if the battery is charging.', default=False),
+      Arg('read_battery_level', int, 'Read the battery level.', default=None),
+      Arg('check_battery_level', bool, 'Whether to check the battery level.',
           default=False),
       Arg('prompt_into_fixture', bool,
           'Prompt the user to place the base into the test fixture.',
           default=False),
-      Arg('use_charge_fixture', bool,
-          'Whether a charge fixture is employed.',
+      Arg('use_charge_fixture', bool, 'Whether a charge fixture is employed.',
           default=False),
-      Arg('reset_fixture', bool,
-          'Whether to reset the fixture.',
+      Arg('reset_fixture', bool, 'Whether to reset the fixture.',
           default=False),
-      Arg('start_charging', bool,
-          'Prompt the user to start charging the base.',
+      Arg('start_charging', bool, 'Prompt the user to start charging the base.',
           default=False),
-      Arg('enable_magnet', bool,
-          'Enable the base.',
-          default=False),
-      Arg('reset_magnet', bool,
-          'Reset the base.',
-          default=False),
-      Arg('stop_charging', bool,
-          'Prompt the user to stop charging the base.',
+      Arg('enable_magnet', bool, 'Enable the base.', default=False),
+      Arg('reset_magnet', bool, 'Reset the base.', default=False),
+      Arg('stop_charging', bool, 'Prompt the user to stop charging the base.',
           default=False),
       Arg('base_enclosure_serial_number', str,
-          'The base enclosure serial number.',
-          default=None),
-      Arg('battery_log', str,
-          'The battery log file.',
-          default=None),
-      Arg('expected_battery_level', int,
-          'The expected battery level.',
+          'The base enclosure serial number.', default=None),
+      Arg('battery_log', str, 'The battery log file.', default=None),
+      Arg('expected_battery_level', int, 'The expected battery level.',
           default=100),
-      Arg('log_path', str,
-          'The directory of the log on the local test host.',
+      Arg('log_path', str, 'The directory of the log on the local test host.',
           default=None),
-      Arg('keep_raw_logs', bool,
-          'Whether to attach the log by Testlog.',
+      Arg('keep_raw_logs', bool, 'Whether to attach the log by Testlog.',
           default=True),
-      Arg('test_host_id_file', str,
-          'The file storing the id of the test host.',
+      Arg('test_host_id_file', str, 'The file storing the id of the test host.',
           default=None),
   ]
 
@@ -288,45 +254,75 @@ class BluetoothTest(test_case.TestCase):
     self.bt_manager = cast(bluetooth.AbstractBluetoothManager,
                            self.dut.bluetooth)
     bluetooth_utils.VerifyAltSetting()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._strongest_rssi_mac = None
-    if self.args.input_device_mac_key:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.input_device_mac_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._input_device_mac = (
-          ColonizeMac(state.DataShelfGetValue(self.args.input_device_mac_key)))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          ColonizeMac(state.DataShelfGetValue(self.args.input_device_mac_key)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self._input_device_mac = self.args.input_device_mac  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._input_device_mac = self.args.input_device_mac  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.btmgmt = bluetooth_utils.BtMgmt(self.args.manufacturer_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.btmgmt.PowerOn()
     self.hci_device = self.btmgmt.GetHciDevice()
     self.host_mac = self.btmgmt.GetMac()
     logging.info('manufacturer_id %s: %s %s',
-                 self.args.manufacturer_id, self.hci_device, self.host_mac)  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 self.args.manufacturer_id, self.hci_device, self.host_mac)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.log_file = None
     self.log_tmp_file = None
 
-    if self.args.base_enclosure_serial_number:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.base_enclosure_serial_number:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.log_tmp_file = file_utils.CreateTemporaryFile()
 
-      if (self.args.test_host_id_file and  # type: ignore #TODO(b/338318729) Fixit!
-          os.path.isfile(self.args.test_host_id_file)):  # type: ignore #TODO(b/338318729) Fixit!
-        test_host_id = file_utils.ReadFile(self.args.test_host_id_file).strip()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if (self.args.test_host_id_file and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          os.path.isfile(self.args.test_host_id_file)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        test_host_id = file_utils.ReadFile(self.args.test_host_id_file).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         test_host_id = None
 
-      filename = '.'.join([self.args.base_enclosure_serial_number,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      filename = '.'.join([self.args.base_enclosure_serial_number,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                            str(test_host_id)])
-      if self.args.log_path:  # type: ignore #TODO(b/338318729) Fixit!
-        self.log_file = os.path.join(self.args.log_path, filename)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.log_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.log_file = os.path.join(self.args.log_path, filename)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     self.fixture = None
-    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Import this module only when a test station needs it.
       # A base SMT test station does not need to use the charge fixture.
       # pylint: disable=no-name-in-module
-      from cros.factory.test.fixture import base_charge_fixture  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      from cros.factory.test.fixture import base_charge_fixture  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
+      # yapf: enable
       # Note: only reset the fixture in InitializeFixture test.
       #       This will stop charging and disable the magnet initially.
       #       For the following tests, do not reset the fixture so that
@@ -334,101 +330,154 @@ class BluetoothTest(test_case.TestCase):
       #       defined in the base_host. The purpose is to keep charging the
       #       battery while executing other tests.
       self.fixture = base_charge_fixture.BaseChargeFixture(
-          reset=self.args.reset_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          reset=self.args.reset_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.expected_adapter_count:  # type: ignore #TODO(b/338318729) Fixit!
-      self.AddTask(self.DetectAdapter, self.args.expected_adapter_count)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.expected_adapter_count:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.AddTask(self.DetectAdapter, self.args.expected_adapter_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.scan_devices:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.prompt_scan_message:  # type: ignore #TODO(b/338318729) Fixit!
-        self.AddTask(self.WaitKeyPressed,
-                     _('Enable the connection ability of bluetooth device '
-                       'and press Enter'))
+    # yapf: disable
+    if self.args.scan_devices:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.prompt_scan_message:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        self.AddTask(
+            self.WaitKeyPressed,
+            _('Enable the connection ability of bluetooth device '
+              'and press Enter'))
       self.AddTask(self.ScanDevices)
 
-    if self.args.input_device_rssi_key:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.input_device_rssi_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.DetectRSSIofTargetMAC)
 
-    if self.args.prompt_into_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self.AddTask(self.WaitKeyPressed,
-                   _('Place the base into the fixture, '
-                     'and press the space key on the test host.'),
-                   test_ui.SPACE_KEY)
+    # yapf: disable
+    if self.args.prompt_into_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      self.AddTask(
+          self.WaitKeyPressed,
+          _('Place the base into the fixture, '
+            'and press the space key on the test host.'), test_ui.SPACE_KEY)
 
-    if self.args.read_battery_level == 1:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.read_battery_level == 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.ReadBatteryLevel, self._input_device_mac,
                    READ_BATTERY_STEP_1)
 
-    if self.args.enable_magnet and self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.enable_magnet and self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.FixtureControl, 'ENABLE_MAGNET')
 
-    if self.args.reset_magnet:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.reset_magnet:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.AddTask(self.FixtureControl, 'DISABLE_MAGNET', post_sleep=1)
         self.AddTask(self.FixtureControl, 'ENABLE_MAGNET')
       else:
-        self.AddTask(self.WaitKeyPressed,
-                     _('Please re-attach the magnet, '
-                       'and press the space key on the test host.'),
-                     test_ui.SPACE_KEY)
+        self.AddTask(
+            self.WaitKeyPressed,
+            _('Please re-attach the magnet, '
+              'and press the space key on the test host.'), test_ui.SPACE_KEY)
 
-    if self.args.start_charging:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.start_charging:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         # Let it charge for a little while.
         self.AddTask(self.FixtureControl, 'START_CHARGING')
       else:
-        self.AddTask(self.WaitKeyPressed,
-                     _('Turn on charging by pressing the green button, '
-                       'take the keyboard out and put it back, '
-                       'and press the space key on the test host.'),
-                     test_ui.SPACE_KEY)
+        self.AddTask(
+            self.WaitKeyPressed,
+            _('Turn on charging by pressing the green button, '
+              'take the keyboard out and put it back, '
+              'and press the space key on the test host.'), test_ui.SPACE_KEY)
 
-    if self.args.check_shift_pair_keys:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_shift_pair_keys:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.CheckDisconnectionOfPairedDevice,
                    self._input_device_mac)
 
-    if self.args.unpair:  # type: ignore #TODO(b/338318729) Fixit!
-      self.AddTask(self.Unpair, self._input_device_mac, self.args.keyword)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.unpair:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.AddTask(self.Unpair, self._input_device_mac, self.args.keyword)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.firmware_revision_string:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.firmware_revision_string:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.CheckFirmwareRevision, self._input_device_mac)
 
-    if self.args.pair_with_match:  # type: ignore #TODO(b/338318729) Fixit!
-      self.AddTask(self.TestInput, self.args.finish_after_pair)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.pair_with_match:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.AddTask(self.TestInput, self.args.finish_after_pair)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.read_battery_level == 2:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.read_battery_level == 2:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.ReadBatteryLevel, self._input_device_mac,
                    READ_BATTERY_STEP_2)
 
-    if self.args.check_battery_level:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_battery_level:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.CheckBatteryLevel)
 
-    if self.args.stop_charging:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.stop_charging:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.AddTask(self.FixtureControl, 'STOP_CHARGING')
       else:
-        self.AddTask(self.WaitKeyPressed,
-                     _('Press the green button again to stop charging, '
-                       'and press the space key on the test host.'),
-                     test_ui.SPACE_KEY)
+        self.AddTask(
+            self.WaitKeyPressed,
+            _('Press the green button again to stop charging, '
+              'and press the space key on the test host.'), test_ui.SPACE_KEY)
 
     # Group checker for Testlog.
     self.group_checker = testlog.GroupParam('avg_rssi', ['mac', 'average_rssi'])
 
   def tearDown(self):
     """Close the charge test fixture."""
-    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit!
-      self.fixture.Close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.use_charge_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.fixture.Close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     if self.log_file:
-      shutil.copyfile(self.log_tmp_file, self.log_file)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      shutil.copyfile(self.log_tmp_file, self.log_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     if self.log_tmp_file:
-      if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
-        testlog.AttachFile(
-            path=self.log_tmp_file,
-            mime_type='text/plain',
-            name='bluetooth.log',
-            description='plain text log of bluetooth',
-            delete=False)
+      # yapf: disable
+      if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        testlog.AttachFile(path=self.log_tmp_file, mime_type='text/plain',
+                           name='bluetooth.log',
+                           description='plain text log of bluetooth',
+                           delete=False)
       os.remove(self.log_tmp_file)
 
   def WaitKeyPressed(self, message, key=test_ui.ENTER_KEY):
@@ -438,13 +487,19 @@ class BluetoothTest(test_case.TestCase):
       message: Html code containing message to show on the screen.
       key: The key to be pressed.
     """
-    self.ui.SetState(message)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('wait for the user to press key %s', key)
-    self.ui.WaitKeysOnce(key)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.WaitKeysOnce(key)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def CheckFirmwareRevision(self, mac):
     """A task to read firmware revision string."""
-    self.ui.SetState(_('Read firmware revision string.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Read firmware revision string.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     session.console.info('Begin reading firmware revision string via %s...',
                          self.hci_device)
@@ -453,20 +508,31 @@ class BluetoothTest(test_case.TestCase):
           'reading firmware', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bluetooth_utils.GattTool.GetDeviceInfo, mac,
           'firmware revision string', hci_device=self.hci_device,
-          timeout=self.args.read_bluetooth_uuid_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          timeout=self.args.read_bluetooth_uuid_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except bluetooth_utils.BluetoothUtilsError as e:
       self.FailTask(f'Failed to get firmware revision string: {e}')
 
     session.console.info('Expected firmware: %s',
-                         self.args.firmware_revision_string)  # type: ignore #TODO(b/338318729) Fixit!
+                         # yapf: disable
+                         self.args.firmware_revision_string)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('Actual firmware: %s', fw)
-    state.DataShelfSetValue(self.args.firmware_revision_string_key, fw)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    state.DataShelfSetValue(self.args.firmware_revision_string_key, fw)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     _AppendLog(self.log_tmp_file, f'FW: {fw}\n')
 
     self.assertEqual(
-        self.args.firmware_revision_string, fw,  # type: ignore #TODO(b/338318729) Fixit!
-        f'Expected firmware: {self.args.firmware_revision_string}, actual '  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.firmware_revision_string,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        fw,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        f'Expected firmware: {self.args.firmware_revision_string}, actual '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'firmware: {fw}')
 
   def CheckBatteryLevel(self):
@@ -476,7 +542,9 @@ class BluetoothTest(test_case.TestCase):
     2. battery_level_1 < battery_level_2
     3. battery_level_1 >= expected_battery_level
     """
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Check if the battery has charged to a higher percentage'))
 
     battery_level_1 = state.DataShelfGetValue(READ_BATTERY_STEP_1)
@@ -489,7 +557,9 @@ class BluetoothTest(test_case.TestCase):
     elif (battery_level_1 > battery_level_2 or
           (battery_level_1 == battery_level_2 and battery_level_1 < 100)):
       fail_msg = 'Base battery is not charged up. read_1: %s, read_2: %s'
-    elif battery_level_1 < self.args.expected_battery_level:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif battery_level_1 < self.args.expected_battery_level:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Note: battery_level_1 instead of battery_level_2 should be larger than
       #       the expected_battery_level since battery_level_2 is read while
       #       charging and its value is usually larger than its actual value.
@@ -505,7 +575,9 @@ class BluetoothTest(test_case.TestCase):
         READ_BATTERY_STEP_2: _('Read battery level for the 2nd time.')
     }[step]
 
-    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     session.console.info('%s via %s ...', step, self.hci_device)
     try:
@@ -513,7 +585,9 @@ class BluetoothTest(test_case.TestCase):
           step, INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bluetooth_utils.GattTool.GetDeviceInfo,
           mac, 'battery level', hci_device=self.hci_device,
-          timeout=self.args.read_bluetooth_uuid_timeout_secs))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          timeout=self.args.read_bluetooth_uuid_timeout_secs))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('%s: %d', step, battery_level)
     except bluetooth_utils.BluetoothUtilsError as e:
       self.FailTask(f'{step} failed to get battery level: {e}')
@@ -531,16 +605,24 @@ class BluetoothTest(test_case.TestCase):
       state.DataShelfSetValue(step, battery_level)
 
     if step == READ_BATTERY_STEP_1:
-      data = f'\nSN: {self.args.base_enclosure_serial_number}\nMAC: {mac}\n'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      data = f'\nSN: {self.args.base_enclosure_serial_number}\nMAC: {mac}\n'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       data = ''
     data += f'{step}: {battery_level}\n'
     _AppendLog(self.log_tmp_file, data)
 
-    if self.args.battery_log:  # type: ignore #TODO(b/338318729) Fixit!
-      with open(self.args.battery_log, 'a', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.battery_log:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      with open(self.args.battery_log, 'a', encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f.write(
-            f'{GetCurrentTime()} {self.args.base_enclosure_serial_number} {mac}'  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            f'{GetCurrentTime()} {self.args.base_enclosure_serial_number} {mac}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             f' [{step}]: {battery_level}\n')
 
   def FixtureControl(self, operation, post_sleep=0):
@@ -552,11 +634,15 @@ class BluetoothTest(test_case.TestCase):
     try:
       # An operation is mapped to its corresponding fixture method defined in
       # base_charge_fixture.BaseChargeFixture class.
-      FIXTURE_METHOD_DICT = {'START_CHARGING': 'StartCharging',
-                             'STOP_CHARGING': 'StopCharging',
-                             'ENABLE_MAGNET': 'EnableMagnet',
-                             'DISABLE_MAGNET': 'DisableMagnet'}
-      fixture_method = getattr(self.fixture, FIXTURE_METHOD_DICT.get(operation))  # type: ignore #TODO(b/338318729) Fixit!
+      FIXTURE_METHOD_DICT = {
+          'START_CHARGING': 'StartCharging',
+          'STOP_CHARGING': 'StopCharging',
+          'ENABLE_MAGNET': 'EnableMagnet',
+          'DISABLE_MAGNET': 'DisableMagnet'
+      }
+      # yapf: disable
+      fixture_method = getattr(self.fixture, FIXTURE_METHOD_DICT.get(operation))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info('Executing fixture method: %s',
                            fixture_method.__name__)
       fixture_method()
@@ -573,10 +659,16 @@ class BluetoothTest(test_case.TestCase):
     Args:
        expected_adapter_count: The expected number of bluetooth adapters.
     """
-    self.ui.SetState(_('Detect bluetooth adapter'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Detect bluetooth adapter'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     adapters = self.bt_manager.GetAdapters(
-        self.args.detect_adapters_retry_times,  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.detect_adapters_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.detect_adapters_retry_times,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.detect_adapters_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         len(adapters), expected_adapter_count,
         f'DetectAdapter: expect {int(expected_adapter_count)} and find '
@@ -603,7 +695,9 @@ class BluetoothTest(test_case.TestCase):
         return False
       return device_props['Paired']
 
-    self.ui.SetState(_('Unpairing'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Unpairing'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     input_count_before_unpair = GetInputCount()
     adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
@@ -636,10 +730,19 @@ class BluetoothTest(test_case.TestCase):
     bluetooth mouse placed around it.
     """
 
-    keyword = self.args.keyword  # type: ignore #TODO(b/338318729) Fixit!
-    average_rssi_threshold = self.args.average_rssi_threshold  # type: ignore #TODO(b/338318729) Fixit!
-    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit!
-    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    keyword = self.args.keyword  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    average_rssi_threshold = self.args.average_rssi_threshold  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
 
     def FilterByKeyword(devices):
       """Returns the devices filtered by keyword.
@@ -652,14 +755,14 @@ class BluetoothTest(test_case.TestCase):
       filtered_devices = {}
       for mac, props in devices.items():
         if 'Name' not in props:
-          logging.warning('Device %s: %s does not have "Name" property.',
-                          mac, props)
+          logging.warning('Device %s: %s does not have "Name" property.', mac,
+                          props)
           continue
 
         if keyword in props['Name']:
           filtered_devices[mac] = props
-          logging.info('Device %s: "Name" property %s matches keyword %s.',
-                       mac, props['Name'], keyword)
+          logging.info('Device %s: "Name" property %s matches keyword %s.', mac,
+                       props['Name'], keyword)
       return filtered_devices
 
     def UpdateRssi(devices_rssis, devices):
@@ -673,14 +776,15 @@ class BluetoothTest(test_case.TestCase):
       """
       for mac, props in devices.items():
         if 'RSSI' not in props:
-          logging.warning('Device %s: %s does not have "RSSI" property.',
-                          mac, props)
+          logging.warning('Device %s: %s does not have "RSSI" property.', mac,
+                          props)
           continue
         # typecast to str to avoid the weird dbus.String type
         devices_rssis.setdefault(str(mac), []).append(int(props['RSSI']))
       logging.info('UpdateRssi: %s', devices_rssis)
 
     mac_to_scan = self.GetInputDeviceMac()
+
     def HasScannedTargetMac():
       """Helper to check if the target MAC has been scanned."""
       return mac_to_scan and mac_to_scan in candidate_rssis
@@ -688,10 +792,14 @@ class BluetoothTest(test_case.TestCase):
     adapter = self.bt_manager.GetFirstAdapter(self.host_mac)
 
     # Records RSSI of each scan and calculates average rssi.
-    candidate_rssis = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    candidate_rssis = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for unused_count in range(scan_counts):
-      self.ui.SetState(_('Scanning...'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Scanning...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       with self.TimedProgressBar(timeout_secs):
         devices = self.bt_manager.ScanDevices(adapter, timeout_secs)
@@ -734,8 +842,8 @@ class BluetoothTest(test_case.TestCase):
                  max_average_rssi_mac, max_average_rssi)
 
     event_log.Log('bluetooth_scan_device', mac=max_average_rssi_mac,
-                  rssi=max_average_rssi,
-                  meet=max_average_rssi >= average_rssi_threshold)
+                  rssi=max_average_rssi, meet=max_average_rssi
+                  >= average_rssi_threshold)
     testlog.LogParam('max_average_rssi_mac', max_average_rssi_mac)
     testlog.CheckNumericParam('max_average_rssi', max_average_rssi,
                               min=average_rssi_threshold)
@@ -784,7 +892,9 @@ class BluetoothTest(test_case.TestCase):
       logging.info('Connected and paired %d device(s)', len(connected_devices))
       return not connected_devices
 
-    self.ui.SetState(_('Press shift-p-a-i-r simultaneously on the base.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Press shift-p-a-i-r simultaneously on the base.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     disconnected = self.RetryWithProgress(
         'Check disconnection of the paired base', INPUT_MAX_RETRY_TIMES,
         INPUT_RETRY_INTERVAL, _CheckDisconnection)
@@ -812,9 +922,15 @@ class BluetoothTest(test_case.TestCase):
     """
 
     mac_to_scan = self.GetInputDeviceMac()
-    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit!
-    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit!
-    input_device_rssi_key = self.args.input_device_rssi_key  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    scan_counts = self.args.scan_counts  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    timeout_secs = self.args.scan_timeout_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    input_device_rssi_key = self.args.input_device_rssi_key  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     fail_msg = []
 
@@ -831,11 +947,17 @@ class BluetoothTest(test_case.TestCase):
 
     fid = session.GetDeviceID()
     average_rssi_lower_threshold = _DeriveRSSIThreshold(
-        self.args.average_rssi_lower_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.average_rssi_lower_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     average_rssi_upper_threshold = _DeriveRSSIThreshold(
-        self.args.average_rssi_upper_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.average_rssi_upper_threshold, fid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if fail_msg:
-      fail_msg = ''.join(fail_msg)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      fail_msg = ''.join(fail_msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.error(fail_msg)
       self.FailTask(fail_msg)
 
@@ -844,7 +966,9 @@ class BluetoothTest(test_case.TestCase):
 
     rssis = []
     for i in range(1, 1 + scan_counts):
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Detect RSSI (count {count}/{total})', count=i, total=scan_counts))
       with self.TimedProgressBar(timeout_secs):
         devices = self.bt_manager.ScanDevices(
@@ -863,7 +987,9 @@ class BluetoothTest(test_case.TestCase):
     logging.info('RSSIs at MAC %s: %s', mac_to_scan, rssis)
     session.console.info('Average RSSI: %.2f', average_rssi)
 
-    fail_msg = ''  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    fail_msg = ''  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if (average_rssi_lower_threshold is not None and
         average_rssi < average_rssi_lower_threshold):
       fail_msg += (
@@ -935,11 +1061,15 @@ class BluetoothTest(test_case.TestCase):
 
     def DisplayPasskey(passkey):
       logging.info("Displaying passkey %s", passkey)
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Enter passkey {key} then press enter on the base.', key=passkey))
 
     def AuthenticationCancelled():
-      self.ui.SetState(_('Authentication failed, retrying...'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Authentication failed, retrying...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     need_to_cleanup = True
     try:
@@ -953,15 +1083,19 @@ class BluetoothTest(test_case.TestCase):
 
       bt_manager.DisconnectAndUnpairDevice(adapter, target_mac)
 
-      self.ui.SetState(_('Pairing to input device now...'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Pairing to input device now...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       success_create_device = self.RetryWithProgress(
           'create paired device', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
-          bt_manager.CreatePairedDevice, adapter, target_mac,
-          DisplayPasskey, AuthenticationCancelled)
+          bt_manager.CreatePairedDevice, adapter, target_mac, DisplayPasskey,
+          AuthenticationCancelled)
       if not success_create_device:
         SaveLogAndFail('InputTestTask: Fail to create paired device.')
 
-      self.ui.SetState(_('Connecting to input device now...'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Connecting to input device now...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       success_connect_device = self.RetryWithProgress(
           'connect input device', INPUT_MAX_RETRY_TIMES, INPUT_RETRY_INTERVAL,
           bt_manager.SetDeviceConnected, adapter, target_mac, True)
@@ -977,9 +1111,13 @@ class BluetoothTest(test_case.TestCase):
         return
 
       logging.info('InputTestTask: Test the input by operator now')
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Please test input. Press Escape to fail and Enter to pass'))
-      key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       passed = key == test_ui.ENTER_KEY
       success_to_remove = RemoveInput()
       # No need to cleanup again after the task if removal succeeds here.
@@ -998,18 +1136,27 @@ class BluetoothTest(test_case.TestCase):
   @contextlib.contextmanager
   def TimedProgressBar(self, timeout_secs):
     """Show timeout on progress bar."""
-    self.ui.DrawProgressBar(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.DrawProgressBar(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     start_time = time.time()
     stop_event = threading.Event()
+
     def UpdateProgressBar():
       elapsed_time = time.time() - start_time
       if stop_event.isSet() or elapsed_time >= timeout_secs:
-        self.ui.SetProgress(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetProgress(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise StopIteration
-      self.ui.SetProgress(elapsed_time)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetProgress(elapsed_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self.event_loop.AddTimedHandler(UpdateProgressBar, 0.2, repeat=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddTimedHandler(UpdateProgressBar, 0.2, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
       yield
     finally:
@@ -1028,7 +1175,9 @@ class BluetoothTest(test_case.TestCase):
     Returns:
       Return the return value of the target function.
     """
-    self.ui.DrawProgressBar(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.DrawProgressBar(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     @sync_utils.RetryDecorator(max_attempt_count=max_retry_times,
                                interval_sec=retry_interval,
@@ -1039,7 +1188,9 @@ class BluetoothTest(test_case.TestCase):
       except Exception:
         logging.exception(action_string)
         target_result = None
-      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return target_result
 
     result = None
@@ -1050,6 +1201,7 @@ class BluetoothTest(test_case.TestCase):
     else:
       logging.info('%s was done.', action_string)
 
-
-    self.ui.SetProgress(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetProgress(max_retry_times)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return result

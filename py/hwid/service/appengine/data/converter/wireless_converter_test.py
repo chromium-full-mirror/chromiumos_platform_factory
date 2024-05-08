@@ -207,7 +207,9 @@ class WirelessConverterCollectionTest(unittest.TestCase):
     ]:
       with self.subTest(test_name):
         probe_info = converter_test_utils.ProbeInfoFromMapping(
-            probe_info_mapping)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            probe_info_mapping)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         result = self._converter_collection.Match(comp_values, probe_info)
         self.assertEqual(result.alignment_status, align_status)
         if result.alignment_status == _PVAlignmentStatus.ALIGNED:

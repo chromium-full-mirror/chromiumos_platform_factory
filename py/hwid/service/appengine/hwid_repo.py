@@ -231,7 +231,9 @@ class HWIDRepo(HWIDRepoView):
   def _LoadMandatoryTextFile(self, path: str) -> str:
     """See base class."""
     try:
-      return self._git_fs.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._git_fs.ReadFile(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except filesystem_adapter.FileSystemAdapterException as ex:
       raise HWIDRepoError(f'Failed to load {path}: {ex}.') from None
 
@@ -242,7 +244,9 @@ class HWIDRepo(HWIDRepoView):
     except filesystem_adapter.NotFoundException:
       return None
     try:
-      return raw_contents.decode('utf-8')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return raw_contents.decode('utf-8')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except ValueError as ex:
       raise HWIDRepoError(f'Failed to load {path}: {ex}.') from None
 
@@ -295,7 +299,9 @@ class HWIDRepo(HWIDRepoView):
     """
     new_files = []
     if update_metadata:
-      self.hwid_db_metadata_of_name[name] = update_metadata  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.hwid_db_metadata_of_name[name] = update_metadata  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       new_raw_metadata = _DumpMetadata(self.hwid_db_metadata_of_name)
       new_files.append((_PROJECTS_YAML_PATH, git_util.NORMAL_FILE_MODE,
                         new_raw_metadata.encode('utf-8')))
@@ -313,7 +319,9 @@ class HWIDRepo(HWIDRepoView):
     internal_path = self._GetV3InternalDBPath(path)
     hwid_db_contents_internal = _RemoveChecksum(hwid_db_contents_internal)
     new_files.append((internal_path, git_util.NORMAL_FILE_MODE,
-                      hwid_db_contents_internal.encode('utf-8')))  # type: ignore #TODO(b/338318729) Fixit!
+                      # yapf: disable
+                      hwid_db_contents_internal.encode('utf-8')))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if feature_matcher_source is not None:
       feature_matcher_source_path = self._GetV3FeatureMatcherSourcePath(path)
       new_files.append((feature_matcher_source_path, git_util.NORMAL_FILE_MODE,
@@ -329,7 +337,9 @@ class HWIDRepo(HWIDRepoView):
       hashtags = []
       if verified == -1:
         hashtags = [_UNVERIFIED_HASHTAG]
-        cc_list.extend(self._unverfied_cl_ccs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        cc_list.extend(self._unverfied_cl_ccs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       change_id, cl_number = git_util.CreateOrPatchCL(
           gerrit_review_url=self._repo_url,
           auth_cookie=git_util.GetGerritAuthCookie(),
@@ -343,7 +353,9 @@ class HWIDRepo(HWIDRepoView):
         logging.warning(
             'Failed to parse CL number from change_id=%s. Get CL number from '
             'Gerrit.', change_id)
-        cl_info = git_util.GetCLInfo(INTERNAL_REPO_REVIEW_URL, change_id,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        cl_info = git_util.GetCLInfo(INTERNAL_REPO_REVIEW_URL, change_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                      auth_cookie=git_util.GetGerritAuthCookie())
         cl_number = cl_info.cl_number
     except git_util.GitUtilNoModificationException:
@@ -376,7 +388,9 @@ class _GerritHWIDRepo(HWIDRepoView):
   def _LoadMandatoryTextFile(self, path: str) -> str:
     """See base class."""
     try:
-      return self._GetGitFileRawContents(path, optional=False).decode()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._GetGitFileRawContents(path, optional=False).decode()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except (git_util.GitUtilException, ValueError) as ex:
       raise HWIDRepoError(f'Failed to load {path}: {ex}.') from None
 
@@ -535,7 +549,9 @@ class HWIDRepoManager:
     metadata = self.GetGerritToTHWIDRepo().hwid_db_metadata_of_name
     cl_metadata = self.GetGerritCLHWIDRepo(
         cl_info.cl_number).hwid_db_metadata_of_name
-    metadata[project] = cl_metadata[project]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    metadata[project] = cl_metadata[project]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Force rebase and patch metadata when merge conflict on project.yaml.
     git_util.RebaseCL(INTERNAL_REPO_REVIEW_URL, str(cl_info.cl_number),

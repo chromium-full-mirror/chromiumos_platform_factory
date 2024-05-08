@@ -29,7 +29,9 @@ def _FormatTime(t):
 
 
 librt_name = find_library('rt')
-librt = ctypes.cdll.LoadLibrary(librt_name)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+librt = ctypes.cdll.LoadLibrary(librt_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 
 
 class timespec(ctypes.Structure):
@@ -62,7 +64,9 @@ class Time:
   def _CheckHwclock(self):
     """Check hwclock is working by a write(retry once if fail) and a read."""
 
-    @RetryDecorator(max_attempt_count=2, timeout_sec=float('inf'),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @RetryDecorator(max_attempt_count=2, timeout_sec=float('inf'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     target_condition=lambda x: x)
     def _Spawn():
       result = process_utils.Spawn(['hwclock', '-w', '--utc', '--noadjfile'],

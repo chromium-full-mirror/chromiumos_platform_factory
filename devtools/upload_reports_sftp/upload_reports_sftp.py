@@ -24,6 +24,7 @@ import tempfile
 import time
 from typing import List, Optional, Tuple, Union
 
+
 # Constants
 DEFAULT_LOG_PATH = 'upload_reports_sftp'
 LOG_FORMAT = '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
@@ -161,7 +162,9 @@ class ReportArchiver:
     Returns:
       True if it archives a directory correctly; otherwise, return False.
     """
-    archived_list = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    archived_list = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     index = 0
     report_day = os.path.basename(dir_to_archive)
 
@@ -308,7 +311,9 @@ class SFTP(IConnection):
     """
     with open(file_path, 'rb') as f:
       hash_value = base64.b64encode(hashlib.md5(f.read()).digest())
-    return hash_value  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return hash_value  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _SFTPCommand(self, command: str) -> Tuple[int, str, str]:
     with subprocess.Popen([
@@ -354,7 +359,9 @@ class ArchiveUploader:
     # Checks the file integrity.
     if not hash_check or not self.connection.CheckIntegrity(
         local_path, target_path):
-      return False  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return False  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self._CleanUp(local_path)
     return Status.SUCCESS
 

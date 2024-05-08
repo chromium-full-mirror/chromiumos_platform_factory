@@ -20,7 +20,9 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
         'ignore_error': ['stylus'],
     }
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
-        **config)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        **config)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(vpg_config.ignore_error, ['stylus'])
     self.assertEqual(vpg_config.waived_comp_categories, ['battery'])
 

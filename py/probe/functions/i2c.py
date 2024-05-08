@@ -161,11 +161,17 @@ class I2CFunction(probe_function.AbstractProbeFunction):
     if self.args.bus_number:
       bus_list = [self.args.bus_number]
     else:
-      bus_list = set(self.GetBusList())  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bus_list = set(self.GetBusList())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self.args.bus_path:
-        bus_list &= set(GetBusNumberByPath(self.args.bus_path))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        bus_list &= set(GetBusNumberByPath(self.args.bus_path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if self.args.bus_name:
-        bus_list &= set(GetBusNumberByName(self.args.bus_name))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        bus_list &= set(GetBusNumberByName(self.args.bus_name))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     addr_list = (self.GetAddrList() if self.args.addr is None
                  else [self.args.addr])
     for bus_number in bus_list:

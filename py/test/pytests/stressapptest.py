@@ -149,26 +149,56 @@ class StressAppTest(unittest.TestCase):
   def runTest(self):
     # Wait other parallel tests memory usage to settle to a stable value, so
     # stressapptest will not claim too much memory.
-    if self.args.wait_secs:  # type: ignore #TODO(b/338318729) Fixit!
-      time.sleep(self.args.wait_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.wait_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      time.sleep(self.args.wait_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     cpufreq_to_value = {
-        'scaling_min_freq': self.args.scaling_min_freq,  # type: ignore #TODO(b/338318729) Fixit!
-        'scaling_max_freq': self.args.scaling_max_freq,  # type: ignore #TODO(b/338318729) Fixit!
-        'scaling_governor': self.args.scaling_governor  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'scaling_min_freq':
+            self.args.scaling_min_freq,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'scaling_max_freq':
+            self.args.scaling_max_freq,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'scaling_governor':
+            self.args.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            scaling_governor  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
     self._cpu_freq_manager.SetFrequency(cpufreq_to_value)
 
     try:
       with stress_manager.StressManager(self.dut).Run(
-          duration_secs=self.args.seconds,  # type: ignore #TODO(b/338318729) Fixit!
-          memory_ratio=self.args.memory_ratio,  # type: ignore #TODO(b/338318729) Fixit!
-          free_memory_only=self.args.free_memory_only,  # type: ignore #TODO(b/338318729) Fixit!
-          disk_thread=self.args.disk_thread,  # type: ignore #TODO(b/338318729) Fixit!
-          disk_thread_dir=self.args.disk_thread_dir,  # type: ignore #TODO(b/338318729) Fixit!
-          max_errors=self.args.max_errors,  # type: ignore #TODO(b/338318729) Fixit!
-          num_threads=self.args.num_threads,  # type: ignore #TODO(b/338318729) Fixit!
-          taskset_args=self.args.taskset_args,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          duration_secs=self.args.seconds,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          memory_ratio=self.args.memory_ratio,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          free_memory_only=self.args.free_memory_only,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          disk_thread=self.args.disk_thread,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          disk_thread_dir=self.args.disk_thread_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          max_errors=self.args.max_errors,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          num_threads=self.args.num_threads,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          taskset_args=self.args.taskset_args,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       ):
         pass
     except stress_manager.StressManagerError as e:

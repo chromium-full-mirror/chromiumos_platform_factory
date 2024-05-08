@@ -165,12 +165,16 @@ class ExecShell(test_case.TestCase):
 
   def UpdateOutput(self, handle, name, output, interval_sec=0.1):
     """Updates output from file handle to given HTML node."""
-    self.ui.SetHTML('', id=name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML('', id=name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     while True:
       c = os.read(handle.fileno(), 4096).decode('utf-8')
       if not c:
         break
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           test_ui.Escape(c, preserve_line_breaks=False), append=True, id=name,
           autoscroll=True)
       output[name].write(c)
@@ -192,7 +196,9 @@ class ExecShell(test_case.TestCase):
                          mime_type='application/gzip')
 
   def RunCommand(self, cwd, command):
-    self.ui.SetInstruction(self._DisplayedCommand(command))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(self._DisplayedCommand(command))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     process = self._dut.Popen(
         command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -216,7 +222,9 @@ class ExecShell(test_case.TestCase):
     stderr = output['stderr'].getvalue()
     returncode = process.returncode
 
-    if self.args.log_command_output:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.log_command_output:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('Shell command: %r, result=%s, stdout=%r, stderr=%r',
                    command, returncode, stdout, stderr)
       with self._group_checker:
@@ -229,25 +237,46 @@ class ExecShell(test_case.TestCase):
     return returncode
 
   def setUp(self):
-    self.ui.SetTitle(_('Running shell commands...'))  # type: ignore #TODO(b/338318729) Fixit!
-    self._dut = (device_utils.CreateStationInterface()
-                 if self.args.is_station else  # type: ignore #TODO(b/338318729) Fixit!
-                 device_utils.CreateDUTInterface())
+    # yapf: disable
+    self.ui.SetTitle(_('Running shell commands...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    self._dut = (
+        device_utils.CreateStationInterface()
+        # yapf: disable
+        if self.args.is_station else  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        device_utils.CreateDUTInterface())
 
-    assert not self.args.attachment_name or self._dut.link.IsLocal(), (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    assert not self.args.attachment_name or self._dut.link.IsLocal(), (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'Argument attachment_name currently needs to run on local DUT.')
 
-    if isinstance(self.args.commands, str):  # type: ignore #TODO(b/338318729) Fixit!
-      self._commands = [self.args.commands]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if isinstance(self.args.commands, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._commands = [self.args.commands]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self._commands = self.args.commands  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._commands = self.args.commands  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.source_codes is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.source_codes is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       source_codes = []
-    elif isinstance(self.args.source_codes, str):  # type: ignore #TODO(b/338318729) Fixit!
-      source_codes = [self.args.source_codes]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif isinstance(self.args.source_codes, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      source_codes = [self.args.source_codes]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      source_codes = self.args.source_codes  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      source_codes = self.args.source_codes  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     log_dir = os.path.join(paths.DATA_TESTS_DIR, session.GetCurrentTestPath())
     for source_path in source_codes:
@@ -266,14 +295,20 @@ class ExecShell(test_case.TestCase):
         'command_output', ['stdout', 'stderr', 'returncode'])
 
   def runTest(self):
-    self.ui.DrawProgressBar(len(self._commands))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.DrawProgressBar(len(self._commands))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     result = 0
     command = ''
 
-    if self.args.working_dir is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.working_dir is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       cwd = self._dut.temp.mktemp(is_dir=True)
     else:
-      cwd = self.args.working_dir  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cwd = self.args.working_dir  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not self._dut.path.exists(cwd):
         self._dut.CheckCall(['mkdir', '-p', cwd])
 
@@ -285,13 +320,21 @@ class ExecShell(test_case.TestCase):
       if result != 0:
         testlog.AddFailure(code=result, details=f'failed command: {command!r}')
         break
-      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.attachment_name:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.attachment_name:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.SaveAttachments(
-          self.args.attachment_name, self.args.attachment_path or cwd)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.attachment_name, self.args.attachment_path or cwd)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.working_dir is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.working_dir is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._dut.CheckCall(['rm', '-rf', cwd])
 
     if result != 0:

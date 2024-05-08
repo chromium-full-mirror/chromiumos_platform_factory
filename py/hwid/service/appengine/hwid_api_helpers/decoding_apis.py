@@ -54,7 +54,9 @@ def _ToFeatureEnablementStatusMsg(
   return msg
 
 
-class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(
       self,
@@ -123,7 +125,9 @@ class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/3
     return response
 
 
-class GetSKUShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class GetSKUShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(
       self,
@@ -161,7 +165,9 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/3
 
     sku = self._sku_helper.GetSKUFromBOM(bom, configless)
     feature_enablement_status = hwid_action_getter.GetHWIDAction(
-        bom.project).GetFeatureEnablementStatus(request.hwid)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        bom.project).GetFeatureEnablementStatus(request.hwid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return hwid_api_messages_pb2.SkuResponse(
         status=hwid_api_messages_pb2.Status.SUCCESS,
         project=sku.project,
@@ -175,7 +181,9 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/3
     )
 
 
-class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(self, decoder_data_manager: decoder_data.DecoderDataManager,
                goldeneye_memcache_adapter: memcache_adapter.MemcacheAdapter,
@@ -225,7 +233,9 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         hwid_action_getter, [hwid], verbose=True, require_vp_info=True)
     bom_configless = bc_dict.get(hwid)
     if bom_configless is None:
-      return hwid_api_messages_pb2.DutLabelResponse(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return hwid_api_messages_pb2.DutLabelResponse(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           error='Internal error',
           status=hwid_api_messages_pb2.Status.SERVER_ERROR,
           possible_labels=possible_labels)
@@ -262,8 +272,12 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         logging.exception('invalid regex pattern: %r', regexp)
     for device in variant_set:
       response.labels.add(name='variant', value=device)
-    if bom.phase:  # type: ignore #TODO(b/338318729) Fixit!
-      response.labels.add(name='phase', value=bom.phase)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if bom.phase:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      response.labels.add(name='phase', value=bom.phase)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     comp_classes = ['touchscreen', 'touchpad', 'stylus']
     for comp_cls in comp_classes:
@@ -279,10 +293,14 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
 
     # cros labels in host_info store, which will be used in tast tests of
     # runtime probe
-    for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if component.name and component.is_vp_related:
         name = self._decoder_data_manager.GetPrimaryIdentifier(
-            bom.project, component.cls, component.name)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            bom.project, component.cls, component.name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if component.information is not None:
           name = component.information.get('comp_group', name)
         response.labels.add(name="hwid_component",
@@ -297,7 +315,9 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         avl_name = self._decoder_data_manager.GetAVLName(comp_cls, comp_name)
         response.labels.add(name=comp_cls, value=avl_name)
 
-    action = hwid_action_getter.GetHWIDAction(bom.project)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    action = hwid_action_getter.GetHWIDAction(bom.project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     response.labels.add(
         name='feature_enablement_status',
         value=_GetFeatureEnablementStatusLabel(

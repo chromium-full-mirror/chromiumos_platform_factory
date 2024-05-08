@@ -49,7 +49,10 @@ class OutputObjectTest(TestCaseBaseWithFakeOutput):
             'xxx': 3
         })
     self.assertEqual(
-        yaml.safe_load(hwid_cmdline.Output.data), {  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        yaml.safe_load(hwid_cmdline.Output.data),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             'aaa': ['bbb', 'ccc'],
             'xxx': 3
         })
@@ -61,7 +64,10 @@ class OutputObjectTest(TestCaseBaseWithFakeOutput):
             'xxx': 3
         })
     self.assertEqual(
-        json.loads(hwid_cmdline.Output.data), {  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        json.loads(hwid_cmdline.Output.data),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             'aaa': ['bbb', 'ccc'],
             'xxx': 3
         })
@@ -129,8 +135,12 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
         run_vpd=False, config_yaml=None, form_factor=None)
 
   def testSpecifyBothRunVPDAndVPDDataFile(self):
-    self._options.vpd_data_file = 'a_vpd_data_file'  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.vpd_data_file = 'a_vpd_data_file'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
@@ -138,7 +148,9 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
   def testInCrOSDeviceThenDeprecateProbedResultsFile(self):
     self._mock_in_cros_device.return_value = True
 
-    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
@@ -146,23 +158,33 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
   def testHasHWIDMaterialThenDeprecateProbedResultsFile(self):
     self._mock_in_cros_device.return_value = False
 
-    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.material_file = self._hwid_material_file  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.material_file = self._hwid_material_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
 
   def testLegacyUseCaseMissingRequiredDeviceInfoFile(self):
     self._mock_in_cros_device.return_value = False
-    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
 
   def testLegacyUseCaseMissingRequiredProbedResultsFile(self):
     self._mock_in_cros_device.return_value = False
-    self._options.probed_results_file = None  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.probed_results_file = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
@@ -171,8 +193,12 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
     self._mock_in_cros_device.return_value = False
     file_utils.WriteFile(self._probed_results_file,
                          file_utils.ReadFile(self._hwid_material_file))
-    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.device_info_file = 'device_info_file'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.probed_results_file = self._probed_results_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.device_info_file = 'device_info_file'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     with self.assertRaises(ValueError):
       hwid_cmdline.ObtainHWIDMaterial(self._options)
@@ -180,9 +206,15 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
   def testNoBaseHWIDMaterialSucceed(self):
     self._mock_in_cros_device.return_value = True
     self._mock_get_sku_ids_from_cros_config.return_value = [11, 22, 33, 44]
-    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.form_factor = 'CONVERTIBLE'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.form_factor = 'CONVERTIBLE'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     ret = hwid_cmdline.ObtainHWIDMaterial(self._options)
 
@@ -202,9 +234,15 @@ class ObtainHWIDMaterialTest(unittest.TestCase):
   def testHasBaseHWIDMaterialOverrideSucceed(self):
     self._mock_in_cros_device.return_value = True
 
-    self._options.material_file = self._hwid_material_file  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit!
-    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._options.material_file = self._hwid_material_file  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.device_info_file = 'a_device_info_file'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._options.run_vpd = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     ret = hwid_cmdline.ObtainHWIDMaterial(self._options)
 
@@ -410,7 +448,9 @@ class GenerateHWIDWrapperTest(TestCaseBaseWithMockedOutputObject):
         use_name_match=options.use_name_match)
 
     identity = generate_hwid_mock.return_value
-    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         options, {
             'encoded_string': identity.encoded_string,
             'binary_string': identity.binary_string,
@@ -446,7 +486,9 @@ class DecodeHWIDWrapperTest(TestCaseBaseWithMockedOutputObject):
     decode_hwid_mock.assert_called_once_with(options.database, options.hwid)
     identity, bom, configless = decode_hwid_mock.return_value
 
-    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         options, {
             'project': identity.project,
             'binary_string': identity.binary_string,
@@ -492,7 +534,9 @@ class ListComponentsWrapperTest(TestCaseBaseWithMockedOutputObject):
 
     list_components_mock.assert_called_once_with(options.database,
                                                  options.comp_class)
-    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hwid_cmdline.OutputObject.assert_called_once_with(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         options, list_components_mock.return_value)
 
 
@@ -505,7 +549,9 @@ class EnumerateHWIDWrapperTest(TestCaseBaseWithFakeOutput):
   def testDefault(self, unused_enumerate_hwid_mock):
     hwid_cmdline.EnumerateHWIDWrapper(mock.MagicMock(comp=None, no_bom=False))
 
-    self.assertEqual(hwid_cmdline.Output.data, 'HWID1: bbb\nHWID2: aaa\n')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(hwid_cmdline.Output.data, 'HWID1: bbb\nHWID2: aaa\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch('cros.factory.hwid.v3.hwid_utils.EnumerateHWID', return_value={})
   def testComp(self, enumerate_hwid_mock):
@@ -527,7 +573,9 @@ class EnumerateHWIDWrapperTest(TestCaseBaseWithFakeOutput):
   def testOutputWithoutBOM(self, unused_enumerate_hwid_mock):
     hwid_cmdline.EnumerateHWIDWrapper(mock.MagicMock(no_bom=True))
 
-    self.assertEqual(hwid_cmdline.Output.data, 'HWID1\nHWID2\n')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(hwid_cmdline.Output.data, 'HWID1\nHWID2\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class PrepareRMAImageIdCommandTest(TestCaseBaseWithFakeOutput):
@@ -647,7 +695,9 @@ class PrepareRMAImageIdCommandTest(TestCaseBaseWithFakeOutput):
 
     result_db = database.Database.LoadFile(db_file_pathname,
                                            verify_checksum=False)
-    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertDictEqual(
         result_db.GetEncodedFieldsBitLength(image_id=result_db.rma_image_id), {
             'mainboard_field': 0,
@@ -695,7 +745,9 @@ class PrepareRMAImageIdCommandTest(TestCaseBaseWithFakeOutput):
 
     result_db = database.Database.LoadFile(db_file_pathname,
                                            verify_checksum=False)
-    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(result_db.GetImageName(result_db.rma_image_id), 'RMA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertDictEqual(
         result_db.GetEncodedFieldsBitLength(image_id=result_db.rma_image_id),
         {'storage_field': 1})

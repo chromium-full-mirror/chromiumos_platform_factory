@@ -9,9 +9,16 @@ import os
 from unittest import mock
 import xmlrpc.client
 
-from backend import models  # type: ignore #TODO(b/338318729) Fixit!
-import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit!
-import rest_framework.test  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from backend import models  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import rest_framework.test  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -161,7 +168,9 @@ class DomeAPITest(rest_framework.test.APITestCase):
       self.patchers.append(mock.patch(entity))
       self.mocks[entity] = self.patchers[-1].start()
 
-    self.patchers.append(mock.patch.object(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.patchers.append(mock.patch.object(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         models.Project, 'GetExistingUmpirePort'))
     self.mocks['GetExistingUmpirePort'] = self.patchers[-1].start()
     self.mocks['GetExistingUmpirePort'].return_value = None

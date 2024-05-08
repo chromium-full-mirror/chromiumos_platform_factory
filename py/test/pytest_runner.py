@@ -23,7 +23,10 @@ from cros.factory.utils import log_utils
 from cros.factory.utils import type_utils
 
 # pylint: disable=no-name-in-module
-from cros.factory.external.py_lib.setproctitle import setproctitle  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from cros.factory.external.py_lib.setproctitle import setproctitle  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 def RunPytest(test_info):

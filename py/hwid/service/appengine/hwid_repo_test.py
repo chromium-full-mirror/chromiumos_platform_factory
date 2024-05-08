@@ -10,11 +10,16 @@ from typing import Dict
 import unittest
 from unittest import mock
 
-from dulwich import objects as dulwich_objects  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from dulwich import objects as dulwich_objects  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.utils import file_utils
+
+
+# yapf: enable
+
 
 
 _SERVER_BOARDS_YAML = os.path.join(

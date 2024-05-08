@@ -4,12 +4,17 @@
 
 from typing import cast
 
-from flask import g  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import g  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.models import test_list as test_list_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema
 from cros.factory.test_list_editor.backend.schema import test_list as test_list_schema
+
+
+# yapf: enable
+
 
 
 class TestListController:
@@ -41,7 +46,9 @@ class TestListController:
 
   def GetItem(self, test_list_id: str, test_list: test_list_model.ITestList,
               test_item_id: str) -> test_list_schema.TestItemsResponse:
-    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     return test_list_schema.TestItemsResponse(
         status=common_schema.StatusEnum.SUCCESS,
@@ -53,7 +60,9 @@ class TestListController:
   ) -> test_list_schema.TestItemsResponse:
     test_list_file = self._GetTestListFile(test_list_id)
 
-    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     test_list.UpdateTestItemConfig(test_item)
     test_list.ExportDiff(test_list_file)
 
@@ -66,7 +75,9 @@ class TestListController:
   ) -> test_list_schema.TestItemsResponse:
     test_list_file = self._GetTestListFile(test_list_id)
 
-    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._LoadTestListFromFile(test_list_id, test_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     test_list.UpdateTestItemConfig(test_item)
     test_list.ExportDiff(test_list_file)
 

@@ -74,7 +74,9 @@ class InputPullSocket(plugin_base.InputPlugin):
         for unused_i in range(_CONNECT_LOG_INTERVAL):
           success = self.GetSocket()
           if self.IsStopping():
-            self._sock.close()  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._sock.close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             return
           if success:
             break

@@ -111,7 +111,9 @@ class TinyalsaMixerController(base.AbstractMixerController):
       value = m.group(1)
       return value
     # Try Bool value
-    m = re.search(r'.*'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    m = re.search(r'.*'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                   f'{name}'
                   r': (On|Off).*', re.MULTILINE)
     if m:

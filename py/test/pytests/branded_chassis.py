@@ -64,8 +64,12 @@ class VerifyBrandedChassis(test_case.TestCase):
     self.feature_management = device_data.GetFeatureDeviceData()
 
   def ShowPrompt(self) -> None:
-    self.ui.SetTitle(_('Verify branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetTitle(_('Verify branded chassis'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Please verify if the chassis has ChromeBook Plus label on it.'
           'If Yes, press "Y". If not, press "N"'))
 
@@ -73,27 +77,41 @@ class VerifyBrandedChassis(test_case.TestCase):
     branded_chassis_data = self.feature_management.get(
         device_data_constants.NAME_CHASSIS_BRANDED, None)
 
-    if (self.args.rma_mode and  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.rma_mode and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         gsc_utils.GSCUtils().IsGSCFeatureManagementFlagsLocked()):
-      branded_chassis_data = GSCTool().GetFeatureManagementFlags(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      branded_chassis_data = GSCTool().GetFeatureManagementFlags(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ).is_chassis_branded
       logging.info('Chassis branded already set in GSC as %s.',
                    branded_chassis_data)
 
     self.ShowPrompt()
-    key = self.ui.WaitKeysOnce(['Y', 'N'], 20)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    key = self.ui.WaitKeysOnce(['Y', 'N'], 20)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     operator_response = (key == 'Y')
     if operator_response:
-      self.ui.SetState(_('The DUT is a branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('The DUT is a branded chassis'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self.ui.SetState(_('The DUT is NOT branded chassis'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('The DUT is NOT branded chassis'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if IsInconsistentResponse(branded_chassis_data, operator_response):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if IsInconsistentResponse(branded_chassis_data, operator_response):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.FailTask(_('Data is inconsistent, please double check!'))
 
     device_data.SetBrandedChassisData(operator_response)
 
     session.console.info(
         f'The feature device data is: {device_data.GetFeatureDeviceData()}')
-    self.ui.WaitKeysOnce([test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.WaitKeysOnce([test_ui.ENTER_KEY])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

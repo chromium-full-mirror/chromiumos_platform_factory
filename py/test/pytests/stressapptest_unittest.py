@@ -9,26 +9,50 @@ from unittest import mock
 
 from cros.factory.device import device_utils
 from cros.factory.goofy.plugins import plugin_controller
-from cros.factory.test import state
 from cros.factory.test.pytests import stressapptest
+from cros.factory.test import state
 from cros.factory.test.utils import stress_manager
 
 
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.seconds: int = 60  # type: ignore #TODO(b/338318729) Fixit!
-    self.memory_ratio: float = 0.9  # type: ignore #TODO(b/338318729) Fixit!
-    self.free_memory_only: bool = True  # type: ignore #TODO(b/338318729) Fixit!
-    self.wait_secs: int = 0  # type: ignore #TODO(b/338318729) Fixit!
-    self.disk_thread: bool = True  # type: ignore #TODO(b/338318729) Fixit!
-    self.disk_thread_dir: str = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.max_errors: int = stress_manager.DEFAULT_MAX_ERRORS  # type: ignore #TODO(b/338318729) Fixit!
-    self.num_threads: int = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.taskset_args: list = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.scaling_min_freq: int = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.scaling_max_freq: int = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.scaling_governor: int = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.seconds: int = 60  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.memory_ratio: float = 0.9  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.free_memory_only: bool = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.wait_secs: int = 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.disk_thread: bool = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.disk_thread_dir: str = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.max_errors: int = stress_manager.DEFAULT_MAX_ERRORS  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.num_threads: int = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.taskset_args: list = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.scaling_min_freq: int = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.scaling_max_freq: int = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.scaling_governor: int = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for k, v in kwargs.items():
       setattr(self, k, v)
@@ -54,7 +78,9 @@ class StressAppTestUnitTest(unittest.TestCase):
 
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def test_setUp_GetCPUFreqManager(self):
     self.test.setUp()
@@ -62,7 +88,9 @@ class StressAppTestUnitTest(unittest.TestCase):
 
   @mock.patch.object(time, 'sleep', autospec=True)
   def test_runTest_WaitBeforeTestStart(self, mock_sleep):
-    self.test.args = FakeArgs(wait_secs=10)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(wait_secs=10)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -70,7 +98,9 @@ class StressAppTestUnitTest(unittest.TestCase):
     mock_sleep.assert_called_once_with(10)
 
   def test_runTest_SetCPUScalingFrequency(self):
-    self.test.args = FakeArgs(scaling_min_freq=1000, scaling_max_freq=2000,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(scaling_min_freq=1000, scaling_max_freq=2000,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                               scaling_governor=1)
 
     self.test.setUp()
@@ -83,7 +113,9 @@ class StressAppTestUnitTest(unittest.TestCase):
     })
 
   def test_runTest_RunStressTest_Success(self):
-    self.test.args = FakeArgs(seconds=10, memory_ratio=0.8,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(seconds=10, memory_ratio=0.8,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                               free_memory_only=True, disk_thread=False,
                               disk_thread_dir='dir', max_errors=5,
                               num_threads=4, taskset_args=['arg1', 'arg2'])

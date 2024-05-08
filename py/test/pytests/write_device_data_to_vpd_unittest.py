@@ -8,18 +8,22 @@ from unittest import mock
 
 from cros.factory.device import device_utils
 from cros.factory.test import device_data
-from cros.factory.test import test_case
-from cros.factory.test import test_ui
 from cros.factory.test.i18n import _
 from cros.factory.test.pytests import write_device_data_to_vpd
+from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils import type_utils
 
 
 class FakeArgs:
 
   def __init__(self, **kwargs):
-    self.ro_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit!
-    self.rw_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ro_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.rw_key_map: dict = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for k, v in kwargs.items():
       setattr(self, k, v)
@@ -48,10 +52,14 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
     self.mock_flatten_data = patcher.start()
     self.addCleanup(mock.patch.stopall)
 
-    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def test_runTest_GetDeviceDataWithoutKeyMap(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -61,7 +69,9 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
          mock.call('vpd.rw', {})])
 
   def test_runTest_GetAdditionalDataWithoutKeyMap(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -77,7 +87,9 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
         }})
 
   def test_runTest_GetDeviceDataWithKeyMap(self):
-    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         ro_key_map={
             'fake_vpd_name1': 'fake_device_data_key1',
             'fake_vpd_name2': 'fake_device_data_key2'
@@ -101,7 +113,9 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
       } if key else default
 
     self.mock_get_device_data.side_effect = _GetFakeDeviceDataWithEmptyValue
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -110,7 +124,9 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
         self.test, "Missing device data keys: ['serials', 'vpd.ro', 'vpd.rw']")
 
   def test_runTest_WriteDataToVPD(self):
-    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(ro_key_map=None, rw_key_map=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ro_vpd = self.mock_dut.vpd.ro
     rw_vpd = self.mock_dut.vpd.rw
 
@@ -135,7 +151,9 @@ class WriteDeviceDataToVPDUnitTest(unittest.TestCase):
 
   def test_runTest_WriteDataToVPD_SkipEmptyEntries(self):
     # Only read RO VPD data.
-    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         ro_key_map={'fake_vpd_name': 'fake_device_data_key'}, rw_key_map=None)
     rw_vpd = self.mock_dut.vpd.rw
 

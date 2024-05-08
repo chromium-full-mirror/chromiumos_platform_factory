@@ -62,7 +62,9 @@ class LED(device_types.DeviceComponent):
   def __init__(self, device):
     """Probe all maximum brightnesses in advance."""
     super().__init__(device)
-    self.led_infoes = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.led_infoes = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._GetLEDInfo()
 
     if self.Index is None:
@@ -77,14 +79,18 @@ class LED(device_types.DeviceComponent):
 
       self.led_infoes[index] = {
           color: int(brightness, 0)
-          for color, brightness in _PATTERN.findall(output)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          for color, brightness in _PATTERN.findall(output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           if int(brightness, 0)
       }
       self.led_infoes[index][self.Color.OFF] = 0
 
   def _CheckSetColorParameters(self, color, led_name, brightness):
     """Check parameters."""
-    if led_name is not None and led_name.upper() not in self.Index:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if led_name is not None and led_name.upper() not in self.Index:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise ValueError(f'Invalid led name: {led_name!r}')
     if color not in self.Color.__members__:
       raise ValueError(f'Invalid color: {color!r}')
@@ -109,7 +115,9 @@ class LED(device_types.DeviceComponent):
     if brightness is None:
       brightness = 100
 
-    for name in [led_name] if led_name else self.Index:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for name in [led_name] if led_name else self.Index:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._SetColor(color, name, brightness)
 
   def _SetColor(self, color, led_name, brightness):

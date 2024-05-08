@@ -90,7 +90,9 @@ class SystemLogManager(plugin.Plugin):
 
     self._main_thread = None
     self._aborted = threading.Event()
-    self._queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._suppress_periodic_server_messages = False
 
     # For unittest stubbing
@@ -180,7 +182,9 @@ class SystemLogManager(plugin.Plugin):
     self._aborted.set()
     # Puts a request to kick _main_thread.
     self._queue.put(KickRequest([], None, False))
-    self._main_thread.join()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._main_thread.join()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._main_thread = None
     logging.info('SystemLogManager main thread stopped.')
 
@@ -204,8 +208,12 @@ class SystemLogManager(plugin.Plugin):
     Clear logs listed in _clear_log_paths, excluding files in
     _clear_log_excluded_paths.
     """
-    clear_files = sum([glob.glob(x) for x in self._clear_log_paths], [])  # type: ignore #TODO(b/338318729) Fixit!
-    exclusive_files = sum(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    clear_files = sum([glob.glob(x) for x in self._clear_log_paths], [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    exclusive_files = sum(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         [glob.glob(x) for x in self._clear_log_excluded_paths], [])
     file_list = list(set(clear_files) - set(exclusive_files))
     logging.debug('Clearing %r', file_list)

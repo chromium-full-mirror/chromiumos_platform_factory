@@ -254,31 +254,58 @@ class RemovableStorageTest(test_case.TestCase):
     self._metrics = {}
 
     random.seed(0)
-    logging.info('media = %s', self.args.media)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.info('media = %s', self.args.media)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._insertion_image = f'{self.args.media}_insert.png'  # type: ignore #TODO(b/338318729) Fixit!
-    self._removal_image = f'{self.args.media}_remove.png'  # type: ignore #TODO(b/338318729) Fixit!
-    self._testing_image = f'{self.args.media}_testing.png'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._insertion_image = f'{self.args.media}_insert.png'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._removal_image = f'{self.args.media}_remove.png'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._testing_image = f'{self.args.media}_testing.png'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._locktest_insertion_image = f'{self.args.media}_locktest_insert.png'  # type: ignore #TODO(b/338318729) Fixit!
-    self._locktest_removal_image = f'{self.args.media}_locktest_remove.png'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._locktest_insertion_image = f'{self.args.media}_locktest_insert.png'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._locktest_removal_image = f'{self.args.media}_locktest_remove.png'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Initialize progress bar
     total_tests = [
-        self.args.perform_random_test, self.args.perform_sequential_test,  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.perform_locktest  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.perform_random_test,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        self.args.perform_sequential_test,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.perform_locktest  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     ].count(True)
-    self.ui.DrawProgressBar(total_tests)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.DrawProgressBar(total_tests)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.perform_read_write_test = (self.args.perform_random_test or  # type: ignore #TODO(b/338318729) Fixit!
-                                    self.args.perform_sequential_test)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.perform_read_write_test = (self.args.perform_random_test or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                    # yapf: enable
+                                    # yapf: disable
+                                    self.args.perform_sequential_test)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertGreater(
         total_tests, 0,
         'At least one of perform_random_test, perform_sequential_test, '
         'perform_locktest should be True.')
-    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertFalse(self.args.perform_locktest and  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.assertFalse(self.args.perform_locktest and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                        self.perform_read_write_test,
                        'Insert and remove is required if both locktest and '
                        'sequential/random test are needed.')
@@ -290,16 +317,26 @@ class RemovableStorageTest(test_case.TestCase):
 
     self._bft_fixture = None
     self._bft_media_device = None
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._bft_fixture = bft_fixture.CreateBFTFixture(
-          **self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
-      self._bft_media_device = self.args.bft_media_device  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          **self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._bft_media_device = self.args.bft_media_device  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self._bft_media_device not in self._bft_fixture.Device:
         self.fail(f'Invalid args.bft_media_device: {self._bft_media_device}')
 
   def tearDown(self):
-    if not self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
-      self._dut.udev.StopMonitorPath(self.args.sysfs_path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._dut.udev.StopMonitorPath(self.args.sysfs_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def AdvanceGenerator(self):
     try:
@@ -311,30 +348,48 @@ class RemovableStorageTest(test_case.TestCase):
     if self.perform_read_write_test:
       for event in self.WaitInsert():
         yield event
-      if (self.args.create_partition or (self.args.media == _MediaType.SD and  # type: ignore #TODO(b/338318729) Fixit!
-                                         self.args.create_partition is None)):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if (self.args.create_partition or (self.args.media == _MediaType.SD and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                         # yapf: enable
+                                         # yapf: disable
+                                         self.args.create_partition is None)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.CreatePartition()
       if self._device_speed is not None:
         logging.info('device speed: %d Mbps', self._device_speed)
-      if self.args.expected_max_speed is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.expected_max_speed is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if self._device_speed is None:
           self._errors.append('The device speed is unavailable.')
-        elif self._device_speed != self.args.expected_max_speed:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        elif self._device_speed != self.args.expected_max_speed:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self._errors.append(
-              f'The device speed({int(self._device_speed)} Mbps) does not match'  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              f'The device speed({int(self._device_speed)} Mbps) does not match'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               f' the expected_max_speed({int(self.args.expected_max_speed)} '
               f'Mpbs)')
-      if self.args.perform_random_test:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.perform_random_test:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.TestReadWrite(_RWTestMode.RANDOM)
-      if self.args.perform_sequential_test:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.perform_sequential_test:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.TestReadWrite(_RWTestMode.SEQUENTIAL)
       for event in self.WaitRemove():
         yield event
 
-    if self.args.perform_locktest:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.perform_locktest:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for event in self.WaitLockedInsert():
         yield event
-      if self.args.media == _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.media == _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.VerifyPartition()
       self.TestLock()
       for event in self.WaitLockedRemove():
@@ -375,7 +430,9 @@ class RemovableStorageTest(test_case.TestCase):
     if self._target_device is None:
       self._target_device = device.device_node
       self._device_size = self.GetDeviceSize(self._target_device)
-      if self.args.media == _MediaType.USB:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.media == _MediaType.USB:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._device_speed = self.GetUsbSpeed(device)
 
   def GetAttrs(self, device, key_set):
@@ -451,9 +508,13 @@ class RemovableStorageTest(test_case.TestCase):
     Returns:
       Device node, ex: 'sdb'. Return None if no node matched.
     """
-    if self.args.media == _MediaType.NVME:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.media == _MediaType.NVME:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       block_dirs = self._dut.Glob('/sys/block/nvme*')
-    elif self.args.media == _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.media == _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Depends on the type of the card reader, paths could be mmcblk* or sd*
       block_dirs = (self._dut.Glob('/sys/block/mmcblk*') +
                     self._dut.Glob('/sys/block/sd*'))
@@ -480,7 +541,9 @@ class RemovableStorageTest(test_case.TestCase):
     Returns:
       A string of command to be executed.
     """
-    if self.args.use_busybox_dd:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.use_busybox_dd:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       cmd = ['busybox', 'dd']
     else:
       cmd = ['dd']
@@ -510,7 +573,9 @@ class RemovableStorageTest(test_case.TestCase):
 
     self._accessing = True
 
-    self.ui.SetInstruction(_('Testing {device}...', device=self._target_device))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Testing {device}...', device=self._target_device))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage(self._testing_image)
 
     dev_path = self._target_device
@@ -522,25 +587,41 @@ class RemovableStorageTest(test_case.TestCase):
     if mode == _RWTestMode.RANDOM:
       # Read/Write one block each time
       block_count = 1
-      loop_count = self.args.random_block_count  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      loop_count = self.args.random_block_count  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.SetState(
           _('Performing r/w test on {count} {bsize}-byte random blocks...',
             count=loop_count,
-            bsize=self.args.block_size))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            bsize=self.args.block_size))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     elif mode == _RWTestMode.SEQUENTIAL:
       # Converts block counts into bytes
-      block_count = self.args.sequential_block_count  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      block_count = self.args.sequential_block_count  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       loop_count = 1
       self.SetState(
           _('Performing sequential r/w test of {bsize} bytes...',
-            bsize=block_count * self.args.block_size))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            bsize=block_count * self.args.block_size))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    bytes_to_operate = block_count * self.args.block_size  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    bytes_to_operate = block_count * self.args.block_size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Determine the range in which the random block is selected
     random_head = ((_SKIP_HEAD_SECTOR * _SECTOR_SIZE +
-                    self.args.block_size - 1) // self.args.block_size)  # type: ignore #TODO(b/338318729) Fixit!
-    random_tail = ((dev_size - _SKIP_TAIL_SECTOR * _SECTOR_SIZE) //  # type: ignore #TODO(b/338318729) Fixit!
-                   self.args.block_size - block_count)  # type: ignore #TODO(b/338318729) Fixit!
+                    # yapf: disable
+                    self.args.block_size - 1) // self.args.block_size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    random_tail = ((dev_size - _SKIP_TAIL_SECTOR * _SECTOR_SIZE) //  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                   # yapf: enable
+                   # yapf: disable
+                   self.args.block_size - block_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if random_tail < random_head:
       self.FailTask('Block size too large for r/w test.')
@@ -558,12 +639,16 @@ class RemovableStorageTest(test_case.TestCase):
           dd_cmd = self._PrepareDDCommand(
               dev_path,
               read_buf,
-              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               count=block_count,
               skip=random_block)
           try:
             session.console.info('Reading %d %d-bytes block(s) from %s.',
-                                 block_count, self.args.block_size, dev_path)  # type: ignore #TODO(b/338318729) Fixit!
+                                 # yapf: disable
+                                 block_count, self.args.block_size, dev_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             output = self._dut.CheckOutput(dd_cmd, stderr=subprocess.STDOUT)
             read_time = _GetExecutionTime(output)
           except Exception as e:
@@ -587,20 +672,26 @@ class RemovableStorageTest(test_case.TestCase):
             dd_cmd = self._PrepareDDCommand(
                 '/dev/zero',
                 write_buf,
-                bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 count=block_count)
             self._dut.CheckCall(dd_cmd)
 
           dd_cmd = self._PrepareDDCommand(
               write_buf,
               dev_path,
-              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               count=block_count,
               seek=random_block,
               conv='fsync')
           try:
             session.console.info('Writing %d %d-bytes block(s) to %s.',
-                                 block_count, self.args.block_size, dev_path)  # type: ignore #TODO(b/338318729) Fixit!
+                                 # yapf: disable
+                                 block_count, self.args.block_size, dev_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             output = self._dut.CheckOutput(dd_cmd, stderr=subprocess.STDOUT)
             write_time = _GetExecutionTime(output)
           except Exception as e:
@@ -610,9 +701,13 @@ class RemovableStorageTest(test_case.TestCase):
 
           # Check if the block was actually written, and restore the
           # original content of the block.
-          dd_cmd = self._PrepareDDCommand(ifile=dev_path,
-                                          bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit!
-                                          count=block_count, skip=random_block)
+          dd_cmd = self._PrepareDDCommand(
+              ifile=dev_path,
+              # yapf: disable
+              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              count=block_count,
+              skip=random_block)
           try:
             self._dut.CheckCall(' '.join(dd_cmd) +
                                 f' | toybox cmp {write_buf} -')
@@ -624,7 +719,9 @@ class RemovableStorageTest(test_case.TestCase):
           dd_cmd = self._PrepareDDCommand(
               read_buf,
               dev_path,
-              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              bs=self.args.block_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               count=block_count,
               seek=random_block,
               conv='fsync')
@@ -640,7 +737,9 @@ class RemovableStorageTest(test_case.TestCase):
 
     self.SetState('')
     self._accessing = False
-    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if not ok:
       if self.GetDeviceRo(dev_path):
@@ -670,52 +769,76 @@ class RemovableStorageTest(test_case.TestCase):
 
       if mode == _RWTestMode.RANDOM:
         random_read_speed = (
-            (self.args.block_size * loop_count) / total_time_read / _MILLION)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            (self.args.block_size * loop_count) / total_time_read / _MILLION)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         random_write_speed = (
-            (self.args.block_size * loop_count) / total_time_write / _MILLION)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            (self.args.block_size * loop_count) / total_time_write / _MILLION)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         _CheckThreshold('random_read', random_read_speed,
-                        self.args.random_read_threshold)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        self.args.random_read_threshold)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         _CheckThreshold('random_write', random_write_speed,
-                        self.args.random_write_threshold)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        self.args.random_write_threshold)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       elif mode == _RWTestMode.SEQUENTIAL:
         sequential_read_speed = (
             bytes_to_operate / total_time_read / _MILLION)
         sequential_write_speed = (
             bytes_to_operate / total_time_write / _MILLION)
         _CheckThreshold('sequential_read', sequential_read_speed,
-                        self.args.sequential_read_threshold)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        self.args.sequential_read_threshold)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         _CheckThreshold('sequential_write', sequential_write_speed,
-                        self.args.sequential_write_threshold)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        self.args.sequential_write_threshold)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       self._metrics.update(update_bin)
 
-    Log(f'{self.args.media}_rw_speed', **self._metrics)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    Log(f'{self.args.media}_rw_speed', **self._metrics)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def TestLock(self):
     """SD card write protection test."""
     self._accessing = True
-    self.ui.SetInstruction(_('Testing {device}...', device=self._target_device))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Testing {device}...', device=self._target_device))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage(self._testing_image)
 
     if not self.GetDeviceRo(self._target_device):
       self._errors.append(f'Locktest failed on {self._target_device}.')
 
     self._accessing = False
-    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.AdvanceProgress()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def CreatePartition(self):
     """Creates a small partition for SD card.
 
     This is to check if all the pins on the card reader module are intact.
     """
-    if self.args.media != _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.media != _MediaType.SD:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
     dev_path = self._target_device
     # Set partition size to 128 MB or (dev_size / 2) MB
-    partition_size = min(128, (self._device_size // 2) // (1024 * 1024))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    partition_size = min(128, (self._device_size // 2) // (1024 * 1024))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if partition_size < _MIN_PARTITION_SIZE_MB:
       self.FailTask(
-          f'The size on {self.args.media} device {dev_path} is too small (only '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'The size on {self.args.media} device {dev_path} is too small (only '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{int(self._device_size)} bytes) for partition test.')
     else:
       # clear partition table first and create one partition
@@ -734,19 +857,29 @@ class RemovableStorageTest(test_case.TestCase):
     try:
       # Just do a simple check on the first partition file
       # Auto detect partition prefix character
-      if 'mmcblk' in dev_path:  # type: ignore #TODO(b/338318729) Fixit!
-        dev_path = dev_path + 'p'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if 'mmcblk' in dev_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        dev_path = dev_path + 'p'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       self._dut.path.exists(dev_path + '1')
     except Exception:
       self.FailTask(
-          f'Partition verification failed on {self.args.media} device '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Partition verification failed on {self.args.media} device '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{dev_path}. Problem with card reader module maybe?')
 
   def CheckUSBPDPolarity(self):
     """Verifies the USB PD CC line polarity on the port."""
-    if not self.args.usbpd_port_polarity:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.usbpd_port_polarity:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return True
-    usbpd_spec = usb_c.MigrateUSBPDSpec(self.args.usbpd_port_polarity)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    usbpd_spec = usb_c.MigrateUSBPDSpec(self.args.usbpd_port_polarity)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     usbpd_verified, unused_mismatch = self._dut.usb_c.VerifyPDStatus(usbpd_spec)
     return usbpd_verified
 
@@ -757,10 +890,14 @@ class RemovableStorageTest(test_case.TestCase):
       mode: Mode of operation, should be either 'insert' or 'remove'.
     """
     try:
-      self._bft_fixture.SetDeviceEngaged(self._bft_media_device,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._bft_fixture.SetDeviceEngaged(self._bft_media_device,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                          mode == 'insert')
     except bft_fixture.BFTFixtureException as e:
-      self.fail(f'BFT fixture failed to {mode} {self.args.media} device '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.fail(f'BFT fixture failed to {mode} {self.args.media} device '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                 f'{self._target_device}. Reason: {e}')
 
   def WaitInsert(self):
@@ -768,13 +905,23 @@ class RemovableStorageTest(test_case.TestCase):
 
     Yields the event that it is waiting.
     """
-    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       device_node = sync_utils.WaitFor(
-          lambda: self.GetDeviceNodeBySysPath(self.args.sysfs_path),  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.detect_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          lambda: self.GetDeviceNodeBySysPath(self.args.sysfs_path),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.detect_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       path = self._dut.path.join(self._dut.udev.GetDevBlockPath(), device_node)
-      context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit!
-      device = pyudev.Device.from_device_file(context, path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      context = pyudev.Context()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      device = pyudev.Device.from_device_file(context, path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._SetTargetDevice(device)
       # If skip_insert_remove is True, would fail the test directly when
       # polarity is wrong.
@@ -785,21 +932,33 @@ class RemovableStorageTest(test_case.TestCase):
         self.FixtureCommand('insert')
 
       while True:
-        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('Insert {media} drive for read/write test... {extra}<br>'
               'WARNING: DATA ON INSERTED MEDIA WILL BE LOST!',
-              media=self.args.media,  # type: ignore #TODO(b/338318729) Fixit!
-              extra=self.args.extra_prompt))  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              media=self.args.media,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              # yapf: disable
+              extra=self.args.extra_prompt))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.SetImage(self._insertion_image)
         yield _Event.WAIT_INSERT
         if self.CheckUSBPDPolarity():
           return
-        if self.args.fail_check_polarity:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.fail_check_polarity:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.FailTask('USB CC polarity mismatch.')
         else:
-          self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               _('Wrong USB side, please flip over {media}.',
-                media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit!
+                # yapf: disable
+                media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.SetImage(self._removal_image)
           yield _Event.WAIT_REMOVE
 
@@ -808,13 +967,17 @@ class RemovableStorageTest(test_case.TestCase):
 
     Yields the event that it is waiting.
     """
-    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     if self._bft_fixture:
       self.FixtureCommand('remove')
 
-    self.ui.SetInstruction(_('Remove {media} drive...', media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Remove {media} drive...', media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage(self._removal_image)
     yield _Event.WAIT_REMOVE
 
@@ -823,15 +986,21 @@ class RemovableStorageTest(test_case.TestCase):
 
     Yields the event that it is waiting.
     """
-    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     if self._bft_fixture:
       self.FixtureCommand('insert')
 
-    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Toggle lock switch and insert {media} drive again...',
-          media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage(self._locktest_insertion_image)
     yield _Event.WAIT_INSERT
 
@@ -840,37 +1009,57 @@ class RemovableStorageTest(test_case.TestCase):
 
     Yields the event that it is waiting.
     """
-    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     if self._bft_fixture:
       self.FixtureCommand('remove')
 
-    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Remove {media} drive and toggle lock switch...',
-          media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          media=self.args.media))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.SetImage(self._locktest_removal_image)
     yield _Event.WAIT_REMOVE
 
   def SetState(self, html):
     """Sets the innerHTML attribute of the state div."""
-    self.ui.SetHTML(html, id='state')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(html, id='state')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SetImage(self, url):
     """Sets the image src."""
-    self.ui.RunJS('document.getElementById("image").src = args.url;', url=url)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.RunJS('document.getElementById("image").src = args.url;', url=url)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
     """Main entrance of removable storage test."""
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if not self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.skip_insert_remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._dut.udev.StartMonitorPath(
-          self.args.sysfs_path,  # type: ignore #TODO(b/338318729) Fixit!
-          self.event_loop.CatchException(self.HandleUdevEvent))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.sysfs_path,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.event_loop.CatchException(self.HandleUdevEvent))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # This may block if self.args.skip_insert_remove is True, so we need to run
     # it in another thread.
     process_utils.StartDaemonThread(
-        target=self.event_loop.CatchException(self.AdvanceGenerator))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        target=self.event_loop.CatchException(self.AdvanceGenerator))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.WaitTaskEnd()

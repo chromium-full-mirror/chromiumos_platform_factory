@@ -126,7 +126,9 @@ class Futility:
     #    ID:                  c80def123456789058e140bbc44c692cc23ecb4d
     #    Data size:           0x17164 (94564)
     #  Signature verification succeeded.
-    key_hash = re.search(r'\n\s*ID:\s*([a-z0-9]*)', futil_out.stdout).group(1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    key_hash = re.search(r'\n\s*ID:\s*([a-z0-9]*)', futil_out.stdout).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return key_hash
 
   def WriteHWID(self, fw_filename, hwid=None):
@@ -181,7 +183,9 @@ class Futility:
       with open(gscvd_file, 'rb') as gscvd:
         magic = gscvd.read(len(GSCVD_MAGIC))
         if magic != GSCVD_MAGIC:
-          raise ValueError('Failed to find magic number in GSCVD! '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          raise ValueError('Failed to find magic number in GSCVD! '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                            f'Expected: {GSCVD_MAGIC}, Found: {magic}')
         gscvd.seek(GSCVD_RLZ_OFFSET, 0)
         rlz_bytes = gscvd.read(4)
@@ -191,7 +195,9 @@ class Futility:
           # Reads as little endian.
           return rlz_code[::-1]
         except (UnicodeDecodeError, AssertionError) as e:
-          raise ValueError('Each char in the RLZ code should be a char between '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          raise ValueError('Each char in the RLZ code should be a char between '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
                            f'A~Z. Found: {rlz_bytes}') from e
 
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):

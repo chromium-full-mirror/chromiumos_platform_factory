@@ -11,9 +11,14 @@ from typing import Mapping
 import unittest
 from unittest import mock
 
-import redis  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import redis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine import memcache_adapter
+
+
+# yapf: enable
+
 
 
 class MemcacheAdapterTest(unittest.TestCase):
@@ -174,7 +179,9 @@ class MemcacheAdapterTest(unittest.TestCase):
   def testSetAddGetOperations_InvalidStrings(self):
     key = 'key'
     values = {'str1', 'str2', b'\xff\xff\xff'}
-    self._memadapter.AddToSet(key, values)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._memadapter.AddToSet(key, values)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertRaises(memcache_adapter.MemcacheAdapterException,
                       self._memadapter.GetStrSetElements, key)

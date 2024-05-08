@@ -89,7 +89,9 @@ class LightSensorTest(test_case.TestCase):
   def setUp(self):
     self._device = device_utils.CreateDUTInterface()
     self._als = self._device.ambient_light_sensor.GetController(
-        name=self.args.device_name, location=self.args.location)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name=self.args.device_name, location=self.args.location)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # pylint: disable=protected-access
     device_path = cast(str, self._als._iio_path)
     # pylint: enable=protected-access
@@ -100,13 +102,24 @@ class LightSensorTest(test_case.TestCase):
     self._calibrate = os.path.join(device_path, 'calibrate')
 
     subtest_args = [
-        self.args.subtest_list, self.args.subtest_cfg,  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.subtest_instruction  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.subtest_list,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        self.args.subtest_cfg,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.subtest_instruction  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     ]
     if all(subtest_args):
-      self._subtest_list = self.args.subtest_list  # type: ignore #TODO(b/338318729) Fixit!
-      self._subtest_cfg = self.args.subtest_cfg  # type: ignore #TODO(b/338318729) Fixit!
-      self._subtest_instruction = self.args.subtest_instruction  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._subtest_list = self.args.subtest_list  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._subtest_cfg = self.args.subtest_cfg  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._subtest_instruction = self.args.subtest_instruction  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     elif any(subtest_args):
       raise ValueError(
           'Missing some of subtest_list, subtest_cfg or subtest_instruction.')
@@ -115,8 +128,12 @@ class LightSensorTest(test_case.TestCase):
       self._subtest_cfg = _DEFAULT_SUBTEST_CFG
       self._subtest_instruction = _DEFAULT_SUBTEST_INSTRUCTION
 
-    self._timeout_per_subtest = self.args.timeout_per_subtest  # type: ignore #TODO(b/338318729) Fixit!
-    self._iter_req_per_subtest = self.args.check_per_subtest  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._timeout_per_subtest = self.args.timeout_per_subtest  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._iter_req_per_subtest = self.args.check_per_subtest  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for test_idx, name in enumerate(self._subtest_list):
       instruction = self._subtest_instruction[name]
@@ -129,7 +146,9 @@ class LightSensorTest(test_case.TestCase):
           f'</div><div id="result{test_idx}" class="result">UNTESTED</div>',
           '</div>', '</div>'
       ]
-      self.ui.SetHTML(html, id='tasks', append=True)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(html, id='tasks', append=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Group checker and details for Testlog.
     self._group_checker = testlog.GroupParam(
@@ -160,19 +179,29 @@ class LightSensorTest(test_case.TestCase):
     # Stops catching the signal.
     self.addCleanup(self._WriteCalibrate, '0')
 
-    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.HideElement('space-prompt')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.StartFailingCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.HideElement('space-prompt')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.StartFailingCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self._timeout_per_subtest * len(self._subtest_list))
 
     for idx, name in enumerate(self._subtest_list):
-      self.ui.SetHTML('ACTIVE', id=f'result{int(idx)}')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML('ACTIVE', id=f'result{int(idx)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       current_iter_remained = self._iter_req_per_subtest
       cumulative_val = 0
       start_time = time.time()
       while True:
         val = self._als.GetData(capture_count=5)[self._als.signal_names[0]]
-        self.ui.SetHTML(f'Input: {int(val)}', id='input')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetHTML(f'Input: {int(val)}', id='input')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         cfg = self._subtest_cfg[name]
         passed = False
@@ -202,7 +231,9 @@ class LightSensorTest(test_case.TestCase):
           cumulative_val += val
           current_iter_remained -= 1
           if not current_iter_remained:
-            self.ui.SetHTML('PASSED', id=f'result{int(idx)}')  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.ui.SetHTML('PASSED', id=f'result{int(idx)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             mean_val = cumulative_val // self._iter_req_per_subtest
             logging.info('Passed subtest "%s" with mean value %d.', name,
                          mean_val)

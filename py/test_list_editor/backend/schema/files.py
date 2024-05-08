@@ -4,11 +4,16 @@
 from typing import Any, Dict, List
 
 from jsonschema import ValidationError as JSONValidationError
-from pydantic import validator  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from pydantic import validator  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.test_lists import test_list_common
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common
+
+
+# yapf: enable
+
 
 
 class FileObject(common.BaseRequest):

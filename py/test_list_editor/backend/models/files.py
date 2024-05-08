@@ -96,9 +96,12 @@ class TestListFile(ITestListFile):
 
     Refer to the underlying function for detailed exceptions.
     """
-    test_list_common.SaveTestList(self.data,
-                                  self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit!
-                                  self.folder_path)
+    test_list_common.SaveTestList(
+        self.data,
+        # yapf: disable
+        self.filename.removesuffix('.test_list'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        self.folder_path)
 
   def SaveDiff(self) -> None:
     """Save the diff to test list diff file."""

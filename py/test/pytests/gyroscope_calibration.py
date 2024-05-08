@@ -64,31 +64,59 @@ class Gyroscope(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
     self.gyroscope = self.dut.gyroscope.GetController(
-        location=self.args.location,  # type: ignore #TODO(b/338318729) Fixit!
-        gyro_id=self.args.gyro_id,  # type: ignore #TODO(b/338318729) Fixit!
-        freq=self.args.freq)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        location=self.args.location,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        gyro_id=self.args.gyro_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        freq=self.args.freq)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.gyroscope.SetupMotionSensor()
 
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Please put device on a static plane then press space to '
             'start calibration.'))
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Calibration will be started within {secs} seconds.'
             'Please do not move the device.',
-            secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.Sleep(1)
 
-    self.ui.SetState(_('Please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.gyroscope.CleanUpCalibrationValues()
-    raw_data = self.gyroscope.GetData(self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit!
-                                      self.args.sample_rate)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    raw_data = self.gyroscope.GetData(self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                      # yapf: enable
+                                      # yapf: disable
+                                      self.args.sample_rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     calib_bias = self.gyroscope.CalculateCalibrationBias(raw_data)
     self.gyroscope.UpdateCalibrationBias(calib_bias)

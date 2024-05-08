@@ -19,17 +19,24 @@ dargs:
 
 import unittest
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils import serial_utils
 from cros.factory.utils.arg_utils import Arg
+
+
+# yapf: enable
+
 
 
 _SERIAL_TIMEOUT = 3
 
 
 class SerialEchoTest(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('serial_param', dict,
           'a dict of parameters for a serial connection. Should contain '
@@ -47,14 +54,26 @@ class SerialEchoTest(unittest.TestCase):
     self._send = None
     self._recv = None
 
-    if (len(self.args.send_recv) != 2 or  # type: ignore #TODO(b/338318729) Fixit!
-        not all(isinstance(a, str) for a in self.args.send_recv)):  # type: ignore #TODO(b/338318729) Fixit!
-      self.fail(f'Invalid dargs send_recv: {str(self.args.send_recv)}')  # type: ignore #TODO(b/338318729) Fixit!
-    self._send = self.args.send_recv[0].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit!
-    self._recv = self.args.send_recv[1].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (len(self.args.send_recv) != 2 or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not all(isinstance(a, str) for a in self.args.send_recv)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.fail(f'Invalid dargs send_recv: {str(self.args.send_recv)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    self._send = self.args.send_recv[0].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._recv = self.args.send_recv[1].encode('latin1')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Will raise exception if OpenSerial fails.
-    self._serial = serial_utils.OpenSerial(**self.args.serial_param)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial = serial_utils.OpenSerial(**self.args.serial_param)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     if self._serial:
@@ -63,11 +82,15 @@ class SerialEchoTest(unittest.TestCase):
   def runTest(self):
     self.assertTrue(self._serial is not None, 'Invalid RS-232 connection.')
     try:
-      self.assertEqual(1, self._serial.write(self._send), 'Write fail')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertEqual(1, self._serial.write(self._send), 'Write fail')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except serial.SerialTimeoutException:
       self.fail('Write timeout')
 
     try:
-      self.assertEqual(self._recv, self._serial.read(), 'Read fail')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertEqual(self._recv, self._serial.read(), 'Read fail')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except serial.SerialTimeoutException:
       self.fail('Read timeout')

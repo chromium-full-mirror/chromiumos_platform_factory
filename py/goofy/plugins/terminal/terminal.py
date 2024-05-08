@@ -12,11 +12,16 @@ import struct
 import termios
 import threading
 
-from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.goofy.plugins import plugin
 from cros.factory.test.utils.web_socket_utils import WebSocketHandshake
 from cros.factory.utils import type_utils
+
+
+# yapf: enable
+
 
 _SHELL = os.getenv('SHELL', '/bin/bash')
 _BUFSIZ = 8192

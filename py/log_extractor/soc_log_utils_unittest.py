@@ -15,50 +15,92 @@ class SocLogUtilsTest(unittest.TestCase):
         'kernel: [    2.691456] Bluetooth: btintel_prepare_fw_download_tlv() '
         'hci0: Found device firmware: intel/ibt-0040-0041.sfi')
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('Bluetooth', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('intel/ibt-0040-0041.sfi', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('Bluetooth', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('intel/ibt-0040-0041.sfi', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testIntelParseGPU_GUC(self):
     TEST_STR = (
         'kernel: [    0.558193] i915 0000:00:02.0: [drm] GuC firmware i915'
         '/adlp_guc_62.0.3.bin version 62.0 submission:disabled')
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('GuC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('adlp_guc_62.0.3.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('62.0', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('GuC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('adlp_guc_62.0.3.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('62.0', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testIntelParseGPU_HUC(self):
     TEST_STR = (
         'kernel: [    0.558218] i915 0000:00:02.0: [drm] HuC firmware i915'
         '/tgl_huc_7.9.3.bin version 7.9 authenticated:yes')
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('HuC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('tgl_huc_7.9.3.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('7.9', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('HuC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('tgl_huc_7.9.3.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('7.9', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testIntelParseGPU_DMC(self):
     TEST_STR = (
         'kernel: [    1.977744] i915 0000:00:02.0: [drm] Finished loading '
         'DMC firmware i915/adlp_dmc_ver2_14.bin (v2.14)')
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('DMC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('adlp_dmc_ver2_14.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('2.14', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('GPU', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(3, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('DMC', parsed_info.info['name'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('adlp_dmc_ver2_14.bin', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('2.14', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testIntelParseSof(self):
     TEST_STR = ('kernel: [    5.442116] sof-audio-pci-intel-tgl 0000:00:1f.3: '
                 'Firmware info: version 2:0:0-1153b')
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('Sof', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('2:0:0-1153b', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('Sof', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('2:0:0-1153b', parsed_info.info['version'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testIntelParseWifi(self):
     TEST_STR = (
@@ -66,9 +108,15 @@ class SocLogUtilsTest(unittest.TestCase):
         '73.35c0a2c6.0 so-a0-gf-a0-73.ucode op_mode iwlmvm')
 
     parsed_info = soc_log_utils.IntelFWParser().Parse(TEST_STR)
-    self.assertEqual('Wifi', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual('73.35c0a2c6.0', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual('Wifi', parsed_info.component)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(1, len(parsed_info.info))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual('73.35c0a2c6.0', parsed_info.info['binary'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 if __name__ == '__main__':

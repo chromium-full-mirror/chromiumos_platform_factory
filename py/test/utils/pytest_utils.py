@@ -57,7 +57,9 @@ def LoadPytestModule(pytest_name):
   Returns:
     The loaded pytest module object.
   """
-  return __import__(f'cros.factory.test.pytests.{pytest_name}', fromlist=[None])  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return __import__(f'cros.factory.test.pytests.{pytest_name}', fromlist=[None])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def FindTestCase(pytest_module):

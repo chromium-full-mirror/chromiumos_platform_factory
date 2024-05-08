@@ -17,7 +17,9 @@ def GetDevices():
   Returns:
     A list of evdev.InputDevice() instances of the input devices.
   """
-  return [evdev.InputDevice(d) for d in evdev.list_devices()]  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return [evdev.InputDevice(d) for d in evdev.list_devices()]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 def FilterEvdevEcodes(dev, cnf):
   """Check if the capabilities of the device satisfy that of the CNF
@@ -29,7 +31,9 @@ def FilterEvdevEcodes(dev, cnf):
   Returns:
     True if dev satisfies cnf
   """
-  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for clause in cnf:
     if set(clause) & caps == set():
       return False
@@ -44,7 +48,9 @@ def IsLidEventDevice(dev):
   Returns:
     True if dev is a lid event device.
   """
-  return evdev.ecodes.SW_LID in dev.capabilities().get(evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return evdev.ecodes.SW_LID in dev.capabilities().get(evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsTabletEventDevice(dev):
@@ -56,8 +62,12 @@ def IsTabletEventDevice(dev):
   Returns:
     True if dev is a tablet event device.
   """
-  return evdev.ecodes.SW_TABLET_MODE in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return evdev.ecodes.SW_TABLET_MODE in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsKeyboardDevice(dev):
@@ -70,11 +80,19 @@ def IsKeyboardDevice(dev):
     True if dev is a keyboard device.
   """
   keys = {
-      evdev.ecodes.KEY_ENTER,  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.KEY_LEFTCTRL,  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.KEY_LEFTALT  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      evdev.ecodes.KEY_ENTER,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.KEY_LEFTCTRL,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.KEY_LEFTALT  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
   }
-  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  caps = set(dev.capabilities().get(evdev.ecodes.EV_KEY, []))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   return keys.issubset(caps)
 
 
@@ -85,11 +103,17 @@ def SendKeys(key_sequence):
     key_sequence: A list of keys to send.  For the list of valid key events, see
         evdev.ecodes module.
   """
-  uinput = evdev.UInput()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  uinput = evdev.UInput()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for k in key_sequence:
-    uinput.write(evdev.ecodes.EV_KEY, k, 1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    uinput.write(evdev.ecodes.EV_KEY, k, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   for k in key_sequence:
-    uinput.write(evdev.ecodes.EV_KEY, k, 0)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    uinput.write(evdev.ecodes.EV_KEY, k, 0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   uinput.syn()
   uinput.close()
 
@@ -103,8 +127,12 @@ def IsTouchDevice(dev):
   Returns:
     True if dev is a touch device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
-  return evdev.ecodes.BTN_TOUCH in keycaps  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  return evdev.ecodes.BTN_TOUCH in keycaps  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsStylusDevice(dev):
@@ -117,15 +145,27 @@ def IsStylusDevice(dev):
     True if dev is a stylus device.
   """
   return FilterEvdevEcodes(dev, [[
-      evdev.ecodes.BTN_STYLUS,  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.BTN_STYLUS2,  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.BTN_TOOL_PEN]])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      evdev.ecodes.BTN_STYLUS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.BTN_STYLUS2,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.BTN_TOOL_PEN]])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
-def IsStylusGarageDevice(dev: evdev.InputDevice):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+def IsStylusGarageDevice(dev: evdev.InputDevice):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   """Check if a device is a stylus garage device."""
-  return evdev.ecodes.SW_PEN_INSERTED in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return evdev.ecodes.SW_PEN_INSERTED in dev.capabilities().get(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.EV_SW, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsTouchpadDevice(dev):
@@ -137,9 +177,15 @@ def IsTouchpadDevice(dev):
   Returns:
     True if dev is a touchpad device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
-  return (evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
-          evdev.ecodes.BTN_MOUSE in keycaps)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  return (evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          evdev.ecodes.BTN_MOUSE in keycaps)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class HoverType(enum.Enum):
@@ -148,21 +194,35 @@ class HoverType(enum.Enum):
   NotSupported = enum.auto()
 
 
-def GetHoverType(dev: evdev.InputDevice) -> HoverType:  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+def GetHoverType(dev: evdev.InputDevice) -> HoverType:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   """Gets the HoverType of a device.
 
   See EventDevice::HoverSupported() in
   power_manager/powerd/system/event_device.cc for reference.
   """
   caps = dev.capabilities(absinfo=False)
-  absolute = caps.get(evdev.ecodes.EV_ABS, [])  # type: ignore #TODO(b/338318729) Fixit!
-  if evdev.ecodes.ABS_MT_DISTANCE in absolute:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  absolute = caps.get(evdev.ecodes.EV_ABS, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  if evdev.ecodes.ABS_MT_DISTANCE in absolute:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return HoverType.MultiTouch
 
-  keycaps = caps.get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
-  if (evdev.ecodes.ABS_DISTANCE in absolute and  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
-      evdev.ecodes.BTN_TOOL_FINGER in keycaps):  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  keycaps = caps.get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  if (evdev.ecodes.ABS_DISTANCE in absolute and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.BTN_TOUCH in keycaps and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      evdev.ecodes.BTN_TOOL_FINGER in keycaps):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return HoverType.SingleTouch
 
   return HoverType.NotSupported
@@ -178,8 +238,12 @@ def IsTouchscreenDevice(dev):
     True if dev is a touchscreen device.
   """
   return (not IsTouchpadDevice(dev) and
-          evdev.ecodes.ABS_MT_SLOT in dict(  # type: ignore #TODO(b/338318729) Fixit!
-              dev.capabilities().get(evdev.ecodes.EV_ABS, [])))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          evdev.ecodes.ABS_MT_SLOT in dict(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+              # yapf: disable
+              dev.capabilities().get(evdev.ecodes.EV_ABS, [])))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsMouseDevice(dev):
@@ -191,10 +255,18 @@ def IsMouseDevice(dev):
   Returns:
     True if dev is a mouse device.
   """
-  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit!
-  return (evdev.ecodes.BTN_MOUSE in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
-          evdev.ecodes.BTN_RIGHT in keycaps and  # type: ignore #TODO(b/338318729) Fixit!
-          evdev.ecodes.BTN_MIDDLE in keycaps)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  keycaps = dev.capabilities().get(evdev.ecodes.EV_KEY, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  return (evdev.ecodes.BTN_MOUSE in keycaps and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          evdev.ecodes.BTN_RIGHT in keycaps and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          evdev.ecodes.BTN_MIDDLE in keycaps)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class FindDeviceError(RuntimeError):
@@ -264,9 +336,13 @@ def FindDevice(*args):
     if isinstance(item, int):
       dev_filter = lambda dev: dev.fn == f'/dev/input/event{int(item)}'
     elif isinstance(item, str):
-      if item in evdev.ecodes.__dict__:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if item in evdev.ecodes.__dict__:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         dev_filter = lambda dev: FilterEvdevEcodes(
-            dev, [[evdev.ecodes.__dict__[item]]])  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            dev, [[evdev.ecodes.__dict__[item]]])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         dev_filter = lambda dev: item in dev.name
     elif callable(item):
@@ -295,7 +371,9 @@ def DeviceReopen(dev):
     A different evdev.InputDevice of the same device but with empty event
     buffer.
   """
-  return evdev.InputDevice(dev.fn)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return evdev.InputDevice(dev.fn)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class InputDeviceDispatcher:

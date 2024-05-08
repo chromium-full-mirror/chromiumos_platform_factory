@@ -15,6 +15,7 @@ import time
 
 from cros.factory.external.py_lib import cv2 as cv
 
+
 if not cv.MODULE_READY:
   logging.error('Cannot find module cv2')
 
@@ -66,7 +67,9 @@ class PlanktonHDMI:
       self._uvc_video_index = self.FindUVCVideoDeviceIndex(self._uvc_video_port)
 
     logging.debug('Create VideoCapture(index=%r)', self._uvc_video_index)
-    self._camera_device = cv.VideoCapture(self._uvc_video_index)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._camera_device = cv.VideoCapture(self._uvc_video_index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not self._camera_device.isOpened():
       raise PlanktonHDMIException(
           f'Unable to open video capture interface: {self._uvc_video_index!r}')
@@ -74,9 +77,15 @@ class PlanktonHDMI:
     # Set camera capture to HD resolution.
     logging.debug('Set capture resolution')
     x_res, y_res = self._capture_resolution
-    self._camera_device.set(cv.CAP_PROP_FPS, self._capture_fps)  # type: ignore #TODO(b/338318729) Fixit!
-    self._camera_device.set(cv.CAP_PROP_FRAME_WIDTH, x_res)  # type: ignore #TODO(b/338318729) Fixit!
-    self._camera_device.set(cv.CAP_PROP_FRAME_HEIGHT, y_res)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._camera_device.set(cv.CAP_PROP_FPS, self._capture_fps)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._camera_device.set(cv.CAP_PROP_FRAME_WIDTH, x_res)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._camera_device.set(cv.CAP_PROP_FRAME_HEIGHT, y_res)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Open read stream thread. Plankton-HDMI needs to be an active streaming
     # camera device if we need to regard it as an auto-detectable external
@@ -94,10 +103,16 @@ class PlanktonHDMI:
       return
 
     self._stream_finished = True
-    self._capture_thread.join(self._VIDEO_STREAM_THREAD_JOIN_TIMEOUT_SECS)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._capture_thread.join(self._VIDEO_STREAM_THREAD_JOIN_TIMEOUT_SECS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self._camera_device.isOpened():  # type: ignore #TODO(b/338318729) Fixit!
-      self._camera_device.release()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._camera_device.isOpened():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._camera_device.release()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self._camera_enabled = False
     logging.info('Camera disabled successfully')
 
@@ -113,7 +128,9 @@ class PlanktonHDMI:
     if not self._camera_enabled:
       raise PlanktonHDMIException('Camera disabled. Call EnableCamera() first')
 
-    ret, captured_image = self._camera_device.read()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ret, captured_image = self._camera_device.read()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not ret:
       raise PlanktonHDMIException('Error capturing. DP Loopback distached?')
 
@@ -134,7 +151,9 @@ class PlanktonHDMI:
     """
     captured_image = self.Capture()
     logging.info('Image captured. Writing to file %s', file_path)
-    cv.imwrite(file_path, captured_image)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cv.imwrite(file_path, captured_image)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return True
 
   def CaptureCompare(self, golden_image_path, threshold, return_corr=False):
@@ -155,8 +174,12 @@ class PlanktonHDMI:
     logging.debug('Comparing captured image w/ golden image: %s',
                   golden_image_path)
 
-    golden_image = cv.imread(golden_image_path)  # type: ignore #TODO(b/338318729) Fixit!
-    golden_image = cv.resize(golden_image, self._capture_resolution)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    golden_image = cv.imread(golden_image_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    golden_image = cv.resize(golden_image, self._capture_resolution)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Compare two images.
     # Retries are added to avoid false alarms when getting flaky images
@@ -202,7 +225,9 @@ class PlanktonHDMI:
     tick = 1.0 / self._capture_fps
     # _stream_finish will be set to True by main thread's DisableCamrea.
     while not self._stream_finished:
-      ret, _ = self._camera_device.read()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ret, _ = self._camera_device.read()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not ret:
         raise PlanktonHDMIException('Error capturing. DP Loopback distached?')
       time.sleep(tick)
@@ -227,9 +252,10 @@ class PlanktonHDMI:
     if not uvc_vid_dirs:
       raise PlanktonHDMIException('No DP loopback interface found')
     if len(uvc_vid_dirs) > 1:
-      raise PlanktonHDMIException(
-          'Multiple DP loopback interface found')
-    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))  # type: ignore #TODO(b/338318729) Fixit!
+      raise PlanktonHDMIException('Multiple DP loopback interface found')
+    # yapf: disable
+    return int(re.search(r'video([0-9]+)$', uvc_vid_dirs[0]).group(1))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def CompareImage(cls, image1, image2, threshold=(0.8, 0.8, 0.8),
@@ -249,9 +275,15 @@ class PlanktonHDMI:
     corr_values = []
     result = True
     for color_channel in range(3):  # b, g, r channels
-      hist1 = cv.calcHist([image1], [color_channel], None, [256], [0, 255])  # type: ignore #TODO(b/338318729) Fixit!
-      hist2 = cv.calcHist([image2], [color_channel], None, [256], [0, 255])  # type: ignore #TODO(b/338318729) Fixit!
-      corr = cv.compareHist(hist1, hist2, method=cv.HISTCMP_CORREL)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      hist1 = cv.calcHist([image1], [color_channel], None, [256], [0, 255])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      hist2 = cv.calcHist([image2], [color_channel], None, [256], [0, 255])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      corr = cv.compareHist(hist1, hist2, method=cv.HISTCMP_CORREL)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       corr_values.append(corr)
       if corr < threshold[color_channel]:
         result = False

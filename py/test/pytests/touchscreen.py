@@ -117,7 +117,10 @@ from cros.factory.test.utils import touch_monitor
 from cros.factory.utils.arg_utils import Arg
 
 # pylint: disable=no-name-in-module
-from cros.factory.external.py_lib.evdev import ecodes  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from cros.factory.external.py_lib.evdev import ecodes  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 class StylusMonitor(touch_monitor.SingleTouchMonitor):
@@ -230,26 +233,44 @@ class TouchscreenTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit!
-      self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                             evdev_utils.IsStylusDevice)
     else:
-      if self.args.e2e_mode:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.e2e_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._device = None
       else:
-        self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                               evdev_utils.IsTouchscreenDevice)
     self._dispatcher = None
     self._monitor = None
     self._state = state.GetInstance()
-    self._SetInternalDisplayRotation(self.args.angle_compensation)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetInternalDisplayRotation(self.args.angle_compensation)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Waits the screen rotates, then starts the test.
     self.Sleep(1)
 
-    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
-        'TouchscreenTest', self.args.x_segments, self.args.y_segments,  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.retries, self.args.demo_interval_ms, self.args.e2e_mode,  # type: ignore #TODO(b/338318729) Fixit!
-        self.args.spiral_mode)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'TouchscreenTest', self.args.x_segments, self.args.y_segments,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.retries, self.args.demo_interval_ms, self.args.e2e_mode,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.args.spiral_mode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     if self._dispatcher is not None:
@@ -259,24 +280,34 @@ class TouchscreenTest(test_case.TestCase):
     self._SetInternalDisplayRotation(-1)
 
   def runTest(self):
-    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.StartCountdownTimer(self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.StartCountdownTimer(self.args.timeout_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                   self._frontend_proxy.FailTest)
 
     if self._device is not None:
       self._device = evdev_utils.DeviceReopen(self._device)
       self._device.grab()
-      if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.stylus:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._monitor = StylusMonitor(
             self._device, self._frontend_proxy,
-            ecodes.BTN_TOOL_PEN if self.args.hover_mode else ecodes.BTN_TOUCH)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            ecodes.BTN_TOOL_PEN if self.args.hover_mode else ecodes.BTN_TOUCH)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         self._monitor = TouchscreenMonitor(self._device, self._frontend_proxy)
       self._dispatcher = evdev_utils.InputDeviceDispatcher(
           self._device, self._monitor.Handler)
       self._dispatcher.StartDaemon()
 
-    self.ui.BindKey(test_ui.ESCAPE_KEY,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindKey(test_ui.ESCAPE_KEY,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     lambda unused_event: self._frontend_proxy.FailTest())
     self.WaitTaskEnd()
 

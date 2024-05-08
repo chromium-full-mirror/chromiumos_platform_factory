@@ -36,9 +36,13 @@ SIM_IFACE = 'org.freedesktop.ModemManager1.Sim'
 
 
 def _GetDbusModem(bus=None):
-  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   modem_manager_obj = bus.get_object(MM_BUS_NAME, MM_PATH)
-  object_manager_iface = dbus.Interface(modem_manager_obj, OM_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  object_manager_iface = dbus.Interface(modem_manager_obj, OM_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   modem_objs_info = object_manager_iface.GetManagedObjects()
 
   for modem_path, interfaces in modem_objs_info.items():
@@ -59,11 +63,15 @@ def ProbeSimInfo(properties: List[str], bus=None) -> List[List[Any]]:
     requested properties. If a requested property is absence then the value
     in the table is None.
   """
-  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   modem_obj = _GetDbusModem(bus)
   if modem_obj is None:
     return []
-  properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   sims = properties_iface.Get(MODEM_IFACE_NAME, 'SimSlots')
 
   ret = []
@@ -71,7 +79,9 @@ def ProbeSimInfo(properties: List[str], bus=None) -> List[List[Any]]:
     if sim_path == '/':
       continue
     sim_obj = bus.get_object(MM_BUS_NAME, sim_path)
-    sim_properties_iface = dbus.Interface(sim_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sim_properties_iface = dbus.Interface(sim_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     data = []
     for name in properties:
@@ -95,9 +105,13 @@ def ProbeModemInfo(properties: List[str], bus=None) -> List[Any]:
     A list of requested properties. If a requested property is absence then the
     value in the list is None.
   """
-  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  bus = bus or dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   modem_obj = _GetDbusModem(bus)
-  modem_properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  modem_properties_iface = dbus.Interface(modem_obj, PROPERTIES_IFACE_NAME)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   data = []
   for name in properties:
     try:
@@ -113,7 +127,9 @@ def GetIMEI():
   stdout = process_utils.Spawn(
       MODEM_STATUS, read_stdout=True,
       log_stderr_on_error=True, check_call=True).stdout_data
-  match = re.search(MODEM_IMEI_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  match = re.search(MODEM_IMEI_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if not match:
     logging.info('Returned stdout %r', stdout)
     raise type_utils.Error('Cannot get IMEI from modem')
@@ -125,7 +141,9 @@ def GetModemFirmware():
   stdout = process_utils.Spawn(
       MODEM_STATUS, read_stdout=True,
       log_stderr_on_error=True, check_call=True).stdout_data
-  match = re.search(MODEM_FIRMWARE_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  match = re.search(MODEM_FIRMWARE_REG_EX, stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if not match:
     logging.info('Returned stdout %r', stdout)
     raise type_utils.Error('Cannot switching firmware')

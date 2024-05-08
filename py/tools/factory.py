@@ -102,16 +102,26 @@ class HelpCommand(Subcommand):
   help = 'Get help on COMMAND'
 
   def Init(self):
-    self.subparser.add_argument('command', metavar='COMMAND', nargs='?')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('command', metavar='COMMAND', nargs='?')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Run(self):
-    if self.args.command:  # type: ignore #TODO(b/338318729) Fixit!
-      choice = self.subparsers.choices.get(self.args.command)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.command:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      choice = self.subparsers.choices.get(self.args.command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if not choice:
-        sys.exit(f'Unknown subcommand {self.args.command!r}')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        sys.exit(f'Unknown subcommand {self.args.command!r}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       choice.print_help()
     else:
-      self.parser.print_help()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.parser.print_help()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
 
 class RunCommand(Subcommand):
@@ -119,13 +129,19 @@ class RunCommand(Subcommand):
   help = 'Run a test'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'id', metavar='ID',
         help='ID of the test to run')
 
   def Run(self):
-    run_id = state.GetInstance().RunTest(self.args.id)  # type: ignore #TODO(b/338318729) Fixit!
-    print(f'Running test {self.args.id}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    run_id = state.GetInstance().RunTest(self.args.id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    print(f'Running test {self.args.id}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     print(f'Active test run ID: {run_id}')
 
 
@@ -135,7 +151,9 @@ class WaitCommand(Subcommand):
           'progresses')
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--poll-interval', type=int, default=1,
         help='Poll interval in seconds')
 
@@ -181,19 +199,25 @@ class RunStatusCommand(Subcommand):
   help = 'Show information about a test run'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--id', default=None, help='ID of the test run')
 
   def Run(self):
     goofy = state.GetInstance()
-    run_status = goofy.GetTestRunStatus(self.args.id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    run_status = goofy.GetTestRunStatus(self.args.id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     print(f"status: {run_status['status']}")
     if 'run_id' in run_status:
       print(f"run_id: {run_status['run_id']}")
       print('scheduled_tests:')
       # Simply call 'tests' subcommand to print out information about the
       # scheduled tests.
-      args = self.parser.parse_args(['tests', '--this-run', '--status'])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      args = self.parser.parse_args(['tests', '--this-run', '--status'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       args.subcommand.args = args
       args.subcommand.Run()
 
@@ -206,20 +230,32 @@ class TestsCommand(Subcommand):
     self.goofy = state.GetInstance()
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--status', '-s', action='store_true',
         help='Include information about test status')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--this-run', action='store_true',
         help='Show only information about current active run')
-    self.subparser.add_argument('--csv', action='store_true',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--csv', action='store_true',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Show test status in CSV format')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--label', action='store_true',
         help=('Show en-US label instead of test item path.'))
-    self.subparser.add_argument('--readiness', '-r', action='store_true',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument('--readiness', '-r', action='store_true',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                 help='Create a factory readiness report.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--output', '-o', type=str, default=None, metavar='path',
         help='Path to store the csv file. Print to stdout if not set.')
 
@@ -249,7 +285,9 @@ class TestsCommand(Subcommand):
     return path
 
   def _GetLabel(self, path):
-    return self._GetLabelInner(path, self.args.label)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._GetLabelInner(path, self.args.label)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _GetCSVLabelFromPath(self, path: str) -> list:
     """Returns the test object path in a CSV label format.
@@ -266,7 +304,9 @@ class TestsCommand(Subcommand):
       returns ['FAT (Final Assembly Test)', '', 'Update PSR Oem Data']
     """
 
-    path = path.split('.', 2)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    path = path.split('.', 2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     labels = [self._GetLabel('.'.join(path[:i + 1])) for i in range(len(path))]
     if len(path) == 1:
       return ['', ''] + labels
@@ -277,11 +317,17 @@ class TestsCommand(Subcommand):
   def _GenerateFactoryTestStatusSheet(self, tests):
     # the csv can be used to generate factory test status sheet like the
     # template here: go/factory-test-status-template
-    self.args.label = True  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.args.label = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     output_csv = []
 
-    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit!
-      csv_filename = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      csv_filename = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if os.path.exists(csv_filename):
         raise RuntimeError(f'Filename: {csv_filename} exists. '
                            'Use `factory tests --csv -o` with a unique path.')
@@ -291,7 +337,9 @@ class TestsCommand(Subcommand):
     for t in tests:
       output_csv.append(self._GetCSVLabelFromPath(t["path"]) + [t["status"]])
 
-    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with open(csv_filename, 'w', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(output_csv)
@@ -302,15 +350,23 @@ class TestsCommand(Subcommand):
 
   def _GenerateFactoryReadinessReport(self, tests):
     pytest_to_skip = ['shutdown', 'summary']
-    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit!
-      csv_filename = self.args.output  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      csv_filename = self.args.output  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if os.path.exists(csv_filename):
         raise RuntimeError(f'Filename: {csv_filename} exists. '
                            'Use `factory tests -r -o` with a unique path.')
       logging.info('Creating factory readiness report...')
 
-    self.args.label = True  # type: ignore #TODO(b/338318729) Fixit!
-    report = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.args.label = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    report = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     uncategorized_tests = []
     output_csv = []
 
@@ -334,7 +390,9 @@ class TestsCommand(Subcommand):
     for t in uncategorized_tests:
       output_csv.append(self._GetCSVLabelFromPath(t['path']) + [t['status']])
 
-    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.output:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with open(csv_filename, 'w', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(output_csv)
@@ -347,21 +405,29 @@ class TestsCommand(Subcommand):
     # Consider only tests without parents
     tests = [t for t in self.goofy.GetTests() if not t.get('parent')]
 
-    if self.args.this_run:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.this_run:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       scheduled_tests = (
           self.goofy.GetTestRunStatus(None).get('scheduled_tests') or [])
       scheduled_tests = {t['path']
                          for t in scheduled_tests}
       tests = [t for t in tests if t['path'] in scheduled_tests]
 
-    if self.args.csv:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.csv:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._GenerateFactoryTestStatusSheet(tests)
-    elif self.args.readiness:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.readiness:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._GenerateFactoryReadinessReport(tests)
     else:
       for t in tests:
         sys.stdout.write(self._GetLabel(t['path']))
-        if self.args.status:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.status:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           if t['status'] != TestState.UNTESTED:
             sys.stdout.write(f": {t['status']}")
           if t['error_msg']:
@@ -390,20 +456,28 @@ class DumpTestListCommand(Subcommand):
   help = 'Dump a test list in given format'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--format', metavar='FORMAT',
         help='Format in which to dump test list',
         default='json',
         choices=('yaml', 'csv', 'json', 'pprint'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'id', metavar='ID', help='ID of test list to dump')
 
   def Run(self):
     mgr = manager.Manager()
     all_test_lists, unused_errors = mgr.BuildAllTestLists()
-    test_list = all_test_lists[self.args.id].ToFactoryTestList()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    test_list = all_test_lists[self.args.id].ToFactoryTestList()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.format == 'csv':  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.format == 'csv':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       writer = csv.writer(sys.stdout)
       writer.writerow(('id', 'module'))
       for t in test_list.Walk():
@@ -415,7 +489,9 @@ class DumpTestListCommand(Subcommand):
 
           writer.writerow((t.path, module))
     else:
-      Dump(test_list.ToTestListConfig(), dump_format=self.args.format)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      Dump(test_list.ToTestListConfig(), dump_format=self.args.format)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
 
 class TestListCommand(Subcommand):
@@ -428,17 +504,25 @@ class TestListCommand(Subcommand):
   POLL_INTERVAL_SECS = 0.5
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'id', metavar='ID', nargs='?',
         help=('ID of test list to activate (run '
               '"factory test-list --list" to see all available IDs)'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--list', action='store_true',
         help='List all available test lists')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--restart', action='store_true',
         help='Restart goofy and wait for new test list to come up')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--clear-all', '-a', action='store_true',
         help='If restarting goofy, clear all state (like factory_restart -a)')
 
@@ -447,20 +531,32 @@ class TestListCommand(Subcommand):
     mgr = manager.Manager()
     all_test_lists, unused_errors = mgr.BuildAllTestLists()
 
-    if self.args.id:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.id not in all_test_lists:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.id:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.id not in all_test_lists:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         sys.exit(
-            f'Unknown test list ID {self.args.id!r} (use "factory test-list '  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            f'Unknown test list ID {self.args.id!r} (use "factory test-list '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             '--list" to see available test lists')
-      mgr.SetActiveTestList(self.args.id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      mgr.SetActiveTestList(self.args.id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       print(
-          f'Set active test list to {self.args.id} (wrote {self.args.id!r} to '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Set active test list to {self.args.id} (wrote {self.args.id!r} to '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{test_list_common.ACTIVE_TEST_LIST_CONFIG_PATH})')
       sys.stdout.flush()
     else:
       print(mgr.GetActiveTestListId(device))
 
-    if self.args.list:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.list:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       active_id = mgr.GetActiveTestListId(device)
 
       # Calculate the maximum width of test_lists for alignment of displaying.
@@ -476,7 +572,9 @@ class TestListCommand(Subcommand):
         print(line_format.format(is_active=is_active, id=k, id_width=id_width,
                                  source_path=v.source_path))
 
-    if self.args.restart:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.restart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       goofy = state.GetInstance()
 
       # Get goofy's current UUID
@@ -490,15 +588,21 @@ class TestListCommand(Subcommand):
 
       # Set the proc title so factory_restart won't kill us.
       if setproctitle.MODULE_READY:
-        setproctitle.setproctitle('factory set-active-test-list')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        setproctitle.setproctitle('factory set-active-test-list')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         sys.stderr.write(
             'WARNING: setproctitle not available, factory_restart may fail.\n')
 
       # Restart goofy, clearing its state
-      Spawn(['factory_restart'] +
-            (['-a'] if self.args.clear_all else []),  # type: ignore #TODO(b/338318729) Fixit!
-            check_call=True, log=True)
+      Spawn(
+          ['factory_restart'] +
+          # yapf: disable
+          (['-a'] if self.args.clear_all else []),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          check_call=True,
+          log=True)
 
       # Wait for goofy to come up with a different UUID
       start = time.time()
@@ -516,14 +620,18 @@ class TestListCommand(Subcommand):
             # All good
             logging.info(status_summary)
             logging.info('goofy is up')
-            if status['test_list_id'] != self.args.id:  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            if status['test_list_id'] != self.args.id:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               # Shouldn't ever happen
               sys.exit('goofy came up with wrong test list '
                        f'{status["test_list_id"]!r}')
             return
           if status['status'] not in ['UNINITIALIZED', 'INITIALIZING']:
             # This means it's never going to come up.
-            sys.exit('goofy failed to come up; status is %r', status['status'])  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            sys.exit('goofy failed to come up; status is %r', status['status'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         except Exception:
           status_summary = f'Exception: {debug_utils.FormatExceptionOnly()}'
           if 'Connection refused' in status_summary:
@@ -545,7 +653,9 @@ class DeviceDataCommand(Subcommand):
   help = 'Show the contents of the device data dictionary'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'set', metavar='KEY=VALUE', nargs='*',
         help=('(To be used only manually for debugging) '
               'Sets a device data KEY to VALUE. If VALUE is one of '
@@ -555,34 +665,52 @@ class DeviceDataCommand(Subcommand):
               'Otherwise, it is considered a string. '
               'To avoid type ambiguity, if you need to programmatically '
               'modify device data, don\'t use this; use --set-yaml.'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '-g', '--get',
         help='Read one device data and print its value.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--set-yaml', metavar='FILE',
         help=('Read FILE (or stdin if FILE is "-") as a YAML dictionary '
               'and set device data.'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--format', metavar='FORMAT',
         help='Format in which to dump device data',
         default='yaml',
         choices=('yaml', 'json', 'pprint'))
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--delete', '-d', metavar='KEY', nargs='*',
         help='Deletes KEYs from device data. '
              '"factory device-data -d A B C" deletes A, B, C from device-data.')
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--no-filter', action='store_false', dest='use_filter',
         help='Do not use filter when dumping device data.')
 
   def Run(self):
-    if self.args.get:  # type: ignore #TODO(b/338318729) Fixit!
-      print(device_data.GetDeviceData(self.args.get, ''))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.get:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      print(device_data.GetDeviceData(self.args.get, ''))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
-    if self.args.set:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.set:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       update = {}
-      for item in self.args.set:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for item in self.args.set:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         match = re.fullmatch(r'([^=]+)=(.*)', item)
         if not match:
           sys.exit('--set argument %r should be in the form KEY=VALUE')
@@ -603,21 +731,35 @@ class DeviceDataCommand(Subcommand):
         update[key] = value
       device_data.UpdateDeviceData(update)
 
-    if self.args.delete:  # type: ignore #TODO(b/338318729) Fixit!
-      device_data.DeleteDeviceData(self.args.delete)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.delete:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      device_data.DeleteDeviceData(self.args.delete)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.set_yaml:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.set_yaml == '-':  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.set_yaml:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.set_yaml == '-':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         update = yaml.safe_load(sys.stdin)
       else:
-        with open(self.args.set_yaml, encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        with open(self.args.set_yaml, encoding='utf8') as f:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           update = yaml.safe_load(f)
       if not isinstance(update, dict):
         sys.exit(f'Expected a dict but got a {type(update)!r}')
       device_data.UpdateDeviceData(update)
 
-    Dump(device_data.GetAllDeviceData(), self.args.format,  # type: ignore #TODO(b/338318729) Fixit!
-         use_filter=self.args.use_filter)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    Dump(device_data.GetAllDeviceData(), self.args.format,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+         # yapf: enable
+         # yapf: disable
+         use_filter=self.args.use_filter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ScreenshotCommand(Subcommand):
@@ -625,13 +767,17 @@ class ScreenshotCommand(Subcommand):
   help = 'Take a screenshot of the Goofy tab that runs the factory test UI'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'output_file', metavar='OUTPUT_FILE', nargs='?',
         help=('The output filepath to save the captured screen as a PNG file.  '
               'If not provided, defaults to /var/log/screenshot_<TIME>.png.'))
 
   def Run(self):
-    state.GetInstance().DeviceTakeScreenshot(self.args.output_file)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    state.GetInstance().DeviceTakeScreenshot(self.args.output_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class PhaseCommand(Subcommand):
@@ -639,15 +785,23 @@ class PhaseCommand(Subcommand):
   help = 'Query or set the current phase'
 
   def Init(self):
-    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '--set', metavar='PHASE',
         help='Sets the current phase (one of %(choices)s)',
         choices=phase.PHASE_NAMES + ['None'])
 
   def Run(self):
-    if self.args.set:  # type: ignore #TODO(b/338318729) Fixit!
-      phase.SetPersistentPhase(None if self.args.set in ['None', '']  # type: ignore #TODO(b/338318729) Fixit!
-                               else self.args.set)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.set:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      phase.SetPersistentPhase(None if self.args.set in ['None', '']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                               # yapf: enable
+                               # yapf: disable
+                               else self.args.set)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     print(phase.GetPhase())
 
 

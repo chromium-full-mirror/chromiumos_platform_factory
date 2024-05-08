@@ -98,7 +98,9 @@ def GetRootDevice():
   """
   dev_raw = Spawn(['rootdev', '-s', '-d'], read_stdout=True,
                   check_call=True).stdout_data
-  return os.path.basename(dev_raw.strip())  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return os.path.basename(dev_raw.strip())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def IsDeviceRemovable(dev):
@@ -144,7 +146,9 @@ def GetDeviceMountPointMapping(dev):
     Partition to mount_point mapping. If the partition is not mounted,
     mount_point is None.
   """
-  lines = Spawn(['lsblk', '-nro', 'NAME,MOUNTPOINT', f'/dev/{dev}'],  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  lines = Spawn(['lsblk', '-nro', 'NAME,MOUNTPOINT', f'/dev/{dev}'],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
                 read_stdout=True, check_call=True).stdout_data.splitlines()
   res = {}
   for line in lines:
@@ -289,17 +293,25 @@ def RunCommandAndSaveOutputToFile(command, filename, check_call=True,
         'stdout': f,
     }
     if check_call:
-      options['check_call'] = True  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      options['check_call'] = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      options['call'] = True  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      options['call'] = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     if include_stderr:
       options['stderr'] = f
     else:
-      options['ignore_stderr'] = True  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      options['ignore_stderr'] = True  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     logging.info('Generating %s', filename)
     logging.debug('Output: %s, Check Call: %s, Inlcude Stderr: %s, Command: %s',
                   filename, check_call, include_stderr, command)
-    Spawn(command, **options)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    Spawn(command, **options)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   return filename
 
 

@@ -259,12 +259,16 @@ class LinkAVLTest(unittest.TestCase):
     self.assertFalse(obj.probe_value_matched)
 
   def testAVLProbeValue_Dump(self):
-    obj = rule.AVLProbeValue('converter', False, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    obj = rule.AVLProbeValue('converter', False, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     dump_str = yaml.safe_dump(obj)
     self.assertEqual(yaml.safe_load("{key: value}"), yaml.safe_load(dump_str))
 
   def testAVLProbeValue_DumpInternal(self):
-    obj1 = rule.AVLProbeValue('converter', True, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    obj1 = rule.AVLProbeValue('converter', True, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     dump_str = yaml.safe_dump(obj1, internal=True)
     # Current version of PyYaml does not support sort_keys=False feature in
     # represent_mapping method, so this test only ensures that loaded obj is the

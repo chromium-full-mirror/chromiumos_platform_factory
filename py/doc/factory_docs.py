@@ -6,10 +6,17 @@
 
 import re
 
-from docutils import nodes  # type: ignore #TODO(b/338318729) Fixit!
-from docutils.parsers.rst import Directive  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from docutils import nodes  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from docutils.parsers.rst import Directive  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.l10n import regions
+
+
+# yapf: enable
+
 
 
 class regionslist(nodes.General, nodes.Element):
@@ -45,14 +52,19 @@ class RegionsList(Directive):
 
     # Import the regions_overlay if available.
     try:
-      from cros.factory.test.l10n import regions_overlay  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      from cros.factory.test.l10n import regions_overlay  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+      # yapf: enable
       overlay = regions_overlay
     except ImportError:
       overlay = None
 
     name = self.list_name
     # For both the public repo and the overlay...
-    for module in filter(None, [regions, overlay]):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for module in filter(None, [regions, overlay]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # For each of the elements in the list...
       for r in sorted(getattr(module, name), key=lambda x: x.description):
         # Build a row.

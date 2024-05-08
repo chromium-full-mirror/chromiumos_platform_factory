@@ -105,7 +105,9 @@ class Servod:
       except process_utils.CalledProcessError as e:
         last_error = e
       except process_utils.TimeoutExpired as e:
-        last_error = e  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        last_error = e  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     servod_logs = file_utils.ReadFile(stdout_file), file_utils.ReadFile(
         stderr_file)
     raise RuntimeError(

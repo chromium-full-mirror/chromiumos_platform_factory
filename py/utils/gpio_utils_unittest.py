@@ -45,7 +45,9 @@ class GpioManagerTest(unittest.TestCase):
   @mock.patch.object(gpio_utils, 'Gpio', autospec=True)
   def testPollLocal(self, mock_gpio):
     gpio_manager = gpio_utils.GpioManager(False)
-    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     mock_gpio.assert_called_once_with(PORT)
     mock_gpio_instance = mock_gpio.return_value
@@ -67,8 +69,12 @@ class GpioManagerTest(unittest.TestCase):
                      spec=_GpioProxy)
   def testPollRemote(self, mock_server, mock_timeout):
     del mock_timeout  # unused
-    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT, True)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT, True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertTrue(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     mock_server.assert_called_once_with(f'http://host:{PORT}', timeout=TIMEOUT,
                                         verbose=True)
@@ -78,9 +84,13 @@ class GpioManagerTest(unittest.TestCase):
   def testPollRemoteTimeout(self, mock_timeout):
     mock_timeout.side_effect = type_utils.TimeoutError
 
-    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    gpio_manager = gpio_utils.GpioManager(True, 'host', PORT, TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.assertFalse(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertFalse(gpio_manager.Poll(PORT, 'gpio_rising', TIMEOUT))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @mock.patch.object(gpio_utils.net_utils, 'TimeoutXMLRPCServerProxy',
                      spec=_GpioProxy)
@@ -217,7 +227,9 @@ class GpioTest(unittest.TestCase):
     mock_fd = mock.Mock(io.TextIOWrapper)
 
     gpio = gpio_utils.Gpio(PORT, mock_fd)
-    gpio.Poll('gpio_rising', TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    gpio.Poll('gpio_rising', TIMEOUT)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     mock_write_file.assert_called_with(f'/sys/class/gpio/gpio{PORT}/edge',
                                        'rising')

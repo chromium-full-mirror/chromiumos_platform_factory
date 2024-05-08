@@ -17,12 +17,17 @@ import tempfile
 import time
 import unittest
 
-import psutil  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import psutil  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog import log_utils
 from cros.factory.instalog import plugin_sandbox
 from cros.factory.instalog import testing
+
+
+# yapf: enable
+
 
 
 class TestOutputArchive(unittest.TestCase):
@@ -99,7 +104,9 @@ class TestOutputArchive(unittest.TestCase):
     # pylint: disable=protected-access
     plugin = sandbox._plugin
     self.stream.Queue([self.event])
-    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    plugin.PrepareAndProcess()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sandbox.Flush()
     sandbox.Stop()
 
@@ -108,7 +115,9 @@ class TestOutputArchive(unittest.TestCase):
     with tarfile.open(archive_path, 'r:gz') as tar:
       events_member = [n for n in tar.getnames() if 'events.json' in n][0]
       events_file = tar.extractfile(events_member)
-      lines = events_file.readlines()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      lines = events_file.readlines()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertEqual(1, len(lines))
       event = datatypes.Event.Deserialize(lines[0])
       self.assertEqual(event, self.event)

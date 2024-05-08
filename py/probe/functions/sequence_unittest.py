@@ -37,7 +37,9 @@ class SequenceFunctionTest(unittest.TestCase):
     self.assertEqual(ret, expected_value)
 
     # Syntax sugar
-    func_expression = [  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    func_expression = [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         {'mock': {'data': {'foo': 'FOO'}}},
         {'mock': {'data': {'bar': 'BAR'}}}]
     ret = function.InterpretFunction(func_expression)()

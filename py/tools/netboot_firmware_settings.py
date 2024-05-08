@@ -162,7 +162,9 @@ class Settings:
         setting = IpAddressValue
         value = setting.unpack(value)
       else:
-        setting = BytesValue  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        setting = BytesValue  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         value = setting.unpack(value)
       return cls(code, value), offset
 

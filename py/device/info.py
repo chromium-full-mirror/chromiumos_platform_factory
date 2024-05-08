@@ -39,7 +39,9 @@ def InfoProperty(f):
   name = f.__name__
   if not name.startswith('_'):
     _INFO_PROP_LIST.append(name)
-  @property  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  @property  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   def prop(self):
     # pylint: disable=protected-access
     if name in self._overrides:
@@ -145,7 +147,9 @@ class SystemInfo(device_types.DeviceComponent):
 
   @InfoProperty
   def memory_total_kb(self):
-    return self._device.memory.GetTotalMemoryKB()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.memory.GetTotalMemoryKB()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @InfoProperty
   def storage_type(self):
@@ -195,7 +199,9 @@ class SystemInfo(device_types.DeviceComponent):
     from DUT storage, and caches into DeviceData.
     """
     if not device_data.GetSerialNumber(name):
-      serial = self._device.storage.LoadDict().get(name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      serial = self._device.storage.LoadDict().get(name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if serial:
         device_data.UpdateSerialNumbers({name: serial})
     return device_data.GetSerialNumber(name)
@@ -249,9 +255,13 @@ class SystemInfo(device_types.DeviceComponent):
   def wlan0_mac(self):
     """MAC address of first wireless network device."""
     for wlan_interface in ['wlan0', 'mlan0']:
-      address_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      address_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           '/sys/class/net/', wlan_interface, 'address')
-      if self._device.path.exists(address_path):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._device.path.exists(address_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return self._device.ReadFile(address_path).strip()
     return None
 
@@ -259,13 +269,21 @@ class SystemInfo(device_types.DeviceComponent):
   def eth_macs(self):
     """MAC addresses of ethernet devices."""
     macs = {}
-    eth_paths = sum([self._device.Glob(os.path.join('/sys/class/net', pattern))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    eth_paths = sum([self._device.Glob(os.path.join('/sys/class/net', pattern))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      for pattern in net_utils.DEFAULT_ETHERNET_NAME_PATTERNS],
                     [])
     for eth_path in eth_paths:
-      address_path = self._device.path.join(eth_path, 'address')  # type: ignore #TODO(b/338318729) Fixit!
-      if self._device.path.exists(address_path):  # type: ignore #TODO(b/338318729) Fixit!
-        interface = self._device.path.basename(eth_path)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      address_path = self._device.path.join(eth_path, 'address')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self._device.path.exists(address_path):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        interface = self._device.path.basename(eth_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         macs[interface] = self._device.ReadSpecialFile(address_path).strip()
     return macs
 
@@ -328,11 +346,15 @@ class SystemInfo(device_types.DeviceComponent):
   @InfoProperty
   def ec_active_version(self):
     """Version of active embedded controller."""
-    return self._device.ec.GetActiveVersion().strip()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.ec.GetActiveVersion().strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @InfoProperty
   def pd_version(self):
-    return self._device.usb_c.GetPDVersion().strip()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.usb_c.GetPDVersion().strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @InfoProperty
   def update_toolkit_version(self):
@@ -347,7 +369,9 @@ class SystemInfo(device_types.DeviceComponent):
   @InfoProperty
   def _release_lsb_data(self):
     """Returns the lsb-release data in dict from release image partition."""
-    release_rootfs = self._device.partitions.RELEASE_ROOTFS.path  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    release_rootfs = self._device.partitions.RELEASE_ROOTFS.path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     lsb_content = MountDeviceAndReadFile(
         release_rootfs, '/etc/lsb-release', dut=self._device)
     return self._ParseStrToDict(self._REGEX_KEY_EQUAL_VALUE, lsb_content)
@@ -361,7 +385,9 @@ class SystemInfo(device_types.DeviceComponent):
   @InfoProperty
   def hwid_database_version(self):
     """Uses checksum of hwid file as hwid database version."""
-    hwid_file_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hwid_file_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         hwid_utils.GetDefaultDataPath(), hwid_utils.ProbeProject().upper())
     # TODO(hungte) Support remote DUT.
     return hwid_utils.ComputeDatabaseChecksum(hwid_file_path)
@@ -427,9 +453,15 @@ class SystemInfo(device_types.DeviceComponent):
   def ec(self):
     return {
         'active': self.ecfw_act,
-        'ro_version': self._device.ec.GetROVersion(),  # type: ignore #TODO(b/338318729) Fixit!
-        'rw_version': self._device.ec.GetRWVersion(),  # type: ignore #TODO(b/338318729) Fixit!
-        'type': self._device.ec.GetBuildInfo(),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        'ro_version': self._device.ec.GetROVersion(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'rw_version': self._device.ec.GetRWVersion(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'type': self._device.ec.GetBuildInfo(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
 
   @InfoProperty

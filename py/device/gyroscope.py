@@ -130,7 +130,9 @@ class GyroscopeController(sensor_utils.BasicSensorController):
 
     try:
       for key, re_exp in re_dict.items():
-        result[key] = re_exp.search(raw_info).group(1)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        result[key] = re_exp.search(raw_info).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     except AttributeError as e:
       raise MotionSensorException(f'Failed to parse key "{key}": {e}') from None
 

@@ -17,7 +17,9 @@ class StorageDictTest(unittest.TestCase):
     self.dut = mock.MagicMock()
     self.storage = storage.Storage(self.dut)
     self.dict_file_path = '/path/to/dict/file'
-    self.storage.GetDictFilePath = lambda: self.dict_file_path  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.GetDictFilePath = lambda: self.dict_file_path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testLoadDictFileNotExists(self):
     self.dut.path.exists = mock.Mock(return_value=False)
@@ -80,8 +82,12 @@ class StorageDictTest(unittest.TestCase):
     updated_data = {'a': 'b', 'c': 'x', 'k': 'v'}
     return_value = 'MOCKED_RETURN_VALUE'
 
-    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit!
-    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(return_value,
                      self.storage.UpdateDict(update))
@@ -94,8 +100,12 @@ class StorageDictTest(unittest.TestCase):
     updated_data = {'c': 'd'}
     return_value = 'MOCKED_RETURN_VALUE'
 
-    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit!
-    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(updated_data, self.storage.DeleteDict('a'))
 
@@ -106,8 +116,12 @@ class StorageDictTest(unittest.TestCase):
     data = {'a': 'b', 'c': 'd'}
     return_value = 'MOCKED_RETURN_VALUE'
 
-    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit!
-    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.LoadDict = mock.Mock(return_value=data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.storage.SaveDict = mock.Mock(return_value=return_value)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertEqual(data, self.storage.DeleteDict('k'))
 
@@ -123,7 +137,9 @@ class StorageDevicePathTest(unittest.TestCase):
 
   def testEMMCStorage(self):
     mount_point = ['/usr/share/oem', '/dev/mmcblk0p8']
-    self.storage.GetMountPoint = mock.Mock(return_value=mount_point)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.GetMountPoint = mock.Mock(return_value=mount_point)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     dev = self.storage.GetMainStorageDevice()
     part1_dev = self.storage.GetMainStorageDevice(partition=1)
 
@@ -132,7 +148,9 @@ class StorageDevicePathTest(unittest.TestCase):
 
   def testUFSStorage(self):
     mount_point = ['/usr/share/oem', '/dev/sda8']
-    self.storage.GetMountPoint = mock.Mock(return_value=mount_point)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.GetMountPoint = mock.Mock(return_value=mount_point)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     dev = self.storage.GetMainStorageDevice()
     part1_dev = self.storage.GetMainStorageDevice(partition=1)
 
@@ -145,7 +163,9 @@ class MainStorageTypeTest(unittest.TestCase):
   def setUp(self):
     self.dut = mock.MagicMock()
     self.storage = storage.Storage(self.dut)
-    self.storage.GetMainStorageDevice = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.storage.GetMainStorageDevice = mock.MagicMock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testNVMe(self):
     self.dut.path.basename.return_value = 'nvme0n1'

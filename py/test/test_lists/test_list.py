@@ -134,12 +134,16 @@ class Options:
   sync_event_log_period_secs = None
   """Send events to the factory server when it is reachable at this
   interval.  Set to ``None`` to disable."""
-  _types['sync_event_log_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  _types['sync_event_log_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   update_period_secs = None
   """Automatically check for updates at the given interval.  Set to
   ``None`` to disable."""
-  _types['update_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  _types['update_period_secs'] = (type(None), int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   stop_on_failure = False
   """Whether to stop on any failure."""
@@ -347,7 +351,9 @@ class Options:
       value = getattr(self, key)
       allowable_types = Options._types.get(
           key, [type(getattr(default_options, key))])
-      if not any(isinstance(value, x) for x in allowable_types):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not any(isinstance(value, x) for x in allowable_types):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         errors.append(
             f'Option {key} has unexpected type {type(value)} (should be '
             f'{allowable_types})')
@@ -402,7 +408,9 @@ class FactoryTestList(test_object_module.FactoryTest):
     self.state_instance = state_instance
     self.subtests = list(filter(None, type_utils.FlattenList(subtests)))
     self.path_map = {}
-    self.root = self  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.root = self  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.test_list_id = test_list_id
     self.state_change_callback = None
     self.options = options
@@ -570,7 +578,9 @@ class AbstractTestList(abc.ABC):
   def ResolveTestArgs(
       self, test_args, dut, station, constants=None, options=None,
       locals_=None, state_proxy=None):
-    self._checker.AssertValidArgs(test_args)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._checker.AssertValidArgs(test_args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if constants is None:
       constants = self.constants
@@ -695,7 +705,9 @@ class AbstractTestList(abc.ABC):
         test_path = test_path.split(':')[-1]  # To remove test_list_id
         for pattern in patterns:
           if pattern(test_path):
-            patch_instances.append(_PATCH_CLASS_MAP[action](test, args))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            patch_instances.append(_PATCH_CLASS_MAP[action](test, args))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             break
 
     # After all the patches are ready, apply them sequentially
@@ -965,8 +977,12 @@ class TestList(AbstractTestList):
   @debug_utils.NoRecursion
   def _ConstructFactoryTestList(self):
     subtests = []
-    cache = {}  # type: ignore #TODO(b/338318729) Fixit!
-    for test_object in self._config.get('tests', []):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cache = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    for test_object in self._config.get('tests', []):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       subtests.append(self.MakeTest(test_object, cache))
 
     # this might cause recursive call if self.options is not implemented
@@ -974,20 +990,35 @@ class TestList(AbstractTestList):
     options = self.options
 
     self._cached_test_list = FactoryTestList(
-        subtests, self._state_instance, options,
-        test_list_id=self._config.test_list_id, label=MayTranslate(  # type: ignore #TODO(b/338318729) Fixit!
-            self._config.get('label', ''),  # type: ignore #TODO(b/338318729) Fixit!
-            force=True), finish_construction=True, constants=self.constants)
+        subtests,
+        self._state_instance,
+        options,
+        # yapf: disable
+        test_list_id=self._config.test_list_id,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        label=MayTranslate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            self._config.get('label', ''),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            force=True),
+        finish_construction=True,
+        constants=self.constants)
 
     # Handle override_args
-    if 'override_args' in self._config:  # type: ignore #TODO(b/338318729) Fixit!
-      for key, override in self._config.get('override_args', {}).items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if 'override_args' in self._config:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      for key, override in self._config.get('override_args', {}).items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         test = self._cached_test_list.LookupPath(key)
         if test:
           config_utils.OverrideConfig(test.dargs, override)
 
     self._cached_test_list.state_change_callback = self._state_change_callback
-    self._cached_test_list.source_path = self._config.source_path  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._cached_test_list.source_path = self._config.source_path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self._state_instance:
       # Make sure the state server knows about all the tests, defaulting to an
@@ -1073,9 +1104,13 @@ class TestList(AbstractTestList):
       kwargs['label'] = MayTranslate(kwargs['label'], force=True)
 
     # check if expressions are valid.
-    self._checker.AssertValidArgs(kwargs['dargs'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._checker.AssertValidArgs(kwargs['dargs'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if 'run_if' in kwargs and isinstance(kwargs['run_if'], str):
-      self._checker.AssertValidRunIf(kwargs['run_if'])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._checker.AssertValidRunIf(kwargs['run_if'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if test_id:
       assert test_stack[-1] == test_id
@@ -1104,7 +1139,9 @@ class TestList(AbstractTestList):
       return resolved
 
     parent_name = test_object.get('inherit', 'FactoryTest')
-    if parent_name not in self._config['definitions']:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if parent_name not in self._config['definitions']:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise type_utils.TestListError(
           f'{test_object_name} inherits {parent_name}, which is not defined')
     if parent_name == test_object_name:
@@ -1134,7 +1171,9 @@ class TestList(AbstractTestList):
       if 'id' not in test_object:
         test_object['id'] = test_object_name
 
-    parent_object = self._config['definitions'][parent_name]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    parent_object = self._config['definitions'][parent_name]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     parent_object = self.ResolveTestObject(parent_object, parent_name, cache)
     test_object = config_utils.OverrideConfig(copy.deepcopy(parent_object),
                                               test_object)
@@ -1145,8 +1184,12 @@ class TestList(AbstractTestList):
 
   def ToTestListConfig(self, recursive=True):
     if recursive:
-      return self._config.ToDict()  # type: ignore #TODO(b/338318729) Fixit!
-    ret = self._config.ToDict()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._config.ToDict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    ret = self._config.ToDict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ret.pop('tests', None)
     return ret
 
@@ -1162,13 +1205,17 @@ class TestList(AbstractTestList):
 
   @debug_utils.NoRecursion
   def _Reload(self):
-    logging.debug('reloading test list %s', self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.debug('reloading test list %s', self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     note = {
         'name': _LOGGED_NAME
     }
 
     try:
-      new_config = self._loader.Load(self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      new_config = self._loader.Load(self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       # make sure the new test list is working, if it's not, will raise an
       # exception and self._config will not be changed.
@@ -1184,20 +1231,28 @@ class TestList(AbstractTestList):
       note['text'] = f'Test list {self._config.test_list_id} is reloaded.'
     except Exception:
       logging.exception('Failed to reload latest test list %s.',
-                        self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit!
+                        # yapf: disable
+                        self._config.test_list_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._PreventReload()
 
       note['level'] = 'WARNING'
       note['text'] = (
-          f'Failed to reload latest test list {self._config.test_list_id}.')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Failed to reload latest test list {self._config.test_list_id}.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     try:
-      self._state_instance.AddNote(note)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._state_instance.AddNote(note)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       pass
 
   def _PreventReload(self):
     """Update self._config to prevent reloading invalid test list."""
-    self._config.UpdateDependTimestamp()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._config.UpdateDependTimestamp()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @property
   def modified(self):
@@ -1213,7 +1268,9 @@ class TestList(AbstractTestList):
     # Note that this method can't catch all kind of potential modification.
     # For example, this property won't become `True` if the user add an
     # additional test list in /var/factory/config/ to override an existing one.
-    for config_file, timestamp in self._config.GetDepend().items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for config_file, timestamp in self._config.GetDepend().items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if os.path.exists(config_file):
         if timestamp != os.stat(config_file).st_mtime:
           return True
@@ -1228,7 +1285,9 @@ class TestList(AbstractTestList):
 
     if self._cached_constants:
       return self._cached_constants
-    self._cached_constants = type_utils.AttrDict(self._config['constants'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._cached_constants = type_utils.AttrDict(self._config['constants'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return self._cached_constants
 
   # the following functions / properties are required by goofy
@@ -1245,7 +1304,9 @@ class TestList(AbstractTestList):
         raise KeyError('options cannot depend on options')
 
     resolved_options = self.ResolveTestArgs(
-        self._config['options'],  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._config['options'],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         constants=self.constants,
         options=NotAccessable(),
         dut=None,

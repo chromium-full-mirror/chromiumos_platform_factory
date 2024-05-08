@@ -75,7 +75,9 @@ class BoardTempSensorsTest(unittest.TestCase):
     self.thermal = device_utils.CreateDUTInterface().thermal
 
   def runTest(self):
-    sensors = self.args.temp_sensor_to_test  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sensors = self.args.temp_sensor_to_test  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if sensors == '*':
       values = self.thermal.GetAllTemperatures()
     else:
@@ -84,7 +86,9 @@ class BoardTempSensorsTest(unittest.TestCase):
       values = {name: self.GetTemperature(name) for name in sensors}
 
     logging.info('Got temperatures: %r', values)
-    min_temp, max_temp = self.args.temp_range  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    min_temp, max_temp = self.args.temp_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for name, temperature in values.items():
       self.assertTrue(
           min_temp <= temperature <= max_temp,

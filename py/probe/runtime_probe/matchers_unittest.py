@@ -86,7 +86,9 @@ class MatchersTest(unittest.TestCase):
     ]:
       with self.subTest(matcher=matcher):
         self.assertEqual(statement,
-                         matcher.GenerateProbeConfigMatcherStatement())  # type: ignore #TODO(b/338318729) Fixit!
+                         # yapf: disable
+                         matcher.GenerateProbeConfigMatcherStatement())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def testFieldMatch(self):
     for matcher_cls, expected_value, fields in [
@@ -159,7 +161,9 @@ class MatchersTest(unittest.TestCase):
             ],
         ),
     ]:
-      for test_name, field_value, got_value in fields:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for test_name, field_value, got_value in fields:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         with self.subTest(test_name=test_name, matcher_cls=matcher_cls):
           matcher = matcher_cls('field_a', expected_value)
           if field_value is None:
@@ -271,7 +275,9 @@ class MatchersTest(unittest.TestCase):
             ],
         ),
     ]:
-      for test_name, field_value, suggestion in fields:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for test_name, field_value, suggestion in fields:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         with self.subTest(test_name=test_name, matcher=matcher):
           component = probe_types.Component(name='FooComponent',
                                             field_values=field_value)

@@ -15,6 +15,7 @@ from unittest import mock
 from cros.factory.tools import time_sanitizer
 from cros.factory.utils import file_utils
 
+
 BASE_TIME = float(
     calendar.timegm(time.strptime('Sat Jun  9 00:00:00 2012')))
 
@@ -33,7 +34,9 @@ class TimeSanitizerTestBase(unittest.TestCase):
         time_bump_secs=60,
         max_leap_secs=SECONDS_PER_DAY)
     self.sanitizer._time = self.fake_time
-    self.sanitizer._suppress_exceptions = False  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.sanitizer._suppress_exceptions = False  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def run(self, result=None):
     with file_utils.TempDirectory(

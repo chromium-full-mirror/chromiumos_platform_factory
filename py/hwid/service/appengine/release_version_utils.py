@@ -9,11 +9,16 @@ from xml.dom import minidom
 
 from google.cloud import bigquery
 from google.cloud import ndb
-from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
+
+
+# yapf: enable
+
 
 
 _MANIFEST_VERSIONS_PROJECT = 'chromeos/manifest-versions'

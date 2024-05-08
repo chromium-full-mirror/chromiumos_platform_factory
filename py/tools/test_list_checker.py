@@ -23,11 +23,21 @@ from cros.factory.utils import type_utils
 
 ERROR_LEVEL = type_utils.Obj(NONE=0, CONVENTION=1, WARNING=2, ERROR=3, FATAL=4)
 ERROR_LEVEL_SHORT = {
-    'N': ERROR_LEVEL.NONE,  # type: ignore #TODO(b/338318729) Fixit!
-    'C': ERROR_LEVEL.CONVENTION,  # type: ignore #TODO(b/338318729) Fixit!
-    'W': ERROR_LEVEL.WARNING,  # type: ignore #TODO(b/338318729) Fixit!
-    'E': ERROR_LEVEL.ERROR,  # type: ignore #TODO(b/338318729) Fixit!
-    'F': ERROR_LEVEL.FATAL,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    'N': ERROR_LEVEL.NONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    'C': ERROR_LEVEL.CONVENTION,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    'W': ERROR_LEVEL.WARNING,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    'E': ERROR_LEVEL.ERROR,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    'F': ERROR_LEVEL.FATAL,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 }
 
 
@@ -112,7 +122,9 @@ def CheckTestList(manager_: manager.Manager,
     test_list = manager_.GetTestListByID(test_list_id)
   except Exception:
     logging.exception('Failed to load test list: %s.', test_list_id)
-    return ERROR_LEVEL.FATAL <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return ERROR_LEVEL.FATAL <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   factory_test_list = test_list.ToFactoryTestList()
 
@@ -140,7 +152,9 @@ def CheckTestList(manager_: manager.Manager,
   result = True
 
   # Check if there are test object definiions that overrides nothing.
-  parents_config = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  parents_config = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for parent_name in reversed(raw_config.get('inherit', ())):
     _parent_config = manager_.loader.Load(GetTestListID(parent_name)).ToDict()
     parents_config = config_utils.OverrideConfig(
@@ -164,10 +178,14 @@ def CheckTestList(manager_: manager.Manager,
       logging.warning(
           'Test object "%s" inherits from another test object but overrides'
           ' nothing.', object_name)
-      result &= ERROR_LEVEL.WARNING <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result &= ERROR_LEVEL.WARNING <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   # Check if there are unreferenced test object definitions in the test list.
-  cache = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  cache = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for child_test_list_id in all_test_lists:
     # Skip because child_test_list_id is not a child of test_list_id.
     if test_list_id not in GetInheritSet(manager_, child_test_list_id):
@@ -184,7 +202,9 @@ def CheckTestList(manager_: manager.Manager,
       logging.warning(
           'Test object "%s" is defined but not referenced in any test list',
           test_object_name)
-      result &= ERROR_LEVEL.WARNING <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result &= ERROR_LEVEL.WARNING <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   for test_object_name, test_object_value in raw_definitions.items():
     if not ValidateRunIf(test_object_value):
@@ -193,7 +213,9 @@ def CheckTestList(manager_: manager.Manager,
           ' correct value. Please check if you use the wrong name or maybe you'
           ' need to add a new key into our allow list.',
           test_object_value['run_if'], test_object_name)
-      result &= ERROR_LEVEL.CONVENTION <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result &= ERROR_LEVEL.CONVENTION <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   try:
     test_list.CheckValid()
@@ -208,10 +230,14 @@ def CheckTestList(manager_: manager.Manager,
         logging.warning(
             'Test list "%s" does not have "tests" field. Rename it "generic_%s"'
             ' or add missing "tests" field.', test_list_id, test_list_id)
-        result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     else:
       logging.error('Test list "%s" is invalid: %s.', test_list_id, e)
-      result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
   else:
     failed_tests = []
     for test in test_list.Walk():
@@ -233,7 +259,9 @@ def CheckTestList(manager_: manager.Manager,
     if failed_tests:
       logging.error('The following tests have invalid arguments: \n  %s',
                     '\n  '.join(test.path for test in failed_tests))
-      result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      result &= ERROR_LEVEL.ERROR <= waived_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   if not result:
     logging.error('The above warnings should be fixed')

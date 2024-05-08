@@ -54,7 +54,9 @@ from cros.factory.utils import time_utils
 
 
 class SyncTime(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   ARGS = [
       Arg('tolerance', float,
@@ -74,4 +76,6 @@ class SyncTime(unittest.TestCase):
     goofy_now = (datetime.datetime.utcnow() -
                  time_utils.EPOCH_ZERO).total_seconds()
 
-    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

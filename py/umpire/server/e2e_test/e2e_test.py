@@ -27,7 +27,8 @@ import time
 import unittest
 import xmlrpc.client
 
-import requests  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import requests  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.umpire import common
 from cros.factory.utils import file_utils
@@ -36,6 +37,10 @@ from cros.factory.utils import net_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
 from cros.factory.utils import time_utils
+
+
+# yapf: enable
+
 
 
 DOCKER_IMAGE_NAME = 'cros/factory_server'
@@ -147,14 +152,24 @@ class UmpireDockerTestCase(unittest.TestCase):
     # Add a timestamp to project name to avoid problem that sometimes container
     # goes dead.
     project_name = 'test_' + time.strftime('%Y%m%d_%H%M%S')
-    cls.umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit!
-    SetUpUmpire(cls.umpire.project_name, cls.umpire.port, cls.umpire.umpire_dir,  # type: ignore #TODO(b/338318729) Fixit!
-                cls.umpire.rpc_addr_base, setup_shared_data=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cls.umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    SetUpUmpire(cls.umpire.project_name, cls.umpire.port, cls.umpire.umpire_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                cls.umpire.rpc_addr_base, setup_shared_data=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def tearDownClass(cls):
-    PrintDockerLogs(cls.umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit!
-    CleanUp(cls.umpire.project_name, cls.umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    PrintDockerLogs(cls.umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    CleanUp(cls.umpire.project_name, cls.umpire.port)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @contextlib.contextmanager
   def assertRPCRaises(self,
@@ -179,29 +194,43 @@ class TwoUmpireDockerTestCase(UmpireDockerTestCase):
   def setUpClass(cls):
     super().setUpClass()
     project_name = 'test2_' + time.strftime('%Y%m%d_%H%M%S')
-    cls.second_umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit!
-    SetUpUmpire(cls.second_umpire.project_name, cls.second_umpire.port,  # type: ignore #TODO(b/338318729) Fixit!
-                cls.second_umpire.umpire_dir, cls.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cls.second_umpire = _UmpireInformation(project_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    SetUpUmpire(cls.second_umpire.project_name, cls.second_umpire.port,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                cls.second_umpire.umpire_dir, cls.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @classmethod
   def tearDownClass(cls):
     super().tearDownClass()
-    PrintDockerLogs(cls.second_umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit!
-    CleanUp(cls.second_umpire.project_name, cls.second_umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    PrintDockerLogs(cls.second_umpire.container_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    CleanUp(cls.second_umpire.project_name, cls.second_umpire.port)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class ResourceMapTest(UmpireDockerTestCase):
   """Tests for Umpire /webapps/resourcemap and legacy /resourcemap."""
 
   def testResourceMap(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/resourcemap',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    r = requests.get(f'{self.umpire.addr_base}/webapps/resourcemap',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      headers={'X-Umpire-DUT': 'mac=00:11:22:33:44:55'})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
         re.search(r'^payloads: .*\.json$', r.text, re.MULTILINE))
 
   def testLegacyResourceMap(self):
-    r = requests.get(f'{self.umpire.addr_base}/resourcemap',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    r = requests.get(f'{self.umpire.addr_base}/resourcemap',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      headers={'X-Umpire-DUT': 'mac=00:11:22:33:44:55'})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
@@ -212,7 +241,9 @@ class DownloadSlotsManagerTest(UmpireDockerTestCase):
   """Tests for Umpire /webapps/download_slots."""
 
   def testCanRequestSlot(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      headers={'X-Umpire-DUT': 'uuid='})
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
@@ -221,18 +252,29 @@ class DownloadSlotsManagerTest(UmpireDockerTestCase):
     self.assertIsNotNone(re.search(r'^N_PLACE: 0$', r.text, re.MULTILINE))
 
   def testExtendAliveTimeSlot(self):
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      headers={'X-Umpire-DUT': 'uuid='})
     self.assertEqual(200, r.status_code)
     res = re.search(r'^UUID: ([\w-]+)$', r.text, re.MULTILINE)
     self.assertIsNotNone(res)
 
-    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit!
-                     headers={'X-Umpire-DUT': f'uuid={res.group(1)}'})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    r = requests.get(f'{self.umpire.addr_base}/webapps/download_slots',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                     # yapf: enable
+                     # yapf: disable
+                     headers={'X-Umpire-DUT': f'uuid={res.group(1)}'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(200, r.status_code)
     self.assertIsNotNone(
-        re.search(r'^UUID: ('  # type: ignore #TODO(b/338318729) Fixit!
-                  f'{res.group(1)})$', r.text, re.MULTILINE))
+        # yapf: disable
+        re.search(
+            r'^UUID: ('  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            f'{res.group(1)})$',
+            r.text,
+            re.MULTILINE))
 
 
 class UmpireRPCTest(UmpireDockerTestCase):
@@ -240,7 +282,9 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.default_config = json.loads(
         self.ReadConfigTestdata('umpire_default.json'))
     # Deploy an empty default config.
@@ -256,22 +300,32 @@ class UmpireRPCTest(UmpireDockerTestCase):
     self.assertEqual(common.UMPIRE_VERSION, self.proxy.GetVersion())
 
   def testListMethods(self):
-    self.assertIn('IsDeploying', self.proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertIn('IsDeploying', self.proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testEndingSlashInProxyAddress(self):
-    with xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertIn('IsDeploying', proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.assertIn('IsDeploying', proxy.system.listMethods())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def testGetActiveConfig(self):
     self.assertEqual(self.default_config,
-                     json.loads(self.proxy.GetActiveConfig()))  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     json.loads(self.proxy.GetActiveConfig()))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testAddConfigFromBlob(self):
     test_add_config_blob = 'test config blob'
     conf = self.proxy.AddConfigFromBlob(test_add_config_blob, 'umpire_config')
     self.assertEqual(
         test_add_config_blob,
-        file_utils.ReadFile(os.path.join(self.umpire.resource_dir, conf)))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        file_utils.ReadFile(os.path.join(self.umpire.resource_dir, conf)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testValidateConfig(self):
     with self.assertRPCRaises('json.decoder.JSONDecodeError'):
@@ -294,7 +348,9 @@ class UmpireRPCTest(UmpireDockerTestCase):
     conf = self.proxy.AddConfigFromBlob(to_deploy_config, 'umpire_config')
     self.proxy.Deploy(conf)
 
-    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(json.loads(to_deploy_config), active_config)
 
   def testDeployServiceConfigChanged(self):
@@ -310,7 +366,9 @@ class UmpireRPCTest(UmpireDockerTestCase):
     # TODO(pihsun): Figure out a better way to detect if services are restarted
     # without reading docker logs.
     docker_logs = process_utils.CheckOutput(
-        ['docker', 'logs', self.umpire.container_name],  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ['docker', 'logs', self.umpire.container_name],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         stderr=subprocess.STDOUT).splitlines()
     restarted_services = []
     for log_line in reversed(docker_logs):
@@ -335,12 +393,16 @@ class UmpireRPCTest(UmpireDockerTestCase):
     with self.assertRPCRaises('Deploy failed'):
       self.proxy.Deploy(conf)
 
-    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.default_config, active_config)
 
   def testStopStartService(self):
     test_rsync_cmd = (
-        f'rsync rsync://localhost:{int(self.umpire.port + 4)}/system_logs '  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'rsync rsync://localhost:{int(self.umpire.port + 4)}/system_logs '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         '>/dev/null 2>&1')
 
     self.proxy.StopServices(['rsync'])
@@ -351,8 +413,12 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def testAddPayload(self):
     payload = self.proxy.AddPayload('/mnt/hwid.gz', 'hwid')
-    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit!
-    resource_path = os.path.join(self.umpire.resource_dir, resource)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    resource_path = os.path.join(self.umpire.resource_dir, resource)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.assertRegex(resource, r'hwid\..*\.gz')
     with gzip.open(os.path.join(SHARED_TESTDATA_DIR, 'hwid.gz')) as f1:
@@ -363,15 +429,23 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
   def testUpdate(self):
     payload = self.proxy.AddPayload('/mnt/hwid.gz', 'hwid')
-    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    resource = payload['hwid']['file']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.proxy.Update([('hwid', os.path.join(DOCKER_RESOURCE_DIR, resource))])
 
-    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     payload = self.proxy.GetPayloadsDict(
         active_config['bundles'][0]['payloads'])
-    self.assertEqual(resource, payload['hwid']['file'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(resource, payload['hwid']['file'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    os.unlink(os.path.join(self.umpire.resource_dir, resource))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    os.unlink(os.path.join(self.umpire.resource_dir, resource))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testImportBundle(self):
     resources = {
@@ -384,15 +458,21 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
     self.proxy.ImportBundle('/mnt/bundle_for_import.zip', 'umpire_test')
 
-    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    active_config = json.loads(self.proxy.GetActiveConfig())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     new_bundle = next(bundle for bundle in active_config['bundles']
                       if bundle['id'] == 'umpire_test')
     new_payload = self.proxy.GetPayloadsDict(new_bundle['payloads'])
 
     for resource_type, resource in resources.items():
       self.assertTrue(
-          os.path.exists(os.path.join(self.umpire.resource_dir, resource)))  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertEqual(new_payload[resource_type]['file'], resource)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          os.path.exists(os.path.join(self.umpire.resource_dir, resource)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.assertEqual(new_payload[resource_type]['file'], resource)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.assertEqual('umpire_test', active_config['active_bundle_id'])
     for bundle in active_config['bundles']:
@@ -402,9 +482,12 @@ class UmpireRPCTest(UmpireDockerTestCase):
 
 class UmpireHTTPTest(UmpireDockerTestCase):
   """Tests for Umpire http features."""
+
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
 
   def testReverseProxy(self):
@@ -414,7 +497,9 @@ class UmpireHTTPTest(UmpireDockerTestCase):
     self.proxy.Deploy(conf)
 
     response = requests.get(
-        f'http://localhost:{int(self.umpire.port)}/res/test',  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'http://localhost:{int(self.umpire.port)}/res/test',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         allow_redirects=False)
     self.assertEqual(307, response.status_code)
     self.assertEqual('http://11.22.33.44/res/test',
@@ -423,42 +508,76 @@ class UmpireHTTPTest(UmpireDockerTestCase):
 
 class RPCDUTTest(UmpireDockerTestCase):
   """Tests for Umpire DUT RPC."""
+
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     shutil.copy(
         os.path.join(CONFIG_TESTDATA_DIR, 'test_report_index.json'),
-        os.path.join(self.umpire.umpire_dir, 'properties', 'report_index.json'))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.path.join(self.umpire.umpire_dir, 'properties', 'report_index.json'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
 
   def testPing(self):
     version = self.proxy.Ping()
-    self.assertEqual({
-        'version': 3,
-        'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
-    }, version)
+    self.assertEqual(
+        {
+            'version':
+                3,
+            # yapf: disable
+            'project':
+                self.umpire.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                project_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+        },
+        version)
 
   def testEndingSlashInProxyAddress(self):
-    with xmlrpc.client.ServerProxy(self.umpire.addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertEqual({
-          'version': 3,
-          'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
-      }, proxy.Ping())
+    # yapf: disable
+    with xmlrpc.client.ServerProxy(self.umpire.addr_base) as proxy:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      self.assertEqual(
+          {
+              'version':
+                  3,
+              # yapf: disable
+              'project':
+                  self.umpire.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  project_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+          },
+          proxy.Ping())
 
   def testGetTime(self):
     t = self.proxy.GetTime()
-    self.assertAlmostEqual(t, time.time(), delta=1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertAlmostEqual(t, time.time(), delta=1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testAlternateURL(self):
-    with xmlrpc.client.ServerProxy(f'{self.umpire.addr_base}/umpire') as proxy:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with xmlrpc.client.ServerProxy(f'{self.umpire.addr_base}/umpire') as proxy:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       version = proxy.Ping()
-      self.assertEqual({
-          'version': 3,
-          'project': self.umpire.project_name  # type: ignore #TODO(b/338318729) Fixit!
-      }, version)
+      self.assertEqual(
+          {
+              'version':
+                  3,
+              # yapf: disable
+              'project':
+                  self.umpire.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  project_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
+          },
+          version)
 
   def testGetFactoryLogPort(self):
-    self.assertEqual(self.umpire.port + 4, self.proxy.GetFactoryLogPort())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.umpire.port + 4, self.proxy.GetFactoryLogPort())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _GenerateReportBlob(self):
     report_path = os.path.join(SHARED_TESTDATA_DIR, 'report_for_upload.rpt.xz')
@@ -479,8 +598,13 @@ class RPCDUTTest(UmpireDockerTestCase):
         timezone = service_config['umpire_timezone']['timezone']
     now = time_utils.GetNowWithTimezone(timezone)
     report_pattern = os.path.join(
-        self.umpire.umpire_dir, 'umpire_data', 'report',  # type: ignore #TODO(b/338318729) Fixit!
-        time.strftime('%Y%m%d', now), 'Unknown-test_serial-*.rpt.xz')
+        # yapf: disable
+        self.umpire.umpire_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        'umpire_data',
+        'report',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        time.strftime('%Y%m%d', now),
+        'Unknown-test_serial-*.rpt.xz')
     report_files = glob.glob(report_pattern)
     self.assertEqual(1, len(report_files))
     report_file = report_files[0]
@@ -489,7 +613,9 @@ class RPCDUTTest(UmpireDockerTestCase):
       for tarinfo in tar_file.getmembers():
         if tarinfo.name == 'metadata.json':
           metadata_json = json_utils.LoadStr(
-              tar_file.extractfile(tarinfo).read())  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              tar_file.extractfile(tarinfo).read())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.assertEqual('0000000001', metadata_json['report_index'])
 
 
@@ -497,9 +623,13 @@ class ServiceTest(TwoUmpireDockerTestCase):
 
   def setUp(self):
     super().setUp()
-    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.proxy = xmlrpc.client.ServerProxy(self.umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.second_proxy = xmlrpc.client.ServerProxy(
-        self.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.second_umpire.rpc_addr_base)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.addCleanup(_CloseServerProxyConnection, self.proxy)
     self.addCleanup(_CloseServerProxyConnection, self.second_proxy)
 
@@ -520,19 +650,35 @@ class ServiceTest(TwoUmpireDockerTestCase):
     # The secondary ip should be the ip of `docker0` gateway interface.
     to_deploy_config = self.ReadConfigTestdata('umpire_sync_service.json')
     to_deploy_config['services']['umpire_sync']['primary_information'] = {
-        'ip': docker_bridge_gateway_ip,
-        'port': str(self.umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
+        'ip':
+            docker_bridge_gateway_ip,
+        # yapf: disable
+        'port':
+            str(
+                self.umpire.port  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            )  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
     to_deploy_config['services']['umpire_sync']['secondary_information'][0] = {
-        'ip': docker_bridge_gateway_ip,
-        'port': str(self.second_umpire.port)  # type: ignore #TODO(b/338318729) Fixit!
+        'ip':
+            docker_bridge_gateway_ip,
+        # yapf: disable
+        'port':
+            str(
+                self.second_umpire.port  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            )  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     }
     self.StartService(to_deploy_config, wait_time=2)
     self.assertEqual(self.proxy.GetActivePayload(),
                      self.second_proxy.GetActivePayload())
     second_url = (
-        f'http://{docker_bridge_gateway_ip}:{int(self.second_umpire.port)}')  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertEqual(self.proxy.GetUmpireSyncStatus()[second_url]['status'],  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'http://{docker_bridge_gateway_ip}:{int(self.second_umpire.port)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertEqual(self.proxy.GetUmpireSyncStatus()[second_url]['status'],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      'Success')
 
 

@@ -15,7 +15,9 @@ import yaml
 def ConvertYAMLToJSON(yaml_str, pretty_print=True):
   kargs = dict(
       indent=1, separators=(',', ': '), sort_keys=True) if pretty_print else {}
-  return json.dumps(yaml.safe_load(yaml_str), **kargs)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return json.dumps(yaml.safe_load(yaml_str), **kargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def ConvertYAMLPathToJSONPath(yaml_path):

@@ -45,7 +45,9 @@ class CherryPickChangesTest(unittest.TestCase):
 
     changes = download_patch.TopologicalSort(changes)
     self.assertListEqual(
-        [v['commit'] for v in changes],  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        [v['commit'] for v in changes],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         ['a', 'b', 'c'])
 
     # a -> b -> c -> e
@@ -63,7 +65,9 @@ class CherryPickChangesTest(unittest.TestCase):
         'h': self._BuildCommitObject('h', 'g'), }
 
     changes = download_patch.TopologicalSort(changes)
-    ordered_commits = [v['commit'] for v in changes]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ordered_commits = [v['commit'] for v in changes]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertSubSequence(['a', 'b', 'c', 'e'], ordered_commits)
     self.assertSubSequence(['a', 'b', 'd'], ordered_commits)
     self.assertSubSequence(['g', 'h'], ordered_commits)

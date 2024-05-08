@@ -86,7 +86,9 @@ def _BuildDatabaseForTest(
   encoded_fields_data_object = (
       yaml.safe_load(encoded_fields_section)['encoded_fields'])
 
-  component_part = {  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  component_part = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
       'components': {}
   }
   for comp_combo in itertools.chain.from_iterable(
@@ -176,7 +178,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               fields:
               - field1: 1
             """))
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports no matched fields
     hwid_spec = _StubHWIDSpec('unused_spec_name', db, dlm_db, {})
 
@@ -214,7 +218,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               - field1: 1
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports some encoded field values are
     # matched
     # When, field1 value is 1, 3, 5, the bit strings in HWID correspondingly are
@@ -271,7 +277,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               - field2: 4
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports value matches from both fields
     hwid_spec = _StubHWIDSpec('the_stub_spec', db, dlm_db, {
         'field1': [0],
@@ -329,7 +337,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               fields: []
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports a value match of the field
     hwid_spec = _StubHWIDSpec('the_stub_spec', db, dlm_db, {'field1': [0]})
 
@@ -338,7 +348,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
     actual = resolver.DeduceHWIDRequirementCandidates(db, dlm_db)
 
     # assert that the returned no HWID requirement candidates
-    expect = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    expect = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertCountEqual(
         _ToComparableHWIDRequirements(actual),
         _ToComparableHWIDRequirements(expect))
@@ -366,7 +378,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               - field1: 1
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports matched encoded value being 0
     hwid_spec = _StubHWIDSpec('the_stub_spec', db, dlm_db, {'field1': [0]})
 
@@ -412,7 +426,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               - field1: 2
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID spec reports matched encoded value being the
     # maximum one
     hwid_spec = _StubHWIDSpec('the_stub_spec', db, dlm_db, {'field1': [2]})
@@ -458,7 +474,9 @@ class HWIDRequirementResolverTest(unittest.TestCase):
               - field1: 2  # No bits for field2, so it should not be matched.
             """))
     # and with a regular DLM component database
-    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dlm_db = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # and with the underlying HWID specs return required encoded values
     # of both fields.
     hwid_specs = [

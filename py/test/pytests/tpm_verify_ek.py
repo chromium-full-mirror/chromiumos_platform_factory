@@ -64,7 +64,9 @@ class TPMVerifyEK(unittest.TestCase):
 
     status_txt = self.dut.CheckOutput(
         ['attestation_client', 'verify_attestation', '--ek-only'] +
-        (['--cros_core'] if self.args.is_cros_core else []), log=True)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        (['--cros_core'] if self.args.is_cros_core else []), log=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # The status_txt would look like this:
     #

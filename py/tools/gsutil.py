@@ -64,9 +64,15 @@ class GSUtil:
       return process.stdout_data
 
     stderr = process.stderr_data
-    if ('CommandException: No URLs matched' in stderr or  # type: ignore #TODO(b/338318729) Fixit!
-        'NotFoundException:' in stderr or  # type: ignore #TODO(b/338318729) Fixit!
-        'One or more URLs matched no objects' in stderr):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if ('CommandException: No URLs matched' in stderr or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'NotFoundException:' in stderr or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        'One or more URLs matched no objects' in stderr):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise NoSuchKey(stderr)
     raise GSUtilError(stderr)
 
@@ -78,7 +84,9 @@ class GSUtil:
 
   def GetVersion(self):
     output = self._InvokeCommand('version')
-    return re.search(r'gsutil version: (\d+\.\d+)', output).group(1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return re.search(r'gsutil version: (\d+\.\d+)', output).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetGSPrefix(self, channel):
     """Gets the common prefix of a Google storage URI for a given channel.
@@ -268,7 +276,9 @@ class GSUtil:
         base_cache_dir = '/usr/local'
       else:
         # Otherwise set it to user's home directory.
-        base_cache_dir = os.environ.get('HOME')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        base_cache_dir = os.environ.get('HOME')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       return os.path.join(base_cache_dir, 'gsutil_cache')
 
     if not cache_dir:

@@ -26,7 +26,9 @@ class TimeLine:
   """
   def __init__(self):
     self._fake_time = 0
-    self._events = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._events = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._unique_id = count()
 
   def AddEvent(self, time_at, event_func):
@@ -81,7 +83,9 @@ class TimeLine:
       except queue.Empty:
         if end_time is None:
           # Set time to inf so following AddEvent would fail.
-          self._fake_time = float('inf')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._fake_time = float('inf')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           raise type_utils.TimeoutError(
               'No events left when AdvanceTime(delta=None) is called.'
           ) from None
@@ -98,7 +102,9 @@ class TimeLine:
       event_func()
 
 
-class FakeEvent(threading.Event().__class__):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class FakeEvent(threading.Event().__class__):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   """A fake threading.Event.
 
   All methods works like a normal threading.Event, except that wait() won't
@@ -160,10 +166,18 @@ def MockAll(timeline):
     orig = getattr(obj, name)
 
     def _Stub(*args, **kwargs):
-      frame = inspect.currentframe().f_back  # type: ignore #TODO(b/338318729) Fixit!
-      while inspect.getmodule(frame).__name__.startswith('unittest.mock'):  # type: ignore #TODO(b/338318729) Fixit!
-        frame = frame.f_back  # type: ignore #TODO(b/338318729) Fixit!
-      caller_module_name = inspect.getmodule(frame).__name__  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      frame = inspect.currentframe().f_back  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      while inspect.getmodule(frame).__name__.startswith('unittest.mock'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        frame = frame.f_back  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      caller_module_name = inspect.getmodule(frame).__name__  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if caller_module_name.startswith('cros.factory.'):
         return replace(*args, **kwargs)
       return orig(*args, **kwargs)

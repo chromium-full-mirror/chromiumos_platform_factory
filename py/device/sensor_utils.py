@@ -141,7 +141,9 @@ class BasicSensorController(device_types.DeviceComponent):
     else:
       raise device_types.DeviceException('\n'.join(map(str, errors)))
 
-    self.scale = 1.0 if not scale else float(self._GetSysfsValue('scale'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.scale = 1.0 if not scale else float(self._GetSysfsValue('scale'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def CleanUpCalibrationValues(self):
     """Clean up calibration values.
@@ -161,7 +163,9 @@ class BasicSensorController(device_types.DeviceComponent):
     for signal_name in data:
       ideal_value = orientations.get(signal_name, 0.0)
       current_calib_bias = (
-          int(self._GetSysfsValue(f'{signal_name}_calibbias')) /  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          int(self._GetSysfsValue(f'{signal_name}_calibbias')) /  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.raw_to_sys_weight)
       # Calculate the difference between the ideal value and actual value
       # then store it into _calibbias.  In release image, the raw data will
@@ -185,7 +189,9 @@ class BasicSensorController(device_types.DeviceComponent):
         k: str(int(v * self.raw_to_sys_weight))
         for k, v in calib_bias.items()
     }
-    self._device.vpd.ro.Update(scaled)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._device.vpd.ro.Update(scaled)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     mapping = []
     for signal_name in self.signal_names:
       mapping.append((f'{signal_name}_{self.location}_calibbias',
@@ -258,7 +264,9 @@ class BasicSensorController(device_types.DeviceComponent):
     if not frequencies:
       raise SensorError(f'{node_name!r} is empty.')
     try:
-      frequencies = tuple(map(float, frequencies))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      frequencies = tuple(map(float, frequencies))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except ValueError:
       raise SensorError(
           f'Can not convert {node_name!r} to floating point numbers. '
@@ -327,7 +335,9 @@ class BasicSensorController(device_types.DeviceComponent):
         'iioservice_simpleclient',
         f"--channels={' '.join(iioservice_channels)}",
         f'--frequency={sample_rate:f}',
-        f"--device_id={int(self._GetSysfsValue('dev').split(':')[1])}",  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f"--device_id={int(self._GetSysfsValue('dev').split(':')[1])}",  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'--samples={int(capture_count)}'
     ]
     logging.info('iioservice_simpleclient command: %r', iioservice_cmd)
@@ -337,7 +347,9 @@ class BasicSensorController(device_types.DeviceComponent):
     for signal_name in self.signal_names:
       channel_name = ToChannelName(signal_name)
       matches = re.findall(f'(?<={channel_name}'
-                           r': )-?\d+', proc.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
+                           # yapf: disable
+                           r': )-?\d+', proc.stderr_data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if len(matches) != capture_count:
         error_msg = ('Failed to read channel "%s" from iioservice_simpleclient.'
                      'Expect %d data, but %d captured. stderr:\n%s',
@@ -348,11 +360,15 @@ class BasicSensorController(device_types.DeviceComponent):
       logging.info('Getting %d data on channel %s: %s', len(matches),
                    channel_name, matches)
 
-      ret[signal_name] = [int(value) * self.scale for value in matches]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ret[signal_name] = [int(value) * self.scale for value in matches]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       # Calculates average value and convert to SI unit.
       if average:
-        ret[signal_name] = statistics.mean(ret[signal_name])  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ret[signal_name] = statistics.mean(ret[signal_name])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     if average:
       logging.info('Average of %d data: %s', capture_count, ret)

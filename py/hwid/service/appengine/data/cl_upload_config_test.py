@@ -83,7 +83,9 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
         approval_method=cl_upload_config.ApprovalMethod.BOT, reviewers=[
             'reviewer@example.com'
         ], bot_reviewer='bot-reviewer@example.com', ccs=['cc@example.com'])
-    self._SetConfig(manager2, reviewers=['foo@example.com'],  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetConfig(manager2, reviewers=['foo@example.com'],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     ccs=['bar@example.com'])
 
     config = manager.cl_upload_config
@@ -321,13 +323,21 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
         self._ndb_connector)
     selection_manager = cl_upload_config.HWIDSelectionPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetCLUploadFactor(vp_manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(vp_manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board1')
-    self._SetCLUploadFactor(vp_manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(vp_manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board2')
-    self._SetCLUploadFactor(selection_manager, latest_content_hash='fake-hash3',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(selection_manager, latest_content_hash='fake-hash3',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board1')
-    self._SetCLUploadFactor(selection_manager, latest_content_hash='fake-hash4',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(selection_manager, latest_content_hash='fake-hash4',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board2')
 
     res1 = vp_manager.GetLatestPayloadHash(board='fake-board1')
@@ -346,13 +356,21 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     selection_manager = cl_upload_config.HWIDSelectionPayloadCLUploadManager(
         self._ndb_connector)
     factor1 = self._SetCLUploadFactor(
-        vp_manager, latest_content_hash='fake-hash1', board='fake-board1')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        vp_manager, latest_content_hash='fake-hash1', board='fake-board1')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     factor2 = self._SetCLUploadFactor(
-        vp_manager, latest_content_hash='fake-hash2', board='fake-board2')  # type: ignore #TODO(b/338318729) Fixit!
-    factor3 = self._SetCLUploadFactor(selection_manager,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        vp_manager, latest_content_hash='fake-hash2', board='fake-board2')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    factor3 = self._SetCLUploadFactor(selection_manager,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                       latest_content_hash='fake-hash3',
                                       board='fake-board1')
-    factor4 = self._SetCLUploadFactor(selection_manager,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    factor4 = self._SetCLUploadFactor(selection_manager,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                       latest_content_hash='fake-hash4',
                                       board='fake-board2')
 
@@ -373,7 +391,9 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldGenerateContent(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._SetLatestHWIDMainCommit(manager, commit='fake-commit')
 
     res = manager.ShouldGenerateContent("fake-commit2", False)
@@ -383,7 +403,9 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldGenerateContent_WithDisabledConfig_ShouldReturnFalse(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     res = manager.ShouldGenerateContent("fake-commit", False)
 
@@ -392,7 +414,9 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldGenerateContent_WithUnchangedHwidCommit_ShouldReturnFalse(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._SetLatestHWIDMainCommit(manager, commit='fake-commit')
 
     res = manager.ShouldGenerateContent("fake-commit", False)
@@ -402,7 +426,9 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldGenerateContent_WithForceGenerate_ShouldReturnTrue(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     res = manager.ShouldGenerateContent("fake-commit", True)
 
@@ -418,9 +444,13 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldCreateCL_HashChanged_ShouldReturnTrue(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board1')
-    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board2')
 
     res = manager.ShouldCreateCL('fake-hash2', board='fake-board1')
@@ -430,9 +460,13 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
   def testShouldCreateCL_HashNotChanged_ShouldReturnFalse(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash1',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board1')
-    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash2',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board2')
 
     res = manager.ShouldCreateCL('fake-hash1', board='fake-board1')
@@ -451,11 +485,15 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
     self._SetConfig(
-        manager, disabled=False,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        manager, disabled=False,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         approval_method=cl_upload_config.ApprovalMethod.BOT, reviewers=[
             'reviewer@example.com'
         ], bot_reviewer='bot-reviewer@example.com', ccs=['cc@example.com'])
-    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._SetCLUploadFactor(manager, latest_content_hash='fake-hash',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                             board='fake-board')
     mock_create_patch_cl.return_value = (123, 456)
 

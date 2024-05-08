@@ -68,14 +68,20 @@ class TouchpadMonitor(touch_monitor.MultiTouchMonitor):
     """See TouchMonitorBase.OnKey."""
     state = self.GetState()
     key_event_value = state.keys[key_event_code]
-    if key_event_code == evdev.ecodes.BTN_LEFT and state.num_fingers == 1:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if key_event_code == evdev.ecodes.BTN_LEFT and state.num_fingers == 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.test.OnSingleClick(key_event_value)
     else:
       if self.test.touchpad_has_right_btn:
-        if key_event_code != evdev.ecodes.BTN_RIGHT:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if key_event_code != evdev.ecodes.BTN_RIGHT:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           return
       else:
-        if key_event_code != evdev.ecodes.BTN_LEFT or state.num_fingers != 2:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if key_event_code != evdev.ecodes.BTN_LEFT or state.num_fingers != 2:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           return
       self.test.OnDoubleClick(key_event_value)
 
@@ -159,15 +165,21 @@ class TouchpadTest(test_case.TestCase):
     self.touchpad_device_name = None
     self.touchpad_has_right_btn = False
     self.quadrant = Quadrant()
-    self.touchpad_device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.touchpad_device = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                                   evdev_utils.IsTouchpadDevice)
     self.monitor = None
     self.dispatcher = None
     self.already_alerted = False
     self.frontend_proxy = None
 
-    self.x_segments = self.args.x_segments  # type: ignore #TODO(b/338318729) Fixit!
-    self.y_segments = self.args.y_segments  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.x_segments = self.args.x_segments  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.y_segments = self.args.y_segments  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.scroll_tested = [False] * self.y_segments
     self.touch_tested = [[False] * self.y_segments
@@ -193,7 +205,9 @@ class TouchpadTest(test_case.TestCase):
   def GetSpec(self):
     """Gets device name, btn_right."""
     self.touchpad_device_name = self.touchpad_device.name
-    if evdev.ecodes.BTN_RIGHT in self.monitor.GetState().keys:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if evdev.ecodes.BTN_RIGHT in self.monitor.GetState().keys:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.touchpad_has_right_btn = True
     logging.info('get device %s spec right_btn = %s',
                  self.touchpad_device_name, self.touchpad_has_right_btn)
@@ -217,22 +231,40 @@ class TouchpadTest(test_case.TestCase):
     if not down:
       quadrant = self.quadrant.quadrant
       logging.info('mark single click up quadrant = %d', quadrant)
-      self.frontend_proxy.MarkCircleTested('left')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkCircleTested('left')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      if self.single_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.single_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.single_click_count += 1
-        self.frontend_proxy.UpdateCircleCountText(self.single_click_count,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.frontend_proxy.UpdateCircleCountText(self.single_click_count,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                                   self.double_click_count)
 
-      if self.quadrant_count[quadrant] < self.args.number_to_quadrant:  # type: ignore #TODO(b/338318729) Fixit!
-        self.quadrant_count[quadrant] += 1  # type: ignore #TODO(b/338318729) Fixit!
-        self.frontend_proxy.UpdateQuadrantCountText(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.quadrant_count[quadrant] < self.args.number_to_quadrant:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.quadrant_count[quadrant] += 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.frontend_proxy.UpdateQuadrantCountText(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             quadrant, self.quadrant_count[quadrant])
-        if self.quadrant_count[quadrant] == self.args.number_to_quadrant:  # type: ignore #TODO(b/338318729) Fixit!
-          self.frontend_proxy.MarkQuadrantSectorTested(quadrant)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.quadrant_count[quadrant] == self.args.number_to_quadrant:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.frontend_proxy.MarkQuadrantSectorTested(quadrant)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
     else:
       logging.info('mark single click down')
-      self.frontend_proxy.MarkCircleDown('left')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkCircleDown('left')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.CheckTestPassed()
 
@@ -244,15 +276,23 @@ class TouchpadTest(test_case.TestCase):
     """
     if not down:
       logging.info('mark double click up')
-      self.frontend_proxy.MarkCircleTested('right')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkCircleTested('right')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-      if self.double_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.double_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.double_click_count += 1
-        self.frontend_proxy.UpdateCircleCountText(self.single_click_count,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.frontend_proxy.UpdateCircleCountText(self.single_click_count,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                                   self.double_click_count)
     else:
       logging.info('mark double click down')
-      self.frontend_proxy.MarkCircleDown('right')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkCircleDown('right')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.CheckTestPassed()
 
@@ -266,7 +306,9 @@ class TouchpadTest(test_case.TestCase):
     if 0 <= y_segment < self.y_segments:
       logging.debug('mark %d scroll segment tested', y_segment)
       self.scroll_tested[y_segment] = True
-      self.frontend_proxy.MarkScrollSectorTested(y_segment)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkScrollSectorTested(y_segment)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def MarkSectorTested(self, x_ratio, y_ratio):
     """Marks a touch sector tested.
@@ -279,19 +321,29 @@ class TouchpadTest(test_case.TestCase):
     if 0 <= x_segment < self.x_segments and 0 <= y_segment < self.y_segments:
       logging.debug('mark x-%d y-%d sector tested', x_segment, y_segment)
       self.touch_tested[x_segment][y_segment] = True
-      self.frontend_proxy.MarkSectorTested(x_segment, y_segment)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy.MarkSectorTested(x_segment, y_segment)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def CheckTestPassed(self):
     """Check if all items have been tested."""
-    if (self.single_click_count >= self.args.number_to_click and  # type: ignore #TODO(b/338318729) Fixit!
-        self.double_click_count >= self.args.number_to_click and  # type: ignore #TODO(b/338318729) Fixit!
-        min(self.quadrant_count[1:]) >= self.args.number_to_quadrant and  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.single_click_count >= self.args.number_to_click and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.double_click_count >= self.args.number_to_click and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        min(self.quadrant_count[1:]) >= self.args.number_to_quadrant and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         all(self.scroll_tested) and all(all(r) for r in self.touch_tested)):
       self.PassTask()
 
   def FailWithMessage(self):
     """Fail the test with untested items."""
-    fail_items = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    fail_items = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for x, row in enumerate(self.touch_tested):
       fail_items.extend(
@@ -304,12 +356,18 @@ class TouchpadTest(test_case.TestCase):
 
     fail_items.extend(
         f'quadrant-{int(i)}' for i, c in enumerate(self.quadrant_count[1:], 1)
-        if c < self.args.number_to_quadrant)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if c < self.args.number_to_quadrant)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.single_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.single_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fail_items.append(f'left click count: {int(self.single_click_count)}')
 
-    if self.double_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.double_click_count < self.args.number_to_click:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fail_items.append(f'right click count: {int(self.double_click_count)}')
 
     self.FailTask(
@@ -323,29 +381,43 @@ class TouchpadTest(test_case.TestCase):
     the operator and fail the test. Else, it will clear the event buffer and
     start the test.
     """
-    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.HideElement('prompt')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.HideElement('prompt')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailWithMessage)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailWithMessage)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.touchpad_device = evdev_utils.DeviceReopen(self.touchpad_device)
     with self.touchpad_device.grab_context():
       self.monitor = TouchpadMonitor(self.touchpad_device, self)
       if self.monitor.GetState().num_fingers != 0:
         logging.error('Ghost finger detected.')
-        self.ui.Alert(_(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.Alert(_(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             'Ghost finger detected!!\n'
             'Please treat this touch panel as a problematic one!!'))
         self.FailTask('Ghost finger detected.')
 
-      self.frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           'TouchpadTest', self.x_segments, self.y_segments,
-          self.args.number_to_click, self.args.number_to_quadrant)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.number_to_click, self.args.number_to_quadrant)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       self.GetSpec()
       self.dispatcher = evdev_utils.InputDeviceDispatcher(
           self.touchpad_device,
-          self.event_loop.CatchException(self.monitor.Handler))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.event_loop.CatchException(self.monitor.Handler))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('start monitor daemon thread')
       self.dispatcher.StartDaemon()
 

@@ -91,7 +91,9 @@ class TestListIteratorTest(unittest.TestCase):
       return test_list_iterator.TestListIterator.CheckRunIf(
           iterator,
           path)
-    iterator.CheckRunIf = _MockedCheckRunIf  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    iterator.CheckRunIf = _MockedCheckRunIf  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     max_iteration = len(expected_sequence) + 1
 
@@ -173,7 +175,9 @@ class TestListIteratorBaseTest(TestListIteratorTest):
                            state.TestState.UNTESTED]):
       iterator = test_list_iterator.TestListIterator(
           root=self.test_list, status_filter=status_filter)
-      self.assertListEqual(status_filter, iterator.status_filter)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertListEqual(status_filter, iterator.status_filter)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._testPickleSerializable(iterator)
 
   def testStop(self):

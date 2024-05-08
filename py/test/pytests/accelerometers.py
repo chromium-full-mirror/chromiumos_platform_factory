@@ -91,41 +91,71 @@ class AccelerometersTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.limits is None:  # type: ignore #TODO(b/338318729) Fixit!
-      self.args.limits = DEFAULT_LIMITS  # type: ignore #TODO(b/338318729) Fixit!
-    assert self.args.limits.keys() == {'x', 'y', 'z'}, (  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.limits is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.args.limits = DEFAULT_LIMITS  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    assert self.args.limits.keys() == {'x', 'y', 'z'}, (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'Limits should be a dictionary with keys "x", "y" and "z"')
-    for unused_axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for unused_axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       assert limit_min <= limit_max
 
     self.dut = device_utils.CreateDUTInterface()
     self.accelerometer_controller = (
-        self.dut.accelerometer.GetController(self.args.location))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.dut.accelerometer.GetController(self.args.location))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(_('Press SPACE to continue'))  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(_('Press SPACE to continue'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Waits for a few seconds to let machine become stable.
-    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Test will be started within {secs} seconds. '
             'Please do not move the device.',
-            secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            secs=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.Sleep(1)
 
-    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Test is in progress, please do not move the device.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     try:
-      raw_data = self.accelerometer_controller.GetData(self.args.capture_count)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raw_data = self.accelerometer_controller.GetData(self.args.capture_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except accelerometer.AccelerometerException:
       self.FailTask('Read raw data failed.')
 
     passed = True
-    for axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for axis, [limit_min, limit_max] in self.args.limits.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       key = 'in_accel_' + axis  # in_accel_(x|y|z)
       passed &= testlog.CheckNumericParam(
           name=key, value=raw_data[key], min=limit_min, max=limit_max)

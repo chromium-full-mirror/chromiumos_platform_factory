@@ -51,7 +51,9 @@ class ClearTPMOwnerRequest(unittest.TestCase):
           'clear_tpm_owner_done=1', default=False)]
 
   def runTest(self):
-    if self.args.only_check_clear_done:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.only_check_clear_done:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertEqual(
           process_utils.CheckOutput(['crossystem', 'clear_tpm_owner_done']),
           '1')

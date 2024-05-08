@@ -132,18 +132,32 @@ class BatteryCurrentTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._power = self._dut.power
-    if self.args.usbpd_info:  # type: ignore #TODO(b/338318729) Fixit!
-      self._CheckUSBPDInfoArg(self.args.usbpd_info)  # type: ignore #TODO(b/338318729) Fixit!
-      self._usbpd_port = self.args.usbpd_info[0]  # type: ignore #TODO(b/338318729) Fixit!
-      self._usbpd_min_millivolt = self.args.usbpd_info[1]  # type: ignore #TODO(b/338318729) Fixit!
-      self._usbpd_max_millivolt = self.args.usbpd_info[2]  # type: ignore #TODO(b/338318729) Fixit!
-    self._usbpd_prompt = self.args.usbpd_prompt  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.usbpd_info:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._CheckUSBPDInfoArg(self.args.usbpd_info)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._usbpd_port = self.args.usbpd_info[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._usbpd_min_millivolt = self.args.usbpd_info[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._usbpd_max_millivolt = self.args.usbpd_info[2]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    self._usbpd_prompt = self.args.usbpd_prompt  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _CheckUSBPDInfoArg(self, info):
     if len(info) == 5:
       check_types = (int, str, str, int, int)
     elif len(info) == 3:
-      check_types = (int, int, int)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      check_types = (int, int, int)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       raise ValueError('ERROR: invalid usbpd_info item: ' + str(info))
 
@@ -162,10 +176,14 @@ class BatteryCurrentTest(test_case.TestCase):
   def _CheckUSBPD(self):
     for unused_i in range(10):
       status = self._dut.usb_c.GetPDPowerStatus()
-      voltage_field = ('max_millivolt' if self.args.use_max_voltage else  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      voltage_field = ('max_millivolt' if self.args.use_max_voltage else  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                        'millivolt')
       if voltage_field not in status[self._usbpd_port]:
-        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('Insert power to {prompt}({voltage}mV)',
               prompt=self._usbpd_prompt,
               voltage=0))
@@ -174,7 +192,9 @@ class BatteryCurrentTest(test_case.TestCase):
       millivolt = status[self._usbpd_port][voltage_field]
       logging.info('millivolt %d, acceptable range (%d, %d)', millivolt,
                    self._usbpd_min_millivolt, self._usbpd_max_millivolt)
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('Insert power to {prompt}({voltage}mV)',
             prompt=self._usbpd_prompt,
             voltage=millivolt))
@@ -186,16 +206,24 @@ class BatteryCurrentTest(test_case.TestCase):
 
   def _CheckCharge(self):
     current = self._power.GetBatteryCurrent()
-    target = self.args.min_charging_current  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    target = self.args.min_charging_current  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._LogCurrent(current)
-    self.ui.SetState(_GetPromptText(current, target))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_GetPromptText(current, target))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return current >= target
 
   def _CheckDischarge(self):
     current = self._power.GetBatteryCurrent()
-    target = self.args.min_discharging_current  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    target = self.args.min_discharging_current  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._LogCurrent(current)
-    self.ui.SetState(_GetPromptText(current, -target))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_GetPromptText(current, -target))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return -current >= target
 
   def _GetAverageCurrent(self, total_measure_secs=3,
@@ -210,7 +238,9 @@ class BatteryCurrentTest(test_case.TestCase):
     return acc_current / times_to_count
 
   def _CheckCurrentDifference(self):
-    target = self.args.current_difference  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    target = self.args.current_difference  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self._power.SetChargeState(self._power.ChargeState.CHARGE)
     # It takes 1~2 seconds for the power state to change,
@@ -225,7 +255,9 @@ class BatteryCurrentTest(test_case.TestCase):
     logging.info('Average current in discharging mode: %f', discharging_current)
     present_difference = charging_current - discharging_current
 
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _(
             'Average current in charging mode is {charging_current}<br>'
             'Average current in discharging mode is {discharging_current}<br>'
@@ -237,20 +269,26 @@ class BatteryCurrentTest(test_case.TestCase):
     return present_difference >= target
 
   def _CheckCurrentDifferenceWithRetry(self):
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         _('Calculating the current difference between charging mode and'
           ' discharging mode.'))
 
     times = 0
 
-    @sync_utils.RetryDecorator(max_attempt_count=self.args.retry_times,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(max_attempt_count=self.args.retry_times,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                target_condition=lambda x: x)
     def _CheckCurrentDiffs():
       if self._CheckCurrentDifference():
         return True
       logging.info('CheckCurrentDifference failed. This is the %d try.',
                    times + 1)
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           _('CheckCurrentDifference failed. This is the {times} try',
             times=times + 1), append=True)
       return False
@@ -263,28 +301,47 @@ class BatteryCurrentTest(test_case.TestCase):
   def runTest(self):
     """Main entrance of charger test."""
     self.assertTrue(self._power.CheckBatteryPresent(), 'No battery present')
-    if self.args.max_battery_level:  # type: ignore #TODO(b/338318729) Fixit!
-      self.assertLessEqual(self._power.GetChargePct(),
-                           self.args.max_battery_level,  # type: ignore #TODO(b/338318729) Fixit!
-                           'Starting battery level too high')
-    if self.args.usbpd_info is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.max_battery_level:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      self.assertLessEqual(
+          self._power.GetChargePct(),
+          # yapf: disable
+          self.args.max_battery_level,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          'Starting battery level too high')
+    # yapf: disable
+    if self.args.usbpd_info is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       sync_utils.PollForCondition(
           poll_method=self._CheckUSBPD, poll_interval_secs=0.5,
           condition_name='CheckUSBPD',
-          timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.min_charging_current:  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    if self.args.min_charging_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._power.SetChargeState(self._power.ChargeState.CHARGE)
       sync_utils.PollForCondition(
           poll_method=self._CheckCharge, poll_interval_secs=0.5,
           condition_name='ChargeCurrent',
-          timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.min_discharging_current:  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    if self.args.min_discharging_current:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._power.SetChargeState(self._power.ChargeState.DISCHARGE)
       sync_utils.PollForCondition(poll_method=self._CheckDischarge,
                                   poll_interval_secs=0.5,
                                   condition_name='DischargeCurrent',
-                                  timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.current_difference:  # type: ignore #TODO(b/338318729) Fixit!
+                                  # yapf: disable
+                                  timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    if self.args.current_difference:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._CheckCurrentDifferenceWithRetry()
 
   def tearDown(self):

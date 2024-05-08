@@ -12,7 +12,9 @@ from cros.factory.utils import thread_utils
 
 class ThreadUtilsUnittest(unittest.TestCase):
   def setUp(self):
-    self.errors = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.errors = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _TestOneThread(self, index):
     try:

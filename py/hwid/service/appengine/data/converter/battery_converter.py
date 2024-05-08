@@ -22,8 +22,12 @@ class _BatteryAVLAttrs(converter.AVLAttrs):
 def MakeStrPrefixMatchFactory(
     length: int) -> Callable[..., converter_types.FormattedStrType]:
   return converter_types.FormattedStrType.CreateInstanceFactory(
-      formatter_self=lambda x: x[:length].ljust(length),  # type: ignore #TODO(b/338318729) Fixit!
-      formatter_other=lambda x: x.ljust(length))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      formatter_self=lambda x: x[:length].ljust(length),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      formatter_other=lambda x: x.ljust(length))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 class _PrefixRestrictedRegexStrFormatter(converter_types.IStrFormatter):
@@ -32,7 +36,9 @@ class _PrefixRestrictedRegexStrFormatter(converter_types.IStrFormatter):
     super().__init__()
     self._length = length
 
-  def __call__(self, value: converter_types.FormattedRegexStrType) -> str:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  def __call__(self, value: converter_types.FormattedRegexStrType) -> str:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     pattern_arr = probe_info_utils.ToRestrictedPatternArray(value)
     space_count = self._length - len(pattern_arr)
 
@@ -43,11 +49,17 @@ def MakeStrRestrictedRegexMatchFactory(
     length: Optional[int] = None
 ) -> Callable[..., converter_types.FormattedRegexStrType]:
   if length is None:
-    return converter_types.FormattedRegexStrType.CreateInstanceFactory()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return converter_types.FormattedRegexStrType.CreateInstanceFactory()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-  return converter_types.FormattedRegexStrType.CreateInstanceFactory(  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return converter_types.FormattedRegexStrType.CreateInstanceFactory(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
       formatter_self=_PrefixRestrictedRegexStrFormatter(length),
-      formatter_other=lambda x: x.ljust(length))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      formatter_other=lambda x: x.ljust(length))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 _BATTERY_CONVERTERS: Sequence[converter.FieldNameConverter] = (

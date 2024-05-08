@@ -5,13 +5,18 @@
 import unittest
 from unittest import mock
 
-from flask import Flask  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from flask import Flask  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test_list_editor.backend.api.v1 import tests
 from cros.factory.test_list_editor.backend.controller import test_list
 from cros.factory.test_list_editor.backend.models import files as file_model
 from cros.factory.test_list_editor.backend.schema import common as common_schema
 from cros.factory.test_list_editor.backend.schema import test_list as test_list_schema
+
+
+# yapf: enable
+
 
 
 class TestTestsEndpoint(unittest.TestCase):

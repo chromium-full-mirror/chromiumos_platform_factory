@@ -34,7 +34,9 @@ class DeviceManagerTest(unittest.TestCase):
                        time=mock.DEFAULT)
   def testGetDmesg(self, process_utils, time):
     # pylint: disable=protected-access
-    device_manager.DeviceManager._ReadUptime = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    device_manager.DeviceManager._ReadUptime = mock.Mock()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     process_utils.Spawn.return_value = type(
         '', (object,), dict(stdout_data='[ 123.0] A\n[2345.0] B\n'))

@@ -55,7 +55,9 @@ class MockServerHandler(socketserver.StreamRequestHandler):
         if output:
           self.wfile.write(output)
       else:
-        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        raise ValueError(f'Expecting [{expected_input}] but got [{line}]')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
 
 class LanScpiTest(unittest.TestCase):
@@ -146,7 +148,9 @@ class LanScpiTest(unittest.TestCase):
     self._AddInitialLookup()
     self.mock_server = None
     self.server_port = None
-    self.lan_scpi = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.lan_scpi = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     self.lan_scpi.Close()

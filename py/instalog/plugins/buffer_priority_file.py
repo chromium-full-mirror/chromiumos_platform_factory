@@ -62,7 +62,9 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
   ]
 
   def __init__(self, *args, **kwargs):
-    self.buffer_file = [[[] for unused_j in range(_PARTITION)]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.buffer_file = [[[] for unused_j in range(_PARTITION)]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                         for unused_i in range(_PRIORITY_LEVEL)]
     self.attachments_tmp_dir = None
     self.metadata_tmp_dir = None
@@ -107,24 +109,34 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
 
     for pri_level in range(_PRIORITY_LEVEL):
       for file_num in range(_PARTITION):
-        self.buffer_file[pri_level][file_num] = buffer_file_common.BufferFile(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.buffer_file[pri_level][file_num] = buffer_file_common.BufferFile(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             self.args, self.logger.name,
             os.path.join(self.GetDataDir(),
                          f'{int(pri_level)}_{int(file_num)}'))
 
     for file_num in range(_PARTITION):
-      self._file_num_lock[file_num] = lock_utils.Lock(self.logger.name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._file_num_lock[file_num] = lock_utils.Lock(self.logger.name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    for name in self.buffer_file[0][0].consumers.keys():  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    for name in self.buffer_file[0][0].consumers.keys():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.consumers[name] = Consumer(name, self)
 
     self.process_pool = multiprocessing.Pool(processes=_PROCESSES_NUMBER)  # pylint: disable=consider-using-with
 
   def TearDown(self):
     """Tears down the plugin."""
-    self.process_pool.close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.process_pool.close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.info('Joining the processes in the process pool')
-    self.process_pool.join()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.process_pool.join()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.info('Finished joining the processes')
 
   def Main(self):
@@ -164,10 +176,14 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
     # A buffer can be truncated faster after it is consumed for a while.
     file_num = self._consume_partition
     self._consume_partition = (self._consume_partition + 1) % _PARTITION
-    with self._file_num_lock[file_num]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    with self._file_num_lock[file_num]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for pri_level in range(_PRIORITY_LEVEL):
         self.info('Truncating database %d_%d...', pri_level, file_num)
-        self.buffer_file[pri_level][file_num].Truncate(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.buffer_file[pri_level][file_num].Truncate(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             process_pool=self.process_pool)
 
   def EventLevel(self, event):
@@ -185,7 +201,9 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
     Returns:
       A list of several lists, and each list has events in its priority level.
     """
-    priority_events = [[] for unused_i in range(_PRIORITY_LEVEL)]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    priority_events = [[] for unused_i in range(_PRIORITY_LEVEL)]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for event in events:
       priority_events[self.EventLevel(event)].append(event)
     return priority_events
@@ -199,11 +217,15 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
     # We didn't use file_utils.AtomicWrite since it create another file on
     # self.metadata_tmp_dir.
     with file_utils.UnopenedTemporaryFile() as tmp_path:
-      tmp_metadata_path = os.path.join(self.metadata_tmp_dir,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      tmp_metadata_path = os.path.join(self.metadata_tmp_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                        os.path.basename(tmp_path))
       all_metadata = {}
       for pri_level in range(_PRIORITY_LEVEL):
-        metadata_path = self.buffer_file[pri_level][file_num].metadata_path  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        metadata_path = self.buffer_file[pri_level][file_num].metadata_path  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if os.path.isfile(metadata_path):
           all_metadata[metadata_path] = file_utils.ReadFile(metadata_path)
         else:
@@ -271,7 +293,9 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
           self.RecoverTemporaryMetadata(tmp_metadata_path)
         if file_num is not None:
           for pri_level in range(_PRIORITY_LEVEL):
-            self.buffer_file[pri_level][file_num].RestoreMetadata()  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self.buffer_file[pri_level][file_num].RestoreMetadata()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
       except Exception:
         self.exception(
             'Exception encountered in RecoverTemporaryMetadata '
@@ -298,25 +322,33 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
     self.consumers[consumer_id] = Consumer(consumer_id, self)
     for pri_level in range(_PRIORITY_LEVEL):
       for file_num in range(_PARTITION):
-        self.buffer_file[pri_level][file_num].AddConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.buffer_file[pri_level][file_num].AddConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def RemoveConsumer(self, consumer_id):
     """See IBufferPlugin.RemoveConsumer."""
     for pri_level in range(_PRIORITY_LEVEL):
       for file_num in range(_PARTITION):
-        self.buffer_file[pri_level][file_num].RemoveConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.buffer_file[pri_level][file_num].RemoveConsumer(consumer_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def ListConsumers(self, details=0):
     """See IBufferPlugin.ListConsumers."""
     consumers_dict = {}
-    progress_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    progress_dict = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for name in self.consumers:
       progress_dict[name] = {}
       for pri_level in range(_PRIORITY_LEVEL):
         progress_dict[name][pri_level] = {}
         for file_num in range(_PARTITION):
           progress_dict[name][pri_level][file_num] = (
-              self.buffer_file[pri_level][file_num].ListConsumers()[name])  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              self.buffer_file[pri_level][file_num].ListConsumers()[name])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           if details >= 2:
             consumers_dict[f'{name}({int(pri_level)}-{int(file_num)})'] = (
                 progress_dict[name][pri_level][file_num])
@@ -326,7 +358,9 @@ class BufferPriorityFile(plugin_base.IBufferPlugin):
           consumers_dict[f'{name}({int(pri_level)})'] = (
               progress_dict[name][pri_level])
       progress_dict[name] = tuple(
-          map(sum, list(zip(*progress_dict[name].values()))))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          map(sum, list(zip(*progress_dict[name].values()))))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if details <= 0:
         consumers_dict[name] = progress_dict[name]
     return consumers_dict

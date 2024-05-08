@@ -9,11 +9,16 @@ from typing import Optional
 import unittest
 from unittest import mock
 
-from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import release_version_utils
 from cros.factory.hwid.service.appengine import test_utils
+
+
+# yapf: enable
+
 
 
 _ImageVersionType = release_version_utils.ImageVersionType

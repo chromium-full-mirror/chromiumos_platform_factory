@@ -105,25 +105,37 @@ class SpatialSensorCalibration(test_case.TestCase):
     self._dut = device_utils.CreateDUTInterface()
     self._device_path = None
 
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     try:
       self._device_path = sensor_utils.FindDevice(
           self._dut, sensor_utils.IIO_DEVICES_PATTERN,
-          name=self.args.device_name, location=self.args.device_location)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          name=self.args.device_name, location=self.args.device_location)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       self._device_path = sensor_utils.FindDevice(
           self._dut, sensor_utils.IIO_DEVICES_PATTERN,
-          name=self.args.device_name,  # type: ignore #TODO(b/338318729) Fixit!
-          label=sensor_utils.LABEL_FROM_LOCATION[self.args.device_location])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          name=self.args.device_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          label=sensor_utils.LABEL_FROM_LOCATION[self.args.device_location])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def runTest(self):
     previous_fail = False
     while True:
       try:
-        if self.args.prompt:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.prompt:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.Prompt(previous_fail)
-          self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
         self.RunCalibration()
       except InvalidPositionError:
@@ -135,14 +147,20 @@ class SpatialSensorCalibration(test_case.TestCase):
     self.WaitForDevice()
     self.VerifyDevicePosition()
 
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
-        _('Calibrating {sensor_name}...', sensor_name=self.args.sensor_name))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        _('Calibrating {sensor_name}...', sensor_name=self.args.sensor_name))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.EnableAutoCalibration(self._device_path)
     self.RetrieveCalibbiasAndWriteVPD()
 
   def Prompt(self, prev_fail=False):
-    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         '<div class="test-error">',
         _('Device not in position') if prev_fail else '', '</div><br>',
         _('Please put the device in face-up position'
@@ -150,19 +168,27 @@ class SpatialSensorCalibration(test_case.TestCase):
     ])
 
   def WaitForDevice(self):
-    self.ui.SetState(_('Waiting for device...'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(_('Waiting for device...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     try:
-      sync_utils.WaitFor(self._dut.IsReady, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      sync_utils.WaitFor(self._dut.IsReady, self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except type_utils.TimeoutError:
       self.fail('failed to find deivce')
 
   def VerifyDevicePosition(self):
     for i, axis in enumerate(['x', 'y', 'z']):
-      _range = self.args.placement_range[i]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      _range = self.args.placement_range[i]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if _range is None:
         continue
 
-      key = self.args.raw_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      key = self.args.raw_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       value = int(self._dut.ReadFile(self._dut.path.join(self._device_path,
                                                          key)))
       if value <= _range[0] or value >= _range[1]:
@@ -190,15 +216,23 @@ class SpatialSensorCalibration(test_case.TestCase):
       _WriteFile()
     except type_utils.MaxRetryError as e:
       raise RuntimeError('calibrate activation failed') from e
-    self.Sleep(self.args.stabilize_time)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.Sleep(self.args.stabilize_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def RetrieveCalibbiasAndWriteVPD(self):
     cmd = ['vpd']
 
     for axis in ['x', 'y', 'z']:
-      self.ui.SetState(_('Writing calibration data...'))  # type: ignore #TODO(b/338318729) Fixit!
-      calibbias_key = self.args.calibbias_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit!
-      vpd_key = self.args.vpd_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Writing calibration data...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      calibbias_key = self.args.calibbias_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      vpd_key = self.args.vpd_entry_template % axis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       value = self._dut.ReadFile(
           self._dut.path.join(self._device_path, calibbias_key))
       cmd.extend(['-s', f'{vpd_key}={value.strip()}'])

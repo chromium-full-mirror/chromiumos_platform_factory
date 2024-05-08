@@ -35,9 +35,13 @@ import urllib.parse
 import urllib.request
 
 import jsonrpclib
-from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 from jsonrpclib import config
-from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.client import WebSocketBaseClient  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 import yaml
 
 from cros.factory.utils import file_utils
@@ -312,7 +316,9 @@ class OverlordClientDaemon:
     return os.getpid()
 
   def _GetJSON(self, path):
-    url = f'{self._state.host}:{int(self._state.port)}{path}'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    url = f'{self._state.host}:{int(self._state.port)}{path}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return json.loads(UrlOpen(self._state, url).read())
 
   def _TLSEnabled(self):
@@ -409,7 +415,9 @@ class OverlordClientDaemon:
       return self._state.listing
 
     self._state.listing = self._GetJSON('/api/agents/list')
-    self._state.last_list = time.time()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._state.last_list = time.time()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return self._state.listing
 
   def SelectClient(self, mid):
@@ -517,7 +525,9 @@ class TerminalWebSocketClient(SSLEnabledWebSocketBaseClient):
 
   def closed(self, code, reason=None):
     del code, reason  # Unused.
-    termios.tcsetattr(self._stdin_fd, termios.TCSANOW, self._old_termios)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    termios.tcsetattr(self._stdin_fd, termios.TCSANOW, self._old_termios)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     print(f'Connection to {self._mid} closed.')
 
   def received_message(self, message):
@@ -620,7 +630,9 @@ def Command(command, help_msg=None, args=None):
     def Wrapped(*args, **kwargs):
       return func(*args, **kwargs)
     # pylint: disable=protected-access
-    Wrapped.__arg_attr = {'command': command, 'help': help_msg, 'args': args}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    Wrapped.__arg_attr = {'command': command, 'help': help_msg, 'args': args}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return Wrapped
   return WrapFunc
 
@@ -752,11 +764,15 @@ class OverlordCLIClient:
       h = http.client.HTTPConnection(parse.netloc)
     else:
       h = http.client.HTTPSConnection(parse.netloc,
-                                      context=self._state.ssl_context)  # type: ignore #TODO(b/338318729) Fixit!
+                                      # yapf: disable
+                                      context=self._state.ssl_context)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     post_path = url[url.index(parse.netloc) + len(parse.netloc):]
     h.putrequest('POST', post_path)
-    h.putheader('Content-Length', content_length)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    h.putheader('Content-Length', content_length)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     h.putheader('Content-Type', f'multipart/form-data; boundary={boundary}')
 
     if user and passwd:
@@ -791,12 +807,16 @@ class OverlordCLIClient:
             f'{int(_OVERLORD_CLIENT_DAEMON_PORT)} ... *')
       self.StartServer()
 
-    self._state = self._server.State()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._state = self._server.State()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sha1sum = GetVersionDigest()
 
     if sha1sum != self._state.version_sha1sum:
       print('ovl server is out of date.  killing...')
-      KillGraceful(self._server.GetPid())  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      KillGraceful(self._server.GetPid())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.StartServer()
 
   def GetSSHControlFile(self, host):
@@ -828,24 +848,35 @@ class OverlordCLIClient:
         '-O', 'check', host,
     ], read_stderr=True, ignore_stdout=True)
 
-    s = re.search(r'pid=(\d+)', p.stderr_data)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    s = re.search(r'pid=(\d+)', p.stderr_data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if s:
       return int(s.group(1))
 
     raise RuntimeError('can not establish ssh connection')
 
   def CheckConnection(self):
-    if self._state.host is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.host is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError('not connected to any server, abort')
 
     try:
-      self._server.Clients()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.Clients()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception:
       raise RuntimeError('remote server disconnected, abort') from None
 
-    if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with subprocess.Popen(
-          ['kill', '-0', str(self._state.ssh_pid)], stdout=subprocess.PIPE,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          ['kill', '-0', str(self._state.ssh_pid)],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          stdout=subprocess.PIPE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           stderr=subprocess.PIPE) as p:
         pass
       if p.returncode != 0:
@@ -853,43 +884,69 @@ class OverlordCLIClient:
 
   def CheckClient(self):
     if self._selected_mid is None:
-      if self._state.selected_mid is None:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._state.selected_mid is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise RuntimeError('No client is selected')
-      self._selected_mid = self._state.selected_mid  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._selected_mid = self._state.selected_mid  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if not any(client['mid'] == self._selected_mid
-               for client in self._server.Clients()):  # type: ignore #TODO(b/338318729) Fixit!
+               # yapf: disable
+               for client in self._server.Clients()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise RuntimeError(f'client {self._selected_mid} disappeared')
 
   def CheckOutput(self, command):
     headers = []
-    if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       headers.append(
-          BasicAuthHeader(self._state.username, self._state.password))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          BasicAuthHeader(self._state.username, self._state.password))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sio = StringIO()
     ws = ShellWebSocketClient(
-        self._state, sio,
-        scheme + f'{self._state.host}:{int(self._state.port)}/api/agent/shell/'  # type: ignore #TODO(b/338318729) Fixit!
+        self._state,
+        sio,
+        # yapf: disable
+        scheme + f'{self._state.host}:{int(self._state.port)}/api/agent/shell/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'{urllib.parse.quote(self._selected_mid)}?command='
-        f'{urllib.parse.quote(command)}', headers=headers)
+        f'{urllib.parse.quote(command)}',
+        headers=headers)
     ws.connect()
     ws.run()
     return sio.getvalue()
 
   @Command('status', 'show Overlord connection status')
   def Status(self):
-    if self._state.host is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.host is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       print('Not connected to any host.')
     else:
-      if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit!
-        print(f'Connected to {self._state.orig_host} with SSH tunneling.')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        print(f'Connected to {self._state.orig_host} with SSH tunneling.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
-        print(f'Connected to {self._state.host}:{int(self._state.port)}.')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        print(f'Connected to {self._state.host}:{int(self._state.port)}.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
     if self._selected_mid is None:
-      self._selected_mid = self._state.selected_mid  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._selected_mid = self._state.selected_mid  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if self._selected_mid is None:
       print('No client is selected.')
@@ -953,7 +1010,9 @@ class OverlordCLIClient:
           if not password_provided:
             args.passwd = getpass.getpass('Password: ')
 
-        ret = self._server.Connect(host, args.port, ssh_pid, args.user,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        ret = self._server.Connect(host, args.port, ssh_pid, args.user,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                    args.passwd, orig_host,
                                    args.check_hostname)
         if isinstance(ret, list):
@@ -1004,8 +1063,12 @@ class OverlordCLIClient:
     KillGraceful(self._server.GetPid())
 
   def KillSSHTunnel(self):
-    if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit!
-      KillGraceful(self._state.ssh_pid)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.ssh_pid is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      KillGraceful(self._state.ssh_pid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def _FilterClients(self, clients, prop_filters, mid=None):
     def _ClientPropertiesMatch(client, key, regex):
@@ -1041,7 +1104,9 @@ class OverlordCLIClient:
           help='Print properties of each client.')
   ])
   def ListClients(self, args):
-    clients = self._FilterClients(self._server.Clients(), args.filters)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    clients = self._FilterClients(self._server.Clients(), args.filters)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if args.verbose:
       for client in clients:
@@ -1087,7 +1152,9 @@ class OverlordCLIClient:
   def SelectClient(self, args=None, store=True):
     mid = args.mid if args is not None else None
     filters = args.filters if args is not None else []
-    clients = self._FilterClients(self._server.Clients(), filters, mid=mid)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    clients = self._FilterClients(self._server.Clients(), filters, mid=mid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if not clients:
       raise RuntimeError('select: client not found')
@@ -1110,7 +1177,9 @@ class OverlordCLIClient:
 
     self._selected_mid = mid
     if store:
-      self._server.SelectClient(mid)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.SelectClient(mid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       print(f'Client {mid} selected')
 
   @Command('shell', 'open a shell or execute a shell command', [
@@ -1121,23 +1190,41 @@ class OverlordCLIClient:
     self.CheckClient()
 
     headers = []
-    if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit!
-      headers.append(BasicAuthHeader(self._state.username,  # type: ignore #TODO(b/338318729) Fixit!
-                                     self._state.password))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      headers.append(BasicAuthHeader(self._state.username,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                     # yapf: enable
+                                     # yapf: disable
+                                     self._state.password))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if command:
       cmd = ' '.join(command)
       ws = ShellWebSocketClient(
-          self._state, sys.stdout, scheme +
-          f'{self._state.host}:{int(self._state.port)}/api/agent/shell/'  # type: ignore #TODO(b/338318729) Fixit!
+          self._state,
+          sys.stdout,
+          scheme +
+          # yapf: disable
+          f'{self._state.host}:{int(self._state.port)}/api/agent/shell/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{urllib.parse.quote(self._selected_mid)}?command='
-          f'{urllib.parse.quote(cmd)}', headers=headers)
+          f'{urllib.parse.quote(cmd)}',
+          headers=headers)
     else:
       ws = TerminalWebSocketClient(
-          self._state, self._selected_mid, self._escape,
-          scheme + f'{self._state.host}:{int(self._state.port)}/api/agent/tty/'  # type: ignore #TODO(b/338318729) Fixit!
-          f'{urllib.parse.quote(self._selected_mid)}', headers=headers)
+          self._state,
+          self._selected_mid,
+          self._escape,
+          # yapf: disable
+          scheme + f'{self._state.host}:{int(self._state.port)}/api/agent/tty/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          f'{urllib.parse.quote(self._selected_mid)}',
+          headers=headers)
     try:
       ws.connect()
       ws.run()
@@ -1172,7 +1259,9 @@ class OverlordCLIClient:
         return
 
       mode = f'0{0x1FF & os.stat(src).st_mode:o}'
-      url = (f'{self._state.host}:{int(self._state.port)}/api/agent/upload/'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      url = (f'{self._state.host}:{int(self._state.port)}/api/agent/upload/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
              f'{urllib.parse.quote(self._selected_mid)}?dest={dst}&perm={mode}')
       try:
         UrlOpen(self._state, url + f'&filename={src_base}')
@@ -1182,7 +1271,9 @@ class OverlordCLIClient:
 
       pbar = ProgressBar(src_base)
       self._HTTPPostFile(url, src, pbar.SetProgress,
-                         self._state.username, self._state.password)  # type: ignore #TODO(b/338318729) Fixit!
+                         # yapf: disable
+                         self._state.username, self._state.password)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       pbar.End()
 
     def _push_single_target(src, dst):
@@ -1249,7 +1340,9 @@ class OverlordCLIClient:
         pbar.End()
         return
 
-      url = (f'{self._state.host}:{int(self._state.port)}/api/agent/download/'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      url = (f'{self._state.host}:{int(self._state.port)}/api/agent/download/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
              f'{urllib.parse.quote(self._selected_mid)}?filename='
              f'{urllib.parse.quote(src)}')
       try:
@@ -1322,21 +1415,33 @@ class OverlordCLIClient:
   def Forward(self, args):
     if args.list_all:
       max_len = 10
-      if self._state.forwards:  # type: ignore #TODO(b/338318729) Fixit!
-        max_len = max([len(v[0]) for v in self._state.forwards.values()])  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._state.forwards:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        max_len = max([len(v[0]) for v in self._state.forwards.values()])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       print(f'{"Client":<{max_len}}   {"Remote":<8}  {"Local":<8}')
-      for local in sorted(self._state.forwards.keys()):  # type: ignore #TODO(b/338318729) Fixit!
-        value = self._state.forwards[local]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for local in sorted(self._state.forwards.keys()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        value = self._state.forwards[local]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         print(f'{value[0]:<{max_len}}   {value[1]:<8}  {local:<8}')
       return
 
     if args.remove_all:
-      self._server.RemoveAllForward()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.RemoveAllForward()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     if args.remove:
-      self._server.RemoveForward(args.remove)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.RemoveForward(args.remove)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
 
     self.CheckClient()
@@ -1351,14 +1456,24 @@ class OverlordCLIClient:
 
     def HandleConnection(conn):
       headers = []
-      if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._state.username is not None and self._state.password is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         headers.append(
-            BasicAuthHeader(self._state.username, self._state.password))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            BasicAuthHeader(self._state.username, self._state.password))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
-      scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      scheme = f"ws{'s' if self._state.ssl else ''}://"  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       ws = ForwarderWebSocketClient(
-          self._state, conn, scheme +
-          f'{self._state.host}:{int(self._state.port)}/api/agent/forward/'  # type: ignore #TODO(b/338318729) Fixit!
+          self._state,
+          conn,
+          scheme +
+          # yapf: disable
+          f'{self._state.host}:{int(self._state.port)}/api/agent/forward/'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{urllib.parse.quote(self._selected_mid)}?port={int(remote)}',
           headers=headers)
       try:
@@ -1383,7 +1498,9 @@ class OverlordCLIClient:
         t.start()
     else:
       print(f'ovl_forward_port: http://localhost:{int(local)}')
-      self._server.AddForward(self._selected_mid, remote, local, pid)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._server.AddForward(self._selected_mid, remote, local, pid)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
 
 def main():

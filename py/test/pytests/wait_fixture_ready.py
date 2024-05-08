@@ -39,7 +39,9 @@ class WaitBFTReady(test_case.TestCase):
   ]
 
   def runTest(self):
-    self.ui.SetState('Wait Fixture Ready...')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState('Wait Fixture Ready...')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     @sync_utils.RetryDecorator(
         interval_sec=_CHECK_INTERVAL_SECS,
@@ -47,6 +49,8 @@ class WaitBFTReady(test_case.TestCase):
     def _CreateBFTFixture():
       # The following line will setup the connect to BFT fixture, so if it can
       # be done without exception, the fixture should be ready.
-      bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     _CreateBFTFixture()

@@ -52,13 +52,19 @@ class LogExporter:
 
   def CompressFilesLimitedMaxSize(self, start_date, end_date, root_dir, dst_dir,
                                   max_archive_size):
-    file_list = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_list = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     current_archive_size = 0
-    tar_files = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    tar_files = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     start_date_str = start_date.strftime('%Y%m%d')
     end_date_str = end_date.strftime('%Y%m%d')
     date_str = start_date_str + '-' + end_date_str
-    src_dir_with_files = defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    src_dir_with_files = defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for date in self.DateRange(start_date, end_date):
       sub_str = date.strftime('%Y%m%d')
       src_dir = os.path.join(root_dir, sub_str)
@@ -119,7 +125,9 @@ class LogExporter:
         'log': 'aux_log'
     }[log_type]
     split_bytes = self.GetBytes(split_size['size'], split_size['unit'])
-    messages = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    messages = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     try:
       if log_type == 'csv':

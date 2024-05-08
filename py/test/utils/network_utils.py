@@ -44,11 +44,19 @@ def GetAllIPs(iface_filter=None):
   ret = []
   if iface_filter is None:
     iface_filter = lambda x: True
-  for iface in filter(iface_filter, netifaces.interfaces()):  # type: ignore #TODO(b/338318729) Fixit!
-    ifaddr = netifaces.ifaddresses(iface)  # type: ignore #TODO(b/338318729) Fixit!
-    if netifaces.AF_INET not in ifaddr:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  for iface in filter(iface_filter, netifaces.interfaces()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    ifaddr = netifaces.ifaddresses(iface)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if netifaces.AF_INET not in ifaddr:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       continue
-    ret.extend([link['addr'] for link in ifaddr[netifaces.AF_INET]])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    ret.extend([link['addr'] for link in ifaddr[netifaces.AF_INET]])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   return ret
 
 
@@ -64,7 +72,9 @@ def _SendDhclientCommand(arguments, interface,
   Because the read-only filesystem, using dhclient in ChromeOS needs a
   little tweaks on few paths.
   """
-  expect_str = pexpect.EOF if expect_str is None else expect_str  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  expect_str = pexpect.EOF if expect_str is None else expect_str  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   DHCLIENT_SCRIPT = '/usr/local/sbin/dhclient-script'
   DHCLIENT_LEASE = os.path.join(paths.DATA_STATE_DIR, 'dhclient.leases')
   file_utils.TryMakeDirs(os.path.dirname(DHCLIENT_LEASE))
@@ -72,10 +82,15 @@ def _SendDhclientCommand(arguments, interface,
 
   logging.info('Starting dhclient')
   dhcp_process = (
-      pexpect.spawn(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pexpect.spawn(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'dhclient',
-          ['-sf', DHCLIENT_SCRIPT, '-lf', DHCLIENT_LEASE, '-d',
-           '-v', '--no-pid', interface] + arguments, timeout))
+          [
+              '-sf', DHCLIENT_SCRIPT, '-lf', DHCLIENT_LEASE, '-d', '-v',
+              '--no-pid', interface
+          ] + arguments,
+          timeout))
   try:
     dhcp_process.expect(expect_str)
   except Exception:
@@ -207,15 +222,21 @@ def GetUnmanagedEthernetInterfaces():
       shill_status = process_utils.Spawn(['status', 'shill'], read_stdout=True,
                                          sudo=True)
       return (shill_status.returncode == 0 and
-              'running' in shill_status.stdout_data)  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              'running' in shill_status.stdout_data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except OSError:
       return False
 
   def IsShillUsingDHCP(intf):
     if dbus.MODULE_READY:
-      bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      bus = dbus.SystemBus()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       dev = bus.get_object("org.chromium.flimflam", f"/device/{intf}")
-      dev_intf = dbus.Interface(dev, "org.chromium.flimflam.Device")  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dev_intf = dbus.Interface(dev, "org.chromium.flimflam.Device")  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       properties = dev_intf.GetProperties()
       for config in properties['IPConfigs']:
         if 'dhcp' in config:
@@ -276,11 +297,17 @@ def GetDHCPBootParameters(interface):
     p.wait()
 
     with open(dump_file, 'r', encoding='utf8') as f:
-      pcap = dpkt.pcap.Reader(f)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      pcap = dpkt.pcap.Reader(f)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for _, buf in pcap:
-        eth = dpkt.ethernet.Ethernet(buf)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        eth = dpkt.ethernet.Ethernet(buf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         udp = eth.ip.data
-        dhcp = dpkt.dhcp.DHCP(udp.data)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        dhcp = dpkt.dhcp.DHCP(udp.data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
         if dhcp['siaddr'] != 0 and dhcp['file'].strip('\x00'):
           ip = '.'.join([str(x) for x in dhcp['siaddr'].to_bytes(4, 'big')])

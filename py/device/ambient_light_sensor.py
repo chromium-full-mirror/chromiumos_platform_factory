@@ -54,7 +54,9 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
 
     for input_entry_suffix in ('_input', '_raw'):
       input_entry = f'{signal_name}{input_entry_suffix}'
-      if self._device.Glob(self._device.path.join(self._iio_path, input_entry)):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self._device.Glob(self._device.path.join(self._iio_path, input_entry)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.input_entry = input_entry
         break
     else:
@@ -133,7 +135,9 @@ class AmbientLightSensorController(sensor_utils.BasicSensorController):
     try:
       device_name = os.path.basename(self._iio_path)
       self._device.CheckCall('/lib/udev/light-init.sh',
-                             stdin=device_name, stdout='illuminance')  # type: ignore #TODO(b/338318729) Fixit!
+                             # yapf: disable
+                             stdin=device_name, stdout='illuminance')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception as e:
       logging.exception('Failed to invoke light-init.sh (%s, illuminance)',
                         device_name)

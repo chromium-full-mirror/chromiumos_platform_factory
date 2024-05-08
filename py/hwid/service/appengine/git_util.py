@@ -18,8 +18,12 @@ import time
 from typing import Any, DefaultDict, Deque, MutableMapping, MutableSequence, NamedTuple, Optional, Sequence, Tuple, Union
 import urllib.parse
 
-import certifi  # type: ignore #TODO(b/338318729) Fixit!
-from dulwich import client as dw_client  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import certifi  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from dulwich import client as dw_client  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 from dulwich import errors as dw_errors
 from dulwich import objects as dw_objects
 from dulwich import porcelain
@@ -28,13 +32,20 @@ from dulwich import repo as dw_repo
 import google.auth
 from google.auth import impersonated_credentials
 import google.auth.transport.requests
-import urllib3  # type: ignore #TODO(b/338318729) Fixit!
-import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import urllib3  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.v3 import filesystem_adapter
 from cros.factory.utils import json_utils
 from cros.factory.utils import schema
 from cros.factory.utils import sync_utils
+
+
+# yapf: enable
+
 
 
 # Constants.
@@ -145,7 +156,9 @@ def _InvokeGerritAPI(
     json_body: Optional[Any] = None,
     return_resp: bool = False,
     accept_not_found: bool = False,
-) -> Union[type(None), bytes, http.client.HTTPResponse]:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+) -> Union[type(None), bytes, http.client.HTTPResponse]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   """Invokes a Gerrit API endpoint and returns the response in bytes.
 
   Args:
@@ -221,11 +234,15 @@ def _InvokeGerritAPIJSON(method: str, url: str,
       'auth_cookie': auth_cookie,
       'json_body': json_body,
   }
-  raw_data = _InvokeGerritAPI(method, url, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  raw_data = _InvokeGerritAPI(method, url, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   try:
     # the response starts with a magic prefix line for preventing XSSI which
     # should be stripped.
-    stripped_json_bytes = raw_data.split(b'\n', 1)[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    stripped_json_bytes = raw_data.split(b'\n', 1)[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     json_obj = json_utils.LoadStr(stripped_json_bytes)
     if response_schema:
       response_schema.Validate(json_obj)
@@ -422,7 +439,9 @@ class MemoryRepo(dw_repo.MemoryRepo):
         if not isinstance(sub, dw_objects.Tree):
           # if child_name exists but not a dir
           path_name = '/'.join(
-              path.decode() for path in path_splits[:path_idx + 1])  # type: ignore #TODO(b/338318729) Fixit!
+              # yapf: disable
+              path.decode() for path in path_splits[:path_idx + 1])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           raise GitUtilException(f'{path_name} is not a directory.')
       else:
         raise GitUtilException
@@ -438,14 +457,18 @@ class MemoryRepo(dw_repo.MemoryRepo):
       file_name = path_splits[path_idx]
       if file_name not in cur:
         # file_name does not exist
-        path_name = '/'.join(path.decode() for path in path_splits)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        path_name = '/'.join(path.decode() for path in path_splits)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise GitUtilException(f'{path_name} does not exist.')
 
       unused_mode, sha = cur[file_name]
       existed_obj = self[sha]
       if not isinstance(existed_obj, dw_objects.Blob):
         # file_name exists but not a Blob(file)
-        path_name = '/'.join(path.decode() for path in path_splits)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        path_name = '/'.join(path.decode() for path in path_splits)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise GitUtilException(f'{path_name} is not a file.')
       del cur[file_name]
 
@@ -622,7 +645,9 @@ def CreateOrPatchCL(
       _B(f'{commit_msg}\n\nChange-Id: {change_id}'), author=_B(author),
       committer=_B(committer), tree=updated_tree.id)
 
-  options = []  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  options = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if reviewers:
     options.extend(f'r={email}' for email in reviewers)
   if rubber_stamper:
@@ -773,7 +798,9 @@ def GetFileContent(gerrit_review_url: str, project: str, path: str,
   if raw_data is None:
     return raw_data
   try:
-    return base64.b64decode(raw_data)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return base64.b64decode(raw_data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   except Exception as ex:
     raise GitUtilException(f'Response format error: {raw_data!r}.') from ex
 
@@ -1116,7 +1143,9 @@ def GetCLInfo(
                     schema.List('comments', _COMMENT_INFO)))
 
     comment_json_list_of_reply_id = collections.defaultdict(list)
-    comment_id_queue = collections.deque()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    comment_id_queue = collections.deque()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     root_comment_threads = []
     comment_thread_of_comment_id = {}
     for path, comment_json_list in comment_json_of_path.items():
@@ -1149,7 +1178,9 @@ def GetCLInfo(
       replying_comment_json_list = comment_json_list_of_reply_id.pop(
           comment_id, [])
       for replying_comment_json in replying_comment_json_list:
-        comment_thread.comments.append(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        comment_thread.comments.append(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             CLComment(replying_comment_json['author'].get('email'),
                       replying_comment_json.get('message', '')))
         replying_comment_id = replying_comment_json['id']
@@ -1354,9 +1385,15 @@ def RebaseCL(review_host: str, change_id: str, auth_cookie: str = '',
         auth_cookie=auth_cookie, return_resp=not force,
         json_body={'allow_conflicts': force} if force else None)
     if not force:
-      if resp.status == 409:  # type: ignore #TODO(b/338318729) Fixit!
-        return resp.data.decode().split('merge conflict(s):\n')[-1].split()  # type: ignore #TODO(b/338318729) Fixit!
-      if resp.status == http.HTTPStatus.OK:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if resp.status == 409:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        return resp.data.decode().split('merge conflict(s):\n')[-1].split()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      # yapf: disable
+      if resp.status == http.HTTPStatus.OK:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return []
       raise GitUtilException
 
@@ -1382,26 +1419,39 @@ def PatchCL(review_host: str, change_id: str, path: str, content: bytes,
 
   # Add file to change edit.
   path = urllib.parse.quote(path, safe='')
-  content = f'data:text/plain;base64,{base64.b64encode(content).decode()}'  # type: ignore #TODO(b/338318729) Fixit!
-  resp = _InvokeGerritAPI(
-      'PUT', f'{review_host}/changes/{change_id}/edit/{path}',
-      auth_cookie=auth_cookie, json_body={"binary_content": content},
-      return_resp=True)
-  if resp.status == 409:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  content = f'data:text/plain;base64,{base64.b64encode(content).decode()}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  resp = _InvokeGerritAPI('PUT',
+                          f'{review_host}/changes/{change_id}/edit/{path}',
+                          auth_cookie=auth_cookie, json_body={
+                              "binary_content": content
+                          }, return_resp=True)
+  # yapf: disable
+  if resp.status == 409:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.warning("No file changed. Patch request aborted.")
     return
 
-  if resp.status != 204:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  if resp.status != 204:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     raise GitUtilException(
-        f'Failed to patch change id: {change_id}. code={resp.status}')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'Failed to patch change id: {change_id}. code={resp.status}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   # Publish change edit
   resp = _InvokeGerritAPI('POST',
                           f'{review_host}/changes/{change_id}/edit:publish',
                           auth_cookie=auth_cookie, return_resp=True)
-  if resp.status != 204:  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  if resp.status != 204:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     raise GitUtilException(
-        f'Failed to publish change id: {change_id}. code={resp.status}')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'Failed to publish change id: {change_id}. code={resp.status}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 def GetGerritCredentials():

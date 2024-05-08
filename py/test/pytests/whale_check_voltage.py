@@ -95,7 +95,9 @@ class WhaleCheckVoltageTest(test_case.TestCase):
     for key, (display_name, expected, tolerance) in self._sorted_criteria:
       measured = power_rail.get(key, 0)
       # log the value by testlog
-      with self._group_checker:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      with self._group_checker:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         testlog.LogParam('ina_name', key)
         testlog.LogParam('elapsed', elapsed)
         if expected is None:
@@ -117,18 +119,28 @@ class WhaleCheckVoltageTest(test_case.TestCase):
                 'Unexpected voltage on %s: expected %d mV, actual %d mV',
                 display_name, expected, measured)
 
-      self.ui.SetHTML(f'<div class=test-status-{state}>{measured}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(f'<div class=test-status-{state}>{measured}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                       id=_ValueId(key))
-      self.ui.SetHTML(f'<div class=test-status-{state}>{state}</div>',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetHTML(f'<div class=test-status-{state}>{state}</div>',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                       id=_StateId(key))
 
     return all_pass
 
   def setUp(self):
-    self._bft = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
-    self._sorted_criteria = sorted(self.args.criteria.items())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._bft = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._sorted_criteria = sorted(self.args.criteria.items())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self._power_rail_str = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._power_rail_str = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._errors = []
 
     self._group_checker = testlog.GroupParam(
@@ -156,18 +168,24 @@ class WhaleCheckVoltageTest(test_case.TestCase):
       else:
         table.SetContent(r, 2, f'{int(expected)} &plusmn; {int(tolerance)}%')
       table.SetContent(r, 3, f'<div id="{_StateId(key)}"></div>')
-    self.ui.SetState([table.GenerateHTML()])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState([table.GenerateHTML()])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
     self.InitDashboard()
 
     start_time = time.time()
     elapsed = time.time() - start_time
-    while elapsed < self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    while elapsed < self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       test_pass = self.CheckVoltage(elapsed)
       if test_pass:
         break
-      time.sleep(self.args.poll_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      time.sleep(self.args.poll_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       elapsed = time.time() - start_time
 
     if not test_pass:

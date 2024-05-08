@@ -23,7 +23,10 @@ from ctypes import *
 import mmap
 import os
 
-from PIL import Image  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from PIL import Image  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 class DrmVersion(Structure):
@@ -86,7 +89,9 @@ class DrmModeResources(Structure):
     if not 0 <= index < self.count_crtcs:
       raise IndexError("CRTC index out of range")
 
-    crtc = self._l.drmModeGetCrtc(self._fd, self.crtcs[index]).contents  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    crtc = self._l.drmModeGetCrtc(self._fd, self.crtcs[index]).contents  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     crtc._fd = self._fd
     crtc._l = self._l
     return crtc
@@ -126,7 +131,9 @@ class DrmModeCrtc(Structure):
         """
 
     if self.hasFb():
-      fb = self._l.drmModeGetFB(self._fd, self.buffer_id).contents  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      fb = self._l.drmModeGetFB(self._fd, self.buffer_id).contents  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fb._fd = self._fd
       fb._l = self._l
       return fb
@@ -200,7 +207,9 @@ class DrmModeFB(Structure):
     mapDumb = drm_mode_map_dumb()
     mapDumb.handle = self.handle
 
-    rv = self._l.drmIoctl(self._fd, DRM_IOCTL_MODE_MAP_DUMB, pointer(mapDumb))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    rv = self._l.drmIoctl(self._fd, DRM_IOCTL_MODE_MAP_DUMB, pointer(mapDumb))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if rv:
       raise IOError(rv, os.strerror(rv))
 
@@ -256,7 +265,9 @@ def loadDRM():
   l.drmModeFreeFB.argtypes = [POINTER(DrmModeFB)]
   l.drmModeFreeFB.restype = None
 
-  l.drmIoctl.argtypes = [c_int, c_ulong, c_voidp]  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  l.drmIoctl.argtypes = [c_int, c_ulong, c_voidp]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   l.drmIoctl.restype = c_int
 
   return l
@@ -285,7 +296,9 @@ class DRM:
     self = cls(loadDRM(), handle.fileno())
     # We must keep the handle alive, and we cannot trust the caller to
     # keep it alive for us.
-    self._handle = handle  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._handle = handle  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return self
 
   def version(self):
@@ -333,7 +346,9 @@ def _screenshot(image, fb):
   m = fb._map
   lineLength = fb.width * fb.bpp // 8
   pitch = fb.pitch
-  pixels = []  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  pixels = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   if fb.depth == 24:
     unformat = _bgrx24

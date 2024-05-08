@@ -15,6 +15,7 @@ from typing import Any, Callable, NamedTuple, Sequence
 
 from cros.factory.utils import file_utils
 
+
 LoadStr = json.loads
 
 
@@ -51,7 +52,9 @@ def DumpStr(obj, pretty=False, newline=None, **json_dumps_kwargs):
   else:
     kwargs = {}
   kwargs.update(json_dumps_kwargs)
-  result = json.dumps(obj, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  result = json.dumps(obj, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   if newline:
     result += '\n'

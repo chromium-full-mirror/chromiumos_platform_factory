@@ -25,7 +25,9 @@ def MockDownload(unused_possible_urls, unused_resource_name, unused_version):
 class FinalizeBundleTestBase(unittest.TestCase):
 
   def setUp(self):
-    self.temp_dir = tempfile.mkdtemp(prefix=__class__.__name__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.temp_dir = tempfile.mkdtemp(prefix=__class__.__name__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     @contextlib.contextmanager
     def MockTempdir():
@@ -47,18 +49,24 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
   """Unit tests for preparing netboot."""
 
   def _SetupBuilder(self, bundle_builder: finalize_bundle.FinalizeBundle):
-    orig_netboot_dir = os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    orig_netboot_dir = os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                     'netboot')
     file_utils.TryMakeDirs(orig_netboot_dir)
     file_utils.TouchFile(
-        os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.path.join(bundle_builder.bundle_dir, 'factory_shim',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                      'factory_shim.bin'))
     file_utils.TouchFile(os.path.join(orig_netboot_dir, 'vmlinuz'))
     file_utils.TouchFile(
         os.path.join(orig_netboot_dir, 'image-randomName.net.bin'))
     bundle_builder.designs = ['test']  # Set by PrepareProjectConfig
     # Set by ObtainFirmwareManifestKeys
-    bundle_builder.firmware_manifest_keys = {  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    bundle_builder.firmware_manifest_keys = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'randomFWKey': ['test']
     }
     # Set by AddFirmwareUpdaterAndImages
@@ -89,7 +97,9 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                 'dnsmasq.conf':
                     '084e4b7f1040bd77555563f49f271213306b8ea5',
                 'image-randomName.net.bin':
@@ -124,7 +134,9 @@ class PrepareNetbootTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            os.path.join(bundle_builder.bundle_dir, 'netboot')), {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
                 'dnsmasq.conf':
                     '084e4b7f1040bd77555563f49f271213306b8ea5',
                 'tftp/chrome-bot/brya/cmdline.sample':
@@ -219,7 +231,9 @@ class AddFirmwareUpdaterAndImagesTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'firmware')), {})  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            os.path.join(bundle_builder.bundle_dir, 'firmware')), {})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testAddFirmware_evtCrosConfigMismatch_raiseException(self):
     self.pack_mock.side_effect = self.MockMismatchPack
@@ -258,8 +272,13 @@ class AddFirmwareUpdaterAndImagesTest(FinalizeBundleTestBase):
 
     self.assertDictEqual(
         file_utils.HashFiles(
-            os.path.join(bundle_builder.bundle_dir, 'firmware')),  # type: ignore #TODO(b/338318729) Fixit!
-        {'chromeos-firmwareupdate': 'da39a3ee5e6b4b0d3255bfef95601890afd80709'})
+            # yapf: disable
+            os.path.join(bundle_builder.bundle_dir, 'firmware')),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        {
+            'chromeos-firmwareupdate':
+                'da39a3ee5e6b4b0d3255bfef95601890afd80709'
+        })
 
   @mock.patch(file_utils.__name__ + '.TryMakeDirs',
               wraps=file_utils.TryMakeDirs)
@@ -347,7 +366,9 @@ class DownloadResourcesTest(FinalizeBundleTestBase):
     bundle_builder.DownloadResources()
 
     self.assertEqual(
-        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'mock_release_image_15003.0.0')
 
   def testDownloadFirmwareSource_fromOtherReleaseImage(self):
@@ -367,7 +388,9 @@ class DownloadResourcesTest(FinalizeBundleTestBase):
     bundle_builder.DownloadResources()
 
     self.assertEqual(
-        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        os.path.basename(bundle_builder.firmware_image_source),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'mock_release_image_15004.0.0')
 
   def testDownloadFirmwareSource_fromLocal(self):
@@ -703,8 +726,12 @@ class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
     self.bundle_builder = finalize_bundle.FinalizeBundle(
         manifest=self.default_manifest, work_dir=self.temp_dir)
     self.bundle_builder.ProcessManifest()
-    self.shim_dir = os.path.join(self.bundle_builder.bundle_dir, 'factory_shim')  # type: ignore #TODO(b/338318729) Fixit!
-    self.toolkit_dir = os.path.join(self.bundle_builder.bundle_dir, 'toolkit')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.shim_dir = os.path.join(self.bundle_builder.bundle_dir, 'factory_shim')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.toolkit_dir = os.path.join(self.bundle_builder.bundle_dir, 'toolkit')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.extract = mock.patch.object(file_utils, 'ExtractFile',
                                      autospec=True).start()
     mock.patch.object(finalize_bundle.FinalizeBundle, '_DownloadResource',
@@ -728,7 +755,9 @@ class DownloadFactoryToolkitTest(FinalizeBundleTestBase):
     self.assertTrue(os.path.exists(os.path.join(self.shim_dir, 'test_file')))
 
   def testChangedPath_MoveBackToNormalPath(self):
-    rubik_shim_dir = os.path.join(self.bundle_builder.bundle_dir,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    rubik_shim_dir = os.path.join(self.bundle_builder.bundle_dir,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                   'R123-0.0.0-factory_shim')
 
     def CreateMockedChangedBundle(*unused_args, **unused_kwargs):

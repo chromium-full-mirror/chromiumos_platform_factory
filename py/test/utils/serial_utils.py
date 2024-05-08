@@ -42,9 +42,13 @@ def OpenSerial(**params):
   port = params.get('port')
   if not port:
     raise ValueError('Missing parameter "port".')
-  ser = serial.Serial(**params)  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  ser = serial.Serial(**params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   if not ser.isOpen():
-    raise serial.SerialException(f'Failed to open serial: {port!r}')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    raise serial.SerialException(f'Failed to open serial: {port!r}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   return ser
 
 
@@ -183,10 +187,20 @@ class SerialDevice:
   def __del__(self):
     self.Disconnect()
 
-  def Connect(self, driver=None, port=None,
-              baudrate=9600, bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit!
-              parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit!
-              timeout=0.5, writeTimeout=0.5):
+  def Connect(
+      self,
+      driver=None,
+      port=None,
+      # yapf: disable
+      baudrate=9600,
+      bytesize=serial.EIGHTBITS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      parity=serial.PARITY_NONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      stopbits=serial.STOPBITS_ONE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      timeout=0.5,
+      writeTimeout=0.5):
     """Opens a serial connection by port or by device driver name.
 
     Args:
@@ -202,7 +216,9 @@ class SerialDevice:
       port = FindTtyByDriver(driver)
 
     if not port:
-      raise serial.SerialException(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raise serial.SerialException(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           f'Serial device with driver {driver!r} not found')
 
     self._port = port
@@ -226,12 +242,18 @@ class SerialDevice:
       read_timeout: read timeout.
       write_timeout: write timeout.
     """
-    self._serial.timeout = read_timeout  # type: ignore #TODO(b/338318729) Fixit!
-    self._serial.write_timeout = write_timeout  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.timeout = read_timeout  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._serial.write_timeout = write_timeout  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetTimeout(self):
     """Returns (read timeout, write timeout)."""
-    return (self._serial.timeout, self._serial.write_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return (self._serial.timeout, self._serial.write_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Send(self, command, flush=True):
     """Sends a command.
@@ -248,22 +270,36 @@ class SerialDevice:
     """
     try:
       start_time = time.time()
-      self._serial.write(command)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._serial.write(command)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if flush:
-        self._serial.flush()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._serial.flush()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       if self.log:
         duration = time.time() - start_time
         logging.info('Successfully sent %r. Took %.3f seconds', command,
                      duration)
-    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       error_message = (
-          f'Send {command!r} timeout after {self._serial.write_timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Send {command!r} timeout after {self._serial.write_timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'seconds')
       if self.log:
         logging.warning(error_message)
-      raise serial.SerialTimeoutException(error_message) from None  # type: ignore #TODO(b/338318729) Fixit!
-    except serial.SerialException:  # type: ignore #TODO(b/338318729) Fixit!
-      raise serial.SerialException('Serial disconnected') from None  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raise serial.SerialTimeoutException(error_message) from None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    except serial.SerialException:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      raise serial.SerialException('Serial disconnected') from None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def Receive(self, size=1):
     """Receives N bytes.
@@ -282,8 +318,12 @@ class SerialDevice:
     """
     start_time = time.time()
     if size == 0:
-      size = self._serial.in_waiting  # type: ignore #TODO(b/338318729) Fixit!
-    response = self._serial.read(size)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      size = self._serial.in_waiting  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    response = self._serial.read(size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if len(response) == size:
       if self.log:
         duration = time.time() - start_time
@@ -291,16 +331,24 @@ class SerialDevice:
                      duration)
       return response
     error_message = (
-        f'Receive {int(size)} bytes timeout after {self._serial.timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'Receive {int(size)} bytes timeout after {self._serial.timeout:.2f} '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'seconds')
     if self.log:
       logging.warning(error_message)
-    raise serial.SerialTimeoutException(error_message)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    raise serial.SerialTimeoutException(error_message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def FlushBuffer(self):
     """Flushes input/output buffer."""
-    self._serial.reset_input_buffer()  # type: ignore #TODO(b/338318729) Fixit!
-    self._serial.reset_output_buffer()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.reset_input_buffer()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._serial.reset_output_buffer()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SendReceive(self, command, size=1, retry=1, interval_secs=None,
                   suppress_log=False):
@@ -342,7 +390,9 @@ class SerialDevice:
           f'Timeout receiving {int(size)} bytes for command {command!r}')
       if not suppress_log and self.log:
         logging.warning(error_message)
-      raise serial.SerialTimeoutException(error_message) from e  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      raise serial.SerialTimeoutException(error_message) from e  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def SendExpectReceive(self, command, expect_response, retry=0,
                         interval_secs=None):
@@ -362,7 +412,9 @@ class SerialDevice:
       response = self.SendReceive(command, len(expect_response), retry=retry,
                                   interval_secs=interval_secs,
                                   suppress_log=True)
-    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    except serial.SerialTimeoutException:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self.log:
         logging.warning('SendReceive timeout for command %r', command)
       return False

@@ -7,9 +7,14 @@
 import logging
 import time
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils import serial_utils
+
+
+# yapf: enable
+
 
 
 class ArduinoController(serial_utils.SerialDevice):
@@ -120,9 +125,13 @@ class ArduinoController(serial_utils.SerialDevice):
       wait_ready: True to wait for ready_delay_secs after reset.
     """
     # Pull down DTR can reset Arduino Uno.
-    self._serial.setDTR(False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.setDTR(False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     time.sleep(0.05)
-    self._serial.setDTR(True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial.setDTR(True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if wait_ready:
       time.sleep(self._ready_delay_secs)
 

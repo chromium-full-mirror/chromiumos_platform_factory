@@ -469,10 +469,16 @@ class AudioLoopTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit!
-      self.GetAudio().LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.audio_conf:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.GetAudio().LoadConfig(self.args.audio_conf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self._output_volumes = self.args.output_volume  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._output_volumes = self.args.output_volume  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not isinstance(self._output_volumes, list):
       self._output_volumes = [self._output_volumes]
     self._output_volume_index = 0
@@ -488,12 +494,18 @@ class AudioLoopTest(test_case.TestCase):
         'nocheck': None,
         'lrgm': base.MicJackType.lrgm,
         'lrmg': base.MicJackType.lrmg
-    }[self.args.mic_jack_type]  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+    }[self.args.mic_jack_type]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.initial_actions is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.GetAudio().Initialize()
     else:
-      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for card, action in self.args.initial_actions:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if card.isdigit() is False:
           card = self.GetAudio().GetCardIndexByName(card)
         if action is None:
@@ -502,26 +514,44 @@ class AudioLoopTest(test_case.TestCase):
           self.GetAudio().ApplyAudioConfig(action, card)
 
     # Transfer input and output device format
-    self._in_card = self.GetAudio().GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._in_card = self.GetAudio().GetCardIndexByName(self.args.input_dev[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._in_channel_map = _DEFAULT_TEST_INPUT_CHANNELS
-    if self.args.input_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit!
-      self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.input_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._in_device = self.args.input_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       # Detect _in_device from ucm config.
       self._in_device = self.GetAudio().config_mgr.GetPCMId(
-          'CapturePCM', self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          'CapturePCM', self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       channels_from_ucm_config = self.GetAudio().config_mgr.GetChannelMap(
-          self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.input_dev[1], self._in_card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if channels_from_ucm_config is not None:
         self._in_channel_map = channels_from_ucm_config
 
-    self._out_card = self.GetAudio().GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.output_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit!
-      self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._out_card = self.GetAudio().GetCardIndexByName(self.args.output_dev[0])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.output_dev[1].isdigit():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       # Detect _out_device from ucm config.
       self._out_device = self.GetAudio().config_mgr.GetPCMId(
-          'PlaybackPCM', self.args.output_dev[1], self._out_card)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          'PlaybackPCM', self.args.output_dev[1], self._out_card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Backward compatible for non-porting case, which use ALSA device name.
     # only works on chromebook device
@@ -529,9 +559,13 @@ class AudioLoopTest(test_case.TestCase):
     self._alsa_input_device = f'hw:{self._in_card},{self._in_device}'
     self._alsa_output_device = f'hw:{self._out_card},{self._out_device}'
 
-    if self.args.check_cras:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_cras:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Check cras status
-      if self.args.cras_enabled:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.cras_enabled:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         cras_status = 'start/running'
       else:
         cras_status = 'stop/waiting'
@@ -555,19 +589,33 @@ class AudioLoopTest(test_case.TestCase):
   def runTest(self):
     # If autostart, JS triggers start_run_test event.
     # Otherwise, it binds start_run_test with 's' key pressed.
-    self.ui.CallJSFunction('init',  # type: ignore #TODO(b/338318729) Fixit!
-                           self.args.require_dongle, self.args.test_title)  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.RunJS('window.template.innerHTML = "";')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('init',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                           # yapf: enable
+                           # yapf: disable
+                           self.args.require_dongle, self.args.test_title)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.RunJS('window.template.innerHTML = "";')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self.ui.WaitKeysOnce('S')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.WaitKeysOnce('S')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.CheckDongleStatus()
     self.SetupAudio()
-    if self.args.check_conformance:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_conformance:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckConformance()
 
-    if not self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('No audio loop test to be conducted because the argument '
                    '\'tests_to_conduct\' is empty')
       return
@@ -578,12 +626,16 @@ class AudioLoopTest(test_case.TestCase):
         self._output_volumes):
 
       if output_volume is not None:
-        if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.GetAudio().SetHeadphoneVolume(output_volume, self._out_card)
         else:
           self.GetAudio().SetSpeakerVolume(output_volume, self._out_card)
 
-      for test in self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for test in self.args.tests_to_conduct:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if test['type'] == 'audiofun':
           # Read input_gain from ucm for audiofuntest.
           ucm_config_mgr = self.GetAudio().ucm_config_mgr
@@ -598,13 +650,17 @@ class AudioLoopTest(test_case.TestCase):
           raise ValueError(f"Test type \"{test['type']}\" not supported.")
 
       if self.MayPassTest():
-        self.ui.CallJSFunction('testPassResult')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.CallJSFunction('testPassResult')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.Sleep(0.5)
         for file_path in self._audio_file_path:
           os.unlink(file_path)
         return
 
-    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         for file_path in self._audio_file_path:
           testlog.AttachFile(path=file_path, mime_type='audio/x-raw',
@@ -746,7 +802,9 @@ class AudioLoopTest(test_case.TestCase):
     self.assertLessEqual(min_frequency, max_frequency)
 
     player_cmd = (
-        f'sox -b{audiofuntest_bits:d} -c{self.args.num_output_channels:d} -e'  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        f'sox -b{audiofuntest_bits:d} -c{self.args.num_output_channels:d} -e'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         f'{audiofuntest_encoding} -r{output_rate:d} -traw - -b{player_bits:d} '
         f'-e{player_encoding} -talsa {self._alsa_output_device}')
 
@@ -768,12 +826,34 @@ class AudioLoopTest(test_case.TestCase):
                                    stderr=process_utils.PIPE, log=True)
     unused_help_stdout, help_stderr = help_process.communicate()
     audiofun_cmd = [
-        audio_utils.AUDIOFUNTEST_PATH, '-P', player_cmd, '-R', recorder_cmd,
-        '-t', audiofuntest_sample_format, '-I', f'{int(input_rate)}', '-O',
-        f'{int(output_rate)}', '-T', f'{int(iteration)}', '-a',
-        f'{int(output_channel)}', '-c', f'{len(input_channels)}', '-C',
-        f'{int(self.args.num_output_channels)}', '-g', f'{int(volume_gain)}',  # type: ignore #TODO(b/338318729) Fixit!
-        '-i', f'{int(min_frequency)}', '-x', f'{int(max_frequency)}', '-p',
+        audio_utils.AUDIOFUNTEST_PATH,
+        '-P',
+        player_cmd,
+        '-R',
+        recorder_cmd,
+        '-t',
+        audiofuntest_sample_format,
+        '-I',
+        f'{int(input_rate)}',
+        '-O',
+        f'{int(output_rate)}',
+        '-T',
+        f'{int(iteration)}',
+        '-a',
+        f'{int(output_channel)}',
+        '-c',
+        f'{len(input_channels)}',
+        '-C',
+        # yapf: disable
+        f'{int(self.args.num_output_channels)}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        '-g',
+        f'{int(volume_gain)}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        '-i',
+        f'{int(min_frequency)}',
+        '-x',
+        f'{int(max_frequency)}',
+        '-p',
         f'{rms_threshold:f}'
     ]
     match = re.search(r'--played-file-path\b', help_stderr)
@@ -833,7 +913,9 @@ class AudioLoopTest(test_case.TestCase):
         break
       rate_msg = ', '.join(f'Mic {int(input_channels[channel])}: {rate:.1f}%'
                            for channel, rate in last_success_rate.items())
-      self.ui.CallJSFunction('testInProgress', rate_msg)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.CallJSFunction('testInProgress', rate_msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     threshold = test_arg.get('threshold', _DEFAULT_AUDIOFUN_TEST_THRESHOLD)
 
@@ -845,7 +927,9 @@ class AudioLoopTest(test_case.TestCase):
       self.AppendErrorMessage(
           f'For output device channel {output_channel}, the success rate is '
           f'"{rate_msg}", too low!')
-      self.ui.CallJSFunction('testFailResult', rate_msg)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.CallJSFunction('testFailResult', rate_msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       success = False
       self.Sleep(1)
 
@@ -859,7 +943,9 @@ class AudioLoopTest(test_case.TestCase):
         self._audio_file_path.append(local_recorded_audio_path)
 
   def _CheckChannelArgs(self, output_channels):
-    if self.args.num_output_channels < max(output_channels):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.num_output_channels < max(output_channels):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise ValueError('Incorrect number of output channels')
 
   def AudioFunTest(self, test_arg):
@@ -874,25 +960,40 @@ class AudioLoopTest(test_case.TestCase):
     self._CheckChannelArgs(output_channels)
 
     for output_channel in output_channels:
-      self._AudioFunTestWithOutputChannel(test_arg, self.args.input_rate,  # type: ignore #TODO(b/338318729) Fixit!
-                                          self.args.output_rate, output_channel)  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.audiofuntest_run_delay is not None:  # type: ignore #TODO(b/338318729) Fixit!
-        self.Sleep(self.args.audiofuntest_run_delay)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._AudioFunTestWithOutputChannel(test_arg, self.args.input_rate,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                          # yapf: enable
+                                          # yapf: disable
+                                          self.args.output_rate, output_channel)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.audiofuntest_run_delay is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.Sleep(self.args.audiofuntest_run_delay)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
   def _GenerateSinewav(self, dut_file_path, channel, wav_duration):
     """Generate sine .wav file locally and push it to the DUT.
     """
     with file_utils.UnopenedTemporaryFile(suffix='.wav') as file_path:
-      cmd = audio_utils.GetGenerateSineWavArgs(file_path, channel,
-                                               self.args.output_rate,  # type: ignore #TODO(b/338318729) Fixit!
-                                               _DEFAULT_FREQ_HZ, wav_duration)
+      cmd = audio_utils.GetGenerateSineWavArgs(
+          file_path,
+          channel,
+          # yapf: disable
+          self.args.output_rate,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          _DEFAULT_FREQ_HZ,
+          wav_duration)
       process_utils.Spawn(cmd.split(' '), log=True, check_call=True)
       self._dut.link.Push(file_path, dut_file_path)
 
   def SinewavTest(self, test_arg):
     """Play sinewav, record it and check if it meets the requirements.
     """
-    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     duration = test_arg.get('duration', _DEFAULT_SINEWAV_TEST_DURATION)
     wav_duration = duration + _DEFAULT_SINEWAV_DURATION_MARGIN
@@ -919,7 +1020,9 @@ class AudioLoopTest(test_case.TestCase):
   def NoiseTest(self, test_arg):
     """Record noise and check if it meets the requirements.
     """
-    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('testInProgress', None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     noise_file_path = f'/tmp/noise-{time.time()}.wav'
     self.RecordAndCheck(test_arg, noise_file_path)
@@ -942,7 +1045,9 @@ class AudioLoopTest(test_case.TestCase):
       self._CheckRecordedAudio(
           test_arg,
           audio_utils.SoxStatOutput(file_path, num_channels, channel,
-                                    self.args.input_rate))  # type: ignore #TODO(b/338318729) Fixit!
+                                    # yapf: disable
+                                    self.args.input_rate))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self._audio_file_path.append(file_path)
 
   def _RecordFile(self, duration, num_channels, file_path):
@@ -960,11 +1065,15 @@ class AudioLoopTest(test_case.TestCase):
          self._dut.temp.TempFile() as dut_record_path:
       self.GetAudio().RecordRawFile(dut_record_path, self._in_card,
                                     self._in_device, duration, num_channels,
-                                    self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit!
+                                    # yapf: disable
+                                    self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._dut.link.Pull(dut_record_path, record_path)
       audio_utils.TrimAudioFile(
           in_path=record_path, out_path=file_path, start=_DEFAULT_TRIM_SECONDS,
-          end=None, num_channels=num_channels, sample_rate=self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          end=None, num_channels=num_channels, sample_rate=self.args.input_rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def _CheckRecordedAudio(self, test_arg, sox_output):
     rms_value = audio_utils.GetAudioRms(sox_output)
@@ -1044,7 +1153,9 @@ class AudioLoopTest(test_case.TestCase):
   def CheckDongleStatus(self):
     # When audio jack detection feature is ready on a platform, we can
     # enable check_dongle option to check jack status matches we expected.
-    if self.args.check_dongle:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.check_dongle:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       mic_status = self.GetAudio().GetMicJackStatus(self._in_card)
       headphone_status = self.GetAudio().GetHeadphoneJackStatus(self._out_card)
       plug_status = mic_status or headphone_status
@@ -1052,16 +1163,22 @@ class AudioLoopTest(test_case.TestCase):
       # audio fun-plug on a few platforms; so it is suggested not to run
       # audiofuntest with HP/MIC jack
       if plug_status is True:
-        if any((t['type'] == 'audiofun') for t in self.args.tests_to_conduct):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if any((t['type'] == 'audiofun') for t in self.args.tests_to_conduct):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           session.console.info('Audiofuntest does not require dongle.')
           raise ValueError('Audiofuntest does not require dongle.')
-        if self.args.require_dongle is False:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.require_dongle is False:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           session.console.info('Dongle Status is wrong, don\'t need dongle.')
           raise ValueError('Dongle Status is wrong.')
 
       # for require dongle case, we need to check both microphone and headphone
       # are all detected.
-      if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if (mic_status and headphone_status) is False:
           session.console.info('Dongle Status is wrong. mic %s, headphone %s',
                                mic_status, headphone_status)
@@ -1080,13 +1197,17 @@ class AudioLoopTest(test_case.TestCase):
     # We don't use plug_status because plug_status may not be ready at early
     # stage.
     self.GetAudio().DisableAllAudioOutputs(self._out_card)
-    if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.require_dongle:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.GetAudio().EnableHeadphone(self._out_card)
     else:
       self.GetAudio().EnableSpeaker(self._out_card)
 
     self.GetAudio().DisableAllAudioInputs(self._in_card)
-    self.GetAudio().EnableDevice(self.args.mic_source, self._in_card)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.GetAudio().EnableDevice(self.args.mic_source, self._in_card)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _ParseConformanceOutput(self, conformance_output: io.TextIOBase):
     """Parse a conformance output from alsa_conformance_test.py
@@ -1142,10 +1263,19 @@ class AudioLoopTest(test_case.TestCase):
       return board_name in _merge_threshold_size_480_boards
 
     commands = [
-        audio_utils.CONFORMANCETEST_PATH, '--test-suites', 'test_rates',
-        '--rate-criteria-diff-pct', f'{self.args.conformance_rate_criteria:f}',  # type: ignore #TODO(b/338318729) Fixit!
-        '--rate-err-criteria', f'{self.args.conformance_rate_err_criteria}',  # type: ignore #TODO(b/338318729) Fixit!
-        '--allow-rate', f'{sample_rate}'
+        audio_utils.CONFORMANCETEST_PATH,
+        '--test-suites',
+        'test_rates',
+        # yapf: disable
+        '--rate-criteria-diff-pct',
+        f'{self.args.conformance_rate_criteria:f}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        '--rate-err-criteria',
+        f'{self.args.conformance_rate_err_criteria}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        '--allow-rate',
+        f'{sample_rate}'
     ]
     if input_device:
       commands.extend(['-C', input_device])
@@ -1153,7 +1283,9 @@ class AudioLoopTest(test_case.TestCase):
       commands.extend(['-P', output_device])
     if _IsInMergeThresholdSize480Board():
       commands.extend(['--merge-thld-size', '480'])
-    self.ui.CallJSFunction('checkConformance', input_device, output_device)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('checkConformance', input_device, output_device)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     process = self._dut.Popen(commands, stdout=process_utils.PIPE,
                               stderr=process_utils.PIPE, log=True)
     stdout, stderr = process.communicate()
@@ -1189,7 +1321,11 @@ class AudioLoopTest(test_case.TestCase):
     """Run conformance test program and check the result."""
 
     # TODO(cyueh) Add simultaneous test when b/201381252 is complete.
-    self._CheckDeviceConformance(self.args.input_rate, self._alsa_input_device,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._CheckDeviceConformance(self.args.input_rate, self._alsa_input_device,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                  None)
-    self._CheckDeviceConformance(self.args.output_rate, None,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._CheckDeviceConformance(self.args.output_rate, None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                  self._alsa_output_device)

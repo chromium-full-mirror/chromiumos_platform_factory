@@ -35,7 +35,9 @@ class PollingTestBase(unittest.TestCase):
 class PollForConditionTest(PollingTestBase):
 
   def _Increment(self):
-    self.counter = self.counter + 1  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.counter = self.counter + 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return self.counter
 
   def _IncrementCheckTrigger(self, trigger=3):
@@ -103,7 +105,9 @@ class QueueGetTest(PollingTestBase):
 
   def setUp(self):
     super().setUp()
-    self._queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testQueueGetEmpty(self):
     self.assertRaises(queue.Empty, sync_utils.QueueGet, self._queue, timeout=.5,
@@ -284,7 +288,9 @@ class RetryTest(PollingTestBase):
   def testRetryOnTarget(self):
     counter = []
 
-    @sync_utils.RetryDecorator(timeout_sec=2, interval_sec=0,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(timeout_sec=2, interval_sec=0,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                target_condition=lambda x: len(x) == 2)
     def CountFunc():
       counter.append(0)
@@ -331,7 +337,9 @@ class RetryTest(PollingTestBase):
 
     counter = []
 
-    @sync_utils.RetryDecorator(max_attempt_count=3,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(max_attempt_count=3,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                target_condition=lambda x: len(x) == 100)
     def CountFunc():
       counter.append(0)
@@ -346,7 +354,9 @@ class RetryTest(PollingTestBase):
 
     mock_callback = mock.MagicMock()
 
-    @sync_utils.RetryDecorator(max_attempt_count=5, interval_sec=0.1,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(max_attempt_count=5, interval_sec=0.1,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                target_condition=lambda x: len(x) == 3,
                                retry_callback=mock_callback)
     def CountFunc():
@@ -434,7 +444,9 @@ class TimeoutTest(unittest.TestCase):
       except BaseException as e:
         q.put((False, e))
 
-    q = queue.Queue(1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    q = queue.Queue(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     thread = threading.Thread(target=Run, args=(WillPass, q))
     thread.daemon = True
     thread.start()

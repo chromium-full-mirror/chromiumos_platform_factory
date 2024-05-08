@@ -13,7 +13,8 @@ import logging
 import os
 import time
 
-import requests  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import requests  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.instalog import datatypes
 from cros.factory.instalog import plugin_base
@@ -23,6 +24,11 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import time_utils
 
 from cros.factory.external.py_lib import gnupg
+
+
+# yapf: enable
+
+
 
 
 _DEFAULT_BATCH_SIZE = 1024
@@ -75,7 +81,9 @@ class OutputHTTP(plugin_base.OutputPlugin):
     if self.args.enable_gnupg:
       self.info('Enable GnuPG to encrypt and sign the data')
       http_common.CheckGnuPG()
-      self._gpg = gnupg.GPG(gnupghome=self.args.gnupg_home)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._gpg = gnupg.GPG(gnupghome=self.args.gnupg_home)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('GnuPG home directory: %s', self._gpg.gnupghome)
       if not self.args.target_key:
         raise ValueError('Missing target GnuPG public key')
@@ -235,9 +243,13 @@ class OutputHTTP(plugin_base.OutputPlugin):
     """Encrypts and signs the data by target key and default secret key."""
     if isinstance(data, str):
       data = data.encode('utf-8')
-    encrypted_data = self._gpg.encrypt(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    encrypted_data = self._gpg.encrypt(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         data, self.args.target_key,
-        sign=self._gpg.list_keys(True)[0]['fingerprint'], always_trust=False)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        sign=self._gpg.list_keys(True)[0]['fingerprint'], always_trust=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not encrypted_data.ok:
       raise Exception(f'Failed to encrypt data! Log: {encrypted_data.stderr}')
     return encrypted_data.data
@@ -247,9 +259,13 @@ class OutputHTTP(plugin_base.OutputPlugin):
     encrypt_path = file_utils.CreateTemporaryFile(prefix='encrypt_',
                                                   dir=target_dir)
     with open(file_path, 'rb') as plaintext_file:
-      encrypted_data = self._gpg.encrypt_file(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      encrypted_data = self._gpg.encrypt_file(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           plaintext_file, self.args.target_key,
-          sign=self._gpg.list_keys(True)[0]['fingerprint'], output=encrypt_path,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          sign=self._gpg.list_keys(True)[0]['fingerprint'], output=encrypt_path,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           always_trust=False)
       if not encrypted_data.ok:
         raise Exception(f'Failed to encrypt file! Log: {encrypted_data.stderr}')

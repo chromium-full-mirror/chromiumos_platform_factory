@@ -58,7 +58,9 @@ class IProbeInfoConverter(abc.ABC):
   def ParseProbeParams(
       self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
       allow_missing_params: bool, comp_name_for_probe_statement=None
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """Walk through the given probe parameters.
 
     The method first validate each probe parameter.  Then if specified,
@@ -214,7 +216,9 @@ class _RawProbeStatementConverter(IProbeInfoConverter):
   def ParseProbeParams(
       self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
       allow_missing_params: bool, comp_name_for_probe_statement=None
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     if (len(probe_params) != 1 or
         probe_params[0].name != self._PARAMETER_NAME or
@@ -294,7 +298,9 @@ class _ProbeDataSourceImpl(_IProbeDataSource):
 
   @type_utils.LazyProperty
   def fingerprint(self) -> str:
-    probe_param_values = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    probe_param_values = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for probe_param in self.probe_info.probe_parameters:
       probe_param_values.setdefault(probe_param.name, [])
       value_attr_name = probe_param.WhichOneof('value')
@@ -391,7 +397,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     return _ProbeDataSourceImpl(component_name, probe_info)
 
   def DumpProbeDataSource(
-      self, probe_data_source: _IProbeDataSource) -> _ProbeInfoArtifact[str]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self, probe_data_source: _IProbeDataSource) -> _ProbeInfoArtifact[str]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     result = self._ConvertProbeDataSourceToProbeStatement(
         typing.cast(_ProbeDataSourceImpl, probe_data_source))
@@ -421,7 +429,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     })
 
   def GenerateRawProbeStatement(
-      self, probe_data_source: _IProbeDataSource) -> _ProbeInfoArtifact[str]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self, probe_data_source: _IProbeDataSource) -> _ProbeInfoArtifact[str]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     return self.DumpProbeDataSource(probe_data_source)
 
@@ -431,7 +441,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
 
   def GenerateProbeBundlePayload(
       self, probe_data_sources: Sequence[_IProbeDataSource]
-  ) -> _MultiProbeInfoArtifact[_NamedFile]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _MultiProbeInfoArtifact[_NamedFile]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     """See base class."""
     probe_data_sources = typing.cast(Sequence[_ProbeDataSourceImpl],
                                      probe_data_sources)
@@ -464,7 +476,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       ps_metadata = metadata.probe_statement_metadatas.add(
           component_name=probe_data_source.component_name.GetName(),
           fingerprint=probe_data_source.fingerprint)
-      for comp_ps in comp_probe_statements_list[i]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for comp_ps in comp_probe_statements_list[i]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         ps_metadata.component_part_names.append(comp_ps.component_name)
         pc_payload.AddComponentProbeStatement(comp_ps)
         categories.add(comp_ps.category_name)
@@ -521,12 +535,16 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
 
     expect_component_parts = set(_GetComponentPartNames(ps_metadata))
     missing_component_parts = (
-        expect_component_parts - set(preproc_conclusion.probed_components))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        expect_component_parts - set(preproc_conclusion.probed_components))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if not missing_component_parts:
       return _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED)
 
     suggestions, suggestion_msg = self._AnalyzeGenericProbeResult(
-        preproc_conclusion.probed_generic_components, probe_data_source)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        preproc_conclusion.probed_generic_components, probe_data_source)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if suggestions or suggestion_msg:
       return _ProbeInfoTestResult(
@@ -565,7 +583,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
           intrivial_error_msg=preproc_conclusion.intrivial_error_msg,
           probe_info_test_results=None)
     pi_test_results = []
-    probed_components = set(preproc_conclusion.probed_components)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    probed_components = set(preproc_conclusion.probed_components)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for pds in probe_data_sources:
       pi_test_res = _ProbeInfoTestResult()
       comp_name = pds.component_name.GetName()
@@ -578,7 +598,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
         pi_test_res.result_type = _ProbeInfoTestResult.PASSED
       else:
         suggestions, suggestion_msg = self._AnalyzeGenericProbeResult(
-            preproc_conclusion.probed_generic_components, pds)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            preproc_conclusion.probed_generic_components, pds)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if suggestions or suggestion_msg:
           pi_test_res.probe_parameter_suggestions.extend(suggestions)
           pi_test_res.suggestion_msg = suggestion_msg
@@ -616,11 +638,15 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       parsed_result = _ProbeInfoParsedResult(
           result_type=_ProbeInfoParsedResult.ResultType.INCOMPATIBLE_ERROR,
           general_error_msg=f'Unknown probe converter: {converter_name!r}.')
-    return parsed_result, converter  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return parsed_result, converter  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _ConvertProbeDataSourceToProbeStatement(
       self, probe_data_source: _ProbeDataSourceImpl
-  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+  ) -> _ProbeInfoArtifact[Sequence[probe_config_types.ComponentProbeStatement]]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     probe_info_parsed_result, converter = self._LookupProbeConverter(
         probe_data_source.probe_info.probe_function_name)
     if not converter:
@@ -730,20 +756,26 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       param_hints: Mapping[str, str],
       probe_data_source: _ProbeDataSourceImpl,
   ) -> Sequence[_ProbeParameterSuggestion]:
-    suggestions = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    suggestions = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     probe_parameters = probe_data_source.probe_info.probe_parameters
     probe_params = sorted(
         enumerate(probe_parameters),
         key=lambda probe_param: probe_param[1].name)
 
-    suggestions = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    suggestions = collections.OrderedDict()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for idx, probe_param in probe_params:
       param_name = probe_param.name
       if param_name in param_hints and param_name not in suggestions:
         suggestions[param_name] = _ProbeParameterSuggestion(
             index=idx, hint=param_hints[param_name])
 
-    return list(suggestions.values())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return list(suggestions.values())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _GenerateSuggestionMsg(
       self, expected_params: CollectedProbeParams,

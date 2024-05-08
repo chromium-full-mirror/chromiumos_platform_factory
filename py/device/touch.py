@@ -80,16 +80,22 @@ class Atmel1664sTouchController(ITouchController):
 
   def _ProbeI2CBusId(self):
     candidates = [
-        self._device.path.basename(path)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._device.path.basename(path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         for path in self._device.Glob(
-            self._device.path.join(self._KERNEL_DEBUG_PATH, '*'))]  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            self._device.path.join(self._KERNEL_DEBUG_PATH, '*'))]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     assert len(candidates) == 1, (
         f'Not having exactly one possible device: {candidates}')
     return candidates[0]
 
   def CheckInterface(self):
     """See ITouchController.CheckInterface."""
-    return self._device.path.exists(self._object_path)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self._device.path.exists(self._object_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Calibrate(self):
     """See ITouchController.Calibrate."""
@@ -106,16 +112,26 @@ class Atmel1664sTouchController(ITouchController):
     Args:
       frame_idx_list: Index 0 = References, Index 1 = Deltas.
     """
-    fmt = f'<{int(self._rows * self._cols)}h'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    fmt = f'<{int(self._rows * self._cols)}h'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     nbytes = struct.calcsize(fmt)
 
     result = []
     for frame_idx in frame_idx_list:
       file_name = self._FRAME_FILENAMES[frame_idx]
-      file_path = self._device.path.join(self._kerdbg_path, file_name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      file_path = self._device.path.join(self._kerdbg_path, file_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       buf = self._device.ReadSpecialFile(file_path, count=nbytes)
-      data = struct.unpack(fmt, buf)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      data = struct.unpack(fmt, buf)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       result.append([
-          list(data[i * self._cols:(i + 1) * self._cols])  # type: ignore #TODO(b/338318729) Fixit!
-          for i in range(self._rows)])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          list(data[i * self._cols:(i + 1) * self._cols])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          for i in range(self._rows)])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     return result

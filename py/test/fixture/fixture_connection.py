@@ -14,9 +14,14 @@ SerialFixtureConnection: a serial port based FixtureConnection.
 import abc
 import time
 
-import serial  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.utils import serial_utils
+
+
+# yapf: enable
+
 
 
 class FixtureConnectionError(Exception):
@@ -145,15 +150,21 @@ class SerialFixtureConnection(IFixtureConnection):
     self._tty.flush()
 
   def Disconnect(self):
-    self._tty.close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._tty.close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def Send(self, msg, read_response=False):
     for c in msg:
       retries = self._retries
       while True:
         try:
-          self._tty.write(str(c))  # type: ignore #TODO(b/338318729) Fixit!
-          self._tty.flush()  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._tty.write(str(c))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self._tty.flush()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           time.sleep(self._serial_delay)
         except serial.SerialTimeoutException as e:
           if retries <= 0:
@@ -168,5 +179,9 @@ class SerialFixtureConnection(IFixtureConnection):
 
   def Recv(self, length=0):
     if length:
-      return self._tty.read(length)  # type: ignore #TODO(b/338318729) Fixit!
-    return self._tty.read(self._tty.inWaiting())  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      return self._tty.read(length)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    return self._tty.read(self._tty.inWaiting())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

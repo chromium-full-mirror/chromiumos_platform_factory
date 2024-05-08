@@ -86,7 +86,9 @@ def WritePot(fp, messages, width):
   print(POT_HEADER, file=fp)
 
   # Collect files with same text together.
-  message_dict = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  message_dict = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for fileloc, text in messages:
     message_dict.setdefault(text, set()).add(fileloc)
 
@@ -144,7 +146,9 @@ class PyAstVisitor(ast.NodeVisitor):
       node = ast.parse(source, filename)
     except SyntaxError as e:
       raise RuntimeError(
-          f'line {int(e.lineno)}, column {int(e.offset)}: {e.text}') from None  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'line {int(e.lineno)}, column {int(e.offset)}: {e.text}') from None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     visitor.visit(node)
     return visitor.messages
 
@@ -312,7 +316,9 @@ def ParseJSONTestList(filename, options):
 
 def ParseMultipleFilesWrapper(func):
   def Inner(files, options):
-    messages = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    messages = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for filename in files:
       if options.verbose:
         print(f'Working on {filename}')

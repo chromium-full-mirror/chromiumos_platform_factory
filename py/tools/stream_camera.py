@@ -24,12 +24,16 @@ _DEFAULT_FRAMERATE = 30
 
 class ForwardToStdoutRequestHandler(http.server.BaseHTTPRequestHandler):
   def do_POST(self):
-    size = self.server.size.split('x')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    size = self.server.size.split('x')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     width = int(size[0])
     height = int(size[1])
 
     # Write jsmpeg header
-    sys.stdout.write('jsmp' + struct.pack('>2H', width, height))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sys.stdout.write('jsmp' + struct.pack('>2H', width, height))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     sys.stdout.flush()
 
     # Forward video stream to stdout
@@ -37,7 +41,9 @@ class ForwardToStdoutRequestHandler(http.server.BaseHTTPRequestHandler):
       data = self.rfile.read(_BUFSIZ)
       if not data:
         break
-      sys.stdout.write(data)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      sys.stdout.write(data)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       sys.stdout.flush()
 
 
@@ -89,7 +95,9 @@ def main():
 
   server = http.server.HTTPServer(
       ('localhost', _SERVER_PORT), ForwardToStdoutRequestHandler)
-  server.size = args.size  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  server.size = args.size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   server.serve_forever()
 
 

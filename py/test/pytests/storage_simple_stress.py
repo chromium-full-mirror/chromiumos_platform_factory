@@ -120,18 +120,32 @@ class SimpleStorageStressTest(unittest.TestCase):
       return True
 
   def TestReadWriteIn(self, dirpath):
-    file_size = self.args.file_size  # type: ignore #TODO(b/338318729) Fixit!
-    for iteration in range(self.args.operations):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    file_size = self.args.file_size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    for iteration in range(self.args.operations):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with self._dut.temp.TempFile(dir=dirpath) as temp_file:
         logging.info(
             '[%d/%d]: Tempfile[%s] created for %d bytes write/read test',
-            iteration, self.args.operations, temp_file, file_size)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            iteration, self.args.operations, temp_file, file_size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.ReadWriteFile(temp_file, file_size)
 
   def runTest(self):
-    if self.args.mount_device:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.mount_device:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with sys_utils.MountPartition(
-          self.args.mount_device, rw=True, dut=self._dut) as mount_path:  # type: ignore #TODO(b/338318729) Fixit!
-        self.TestReadWriteIn(self._dut.path.join(mount_path, self.args.dir))  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.mount_device, rw=True, dut=self._dut) as mount_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.TestReadWriteIn(self._dut.path.join(mount_path, self.args.dir))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     else:
-      self.TestReadWriteIn(self.args.dir)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.TestReadWriteIn(self.args.dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable

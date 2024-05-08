@@ -61,7 +61,9 @@ class MrcCacheTest(unittest.TestCase):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     valid_mode = [m.value for m in TestMode]
     if mode not in valid_mode:
       raise KeyError(f'Mode {mode} is not valid. '

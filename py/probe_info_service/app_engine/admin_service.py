@@ -20,7 +20,9 @@ AdminServiceProtoRPCBase = protorpc_utils.CreateProtoRPCServiceClass(
     admin_pb2.DESCRIPTOR.services_by_name['AdminService'])
 
 
-class AdminServiceServerStub(AdminServiceProtoRPCBase):  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+class AdminServiceServerStub(AdminServiceProtoRPCBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)

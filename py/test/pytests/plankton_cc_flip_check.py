@@ -133,11 +133,19 @@ class PlanktonCCFlipCheck(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit!
-    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit!
-    self._adb_remote_test = self.args.adb_remote_test  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._bft_fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._adb_remote_test = self.args.adb_remote_test  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._double_cc_quick_check = (
-        self._bft_fixture.IsDoubleCCCable() and self.args.double_cc_quick_check)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._bft_fixture.IsDoubleCCCable() and self.args.double_cc_quick_check)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if (not self._bft_fixture.IsParallelTest() and
         not self._double_cc_quick_check):
       # No preparation is required for parallel test.
@@ -149,7 +157,9 @@ class PlanktonCCFlipCheck(test_case.TestCase):
         self._bft_fixture.SetFakeDisconnection(1)
         self.Sleep(1)
     self._polarity = self.GetCCPolarityWithRetry(
-        self.args.init_cc_state_retry_times)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.init_cc_state_retry_times)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Initial polarity: %s', self._polarity)
 
   def GetCCPolarity(self):
@@ -159,30 +169,41 @@ class PlanktonCCFlipCheck(test_case.TestCase):
       'CC1' or 'CC2', or _CC_UNCONNECT if it doesn't detect SRC_READY.
     """
     if not self._dut.IsReady():
-      self.ui.SetState(_('Wait DUT to reconnect'))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(_('Wait DUT to reconnect'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.info(
           'Lose connection to DUT, waiting for DUT to reconnect')
-      sync_utils.WaitFor(lambda: self._dut.Call(['true']) == 0,
-                         self.args.wait_dut_reconnect_secs,  # type: ignore #TODO(b/338318729) Fixit!
-                         poll_interval=1)
+      sync_utils.WaitFor(
+          lambda: self._dut.Call(['true']) == 0,
+          # yapf: disable
+          self.args.wait_dut_reconnect_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          poll_interval=1)
 
     # For double CC cable, if we guarantee CC pair is not reversed, polarity in
     # Plankton side implies DUT side.
     if self._double_cc_quick_check:
       return self._bft_fixture.GetPDState()['polarity']
 
-    port_status = self._dut.usb_c.GetPDStatus(self.args.usb_c_index)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    port_status = self._dut.usb_c.GetPDStatus(self.args.usb_c_index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # For newer version EC, port_status[state] will return string instead of
     # state number.
     if self._adb_remote_test or self._bft_fixture.IsParallelTest():
       # For remote or parallel test, just feedback polarity.
       return port_status['polarity']
-    if (port_status['state'] == self.args.state_src_ready or  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (port_status['state'] == self.args.state_src_ready or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         port_status['state'] == 'SRC_READY'):
       return port_status['polarity']
     logging.info('Detected port state is not state_src_ready (expect: %s '
                  'or SRC_READY, got: %s).',
-                 self.args.state_src_ready, port_status['state'])  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 self.args.state_src_ready, port_status['state'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return _CC_UNCONNECT
 
   def CheckCCPolarityWithRetry(self, expected_polarity, retry_times: int):
@@ -202,7 +223,9 @@ class PlanktonCCFlipCheck(test_case.TestCase):
     """
     # We may need some time for PD negotiate and settle down
 
-    @sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         max_attempt_count=retry_times, interval_sec=1, timeout_sec=float('inf'),
         target_condition=lambda x: x == expected_polarity)
     def _GetCCPolarity():
@@ -227,7 +250,9 @@ class PlanktonCCFlipCheck(test_case.TestCase):
       MaxRetryError: If the polarity always returns `_CC_UNCONNECT`.
     """
     # We may need some time for PD negotiate and settle down
-    @sync_utils.RetryDecorator(max_attempt_count=retry_times, interval_sec=1,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    @sync_utils.RetryDecorator(max_attempt_count=retry_times, interval_sec=1,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                timeout_sec=float('inf'),
                                target_condition=lambda x: x == _CC_UNCONNECT)
     def _GetCCPolarity():
@@ -241,26 +266,44 @@ class PlanktonCCFlipCheck(test_case.TestCase):
     self._bft_fixture.Disconnect()
 
   def runTest(self):
-    if (self.args.original_enabled_cc is not None and  # type: ignore #TODO(b/338318729) Fixit!
-        self._polarity != self.args.original_enabled_cc and  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.original_enabled_cc is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self._polarity != self.args.original_enabled_cc and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         not self._bft_fixture.IsDoubleCCCable()):
       self.fail(
-          f'Original polarity is wrong (expect: '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'Original polarity is wrong (expect: '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{self.args.original_enabled_cc}, got: {self._polarity}). Does '
           f'Raiden cable connect in correct direction?')
 
-    if self.args.ask_flip_operation:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetState(_('Flip USB type-C cable and plug in again...'))  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.timeout_secs == 0:  # type: ignore #TODO(b/338318729) Fixit!
-        self.ui.SetState(_('And press Enter key to continue...'), append=True)  # type: ignore #TODO(b/338318729) Fixit!
-        self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.ask_flip_operation:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetState(_('Flip USB type-C cable and plug in again...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.timeout_secs == 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.ui.SetState(_('And press Enter key to continue...'), append=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.ui.WaitKeysOnce(test_ui.ENTER_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         polarity = self.GetCCPolarity()
         if polarity in (self._polarity, _CC_UNCONNECT):
           self.FailTask(
               'DUT does not detect cable flipped. Was it really flipped?')
       else:
         # Start countdown timer.
-        self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         while True:
           self.Sleep(0.5)
           polarity = self.GetCCPolarity()
@@ -268,10 +311,18 @@ class PlanktonCCFlipCheck(test_case.TestCase):
             return
 
     elif (self._bft_fixture.IsDoubleCCCable() and
-          (not self.args.double_cc_flip_target or  # type: ignore #TODO(b/338318729) Fixit!
-           self._polarity != self.args.double_cc_flip_target)):  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit!
-        self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          (not self.args.double_cc_flip_target or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+           # yapf: enable
+           # yapf: disable
+           self._polarity != self.args.double_cc_flip_target)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.timeout_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       session.console.info('Double CC test, doing CC flip...')
       # TODO(yllin): Remove this if solve the plankton firmware issue

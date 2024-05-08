@@ -46,7 +46,9 @@ def main():
                       args.config)
 
     items = lights + data
-    queue = PriorityQueue(len(items))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    queue = PriorityQueue(len(items))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for item in items:
       if 'poll' in item:

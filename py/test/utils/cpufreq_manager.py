@@ -11,6 +11,7 @@ import traceback
 from cros.factory.utils import file_utils
 from cros.factory.utils import service_utils
 
+
 _RETRY_COUNT = 3
 
 CPUX_CPUFREQ_PATH = '/sys/devices/system/cpu/cpu%d/cpufreq'
@@ -204,7 +205,9 @@ class CpufreqManager:
         logging.exception('Fail to set the content of file %s to %s.',
                           scaling_path, freq_to_set)
       else:
-        self.index_to_freq_settings[core][freq_key] = old_value  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.index_to_freq_settings[core][freq_key] = old_value  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         logging.info(
             'Original value in file %s is %s,'
             ' and the new value is %s.', scaling_path, old_value, freq_to_set)
@@ -224,7 +227,9 @@ class CpufreqManager:
     min_freq_key = 'scaling_min_freq'
     governor_key = 'scaling_governor'
 
-    self.index_to_freq_settings = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.index_to_freq_settings = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for core in self._GetOnlineCPUs():
       self.index_to_freq_settings[core] = {}
 
@@ -254,7 +259,9 @@ class CpufreqManager:
         else:
           logging.info('Write value %s to file %s', value, freq_path)
 
-    self.index_to_freq_settings = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.index_to_freq_settings = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetCurrentFrequency(self):
     raw_output = file_utils.ReadFile('/proc/cpuinfo')

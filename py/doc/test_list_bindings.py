@@ -5,8 +5,12 @@
 
 from typing import Any, Dict, Tuple
 
-from sphinx import application  # type: ignore #TODO(b/338318729) Fixit!
-from sphinx.directives import code  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: enable
+# yapf: disable
+from sphinx import application  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from sphinx.directives import code  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from sphinx import errors
 
 from cros.factory.test.test_lists import manager
@@ -54,12 +58,18 @@ class TestListDirective(code.CodeBlock):
       'list available test objects in a test list.')
 
   def run(self):
-    if len(self.content) != 1:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if len(self.content) != 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise TestListDirectiveError(
-          f'The content of `.. {self.directive_name}` must be exact one line '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          f'The content of `.. {self.directive_name}` must be exact one line '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'which contains the test object name. content={self.content}.')
 
-    test_object_name = self.content[0]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    test_object_name = self.content[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     test_list_id, test_object_path = test_object_name.split(':', 1)
 
     test_list_manager = manager.Manager()
@@ -79,7 +89,9 @@ class TestListDirective(code.CodeBlock):
           f'{test_list_id!r}. ' + self.error_messages_template.format(
               self.directive_name, test_object_name))
 
-    dict_test_object: Dict[str, Any] = factory_test_object.ToStruct(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    dict_test_object: Dict[str, Any] = factory_test_object.ToStruct(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         remove_default=True)
     dict_test_object.pop('id', None)
     dict_test_object.pop('locals', None)

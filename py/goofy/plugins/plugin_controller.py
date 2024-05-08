@@ -69,8 +69,12 @@ class PluginController:
       goofy: the goofy instance.
     """
     self._plugins: Dict[str, plugin.Plugin] = {}
-    self._menu_items = {}  # type: ignore #TODO(b/338318729) Fixit!
-    self._frontend_configs = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._menu_items = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self._frontend_configs = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     plugin_config = config_utils.LoadConfig('goofy_plugins', 'plugins')
     config_utils.OverrideConfig(

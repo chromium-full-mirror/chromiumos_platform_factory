@@ -15,6 +15,7 @@ from cros.factory.hwid.v3 import builder
 from cros.factory.probe import common
 from cros.factory.probe import function
 
+
 _generic_statement = None
 
 
@@ -37,8 +38,12 @@ def GenerateProbeStatement(comp_cls):
   """Generates the probe statement for the component class."""
   if comp_cls not in GetGenericComponentClasses():
     return {}
-  statement = {comp_cls: {}}  # type: ignore #TODO(b/338318729) Fixit!
-  func_expression = _generic_statement[comp_cls]['generic']['eval']  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  statement = {comp_cls: {}}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  func_expression = _generic_statement[comp_cls]['generic']['eval']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   logging.debug('Function expression for component [%s]: %s',
                 comp_cls, func_expression)
   results = function.InterpretFunction(func_expression)()

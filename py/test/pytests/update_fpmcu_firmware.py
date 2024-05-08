@@ -107,7 +107,9 @@ class UpdateFpmcuFirmwareTest(test_case.TestCase):
     self._fpmcu = fpmcu_utils.FpmcuDevice(self._dut)
 
   def runTest(self):
-    if self.args.method == self._MethodType.UPDATE:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.method == self._MethodType.UPDATE:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       method_func = self.UpdateFpmcuFirmware
     else:
       method_func = self.CheckFpmcuFirmwareVersion
@@ -117,7 +119,9 @@ class UpdateFpmcuFirmwareTest(test_case.TestCase):
     if not fpmcu_board:
       raise Error('No fingerprint board found in cros_config')
 
-    if not self.args.firmware_file:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.firmware_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('No specified path to FPMCU FW image')
       logging.info('Get FPMCU FW image from the release rootfs partition.')
 
@@ -130,13 +134,19 @@ class UpdateFpmcuFirmwareTest(test_case.TestCase):
                          'No uniquely matched FPMCU firmware blob found')
         method_func(fpmcu_fw_files[0])
     else:
-      self.assertEqual(self.args.firmware_file[0], '/',  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertEqual(self.args.firmware_file[0], '/',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                        'firmware_file should be a full path')
       if self._dut.link.IsLocal():
-        method_func(self.args.firmware_file)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        method_func(self.args.firmware_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         with self._dut.temp.TempFile() as dut_temp_file:
-          self._dut.SendFile(self.args.firmware_file, dut_temp_file)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self._dut.SendFile(self.args.firmware_file, dut_temp_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           method_func(dut_temp_file)
 
   def UpdateFpmcuFirmware(self, firmware_file):

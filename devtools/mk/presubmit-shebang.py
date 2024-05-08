@@ -30,7 +30,9 @@ def main():
   allow_list_set = set(rules['allow_list'])
 
   redundant_files = []
-  unknown_shebangs = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  unknown_shebangs = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   unicode_decode_error_executable_files = []
 
   def check(filepath):

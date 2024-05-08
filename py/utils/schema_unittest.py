@@ -276,7 +276,9 @@ class SchemaTest(unittest.TestCase):
         List('patterns',
              Dict('pattern', Scalar('encoded_field', str),
                   Scalar('bit_length', int))))
-    data = [  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    data = [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         {'audio_codec': 1},
         {'battery': 2},
         {'bluetooth': 2},
@@ -285,7 +287,9 @@ class SchemaTest(unittest.TestCase):
     ]
     self.assertEqual(None, schema.Validate(data))
     schema = (
-        Dict('components', Scalar('component_class', str),  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        Dict('components', Scalar('component_class', str),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
              Dict('component_names', Scalar('component_name', str),
                   FixedDict('component_attrs',
                             {'value': AnyOf([

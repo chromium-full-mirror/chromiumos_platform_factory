@@ -141,7 +141,9 @@ class TestlogEventTest(TestlogTestBase):
     self.assertEqual(event['time'], SAMPLE_DATETIME_FLOAT)
     with self.assertRaises(ValueError):
       event = testlog.StationInit({'time': None})
-    event = testlog.StationTestRun({  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    event = testlog.StationTestRun({  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'parameters': {
             'A': {
                 'group': 'GROUP',
@@ -188,10 +190,16 @@ class TestlogEventTest(TestlogTestBase):
     event['serialNumbers'] = {'key': 'A KEY', 'value': 'SN'}
     event.CheckIsValid()
 
-    group_checker = event.GroupParam('GROUP', ['A', 'B'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    group_checker = event.GroupParam('GROUP', ['A', 'B'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     with group_checker:
-      event.LogParam('A', 1)  # type: ignore #TODO(b/338318729) Fixit!
-      event.LogParam('B', 2)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      event.LogParam('A', 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      event.LogParam('B', 2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     event.CheckIsValid()
     event['parameters']['A']['data'].append({'numericValue': 3})
     with self.assertRaisesRegex(
@@ -553,21 +561,37 @@ class TestlogEventTest(TestlogTestBase):
     del example_dict['arguments']
     _unused_valid_event = testlog.EventBase.FromDict(example_dict)
     example_dict['arguments'] = {}
-    example_dict['arguments']['A'] = {'value': 'yoyo'}  # type: ignore #TODO(b/338318729) Fixit!
-    example_dict['arguments']['B'] = {'value': '9.53543', 'description': '123'}  # type: ignore #TODO(b/338318729) Fixit!
-    example_dict['arguments']['C'] = {'value': '-9'}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    example_dict['arguments']['A'] = {'value': 'yoyo'}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    example_dict['arguments']['B'] = {'value': '9.53543', 'description': '123'}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    example_dict['arguments']['C'] = {'value': '-9'}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     example_dict['failures'] = []
-    example_dict['failures'].append({'code': 'C', 'details': 'D'})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    example_dict['failures'].append({'code': 'C', 'details': 'D'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     example_dict['serialNumbers'] = {}
-    example_dict['serialNumbers']['A'] = 'B'  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    example_dict['serialNumbers']['A'] = 'B'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     example_dict['parameters'] = {}
-    example_dict['parameters']['A'] = {'description': 'D'}  # type: ignore #TODO(b/338318729) Fixit!
-    example_dict['parameters']['B'] = {'description': 'D', 'data': [  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    example_dict['parameters']['A'] = {'description': 'D'}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    example_dict['parameters']['B'] = {'description': 'D', 'data': [  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         {'numericValue': 987, 'status': 'PASS'},
         {'numericValue': 7.8, 'status': 'FAIL'}]}
     _unused_valid_event = testlog.EventBase.FromDict(example_dict)
     with self.assertRaises(schema.SchemaException):
-      example_dict['arguments']['D'] = {}  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      example_dict['arguments']['D'] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       _unused_invalid_event = testlog.EventBase.FromDict(example_dict)
 
 
@@ -693,7 +717,9 @@ class TestlogE2ETest(TestlogTestBase):
     ]
     for i, json_string in enumerate(primary_json):
       dct = json.loads(json_string)
-      self.assertDictContainsSubset(expected_events[i], dct)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertDictContainsSubset(expected_events[i], dct)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def testDisallowReenterLog(self):
     # FileLock records a DEBUG message after getting the file lock.

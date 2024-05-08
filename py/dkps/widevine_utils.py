@@ -6,7 +6,10 @@
 import hashlib
 
 from Crypto.Cipher import AES
-import crcmod.predefined  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import crcmod.predefined  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+# yapf: enable
 
 
 def TransportKeyKDF(soc_serial: str, soc_id: int):
@@ -20,10 +23,16 @@ def TransportKeyKDF(soc_serial: str, soc_id: int):
     The derived transport key in bytes format.
   """
 
-  soc_serial = bytes.fromhex(soc_serial)  # type: ignore #TODO(b/338318729) Fixit!
-  soc_id = soc_id.to_bytes(4, 'little')  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  soc_serial = bytes.fromhex(soc_serial)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  soc_id = soc_id.to_bytes(4, 'little')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
-  return hashlib.sha256(soc_id + soc_serial).digest()[:16]  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  return hashlib.sha256(soc_id + soc_serial).digest()[:16]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def EncryptKeyboxWithTransportKey(keybox: str, transport_key: bytes):

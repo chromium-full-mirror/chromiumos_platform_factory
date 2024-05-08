@@ -102,8 +102,12 @@ class GoofyJSTest(unittest.TestCase):
     critical_warnings = []
     for warning in warnings:
       description = warning.get('description')
-      if (description and any(  # type: ignore #TODO(b/338318729) Fixit!
-          pattern.fullmatch(description)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if (description and any(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          pattern.fullmatch(description)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           for pattern in DESCRIPTION_ALLOW_LIST)):
         filtered_warnings.append(warning)
         continue

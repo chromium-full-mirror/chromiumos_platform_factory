@@ -64,7 +64,9 @@ class SixDoFCalibrationRobot(robot.IRobot):
     self.Disconnect()
 
   def Connect(self):
-    self._serial = serial.serial_for_url(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._serial = serial.serial_for_url(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self._url, timeout=self._timeout, writeTimeout=self._timeout)
 
   def Disconnect(self):
@@ -88,10 +90,14 @@ class SixDoFCalibrationRobot(robot.IRobot):
     if self._log:
       logging.info('Sending data %s to robot.', data)
 
-    if self._serial.write(data) != len(data):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._serial.write(data) != len(data):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise robot.RobotException('Failed to send command.')
 
-    res = self._serial.readline()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    res = self._serial.readline()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if res.find('OK') == -1:
       raise robot.RobotException(f'Unexpected data {res} received from robot.')
 

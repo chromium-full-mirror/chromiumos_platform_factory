@@ -53,7 +53,9 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.test.runTest()
 
     check_output_mock.assert_called_once_with(['modem', 'status'], log=True)
@@ -85,7 +87,9 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    self.test.args = Args(*self.test.ARGS).Parse(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = Args(*self.test.ARGS).Parse(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         {'probe_imei': False,
          'probe_meid': False,
          'probe_lte_imei': True,
@@ -118,7 +122,9 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaisesRegex(AssertionError, r"Missing elements.+: \['imei'\]",
                            self.test.runTest)
 
@@ -148,7 +154,9 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    self.test.args = Args(*self.test.ARGS).Parse({  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = Args(*self.test.ARGS).Parse({  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'probe_meid': False,
         'fields': {
             'imei': 'EquipmentIdentifier'

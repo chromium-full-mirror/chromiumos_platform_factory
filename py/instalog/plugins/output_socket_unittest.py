@@ -41,9 +41,13 @@ class TestOutputSocket(unittest.TestCase):
     # Start the plugin.
     self.sandbox.Start(True)
     self.plugin = self.sandbox._plugin
-    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(self.plugin.GetSocket())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.sender = output_socket.OutputSocketSender(
-        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.plugin.logger.name, self.plugin._sock, self.plugin)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def tearDown(self):
     self.sandbox.Stop(True)

@@ -12,6 +12,7 @@ import unittest
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 
+
 _TEST_DATA_PATH = os.path.join(os.path.dirname(__file__),
                                'testdata', 'json_utils_unittest.json')
 
@@ -67,7 +68,9 @@ class DumpStrTest(_TestCaseBase):
     }, {
         'pretty': True
     }]:
-      json_str = json_utils.DumpStr(self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      json_str = json_utils.DumpStr(self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertJSONObjEqual(json_utils.LoadStr(json_str), self._TEST_DATA)
 
 
@@ -83,7 +86,9 @@ class DumpFileTest(_TestCaseBase):
         'pretty': True
     }]:
       with file_utils.UnopenedTemporaryFile() as path:
-        json_utils.DumpFile(path, self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        json_utils.DumpFile(path, self._TEST_DATA, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.assertJSONObjEqual(json_utils.LoadFile(path), self._TEST_DATA)
 
 

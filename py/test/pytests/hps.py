@@ -49,7 +49,11 @@ class HPSTest(test_case.TestCase):
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._hps_device = hps_utils.HPSDevice(
-        self._dut, self.args.hps_factory_path, self.args.dev)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._dut, self.args.hps_factory_path, self.args.dev)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    self._hps_device.RunFactoryProcess(timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._hps_device.RunFactoryProcess(timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

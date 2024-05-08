@@ -20,7 +20,9 @@ class FpmcuDeviceTest(unittest.TestCase):
               '  vendor:    stm\n'
               '  name:      stm32f412\n'
               '  revision:  \n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetName(), 'stm32f412')
 
   def testGetNameOnEmptyName(self):
@@ -28,7 +30,9 @@ class FpmcuDeviceTest(unittest.TestCase):
               '  vendor:    stm\n'
               '  name:      \n'
               '  revision:  \n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetName)
 
   def testGetFirmwareVersion(self):
@@ -41,7 +45,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(
         self.device.GetFirmwareVersion(),
         ('bloonchipper_v2.0.5938-197506c1', 'bloonchipper_v2.0.14348-e5fb0b9'))
@@ -56,7 +62,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetFirmwareVersion)
 
   def testRequireFpinfoNoErrorFlagsOnNoErrorFlagsSet(self):
@@ -66,8 +74,12 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Error flags: \n'
         'Dead pixels: UNKNOWN\n'
         'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertIsNone(self.device.ValidateFpinfoNoErrorFlags())  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertIsNone(self.device.ValidateFpinfoNoErrorFlags())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testRequireFpinfoNoErrorFlagsOnErrorFlagsSet(self):
     output = (
@@ -76,7 +88,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Error flags: BAD_HWID INIT_FAIL \n'
         'Dead pixels: UNKNOWN\n'
         'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     with self.assertRaises(fpmcu_utils.FpmcuError) as ctx:
       self.device.ValidateFpinfoNoErrorFlags()
     e = ctx.exception
@@ -89,7 +103,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Error flags: \n'
         'Dead pixels: UNKNOWN\n'
         'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     expected_vendor, expected_sensor = '20435046', '0'
     self.assertEqual(self.device.GetFpSensorInfo(),
                      (expected_vendor, expected_sensor))
@@ -101,7 +117,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Error flags: BAD_HWID INIT_FAIL \n'
         'Dead pixels: UNKNOWN\n'
         'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     with self.assertRaises(fpmcu_utils.FpmcuError) as ctx:
       self.device.GetFpSensorInfo()
     e = ctx.exception
@@ -113,7 +131,9 @@ class FpmcuDeviceTest(unittest.TestCase):
               'Error flags: BAD_HWID INIT_FAIL \n'
               'Dead pixels: UNKNOWN\n'
               'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetFpSensorInfo)
 
   def testGetFlashProtectFlagsOnLowercasedHexOutput(self):
@@ -121,7 +141,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Flash protect flags: 0x0000000f wp_gpio_asserted\n'
         'Valid flags:         0x0000083f wp_gpio_asserted ro_at_boot ro_now all_now STUCK INCONSISTENT UNKNOWN_ERROR\n'
         'Writable flags:      0x00000005 ro_at_boot all_now\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetFlashProtectFlags(), 0x0f)
 
   def testGetFlashProtectFlagsOnUppercasedHexOutput(self):
@@ -129,7 +151,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Flash protect flags: 0x0000000F wp_gpio_asserted\n'
         'Valid flags:         0x0000083f wp_gpio_asserted ro_at_boot ro_now all_now STUCK INCONSISTENT UNKNOWN_ERROR\n'
         'Writable flags:      0x00000005 ro_at_boot all_now\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetFlashProtectFlags(), 0x0f)
 
   def testGetFlashProtectFlagsOnEmptyFlags(self):
@@ -137,7 +161,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Flash protect flags: \n'
         'Valid flags:         0x0000083f wp_gpio_asserted ro_at_boot ro_now all_now STUCK INCONSISTENT UNKNOWN_ERROR\n'
         'Writable flags:      0x00000005 ro_at_boot all_now\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetFlashProtectFlags)
 
   def testGetFlashProtectFlagsOnInvalidHexFlags(self):
@@ -145,49 +171,63 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Flash protect flags: 0x0000000z wp_gpio_asserted\n'
         'Valid flags:         0x0000083f wp_gpio_asserted ro_at_boot ro_now all_now STUCK INCONSISTENT UNKNOWN_ERROR\n'
         'Writable flags:      0x00000005 ro_at_boot all_now\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetFlashProtectFlags)
 
   def testIsSystemLockedOnLocked(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: 0x00000001\n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertTrue(self.device.IsSystemLocked())
 
   def testIsSystemLockedOnNonLocked(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: 0x00000000\n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self.device.IsSystemLocked())
 
   def testIsSystemLockedOnLowercasedHexOutput(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: 0x0000000a\n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self.device.IsSystemLocked())
 
   def testIsSystemLockedOnUppercasedHexOutput(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: 0x0000000A\n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertFalse(self.device.IsSystemLocked())
 
   def testIsSystemLockedOnEmptyFlags(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: \n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.IsSystemLocked)
 
   def testIsSystemLockedOnInvalidHexFlags(self):
     output = ('Reset flags: 0x0000040a\n'
               'Flags: 0x0000000z\n'
               'Firmware copy: 2\n')
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.IsSystemLocked)
 
   def testGetImageSlotForRW(self):
@@ -200,7 +240,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetImageSlot(), fpmcu_utils.ImageSlot.RW)
 
   def testGetImageSlotForRO(self):
@@ -213,7 +255,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetImageSlot(), fpmcu_utils.ImageSlot.RO)
 
   def testGetImageSlotForUnknownImage1(self):
@@ -226,7 +270,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetImageSlot(), fpmcu_utils.ImageSlot.UNKNOWN)
 
   def testGetImageSlotForUnknownImage2(self):
@@ -239,7 +285,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertEqual(self.device.GetImageSlot(), fpmcu_utils.ImageSlot.UNKNOWN)
 
   def testGetImageSlotOnInvalidImageOutput(self):
@@ -253,7 +301,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
 
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetImageSlot)
 
   def testGetImageSlotOnEmptyImageOutput(self):
@@ -266,7 +316,9 @@ class FpmcuDeviceTest(unittest.TestCase):
         'Build info:    bloonchipper_v2.0.14348-e5fb0b9 cryptoc:v1.9308_26_0.11-11a97df private:1.1.9999-e5fb0b9 fpc:1.1.9999-e5fb0b9 bloonchipper_14931.0.0 2022-06-17 16:40:54 @chromeos-ci-legacy-us-central2-d-x32-21-ivd3\n'
         'Tool version:  v2.0.20247-b863c6d01b 2023-01-31 01:10:33 @chromeos-release-builder-us-east1-d-x32-8-nunm\n'
     )
-    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetImageSlot)
 
 

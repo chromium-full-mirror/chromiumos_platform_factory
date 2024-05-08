@@ -39,7 +39,9 @@ class ConfiglessFieldsTest(unittest.TestCase):
             'has_touchscreen': True
         }
     }
-    vpd = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vpd = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     bom = probe.GenerateBOMFromProbedResults(
         self.database, self.probed_results, device_info, vpd,
         common.OperationMode.normal, False, False)[0]

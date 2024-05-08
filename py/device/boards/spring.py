@@ -57,7 +57,9 @@ class SpringPower(power.Power):
     regs = list(range(0, 0x1d)) + list(range(0x20, 0x24)) + [0x2f] +\
         list(range(0x3c, 0x40))
     try:
-      ret = {reg: self._device.ec.I2CRead(0, 0x16, reg) for reg in regs}  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      ret = {reg: self._device.ec.I2CRead(0, 0x16, reg) for reg in regs}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except Exception as e:
       raise self.Error(f'Unable to get battery registers: {e}')
     return ret

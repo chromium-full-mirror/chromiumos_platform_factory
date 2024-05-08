@@ -221,54 +221,89 @@ class KeyboardTest(test_case.TestCase):
   ]
 
   def setUp(self):
-    self.assertFalse(self.args.skip_power_key,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertFalse(self.args.skip_power_key,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      'skip_power_key is deprecated, please use skip_keycodes.')
     self.assertFalse(
-        self.args.replacement_keymap,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.replacement_keymap,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'replacement_keymap is deprecated, please use fn_keycodes.')
 
-    self.assertFalse(self.args.allow_multi_keys and self.args.sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertFalse(self.args.allow_multi_keys and self.args.sequential_press,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      'Sequential press requires one key at a time.')
     self.assertFalse(
-        self.args.allow_multi_keys and self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.allow_multi_keys and self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'Strict sequential press requires one key at a time.')
-    self.assertTrue(self.args.multi_keys_delay >= 0,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertTrue(self.args.multi_keys_delay >= 0,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                     'multi_keys_delay should be a positive number.')
-    if self.args.allow_multi_keys and self.args.multi_keys_delay > 0:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.allow_multi_keys and self.args.multi_keys_delay > 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.warning('multi_keys_delay is not effective when '
                               'allow_multi_keys is set to True.')
-    if (not self.args.strict_sequential_press and  # type: ignore #TODO(b/338318729) Fixit!
-        not self.args.sequential_press and self.args.key_order):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (not self.args.strict_sequential_press and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        not self.args.sequential_press and self.args.key_order):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.warning('key_order is not effective if it is not '
                               'needed to press sequentially.')
 
-    if self.args.fn_keycodes and self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.fn_keycodes and self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       session.console.warning('the fn_keycodes will be '
                               'overridden by vivaldi_keyboard.')
 
-    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertFalse(
-          self.args.repeat_times, 'repeat_times is not supported '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.repeat_times,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          'repeat_times is not supported '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'with key_combinations.')
-      self.assertFalse(self.args.key_order, 'key_order is not supported with '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertFalse(self.args.key_order, 'key_order is not supported with '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                        'key_combinations.')
       self.assertFalse(
-          self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.strict_sequential_press,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'strict_sequential_press is not supported with key_combinations.')
       self.assertFalse(
-          self.args.sequential_press, 'sequential_press is not '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.sequential_press, 'sequential_press is not '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'supported with key_combinations.')
       self.assertTrue(
-          self.args.allow_multi_keys or self.args.multi_keys_delay == 0,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.allow_multi_keys or self.args.multi_keys_delay == 0,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'multi_keys should be allowed when using key_combinations.')
       self.assertTrue(
-          all(comb for comb in self.args.key_combinations),  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          all(comb for comb in self.args.key_combinations),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'Combination should have at least 1 key.')
 
     # Get the keyboard input device.
     try:
       self.keyboard_device = evdev_utils.FindDevice(
-          self.args.device_filter, evdev_utils.IsKeyboardDevice)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.device_filter, evdev_utils.IsKeyboardDevice)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     except evdev_utils.MultipleDevicesFoundError:
       session.console.info(
           "Please set the test argument 'device_filter' to one of the name.")
@@ -281,36 +316,56 @@ class KeyboardTest(test_case.TestCase):
         key for keys_in_row in main_keys for key in keys_in_row
     ]
     numpad_layout = ('strauss_numpad'
-                     if self.args.layout == 'STRAUSS' else 'numpad')  # type: ignore #TODO(b/338318729) Fixit!
+                     # yapf: disable
+                     if self.args.layout == 'STRAUSS' else 'numpad')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     numpad_keys = []
-    if self.args.has_numpad:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.has_numpad:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       numpad_keys = self.GetLayoutKeycodes(numpad_layout)
     else:
-      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     flatten_numpad_keys = [
         key for keys_in_row in numpad_keys for key in keys_in_row
     ]
 
     self.hold_keys = set()
     self.last_press_time = 0
-    self.frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.frontend_proxy = self.ui.InitJSTestObject(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'KeyboardTest', layout, first_row_keys, main_keys, numpad_keys)
 
-    default_number_to_press = self.args.repeat_times.get('default', 1)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    default_number_to_press = self.args.repeat_times.get('default', 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.need_press_keys = {}
-    keycodes_to_skip = set(self.args.skip_keycodes)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    keycodes_to_skip = set(self.args.skip_keycodes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for key in set(flatten_main_keys) | set(first_row_keys) | set(
         flatten_numpad_keys):
       if key in keycodes_to_skip:
         self.frontend_proxy.Skip(key)
       else:
-        self.need_press_keys[key] = self.args.repeat_times.get(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.need_press_keys[key] = self.args.repeat_times.get(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             str(key), default_number_to_press)
 
     self.next_index = 0
-    if self.args.sequential_press or self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.args.key_order:  # type: ignore #TODO(b/338318729) Fixit!
-        self.key_order_list = self.args.key_order  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.sequential_press or self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.args.key_order:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        self.key_order_list = self.args.key_order  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         invalid_key_order = [
             key for key in self.key_order_list if key in keycodes_to_skip
         ]
@@ -325,31 +380,53 @@ class KeyboardTest(test_case.TestCase):
         ]
     else:
       self.key_order_list = []
-      self.ui.HideElement('instruction-sequential')  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.HideElement('instruction-sequential')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.HideElement('instruction-sequential-numpad')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.allow_multi_keys or self.args.multi_keys_delay == 0:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.HideElement('instruction-single-key')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.allow_multi_keys or self.args.multi_keys_delay == 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.HideElement('instruction-single-key')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
-      self.frontend_proxy.Hint(self.args.key_combinations[0], True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.frontend_proxy.Hint(self.args.key_combinations[0], True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        self.keyboard_device, self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.keyboard_device, self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     testlog.UpdateParam('malfunction_key',
                         description='The keycode of malfunction keys')
 
   def GetKeycodesInFirstRow(self) -> list:
-    if self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.vivaldi_keyboard:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fn_keycodes = self.GetVivaldiKeycodes()
-    elif self.args.fn_keycodes:  # type: ignore #TODO(b/338318729) Fixit!
-      fn_keycodes = self.args.fn_keycodes  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.fn_keycodes:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      fn_keycodes = self.args.fn_keycodes  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       fn_keycodes = _DEFAULT_FN_KEYCODES_IN_FIRST_ROW
 
     last_key = (
         _POWER_KEY_CODE
-        if self.args.has_power_key else self.args.last_fn_keycode)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.has_power_key else self.args.last_fn_keycode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertIn(last_key, _LAST_FN_KEYCODES)
     return [_ESC_KEY_CODE] + fn_keycodes + [last_key]
 
@@ -407,9 +484,15 @@ class KeyboardTest(test_case.TestCase):
 
   def GetKeyboardLayout(self):
     """Uses the given keyboard layout or auto-detect from VPD."""
-    board = f'_{self.args.board}' if self.args.board else ''  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.layout:  # type: ignore #TODO(b/338318729) Fixit!
-      return self.args.layout + board  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    board = f'_{self.args.board}' if self.args.board else ''  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.layout:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      return self.args.layout + board  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     # Use the primary keyboard_layout for testing.
     region = process_utils.CheckOutput(['vpd', '-g', 'region']).strip()
@@ -419,19 +502,25 @@ class KeyboardTest(test_case.TestCase):
     """Return a 2-D array for rendering the keyboard of different layout.
 
     Each element represents the keycodes in a row."""
-    layout_filename = os.path.join(self.ui.GetStaticDirectoryPath(),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    layout_filename = os.path.join(self.ui.GetStaticDirectoryPath(),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                    layout + '.layout')
     return ast.literal_eval(file_utils.ReadFile(layout_filename))
 
   def HandleEvent(self, event):
     """Handler for evdev events."""
-    if event.type != evdev.ecodes.EV_KEY:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if event.type != evdev.ecodes.EV_KEY:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
     if event.value == 1:
       self.OnKeydown(event.code)
     elif event.value == 0:
       self.OnKeyup(event.code)
-    elif self.args.detect_long_press and event.value == 2:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif self.args.detect_long_press and event.value == 2:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       fail_msg = f'Got events on keycode {event.code} pressed too long.'
       session.console.error(fail_msg)
       self.FailTask(fail_msg)
@@ -443,8 +532,12 @@ class KeyboardTest(test_case.TestCase):
                               keycode)
       return
 
-    if (not self.args.allow_multi_keys and self.hold_keys and  # type: ignore #TODO(b/338318729) Fixit!
-        time.time() - self.last_press_time < self.args.multi_keys_delay):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (not self.args.allow_multi_keys and self.hold_keys and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        time.time() - self.last_press_time < self.args.multi_keys_delay):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.FailTask(
           f'Got key down event on keycode {keycode} but there are other key '
           f'pressed: {next(iter(self.hold_keys))}.')
@@ -453,7 +546,9 @@ class KeyboardTest(test_case.TestCase):
       self.FailTask(f'Got 2 key down events on keycode {keycode} but didn\'t '
                     'get key up event.')
 
-    self.last_press_time = time.time()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.last_press_time = time.time()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.hold_keys.add(keycode)
     self.frontend_proxy.Hold(keycode, self.need_press_keys[keycode])
 
@@ -467,18 +562,28 @@ class KeyboardTest(test_case.TestCase):
           f'Got key up event for keycode {keycode} but did not get key down '
           'event.')
 
-    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
-      if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return
-      keys = self.args.key_combinations[self.next_index]  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      keys = self.args.key_combinations[self.next_index]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if self.hold_keys == set(keys):
         self.next_index += 1
-        if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.next_index == len(self.args.key_combinations):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.PassTask()
       self.hold_keys.remove(keycode)
       self.frontend_proxy.Click(keycode, 1)  # Restore the color of the key.
       if not self.hold_keys:
-        self.frontend_proxy.Hint(self.args.key_combinations[self.next_index],  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.frontend_proxy.Hint(self.args.key_combinations[self.next_index],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
                                  True)
       return
 
@@ -488,7 +593,9 @@ class KeyboardTest(test_case.TestCase):
         keycode in self.key_order_list):
       next_key = self.key_order_list[self.next_index]
       if keycode != next_key:
-        if self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.strict_sequential_press:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.FailTask(f'Expect keycode {next_key} but get {keycode}.')
         else:
           self.frontend_proxy.Click(keycode, self.need_press_keys[keycode])
@@ -505,8 +612,12 @@ class KeyboardTest(test_case.TestCase):
 
   def FailTestTimeout(self):
     """Fail the test due to timeout, and log untested keys."""
-    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit!
-      failed_keys = self.args.key_combinations[self.next_index:]  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.key_combinations:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      failed_keys = self.args.key_combinations[self.next_index:]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       failed_keys = [
           key for key, num_left in self.need_press_keys.items() if num_left
@@ -518,7 +629,9 @@ class KeyboardTest(test_case.TestCase):
   def runTest(self):
     self.keyboard_device.grab()
     self.dispatcher.StartDaemon()
-    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.WaitTaskEnd()
 
   def tearDown(self):

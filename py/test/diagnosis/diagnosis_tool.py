@@ -317,7 +317,9 @@ class DiagnosisToolRPC:
       option: Option user selected.
     """
     if option == common.OPTIONS.STOP_IT:
-      self._current_task.Stop()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._current_task.Stop()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def StartTask(self, task_id, inputs):
     """Starts to running the task.
@@ -328,9 +330,13 @@ class DiagnosisToolRPC:
     """
     if task_id != self._current_task_id:
       return
-    if self._current_task.state == common.TASK_STATE.NOT_APPLICABLE:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._current_task.state == common.TASK_STATE.NOT_APPLICABLE:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
-    self._current_task.Start(inputs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._current_task.Start(inputs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def StopTask(self, task_id):
     """Stops the current running task.
@@ -340,14 +346,21 @@ class DiagnosisToolRPC:
     """
     if task_id != self._current_task_id:
       return
-    if self._current_task.state != common.TASK_STATE.RUNNING:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._current_task.state != common.TASK_STATE.RUNNING:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return
     self._ui_proxy.Confirm(
-        title='Confirm', content=f'Do you really want to stop the task'  # type: ignore #TODO(b/338318729) Fixit!
-        f'{self._current_task.name!r}?', options=[
-            common.OPTIONS.YES, common.OPTIONS.CANCEL
-        ], timeout=10, default_option=common.OPTIONS.CANCEL,
-        callback=self._StopTaskConfirmCallback, callback_args=(task_id, ))
+        # yapf: disable
+        title='Confirm',
+        content=f'Do you really want to stop the task'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        f'{self._current_task.name!r}?',
+        options=[common.OPTIONS.YES, common.OPTIONS.CANCEL],
+        timeout=10,
+        default_option=common.OPTIONS.CANCEL,
+        callback=self._StopTaskConfirmCallback,
+        callback_args=(task_id, ))
 
   def _StopTaskConfirmCallback(self, option, task_id):
     """A callback function for the user choosing to stop the task or not.
@@ -359,8 +372,12 @@ class DiagnosisToolRPC:
     if task_id != self._current_task_id:
       return
     if (option == common.OPTIONS.YES and
-        self._current_task.state == common.TASK_STATE.RUNNING):  # type: ignore #TODO(b/338318729) Fixit!
-      self._current_task.Stop()  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self._current_task.state == common.TASK_STATE.RUNNING):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self._current_task.Stop()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def ConfirmSelected(self, confirm_id, option):
     """User selected a option in a confirm dialog.
@@ -378,7 +395,9 @@ def _ImportConfigFiles():
   Return:
     The json format dict/list contains all the tasks.
   """
-  all_configs = []  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  all_configs = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for (dirpath, unused_dirnames, filenames) in os.walk(_BASE_PATH):
     for filename in (x for x in filenames if x[-5:] == '.yaml'):
       try:

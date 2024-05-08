@@ -24,19 +24,27 @@ TEST_PATH = '/test-bucket/foo'
 def _CreateMockListBlobsWrapper(test_files):
 
   class Blob(NamedTuple):
-    name: str  # type: ignore #TODO(b/338318729) Fixit!
-    path: str  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    name: str  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    path: str  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def wrapper(bucket_name, prefix, delimiter):
     if bucket_name == TEST_BUCKET and delimiter == '/':
       if prefix == '':
         return [
-            Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             for key in test_files
             if os.path.dirname(key) == prefix
         ]
       return [
-          Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          Blob(name=key, path=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           for key in test_files
           if os.path.dirname(key) + '/' == prefix
       ]

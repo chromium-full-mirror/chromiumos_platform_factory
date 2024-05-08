@@ -472,7 +472,9 @@ class LazyObject:
   def __getattr__(self, name):
     if self._proxy_constructor is not None:
       self._proxy_object = self._proxy_constructor()
-      self._proxy_constructor = None  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._proxy_constructor = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     attr = getattr(self._proxy_object, name)
     # We can't do 'setattr' here to speed up processing because the members in
     # the proxy object may be volatile.

@@ -260,7 +260,9 @@ def GetGooftool(options):
 
 
 # Define __args__ to make it easier to propagate the arguments
-GetGooftool.__args__ = (  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+GetGooftool.__args__ = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
     _hwdb_path_cmd_arg,
     _project_cmd_arg,
 )
@@ -290,7 +292,9 @@ def PrepareWipeArgs(options):
   return wipe_args
 
 
-PrepareWipeArgs.__args__ = (  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+PrepareWipeArgs.__args__ = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
     _fast_cmd_arg,
     _factory_server_url_args_cmd_arg,
     _station_ip_cmd_arg,
@@ -430,7 +434,9 @@ def Command(cmd_name, *args, **kwargs):
   return Decorate
 
 
-@Command('get_release_fs_type', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('get_release_fs_type', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def GetReleaseFSType(options):
   """Get the FS type of the stateful partition of the release image."""
 
@@ -443,7 +449,9 @@ def GetReleaseFSType(options):
 @Command(
     'write_hwid',
     CmdArg('hwid', metavar='HWID', help='HWID string'),  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def WriteHWID(options):
   """Write specified HWID value into the system BB."""
 
@@ -453,7 +461,9 @@ def WriteHWID(options):
   print(f'Wrote HWID: {options.hwid!r}')
 
 
-@Command('read_hwid', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('read_hwid', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def ReadHWID(options):
   """Read the HWID string from GBB."""
 
@@ -461,7 +471,9 @@ def ReadHWID(options):
   print(GetGooftool(options).ReadHWID())
 
 
-@Command('verify_dlc_images', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_dlc_images', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyDLCImages(options):
   """Verify the hash of the factory installed DLC."""
   return GetGooftool(options).VerifyDLCImages()
@@ -471,14 +483,18 @@ def VerifyDLCImages(options):
     'verify_ec_key',
     _ec_pubkey_path_cmd_arg,  # this
     _ec_pubkey_hash_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyECKey(options):
   """Verify EC key."""
   return GetGooftool(options).futility.VerifyECKey(options.ec_pubkey_path,
                                                    options.ec_pubkey_hash)
 
 
-@Command('verify_fp_key', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_fp_key', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyFpKey(options):
   """Verify fingerprint firmware key."""
   return GetGooftool(options).VerifyFpKey()
@@ -488,14 +504,18 @@ def VerifyFpKey(options):
     'verify_keys',
     _release_rootfs_cmd_arg,  # this
     _firmware_path_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyKeys(options):
   """Verify keys in firmware and SSD match."""
   return GetGooftool(options).VerifyKeys(
       options.release_rootfs, options.firmware_path)
 
 
-@Command('set_fw_bitmap_locale', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('set_fw_bitmap_locale', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def SetFirmwareBitmapLocale(options):
   """Use VPD locale value to set firmware bitmap default language."""
 
@@ -508,7 +528,9 @@ def SetFirmwareBitmapLocale(options):
     'verify_system_time',
     _release_rootfs_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifySystemTime(options):
   """Verify system time is later than release filesystem creation time."""
 
@@ -519,21 +541,27 @@ def VerifySystemTime(options):
 @Command(
     'verify_rootfs',
     _release_rootfs_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyRootFs(options):
   """Verify rootfs on SSD is valid by checking hash."""
 
   return GetGooftool(options).VerifyRootFs(options.release_rootfs)
 
 
-@Command('verify_tpm', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_tpm', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyTPM(options):
   """Verify TPM is cleared."""
 
   return GetGooftool(options).VerifyTPM()
 
 
-@Command('verify_me_locked', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_me_locked', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyManagementEngineLocked(options):
   """Verify Management Engine is locked."""
 
@@ -543,7 +571,9 @@ def VerifyManagementEngineLocked(options):
 @Command(
     'verify_switch_wp',
     _no_ectool_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyWPSwitch(options):
   """Verify hardware write protection switch is enabled."""
 
@@ -553,7 +583,9 @@ def VerifyWPSwitch(options):
 @Command(
     'verify_vpd',
     _factory_process_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyVPD(options):
   """Verify that VPD values are properly set.
 
@@ -572,7 +604,9 @@ def VerifyVPD(options):
 @Command(
     'verify_release_channel',
     _enforced_release_channels_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyReleaseChannel(options):
   """Verify that release image channel is correct.
 
@@ -584,13 +618,17 @@ def VerifyReleaseChannel(options):
       options.enforced_release_channels)
 
 
-@Command('verify_rlz_code', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_rlz_code', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyRLZCode(options):
   """Verify RLZ code is not 'ZZCR' in/after EVT."""
   return GetGooftool(options).VerifyRLZCode()
 
 
-@Command('verify_cros_config', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_cros_config', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyCrosConfig(options):
   """Verify entries in cros config make sense."""
   return GetGooftool(options).VerifyCrosConfig()
@@ -600,7 +638,9 @@ def VerifyCrosConfig(options):
     'verify_sn_bits',
     _enable_zero_touch_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifySnBits(options):
   rma_mode = options.factory_process == FactoryProcessEnum.RMA
   if options.enable_zero_touch and not rma_mode:
@@ -610,7 +650,9 @@ def VerifySnBits(options):
 @Command(
     'verify_cbi_eeprom_wp_status',
     _cbi_eeprom_wp_status_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyCBIEEPROMWPStatus(options):
   """Verify CBI EEPROM status.
 
@@ -623,7 +665,9 @@ def VerifyCBIEEPROMWPStatus(options):
       options.cbi_eeprom_wp_status)
 
 
-@Command('verify_alt_setting', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('verify_alt_setting', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyAltSetting(options):
   """Verify the usb alt setting for RTL8852CE."""
   return GetGooftool(options).VerifyAltSetting()
@@ -713,7 +757,9 @@ def BlockDevMode(options):
   logging.info('FW management flags set as %d.', fw_parameters.flags)
 
 
-@Command('clear_gbb_flags', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('clear_gbb_flags', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def ClearGBBFlags(options):
   """Zero out the GBB flags, in preparation for transition to release state.
 
@@ -725,21 +771,27 @@ def ClearGBBFlags(options):
   event_log.Log('clear_gbb_flags', old_value=gbb_flags_in_factory)
 
 
-@Command('clear_factory_vpd_entries', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('clear_factory_vpd_entries', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def ClearFactoryVPDEntries(options):
   """Clears factory.* items in the RW VPD."""
   entries = GetGooftool(options).vpd_utils.ClearFactoryVPDEntries()
   event_log.Log('clear_factory_vpd_entries', entries=FilterDict(entries))
 
 
-@Command('clear_unknown_vpd_entries', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('clear_unknown_vpd_entries', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def ClearUnknownVPDEntries(options):
   """Clears unknown RW VPDs, which are VPDs not in py/gooftool/vpd_data.py."""
   entries = GetGooftool(options).vpd_utils.ClearUnknownVPDEntries()
   event_log.Log('clear_unknown_vpd_entries', entries=FilterDict(entries))
 
 
-@Command('generate_stable_device_secret', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('generate_stable_device_secret', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def GenerateStableDeviceSecret(options):
   """Generates a fresh stable device secret and stores it in the RO VPD."""
   GetGooftool(options).GenerateStableDeviceSecret()
@@ -752,7 +804,9 @@ def GenerateStableDeviceSecret(options):
     _no_write_protect_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
     _skip_feature_tiering_steps_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def GSCWriteFlashInfo(options):
   """Set the serial number bits, board id and flags on the GSC chip."""
   GetGooftool(options).GSCWriteFlashInfo(
@@ -769,7 +823,9 @@ def Cr50WriteFlashInfo(options):
   GSCWriteFlashInfo(options)
 
 
-@Command('gsc_disable_factory_mode', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('gsc_disable_factory_mode', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def GSCDisableFactoryMode(options):
   """Reset GSC state back to default state after RMA."""
   return GetGooftool(options).GSCDisableFactoryMode()
@@ -805,7 +861,9 @@ def Cr50Finalize(options):
 @Command(
     'enable_release_partition',
     _release_rootfs_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def EnableReleasePartition(options):
   """Enables a release image partition on the disk."""
   GetGooftool(options).EnableReleasePartition(options.release_rootfs)
@@ -820,7 +878,9 @@ def EnableReleasePartition(options):
     _wipe_finish_token_cmd_arg,  # this
     _boot_to_shimless_cmd_arg,  # this
     _test_umount_cmd_arg,  # this
-    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 )
 def WipeInPlace(options):
   """Start factory wipe directly without reboot."""
@@ -845,7 +905,9 @@ def WipeInPlace(options):
     _keep_developer_mode_flag_after_clobber_state_cmd_arg,  # this
     _boot_to_shimless_cmd_arg,  # this
     _test_umount_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def WipeInit(options):
   GetGooftool(options).WipeInit(
       options.wipe_args, options.factory_server_url, options.state_dev,
@@ -859,7 +921,9 @@ def WipeInit(options):
     'verify_feature_management_flags',
     _factory_process_cmd_arg,  # this
     _skip_feature_tiering_steps_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyFeatureManagementFlags(options):
   """Verify the flags for feature managements.
 
@@ -904,7 +968,9 @@ def VerifyFeatureManagementFlags(options):
 
   checker = feature_compliance.LoadChecker(hwid_dir,
                                            hwid_utils.ProbeProject().upper())
-  hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
       identity)
 
   # TODO(stevesu) We should refactor this function to a Verifier class to
@@ -917,7 +983,9 @@ def VerifyFeatureManagementFlags(options):
     # matter it is actually (False, 0) or (False, n), we can always enable
     # feature by soft-branding. Overwrite it with the one in GSC.
     if feature_flags == gsctool.FeatureManagementFlags(False, 0):
-      hw_compliance_version_checker = feature_flags.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      hw_compliance_version_checker = feature_flags.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   if hw_compliance_version_device_data != hw_compliance_version_checker:
     raise Error(
@@ -938,7 +1006,9 @@ def VerifyFeatureManagementFlags(options):
   # flow roll out to partner factory reaches steady state. Currently we
   # would like to limit the scope of change related with feature factory flow.
   brand_code = hwid_utils.GetBrandCode()
-  permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
                                              chassis_branded_device_data)
   if not permitted:
     raise Error('Current feature enablement status is not permitted as '
@@ -958,7 +1028,9 @@ def VerifyFeatureManagementFlags(options):
     _hwid_run_vpd_cmd_arg,  # this
     _hwid_vpd_data_file_cmd_arg,  # this
     _factory_process_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def VerifyHWID(options):
   """A simple wrapper that calls out to HWID utils to verify version 3 HWID.
 
@@ -1011,7 +1083,9 @@ def VerifyHWID(options):
     _no_write_protect_cmd_arg,  # this
     _has_ec_pubkey_cmd_arg,  # this
     _is_reference_board_cmd_arg,  # this
-    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     *VerifyAltSetting.__args__,
     *VerifyCrosConfig.__args__,
     *VerifyDLCImages.__args__,
@@ -1067,7 +1141,9 @@ def VerifyBeforeCr50Finalize(options):
 @Command(
     'verify_after_gsc_finalize',
     _no_write_protect_cmd_arg,  # this
-    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     *VerifySnBits.__args__,
     *VerifyWPSwitch.__args__,
 )
@@ -1128,7 +1204,9 @@ def LogSourceHashes(options):
         **file_utils.HashSourceTree(os.path.join(paths.FACTORY_DIR, 'py')))
 
 
-@Command('log_system_details', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('log_system_details', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def LogSystemDetails(options):
   """Write miscellaneous system details to the event log."""
 
@@ -1191,7 +1269,9 @@ def UploadReport(options):
     raise Error(f'unknown report upload method {method!r}')
 
 
-@Command('fpmcu_initialize_entropy', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('fpmcu_initialize_entropy', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def FpmcuInitializeEntropy(options):
   """Initialize entropy of FPMCU."""
 
@@ -1203,11 +1283,15 @@ def FpmcuInitializeEntropy(options):
 
 @Command(
     'smt_finalize',
-    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
-    *PrepareWipeArgs.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *PrepareWipeArgs.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 )
 def SMTFinalize(options):
   """Call this function to finalize MLB in SMT stage.
@@ -1238,14 +1322,18 @@ def SMTFinalize(options):
     _cros_core_cmd_arg,  # this
     _no_write_protect_cmd_arg,  # this
     _skip_list_cmd_arg,  # this
-    *PrepareWipeArgs.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *PrepareWipeArgs.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     *ClearFactoryVPDEntries.__args__,
     *ClearGBBFlags.__args__,
     *GSCFinalize.__args__,
     *WriteProtect.__args__,
     *FpmcuInitializeEntropy.__args__,
     *GenerateStableDeviceSecret.__args__,
-    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     *LockHPS.__args__,
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
@@ -1342,7 +1430,9 @@ def GetSmartAmpInfo(options):
     print('The DUT doesn\'t have a smart amplifier.')
 
 
-@Command('get_logical_block_size', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+@Command('get_logical_block_size', *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def GetLogicalBlockSize(options):
   """Get the logical block size of the primary device on DUT."""
   print('Logical block size:', GetGooftool(options).GetLogicalBlockSize())
@@ -1351,7 +1441,9 @@ def GetLogicalBlockSize(options):
 @Command(
     'ti50_set_spi_data',
     _no_write_protect_cmd_arg,  # this
-    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 def Ti50SetSPIData(options):
   """Sets the ti50 addressing mode and wpsr."""
   GetGooftool(options).gsc_utils.Ti50ProvisionSPIData(options.no_write_protect)

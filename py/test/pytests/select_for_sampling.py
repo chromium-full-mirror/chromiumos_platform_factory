@@ -55,7 +55,9 @@ from cros.factory.utils import net_utils
 
 
 class SelectForSamplingTest(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('rate', float,
           'Sampling rate (0 to never select any devices, 1 to select all, '
@@ -66,8 +68,12 @@ class SelectForSamplingTest(unittest.TestCase):
   ]
 
   def runTest(self):
-    self.assertGreaterEqual(self.args.rate, 0.0)  # type: ignore #TODO(b/338318729) Fixit!
-    self.assertLessEqual(self.args.rate, 1.0)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertGreaterEqual(self.args.rate, 0.0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertLessEqual(self.args.rate, 1.0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     mac_address = net_utils.GetWLANMACAddress()
     digest = hashlib.md5(mac_address.encode('utf-8')).hexdigest()
@@ -76,17 +82,29 @@ class SelectForSamplingTest(unittest.TestCase):
     max_value = 16 ** len(digest)
     fraction = value / max_value
 
-    selected = fraction < self.args.rate  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    selected = fraction < self.args.rate  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     logging.info('MAC address hash (as a fraction of 1): %.5f', fraction)
-    logging.info('Sampling rate: %.5f', self.args.rate)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.info('Sampling rate: %.5f', self.args.rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('Selected: %r', selected)
 
     event_log.Log('select_for_sampling',
-                  device_data_key=self.args.device_data_key,  # type: ignore #TODO(b/338318729) Fixit!
-                  fraction=fraction, rate=self.args.rate, selected=selected)  # type: ignore #TODO(b/338318729) Fixit!
+                  # yapf: disable
+                  device_data_key=self.args.device_data_key,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                  # yapf: enable
+                  # yapf: disable
+                  fraction=fraction, rate=self.args.rate, selected=selected)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     testlog.LogParam('selected', selected)
-    testlog.CheckNumericParam('fraction', fraction, max=self.args.rate)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    testlog.CheckNumericParam('fraction', fraction, max=self.args.rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    device_data.UpdateDeviceData({self.args.device_data_key: selected})  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    device_data.UpdateDeviceData({self.args.device_data_key: selected})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

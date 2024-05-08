@@ -219,39 +219,59 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
 
   def runTest(self):
     """Update Cr50 firmware."""
-    if self.args.firmware_file is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.firmware_file is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertTrue(
-          self.args.from_release,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.from_release,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'Must set "from_release" to True if not specifiying firmware_file')
-      self.args.firmware_file = self.gsc_utils.image_base_name + PROD_FW_SUFFIX  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.args.firmware_file = self.gsc_utils.image_base_name + PROD_FW_SUFFIX  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    self.assertEqual(self.args.firmware_file[0], '/',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.assertEqual(self.args.firmware_file[0], '/',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                      'firmware_file should be a full path')
 
     if phase.GetPhase() >= phase.PVT_DOGFOOD:
       self.assertFalse(
-          self.args.skip_prepvt_flag_check,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.skip_prepvt_flag_check,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'Skipping prePVT flag check is not allowed in PVT or MP builds.')
 
     self._LogCr50Info()
 
-    if self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.from_release:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       with sys_utils.MountPartition(
           self.dut.partitions.RELEASE_ROOTFS.path, dut=self.dut) as root:
         self.CacheImageInfoAndCallMethod(
-            os.path.join(root, self.args.firmware_file[1:]))  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            os.path.join(root, self.args.firmware_file[1:]))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     else:
       if self.dut.link.IsLocal():
-        self.CacheImageInfoAndCallMethod(self.args.firmware_file)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.CacheImageInfoAndCallMethod(self.args.firmware_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
         with self.dut.temp.TempFile() as dut_temp_file:
-          self.dut.SendFile(self.args.firmware_file, dut_temp_file)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.dut.SendFile(self.args.firmware_file, dut_temp_file)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.CacheImageInfoAndCallMethod(dut_temp_file)
 
   def CacheImageInfoAndCallMethod(self, firmware_file):
     session.console.info('Firmware path: %s', firmware_file)
     self.image_info = self.gsctool.GetImageInfo(firmware_file)
-    if self.args.method == self._MethodType.UPDATE:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.method == self._MethodType.UPDATE:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._UpdateCr50Firmware(firmware_file)
     else:
       self._CheckCr50FirmwareVersion()
@@ -264,11 +284,17 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
 
   def _IsPrePVTFirmware(self):
     logging.info('Cr50 firmware board ID flags: %s',
-                 hex(self.image_info.board_id_flags))  # type: ignore #TODO(b/338318729) Fixit!
+                 # yapf: disable
+                 hex(self.image_info.board_id_flags))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     testlog.UpdateParam('board_id_flags',
                         description='Board ID of the firmware image.')
-    testlog.LogParam('board_id_flags', self.image_info.board_id_flags)  # type: ignore #TODO(b/338318729) Fixit!
-    return self.image_info.board_id_flags & PREPVT_FLAG_MASK  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    testlog.LogParam('board_id_flags', self.image_info.board_id_flags)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    return self.image_info.board_id_flags & PREPVT_FLAG_MASK  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _CompareFirmwareFileVersion(self, strictly_greater=False):
     """Compare if current cr50 version is newer or equal to the FW file.
@@ -284,8 +310,12 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
                         description='The expected RW FW version.')
     testlog.UpdateParam('ro_fw_version', description='The RO FW version.')
     testlog.UpdateParam('rw_fw_version', description='The RW FW version.')
-    testlog.LogParam('expected_ro_fw_version', self.image_info.ro_fw_version)  # type: ignore #TODO(b/338318729) Fixit!
-    testlog.LogParam('expected_rw_fw_version', self.image_info.rw_fw_version)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    testlog.LogParam('expected_ro_fw_version', self.image_info.ro_fw_version)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    testlog.LogParam('expected_rw_fw_version', self.image_info.rw_fw_version)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     testlog.LogParam('ro_fw_version', self.fw_ver.ro_version)
     testlog.LogParam('rw_fw_version', self.fw_ver.rw_version)
 
@@ -322,12 +352,20 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
     try:
       _Check()
     except type_utils.TestFailure:
-      if self.args.check_version_retry_timeout <= 0:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.check_version_retry_timeout <= 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         raise
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit!
-          f'Version is old, sleep for '  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          f'Version is old, sleep for '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'{int(self.args.check_version_retry_timeout)} seconds and re-check.')
-      self.Sleep(self.args.check_version_retry_timeout)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.Sleep(self.args.check_version_retry_timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       _Check()
 
   def _ValidateTi50FirmwareVersion(self):
@@ -354,7 +392,9 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
           f'Current: {self.fw_ver!r}')
 
     if version.StrictVersion(actual) <= version.StrictVersion('0.0.15'):
-      if not self.args.force_ro_mode or self.args.upstart_mode:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not self.args.force_ro_mode or self.args.upstart_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.FailTask('Please turn on the `force_ro_mode` flag and turn off '
                       'the `upstart_mode` flag to update the ti50 firmware '
                       'from 0.0.15 (or less) to 0.0.16+.')
@@ -363,7 +403,9 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
     if self._IsPrePVTFirmware():
       if phase.GetPhase() >= phase.PVT_DOGFOOD:
         self.FailTask('PrePVT Cr50 firmware should never be used in PVT.')
-      if not self.args.skip_prepvt_flag_check:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if not self.args.skip_prepvt_flag_check:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.FailTask('Cr50 firmware board ID flag is PrePVT.')
 
     # If device data exists, it means the FW is updated in the last round and
@@ -378,7 +420,9 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
     # the same as the given firmware, so we require the current version
     # to be strictly greater than the given firmware.
     # After updating, the DUT will reboot and check the version again.
-    force_update = self.args.force_ro_mode and not has_rebooted  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    force_update = self.args.force_ro_mode and not has_rebooted  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if self._CompareFirmwareFileVersion(strictly_greater=force_update):
       session.console.info('Cr50 firmware is up-to-date.')
       device_data.UpdateDeviceData({KEY_CR50_UPDATE_NEED_REBOOT: False})
@@ -395,23 +439,35 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
 
     msg = (f'Update the Cr50 firmware from version {self.fw_ver!r} to '
            f'{self.image_info!r}.')
-    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info(msg)
     device_data.UpdateDeviceData({
-        KEY_ATTEMPT_CR50_UPDATE_RO_VERSION: self.image_info.ro_fw_version,  # type: ignore #TODO(b/338318729) Fixit!
-        KEY_ATTEMPT_CR50_UPDATE_RW_VERSION: self.image_info.rw_fw_version,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        KEY_ATTEMPT_CR50_UPDATE_RO_VERSION: self.image_info.ro_fw_version,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        KEY_ATTEMPT_CR50_UPDATE_RW_VERSION: self.image_info.rw_fw_version,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         KEY_CR50_UPDATE_NEED_REBOOT: True
     })
-    if self.args.set_recovery_request_train_and_reboot:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.set_recovery_request_train_and_reboot:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.dut.CheckCall('crossystem recovery_request=0xC4')
 
     update_result = self.gsctool.UpdateCr50Firmware(
-        firmware_file, self.args.upstart_mode, self.args.force_ro_mode)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        firmware_file, self.args.upstart_mode, self.args.force_ro_mode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info('Cr50 firmware update complete: %s.', update_result)
 
     # Wait for the chip to reboot itself. Otherwise, the test will trigger
     # tearDown and delete the device data.
-    if not self.args.upstart_mode:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.upstart_mode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.WaitTaskEnd()
 
   def _CheckCr50FirmwareVersion(self):

@@ -7,10 +7,17 @@
 
 import logging
 
-from backend import common  # type: ignore #TODO(b/338318729) Fixit!
-from rest_framework import permissions as drf_permissions  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
+from rest_framework import permissions as drf_permissions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.utils import net_utils
+
+
+# yapf: enable
+
 
 
 logger = logging.getLogger(f'django.{__name__}')

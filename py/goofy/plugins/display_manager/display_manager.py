@@ -91,7 +91,9 @@ class DisplayManager(plugin.Plugin):
       has_mirror = HasMirror(server_proxy)
       return (mode == MirrorMode.off) != has_mirror
 
-    sync_utils.WaitFor(MirrorModeMatchEvent, timeout)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sync_utils.WaitFor(MirrorModeMatchEvent, timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return None
 
   @plugin.RPCFunction
@@ -118,7 +120,9 @@ class DisplayManager(plugin.Plugin):
           return info['isPrimary']
       return False
 
-    sync_utils.WaitFor(BecomePrimaryEvent, timeout)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    sync_utils.WaitFor(BecomePrimaryEvent, timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @plugin.RPCFunction
   def ListDisplayInfo(self, verbose: bool = False):

@@ -99,7 +99,9 @@ class TabletModeTest(test_case.TestCase):
   def setUp(self):
     self.tablet_mode_switch = False
     try:
-      self.lid_event_dev = evdev_utils.FindDevice(self.args.lid_filter,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.lid_event_dev = evdev_utils.FindDevice(self.args.lid_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                                                   evdev_utils.IsLidEventDevice)
     except evdev_utils.MultipleDevicesFoundError as err:
       logging.exception('')
@@ -107,7 +109,9 @@ class TabletModeTest(test_case.TestCase):
 
     try:
       self.tablet_event_dev = evdev_utils.FindDevice(
-          self.args.tablet_filter,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.tablet_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           evdev_utils.IsTabletEventDevice)
     except evdev_utils.DeviceNotFoundError:
       self.tablet_event_dev = None
@@ -117,7 +121,9 @@ class TabletModeTest(test_case.TestCase):
           FormatMultipleDevicesMessages('tablet_filter', err.candidates))
 
     self.assertTrue(
-        self.args.prompt_flip_tablet or self.args.prompt_flip_notebook,  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.args.prompt_flip_tablet or self.args.prompt_flip_notebook,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         'One of prompt_flip_tablet or prompt_flip_notebook should be true.')
 
     # Create a thread to monitor evdev events.
@@ -140,10 +146,14 @@ class TabletModeTest(test_case.TestCase):
           self.tablet_event_dev, self.HandleSwitchEvent)
       self.tablet_dispatcher.StartDaemon()
 
-    if self.args.prompt_flip_tablet:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.prompt_flip_tablet:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.FlipTabletMode)
 
-    if self.args.prompt_flip_notebook:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.prompt_flip_notebook:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.AddTask(self.FlipNotebookMode)
 
   def tearDown(self):
@@ -152,32 +162,50 @@ class TabletModeTest(test_case.TestCase):
       self.tablet_dispatcher.Close()
 
   def HandleSwitchEvent(self, event):
-    if event.type == evdev.ecodes.EV_SW and event.code == evdev.ecodes.SW_LID:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if event.type == evdev.ecodes.EV_SW and event.code == evdev.ecodes.SW_LID:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if event.value == 0:  # LID_OPEN
         self.ShowFailure()
         self.FailTask('Lid switch was triggered unexpectedly')
 
-    if (event.type == evdev.ecodes.EV_SW and  # type: ignore #TODO(b/338318729) Fixit!
-        event.code == evdev.ecodes.SW_TABLET_MODE):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (event.type == evdev.ecodes.EV_SW and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        event.code == evdev.ecodes.SW_TABLET_MODE):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.tablet_mode_switch = event.value == 1
 
   def StartCountdown(self):
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def SetUIImage(self, image):
-    self.ui.SetView('main')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetView('main')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         'document.getElementById("image").className = args.image;', image=image)
 
   def FlipTabletMode(self):
     self.SetUIImage('notebook-to-tablet')
-    self.ui.SetInstruction(_('Flip the lid into tablet mode'))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Flip the lid into tablet mode'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     confirm_button = [
         '<button id="confirm-button" data-test-event="confirm-tablet">',
         _('Confirm tablet mode'), '</button>'
     ]
-    self.ui.SetHTML(confirm_button, id='confirm')  # type: ignore #TODO(b/338318729) Fixit!
-    self.event_loop.AddEventHandler('confirm-tablet',  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetHTML(confirm_button, id='confirm')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.event_loop.AddEventHandler('confirm-tablet',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                     self.HandleConfirmTabletMode)
     self.StartCountdown()
     self.WaitTaskEnd()
@@ -194,12 +222,18 @@ class TabletModeTest(test_case.TestCase):
 
   def FlipNotebookMode(self):
     self.SetUIImage('tablet-to-notebook')
-    self.ui.SetInstruction(_('Open the lid back to notebook mode'))  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetHTML(_('Press SPACE to confirm notebook mode'), id='confirm')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetInstruction(_('Open the lid back to notebook mode'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetHTML(_('Press SPACE to confirm notebook mode'), id='confirm')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Ask OP to press space to verify the dut is in notebook mode.
     # Set virtual_key to False since the event callback should be triggered
     # from a real key press, not from a button on screen.
-    self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         test_ui.SPACE_KEY, self.HandleConfirmNotebookMode, virtual_key=False)
     self.StartCountdown()
     self.WaitTaskEnd()
@@ -215,8 +249,12 @@ class TabletModeTest(test_case.TestCase):
     self.PassTask()
 
   def _ShowStatus(self, status_label):
-    self.ui.SetView('status')  # type: ignore #TODO(b/338318729) Fixit!
-    self.ui.SetHTML(status_label, id='status')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.SetView('status')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.ui.SetHTML(status_label, id='status')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.Sleep(1)
 
   def ShowSuccess(self):

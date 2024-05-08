@@ -93,7 +93,9 @@ class DaemonTest(unittest.TestCase):
     for p in self.daemon.twisted_ports:
       p.stopListening()
     self.daemon.twisted_ports = []
-    self.daemon = None  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.daemon = None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.rpc_proxy = None
     self.agent = None
     self.env.Close()

@@ -7,9 +7,14 @@ import textwrap
 import unittest
 from unittest import mock
 
-import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.probe_info_service.app_engine import gerrit_connector
+
+
+# yapf: enable
+
 
 
 class GerritConnectorTest(unittest.TestCase):

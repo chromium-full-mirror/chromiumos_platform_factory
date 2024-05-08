@@ -225,7 +225,9 @@ class GSCToolTest(unittest.TestCase):
 
   def testInvalidFeatureManagementFlags_Invalid_Chassis_Branded_Type(self):
     with self.assertRaises(TypeError):
-      self.gsctool.SetFeatureManagementFlags(0, 0)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.gsctool.SetFeatureManagementFlags(0, 0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def testInvalidFeatureManagementFlags_Invalid_Hw_Compliance_Type(self):
     with self.assertRaises(TypeError):

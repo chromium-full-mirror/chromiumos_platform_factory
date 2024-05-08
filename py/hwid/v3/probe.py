@@ -85,7 +85,9 @@ def GenerateBOMFromProbedResults(database, probed_results, device_info, vpd,
 
   if use_name_match:
     matched_components = {}
-    mismatched_components = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    mismatched_components = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for comp_cls, comps in probed_results.items():
       matched_components[comp_cls] = [comp['name'] for comp in comps]

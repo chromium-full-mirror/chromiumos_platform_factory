@@ -73,13 +73,21 @@ class FeatureComplianceVersionTest(test_case.TestCase):
     """
 
     database = Database.LoadFile(self._hw_db_path)
-    vpd = hwid_utils.GetVPDData(run_vpd=self.args.hwid_need_vpd)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    vpd = hwid_utils.GetVPDData(run_vpd=self.args.hwid_need_vpd)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     device_info = hwid_utils.GetDeviceInfo()
 
-    identity = hwid_utils.GenerateHWID(database, hwid_utils.GetProbedResults(),
-                                       device_info, vpd, self.args.rma_mode,  # type: ignore #TODO(b/338318729) Fixit!
-                                       with_configless_fields=False,
-                                       brand_code=hwid_utils.GetBrandCode())
+    identity = hwid_utils.GenerateHWID(
+        database,
+        hwid_utils.GetProbedResults(),
+        # yapf: disable
+        device_info,
+        vpd,
+        self.args.rma_mode,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        with_configless_fields=False,
+        brand_code=hwid_utils.GetBrandCode())
     logging.info(identity)
     return identity
 
@@ -98,11 +106,17 @@ class FeatureComplianceVersionTest(test_case.TestCase):
 
     logging.info('RMA case for feature compliance check.')
     feature_flags = GSCTool().GetFeatureManagementFlags()
-    if (feature_flags.hw_compliance_version >  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (feature_flags.hw_compliance_version >  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         feature_compliance.FEATURE_INCOMPLIANT_VERSION):
       self.assertEqual(
-          checker_hw_compliance_version, feature_flags.hw_compliance_version,  # type: ignore #TODO(b/338318729) Fixit!
-          'The hw_compliance_version calculated from checker '  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          checker_hw_compliance_version, feature_flags.hw_compliance_version,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          'The hw_compliance_version calculated from checker '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           f'({checker_hw_compliance_version}) differs from the '
           f'one in GSC ({feature_flags.hw_compliance_version}). '
           f'GSC feature flags are set as ({feature_flags.is_chassis_branded}, '
@@ -111,7 +125,9 @@ class FeatureComplianceVersionTest(test_case.TestCase):
           'check if the installed components match feature requirements. '
           'Otherwise, it is possible that GSC/MLB might need a rework here.')
 
-    device_data.SetHWComplianceVersionData(feature_flags.hw_compliance_version)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    device_data.SetHWComplianceVersionData(feature_flags.hw_compliance_version)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self) -> None:
 
@@ -126,7 +142,9 @@ class FeatureComplianceVersionTest(test_case.TestCase):
 
     identity = self.GetHWIDIdentity()
     checker = feature_compliance.LoadChecker(self._hwid_dir, self._project)
-    checker_hw_compliance_version = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    checker_hw_compliance_version = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         identity)
     logging.info('HW compliance version acquired from checker: %d',
                  checker_hw_compliance_version)
@@ -152,7 +170,9 @@ class FeatureComplianceVersionTest(test_case.TestCase):
     # allowed to be shipped without branded chassis, while non-feature
     # proejcts are not allowed to be shipped with branded chassis.
     brand_code = hwid_utils.GetBrandCode()
-    permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    permitted = checker.CheckFeatureEnablement(brand_code,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                                branded_chassis_device_data)
     self.assertTrue(
         permitted, 'Current feature enablement status is not permitted as '
@@ -162,7 +182,9 @@ class FeatureComplianceVersionTest(test_case.TestCase):
         'used on this project again and contact Google.')
 
     # Add further checks for RMA but the above asserts should always be True.
-    if (self.args.rma_mode and gsc_utils.GSCUtils().IsGSCFieldLocked()):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if (self.args.rma_mode and gsc_utils.GSCUtils().IsGSCFieldLocked()):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.CheckFeatureComplianceForRMACr50Locked(checker_hw_compliance_version)
     else:
       device_data.SetHWComplianceVersionData(checker_hw_compliance_version)

@@ -60,7 +60,9 @@ class InstalogFieldStorage(cgi.FieldStorage):
 
   def __init__(self, tmp_dir, *args, **kargs):
     self.tmp_dir = tmp_dir
-    self.FieldStorageClass = lambda *args, **kargs: InstalogFieldStorage(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.FieldStorageClass = lambda *args, **kargs: InstalogFieldStorage(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         self.tmp_dir, *args, **kargs)
     cgi.FieldStorage.__init__(self, *args, **kargs)
 
@@ -70,9 +72,13 @@ class InstalogFieldStorage(cgi.FieldStorage):
     self._FieldStorage__file = None
     self.file = self.make_file()
     if self.outerboundary:
-      self.read_lines_to_outerboundary()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.read_lines_to_outerboundary()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
-      self.read_lines_to_eof()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.read_lines_to_eof()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def make_file(self):
     """Always use memory.
@@ -82,17 +88,25 @@ class InstalogFieldStorage(cgi.FieldStorage):
     in-memory buffer. Note there will still be one copy in __write, but
     there won't be system calls for creating or deleting files (and no fd used).
     """
-    if not self.name or self.name == 'event':  # type: ignore #TODO(b/338318729) Fixit!
-      if self._binary_file:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.name or self.name == 'event':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      if self._binary_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         return BytesIO()
       return StringIO()
 
     # Save attachments.
     mode = 'w'
-    if self._binary_file:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self._binary_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       mode = 'wb'
     return tempfile.NamedTemporaryFile(
-        mode, prefix=self.name + '_', dir=self.tmp_dir, delete=False)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        mode, prefix=self.name + '_', dir=self.tmp_dir, delete=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class HTTPHandler(http.server.BaseHTTPRequestHandler, log_utils.LoggerMixin):
@@ -125,7 +139,9 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler, log_utils.LoggerMixin):
   def do_POST(self):
     """Processes when receiving POST request."""
     content_type = self.headers.get('Content-Type', '')
-    self.content_length = self.headers.get('Content-Length', None)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.content_length = self.headers.get('Content-Length', None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.client_node_id = self.headers.get('Node-ID', 'NoNodeID')
     # Need to reject other Content-Type, because Content-Type =
     # 'application/x-www-form-urlencoded' may use about 81 times of data size
@@ -351,7 +367,9 @@ class InputHTTP(plugin_base.InputPlugin):
     if self.args.enable_gnupg:
       self.info('Enable GnuPG to decrypt and verify the data')
       http_common.CheckGnuPG()
-      gpg = gnupg.GPG(gnupghome=self.args.gnupg_home)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      gpg = gnupg.GPG(gnupghome=self.args.gnupg_home)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.info('GnuPG home directory: %s', gpg.gnupghome)
       if len(gpg.list_keys(True)) < 1:
         raise Exception('Need at least one GnuPG secret key in gnupghome')
@@ -370,7 +388,9 @@ class InputHTTP(plugin_base.InputPlugin):
 
   def TearDown(self):
     """Tears down the plugin."""
-    self._http_server.StopServer()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._http_server.StopServer()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.info('Shutdown complete')
 
   def _CheckFormat(self, event, client_node_id):

@@ -308,10 +308,15 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
 
   def setUp(self):
     self.test = update_device_data.UpdateDeviceData()
-    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.ui = mock.create_autospec(test_ui.StandardUI)
     type_utils.LazyProperty.Override(self.test, 'ui', self.ui)
-    self.created_fake_entries = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.created_fake_entries = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
 
     def mock_create_entry(*args, **kwargs):
       self.created_fake_entries.append(FakeEntry(*args, **kwargs))
@@ -327,7 +332,9 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
   def test_setUp_NoValidData(self):
     with self.assertRaisesRegex(
         ValueError, r'Either config_name or fields must be specified\.'):
-      self.test.args = FakeArgs(config_name=None, fields=None)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.test.args = FakeArgs(config_name=None, fields=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.test.setUp()
 
   @mock.patch.object(device_data, 'LoadConfig', autospec=True)
@@ -337,7 +344,9 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
         'key2': 'value2'
     }
     mock_load.return_value = config
-    self.test.args = FakeArgs(config_name='config_file')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(config_name='config_file')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
 
@@ -350,7 +359,9 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
 
   def test_setUp_LoadFieldsFromFields(self):
     fields = ['key1', 'key2']
-    self.test.args = FakeArgs(fields=fields)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(fields=fields)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
 
@@ -360,7 +371,9 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
   @mock.patch.object(update_device_data.UpdateDeviceData, 'ManualInput',
                      autospec=True)
   def test_runTest_Manual(self, mock_input):
-    self.test.args = FakeArgs(fields=['key1', 'key2'])  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(fields=['key1', 'key2'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -370,7 +383,9 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
 
   @mock.patch.object(device_data, 'UpdateDeviceData', autospec=True)
   def test_runTest_Auto(self, mock_update):
-    self.test.args = FakeArgs(fields=['key1', 'key2'], manual_input=False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.args = FakeArgs(fields=['key1', 'key2'], manual_input=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     self.test.setUp()
     self.test.runTest()
@@ -431,8 +446,12 @@ class UpdateDeviceDataUnitTest(unittest.TestCase):
     self.test.ManualInput(entry)
 
     mock_error_msg.assert_not_called()
-    self.test.ui.UnbindAllKeys.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
-    self.test.event_loop.ClearHandlers.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.test.ui.UnbindAllKeys.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.test.event_loop.ClearHandlers.assert_called_once()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Value not set.
     with self.assertRaisesRegex(Exception, r'Value not set\.'):

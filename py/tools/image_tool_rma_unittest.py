@@ -61,7 +61,9 @@ class EnvBuilder:
 
   def CreateDiskImage(self, lsb_content):
     cgpt = image_tool.SysUtils.FindCGPT()
-    image_path = os.path.join(self.temp_dir, self.name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    image_path = os.path.join(self.temp_dir, self.name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.CheckCall(f'truncate -s {16 * 1048576} {self.name}')
 
     for command in self.PARTITION_COMMANDS:
@@ -73,7 +75,9 @@ class EnvBuilder:
     with image_tool.Partition(image_path, 3).Mount(rw=True) as d:
       fw_path = os.path.join(d, 'usr', 'sbin', 'chromeos-firmwareupdate')
       self.CheckCall(f'sudo mkdir -p {os.path.dirname(fw_path)}')
-      tmp_fw_path = os.path.join(self.temp_dir, 'chromeos-firmwareupdate')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      tmp_fw_path = os.path.join(self.temp_dir, 'chromeos-firmwareupdate')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       file_utils.WriteFile(tmp_fw_path, self.UPDATER_CONTENT)
       self.CheckCall(f'sudo mv {tmp_fw_path} {fw_path}')
       self.CheckCall(f'sudo chmod a+rx {fw_path}')
@@ -87,7 +91,9 @@ class EnvBuilder:
                      (lsb_content.strip('\n'), lsb_path))
       write_gpt_path = os.path.join(d, 'usr', 'sbin', 'write_gpt.sh')
       self.CheckCall(f'sudo mkdir -p {os.path.dirname(write_gpt_path)}')
-      tmp_write_gpt_path = os.path.join(self.temp_dir, 'write_gpt.sh')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      tmp_write_gpt_path = os.path.join(self.temp_dir, 'write_gpt.sh')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       write_command = '\n'.join(
           cmd % dict(command=cgpt, file='$1')
           for cmd in self.PARTITION_COMMANDS)
@@ -115,10 +121,14 @@ class EnvBuilder:
   def SetupBundleEnvironment(self, image_path):
     for dir_name in ['factory_shim', 'test_image', 'release_image',
                      'toolkit', 'hwid', 'complete', 'firmware']:
-      dir_path = os.path.join(self.temp_dir, dir_name)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dir_path = os.path.join(self.temp_dir, dir_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       os.makedirs(dir_path)
     for name in ['release_image', 'test_image', 'factory_shim']:
-      dest_path = os.path.join(self.temp_dir, name, 'image.bin')  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      dest_path = os.path.join(self.temp_dir, name, 'image.bin')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       shutil.copy(image_path, dest_path)
       with image_tool.Partition(dest_path, 3).Mount(rw=True) as d:
         self.CheckCall(
@@ -126,28 +136,40 @@ class EnvBuilder:
       with image_tool.Partition(dest_path, 1).Mount(rw=True) as d:
         self.CheckCall(
             f"echo \"{name}\" | sudo dd of=\"{os.path.join(d, 'tag')}\"")
-    toolkit_path = os.path.join(self.temp_dir, 'toolkit', 'toolkit.run')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    toolkit_path = os.path.join(self.temp_dir, 'toolkit', 'toolkit.run')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     file_utils.WriteFile(toolkit_path, '#!/bin/sh\necho Toolkit Version 1.0\n')
     os.chmod(toolkit_path, 0o755)
 
   def Cleanup(self):
-    shutil.rmtree(self.temp_dir)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    shutil.rmtree(self.temp_dir)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def CheckCall(self, command):
     return subprocess.check_call(command, shell=True, cwd=self.temp_dir,
                                  stderr=subprocess.DEVNULL)
 
   def GetToolkitPath(self):
-    return os.path.join(self.temp_dir, 'toolkit', 'toolkit.run')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return os.path.join(self.temp_dir, 'toolkit', 'toolkit.run')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetReleaseImagePath(self):
-    return os.path.join(self.temp_dir, 'release_image', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return os.path.join(self.temp_dir, 'release_image', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetTestImagePath(self):
-    return os.path.join(self.temp_dir, 'test_image', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return os.path.join(self.temp_dir, 'test_image', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetFactoryShimPath(self):
-    return os.path.join(self.temp_dir, 'factory_shim', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return os.path.join(self.temp_dir, 'factory_shim', 'image.bin')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
 
 class RMACreateThread(threading.Thread):
@@ -270,7 +292,9 @@ class ImageToolRMATest(unittest.TestCase):
     t1.join()
     t2.join()
 
-    image2_path = os.path.join(b2.temp_dir, b2.name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    image2_path = os.path.join(b2.temp_dir, b2.name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Verify content of RMA shim.
     DIR_CROS_PAYLOADS = image_tool.CrosPayloadUtils.GetCrosPayloadsDir()

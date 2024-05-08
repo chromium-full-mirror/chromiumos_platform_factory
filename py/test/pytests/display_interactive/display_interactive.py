@@ -82,21 +82,44 @@ class DisplayInteractiveTest(test_case.TestCase):
   def setUp(self):
     """Initialize the test."""
     self.dut = device_utils.CreateDUTInterface()
-    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.static_dir = self.ui.GetStaticDirectoryPath()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
-    self.frontend_proxy = self.ui.InitJSTestObject('DisplayInteractiveTest', '')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.frontend_proxy = self.ui.InitJSTestObject('DisplayInteractiveTest', '')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Set firewall rules to allow xml-rpc server listen on port.
-    process_utils.Spawn([
-        'iptables', '-A', 'INPUT', '-p', 'tcp', '--dport',
-        str(self.args.port), '-j', 'ACCEPT'  # type: ignore #TODO(b/338318729) Fixit!
-    ], check_call=True)
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    process_utils.Spawn(
+        [
+            'iptables',
+            '-A',
+            'INPUT',
+            '-p',
+            'tcp',
+            '--dport',
+            # yapf: disable
+            str(self.args.port),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            '-j',
+            'ACCEPT'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+        ],
+        check_call=True)
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def runTest(self):
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.SetInstruction('Press space to start the test')  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.SetInstruction('Press space to start the test')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.SetDisplayBrightness(1.0)
     # Automatically toggle fullscreen.
@@ -106,16 +129,24 @@ class DisplayInteractiveTest(test_case.TestCase):
 
   def RunAsServer(self):
     """Run the XML-RPC server."""
-    self.server = ThreadXMLRPCServer(('0.0.0.0', self.args.port),  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.server = ThreadXMLRPCServer(('0.0.0.0', self.args.port),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
                                      allow_none=True)
     self.server.register_introspection_functions()
     self.server.register_instance(self)
-    logging.info('Starting XML-RPC server on %d', self.args.port)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    logging.info('Starting XML-RPC server on %d', self.args.port)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.server.serve_forever()
 
   def ServerClose(self):
-    self.server.shutdown()  # type: ignore #TODO(b/338318729) Fixit!
-    self.server.server_close()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.server.shutdown()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.server.server_close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     logging.info('XML-RPC server closed.')
 
   def tearDown(self):

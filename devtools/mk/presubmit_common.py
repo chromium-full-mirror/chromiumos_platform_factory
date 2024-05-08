@@ -45,7 +45,9 @@ def ComputeDiffRange(commit, files):
   # [('foo.py', ''), ('', '14,3'), ('', '17')]
 
   curr_file = None
-  line_diffs = {}  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  line_diffs = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for match in re.findall(pattern, diff_output, flags=re.MULTILINE):
     if match[0] != '':
       # Will match the second filename in diff --git a/a.py b/b.py.

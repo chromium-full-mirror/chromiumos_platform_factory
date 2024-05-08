@@ -126,7 +126,9 @@ def ReadCsvAsListOfDict(source):
     fieldnames = reader.fieldnames
 
     # Check if fieldnames are unique.
-    if len(set(fieldnames)) != len(fieldnames):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if len(set(fieldnames)) != len(fieldnames):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       raise ValueError(f'Duplicated column name in {source}')
 
     for idx, row in enumerate(reader):
@@ -138,7 +140,9 @@ def ReadCsvAsListOfDict(source):
         logging.debug(
             'Cell without a column name is ignored during conversion\n'
             'Row[%d] - %s', idx, row[None])
-      for key in fieldnames:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for key in fieldnames:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         converted_dict[key] = ReadSingleCell(row.get(key, ''))
       data.append(converted_dict)
   return data

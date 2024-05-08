@@ -69,7 +69,9 @@ class EventLoop:
         callback=self._HandleEvent)
     self.event_handlers = {}
     self._handler_exception_hook = handler_exception_hook
-    self._timed_handler_event_queue = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._timed_handler_event_queue = queue.PriorityQueue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self._unique_id = count()
     self._event_queue_lock = threading.Lock()
 
@@ -607,7 +609,9 @@ class UI:
     if not isinstance(keys, list):
       keys = [keys]
 
-    key_pressed = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    key_pressed = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     for key in keys:
       self.BindKey(key,

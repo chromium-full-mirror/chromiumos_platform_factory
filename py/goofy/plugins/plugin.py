@@ -204,7 +204,9 @@ class Plugin:
     """Returns RPC instance of the plugin."""
 
     if self._rpc_instance is None:
-      self._rpc_instance = self.RPCInstance()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._rpc_instance = self.RPCInstance()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       for name, attr in inspect.getmembers(self):
         if getattr(attr, '__rpc_function__', False):
           self._rpc_instance.__dict__[name] = attr

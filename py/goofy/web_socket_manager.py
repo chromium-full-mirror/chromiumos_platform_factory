@@ -9,7 +9,8 @@ import subprocess
 import threading
 import time
 
-from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from ws4py.websocket import WebSocket  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.test.env import paths
 from cros.factory.test.event import Event
@@ -19,6 +20,10 @@ from cros.factory.test.utils.web_socket_utils import WebSocketHandshake
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import string_utils
+
+
+# yapf: enable
+
 
 # Number of lines to buffer for new clients.
 TAIL_BUFFER_SIZE = 10
@@ -61,12 +66,13 @@ class WebSocketManager:
       # But it's fine though, since TouchFile() uses 'a' append mode.
       file_utils.TouchFile(paths.CONSOLE_LOG_PATH)
     self.tail_process = process_utils.Spawn(
-        ['tail', '-F', paths.CONSOLE_LOG_PATH],
-        ignore_stdin=True,
+        ['tail', '-F', paths.CONSOLE_LOG_PATH], ignore_stdin=True,
         stdout=subprocess.PIPE)
     self.tail_thread = threading.Thread(target=self._tail_console)
     self.closed = False
-    self.tail_buffer = collections.deque()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.tail_buffer = collections.deque()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.tail_thread.start()
 
   def close(self):
@@ -87,7 +93,9 @@ class WebSocketManager:
     if self.tail_process:
       self.tail_process.kill()
       self.tail_process.wait()
-      self.tail_process.stdout.close()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.tail_process.stdout.close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     if self.tail_thread:
       self.tail_thread.join()
 
@@ -126,7 +134,9 @@ class WebSocketManager:
                             'incorrect UUID')
             socket_self.close_connection()
         else:
-          self.event_client.post_event(event)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.event_client.post_event(event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
 
     web_socket = MyWebSocket(sock=request.connection)
 
@@ -190,10 +200,13 @@ class WebSocketManager:
     def target():
       time.sleep(0.5)
       session.console.info('Opened console.')
+
     process_utils.StartDaemonThread(target=target)
 
     while True:
-      line = self.tail_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      line = self.tail_process.stdout.readline()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       if line == '':
         break
       with self.lock:

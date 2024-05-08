@@ -28,7 +28,9 @@ class StubFactoryServerProxyError(Exception):
 class StubUnreliableFactoryServer:
 
   def __init__(self):
-    self.counter = Counter()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.counter = Counter()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.is_good = True
 
   def UploadCSVEntry(self, csv_filename, row):

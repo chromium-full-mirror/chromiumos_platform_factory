@@ -2,8 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from backend import common  # type: ignore #TODO(b/338318729) Fixit!
-from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: enable
+# yapf: disable
+from backend.models import Bundle  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend.models import DomeConfig
 from backend.models import FactoryDriveComponent
 from backend.models import FactoryDriveDirectory
@@ -11,8 +15,12 @@ from backend.models import Project
 from backend.models import Resource
 from backend.models import Service
 from backend.models import TemporaryUploadedFile
-import django  # type: ignore #TODO(b/338318729) Fixit!
-from rest_framework import exceptions  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+import django  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: enable
+# yapf: disable
+from rest_framework import exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from rest_framework import serializers
 from rest_framework import validators
 

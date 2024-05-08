@@ -15,19 +15,25 @@ class ActionFunctionTest(unittest.TestCase):
     self.func = action_function.ActionFunction()
 
   def testCall(self):
-    self.func.Action = mock.MagicMock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.func.Action = mock.MagicMock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ret = self.func(function.INITIAL_DATA)
     self.func.Action.assert_called_once_with()
     self.assertEqual(ret, function.INITIAL_DATA)
 
   def testNotCall(self):
-    self.func.Action = mock.MagicMock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.func.Action = mock.MagicMock(return_value=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ret = self.func(function.NOTHING)
     self.func.Action.assert_not_called()
     self.assertEqual(ret, function.NOTHING)
 
   def testCallFail(self):
-    self.func.Action = mock.MagicMock(return_value=False)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.func.Action = mock.MagicMock(return_value=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ret = self.func([{}])
     self.func.Action.assert_called_once_with()
     self.assertEqual(ret, function.NOTHING)

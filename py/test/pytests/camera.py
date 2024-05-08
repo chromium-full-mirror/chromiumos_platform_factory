@@ -355,22 +355,36 @@ class CameraTest(test_case.TestCase):
       self.FailTask('Camera test failed due to timeout.')
 
   def ShowFeedback(self, msg):
-    self.ui.CallJSFunction('showFeedback', msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('showFeedback', msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def AppendFeedback(self, msg):
-    self.ui.CallJSFunction('appendFeedback', msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('appendFeedback', msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def ShowInstruction(self, msg):
-    self.ui.CallJSFunction('showInstruction', msg)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('showInstruction', msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _RunJSBlockingImpl(self, js, func):
-    return_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return_queue = queue.Queue()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     event_name = f'wait_js_{func}_{uuid.uuid4()}'
-    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.AddEventHandler(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         event_name, lambda event: return_queue.put(event.data))
-    self.ui.CallJSFunction(func, js, event_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction(func, js, event_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     ret = sync_utils.QueueGet(return_queue)
-    self.event_loop.RemoveEventHandler(event_name)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.event_loop.RemoveEventHandler(event_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if 'error' in ret:
       self.FailTask(ret['error'])
     return ret['data']
@@ -387,13 +401,17 @@ class CameraTest(test_case.TestCase):
     if self.e2e_mode:
       self.RunJSPromiseBlocking('cameraTest.enable()')
     else:
-      self.camera_device.EnableCamera(**self.args.camera_args)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.camera_device.EnableCamera(**self.args.camera_args)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def DisableDevice(self):
     if self.e2e_mode:
       self.RunJSBlocking('cameraTest.disable()')
     else:
-      self.camera_device.DisableCamera()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.camera_device.DisableCamera()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def ReadSingleFrame(self):
     if self.e2e_mode:
@@ -407,36 +425,52 @@ class CameraTest(test_case.TestCase):
         blob = codecs.decode(
             file_utils.ReadFile(blob_path, encoding=None), 'base64')
         os.unlink(blob_path)
-        return cv.imdecode(np.fromstring(blob, dtype=np.uint8), cv.IMREAD_COLOR)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        return cv.imdecode(np.fromstring(blob, dtype=np.uint8), cv.IMREAD_COLOR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       self.RunJSPromiseBlocking('cameraTest.grabFrame()')
       return None
 
-    return self.camera_device.ReadSingleFrame()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return self.camera_device.ReadSingleFrame()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def LEDTest(self):
     flicker = bool(random.randint(0, 1))
 
-    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.BindStandardFailKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     for i in range(2):
       if i == flicker:
-        self.ui.BindKey(str(i), lambda unused_event: self.PassTask())  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.BindKey(str(i), lambda unused_event: self.PassTask())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
       else:
-        self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.ui.BindKey(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             str(i), lambda unused_event: self.FailTask('Wrong key pressed.'))
     self.ShowInstruction(
         _('Press 0 if LED is constantly lit, 1 if LED is flickering,\n'
           'or ESC to fail.'))
-    self.ui.CallJSFunction('hideImage')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.CallJSFunction('hideImage')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if flicker:
       while True:
         # Flickers the LED
         self.EnableDevice()
         self.ReadSingleFrame()
-        self.Sleep(self.args.flicker_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.Sleep(self.args.flicker_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self.DisableDevice()
-        self.Sleep(self.args.flicker_interval_secs)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.Sleep(self.args.flicker_interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
     else:
       # Constantly lights the LED
       self.EnableDevice()
@@ -463,7 +497,9 @@ class CameraTest(test_case.TestCase):
     image_height, image_width = cv_image.shape[:2]
 
     draw_rect_js = ''
-    thickness = cv.FILLED if fill else 1  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    thickness = cv.FILLED if fill else 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     fill_string = 'true' if fill else 'false'
     if self.e2e_mode:
       # Normalize the coordinates / size to [0, 1], since the canvas in the
@@ -474,7 +510,9 @@ class CameraTest(test_case.TestCase):
           f'{float(rect_height) / image_height}, "{color_string}", '
           f'{fill_string});')
     else:
-      cv.rectangle(cv_image, (x_pos, y_pos),  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cv.rectangle(cv_image, (x_pos, y_pos),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                    (x_pos + rect_width, y_pos + rect_height), bgr_color,
                    thickness)
 
@@ -484,10 +522,14 @@ class CameraTest(test_case.TestCase):
     # TODO(pihsun): Use the shape detection API in Chrome in e2e mode when it
     # is ready.
     height, width = cv_image.shape[:2]
-    cascade = cv.CascadeClassifier(_HAAR_CASCADE_PATH)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    cascade = cv.CascadeClassifier(_HAAR_CASCADE_PATH)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     detected_objs = cascade.detectMultiScale(
         cv_image, scaleFactor=1.2, minNeighbors=2,
-        flags=cv.CASCADE_DO_CANNY_PRUNING, minSize=(width // 10, height // 10))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        flags=cv.CASCADE_DO_CANNY_PRUNING, minSize=(width // 10, height // 10))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Detected_objs will be numpy array or an empty tuple. bool(numpy_array)
     # will not work (will raise an exception).
     detected = len(detected_objs) > 0
@@ -545,12 +587,18 @@ class CameraTest(test_case.TestCase):
     if scanned_text:
       self.ShowFeedback(
           i18n.StringFormat(_('Scanned QR code: "{text}"'), text=scanned_text))
-      if scanned_text != self.args.QR_string:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if scanned_text != self.args.QR_string:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         logging.warning(
             'Scanned QR code "%s" does not match target QR code "%s"',
-            scanned_text, self.args.QR_string)  # type: ignore #TODO(b/338318729) Fixit!
+            # yapf: disable
+            scanned_text, self.args.QR_string)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
-    return scanned_text == self.args.QR_string  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return scanned_text == self.args.QR_string  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def GetResultString(self, result):
     return _('Success!') if result else _('Failure')
@@ -568,7 +616,9 @@ class CameraTest(test_case.TestCase):
     qr_region = cv_image[y_pos:y_pos + qr_height, x_pos:x_pos + qr_width, :]
     qr_code_scan_success = self.ScanQRCode(qr_region)
 
-    if self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.DrawQRDetectionRegion(cv_image)
 
     string_to_show = i18n.StringFormat(
@@ -586,8 +636,12 @@ class CameraTest(test_case.TestCase):
     return camera_well_assembled and qr_code_scan_success
 
   def BrightnessCheck(self, cv_image):
-    value = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).max()  # type: ignore #TODO(b/338318729) Fixit!
-    threshold = self.args.brightness_range  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    value = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY).max()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    threshold = self.args.brightness_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     session.console.info(f'Maximum brightness: {value}')
     return ((threshold[0] is None or threshold[0] <= value) and
             (threshold[1] is None or value <= threshold[1]))
@@ -598,15 +652,27 @@ class CameraTest(test_case.TestCase):
       # element, independent to the calls to ShowImage here.
       return
 
-    resize_ratio = self.args.resize_ratio  # type: ignore #TODO(b/338318729) Fixit!
-    cv_image = cv.resize(cv_image, None, fx=resize_ratio, fy=resize_ratio,  # type: ignore #TODO(b/338318729) Fixit!
-                         interpolation=cv.INTER_AREA)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    resize_ratio = self.args.resize_ratio  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    cv_image = cv.resize(cv_image, None, fx=resize_ratio, fy=resize_ratio,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                         # yapf: enable
+                         # yapf: disable
+                         interpolation=cv.INTER_AREA)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self.flip_image:
-      cv_image = cv.flip(cv_image, 1)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cv_image = cv.flip(cv_image, 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    unused_retval, jpg_data = cv.imencode(  # type: ignore #TODO(b/338318729) Fixit!
-        '.jpg', cv_image, (cv.IMWRITE_JPEG_QUALITY, _JPEG_QUALITY))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    unused_retval, jpg_data = cv.imencode(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        '.jpg', cv_image, (cv.IMWRITE_JPEG_QUALITY, _JPEG_QUALITY))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     jpg_base64 = codecs.encode(jpg_data.tobytes(), 'base64')
 
     try:
@@ -614,7 +680,9 @@ class CameraTest(test_case.TestCase):
       # to UI. Use URLForData instead, since event server actually
       # broadcast to all client, and is not suitable for large amount of
       # data.
-      self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.CallJSFunction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           'showImage', 'data:image/jpeg;base64,' + jpg_base64.decode('utf-8'))
     except AttributeError:
       # The websocket is closed because test has passed/failed.
@@ -632,7 +700,9 @@ class CameraTest(test_case.TestCase):
           f'{float(y_pos) / img_height}, {float(qr_width) / img_width},'
           f' {float(qr_height) / img_height})')
     else:
-      cv.rectangle(cv_image, (x_pos, y_pos),  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      cv.rectangle(cv_image, (x_pos, y_pos),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                    (x_pos + qr_width, y_pos + qr_height), 255)
 
   def CaptureTestFrame(self, mode, cv_image):
@@ -655,20 +725,30 @@ class CameraTest(test_case.TestCase):
   def CaptureTest(self, mode):
     self.ShowInstruction(_TEST_MODE_INST[mode])
     if mode == TestModes.manual:
-      self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if not self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.CallJSFunction('hideImage')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if not self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.CallJSFunction('hideImage')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     self.EnableDevice()
     try:
       frame_count = 0
-      frame_interval = 1.0 / float(self.args.capture_fps)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      frame_interval = 1.0 / float(self.args.capture_fps)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       last_process_time = time.time()
       if mode == TestModes.frame_count:
         process_interval = 0
       else:
-        process_interval = 1.0 / float(self.args.process_rate)  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        process_interval = 1.0 / float(self.args.process_rate)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
 
       while True:
         start_time = time.time()
@@ -678,10 +758,14 @@ class CameraTest(test_case.TestCase):
           last_process_time = time.time()
           if self.CaptureTestFrame(mode, cv_image):
             frame_count += 1
-          if frame_count >= self.args.num_frames_to_pass:  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          if frame_count >= self.args.num_frames_to_pass:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             return
 
-        if self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        if self.args.show_image:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           self.ShowImage(cv_image)
 
         self.Sleep(frame_interval - (time.time() - start_time))
@@ -691,17 +775,29 @@ class CameraTest(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
-    self.mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.camera_facing is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    if self.args.camera_facing is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.camera_type = camera_utils.CameraType.usb
       self.assertTrue(
-          self.args.camera_usb_vid_pid is not None,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.camera_usb_vid_pid is not None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'camera_usb_vid_pid must be set if camera_facing is None')
     else:
       self.camera_type = camera_utils.GetCameraTypeFromCameraFacing(
-          self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit!
-    self.e2e_mode = self.args.e2e_mode  # type: ignore #TODO(b/338318729) Fixit!
-    self.min_luminance_ratio = self.args.min_luminance_ratio  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    self.e2e_mode = self.args.e2e_mode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.min_luminance_ratio = self.args.min_luminance_ratio  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # Whether we need to transmit image from UI back to Python in e2e mode.
     # TODO(pihsun): This can be removed after the desktop Chrome implements
@@ -712,12 +808,20 @@ class CameraTest(test_case.TestCase):
       self.assertTrue(self.e2e_mode,
                       'e2e_mode should be enabled for MIPI camera.')
 
-    self.flip_image = self.args.flip_image  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.flip_image = self.args.flip_image  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if self.flip_image is None:
-      self.flip_image = self.args.camera_facing != 'rear'  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.flip_image = self.args.camera_facing != 'rear'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.fullscreen:  # type: ignore #TODO(b/338318729) Fixit!
-      self.ui.RunJS('test.setFullScreen(true)')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.fullscreen:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+      # yapf: disable
+      self.ui.RunJS('test.setFullScreen(true)')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     if self.e2e_mode:
       if not self.dut.link.IsLocal():
@@ -726,21 +830,35 @@ class CameraTest(test_case.TestCase):
         logging.warning('frame count mode is NOT real frame count in e2e mode, '
                         'consider using timeout instead.')
 
-      camera_facing = ('front' if self.args.camera_facing is None else  # type: ignore #TODO(b/338318729) Fixit!
-                       self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      camera_facing = ('front' if self.args.camera_facing is None else  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                       # yapf: enable
+                       # yapf: disable
+                       self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       options = {
           'facingMode': {
               'front': 'user',
               'rear': 'environment'
           }[camera_facing],
-          'videoStartPlayTimeoutMs': self.args.video_start_play_timeout_ms,  # type: ignore #TODO(b/338318729) Fixit!
-          'getUserMediaRetries': self.args.get_user_media_retries,  # type: ignore #TODO(b/338318729) Fixit!
-          'reinitializationDelayMs': self.args.reinitialization_delay_ms,  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          'videoStartPlayTimeoutMs': self.args.video_start_play_timeout_ms,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          'getUserMediaRetries': self.args.get_user_media_retries,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          'reinitializationDelayMs': self.args.reinitialization_delay_ms,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
       }
-      resolution = self.args.camera_args.get('resolution', (1280, 720))  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      resolution = self.args.camera_args.get('resolution', (1280, 720))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       options['width'], options['height'] = resolution
       options['flipImage'] = self.flip_image
-      self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.ui.RunJS(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
           'window.cameraTest = new CameraTest(args.options)', options=options)
       self.camera_device = None
       self.need_transmit_from_ui = self.mode in (
@@ -750,17 +868,29 @@ class CameraTest(test_case.TestCase):
           TestModes.face,
           TestModes.brightness,
       )
-    elif (self.args.camera_facing is None and  # type: ignore #TODO(b/338318729) Fixit!
-          self.args.camera_usb_vid_pid is not None and  # type: ignore #TODO(b/338318729) Fixit!
-          len(self.args.camera_usb_vid_pid) == 2):  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    elif (self.args.camera_facing is None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          self.args.camera_usb_vid_pid is not None and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          len(self.args.camera_usb_vid_pid) == 2):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.camera_device = self.GetCamera().GetCameraDeviceByUsbVidPid(
-          self.args.camera_usb_vid_pid[0], self.args.camera_usb_vid_pid[1])  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.camera_usb_vid_pid[0], self.args.camera_usb_vid_pid[1])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     else:
       self.camera_device = self.GetCamera().GetCameraDevice(
-          self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.camera_facing)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def runTest(self):
-    self.ui.StartCountdownTimer(self.args.timeout_secs, self._Timeout)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.ui.StartCountdownTimer(self.args.timeout_secs, self._Timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if self.mode == TestModes.manual:
       self.assertFalse(phase.GetPhase() > phase.DVT,
@@ -770,7 +900,9 @@ class CameraTest(test_case.TestCase):
         TestModes.manual, TestModes.camera_assemble, TestModes.qr,
         TestModes.camera_assemble_qr, TestModes.face
     ]:
-      self.assertTrue(self.args.show_image,  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.assertTrue(self.args.show_image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
                       msg='show_image should be set to true!')
 
     if self.mode == TestModes.manual_led:

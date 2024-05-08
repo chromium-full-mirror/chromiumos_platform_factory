@@ -130,7 +130,9 @@ class EnumRole(str, enum.Enum):
 
 
 class ManipulateFactoryStateLayer(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       Arg('action', EnumAction, 'What kind of action to do?'),
       Arg('dut_options', dict, 'DUT options to create remote dut instnace.',
@@ -149,7 +151,9 @@ class ManipulateFactoryStateLayer(unittest.TestCase):
   ]
 
   def setUp(self):
-    self.dut = device_utils.CreateDUTInterface(**self.args.dut_options)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.dut = device_utils.CreateDUTInterface(**self.args.dut_options)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def _CreateStationStateProxy(self):
     return state.GetInstance()
@@ -171,14 +175,18 @@ class ManipulateFactoryStateLayer(unittest.TestCase):
         EnumAction.MERGE: self.DoMerge,
     }
 
-    if self.args.device == EnumRole.STATION:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.device == EnumRole.STATION:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       source = self._CreateStationStateProxy()
       destination = self._CreateDUTStateProxy()
     else:
       source = self._CreateDUTStateProxy()
       destination = self._CreateStationStateProxy()
 
-    _ACTION_TO_FUNC[self.args.action](source, destination)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    _ACTION_TO_FUNC[self.args.action](source, destination)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def DoAppend(self, source, destination):
     del destination  # unused
@@ -220,7 +228,9 @@ class ManipulateFactoryStateLayer(unittest.TestCase):
     layer.data_shelf.Clear()
     layer.data_shelf.SetValue(state.KEY_DEVICE_DATA, device_data)
 
-    if self.args.include_tests:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.include_tests:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # We need to modify the test states, otherwise the test that is currently
       # running on station might be messed up.
 
@@ -228,8 +238,12 @@ class ManipulateFactoryStateLayer(unittest.TestCase):
       layer.tests_shelf.DeleteKeys(
           [state.FactoryState.ConvertTestPathToKey('')],
           optional=True)
-      if self.args.exclude_current_test_list:  # type: ignore #TODO(b/338318729) Fixit!
-        test_list = self.test_info.ReadTestList()  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      if self.args.exclude_current_test_list:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        test_list = self.test_info.ReadTestList()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         for test in test_list.Walk():
           layer.tests_shelf.DeleteKeys(
               [state.FactoryState.ConvertTestPathToKey(test.path)],

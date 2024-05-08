@@ -91,7 +91,9 @@ class BtMgmt:
       index = int(self._hci_device.lstrip('hci'))
 
     patt = re.compile(r'hci\d+\sdev_found:\s(.+)\stype\s.+\srssi\s(\-\d+)\s.*')
-    devices = {}  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    devices = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     find_cmd = ['btmgmt', '--index', str(index)]
     if timeout_secs is not None:
       find_cmd.extend(['--timeout', str(timeout_secs)])
@@ -149,7 +151,9 @@ class GattTool:
       else:
         msg = 'hci device "%s" should start with "hci", e.g., hci0 or hci1.'
         logging.warning(msg, hci_device)
-    self._gatttool = pexpect.spawn(  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._gatttool = pexpect.spawn(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         f'gatttool {hci_option} -b {target_mac.upper()} -t random --interactive'
     )
     self._gatttool.logfile = open(logfile, 'w', encoding='utf8')  # pylint: disable=consider-using-with
@@ -175,7 +179,9 @@ class GattTool:
       result = self._gatttool.expect(r'\[LE\]>', timeout=self._timeout)
       if result != 0:
         self._RaiseError('scan error')
-    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RaiseError('scan timeout')
 
     self._gatttool.sendline('connect')
@@ -184,7 +190,9 @@ class GattTool:
       result = self._gatttool.expect('Conn.*', timeout=self._timeout)
       if result != 0:
         self._RaiseError('connection error')
-    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RaiseError('connection timeout')
 
   def CharReadUUID(self, uuid, spec_name):  # pylint: disable=inconsistent-return-statements
@@ -211,7 +219,9 @@ class GattTool:
       if result != 0:
         self._RaiseError(f'{command} error')
       return self._gatttool.match.groups()[0]
-    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    except pexpect.TIMEOUT:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._RaiseError(f'timeout waiting for {spec_name} report')
 
   def _Unhexlify(self, string):
@@ -317,7 +327,9 @@ def VerifyAltSetting():
   expected_setting = '6'
   if all(
       re.search(f' *bAlternateSetting *{i}\n', lsusb_output) for i in range(6)):
-    current_setting = 3  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    current_setting = 3  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   raise BluetoothUtilsError(
       ('Wrong USB Alt Setting for Realtek RTL8852CE. Expected setting = '
        f'{expected_setting}. Current setting = {current_setting}'))

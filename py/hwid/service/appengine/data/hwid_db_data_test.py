@@ -9,13 +9,18 @@ import textwrap
 import unittest
 from unittest import mock
 
-from dulwich import objects as dulwich_objects  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from dulwich import objects as dulwich_objects  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 from cros.factory.hwid.v3 import filesystem_adapter
+
+
+# yapf: enable
+
 
 
 class HWIDDBDataManagerTest(unittest.TestCase):
@@ -124,7 +129,9 @@ class HWIDDBDataManagerTest(unittest.TestCase):
     self.assertEqual('OLD-COMMIT-ID', old_metadata.commit)
 
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -150,7 +157,9 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_WithFeatureMatcherSource(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'UNUSED-NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -170,7 +179,9 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_WithBundleMetadata(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'UNUSED-NEW-COMMIT-ID'
     repo.LoadV3HWIDDBByName.return_value = hwid_repo.V3DBContents(
@@ -190,7 +201,9 @@ class HWIDDBDataManagerTest(unittest.TestCase):
 
   def testUpdateProjectContent_CreateNewMetadata(self):
     repo_metadata = hwid_repo.HWIDDBMetadata(
-        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        name='PROJECTA', board_name='BOARDA', version='3', path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     repo = mock.create_autospec(hwid_repo.GerritCLHWIDRepo, instance=True)
     repo.commit_id = 'NEW-COMMIT-ID'

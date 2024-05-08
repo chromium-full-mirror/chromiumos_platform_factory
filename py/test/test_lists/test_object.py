@@ -211,7 +211,9 @@ class FactoryTest:
     """
     self.pytest_name = pytest_name
 
-    self.subtests = list(filter(None, type_utils.FlattenList(subtests or [])))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.subtests = list(filter(None, type_utils.FlattenList(subtests or [])))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     assert len(list(filter(None, [pytest_name, subtests]))) <= 1, (
         'Only one of pytest_name and subtests can be specified')
 
@@ -272,7 +274,9 @@ class FactoryTest:
     self._SetIterations(iterations)
     self.default_iterations = self.iterations
     self.default_retries = self.retries
-    self.related_components = []  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self.related_components = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     if allow_reboot is not None:
       self.allow_reboot = allow_reboot
@@ -467,7 +471,9 @@ class FactoryTest:
 
       # first of all, count how many duplicated siblings
       count = 1
-      for subtest in self.parent.subtests:  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for subtest in self.parent.subtests:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if subtest == self:
           break
         # '_' will only appear when we try to resolve duplicate path issue,
@@ -477,7 +483,9 @@ class FactoryTest:
       assert count > 1
       # this is the new ID, since FactoryTest constructor will assert ID only
       # contains [a-zA-Z0-9], the new ID must be unique.
-      self.id += '_' + str(count)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self.id += '_' + str(count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.path = prefix + (self.id or '')
 
     assert self.path not in path_map, f'Duplicate test path {self.path}'
@@ -585,7 +593,9 @@ class FactoryTest:
   def GetState(self):
     """Returns the current test state from the state instance."""
     return TestState.FromDictOrObject(
-        self.root.state_instance.GetTestState(self.path))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.root.state_instance.GetTestState(self.path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def UpdateState(self, update_parent=True, status=None, **kwargs):
     """Updates the test state.
@@ -597,7 +607,9 @@ class FactoryTest:
 
     ret = TestState.FromDictOrObject(
         # pylint: disable=protected-access
-        self.root._UpdateTestState(self.path, status=status, **kwargs))  # type: ignore #TODO(b/338318729) Fixit!
+        # yapf: disable
+        self.root._UpdateTestState(self.path, status=status, **kwargs))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if update_parent and self.parent:
       self.parent.UpdateStatusFromChildren()
     return ret

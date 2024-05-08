@@ -57,7 +57,9 @@ class SampleCustomizedTest(unittest.TestCase):
   `tearDown` functions to make sure something is done before / after the test,
   no matter what.
   """
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
   ARGS = [

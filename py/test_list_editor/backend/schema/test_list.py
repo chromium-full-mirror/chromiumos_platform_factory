@@ -3,7 +3,9 @@
 # found in the LICENSE file.
 from typing import Dict, List
 
-from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: enable
+# yapf: disable
+from pydantic import BaseModel  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from pydantic import Extra
 
 from cros.factory.test_list_editor.backend.schema import common

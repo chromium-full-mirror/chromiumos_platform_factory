@@ -21,7 +21,9 @@ import sys
 import time
 import xmlrpc.server
 
-from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils  # type: ignore #TODO(b/338318729) Fixit!
+# yapf: disable
+from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
 from cros.factory.utils import file_utils
 
 
@@ -495,7 +497,9 @@ class SensorServiceRyu(AbstractSensorService):
     Returns:
       True if the sensor data are legitimate.
     """
-    touched_cols = list(range(self.num_cols))  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    touched_cols = list(range(self.num_cols))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return super()._VerifyDeltasTouched(data, touched_cols)
 
   def ReadTRx(self, category):
@@ -657,8 +661,12 @@ def _ParseAddr(addr_str):
   result = re.search(r'(.+):(\d+)', addr_str)
   if not result:
     _Usage()
-  ip = result.group(1)  # type: ignore #TODO(b/338318729) Fixit!
-  port = int(result.group(2))  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  ip = result.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
+  # yapf: disable
+  port = int(result.group(2))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   return (ip, port)
 
 

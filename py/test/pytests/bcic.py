@@ -98,22 +98,32 @@ class BCICTest(test_case.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertTrue(
-          self.args.use_latest_hwid_bundle != bool(self.args.file_path),  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.use_latest_hwid_bundle != bool(self.args.file_path),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           'Provide either a `file_path` or enable `use_latest_hwid_bundle`'
           'to indicate the battery config source')
 
   def runTest(self):
-    if self.args.use_latest_hwid_bundle:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.use_latest_hwid_bundle:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       try:
         update_utils.UpdateHWIDDatabase(self._dut)
       except Exception as e:
         self.FailTask(f'Cannot update HWID database due to: {e}.')
 
-    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       file_path = (
-          self.args.file_path or  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          self.args.file_path or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           hwid_utils.LoadBatteryConfigIntoFile(self._dut))
       manufacturer = self._dut.power.GetBatteryManufacturer()
       device_name = self._dut.power.GetBatteryDeviceName()

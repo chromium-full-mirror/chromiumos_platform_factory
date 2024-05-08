@@ -61,7 +61,9 @@ class FlashNetboot:
       self._ro_vpd = vpd_ro_file
       self._rw_vpd = vpd_rw_file
       self._PreserveVPD()
-      shutil.copyfile(self._image, self._fw_main)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      shutil.copyfile(self._image, self._fw_main)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self._PackVPD()
       self._FlashFirmware()
 
@@ -85,7 +87,9 @@ class FlashNetboot:
       Spawn(cmd, log=True, check_call=True)
     else:
       p = Spawn(cmd, log=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-      for line in iter(p.stdout.readline, ''):  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      for line in iter(p.stdout.readline, ''):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         self._on_output(line)
 
   def _PreserveSection(self, fw_main_file, section_file, section_name):
@@ -105,10 +109,17 @@ class FlashNetboot:
 
   def _PackVPD(self):
     logging.info('Packing RO/RW VPD into %s', self._fw_main)
-    Spawn([
-        'futility', 'load_fmap', self._fw_main, f'RO_VPD:{self._ro_vpd}',  # type: ignore #TODO(b/338318729) Fixit!
-        f'RW_VPD:{self._rw_vpd}'
-    ], check_call=True)
+    Spawn(
+        [
+            # yapf: disable
+            'futility',
+            'load_fmap',
+            self._fw_main,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            f'RO_VPD:{self._ro_vpd}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            f'RW_VPD:{self._rw_vpd}'
+        ],
+        check_call=True)
 
   def _FlashFirmware(self):
     logging.info('Flashing firmware %s...', self._fw_main)

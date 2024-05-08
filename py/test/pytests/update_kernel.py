@@ -80,7 +80,9 @@ _DEVKEY = 'b11d74edd286c144e1135b49e7f0bc20cf041f10'
 
 
 class UpdateKernel(unittest.TestCase):
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   ARGS = [
       # TODO(hungte) Support compressed image, or download from factory server.
       Arg('kernel_image', str, 'Full path of kernel.bin',
@@ -96,21 +98,35 @@ class UpdateKernel(unittest.TestCase):
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertTrue(
-          os.path.isfile(self.args.kernel_image),  # type: ignore #TODO(b/338318729) Fixit!
-          msg=f'{self.args.kernel_image} is missing.')  # type: ignore #TODO(b/338318729) Fixit!
-    if self.args.kernel_config is not None:  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          os.path.isfile(self.args.kernel_image),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          msg=f'{self.args.kernel_image} is missing.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    if self.args.kernel_config is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       self.assertTrue(
-          os.path.isfile(self.args.kernel_config),  # type: ignore #TODO(b/338318729) Fixit!
-          msg=f'{self.args.kernel_config} is missing.')  # type: ignore #TODO(b/338318729) Fixit!
+          # yapf: disable
+          os.path.isfile(self.args.kernel_config),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          msg=f'{self.args.kernel_config} is missing.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   def UpdateKernel(self):
     """Apply new kernel.
 
     Gets current kernel config, re-sign by make_dev_ssd, then write into system.
     """
-    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # verify release partition is in dev channel
       factory_tool = deploy_utils.CreateFactoryTools(self._dut)
       factory_tool.CheckCall(['gooftool', 'verify_release_channel',
@@ -121,22 +137,32 @@ class UpdateKernel(unittest.TestCase):
       fw_keys = [key.split('#')[1] for key in probed_keys]
       self.assertIn(_DEVKEY, fw_keys)
 
-    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.to_release:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       kerndev = self._dut.partitions.RELEASE_KERNEL
     else:
       kerndev = self._dut.partitions.FACTORY_KERNEL
     kernel_id = str(kerndev.index)
 
-    if self.args.kernel_config is None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.kernel_config is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       kernel_config = process_utils.CheckOutput(
           ["futility", "dump_kernel_config", kerndev.path])
     else:
-      kernel_config = file_utils.ReadFile(self.args.kernel_config)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      kernel_config = file_utils.ReadFile(self.args.kernel_config)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
-    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    if self.args.kernel_image is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       # Directly write into kernel partition.
       self._dut.WriteSpecialFile(kerndev.path,
-                                 file_utils.ReadFile(self.args.kernel_image))  # type: ignore #TODO(b/338318729) Fixit!
+                                 # yapf: disable
+                                 file_utils.ReadFile(self.args.kernel_image))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     config_suffix = f".{kernel_id}"
     with self._dut.temp.TempFile(suffix=config_suffix) as config_file:

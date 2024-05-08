@@ -54,7 +54,9 @@ class ConnectionManager(plugin.Plugin):
       return
     # Back from a pytest requested exclusive network resource so we do want to
     # reset and clear everything.
-    self._connection_manager.EnableNetworking(reset=True)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._connection_manager.EnableNetworking(reset=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @type_utils.Overrides
   def OnStop(self):
@@ -64,15 +66,23 @@ class ConnectionManager(plugin.Plugin):
     name = self.__class__.__name__
     if self.goofy.status == goofy_module.Status.RUNNING:
       logging.info('%s: Disable network.', name)
-      self._connection_manager.DisableNetworking()  # type: ignore #TODO(b/338318729) Fixit!
-    elif not self._connection_manager.IsEnabled():  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._connection_manager.DisableNetworking()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+    # yapf: disable
+    elif not self._connection_manager.IsEnabled():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       logging.info('%s: Leave network enabled for shutdown.', name)
-      self._connection_manager.EnableNetworking(reset=False)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._connection_manager.EnableNetworking(reset=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   @plugin.RPCFunction
   def SetStaticIP(self, *args, **kwargs):
     try:
-      self._connection_manager.SetStaticIP(*args, **kwargs)  # type: ignore #TODO(b/338318729) Fixit!
+      # yapf: disable
+      self._connection_manager.SetStaticIP(*args, **kwargs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       return None
     except connection_manager.ConnectionManagerException as e:
       return e.error_code
@@ -86,4 +96,6 @@ class ConnectionManager(plugin.Plugin):
 
   @plugin.RPCFunction
   def SetWifiScanInterval(self, scan_interval=None):
-    self._connection_manager.SetWifiScanInterval(scan_interval)  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    self._connection_manager.SetWifiScanInterval(scan_interval)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable

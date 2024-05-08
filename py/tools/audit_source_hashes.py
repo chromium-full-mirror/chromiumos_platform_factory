@@ -84,18 +84,24 @@ def GetHashes(path):
     # to avoid a bunch of unnecessary YAML parsing.
     data = file_utils.ReadFile(path)
 
-  events = data.split('\n---\n')  # type: ignore #TODO(b/338318729) Fixit!
+  # yapf: disable
+  events = data.split('\n---\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
   for e in reversed(events):
     if not e.startswith('EVENT: source_hashes'):
       continue
     data = yaml.safe_load(e)
 
-    hash_function = data.get('hash_function')  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    hash_function = data.get('hash_function')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if hash_function != file_utils.SOURCE_HASH_FUNCTION_NAME:
       raise ValueError(
           f'Expected hash function {file_utils.SOURCE_HASH_FUNCTION_NAME!r} but'
           f' got {hash_function!r}')
-    return data['hashes']  # type: ignore #TODO(b/338318729) Fixit!
+    # yapf: disable
+    return data['hashes']  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   raise AuditException(f'No source_hashes event in event log {path}')
 
 
