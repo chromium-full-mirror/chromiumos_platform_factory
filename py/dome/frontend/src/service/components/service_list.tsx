@@ -16,21 +16,29 @@ import {RootState} from '@app/types';
 
 import {DispatchProps} from '@common/types';
 
-import {fetchServices, fetchServiceSchemata, updateService} from '../actions';
+import {
+  fetchServices,
+  fetchServiceSchemata,
+  testShopfloorConnection,
+  updateService,
+} from '../actions';
 import {getServices, getServiceSchemata} from '../selectors';
 
 import ServiceForm from './service_form';
+import ShopfloorServiceForm from './shopfloor_service_form';
 
 type ServiceListProps =
   ReturnType<typeof mapStateToProps> & DispatchProps<typeof mapDispatchToProps>;
 
 interface ServiceListStates {
   expanded: {[name: string]: boolean};
+  isTestConnection: boolean;
 }
 
 class ServiceList extends React.Component<ServiceListProps, ServiceListStates> {
   state: ServiceListStates = {
     expanded: {},
+    isTestConnection: false,
   };
 
   componentDidMount() {
@@ -51,6 +59,7 @@ class ServiceList extends React.Component<ServiceListProps, ServiceListStates> {
       schemata,
       services,
       updateService,
+      testShopfloorConnection,
     } = this.props;
 
     return (
@@ -69,13 +78,34 @@ class ServiceList extends React.Component<ServiceListProps, ServiceListStates> {
                 {expanded ? <ExpandLess /> : <ExpandMore />}
               </ListItem>
               <Collapse in={expanded} timeout="auto">
-                <ServiceForm
-                  onSubmit={(values: any) => updateService(k, values)}
-                  form={k}
-                  schema={schema}
-                  initialValues={service}
-                  enableReinitialize
-                />
+                {
+                  (k === 'shopFloor') ?
+                  <ShopfloorServiceForm
+                    onSubmit={(values: any) => {
+                      this.setState({isTestConnection: false});
+                      updateService(k, values);
+                    }}
+                    form={k}
+                    schema={schema}
+                    initialValues={service}
+                    enableReinitialize
+                    onSubmitSuccess={() => {
+                      if (this.state.isTestConnection) {
+                        testShopfloorConnection(k);
+                      }
+                    }}
+                    handleTestConnection={() =>
+                      this.setState({isTestConnection: true})}
+                  />
+                  :
+                  <ServiceForm
+                    onSubmit={(values: any) => updateService(k, values)}
+                    form={k}
+                    schema={schema}
+                    initialValues={service}
+                    enableReinitialize
+                  />
+                }
               </Collapse>
             </Card>
           );
@@ -94,6 +124,7 @@ const mapDispatchToProps = {
   fetchServiceSchemata,
   fetchServices,
   updateService,
+  testShopfloorConnection,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceList);

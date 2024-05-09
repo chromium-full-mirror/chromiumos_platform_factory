@@ -23,7 +23,7 @@ Including another URLconf
 from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend import views
 # yapf: disable
-from django.conf.urls import url  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+from django.urls import re_path as url  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 # yapf: enable
 # yapf: disable
 from django.views.generic import TemplateView  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -33,6 +33,7 @@ from rest_framework.authtoken import views as drf_views  # type: ignore #TODO(b/
 # yapf: enable
 # yapf: disable
 from rest_framework.urlpatterns import format_suffix_patterns  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
 
 # yapf: enable
 
@@ -82,6 +83,9 @@ urlpatterns = [
         r'services/$', views.ServiceCollectionView.as_view()),
     url(f'{URL_PREFIX}'
         r'services/schema$', views.ServiceSchemaView.as_view()),
+    url(f'{URL_PREFIX}'
+        r'services/test_connection/$',
+        views.ServiceTestConnectionView.as_view()),
     url(f'{URL_PREFIX}'
         r'sync/status/$', views.SyncStatusView.as_view()),
 ]

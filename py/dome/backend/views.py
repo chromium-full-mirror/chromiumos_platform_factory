@@ -23,6 +23,7 @@ from backend.models import Project
 from backend.models import Resource
 from backend.models import Service
 from backend.models import TemporaryUploadedFile
+from backend.models import TestShopfloorConnection
 from backend.models import UpdateDuplicateResource
 # yapf: enable
 # yapf: disable
@@ -125,6 +126,14 @@ class ServiceCollectionView(mixins.UpdateModelMixin,
     """Override parent's method."""
     del request_format  # unused
     return Response(Service.Update(project_name, request.data))
+
+
+class ServiceTestConnectionView(views.APIView):
+
+  def get(self, request, *args, **kwargs):
+    """Override parent's method."""
+    del request, args, kwargs  # unused
+    return Response(TestShopfloorConnection(self.kwargs['project_name']))
 
 
 class ProjectCollectionView(generics.ListCreateAPIView):

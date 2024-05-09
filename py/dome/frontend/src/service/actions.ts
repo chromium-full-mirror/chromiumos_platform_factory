@@ -41,6 +41,14 @@ export const updateService = (name: string, config: Service) =>
     dispatch(updateServiceImpl(name, config));
   };
 
+export const testShopfloorConnection = (name: string) =>
+  async (dispatch: Dispatch, getState: () => RootState) => {
+    const shopfloorDescription = `test connection of "${name}" service`;
+    await dispatch(task.actions.runTask(
+      shopfloorDescription, 'GET',
+      `${baseURL(getState)}/services/test_connection/`, {}));
+};
+
 export const fetchServiceSchemata = () =>
   async (dispatch: Dispatch, getState: () => RootState) => {
     const response = await authorizedAxios().get<SchemaMap>(

@@ -38,6 +38,7 @@ def StartServer():
   umpired = daemon.UmpireDaemon(env)
   # Add command line handlers.
   umpired.AddMethodForCLI(rpc_cli.CLICommand(umpired))
+  umpired.AddMethodForCLI(rpc_cli.TestShopfloorConnectionCLICommands(umpired))
   # Add root RPC handlers.
   umpired.AddMethodForDUT(rpc_dut.RootDUTCommands(umpired))
   # Add Umpire RPC handlers.
@@ -59,12 +60,11 @@ def StartServer():
 
 def main():
   parser = argparse.ArgumentParser(
-      description='Umpire container tool. Default will create the loop\
-          device and run the umpire daemon')
+      description=('Umpire container tool. Default will create the loop '
+                   'device and run the umpire daemon'))
 
-  parser.add_argument('--create_loop_device', action='store_true',
-                      default=True, help='will create loop device before\
-                      starting umpired')
+  parser.add_argument('--create_loop_device', action='store_true', default=True,
+                      help='will create loop device before starting umpired')
   parser.add_argument('--no-create_loop_device', dest='create_loop_device',
                       action='store_false', help='will start umpired directly')
   args = parser.parse_args()

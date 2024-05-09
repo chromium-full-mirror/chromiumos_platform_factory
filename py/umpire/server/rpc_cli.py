@@ -20,6 +20,7 @@ from cros.factory.umpire.server import umpire_env
 from cros.factory.umpire.server import umpire_rpc
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
+from cros.factory.utils import webservice_utils
 
 
 class CLICommand(umpire_rpc.UmpireRPC):
@@ -342,3 +343,32 @@ class CLICommand(umpire_rpc.UmpireRPC):
       return json_utils.LoadFile(status_file)
     except Exception:
       return {}
+
+
+class TestShopfloorConnectionCLICommands(umpire_rpc.UmpireRPC):
+  """Shopfloor Service for DUT (Device Under Test) to invoke.
+
+  RPC URL:
+    http://umpire_server_address:umpire_port/umpire
+  """
+
+  def __init__(self, daemon):
+    super().__init__(daemon)
+    # Reuse ServerProxy so that we don't need to create a new one for every
+    # request.
+    self._url = None
+    self._proxy = None
+
+  @property
+  def service(self):
+    url = self.env.shopfloor_service_url
+    if self._url != url:
+      self._proxy = webservice_utils.CreateWebServiceProxy(
+          url, use_twisted=True)
+      self._url = url
+    return self._proxy
+
+  @umpire_rpc.RPCCall
+  def GetShopfloorVersion(self):
+    """Returns the version of supported protocol."""
+    return self.service.callRemote('GetVersion')

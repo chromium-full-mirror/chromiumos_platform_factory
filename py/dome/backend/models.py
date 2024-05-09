@@ -156,6 +156,20 @@ def UploadedFile(temporary_uploaded_file_id):
         raise
 
 
+def TestShopfloorConnection(project_name):
+  try:
+    return {
+        "shopfloorVersion": GetUmpireServer(project_name).GetShopfloorVersion()
+    }
+  except xmlrpc.client.Fault as e:
+    error_message = ('Test connection of "shopFloor" service failed. '
+                     'Please make sure you already have started shopfloor '
+                     'server. Error message:')
+    logger.error('%s %s', error_message, e)
+    raise DomeServerException(
+        detail=f'{error_message} {e.faultString}') from None
+
+
 def IsHttps():
   if os.path.exists(PROTOCOL_FILE):
     protocol_json = json_utils.LoadFile(PROTOCOL_FILE)
