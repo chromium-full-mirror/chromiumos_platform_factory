@@ -54,6 +54,10 @@ from cros.factory.utils import type_utils
 
 _DUMMY_CHECKSUM = 'DUMMY'
 
+_ProbeValueValueType = Union[str, v3_rule.Value]
+ProbedValueType = Mapping[str, _ProbeValueValueType]
+MutableProbedValueType = MutableMapping[str, _ProbeValueValueType]
+
 
 class MagicPlaceholderComponentOptions(NamedTuple):
   """Options to replace a component name and status by magic placeholders."""
@@ -88,7 +92,7 @@ class PatternDatum(NamedTuple):
 
 class ComponentInfo:
 
-  def __init__(self, values: Optional[Mapping[str, Any]],
+  def __init__(self, values: Optional[ProbedValueType],
                status: Union[str, common.ComponentStatus],
                information: Optional[Mapping[str, Any]] = None,
                bundle_uuids: Optional[Sequence[str]] = None):
@@ -145,7 +149,7 @@ class ComponentInfo:
         kwargs.get('bundle_uuids', self.bundle_uuids))
 
   @property
-  def values(self) -> Optional[Mapping[str, Any]]:
+  def values(self) -> Optional[ProbedValueType]:
     return self._values
 
   @property
@@ -737,7 +741,7 @@ class WritableDatabase(Database):
     self._encoded_fields.AddFieldComponents(encoded_field_name, components)
 
   def AddComponent(self, comp_cls: str, comp_name: str,
-                   value: Mapping[str, Any], status: str,
+                   value: Optional[ProbedValueType], status: str,
                    information: Optional[Mapping[str, str]] = None):
     return self._components.AddComponent(comp_cls, comp_name, value, status,
                                          information)
@@ -1639,7 +1643,7 @@ class Components:
     """Returns a list of string of the component class names."""
     return list(self._components)
 
-  def GetComponents(self, comp_cls):
+  def GetComponents(self, comp_cls) -> Mapping[str, ComponentInfo]:
     """Gets the components of the specific component class.
 
     Args:
@@ -1659,7 +1663,7 @@ class Components:
   def GetComponentNameByHash(self, comp_cls: str, comp_hash: str) -> str:
     return self._components[comp_cls].GetComponentNameByHash(comp_hash)
 
-  def GetDefaultComponent(self, comp_cls):
+  def GetDefaultComponent(self, comp_cls) -> Optional[str]:
     """Gets the default components of the specific component class if exists.
 
     Args:
@@ -1673,7 +1677,8 @@ class Components:
         return comp_name
     return None
 
-  def AddComponent(self, comp_cls, comp_name, values, status, information=None):
+  def AddComponent(self, comp_cls, comp_name, values: Optional[ProbedValueType],
+                   status, information=None):
     """Adds a new component.
 
     Args:
@@ -1711,7 +1716,8 @@ class Components:
     comp_info = self._components[comp_cls][comp_name]
     self._components[comp_cls][comp_name] = comp_info.Replace(status=status)
 
-  def _AddComponent(self, comp_cls, comp_name, values, status, information):
+  def _AddComponent(self, comp_cls, comp_name,
+                    values: Optional[ProbedValueType], status, information):
     # To avoid failing validation when values is None wrapped by AVLProbeValue,
     # we only validate the external format.
     external_values = yaml.safe_load(
@@ -1792,7 +1798,7 @@ class Components:
         bundle_uuids=bundle_uuids)
 
   def UpdateComponent(self, comp_cls: str, old_name: str, new_name: str,
-                      values: Optional[Mapping[str, Any]], support_status: str,
+                      values: Optional[ProbedValueType], support_status: str,
                       information: Optional[Mapping[str, Any]] = None,
                       bundle_uuids: Optional[Sequence[str]] = None):
     """Updates a component by name.

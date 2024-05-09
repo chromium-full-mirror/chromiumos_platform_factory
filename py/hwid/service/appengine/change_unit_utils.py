@@ -148,7 +148,7 @@ class CompChange(ChangeUnit):
   """
 
   def __init__(self, analysis_result: _HWIDComponentAnalysisResult,
-               probe_values: Optional[builder.ProbedValueType],
+               probe_values: Optional[database.ProbedValueType],
                information: Optional[Mapping[str, Any]], comp_hash: str,
                bundle_uuids: Optional[Sequence[str]] = None):
     super().__init__(

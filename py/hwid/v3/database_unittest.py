@@ -731,11 +731,12 @@ class ComponentsTest(unittest.TestCase):
     self.assertEqual(c.GetComponents('cls1')['comp2'].status, 'supported')
 
     self.assertEqual(len(c.GetComponents('cls2')), 2)
-    self.assertDictEqual(
-        c.GetComponents('cls2')['comp4'].information, {
-            'comp_group': 'comp5',
-            'alias': 'cls2_vendor_a-part-number'
-        })
+    cls2_comp4_inforation = c.GetComponents('cls2')['comp4'].information
+    assert cls2_comp4_inforation is not None
+    self.assertDictEqual(cls2_comp4_inforation, {
+        'comp_group': 'comp5',
+        'alias': 'cls2_vendor_a-part-number'
+    })
 
   def testExportComponentInfoDictOrder(self):
     c = database.ComponentInfo(

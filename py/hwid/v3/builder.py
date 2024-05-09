@@ -2,13 +2,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import annotations
+
 import functools
 import hashlib
 import itertools
 import logging
 import re
 import textwrap
-from typing import Any, Dict, List, Mapping, NamedTuple, Optional, Sequence, Set, Union
+from typing import Any, Callable, Mapping, NamedTuple, Optional, Sequence, Set, TypeVar, cast
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
@@ -16,9 +18,6 @@ from cros.factory.hwid.v3 import probe
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.utils import json_utils
 
-
-ProbedValueType = Dict[str, Union[List, None, 'ProbedValueType', bool, float,
-                                  int, str]]
 
 # Adding 0 bit length for component classes that don't have too much second
 # source to reduce the total bit length.
@@ -29,7 +28,7 @@ class BuilderException(Exception):
   """Raised when the operation of the builder is invalid."""
 
 
-def GetDeterministicHash(value: ProbedValueType) -> bytes:
+def GetDeterministicHash(value: database.ProbedValueType) -> bytes:
   """Returns a hash value of value.
 
   Args:
@@ -61,7 +60,7 @@ class FirmwareNameOptions(NamedTuple):
 
 
 def DetermineComponentName(
-    comp_cls: str, value: ProbedValueType,
+    comp_cls: str, value: database.ProbedValueType,
     name_list: Optional[Sequence[str]] = None, *,
     firmware_name_opt: Optional[FirmwareNameOptions] = None) -> str:
   comp_name = _DetermineComponentName(comp_cls, value,
@@ -83,8 +82,8 @@ def HandleCollisionName(comp_name, name_list):
   return comp_name
 
 
-def _DetermineFeatureManagementComponentName(comp_cls: str,
-                                             value: ProbedValueType) -> str:
+def _DetermineFeatureManagementComponentName(
+    comp_cls: str, value: database.ProbedValueType) -> str:
   # See context for naming strategy in b/274033956.
   postfix = []
   if value.get('is_chassis_branded', '0') != '0':
@@ -101,7 +100,7 @@ def _DetermineFeatureManagementComponentName(comp_cls: str,
 
 
 def _DetermineFirmwareComponentName(unused_comp_cls: str,
-                                    value: ProbedValueType,
+                                    value: database.ProbedValueType,
                                     opt: FirmwareNameOptions) -> str:
   # yapf: disable
   if 'devkeys' in value.get('key_root', {}):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -114,12 +113,12 @@ def _DetermineFirmwareComponentName(unused_comp_cls: str,
 
 
 def _DetermineSkuIdComponentName(unused_comp_cls: str,
-                                 value: ProbedValueType) -> str:
+                                 value: database.ProbedValueType) -> str:
   return f'sku_{value["sku_id"]}'
 
 
 def _DetermineComponentName(
-    comp_cls: str, value: ProbedValueType, *,
+    comp_cls: str, value: database.ProbedValueType, *,
     firmware_name_opt: Optional[FirmwareNameOptions] = None) -> str:
   """Determines the component name by the value.
 
@@ -202,7 +201,10 @@ def ChecksumUpdater():
     return None
 
 
-def _EnsureInBuilderContext(method):
+_FunctionT = TypeVar('_FunctionT', bound=Callable[..., Any])
+
+
+def _EnsureInBuilderContext(method: _FunctionT) -> _FunctionT:
 
   @functools.wraps(method)
   def _Wrapper(self, *args, **kwargs):
@@ -211,7 +213,7 @@ def _EnsureInBuilderContext(method):
           'Modification of DB should be called within builder context')
     return method(self, *args, **kwargs)
 
-  return _Wrapper
+  return cast(_FunctionT, _Wrapper)
 
 
 class DatabaseBuilder:
@@ -239,7 +241,7 @@ class DatabaseBuilder:
     self._auto_accept_essential_prompt = set(auto_accept_essential_prompt or [])
     self._in_context = False
 
-  def __enter__(self):
+  def __enter__(self) -> DatabaseBuilder:
     self._in_context = True
     return self
 
@@ -256,7 +258,7 @@ class DatabaseBuilder:
   def FromFilePath(
       cls, db_path: str,
       auto_accept_essential_prompt: Optional[Sequence[str]] = None
-  ) -> 'DatabaseBuilder':
+  ) -> DatabaseBuilder:
     """Create a builder from a path of an existing DB."""
 
     db = database.WritableDatabase.LoadFile(db_path, verify_checksum=False)
@@ -270,7 +272,7 @@ class DatabaseBuilder:
   def FromExistingDB(
       cls, db: database.Database,
       auto_accept_essential_prompt: Optional[Sequence[str]] = None
-  ) -> 'DatabaseBuilder':
+  ) -> DatabaseBuilder:
     """Create a builder from an existing DB."""
 
     if not isinstance(db, database.WritableDatabase):
@@ -282,7 +284,7 @@ class DatabaseBuilder:
   def FromEmpty(
       cls, project: str, image_name: str,
       auto_accept_essential_prompt: Optional[Sequence[str]] = None
-  ) -> 'DatabaseBuilder':
+  ) -> DatabaseBuilder:
     """Create a builder to building an empty DB."""
 
     db = cls._BuildEmptyDatabase(project.upper(), image_name)
@@ -293,7 +295,7 @@ class DatabaseBuilder:
   def FromDBData(
       cls, db_data: str,
       auto_accept_essential_prompt: Optional[Sequence[str]] = None
-  ) -> 'DatabaseBuilder':
+  ) -> DatabaseBuilder:
     """Create a builder from DB data of an existing DB."""
 
     db = database.WritableDatabase.LoadData(db_data, expected_checksum=None)
@@ -351,9 +353,7 @@ class DatabaseBuilder:
           f'The component class {comp_cls!r} already has a default component.')
 
     comp_name = comp_cls + self._DEFAULT_COMPONENT_SUFFIX
-    # yapf: disable
-    self._database.AddComponent(comp_cls, comp_name, None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._database.AddComponent(comp_cls, comp_name, None,
                                 common.ComponentStatus.unqualified)
 
   @_EnsureInBuilderContext
@@ -384,7 +384,8 @@ class DatabaseBuilder:
       self._database.AddEncodedFieldComponents(field_name, {comp_cls: []})
 
   @_EnsureInBuilderContext
-  def _AddFirmwareComponent(self, comp_cls: str, value: ProbedValueType,
+  def _AddFirmwareComponent(self, comp_cls: str,
+                            value: database.MutableProbedValueType,
                             supported: bool = False, mp_key: bool = False,
                             bundle_uuid: Optional[str] = None):
     comps = self.GetComponents(comp_cls)
@@ -436,7 +437,7 @@ class DatabaseBuilder:
 
   @_EnsureInBuilderContext
   def AddFirmwareComponents(self, comp_cls: str,
-                            values: Sequence[ProbedValueType],
+                            values: Sequence[database.MutableProbedValueType],
                             supported: bool = False, mp_key: bool = False,
                             bundle_uuid: Optional[str] = None):
     """Adds firmware components.
@@ -606,7 +607,7 @@ class DatabaseBuilder:
 
   @_EnsureInBuilderContext
   def _DeprecateOldFirmwareComponent(self, comp_cls: str,
-                                     probed_value: ProbedValueType):
+                                     probed_value: database.ProbedValueType):
     """Deprecates old firmware component by the given probed value.
 
     This method will get the firmware identity from version string, and
@@ -652,9 +653,9 @@ class DatabaseBuilder:
                                           common.ComponentStatus.deprecated)
 
   @_EnsureInBuilderContext
-  def AddComponentCheck(self, comp_cls: str, probed_value: ProbedValueType,
-                        set_comp_name: Optional[str] = None,
-                        supported: bool = False):
+  def AddComponentCheck(
+      self, comp_cls: str, probed_value: database.ProbedValueType,
+      set_comp_name: Optional[str] = None, supported: bool = False):
     """Tries to add an item into the component.
 
     This method is called with probed value from factory process instead of
@@ -688,7 +689,8 @@ class DatabaseBuilder:
 
   @_EnsureInBuilderContext
   def AddComponent(self, comp_cls: str, comp_name: str,
-                   probed_value: ProbedValueType, support_status: str,
+                   probed_value: Optional[database.ProbedValueType],
+                   support_status: str,
                    information: Optional[Mapping[str, Any]] = None):
     """Add an item into the component without performing checks.
 
@@ -705,7 +707,8 @@ class DatabaseBuilder:
                                 support_status, information)
 
   @_EnsureInBuilderContext
-  def AddComponents(self, comp_cls: str, probed_values: List[ProbedValueType]):
+  def AddComponents(self, comp_cls: str,
+                    probed_values: Sequence[database.ProbedValueType]):
     """Adds a list of components to the database.
 
     Args:
