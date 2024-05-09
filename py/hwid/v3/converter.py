@@ -5,6 +5,7 @@
 import os
 
 from cros.factory.hwid.v3 import common
+from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3.rule import Value
 from cros.factory.probe import probe_utils
 
@@ -13,15 +14,16 @@ DEFAULT_PROBE_STATEMENT_PATH = os.path.join(
     os.path.dirname(__file__), common.DEFAULT_PROBE_STATEMENT)
 
 
-def ConvertToProbeStatement(database, probe_statement_path):
+def ConvertToProbeStatement(db: database.Database, probe_statement_path):
   """Gets the components of the specific component class.
 
   Args:
-    database: A Database object to be used.
+    db: A Database object to be used.
 
   Returns:
     A dict of project specific probe statements.
   """
+
   def _ConvertValue(v):
     if isinstance(v, Value):
       if v.is_re:
@@ -36,14 +38,18 @@ def ConvertToProbeStatement(database, probe_statement_path):
   for comp_cls, statements in probe_statement.items():
     converted_components = {}
     generic_statement = statements['generic']
-    for comp_name, comp_info in database.GetComponents(comp_cls).items():
-      if comp_info.value_is_none:
+    for comp_name, comp_info in db.GetComponents(comp_cls).items():
+      if comp_info.values is None:
         continue
       converted_components[comp_name] = generic_statement.copy()
-      expect = {k: _ConvertValue(v) for k, v in comp_info.values.items()}
+      expect = {
+          k: _ConvertValue(v)
+          for k, v in comp_info.values.items()
+      }
       converted_components[comp_name]['expect'] = expect
-      converted_components[comp_name]['information'] = {'status':
-                                                        comp_info.status}
+      converted_components[comp_name]['information'] = {
+          'status': comp_info.status
+      }
     converted_probe_statement[comp_cls] = converted_components
 
   return converted_probe_statement

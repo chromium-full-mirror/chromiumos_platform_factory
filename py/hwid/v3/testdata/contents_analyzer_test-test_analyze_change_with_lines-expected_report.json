@@ -620,12 +620,12 @@
         "prev_comp_name": "display_panel_B_both_null",
         "prev_support_status": "unqualified",
         "probe_value_alignment_status_changed": false,
-        "prev_probe_value_alignment_status": "NO_PROBE_INFO",
+        "prev_probe_value_alignment_status": "NOT_ALIGNED",
         "converter_changed": false,
         "marked_untracked_changed": false
       },
       "link_avl": false,
-      "probe_value_alignment_status": "NO_PROBE_INFO",
+      "probe_value_alignment_status": "NOT_ALIGNED",
       "skip_avl_check": false,
       "marked_untracked": false
     },
@@ -651,8 +651,8 @@
         "values_changed": true,
         "prev_comp_name": "display_panel_B_prev_null",
         "prev_support_status": "unqualified",
-        "probe_value_alignment_status_changed": false,
-        "prev_probe_value_alignment_status": "NO_PROBE_INFO",
+        "probe_value_alignment_status_changed": true,
+        "prev_probe_value_alignment_status": "NOT_ALIGNED",
         "converter_changed": false,
         "marked_untracked_changed": false
       },
@@ -683,13 +683,13 @@
         "values_changed": true,
         "prev_comp_name": "display_panel_B_next_null",
         "prev_support_status": "unqualified",
-        "probe_value_alignment_status_changed": false,
+        "probe_value_alignment_status_changed": true,
         "prev_probe_value_alignment_status": "NO_PROBE_INFO",
         "converter_changed": false,
         "marked_untracked_changed": false
       },
       "link_avl": false,
-      "probe_value_alignment_status": "NO_PROBE_INFO",
+      "probe_value_alignment_status": "NOT_ALIGNED",
       "skip_avl_check": false,
       "marked_untracked": false
     },

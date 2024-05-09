@@ -4,6 +4,8 @@
 """This module collects utilities that analyze / validate the HWID DB contents.
 """
 
+from __future__ import annotations
+
 import copy
 import difflib
 import enum
@@ -11,7 +13,7 @@ import functools
 import itertools
 import logging
 import re
-from typing import Callable, Dict, List, MutableMapping, NamedTuple, Optional
+from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Tuple
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
@@ -30,6 +32,7 @@ _BLOCKLIST_DRAM_TAG = set([
 _COMP_CLS_ALIAS = {
     'video': 'camera'
 }
+
 
 class ErrorCode(enum.Enum):
   """Enumerate the type of errors."""
@@ -52,14 +55,17 @@ class ProbeValueAlignmentStatus(enum.Enum):
   NOT_ALIGNED = enum.auto()
 
   @classmethod
-  def FromProbeValues(cls, values):
+  def FromProbeValues(cls, values: Optional[Mapping[str, Any]]):
+    if values is None:
+      # If probe value is null it won't align anyway.
+      return cls.NOT_ALIGNED
     if not isinstance(values, rule.AVLProbeValue):
       return cls.NO_PROBE_INFO
     return cls.ALIGNED if values.probe_value_matched else cls.NOT_ALIGNED
 
 
 def _GetConverterIdentifier(comp_info: database.ComponentInfo) -> Optional[str]:
-  if comp_info.value_is_none:
+  if comp_info.values is None:
     return None
   if not isinstance(comp_info.values, rule.AVLProbeValue):
     return None
@@ -235,11 +241,12 @@ class ContentsAnalyzer:
               f'Missing component {comp_cls!r} for form factor '
               f'{str(form_factor)!r}.'))
 
-  def _ValidateDramIntegrity(self, validation_report, db_instance):
+  def _ValidateDramIntegrity(self, validation_report,
+                             db_instance: database.Database):
     for dram_tag, dram_info in db_instance.GetComponents('dram').items():
       if dram_tag in _BLOCKLIST_DRAM_TAG:
         continue
-      if not dram_info.value_is_none and 'size' not in dram_info.values:
+      if dram_info.values is not None and 'size' not in dram_info.values:
         validation_report.errors.append(
             Error(ErrorCode.CONTENTS_ERROR,
                   f'{dram_tag!r} does not contain size property'))
@@ -721,22 +728,19 @@ class ContentsAnalyzer:
       self,
       skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
                                                 bool]] = None
-  ) -> Dict[str, List['_HWIDComponentMetadata']]:
-    # yapf: disable
-    ret = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  ) -> MutableMapping[str,
+                      MutableSequence[ContentsAnalyzer._HWIDComponentMetadata]]:
+    ret: MutableMapping[
+        str, MutableSequence[ContentsAnalyzer._HWIDComponentMetadata]] = {}
     adapter = name_pattern_adapter.NamePatternAdapter()
-    # yapf: disable
-    for comp_cls in self._curr_db.instance.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    assert self._curr_db.instance is not None
+    for comp_cls in self._curr_db.instance.GetComponentClasses():
       ret[comp_cls] = []
       name_pattern = adapter.GetNamePattern(comp_cls)
-      prev_items = (() if
-                    (self._prev_db is None or self._prev_db.instance is None)
-                    else self._prev_db.instance.GetComponents(comp_cls).items())
-      # yapf: disable
-      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      prev_items: Iterable[Tuple[str, database.ComponentInfo]] = []
+      if self._prev_db is not None and self._prev_db.instance is not None:
+        prev_items = self._prev_db.instance.GetComponents(comp_cls).items()
+      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()
 
       for expected_seq, (curr_item, prev_item) in enumerate(
           itertools.zip_longest(curr_items, prev_items, fillvalue=None), 1):
@@ -747,7 +751,7 @@ class ContentsAnalyzer:
         name_info = name_pattern.Matches(comp_name)
         noseq_comp_name, sep, actual_seq = comp_name.partition(
             name_pattern_adapter.SEQ_SEP)
-        null_values = comp_info.value_is_none
+        null_values = comp_info.values is None
         link_avl = isinstance(comp_info.values, rule.AVLProbeValue)
         curr_alignment_status = (
             ProbeValueAlignmentStatus.FromProbeValues(comp_info.values))
@@ -768,15 +772,13 @@ class ContentsAnalyzer:
           name_changed = prev_comp_name != comp_name
           support_status_changed = prev_support_status != comp_info.status
           # Compare the values instead of the values instance.
-          if prev_comp_info.value_is_none and comp_info.value_is_none:
+          if prev_comp_info.values is None and comp_info.values is None:
             values_changed = False
-          elif prev_comp_info.value_is_none != comp_info.value_is_none:
+          elif prev_comp_info.values is None or comp_info.values is None:
             values_changed = True
           else:
-            # yapf: disable
-            values_changed = not dict.__eq__(prev_comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-                                             comp_info.values)
+            values_changed = dict(prev_comp_info.values) != dict(
+                comp_info.values)
 
           prev_alignment_status = (
               ProbeValueAlignmentStatus.FromProbeValues(prev_comp_info.values))

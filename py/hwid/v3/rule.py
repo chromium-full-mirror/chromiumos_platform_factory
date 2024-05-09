@@ -11,14 +11,13 @@ http://pyyaml.org/wiki/PyYAMLDocumentation#Constructorsrepresentersresolvers
 for some examples.
 """
 
-import abc
 import collections
 import functools
 import logging
 import re
 import threading
 import time
-from typing import Mapping, Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence
 
 from cros.factory.utils import type_utils
 
@@ -387,84 +386,20 @@ class InternalTags:
   """A parent class of internal tags."""
 
 
-class _NoneCheckable(abc.ABC):
-
-  @abc.abstractmethod
-  def NoneCheck(self, method_name: str):
-    """Check if the wrapped value is None."""
-
-
-def _WrapWithNonCheck(method):
-
-  @functools.wraps(method)
-  def _WrappedMethod(self: _NoneCheckable, *args, **kwargs):
-    self.NoneCheck(method.__name__)
-    return method(self, *args, **kwargs)
-
-  return _WrappedMethod
-
-
-def _NoneCheckMethodsWrapper(method_names: Tuple[str, ...]):
-
-  def _ClassWrapper(cls):
-    for method_name in method_names:
-      original_method = getattr(cls, method_name)
-      setattr(cls, method_name, _WrapWithNonCheck(original_method))
-    return cls
-
-  return _ClassWrapper
-
-
-_COMMON_ORDEREDDICT_METHODS = (
-    '__contains__',
-    '__delitem__',
-    '__getitem__',
-    '__iter__',
-    '__len__',
-    '__setitem__',
-    'clear',
-    'get',
-    'items',
-    'keys',
-    'move_to_end',
-    'pop',
-    'popitem',
-    'setdefault',
-    'update',
-    'values',
-)
-
-
-@_NoneCheckMethodsWrapper(_COMMON_ORDEREDDICT_METHODS)
-class AVLProbeValue(collections.OrderedDict, InternalTags, _NoneCheckable):
+class AVLProbeValue(collections.OrderedDict, InternalTags):
   """A class which holds the probe values linked with the ones on AVL.
-
-  To be compatible with the OrderedDict as in ComponentInfo.values, this class
-  adds a field `value_is_none` which is set to True when it wraps a None value.
-
-  To avoid incorrectly calling methods of an AVLProbeValue instance wrapping a
-  None value, this class adds checks to most of the dict related methods which
-  will raise ValueError when `value_is_none` is True.
   """
 
   def __init__(self, identifier: Optional[str], probe_value_matched: bool,
-               values: Union['AVLProbeValue',
-                             Optional[collections.OrderedDict]], *args,
-               **kwargs):
-    # As the __init__ method might call __setitem__, we need to set
-    # the _value_is_none field before it, or the NoneCheck method in __setitem__
-    # call might raise AttributeError.
-    self._value_is_none = IsComponentValueNone(values)
-    if self._value_is_none:
-      values = collections.OrderedDict()
-    assert values is not None
+               values: collections.OrderedDict, *args, **kwargs):
+    if values is None:
+      raise ValueError("values shouldn't be None")
     super().__init__(values, *args, **kwargs)
     self._converter_identifier = identifier
     self._probe_value_matched = probe_value_matched
 
   def __eq__(self, rhs):
     return (self.__class__ is rhs.__class__ and
-            self._value_is_none == rhs._value_is_none and
             super().__eq__(rhs) and
             self.converter_identifier == rhs.converter_identifier and
             self.probe_value_matched == rhs.probe_value_matched)
@@ -476,40 +411,6 @@ class AVLProbeValue(collections.OrderedDict, InternalTags, _NoneCheckable):
   @property
   def probe_value_matched(self) -> bool:
     return self._probe_value_matched
-
-  @property
-  def value_is_none(self) -> bool:
-    return self._value_is_none
-
-  def __reduce__(self):
-    # As we raise ValueError when self._value_is_none is True, the state we
-    # serialized is customized instead of calling super().__reduce__() which
-    # will call self.items().
-
-    # A callable object to create the instance.
-    state_0 = self.__class__
-
-    # Arguments for the callable object.
-    state_1 = (self._converter_identifier, self._probe_value_matched,
-               None if self._value_is_none else collections.OrderedDict(self))
-
-    # The instance state.
-    state_2 = self.__dict__
-
-    return (state_0, state_1, state_2)
-
-  def NoneCheck(self, method_name: str):
-    if self._value_is_none:
-      raise ValueError(f'None check fails at method {method_name!r}.  Use '
-                       '`ComponentInfo.value_is_none` instead of '
-                       '`ComponentInfo.value is None` to check if this value '
-                       'is None.')
-
-
-def IsComponentValueNone(
-    values: Union[AVLProbeValue, Optional[Mapping]]) -> bool:
-  return values is None or (isinstance(values, AVLProbeValue) and
-                            values.value_is_none)
 
 
 class FromFactoryBundle(collections.OrderedDict, InternalTags):

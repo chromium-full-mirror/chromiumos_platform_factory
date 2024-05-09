@@ -64,55 +64,34 @@ class DatabaseTest(unittest.TestCase):
     db = database.WritableDatabase.LoadFile(
         os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
         verify_checksum=False)
+    comp7_old_values = db.GetComponents('cls4')['comp7'].values
+    assert comp7_old_values is not None
+    comp5_old_values = db.GetComponents('cls3')['comp5'].values
+    assert comp5_old_values is not None
 
-    db.SetLinkAVLProbeValue('cls4', 'comp7', 'converter-identifier1', True)
-    db.SetLinkAVLProbeValue('cls3', 'comp5', 'converter-identifier2', False)
+    db.SetLinkAVLProbeValue(
+        'cls4', 'comp7',
+        rule.AVLProbeValue('converter-identifier1', True,
+                           yaml.Dict(comp7_old_values)))
+    db.SetLinkAVLProbeValue(
+        'cls3', 'comp5',
+        rule.AVLProbeValue('converter-identifier2', False,
+                           yaml.Dict(comp5_old_values)))
 
     loaded_db = database.Database.LoadData(
         db.DumpDataWithoutChecksum(internal=True))
-    self.assertIsInstance(
-        loaded_db.GetComponents('cls4')['comp7'].values, rule.AVLProbeValue)
+    comp7_values = loaded_db.GetComponents('cls4')['comp7'].values
+    assert isinstance(comp7_values, rule.AVLProbeValue)  # For typing
+    self.assertEqual('converter-identifier1', comp7_values.converter_identifier)
+    self.assertTrue(comp7_values.probe_value_matched)
+    self.assertEqual(yaml.Dict(comp7_values), yaml.Dict(comp7_old_values))
 
-    self.assertEqual(
-        'converter-identifier1',
-        # yapf: disable
-        loaded_db.GetComponents('cls4')['comp7'].values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertTrue(
-        # yapf: disable
-        loaded_db.GetComponents('cls4')['comp7'].values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    comp5_values = loaded_db.GetComponents('cls3')['comp5'].values
+    assert isinstance(comp5_values, rule.AVLProbeValue)  # For typing
+    self.assertEqual('converter-identifier2', comp5_values.converter_identifier)
+    self.assertFalse(comp5_values.probe_value_matched)
+    self.assertEqual(yaml.Dict(comp5_values), yaml.Dict(comp5_old_values))
 
-    self.assertEqual(
-        'converter-identifier2',
-        # yapf: disable
-        loaded_db.GetComponents('cls3')['comp5'].values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertFalse(
-        # yapf: disable
-        loaded_db.GetComponents('cls3')['comp5'].values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
-  def testSetLinkAVLProbeValue_NoneValue(self):
-    db = database.WritableDatabase.LoadFile(
-        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
-        verify_checksum=False)
-
-    db.SetLinkAVLProbeValue('cls4', 'comp8', 'converter-identifier1', False)
-    loaded_db = database.Database.LoadData(
-        db.DumpDataWithoutChecksum(internal=True))
-
-    values = loaded_db.GetComponents('cls4')['comp8'].values
-    self.assertIsInstance(values, rule.AVLProbeValue)
-    # yapf: disable
-    self.assertEqual('converter-identifier1', values.converter_identifier)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.assertFalse(values.probe_value_matched)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.assertTrue(values.value_is_none)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
 
   def testSetBundleUUIDs(self):
     db = database.WritableDatabase.LoadFile(
@@ -219,21 +198,6 @@ class DatabaseTest(unittest.TestCase):
                           'field1': 'value1',
                           'field2': 'value2'
                       }, 'deprecated')
-
-  def testUpdateComponentWithNullAVLProbeValue(self):
-    # Arrange.
-    db = database.WritableDatabase.LoadFile(
-        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
-        verify_checksum=False)
-
-    # Act & Assert.
-    db.UpdateComponent(
-        'cls3', 'comp5', 'comp5',
-        rule.AVLProbeValue(
-            identifier='converter-identifier',
-            probe_value_matched=False,
-            values=None,
-        ), 'supported')
 
   def testReplaceRules(self):
     db = database.WritableDatabase.LoadFile(

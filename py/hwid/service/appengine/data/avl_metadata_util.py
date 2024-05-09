@@ -50,7 +50,7 @@ class _AudioChecker(_SkipAVLChecker):
   def ShouldSkip(self, comp_info: database.ComponentInfo) -> bool:
     """See base class."""
 
-    if comp_info.value_is_none:
+    if comp_info.values is None:
       return False
 
     # yapf: disable

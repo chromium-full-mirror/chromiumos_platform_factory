@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 import os.path
 import unittest
 
@@ -10,6 +11,7 @@ from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import name_pattern_adapter
+from cros.factory.hwid.v3 import rule
 from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 
@@ -359,6 +361,21 @@ class ContentsAnalyzerTest(unittest.TestCase):
                                               prev_db_contents)
     inst.AnalyzeChange(None, False)
 
+  def test_ProbeValueAlignmentStatus_FromProbeValues(self):
+    self.assertEqual(
+        contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues(None),
+        contents_analyzer.ProbeValueAlignmentStatus.NOT_ALIGNED)
+    self.assertEqual(
+        contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues(
+            rule.AVLProbeValue('identifier', True, collections.OrderedDict())),
+        contents_analyzer.ProbeValueAlignmentStatus.ALIGNED)
+    self.assertEqual(
+        contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues(
+            rule.AVLProbeValue('identifier', False, collections.OrderedDict())),
+        contents_analyzer.ProbeValueAlignmentStatus.NOT_ALIGNED)
+    self.assertEqual(
+        contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues({}),
+        contents_analyzer.ProbeValueAlignmentStatus.NO_PROBE_INFO)
 
   def _ReadTestData(self, test_data_name: str) -> str:
     return file_utils.ReadFile(os.path.join(_TEST_DATA_PATH, test_data_name))

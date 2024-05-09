@@ -74,21 +74,13 @@ def _ApplyUnifiedDiff(src: str, diff: str) -> str:
 def _GenerateNewComponentAnalysis(seq_no: int, comp_cls: str = 'comp_cls_1',
                                   comp_name_prefix: str = 'new_comp'):
   return _HWIDComponentAnalysisResult(
-      comp_cls=comp_cls,
-      comp_name=f'{comp_name_prefix}#{seq_no}',
-      support_status='supported',
-      is_newly_added=True,
+      comp_cls=comp_cls, comp_name=f'{comp_name_prefix}#{seq_no}',
+      support_status='supported', is_newly_added=True,
       comp_name_info=name_pattern_adapter.LegacyNameInfo('unused'),
-      # yapf: disable
-      seq_no=seq_no,
-      comp_name_with_correct_seq_no=None,
-      null_values=None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      diff_prev=None,
-      link_avl=False,
+      seq_no=seq_no, comp_name_with_correct_seq_no=None, null_values=False,
+      diff_prev=None, link_avl=False,
       probe_value_alignment_status=_PVAlignmentStatus.NO_PROBE_INFO,
-      skip_avl_check=False,
-      marked_untracked=False)
+      skip_avl_check=False, marked_untracked=False)
 
 
 def _BuildHWIDComponentAnalysisResultWithDefaults(
@@ -101,7 +93,7 @@ def _BuildHWIDComponentAnalysisResultWithDefaults(
     diff_prev: Optional[_DiffStatus] = None, skip_avl_check: bool = False,
     marked_untracked_changed: bool = False):
 
-  null_values = comp_info.value_is_none
+  null_values = comp_info.values is None
   support_status = comp_info.status
   if comp_name_info is None:
     comp_name_info = name_pattern_adapter.LegacyNameInfo('legacy_comp_name')

@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 from typing import Mapping, NamedTuple, Optional
 
 from cros.factory.hwid.service.appengine.data.converter import audio_codec_converter
@@ -21,6 +22,7 @@ from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # p
 from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import name_pattern_adapter
+from cros.factory.hwid.v3 import rule as v3_rule
 
 
 # A map to collect converter collections.
@@ -115,6 +117,9 @@ class ConverterManager:
           continue
         name_pattern = adapter.GetNamePattern(comp_cls)
         for comp_name, comp_info in db_builder.GetComponents(comp_cls).items():
+          comp_values = comp_info.values
+          if comp_values is None:
+            continue
           name_info = name_pattern.Matches(comp_name)
           avl_key = name_info.Provide(self._get_avl_key_acceptor)
           if avl_key is None:
@@ -122,11 +127,13 @@ class ConverterManager:
           probe_info = probe_info_map.get(avl_key)
           if probe_info is None:
             continue
-          match_result = converter_collection.Match(
-              comp_info.values, probe_info, bool(avl_key.qid))
-          db_builder.SetLinkAVLProbeValue(
-              comp_cls, comp_name, match_result.converter_identifier,
-              match_result.alignment_status == _PVAlignmentStatus.ALIGNED)
+          match_result = converter_collection.Match(comp_values, probe_info,
+                                                    bool(avl_key.qid))
+          avl_probe_value = v3_rule.AVLProbeValue(
+              match_result.converter_identifier,
+              match_result.alignment_status == _PVAlignmentStatus.ALIGNED,
+              collections.OrderedDict(comp_values))
+          db_builder.SetLinkAVLProbeValue(comp_cls, comp_name, avl_probe_value)
     db = db_builder.Build()
     return db.DumpDataWithoutChecksum(suppress_support_status=False,
                                       magic_placeholder_options=None,

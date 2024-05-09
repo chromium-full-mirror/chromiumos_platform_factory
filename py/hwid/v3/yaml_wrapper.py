@@ -394,7 +394,8 @@ class _LinkAVLYAMLTagHandler(_HWIDV3YAMLTagHandler):
   TARGET_CLASS = rule.AVLProbeValue
 
   @classmethod
-  def YAMLConstructor(cls, loader, node, deep=False):
+  def YAMLConstructor(cls, loader, node,
+                      deep=False) -> Optional[rule.AVLProbeValue]:
     # TODO(clarkchung): Consider creating another customized loader
     # (e.g. V3LoaderInternal) here and keep V3Loader unaware of this syntax.
     if not isinstance(node, nodes.MappingNode):
@@ -406,19 +407,21 @@ class _LinkAVLYAMLTagHandler(_HWIDV3YAMLTagHandler):
     converter_identifier = existing_values['converter']
     probe_value_matched = existing_values['probe_value_matched']
     values = existing_values['original_values']
+    # For backward compatibility, convert to None if original_values is None.
+    if values is None:
+      return None
     return cls.TARGET_CLASS(converter_identifier, probe_value_matched, values)
 
   @classmethod
-  def YAMLRepresenter(cls, dumper, data):
+  def YAMLRepresenter(cls, dumper, data: rule.AVLProbeValue):
     if cls.IsDumperInternal(dumper):
       return dumper.represent_mapping(
           cls.YAML_TAG, {
               'converter': data.converter_identifier,
               'probe_value_matched': data.probe_value_matched,
-              'original_values': None if data.value_is_none else Dict(data)
+              'original_values': Dict(data)
           })
-    return (dumper.represent_none(data)
-            if data.value_is_none else dumper.represent_dict(data.items()))
+    return dumper.represent_dict(data.items())
 
 
 class _FromFactoryBundleTagHandler(_HWIDV3YAMLTagHandler):

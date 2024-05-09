@@ -233,7 +233,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         # yapf: enable
         if request.include_avl:
           avl_info = self._bc_helper.GetAVLInfo(cls, comp)
-        if request.include_fields and not comp_info.value_is_none:
+        if request.include_fields and comp_info.values is not None:
           # yapf: disable
           fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
           # yapf: enable

@@ -15,6 +15,7 @@ from typing import Any, Callable, Mapping, NamedTuple, Optional, Sequence, Set, 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import probe
+from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 from cros.factory.utils import json_utils
 
@@ -398,10 +399,8 @@ class DatabaseBuilder:
     # Update the name, status and bundle_uuid if the probe value exists in the
     # database.
     for old_comp_name, comp_info in comps.items():
-      if (value and not comp_info.value_is_none and
-          # yapf: disable
-          dict.__eq__(comp_info.values, value)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if (value and comp_info.values is not None and
+          dict(comp_info.values) == value):
         status = (
             common.ComponentStatus.supported if supported else comp_info.status)
         # Don't rename if the old component name is already valid.
@@ -1088,10 +1087,9 @@ class DatabaseBuilder:
 
   @_EnsureInBuilderContext
   def SetLinkAVLProbeValue(self, comp_cls: str, comp_name: str,
-                           converter_identifier: Optional[str],
-                           probe_value_matched: bool):
-    return self._database.SetLinkAVLProbeValue(
-        comp_cls, comp_name, converter_identifier, probe_value_matched)
+                           avl_probe_value: v3_rule.AVLProbeValue):
+    return self._database.SetLinkAVLProbeValue(comp_cls, comp_name,
+                                               avl_probe_value)
 
   @_EnsureInBuilderContext
   def UpdateComponent(self, comp_cls: str, old_name: str, new_name: str,

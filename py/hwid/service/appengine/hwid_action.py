@@ -18,7 +18,6 @@ from cros.factory.hwid.service.appengine import verification_payload_generator a
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import contents_analyzer as v3_contents_analyzer
 from cros.factory.hwid.v3 import database as v3_database
-from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.utils import type_utils
 
 
@@ -158,8 +157,7 @@ class BOM:
       for component_name in type_utils.MakeList(component_val):
         comp_info = db_components and db_components.get(component_name)
         fields = None
-        if (verbose and comp_info is not None and
-            not v3_rule.IsComponentValueNone(comp_info.values)):
+        if verbose and comp_info is not None:
           fields = comp_info.values
         self.AddComponent(component_class, component_name, comp_info and
                           comp_info.information,

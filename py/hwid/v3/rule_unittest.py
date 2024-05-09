@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 import unittest
 
 from cros.factory.hwid.v3 import rule as v3_rule
@@ -55,15 +56,19 @@ class HWIDRuleTest(unittest.TestCase):
 
 class AVLProbeValueTest(unittest.TestCase):
 
-  def testNoneValues(self):
-    apv = v3_rule.AVLProbeValue('identifier', False, None)
+  def testValues(self):
+    values = collections.OrderedDict({
+        'key': 'value'
+    })
+    apv = v3_rule.AVLProbeValue('identifier', False, values)
 
-    self.assertTrue(apv.value_is_none)
-    self.assertRaisesRegex(
-        ValueError, "None check fails at method 'items'.  Use "
-        '`ComponentInfo.value_is_none` instead of '
-        '`ComponentInfo.value is None` to check if this value is None.',
-        apv.items)
+    self.assertEqual(apv.converter_identifier, 'identifier')
+    self.assertFalse(apv.probe_value_matched, False)
+    self.assertEqual(collections.OrderedDict(apv), values)
+
+  def testNoneValues(self):
+    self.assertRaisesRegex(ValueError, "values shouldn't be None",
+                           v3_rule.AVLProbeValue, 'identifier', False, None)
 
 
 if __name__ == '__main__':

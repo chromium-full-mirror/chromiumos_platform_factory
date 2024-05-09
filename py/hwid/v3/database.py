@@ -34,6 +34,8 @@ represents to each part of the HWID database listed above.  The detail of
 each part is described in the class' document.
 """
 
+from __future__ import annotations
+
 import abc
 import collections
 import copy
@@ -42,7 +44,7 @@ import hashlib
 import itertools
 import logging
 import re
-from typing import Any, DefaultDict, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Sequence, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, DefaultDict, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Sequence, Set, Tuple, Union
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import rule as v3_rule
@@ -115,10 +117,11 @@ class ComponentInfo:
              override_support_status: Optional[str] = None,
              is_default_comp: bool = False, sort_values_by_key: bool = False):
 
-    def _ExportDict(values):
+    def _ExportDict(values: Optional[Union[Mapping[str, Any],
+                                           v3_rule.AVLProbeValue]]):
       if not sort_values_by_key:
         return values
-      if v3_rule.IsComponentValueNone(values):
+      if values is None:
         return None
       sorted_values = yaml.Dict(sorted(values.items()))
       if not isinstance(values, v3_rule.AVLProbeValue):
@@ -167,10 +170,6 @@ class ComponentInfo:
   @property
   def bundle_uuids(self) -> Sequence[str]:
     return self._bundle_uuids
-
-  @property
-  def value_is_none(self) -> bool:
-    return v3_rule.IsComponentValueNone(self._values)
 
 
 class Database(abc.ABC):
@@ -479,7 +478,7 @@ class Database(abc.ABC):
       comps = {
           name: info
           for name, info in comps.items()
-          if not info.value_is_none
+          if info.values is not None
       }
     return comps
 
@@ -750,10 +749,9 @@ class WritableDatabase(Database):
     return self._components.SetComponentStatus(comp_cls, comp_name, status)
 
   def SetLinkAVLProbeValue(self, comp_cls: str, comp_name: str,
-                           converter_identifier: Optional[str],
-                           probe_value_matched: bool):
-    return self._components.SetLinkAVLProbeValue(
-        comp_cls, comp_name, converter_identifier, probe_value_matched)
+                           avl_probe_value: v3_rule.AVLProbeValue):
+    return self._components.SetLinkAVLProbeValue(comp_cls, comp_name,
+                                                 avl_probe_value)
 
   def SetBundleUUIDs(self, comp_cls: str, comp_name: str,
                      bundle_uuids: Sequence[str]):
@@ -1356,7 +1354,13 @@ class EncodedFields:
     return sorted(type_utils.MakeList(data)) if data is not None else []
 
 
-class ComponentsStore(yaml.Dict):
+if TYPE_CHECKING:
+  ComponentsStoreBase = yaml.Dict[str, ComponentInfo]
+else:
+  ComponentsStoreBase = yaml.Dict
+
+
+class ComponentsStore(ComponentsStoreBase):
   """A dictionary which supports looking up component name by the hash value of
   component info."""
 
@@ -1568,7 +1572,7 @@ class Components:
 
     self._region_component_expr = copy.deepcopy(
         components_expr.get(common.REGION_CLS))
-    self._components = yaml.Dict()
+    self._components: yaml.Dict[str, ComponentsStore] = yaml.Dict()
 
     self._can_encode = True
     self._default_components = set()
@@ -1673,7 +1677,7 @@ class Components:
       None or a string of the component name.
     """
     for comp_name, comp_info in self._components.get(comp_cls, {}).items():
-      if comp_info.value_is_none:
+      if comp_info.values is None:
         return comp_name
     return None
 
@@ -1733,8 +1737,7 @@ class Components:
       raise common.HWIDException(
           f'Component ({comp_cls!r}, {comp_name!r}) already exists.')
 
-    value_is_none = v3_rule.IsComponentValueNone(values)
-    if value_is_none and any(
+    if values is None and any(
         c.values is None for c in self.GetComponents(comp_cls).values()):
       logging.warning(
           'Found more than one default component of %r, '
@@ -1764,8 +1767,7 @@ class Components:
         values, status, information)
 
   def SetLinkAVLProbeValue(self, comp_cls: str, comp_name: str,
-                           converter_identifier: Optional[str],
-                           probe_value_matched: bool):
+                           avl_probe_value: v3_rule.AVLProbeValue):
     """Sets the tag of the component as !link_avl
 
     Args:
@@ -1783,12 +1785,9 @@ class Components:
       raise common.HWIDException(
           f'Component ({comp_cls!r}, {comp_name!r}) is not recorded.')
 
-    comp_info = self._components[comp_cls][comp_name]
-
-    values = None if comp_info.value_is_none else comp_info.values
-    self._components[comp_cls][comp_name] = comp_info.Replace(
-        values=v3_rule.AVLProbeValue(converter_identifier, probe_value_matched,
-                                     values))
+    comp_info = self._components[comp_cls][comp_name].Replace(
+        values=avl_probe_value)
+    self._components[comp_cls][comp_name] = comp_info
 
   def SetBundleUUIDs(self, comp_cls: str, comp_name: str,
                      bundle_uuids: Sequence[str]):
