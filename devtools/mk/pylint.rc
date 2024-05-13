@@ -85,7 +85,6 @@ py-version = 3.6.2
 # it should appear only once). See also the "--disable" option for examples.
 enable=
     use-symbolic-message-instead,
-    useless-suppression,
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -117,6 +116,7 @@ disable=
     too-many-public-methods,
     too-many-return-statements,
     too-many-statements,
+    useless-suppression,
     wrong-import-order,
 
 [REPORTS]
