@@ -237,6 +237,13 @@
         "rma_mode": "eval! constants.factory_process == 'RMA'"
       }
     },
+    "CheckPDCFirmware": {
+      "pytest_name": "check_pdc_firmware",
+      "label": "Check PDC Firmware",
+      "args": {
+        "min_fw_version_dec": "0.0.0.0.0.0.27.0"
+      }
+    },
     "CheckPoint": {
       "inherit": "Barrier",
       "label": "Check Point",
