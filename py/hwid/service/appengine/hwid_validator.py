@@ -46,8 +46,8 @@ class HwidValidator:
       raise ValidationError(report.errors)
 
   def ValidateChange(
-      self, hwid_config_contents, prev_hwid_config_contents,
-      prev_hwid_config_contents_with_bundle_uuid=None,
+      self, hwid_config_contents: str, prev_hwid_config_contents: Optional[str],
+      prev_hwid_config_contents_with_bundle_uuid: Optional[str] = None,
       device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None):
     """Validates a HWID config change.
 
@@ -92,9 +92,8 @@ class HwidValidator:
         raise ValidationError(report_of_firmware.errors)
 
     db = analyzer.curr_db_instance
-    # yapf: disable
-    vpg_target = config_data.CONFIG.vpg_targets.get(db.project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert db is not None
+    vpg_target = config_data.CONFIG.vpg_targets.get(db.project)
     if vpg_target:
       errors = vpg_module.GenerateVerificationPayload(
           [(db, vpg_target)], encryption_key=_ENCRYPTION_TEST_KEY).error_msgs

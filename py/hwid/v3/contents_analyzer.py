@@ -7,13 +7,14 @@
 from __future__ import annotations
 
 import copy
+import dataclasses
 import difflib
 import enum
 import functools
 import itertools
 import logging
 import re
-from typing import Any, Callable, Dict, Iterable, List, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Tuple
+from typing import Any, Callable, ClassVar, Dict, Iterable, List, Mapping, MutableMapping, MutableSequence, NamedTuple, Optional, Tuple, Union
 
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
@@ -168,13 +169,21 @@ class ChangeAnalysis(NamedTuple):
   touched_sections: Optional[TouchHWIDSections] = None
 
 
-class ContentsAnalyzer:
+@dataclasses.dataclass
+class _LoadedDB:
+  load_error: ClassVar[None] = None
+  instance: database.Database
 
-  class DBSnapshot(NamedTuple):
-    """A record class that holds a specific version of HWID DB."""
-    contents: str  # The raw string data.
-    instance: Optional[database.Database]  # The loaded DB instance.
-    load_error: Optional[Exception]  # Exception instance for loading failure.
+
+@dataclasses.dataclass
+class _LoadError:
+  instance: ClassVar[None] = None
+  load_error: Exception
+
+
+class ContentsAnalyzer:
+  _curr_db: Union[_LoadedDB, _LoadError]
+  _prev_db: Optional[Union[_LoadedDB, _LoadError]]
 
   def __init__(self, curr_db_contents: str,
                expected_curr_db_checksum: Optional[str],
@@ -189,6 +198,10 @@ class ContentsAnalyzer:
   def curr_db_instance(self) -> Optional[database.Database]:
     return self._curr_db.instance
 
+  @property
+  def prev_db_instance(self) -> Optional[database.Database]:
+    return self._prev_db.instance if self._prev_db else None
+
   def ValidateIntegrity(
       self,
       form_factor: Optional[common.FormFactor] = None) -> ValidationReport:
@@ -201,26 +214,20 @@ class ContentsAnalyzer:
       A ValidationReport instance.
     """
     report = ValidationReport.CreateEmpty()
-    if self._curr_db.load_error:
+    if not isinstance(self._curr_db, _LoadedDB):
       report.errors.append(
           Error(ErrorCode.SCHEMA_ERROR, str(self._curr_db.load_error)))
-    else:
-      validate_funcs = [
-          self._ValidateDramIntegrity,
-          functools.partial(self._ValidateComponentIntegrity,
-                            form_factor=form_factor)
-      ]
-      for validation_func in validate_funcs:
-        # yapf: disable
-        keep_going = validation_func(report, self._curr_db.instance)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        if not keep_going:
-          break
+      return report
+
+    self._ValidateDramIntegrity(report, self._curr_db.instance)
+    self._ValidateComponentIntegrity(report, self._curr_db.instance,
+                                     form_factor)
     return report
 
+  @staticmethod
   def _ValidateComponentIntegrity(
-      self, validation_report, db_instance, *,
-      form_factor: Optional[common.FormFactor] = None):
+      validation_report, db_instance: database.Database,
+      form_factor: Optional[common.FormFactor] = None) -> None:
     if not form_factor:
       return
     db_comps = db_instance.GetComponentClasses(
@@ -241,8 +248,9 @@ class ContentsAnalyzer:
               f'Missing component {comp_cls!r} for form factor '
               f'{str(form_factor)!r}.'))
 
-  def _ValidateDramIntegrity(self, validation_report,
-                             db_instance: database.Database):
+  @staticmethod
+  def _ValidateDramIntegrity(validation_report,
+                             db_instance: database.Database) -> None:
     for dram_tag, dram_info in db_instance.GetComponents('dram').items():
       if dram_tag in _BLOCKLIST_DRAM_TAG:
         continue
@@ -250,20 +258,19 @@ class ContentsAnalyzer:
         validation_report.errors.append(
             Error(ErrorCode.CONTENTS_ERROR,
                   f'{dram_tag!r} does not contain size property'))
-    return True
 
   def ValidateChange(self, ignore_invalid_old_db=False) -> ValidationReport:
     """Validates the change between the current HWID DB and the previous one."""
     report = ValidationReport.CreateEmpty()
-    if self._curr_db.load_error:
+    if not isinstance(self._curr_db, _LoadedDB):
       report.errors.append(
           Error(ErrorCode.SCHEMA_ERROR, str(self._curr_db.load_error)))
       return report
 
     if self._prev_db is None:
-      if not self._ValidateChangeOfNewCreation(report):
+      if not self._ValidateChangeOfNewCreation(self._curr_db.instance, report):
         return report
-    elif self._prev_db.load_error:
+    elif not isinstance(self._prev_db, _LoadedDB):
       if ignore_invalid_old_db:
         report.warnings.append(
             'The previous version of HWID database is an incompatible version '
@@ -274,44 +281,48 @@ class ContentsAnalyzer:
             Error(
                 ErrorCode.UNKNOWN_ERROR,
                 'Failed to load the previous version of '
-                f'HWID DB: {self._curr_db.load_error}'))
+                f'HWID DB: {self._prev_db.load_error}'))
         return report
     else:
-      if not self._ValidateChangeFromExistingSnapshot(report):
+      if not self._ValidateChangeFromExistingSnapshot(
+          self._curr_db.instance, self._prev_db.instance, report):
         return report
-    self._ValidateChangeOfComponents(report)
+    self._ValidateChangeOfComponents(self._curr_db.instance,
+                                     self.prev_db_instance, report)
     return report
 
   def ValidateFirmwareComponents(self):
     """Check if modified (created) firmware components are valid."""
     report = ValidationReport.CreateEmpty()
-    for comps in self._ExtractHWIDComponents().values():
+    if not isinstance(self._curr_db, _LoadedDB):
+      report.errors.append(
+          Error(ErrorCode.SCHEMA_ERROR, str(self._curr_db.load_error)))
+      return report
+
+    for comps in self._ExtractHWIDComponents(self._curr_db.instance,
+                                             self.prev_db_instance).values():
       for comp in comps:
-        if (comp.from_factory_bundle and not comp.is_newly_added and
-            # yapf: disable
-            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if (comp.from_factory_bundle and comp.diff_prev and
+            (comp.diff_prev.name_changed or comp.diff_prev.values_changed)):
+          assert not comp.is_newly_added
           report.errors.append(
               Error(
-                  # yapf: disable
-                  ErrorCode.CONTENTS_ERROR,
-                  'Modifying firmware component '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                  # yapf: enable
+                  ErrorCode.CONTENTS_ERROR, 'Modifying firmware component '
                   f'{comp.diff_prev.prev_comp_name!r} which is generated from '
                   'the system. Is this change proposal mistakenly based on a '
                   'legacy HWID bundle?'))
     return report
 
-  def _ValidateChangeOfNewCreation(self, report: ValidationReport) -> bool:
+  @staticmethod
+  def _ValidateChangeOfNewCreation(curr_db: database.Database,
+                                   report: ValidationReport) -> bool:
     """Checks if the newly created HWID DB applies up-to-date styles.
 
     Returns:
       A boolean indicates whether to keep performing the rest of validation
           steps.
     """
-    # yapf: disable
-    if not self._curr_db.instance.can_encode:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not curr_db.can_encode:
       report.errors.append(
           Error(
               ErrorCode.CONTENTS_ERROR,
@@ -320,16 +331,16 @@ class ContentsAnalyzer:
               'pattern.'))
       return False
 
-    # yapf: disable
-    region_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    region_field_legacy_info = curr_db.region_field_legacy_info
     if not region_field_legacy_info or any(region_field_legacy_info.values()):
       report.errors.append(
           Error(ErrorCode.CONTENTS_ERROR,
                 'Legacy region field is forbidden in any new HWID database.'))
     return True
 
-  def _ValidateChangeFromExistingSnapshot(self,
+  @staticmethod
+  def _ValidateChangeFromExistingSnapshot(curr_db: database.Database,
+                                          prev_db: database.Database,
                                           report: ValidationReport) -> bool:
     """Checks if the HWID DB changes is backward compatible.
 
@@ -339,12 +350,7 @@ class ContentsAnalyzer:
     """
     # If the old database follows the new pattern rule, so does the new
     # database.
-    # yapf: disable
-    if (self._prev_db.instance.can_encode and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        not self._curr_db.instance.can_encode):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if (prev_db.can_encode and not curr_db.can_encode):
       report.errors.append(
           Error(
               ErrorCode.COMPATIBLE_ERROR,
@@ -354,22 +360,14 @@ class ContentsAnalyzer:
       return False
 
     visited_patterns = set()
-    # yapf: disable
-    for image_id in self._prev_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      old_bit_mapping = self._prev_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if image_id not in self._curr_db.instance.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    for image_id in prev_db.image_ids:
+      old_bit_mapping = prev_db.GetBitMapping(image_id=image_id)
+      if image_id not in curr_db.image_ids:
         report.errors.append(
             Error(ErrorCode.COMPATIBLE_ERROR,
                   f'Image id {image_id} is deleted.'))
         continue
-      # yapf: disable
-      new_bit_mapping = self._curr_db.instance.GetBitMapping(image_id=image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      new_bit_mapping = curr_db.GetBitMapping(image_id=image_id)
 
       # Make sure all the encoded fields in the existing patterns are not
       # changed.
@@ -386,23 +384,13 @@ class ContentsAnalyzer:
 
       # Make sure no new component field is added to existing pattern after
       # PVT.
-      # yapf: disable
-      pattern_id = self._curr_db.instance.GetPattern(image_id).idx  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      image_name = self._curr_db.instance.GetImageName(image_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      pattern_id = curr_db.GetPattern(image_id).idx
+      image_name = curr_db.GetImageName(image_id)
       if (pattern_id not in visited_patterns and
           re.fullmatch(r'(PVT|MP).*', image_name, flags=re.IGNORECASE)):
         visited_patterns.add(pattern_id)
-        old_field_set = set(
-            # yapf: disable
-            self._prev_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        new_field_set = set(
-            # yapf: disable
-            self._curr_db.instance.GetEncodedFieldsBitLength(image_id))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        old_field_set = set(prev_db.GetEncodedFieldsBitLength(image_id))
+        new_field_set = set(curr_db.GetEncodedFieldsBitLength(image_id))
         added_fields = new_field_set - old_field_set
         if added_fields:
           report.errors.append(
@@ -412,12 +400,8 @@ class ContentsAnalyzer:
                   f'appended in the existing pattern(#{pattern_id}) except in '
                   'early phases. Please create a new pattern instead.'))
 
-    # yapf: disable
-    old_reg_field_legacy_info = self._prev_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    new_reg_field_legacy_info = self._curr_db.instance.region_field_legacy_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    old_reg_field_legacy_info = prev_db.region_field_legacy_info
+    new_reg_field_legacy_info = curr_db.region_field_legacy_info
     for field_name, is_legacy_style in new_reg_field_legacy_info.items():
       orig_is_legacy_style = old_reg_field_legacy_info.get(field_name)
       if orig_is_legacy_style is None:
@@ -434,9 +418,12 @@ class ContentsAnalyzer:
                     'Style of existing region field should remain unchanged.'))
     return True
 
-  def _ValidateChangeOfComponents(self, report: ValidationReport):
+  @classmethod
+  def _ValidateChangeOfComponents(cls, curr_db: database.Database,
+                                  prev_db: Optional[database.Database],
+                                  report: ValidationReport):
     """Check if modified (created) components are valid."""
-    for comps in self._ExtractHWIDComponents().values():
+    for comps in cls._ExtractHWIDComponents(curr_db, prev_db).values():
       for comp in comps:
         if comp.extracted_seq_no is not None:
           expected_comp_name = ''.join([
@@ -467,28 +454,26 @@ class ContentsAnalyzer:
                   'and values often causes compatibility issues. Is this '
                   'change proposal mistakenly based on a legacy HWID bundle?'))
 
-  def _AnalyzeDBLines(self, db_contents_patcher, all_placeholders,
-                      db_placeholder_options):
+  @staticmethod
+  def _AnalyzeDBLines(curr_db: database.Database,
+                      prev_db: Optional[database.Database], db_contents_patcher,
+                      all_placeholders, db_placeholder_options):
     dumped_db_lines = db_contents_patcher(
-        # yapf: disable
-        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        curr_db.DumpDataWithoutChecksum(
             suppress_support_status=False,
             magic_placeholder_options=db_placeholder_options)).splitlines()
 
     no_placeholder_dumped_db_lines = db_contents_patcher(
-        # yapf: disable
-        self._curr_db.instance.DumpDataWithoutChecksum(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        curr_db.DumpDataWithoutChecksum(
             suppress_support_status=False)).splitlines()
     if len(dumped_db_lines) != len(no_placeholder_dumped_db_lines):
       # Unexpected case, skip deriving the line diffs.
       diff_view_line_it = itertools.repeat('  ', len(dumped_db_lines))
-    elif not self._prev_db or not self._prev_db.instance:
+    elif not prev_db:
       diff_view_line_it = itertools.repeat('  ', len(dumped_db_lines))
     else:
       prev_db_contents_lines = db_contents_patcher(
-          self._prev_db.instance.DumpDataWithoutChecksum(
+          prev_db.DumpDataWithoutChecksum(
               suppress_support_status=False)).splitlines()
       # yapf: disable
       diff_view_line_it = difflib.ndiff(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -533,11 +518,12 @@ class ContentsAnalyzer:
       line_analysis_result.append(DBLineAnalysisResult(mod_status, parts))
     return line_analysis_result
 
-  def _FillTouchedSections(self) -> Optional[TouchHWIDSections]:
-    if self._prev_db is None or self._prev_db.instance is None:
+  @staticmethod
+  def _FillTouchedSections(
+      curr_db: database.Database,
+      prev_db: Optional[database.Database]) -> Optional[TouchHWIDSections]:
+    if prev_db is None:
       return None
-    prev_db = self._prev_db.instance
-    curr_db = self._curr_db.instance
 
     image_id_change_status = HWIDSectionTouchCase.UNTOUCHED
     pattern_change_status = HWIDSectionTouchCase.UNTOUCHED
@@ -545,44 +531,32 @@ class ContentsAnalyzer:
     rules_change_status = HWIDSectionTouchCase.UNTOUCHED
     framework_version_change_status = HWIDSectionTouchCase.UNTOUCHED
     encoded_fields_change_status = {}
-    # yapf: disable
-    if prev_db.image_ids != curr_db.image_ids:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if prev_db.image_ids != curr_db.image_ids:
       image_id_change_status = HWIDSectionTouchCase.TOUCHED
       pattern_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for image_id in prev_db.image_ids:
-        # yapf: disable
-        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if prev_db.GetImageName(image_id) != curr_db.GetImageName(image_id):
           image_id_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
       for image_id in prev_db.image_ids:
-        # yapf: disable
-        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        if prev_db.GetEncodingScheme(image_id) != curr_db.GetEncodingScheme(
             image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
-        # yapf: disable
-        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        if prev_db.GetBitMapping(image_id=image_id) != curr_db.GetBitMapping(
             image_id=image_id):
           pattern_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    # yapf: disable
-    curr_encoded_fields = set(curr_db.encoded_fields)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    curr_encoded_fields = set(curr_db.encoded_fields)
     prev_encoded_fields = set(prev_db.encoded_fields)
     for encoded_field in curr_encoded_fields - prev_encoded_fields:
       encoded_fields_change_status[encoded_field] = (
           HWIDSectionTouchCase.TOUCHED)
     for encoded_field in curr_encoded_fields & prev_encoded_fields:
-      # yapf: disable
-      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      if prev_db.GetEncodedField(encoded_field) != curr_db.GetEncodedField(
           encoded_field):
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.TOUCHED)
@@ -590,30 +564,20 @@ class ContentsAnalyzer:
         encoded_fields_change_status[encoded_field] = (
             HWIDSectionTouchCase.UNTOUCHED)
 
-    # yapf: disable
-    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if prev_db.GetComponentClasses() != curr_db.GetComponentClasses():
       components_change_status = HWIDSectionTouchCase.TOUCHED
     else:
       for comp_cls in prev_db.GetComponentClasses():
-        # yapf: disable
-        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if prev_db.GetComponents(comp_cls) != curr_db.GetComponents(comp_cls):
           components_change_status = HWIDSectionTouchCase.TOUCHED
           break
 
-    # yapf: disable
-    if prev_db.device_info_rules != curr_db.device_info_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if prev_db.device_info_rules != curr_db.device_info_rules:
       rules_change_status = HWIDSectionTouchCase.TOUCHED
-    # yapf: disable
-    elif prev_db.verify_rules != curr_db.verify_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    elif prev_db.verify_rules != curr_db.verify_rules:
       rules_change_status = HWIDSectionTouchCase.TOUCHED
 
-    # yapf: disable
-    if prev_db.framework_version != curr_db.framework_version:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if prev_db.framework_version != curr_db.framework_version:
       framework_version_change_status = HWIDSectionTouchCase.TOUCHED
 
     return TouchHWIDSections(image_id_change_status, pattern_change_status,
@@ -640,7 +604,7 @@ class ContentsAnalyzer:
     Returns:
       An instance of `ChangeAnalysis`.
     """
-    if not self._curr_db.instance:
+    if not isinstance(self._curr_db, _LoadedDB):
       report = ChangeAnalysis([], [], {})
       report.precondition_errors.append(
           Error(ErrorCode.SCHEMA_ERROR, str(self._curr_db.load_error)))
@@ -651,7 +615,8 @@ class ContentsAnalyzer:
     # replaced by some magic placeholders.  Then we parse the raw string to
     # find out the location of those fields.
 
-    all_comps = self._ExtractHWIDComponents(skip_avl_check_checker)
+    all_comps = self._ExtractHWIDComponents(
+        self._curr_db.instance, self.prev_db_instance, skip_avl_check_checker)
     all_placeholders = {}
     db_placeholder_options = database.MagicPlaceholderOptions({})
     hwid_components = {}
@@ -700,12 +665,14 @@ class ContentsAnalyzer:
       if db_contents_patcher is None:
         raise ValueError(('db_contents_patcher should not be None when '
                           'require_hwid_db_lines is set to True'))
-      lines = self._AnalyzeDBLines(db_contents_patcher, all_placeholders,
-                                   db_placeholder_options)
+      lines = self._AnalyzeDBLines(self._curr_db.instance,
+                                   self.prev_db_instance, db_contents_patcher,
+                                   all_placeholders, db_placeholder_options)
     else:
       lines = []
 
-    touched_sections = self._FillTouchedSections()
+    touched_sections = self._FillTouchedSections(self._curr_db.instance,
+                                                 self.prev_db_instance)
     return ChangeAnalysis([], lines, hwid_components, touched_sections)
 
   class _HWIDComponentMetadata(NamedTuple):
@@ -724,8 +691,9 @@ class ContentsAnalyzer:
     from_factory_bundle: bool
     marked_untracked: bool
 
+  @classmethod
   def _ExtractHWIDComponents(
-      self,
+      cls, curr_db: database.Database, prev_db: Optional[database.Database],
       skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
                                                 bool]] = None
   ) -> MutableMapping[str,
@@ -733,14 +701,13 @@ class ContentsAnalyzer:
     ret: MutableMapping[
         str, MutableSequence[ContentsAnalyzer._HWIDComponentMetadata]] = {}
     adapter = name_pattern_adapter.NamePatternAdapter()
-    assert self._curr_db.instance is not None
-    for comp_cls in self._curr_db.instance.GetComponentClasses():
+    for comp_cls in curr_db.GetComponentClasses():
       ret[comp_cls] = []
       name_pattern = adapter.GetNamePattern(comp_cls)
       prev_items: Iterable[Tuple[str, database.ComponentInfo]] = []
-      if self._prev_db is not None and self._prev_db.instance is not None:
-        prev_items = self._prev_db.instance.GetComponents(comp_cls).items()
-      curr_items = self._curr_db.instance.GetComponents(comp_cls).items()
+      if prev_db is not None:
+        prev_items = prev_db.GetComponents(comp_cls).items()
+      curr_items = curr_db.GetComponents(comp_cls).items()
 
       for expected_seq, (curr_item, prev_item) in enumerate(
           itertools.zip_longest(curr_items, prev_items, fillvalue=None), 1):
@@ -817,7 +784,7 @@ class ContentsAnalyzer:
           is_newly_added = True
 
         ret[comp_cls].append(
-            self._HWIDComponentMetadata(
+            cls._HWIDComponentMetadata(
                 comp_name, comp_info.status, noseq_comp_name,
                 actual_seq if sep else None, name_info, expected_seq,
                 is_newly_added, null_values, diffstatus, link_avl,
@@ -826,17 +793,16 @@ class ContentsAnalyzer:
     return ret
 
   @classmethod
-  def _LoadFromDBContents(cls, db_contents: str,
-                          expected_checksum: Optional[str]) -> 'DBSnapshot':
+  def _LoadFromDBContents(
+      cls, db_contents: str,
+      expected_checksum: Optional[str]) -> Union[_LoadedDB, _LoadError]:
     try:
-      db = database.Database.LoadData(db_contents,
-                                      expected_checksum=expected_checksum)
-      load_error = None
+      return _LoadedDB(
+          instance=database.Database.LoadData(
+              db_contents, expected_checksum=expected_checksum))
     except (schema.SchemaException, common.HWIDException,
             yaml.error.YAMLError) as ex:
-      db = None
-      load_error = ex
-    return cls.DBSnapshot(db_contents, db, load_error)
+      return _LoadError(load_error=ex)
 
 
 class _LineSplitter:
