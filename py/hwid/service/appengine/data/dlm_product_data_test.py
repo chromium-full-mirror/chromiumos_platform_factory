@@ -3,8 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import ast
-import re
 import unittest
 
 from cros.factory.hwid.service.appengine.data import dlm_product_data
@@ -30,101 +28,116 @@ class DLMProductManagerTest(unittest.TestCase):
       entity.put()
     return entity
 
-  def testUpdateDLMProduct_CreateNewProduct(self):
-    self._manager.UpdateDLMProduct(1, board='test_board', model='test_model',
-                                   product_status=2, device_id=3)
+  def testUpdateDLMProducts_CreateNewProducts(self):
+    product1 = dlm_product_data.DLMProduct(id=1, board='test_board_1',
+                                           model='test_model_1',
+                                           product_status=1, device_id=1)
+    product2 = dlm_product_data.DLMProduct(id=2, board='test_board_2',
+                                           model='test_model_2',
+                                           product_status=2, device_id=2)
+
+    self._manager.UpdateDLMProducts(products=[product1, product2])
 
     with self._ndb_connector.CreateClientContext():
-      res = list(dlm_product_data.DLMProduct.query())
-    self.assertEqual(len(res), 1)
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+    self.assertEqual(len(res), 2)
+
     self.assertEqual(res[0].id, 1)
-    self.assertEqual(res[0].board, 'test_board')
-    self.assertEqual(res[0].model, 'test_model')
-    self.assertEqual(res[0].product_status, 2)
-    self.assertEqual(res[0].device_id, 3)
+    self.assertEqual(res[0].board, 'test_board_1')
+    self.assertEqual(res[0].model, 'test_model_1')
+    self.assertEqual(res[0].product_status, 1)
+    self.assertEqual(res[0].device_id, 1)
 
-  def testUpdateDLMProduct_UpdateExistingProduct(self):
-    p1 = self._CreateDLMProduct(id=1, board='test_board_1',
-                                model='test_model_1', product_status=1,
-                                device_id=1)
-    p2 = self._CreateDLMProduct(id=2, board='test_board_2',
-                                model='test_model_2', product_status=2,
-                                device_id=2)
+    self.assertEqual(res[1].id, 2)
+    self.assertEqual(res[1].board, 'test_board_2')
+    self.assertEqual(res[1].model, 'test_model_2')
+    self.assertEqual(res[1].product_status, 2)
+    self.assertEqual(res[1].device_id, 2)
 
-    self._manager.UpdateDLMProduct(1, board='test_board_3',
-                                   model='test_model_3', product_status=3,
-                                   device_id=3)
+  def testUpdateDLMProducts_UpdateExistingProducts(self):
+    self._CreateDLMProduct(id=1, board='test_board_1', model='test_model_1',
+                           product_status=1, device_id=1)
+    self._CreateDLMProduct(id=2, board='test_board_2', model='test_model_2',
+                           product_status=2, device_id=2)
+    self._CreateDLMProduct(id=3, board='test_board_3', model='test_model_3',
+                           product_status=3, device_id=3)
+    updated_p2 = dlm_product_data.DLMProduct(id=2, board='test_board_4',
+                                             model='test_model_4',
+                                             product_status=4, device_id=4)
+    updated_p3 = dlm_product_data.DLMProduct(id=3, board='test_board_5',
+                                             model='test_model_5',
+                                             product_status=5, device_id=5)
+
+    self._manager.UpdateDLMProducts(products=[updated_p2, updated_p3])
 
     with self._ndb_connector.CreateClientContext():
-      res = list(dlm_product_data.DLMProduct.query())
-      # Entity keys can only be accessed in context.
-      p1 = p1.key.get()
-      p2 = p2.key.get()
-      self.assertCountEqual(res, [p1, p2])
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+    self.assertEqual(len(res), 3)
 
-    self.assertEqual(p1.id, 1)
-    self.assertEqual(p1.board, 'test_board_3')
-    self.assertEqual(p1.model, 'test_model_3')
-    self.assertEqual(p1.product_status, 3)
-    self.assertEqual(p1.device_id, 3)
+    self.assertEqual(res[0].id, 1)
+    self.assertEqual(res[0].board, 'test_board_1')
+    self.assertEqual(res[0].model, 'test_model_1')
+    self.assertEqual(res[0].product_status, 1)
+    self.assertEqual(res[0].device_id, 1)
 
-    self.assertEqual(p2.id, 2)
-    self.assertEqual(p2.board, 'test_board_2')
-    self.assertEqual(p2.model, 'test_model_2')
-    self.assertEqual(p2.product_status, 2)
-    self.assertEqual(p2.device_id, 2)
+    self.assertEqual(res[1].id, 2)
+    self.assertEqual(res[1].board, 'test_board_4')
+    self.assertEqual(res[1].model, 'test_model_4')
+    self.assertEqual(res[1].product_status, 4)
+    self.assertEqual(res[1].device_id, 4)
 
-  def testUpdateDLMProduct_MissingRequiredFields(self):
-    self.assertRaisesRegex(
-        dlm_product_data.InvalidProductError,
-        "Failed to update invalid product data {'id': 1} with exception: "
-        'Entity has uninitialized properties: board, device_id, product_status',
-        self._manager.UpdateDLMProduct, 1)
+    self.assertEqual(res[2].id, 3)
+    self.assertEqual(res[2].board, 'test_board_5')
+    self.assertEqual(res[2].model, 'test_model_5')
+    self.assertEqual(res[2].product_status, 5)
+    self.assertEqual(res[2].device_id, 5)
 
-  def testUpdateDLMProduct_InvalidFieldValue(self):
-    kwargs = {
-        'board': 'test_board',
-        'model': 'test_model',
-        'product_status': 'invalid_value',
-        'device_id': 1
-    }
-    error_re = re.compile(r'Failed to update invalid product data '
-                          r"({[\w\'\:\,\s]+}) with exception: Expected integer,"
-                          r" got 'invalid_value'")
+  def testUpdateDLMProducts_UpdateExistingAndCreateNewProducts(self):
+    self._CreateDLMProduct(id=1, board='test_board_1', model='test_model_1',
+                           product_status=1, device_id=1)
+    self._CreateDLMProduct(id=2, board='test_board_2', model='test_model_2',
+                           product_status=2, device_id=2)
+    self._CreateDLMProduct(id=3, board='test_board_3', model='test_model_3',
+                           product_status=3, device_id=3)
+    updated_p2 = dlm_product_data.DLMProduct(id=2, board='test_board_4',
+                                             model='test_model_4',
+                                             product_status=4, device_id=4)
+    updated_p3 = dlm_product_data.DLMProduct(id=3, board='test_board_5',
+                                             model='test_model_5',
+                                             product_status=5, device_id=5)
+    new_p4 = dlm_product_data.DLMProduct(id=4, board='test_board_6',
+                                         model='test_model_6', product_status=1,
+                                         device_id=1)
 
-    with self.assertRaisesRegex(dlm_product_data.InvalidProductError,
-                                error_re) as e:
-      self._manager.UpdateDLMProduct(1, **kwargs)
+    self._manager.UpdateDLMProducts(products=[updated_p2, updated_p3, new_p4])
 
-    # yapf: disable
-    invalid_args = error_re.search(str(e.exception)).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    invalid_args = ast.literal_eval(invalid_args)
-    self.assertEqual(invalid_args, {
-        'id': 1,
-        **kwargs
-    })
+    with self._ndb_connector.CreateClientContext():
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+    self.assertEqual(len(res), 4)
 
-  def testUpdateDLMProduct_NonExistentField(self):
-    kwargs = {
-        'non_existent_field': 1
-    }
-    error_re = re.compile(r'Failed to update invalid product data '
-                          r"({[\w\'\:\,\s]+}) with exception: type object "
-                          r"'DLMProduct' has no attribute 'non_existent_field'")
+    self.assertEqual(res[0].id, 1)
+    self.assertEqual(res[0].board, 'test_board_1')
+    self.assertEqual(res[0].model, 'test_model_1')
+    self.assertEqual(res[0].product_status, 1)
+    self.assertEqual(res[0].device_id, 1)
 
-    with self.assertRaisesRegex(dlm_product_data.InvalidProductError,
-                                error_re) as e:
-      self._manager.UpdateDLMProduct(1, **kwargs)
+    self.assertEqual(res[1].id, 2)
+    self.assertEqual(res[1].board, 'test_board_4')
+    self.assertEqual(res[1].model, 'test_model_4')
+    self.assertEqual(res[1].product_status, 4)
+    self.assertEqual(res[1].device_id, 4)
 
-    # yapf: disable
-    invalid_args = error_re.search(str(e.exception)).group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    invalid_args = ast.literal_eval(invalid_args)
-    self.assertEqual(invalid_args, {
-        'id': 1,
-        **kwargs
-    })
+    self.assertEqual(res[2].id, 3)
+    self.assertEqual(res[2].board, 'test_board_5')
+    self.assertEqual(res[2].model, 'test_model_5')
+    self.assertEqual(res[2].product_status, 5)
+    self.assertEqual(res[2].device_id, 5)
+
+    self.assertEqual(res[3].id, 4)
+    self.assertEqual(res[3].board, 'test_board_6')
+    self.assertEqual(res[3].model, 'test_model_6')
+    self.assertEqual(res[3].product_status, 1)
+    self.assertEqual(res[3].device_id, 1)
 
   def testGetDLMProductsByBoards(self):
     p1 = self._CreateDLMProduct(id=1, board='test_board_1',
@@ -155,7 +168,7 @@ class DLMProductManagerTest(unittest.TestCase):
 
     self.assertEqual(res, [])
 
-  def testUpdateDLMProductByDeviceId(self):
+  def testUpdateDLMProductsByDeviceId(self):
     p1 = self._CreateDLMProduct(id=1, board='test_board_1',
                                 model='test_model_1', product_status=1,
                                 device_id=1)
@@ -166,7 +179,7 @@ class DLMProductManagerTest(unittest.TestCase):
                                 model='test_model_2', product_status=3,
                                 device_id=2)
 
-    self._manager.UpdateDLMProductByDeviceId(2, 'test_board_3', 'test_model_3')
+    self._manager.UpdateDLMProductsByDeviceId(2, 'test_board_3', 'test_model_3')
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query())

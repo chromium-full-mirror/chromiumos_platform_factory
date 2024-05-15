@@ -1079,10 +1079,22 @@ message UpdateDlmProductRequest {
   DlmProduct product = 1;
 }
 
+// The request of updating or creating product with DLM product list.
+message BatchUpdateDlmProductRequest {
+  // The DLM product list used to update or create products.
+  repeated DlmProduct products = 1;
+}
+
 // The response of updating or creating product with DLM product data.
 message UpdateDlmProductResponse {
   // The id of the requested product.
   int64 product_id = 1;
+}
+
+// The response of updating or creating product with DLM product list.
+message BatchUpdateDlmProductResponse {
+  // The id list of the requested products.
+  repeated int64 product_ids = 1;
 }
 
 // The device data from DLM.
@@ -1095,13 +1107,13 @@ message DlmDevice {
   string model = 3;
 }
 
-// The request of updating product with DLM device data.
+// The request of updating products with DLM device data.
 message UpdateDlmDeviceRequest {
-  // The DLM device data used to update product.
+  // The DLM device data used to update products.
   DlmDevice device = 1;
 }
 
-// The response of updating product with DLM device data.
+// The response of updating products with DLM device data.
 message UpdateDlmDeviceResponse {
   // The id of the requested device.
   int64 device_id = 1;
@@ -1226,6 +1238,10 @@ service HwidService {
   // Update or create DLM product data with DLM product data.
   rpc UpdateDlmProduct(UpdateDlmProductRequest)
       returns (UpdateDlmProductResponse);
+
+  // Update or create DLM product data with DLM product list.
+  rpc BatchUpdateDlmProduct(BatchUpdateDlmProductRequest)
+      returns (BatchUpdateDlmProductResponse);
 
   // Update DLM product data with DLM device data.
   rpc UpdateDlmDevice(UpdateDlmDeviceRequest)

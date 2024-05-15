@@ -28,10 +28,6 @@ class DLMProduct(ndb.Model):
   device_id = ndb.IntegerProperty(indexed=True, required=True)
 
 
-class InvalidProductError(Exception):
-  """The product data is invalid."""
-
-
 class DLMProductManager:
 
   def __init__(self, ndb_connector: ndbc_module.NDBConnector):
@@ -43,29 +39,21 @@ class DLMProductManager:
       q = DLMProduct.query(DLMProduct.board.IN(boards))
       return list(q)
 
-  def UpdateDLMProduct(self, product_id: int, **attrs):
-    try:
-      with self._ndb_connector.CreateClientContextWithGlobalCache():
-        need_save = False
+  def UpdateDLMProducts(self, products: Sequence[DLMProduct]):
+    products_to_update = {
+        product.id: product
+        for product in products
+    }
+    product_ids = list(products_to_update)
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      q = DLMProduct.query(DLMProduct.id.IN(product_ids))
+      for existing_product in q:
+        # Update the existing products by using the same key.
+        products_to_update[existing_product.id].key = existing_product.key
 
-        entity = DLMProduct.query(DLMProduct.id == product_id).get()
-        if entity is None:
-          entity = DLMProduct(id=product_id, **attrs)
-          need_save = True
-        else:
-          for attr, value in attrs.items():
-            if getattr(entity, attr) != value:
-              setattr(entity, attr, value)
-              need_save = True
+      ndb.model.put_multi(list(products_to_update.values()))
 
-        if need_save:
-          entity.put()
-    except (AttributeError, ndb.exceptions.BadValueError) as e:
-      raise InvalidProductError(
-          'Failed to update invalid product data '
-          f'{ {"id": product_id, **attrs} } with exception: {e}') from e
-
-  def UpdateDLMProductByDeviceId(self, device_id: int, board: str, model: str):
+  def UpdateDLMProductsByDeviceId(self, device_id: int, board: str, model: str):
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       q = DLMProduct.query().filter(DLMProduct.device_id == device_id)
       products_to_update = []
