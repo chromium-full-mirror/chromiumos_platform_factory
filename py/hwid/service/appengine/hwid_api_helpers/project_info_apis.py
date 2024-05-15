@@ -41,9 +41,13 @@ def _ConvertImageVersionTypeToMsg(
 ) -> _ImageVersionTypeMsg.ValueType:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
   # yapf: enable
   if image_version_type == _ImageVersionType.LATEST_PUSHED_STABLE:
-    return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE
+    # yapf: disable
+    return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   if image_version_type == _ImageVersionType.LATEST_PUSHED_LTS:
-    return _ImageVersionTypeMsg.LATEST_PUSHED_LTS
+    # yapf: disable
+    return _ImageVersionTypeMsg.LATEST_PUSHED_LTS  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   raise ValueError(f'Unexpected image version type {image_version_type!r}')
 
 
@@ -160,7 +164,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     projects = [m.project for m in metadata_list]
 
     response = hwid_api_messages_pb2.ProjectsResponse(
-        status=hwid_api_messages_pb2.Status.SUCCESS, projects=sorted(projects))
+        # yapf: disable
+        status=hwid_api_messages_pb2.Status.SUCCESS, projects=sorted(projects))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return response
 
   @protorpc_utils.ProtoRPCServiceMethod
@@ -185,7 +191,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     return hwid_api_messages_pb2.HwidsResponse(
-        status=hwid_api_messages_pb2.Status.SUCCESS, hwids=hwids)
+        # yapf: disable
+        status=hwid_api_messages_pb2.Status.SUCCESS, hwids=hwids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -202,7 +210,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     return hwid_api_messages_pb2.ComponentClassesResponse(
-        status=hwid_api_messages_pb2.Status.SUCCESS, component_classes=classes)
+        # yapf: disable
+        status=hwid_api_messages_pb2.Status.SUCCESS, component_classes=classes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -244,7 +254,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
                 fields=fields, has_avl=bool(avl_info), status=status))
 
     return hwid_api_messages_pb2.ComponentsResponse(
-        status=hwid_api_messages_pb2.Status.SUCCESS, components=components_list)
+        # yapf: disable
+        status=hwid_api_messages_pb2.Status.SUCCESS, components=components_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -335,7 +347,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     ):
       checkers.append(
           _ErrorSoftBrandEligibilityChecker(
-              version_type=_ImageVersionTypeMsg.TOT,
+              # yapf: disable
+              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               error=_SoftBrandEligibilityMsg.Error(
                   message=f'Unable to get hwid_action of project {proj}.')))
       return checkers
@@ -345,7 +359,9 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       logging.exception('Cannot get feature matcher from project %s', proj)
       checkers.append(
           _ErrorSoftBrandEligibilityChecker(
-              version_type=_ImageVersionTypeMsg.TOT,
+              # yapf: disable
+              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               error=_SoftBrandEligibilityMsg.Error(
                   message=('Cannot get feature matcher of TOT from project '
                            f'{proj}.'))))
@@ -353,8 +369,10 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       checkers.append(
           # yapf: disable
           _NormalSoftBrandEligibilityChecker(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-              version_type=_ImageVersionTypeMsg.TOT,
+              # yapf: enable
+              # yapf: disable
+              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              # yapf: enable
               feature_matcher=feature_matcher,
           ))
 

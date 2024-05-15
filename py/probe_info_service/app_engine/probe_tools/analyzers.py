@@ -210,7 +210,9 @@ class _RawProbeStatementConverter(IProbeInfoConverter):
                                    description=self._CONVERTER_DESCRIPTION)
     ret.parameter_definitions.add(name=self._PARAMETER_NAME,
                                   description=self._PARAMETER_DESCRIPTION,
-                                  value_type=_ProbeParameterValueType.STRING)
+                                  # yapf: disable
+                                  value_type=_ProbeParameterValueType.STRING)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return ret
 
   def ParseProbeParams(
@@ -636,7 +638,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       parsed_result = None
     else:
       parsed_result = _ProbeInfoParsedResult(
-          result_type=_ProbeInfoParsedResult.ResultType.INCOMPATIBLE_ERROR,
+          # yapf: disable
+          result_type=_ProbeInfoParsedResult.ResultType.INCOMPATIBLE_ERROR,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           general_error_msg=f'Unknown probe converter: {converter_name!r}.')
     # yapf: disable
     return parsed_result, converter  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -770,7 +774,9 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
     for idx, probe_param in probe_params:
       param_name = probe_param.name
       if param_name in param_hints and param_name not in suggestions:
-        suggestions[param_name] = _ProbeParameterSuggestion(
+        # yapf: disable
+        suggestions[param_name] = _ProbeParameterSuggestion(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             index=idx, hint=param_hints[param_name])
 
     # yapf: disable

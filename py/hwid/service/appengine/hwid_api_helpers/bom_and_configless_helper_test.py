@@ -107,37 +107,46 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [TEST_HWID], verbose=True)
 
     self.assertEqual(
-        results, {
+        results,
+        {
             TEST_HWID:
-                bc_helper_module.BOMEntry([
-                    _ComponentMsg(
-                        name='battery_small', component_class='battery',
-                        fields=[
-                            _FieldMsg(name='manufacturer',
-                                      value='manufacturer1'),
-                            _FieldMsg(name='model_name', value='model1'),
-                            _FieldMsg(name='technology', value='Battery Li-ion')
-                        ]),
-                    _ComponentMsg(
-                        name='camera_0', component_class='camera', fields=[
-                            _FieldMsg(name='idProduct', value='abcd'),
-                            _FieldMsg(name='idVendor', value='4567'),
-                            _FieldMsg(name='name', value='Camera')
-                        ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='cpu_0', component_class='cpu', fields=[
-                            _FieldMsg(name='cores', value='4'),
-                            _FieldMsg(name='name', value='CPU @ 1.80GHz')
-                        ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='cpu_1', component_class='cpu', fields=[
-                            _FieldMsg(name='cores', value='4'),
-                            _FieldMsg(name='name', value='CPU @ 2.00GHz')
-                        ], avl_info=_AvlInfoMsg(cid=1, avl_name=''),
-                        has_avl=True)
-                ], '', '', _Status.SUCCESS, ''),
+                bc_helper_module.BOMEntry(
+                    [
+                        _ComponentMsg(
+                            name='battery_small', component_class='battery',
+                            fields=[
+                                _FieldMsg(name='manufacturer',
+                                          value='manufacturer1'),
+                                _FieldMsg(name='model_name', value='model1'),
+                                _FieldMsg(name='technology',
+                                          value='Battery Li-ion')
+                            ]),
+                        _ComponentMsg(
+                            name='camera_0', component_class='camera', fields=[
+                                _FieldMsg(name='idProduct', value='abcd'),
+                                _FieldMsg(name='idVendor', value='4567'),
+                                _FieldMsg(name='name', value='Camera')
+                            ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
+                            has_avl=True),
+                        _ComponentMsg(
+                            name='cpu_0', component_class='cpu', fields=[
+                                _FieldMsg(name='cores', value='4'),
+                                _FieldMsg(name='name', value='CPU @ 1.80GHz')
+                            ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
+                            has_avl=True),
+                        _ComponentMsg(
+                            name='cpu_1', component_class='cpu', fields=[
+                                _FieldMsg(name='cores', value='4'),
+                                _FieldMsg(name='name', value='CPU @ 2.00GHz')
+                            ], avl_info=_AvlInfoMsg(cid=1, avl_name=''),
+                            has_avl=True)
+                        # yapf: disable
+                    ],
+                    '',
+                    '',
+                    _Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                    ''),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_WithVerboseFlagAndNullAVLProbeValue(self):
@@ -160,33 +169,42 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [TEST_HWID], verbose=True)
 
     self.assertEqual(
-        results, {
+        results,
+        {
             TEST_HWID:
-                bc_helper_module.BOMEntry([
-                    _ComponentMsg(
-                        name='battery_small', component_class='battery',
-                        fields=[
-                            _FieldMsg(name='manufacturer',
-                                      value='manufacturer1'),
-                            _FieldMsg(name='model_name', value='model1'),
-                            _FieldMsg(name='technology', value='Battery Li-ion')
-                        ]),
-                    _ComponentMsg(name='camera_0', component_class='camera',
-                                  fields=[], avl_info=_AvlInfoMsg(
-                                      cid=0, avl_name=''), has_avl=True),
-                    _ComponentMsg(
-                        name='cpu_0', component_class='cpu', fields=[
-                            _FieldMsg(name='cores', value='4'),
-                            _FieldMsg(name='name', value='CPU @ 1.80GHz')
-                        ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='cpu_1', component_class='cpu', fields=[
-                            _FieldMsg(name='cores', value='4'),
-                            _FieldMsg(name='name', value='CPU @ 2.00GHz')
-                        ], avl_info=_AvlInfoMsg(cid=1, avl_name=''),
-                        has_avl=True)
-                ], '', '', _Status.SUCCESS, ''),
+                bc_helper_module.BOMEntry(
+                    [
+                        _ComponentMsg(
+                            name='battery_small', component_class='battery',
+                            fields=[
+                                _FieldMsg(name='manufacturer',
+                                          value='manufacturer1'),
+                                _FieldMsg(name='model_name', value='model1'),
+                                _FieldMsg(name='technology',
+                                          value='Battery Li-ion')
+                            ]),
+                        _ComponentMsg(name='camera_0', component_class='camera',
+                                      fields=[], avl_info=_AvlInfoMsg(
+                                          cid=0, avl_name=''), has_avl=True),
+                        _ComponentMsg(
+                            name='cpu_0', component_class='cpu', fields=[
+                                _FieldMsg(name='cores', value='4'),
+                                _FieldMsg(name='name', value='CPU @ 1.80GHz')
+                            ], avl_info=_AvlInfoMsg(cid=0, avl_name=''),
+                            has_avl=True),
+                        _ComponentMsg(
+                            name='cpu_1', component_class='cpu', fields=[
+                                _FieldMsg(name='cores', value='4'),
+                                _FieldMsg(name='name', value='CPU @ 2.00GHz')
+                            ], avl_info=_AvlInfoMsg(cid=1, avl_name=''),
+                            has_avl=True)
+                        # yapf: disable
+                    ],
+                    '',
+                    '',
+                    _Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                    ''),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_WithProjectName(self):
@@ -202,9 +220,11 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [TEST_HWID], verbose=True)
 
     self.assertEqual(
-        results, {
-            TEST_HWID:
-                bc_helper_module.BOMEntry([], '', '', _Status.SUCCESS, 'proj1'),
+        results,
+        {
+            TEST_HWID:  # yapf: disable
+                bc_helper_module.BOMEntry([], '', '', _Status.SUCCESS, 'proj1'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_WithAvlInfo(self):
@@ -228,39 +248,49 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [TEST_HWID], verbose=True)
 
     self.assertEqual(
-        results, {
+        results,
+        {
             TEST_HWID:
-                bc_helper_module.BOMEntry([
-                    _ComponentMsg(
-                        name='dram_1234_5678', component_class='dram', fields=[
-                            _FieldMsg(name='part', value='part2'),
-                            _FieldMsg(name='size', value='4G'),
-                        ], avl_info=_AvlInfoMsg(cid=1234, qid=5678,
-                                                avl_name='avl_name_1'),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='dram_1234_5678#4', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part2'),
-                            _FieldMsg(name='size', value='4G'),
-                            _FieldMsg(name='slot', value='3'),
-                        ], avl_info=_AvlInfoMsg(cid=1234, qid=5678,
-                                                avl_name='avl_name_1'),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='dram_subcomp_2468', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part4'),
-                            _FieldMsg(name='size', value='4G'),
-                        ], avl_info=_AvlInfoMsg(cid=2468,
-                                                is_subcomp=True), has_avl=True),
-                    _ComponentMsg(
-                        name='not_dram_1234_5678', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part3'),
-                            _FieldMsg(name='size', value='4G'),
-                        ]),
-                ], '', '', _Status.SUCCESS, '')
+                bc_helper_module.BOMEntry(
+                    [
+                        _ComponentMsg(
+                            name='dram_1234_5678', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part2'),
+                                _FieldMsg(name='size', value='4G'),
+                            ], avl_info=_AvlInfoMsg(cid=1234, qid=5678,
+                                                    avl_name='avl_name_1'),
+                            has_avl=True),
+                        _ComponentMsg(
+                            name='dram_1234_5678#4', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part2'),
+                                _FieldMsg(name='size', value='4G'),
+                                _FieldMsg(name='slot', value='3'),
+                            ], avl_info=_AvlInfoMsg(cid=1234, qid=5678,
+                                                    avl_name='avl_name_1'),
+                            has_avl=True),
+                        _ComponentMsg(
+                            name='dram_subcomp_2468', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part4'),
+                                _FieldMsg(name='size', value='4G'),
+                            ], avl_info=_AvlInfoMsg(
+                                cid=2468, is_subcomp=True), has_avl=True),
+                        _ComponentMsg(
+                            name='not_dram_1234_5678', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part3'),
+                                _FieldMsg(name='size', value='4G'),
+                            ]),
+                        # yapf: disable
+                    ],
+                    '',
+                    '',
+                    _Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                    ''
+                )  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_WithoutAVLName(self):
@@ -288,37 +318,47 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
       )
 
     self.assertEqual(
-        results, {
+        results,
+        {
             TEST_HWID:
-                bc_helper_module.BOMEntry([
-                    _ComponentMsg(
-                        name='dram_1234_5678', component_class='dram', fields=[
-                            _FieldMsg(name='part', value='part2'),
-                            _FieldMsg(name='size', value='4G'),
-                        ], avl_info=_AvlInfoMsg(cid=1234, qid=5678),
-                        has_avl=True),
-                    _ComponentMsg(
-                        name='dram_1234_5678#4', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part2'),
-                            _FieldMsg(name='size', value='4G'),
-                            _FieldMsg(name='slot', value='3'),
-                        ], avl_info=_AvlInfoMsg(cid=1234,
-                                                qid=5678), has_avl=True),
-                    _ComponentMsg(
-                        name='dram_subcomp_2468', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part4'),
-                            _FieldMsg(name='size', value='4G'),
-                        ], avl_info=_AvlInfoMsg(cid=2468,
-                                                is_subcomp=True), has_avl=True),
-                    _ComponentMsg(
-                        name='not_dram_1234_5678', component_class='dram',
-                        fields=[
-                            _FieldMsg(name='part', value='part3'),
-                            _FieldMsg(name='size', value='4G'),
-                        ]),
-                ], '', '', _Status.SUCCESS, '')
+                bc_helper_module.BOMEntry(
+                    [
+                        _ComponentMsg(
+                            name='dram_1234_5678', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part2'),
+                                _FieldMsg(name='size', value='4G'),
+                            ], avl_info=_AvlInfoMsg(cid=1234,
+                                                    qid=5678), has_avl=True),
+                        _ComponentMsg(
+                            name='dram_1234_5678#4', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part2'),
+                                _FieldMsg(name='size', value='4G'),
+                                _FieldMsg(name='slot', value='3'),
+                            ], avl_info=_AvlInfoMsg(cid=1234,
+                                                    qid=5678), has_avl=True),
+                        _ComponentMsg(
+                            name='dram_subcomp_2468', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part4'),
+                                _FieldMsg(name='size', value='4G'),
+                            ], avl_info=_AvlInfoMsg(
+                                cid=2468, is_subcomp=True), has_avl=True),
+                        _ComponentMsg(
+                            name='not_dram_1234_5678', component_class='dram',
+                            fields=[
+                                _FieldMsg(name='part', value='part3'),
+                                _FieldMsg(name='size', value='4G'),
+                            ]),
+                        # yapf: disable
+                    ],
+                    '',
+                    '',
+                    _Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                    ''
+                )  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_BOMIsNone(self):
@@ -331,10 +371,13 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [TEST_HWID])
 
     self.assertEqual(
-        results, {
-            TEST_HWID:
-                self._CreateBOMEntryWithError(_Status.NOT_FOUND,
-                                              'HWID not found.'),
+        results,
+        {
+            TEST_HWID:  # yapf: disable
+                self._CreateBOMEntryWithError(
+                    _Status.NOT_FOUND,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    'HWID not found.'),
         })
 
   def testBatchGetBOMEntry_FastFailKnownBad(self):
@@ -344,10 +387,13 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                [bad_hwid])
 
     self.assertEqual(
-        results, {
+        results,
+        {
             bad_hwid:
                 self._CreateBOMEntryWithError(
-                    _Status.KNOWN_BAD_HWID,
+                    # yapf: disable
+                    _Status.KNOWN_BAD_HWID,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                     'No metadata present for the requested project: FOO TEST'),
         })
 
@@ -373,22 +419,36 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
                                                  [hwid1, hwid2, hwid3, hwid4])
 
     self.assertEqual(
-        results, {
-            hwid1:
-                self._CreateBOMEntryWithError(_Status.BAD_REQUEST,
-                                              'value error'),
-            hwid2:
-                self._CreateBOMEntryWithError(_Status.NOT_FOUND,
-                                              "'Invalid key'"),
-            hwid3:
-                self._CreateBOMEntryWithError(_Status.SERVER_ERROR,
-                                              'index error'),
+        results,
+        {
+            hwid1:  # yapf: disable
+                self._CreateBOMEntryWithError(
+                    _Status.BAD_REQUEST,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    'value error'),
+            hwid2:  # yapf: disable
+                self._CreateBOMEntryWithError(
+                    _Status.NOT_FOUND,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    "'Invalid key'"),
+            hwid3:  # yapf: disable
+                self._CreateBOMEntryWithError(
+                    _Status.SERVER_ERROR,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    'index error'),
             hwid4:
-                bc_helper_module.BOMEntry([
-                    _ComponentMsg(name='qux', component_class='baz'),
-                    _ComponentMsg(name='rox', component_class='baz'),
-                    _ComponentMsg(name='bar', component_class='foo'),
-                ], '', '', _Status.SUCCESS, ''),
+                bc_helper_module.BOMEntry(
+                    [
+                        _ComponentMsg(name='qux', component_class='baz'),
+                        _ComponentMsg(name='rox', component_class='baz'),
+                        _ComponentMsg(name='bar', component_class='foo'),
+                        # yapf: disable
+                    ],
+                    '',
+                    '',
+                    _Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                    ''),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         })
 
   def testBatchGetBOMEntry_CacheBomResult(self):

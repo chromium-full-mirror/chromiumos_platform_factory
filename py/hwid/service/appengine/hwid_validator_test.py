@@ -64,7 +64,9 @@ class HwidValidatorTest(unittest.TestCase):
 
   def testValidateChange_withDeviceMetadata(self):
     device_metadata = _DeviceMetadata(
-        form_factor=_DeviceMetadata.FormFactor.CONVERTIBLE)
+        # yapf: disable
+        form_factor=_DeviceMetadata.FormFactor.CONVERTIBLE)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     with self.assertRaises(hwid_validator.ValidationError):
       hwid_validator.HwidValidator().ValidateChange(
           GOLDEN_HWIDV3_DATA_AFTER_GOOD, GOLDEN_HWIDV3_DATA_BEFORE,

@@ -68,40 +68,61 @@ _MAX_MERGE_CONFLICT_HWID_DB_CL_AGE = datetime.timedelta(days=7)
 _AnalysisReportMsg = hwid_api_messages_pb2.HwidDbEditableSectionAnalysisReport
 _AvlInfo = hwid_api_messages_pb2.AvlInfo
 _PROBE_VALUE_ALIGNMENT_STATUS = {
-    hwid_action.DBHWIDPVAlignmentStatus.NO_PROBE_INFO:
-        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.NO_PROBE_INFO,
-    hwid_action.DBHWIDPVAlignmentStatus.ALIGNED:
-        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.ALIGNED,
-    hwid_action.DBHWIDPVAlignmentStatus.NOT_ALIGNED:
-        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.NOT_ALIGNED,
+    hwid_action.DBHWIDPVAlignmentStatus.NO_PROBE_INFO:  # yapf: disable
+        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.NO_PROBE_INFO,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    hwid_action.DBHWIDPVAlignmentStatus.ALIGNED:  # yapf: disable
+        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.ALIGNED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    hwid_action.DBHWIDPVAlignmentStatus.NOT_ALIGNED:  # yapf: disable
+        hwid_api_messages_pb2.ProbeValueAlignmentStatus.Case.NOT_ALIGNED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 }
 
 _APPROVAL_CASE = {
-    hwid_api_messages_pb2.ClAction.ApprovalCase.APPROVED: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.APPROVED: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         git_util.ApprovalCase.APPROVED),
-    hwid_api_messages_pb2.ClAction.ApprovalCase.REJECTED: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.REJECTED: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         git_util.ApprovalCase.REJECTED),
-    hwid_api_messages_pb2.ClAction.ApprovalCase.NEED_MANUAL_REVIEW: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.NEED_MANUAL_REVIEW: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         git_util.ApprovalCase.NEED_MANUAL_REVIEW),
 }
 
 _HWID_SECTION_CHANGE_STATUS = {
     hwid_action.DBHWIDTouchCase.TOUCHED: (
-        _AnalysisReportMsg.HwidSectionChange.ChangeStatus.TOUCHED),
+        # yapf: disable
+        _AnalysisReportMsg.HwidSectionChange.ChangeStatus.TOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     hwid_action.DBHWIDTouchCase.UNTOUCHED: (
-        _AnalysisReportMsg.HwidSectionChange.ChangeStatus.UNTOUCHED),
+        # yapf: disable
+        _AnalysisReportMsg.HwidSectionChange.ChangeStatus.UNTOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 }
 
 _ChangeUnitMsg = hwid_api_messages_pb2.ChangeUnit
 _CLActionMsg = hwid_api_messages_pb2.ClAction
 _CHANGE_UNIT_APPROVAL_STATUS_MAP = {
-    hwid_api_messages_pb2.ClAction.ApprovalCase.APPROVED: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.APPROVED: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         change_unit_utils.ApprovalStatus.AUTO_APPROVED),
-    hwid_api_messages_pb2.ClAction.ApprovalCase.REJECTED: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.REJECTED: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         change_unit_utils.ApprovalStatus.REJECTED),
-    hwid_api_messages_pb2.ClAction.ApprovalCase.NEED_MANUAL_REVIEW: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.NEED_MANUAL_REVIEW: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         change_unit_utils.ApprovalStatus.MANUAL_REVIEW_REQUIRED),
-    hwid_api_messages_pb2.ClAction.ApprovalCase.DONT_CARE: (
+    # yapf: disable
+    hwid_api_messages_pb2.ClAction.ApprovalCase.DONT_CARE: (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         change_unit_utils.ApprovalStatus.DONT_CARE),
 }
 _SplitChangeUnitException = change_unit_utils.SplitChangeUnitException
@@ -153,8 +174,12 @@ def _ConvertValidationErrorCode(code):
   ValidationResultMessage = (
       hwid_api_messages_pb2.HwidDbEditableSectionChangeValidationResult)
   if code == hwid_action.DBValidationErrorCode.SCHEMA_ERROR:
-    return ValidationResultMessage.ErrorCode.SCHEMA_ERROR
-  return ValidationResultMessage.ErrorCode.CONTENTS_ERROR
+    # yapf: disable
+    return ValidationResultMessage.ErrorCode.SCHEMA_ERROR  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+  # yapf: disable
+  return ValidationResultMessage.ErrorCode.CONTENTS_ERROR  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def _ConvertSupportStatsCase(
@@ -1011,8 +1036,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
               'Caught an unexpected exception while uploading a HWID CL.')
           raise protorpc_utils.ProtoRPCException(
               protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from None
-        resp.commits[model_name].cl_number = cl_number
-        resp.commits[model_name].new_hwid_db_contents = (
+        # yapf: disable
+        resp.commits[model_name].cl_number = cl_number  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        # yapf: disable
+        resp.commits[model_name].new_hwid_db_contents = (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             v3_action_helper.HWIDV3SelfServiceActionHelper.RemoveHeader(
                 external_db))
     except Exception as ex:

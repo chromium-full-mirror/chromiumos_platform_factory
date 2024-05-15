@@ -603,8 +603,11 @@ def GenerateProbeStatement(ps_gens, comp_name, comp_info):
   else:
     ps_gen, probe_statement = all_suitable_generator_and_ps[0]
     component_info = hardware_verifier_pb2.ComponentInfo(
-        component_category=_ProbeRequestSupportCategory.Value(
-            ps_gen.probe_category), component_uuid=comp_name,
+        # yapf: disable
+        component_category=_ProbeRequestSupportCategory.Value(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            ps_gen.probe_category),
+        component_uuid=comp_name,
         qualification_status=_STATUS_MAP[comp_info.status])
 
   return ComponentVerificationPayloadPiece(is_duplicate, error_msg,

@@ -238,7 +238,9 @@ class _SingleProbeStatementParam(_IProbeStatementParam):
     self._is_restricted_re = is_restricted_re
 
     if self._is_restricted_re:
-      assert self._value_converter.value_type == _ProbeParameterValueType.STRING
+      # yapf: disable
+      assert self._value_converter.value_type == _ProbeParameterValueType.STRING  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
   @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _IProbeStatementParam]:
@@ -958,7 +960,9 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
     for probe_param in self.probe_info_params.values():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
       normalized_params.extend(
-          probe_param.NormalizeProbeParams(probe_parameters))
+          # yapf: disable
+          probe_param.NormalizeProbeParams(probe_parameters))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
     return normalized_params
 

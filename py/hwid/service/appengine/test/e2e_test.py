@@ -67,7 +67,9 @@ class E2ETest(unittest.TestCase):
                                   stderr=process_utils.PIPE)
           stdin = text_format.MessageToString(request)
           stdout = p.communicate(stdin)[0]
-          out_msg = text_format.Parse(stdout, response_class())
+          # yapf: disable
+          out_msg = text_format.Parse(stdout, response_class())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
           expected_msg = json_format.Parse(expected_output, response_class())
         except Exception as ex:
           self.fail(str(ex))

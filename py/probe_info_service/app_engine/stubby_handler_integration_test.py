@@ -98,7 +98,9 @@ class StubbyHandlerTest(unittest.TestCase):
 
     self.assertEqual(len(resp.probe_info_parsed_results), 1)
     self.assertEqual(resp.probe_info_parsed_results[0].result_type,
-                     stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED)
+                     # yapf: disable
+                     stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   def testUpdateComponentProbeInfo_VerifyComponentProbeInfoIsStored(self):
     comp_probe_info = unittest_utils.LoadComponentProbeInfo('1-valid')
@@ -126,7 +128,9 @@ class StubbyHandlerTest(unittest.TestCase):
     comp_probe_info = unittest_utils.LoadComponentProbeInfo('1-valid')
     mock_pi_analyzer.ValidateProbeInfo.return_value = (
         stubby_pb2.ProbeInfoParsedResult(
-            result_type=stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED))
+            # yapf: disable
+            result_type=stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     req = stubby_pb2.UpdateComponentProbeInfoRequest(
         component_probe_infos=[comp_probe_info])
 
@@ -145,7 +149,9 @@ class StubbyHandlerTest(unittest.TestCase):
         component_probe_infos=[comp_probe_info])
     mock_pi_analyzer.ValidateProbeInfo.return_value = (
         stubby_pb2.ProbeInfoParsedResult(
-            result_type=stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED))
+            # yapf: disable
+            result_type=stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     stubby_handler.ProbeInfoService().UpdateComponentProbeInfo(req)
 
@@ -163,31 +169,45 @@ class StubbyHandlerTest(unittest.TestCase):
         unittest_utils.LoadProbeInfoParsedResult('1-param_value_error'))
 
     # 2. After probe info fixup, the user creates a qual test bundle.
-    req = stubby_pb2.GetQualProbeTestBundleRequest(
+    # yapf: disable
+    req = stubby_pb2.GetQualProbeTestBundleRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('1-valid'))
     resp = self._stubby_handler.GetQualProbeTestBundle(req)
     self.assertEqual(resp.status, resp.SUCCEED)
-    qual_probe_info = req.qual_probe_info
+    # yapf: disable
+    qual_probe_info = req.qual_probe_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # 3. The user gets a different test bundle from a different probe info for
     #    the same qualification.
-    req = stubby_pb2.GetQualProbeTestBundleRequest(
+    # yapf: disable
+    req = stubby_pb2.GetQualProbeTestBundleRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('1-valid_v2'))
     resp = self._stubby_handler.GetQualProbeTestBundle(req)
     self.assertEqual(resp.status, resp.SUCCEED)
-    qual_probe_info_v2 = req.qual_probe_info
+    # yapf: disable
+    qual_probe_info_v2 = req.qual_probe_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # 4. The user gets a different test bundle from a different probe info for
     #    a different qualification.
-    req = stubby_pb2.GetQualProbeTestBundleRequest(
+    # yapf: disable
+    req = stubby_pb2.GetQualProbeTestBundleRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('3-valid'))
     resp = self._stubby_handler.GetQualProbeTestBundle(req)
     self.assertEqual(resp.status, resp.SUCCEED)
-    qual_probe_info_another = req.qual_probe_info
+    # yapf: disable
+    qual_probe_info_another = req.qual_probe_info  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
     # 5. The user uploads a positive result for the first bundle, get "LEGACY"
     #    notification.
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=qual_probe_info_v2,
         test_result_payload=unittest_utils.LoadRawProbedOutcome('1-passed'))
     resp = self._stubby_handler.UploadQualProbeTestResult(req)
@@ -195,14 +215,18 @@ class StubbyHandlerTest(unittest.TestCase):
     self.assertEqual(resp.probe_info_test_result.result_type,
                      resp.probe_info_test_result.LEGACY)
 
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=[qual_probe_info_v2])
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertFalse(resp.probe_metadatas[0].is_tested)
 
     # 6. The user uploads a positive result for the third bundle, get an error
     #    message.
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=qual_probe_info_v2,
         test_result_payload=unittest_utils.LoadRawProbedOutcome('3-passed'))
     resp = self._stubby_handler.UploadQualProbeTestResult(req)
@@ -214,18 +238,24 @@ class StubbyHandlerTest(unittest.TestCase):
         'the probe bundle specific to the qualification you are testing, and '
         'run the test again.')
 
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=[qual_probe_info_another])
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertFalse(resp.probe_metadatas[0].is_tested)
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=[qual_probe_info_v2])
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertFalse(resp.probe_metadatas[0].is_tested)
 
     # 7. The user then uploads the second positive test bundle and get
     #    "PASSED".  Now the qual probe info become "tested".
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=qual_probe_info_v2,
         test_result_payload=unittest_utils.LoadRawProbedOutcome('1-passed_v2'))
     resp = self._stubby_handler.UploadQualProbeTestResult(req)
@@ -233,14 +263,18 @@ class StubbyHandlerTest(unittest.TestCase):
     self.assertEqual(resp.probe_info_test_result.result_type,
                      resp.probe_info_test_result.PASSED)
 
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=[qual_probe_info_v2])
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertTrue(resp.probe_metadatas[0].is_tested)
 
     # 8. The user modifies the probe info again.  Now the qual probe info
     #    becomes "untested" again.
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=[qual_probe_info])
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertFalse(resp.probe_metadatas[0].is_tested)
@@ -259,7 +293,9 @@ class StubbyHandlerTest(unittest.TestCase):
         qual_probe_info=qual_probe_info)
     self._stubby_handler.GetQualProbeTestBundle(req)
 
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=qual_probe_info,
         test_result_payload=unittest_utils.LoadRawProbedOutcome(
             '1-bad_return_code'))
@@ -276,7 +312,9 @@ class StubbyHandlerTest(unittest.TestCase):
     self.assertTrue(resp.probe_metadatas[0].is_proved_ready_for_overridden)
 
     # 2. The user creates an overridden probe statement for the qualification.
-    req = stubby_pb2.CreateOverriddenProbeStatementRequest(
+    # yapf: disable
+    req = stubby_pb2.CreateOverriddenProbeStatementRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_info=qual_probe_info)
     resp = self._stubby_handler.CreateOverriddenProbeStatement(req)
     self.assertEqual(resp.status, resp.SUCCEED)
@@ -318,7 +356,9 @@ class StubbyHandlerTest(unittest.TestCase):
 
     # 4. The user upload a positive probe result, the probe statement should
     #    become tested now.
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=qual_probe_info,
         test_result_payload=unittest_utils.LoadRawProbedOutcome(
             '1-modified_probe_statement_passed'))
@@ -376,13 +416,17 @@ class StubbyHandlerTest(unittest.TestCase):
     ]
     for comp_probe_info in comp_probe_infos:
       comp_probe_info.component_identity.device_id = 'device_one'
-    req = stubby_pb2.GetDeviceProbeConfigRequest(
+    # yapf: disable
+    req = stubby_pb2.GetDeviceProbeConfigRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=comp_probe_infos)
     resp = self._stubby_handler.GetDeviceProbeConfig(req)
     self.assertEqual(resp.status, resp.SUCCEED)
 
     # 4. Uploads D1 probe result, which found Q2 and Q3.
-    req = stubby_pb2.UploadDeviceProbeResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadDeviceProbeResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=comp_probe_infos,
         probe_result_payload=unittest_utils.LoadRawProbedOutcome(
             '1_2_3-probed_2_3'))
@@ -399,7 +443,9 @@ class StubbyHandlerTest(unittest.TestCase):
     #    tested.
     for comp_probe_info in comp_probe_infos:
       comp_probe_info.component_identity.device_id = 'device_two'
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=comp_probe_infos)
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertEqual(
@@ -410,7 +456,9 @@ class StubbyHandlerTest(unittest.TestCase):
         ])
 
     # 6. Uploads positive test results for Q1 and Q3.
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('1-valid'),
         test_result_payload=unittest_utils.LoadRawProbedOutcome(
             '1-modified_probe_statement_passed'))
@@ -418,7 +466,9 @@ class StubbyHandlerTest(unittest.TestCase):
     self.assertEqual(resp.probe_info_test_result.result_type,
                      resp.probe_info_test_result.PASSED)
 
-    req = stubby_pb2.UploadQualProbeTestResultRequest(
+    # yapf: disable
+    req = stubby_pb2.UploadQualProbeTestResultRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         qual_probe_info=unittest_utils.LoadComponentProbeInfo('3-valid'),
         test_result_payload=unittest_utils.LoadRawProbedOutcome('3-passed'))
     resp = self._stubby_handler.UploadQualProbeTestResult(req)
@@ -437,7 +487,9 @@ class StubbyHandlerTest(unittest.TestCase):
     #    response shows Q1 and Q2 tested but not Q3.
     for comp_probe_info in comp_probe_infos:
       comp_probe_info.component_identity.device_id = 'device_one'
-    req = stubby_pb2.GetProbeMetadataRequest(
+    # yapf: disable
+    req = stubby_pb2.GetProbeMetadataRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         component_probe_infos=comp_probe_infos)
     resp = self._stubby_handler.GetProbeMetadata(req)
     self.assertEqual(

@@ -18,16 +18,21 @@ _KNOWN_BAD_SUBSTR = [
 ]
 
 SUPPORT_STATUS_CASE_OF_HWID_STRING = {
-    v3_common.ComponentStatus.supported:
-        hwid_api_messages_pb2.ComponentSupportStatus.Case.SUPPORTED,
-    v3_common.ComponentStatus.deprecated:
-        hwid_api_messages_pb2.ComponentSupportStatus.Case.DEPRECATED,
-    v3_common.ComponentStatus.unsupported:
-        hwid_api_messages_pb2.ComponentSupportStatus.Case.UNSUPPORTED,
-    v3_common.ComponentStatus.unqualified:
-        hwid_api_messages_pb2.ComponentSupportStatus.Case.UNQUALIFIED,
-    v3_common.ComponentStatus.duplicate:
-        hwid_api_messages_pb2.ComponentSupportStatus.Case.DUPLICATE,
+    v3_common.ComponentStatus.supported:  # yapf: disable
+        hwid_api_messages_pb2.ComponentSupportStatus.Case.SUPPORTED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    v3_common.ComponentStatus.deprecated:  # yapf: disable
+        hwid_api_messages_pb2.ComponentSupportStatus.Case.DEPRECATED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    v3_common.ComponentStatus.unsupported:  # yapf: disable
+        hwid_api_messages_pb2.ComponentSupportStatus.Case.UNSUPPORTED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    v3_common.ComponentStatus.unqualified:  # yapf: disable
+        hwid_api_messages_pb2.ComponentSupportStatus.Case.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    v3_common.ComponentStatus.duplicate:  # yapf: disable
+        hwid_api_messages_pb2.ComponentSupportStatus.Case.DUPLICATE,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 }
 
 HWID_STRING_OF_SUPPORT_STATUS_CASE = {
@@ -62,23 +67,35 @@ class GenerateAVLInfoAcceptor(name_pattern_adapter.NameInfoAcceptor[Optional[
 
 def FastFailKnownBadHWID(hwid):
   if hwid in _KNOWN_BAD_HWIDS:
-    return (hwid_api_messages_pb2.Status.KNOWN_BAD_HWID,
+    # yapf: disable
+    return (hwid_api_messages_pb2.Status.KNOWN_BAD_HWID,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
             f'No metadata present for the requested project: {hwid}')
 
   for regexp in _KNOWN_BAD_SUBSTR:
     if re.search(regexp, hwid):
-      return (hwid_api_messages_pb2.Status.KNOWN_BAD_HWID,
+      # yapf: disable
+      return (hwid_api_messages_pb2.Status.KNOWN_BAD_HWID,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
               f'No metadata present for the requested project: {hwid}')
 
-  return (hwid_api_messages_pb2.Status.SUCCESS, '')
+  # yapf: disable
+  return (hwid_api_messages_pb2.Status.SUCCESS, '')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def ConvertExceptionToStatus(ex):
   if isinstance(ex, KeyError):
-    return hwid_api_messages_pb2.Status.NOT_FOUND
+    # yapf: disable
+    return hwid_api_messages_pb2.Status.NOT_FOUND  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
   if isinstance(ex, ValueError):
-    return hwid_api_messages_pb2.Status.BAD_REQUEST
-  return hwid_api_messages_pb2.Status.SERVER_ERROR
+    # yapf: disable
+    return hwid_api_messages_pb2.Status.BAD_REQUEST  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+  # yapf: disable
+  return hwid_api_messages_pb2.Status.SERVER_ERROR  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+  # yapf: enable
 
 
 def ConvertExceptionToProtoRPCException(ex):

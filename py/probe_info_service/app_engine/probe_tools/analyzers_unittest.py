@@ -45,8 +45,12 @@ class _FakeMultiProbeInfoConverter(analyzers.IBidirectionalProbeInfoConverter):
         description=('A fake converter that turns probe info into 2 '
                      'component probe statements.'))
     for param_name in self.PARAM_NAMES:
-      ret.probe_parameter_definitions.add(
-          name=param_name, value_type=_ProbeParameterValueType.STRING)
+      # yapf: disable
+      ret.probe_parameter_definitions.add(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
+          # yapf: disable
+          name=param_name, value_type=_ProbeParameterValueType.STRING)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
     return ret
 
   def _BuildIncompatibleProbeInfoArtifact(self,
@@ -578,7 +582,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                     "model_name": "YYY"
               } } ] }''')
 
-      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+      # yapf: disable
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       expected_result = _ProbeInfoTestResult(
           result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
@@ -607,7 +613,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                     "model_name": "1234567"
               } } ] }''')
 
-      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+      # yapf: disable
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       expected_result = _ProbeInfoTestResult(
           result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
@@ -681,7 +689,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                     "model_name": "123Dd456"
               } } ] }''')
 
-      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+      # yapf: disable
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       # "manufacturer" doesn't support regex, so the probe parameter is treated
       #  as a normal string.
@@ -709,7 +719,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                     "model_name": "123Cd4"
               } } ] }''')
 
-      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+      # yapf: disable
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
 
       expected_result = _ProbeInfoTestResult(
           result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,

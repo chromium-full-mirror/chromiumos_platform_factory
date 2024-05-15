@@ -286,7 +286,9 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
 
     response.upload_status = response.SUCCEED
     response.probe_info_test_results.extend(
-        analyzed_result.probe_info_test_results)
+        # yapf: disable
+        analyzed_result.probe_info_test_results)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     return response
 
   @protorpc_utils.ProtoRPCServiceMethod
@@ -380,7 +382,9 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
     if entry.probe_info != normalized_probe_info:
       entry.probe_info = normalized_probe_info
       entry.is_valid = (
-          parsed_result.result_type == _ProbeInfoParsedResult.ResultType.PASSED)
+          # yapf: disable
+          parsed_result.result_type == _ProbeInfoParsedResult.ResultType.PASSED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
       entry.is_tested = False
       entry.is_justified_for_overridden = False
       need_save = True

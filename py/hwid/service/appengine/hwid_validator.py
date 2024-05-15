@@ -77,7 +77,9 @@ class HwidValidator:
     except ValueError:
       form_factor = None
 
-    report_of_integrity = analyzer.ValidateIntegrity(form_factor=form_factor)
+    # yapf: disable
+    report_of_integrity = analyzer.ValidateIntegrity(form_factor=form_factor)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     if report_of_integrity.errors:
       raise ValidationError(report_of_integrity.errors)
 

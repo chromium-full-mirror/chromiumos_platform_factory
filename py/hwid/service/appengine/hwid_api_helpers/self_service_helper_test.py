@@ -824,53 +824,85 @@ class SelfServiceShardTest(unittest.TestCase):
                     component_class='comp_cls1',
                     original_name='comp_name1',
                     original_status='unqualified',
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,
+                    # yapf: disable
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                     is_newly_added=False,
                     seq_no=2,
                     null_values=False,
                     diff_prev=_DiffStatusMsg(
-                        unchanged=True, name_changed=False,
-                        support_status_changed=False, values_changed=False,
+                        unchanged=True,
+                        name_changed=False,
+                        support_status_changed=False,
+                        values_changed=False,
                         prev_comp_name='comp_name1',
                         prev_support_status='unqualified',
-                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        # yapf: disable
+                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         probe_value_alignment_status_changed=False,
                         prev_probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                     probe_value_alignment_status=(
-                        _PVAlignmentStatusMsg.NO_PROBE_INFO),
+                        # yapf: disable
+                        _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                 ),
             'comp2':
                 _ComponentInfoMsg(
                     component_class='comp_cls2',
                     original_name='comp_cls2_111_222#9',
                     original_status='unqualified',
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,
-                    is_newly_added=True, avl_info=_AvlInfoMsg(
+                    # yapf: disable
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    is_newly_added=True,
+                    avl_info=_AvlInfoMsg(
                         cid=111,
                         qid=222,
-                    ), has_avl=True, seq_no=1,
+                    ),
+                    has_avl=True,
+                    seq_no=1,
                     component_name_with_correct_seq_no='comp_cls2_111_222#1',
-                    null_values=False, diff_prev=_DiffStatusMsg(
-                        unchanged=False, name_changed=True,
-                        support_status_changed=False, values_changed=False,
+                    null_values=False,
+                    diff_prev=_DiffStatusMsg(
+                        unchanged=False,
+                        name_changed=True,
+                        support_status_changed=False,
+                        values_changed=False,
                         prev_comp_name='old_comp_name',
                         prev_support_status='unqualified',
-                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        # yapf: disable
+                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         probe_value_alignment_status_changed=True,
                         prev_probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                     probe_value_alignment_status=(
-                        _PVAlignmentStatusMsg.ALIGNED)),
+                        # yapf: disable
+                        _PVAlignmentStatusMsg.ALIGNED)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             'comp3':
                 _ComponentInfoMsg(
-                    component_class='comp_cls2', original_name='comp_name3',
+                    component_class='comp_cls2',
+                    original_name='comp_name3',
                     original_status='unqualified',
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,
-                    is_newly_added=True, seq_no=2, null_values=True,
+                    # yapf: disable
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    is_newly_added=True,
+                    seq_no=2,
+                    null_values=True,
                     probe_value_alignment_status=(
-                        _PVAlignmentStatusMsg.NO_PROBE_INFO)),
-        }, resp.analysis_report.component_infos)
+                        # yapf: disable
+                        _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+        },
+        resp.analysis_report.component_infos)
     self.assertCountEqual(
         ['deprecated', 'unsupported', 'unqualified', 'duplicate'],
         resp.analysis_report.unqualified_support_status)
@@ -906,7 +938,9 @@ class SelfServiceShardTest(unittest.TestCase):
 
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data ver 2')
 
-    req = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(
+    # yapf: disable
+    req = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
         project='proj', validation_token=token_that_will_become_expired)
 
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -1382,16 +1416,22 @@ class SelfServiceShardTest(unittest.TestCase):
                     _ComponentInfoMsg(
                         component_class='comp_cls1', original_name='comp_name1',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         is_newly_added=False, has_avl=False, seq_no=2,
                         null_values=True, probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                 'comp2':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_111_222#9',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         is_newly_added=True,
                         has_avl=True,
                         avl_info=_AvlInfoMsg(cid=111, qid=222),
@@ -1399,14 +1439,18 @@ class SelfServiceShardTest(unittest.TestCase):
                         component_name_with_correct_seq_no=(
                             'comp_cls2_111_222#1'),
                         probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                     ),
                 'comp3':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_untracked',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         is_newly_added=False,
                         has_avl=False,
                         avl_info=None,
@@ -1417,27 +1461,47 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_comp_name='comp_cls2_123_456',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                _SupportStatusCase.UNQUALIFIED),
+                                # yapf: disable
+                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                # yapf: enable
                             probe_value_alignment_status_changed=False,
                             prev_probe_value_alignment_status=(
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO),
+                                # yapf: disable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                # yapf: enable
                             marked_untracked_changed=True),
                         probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                         skip_avl_check=False,
                         marked_untracked=True,
                     ),
             }, touched_sections=_HWIDSectionChangeMsg(
-                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
-                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                # yapf: disable
+                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 encoded_fields_change_status={
-                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
-                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,
+                    # yapf: disable
+                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    # yapf: disable
+                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                 },
-                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,
-                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                # yapf: disable
+                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 framework_version_change_status=(
-                    _HWIDSectionChangeStatusMsg.UNTOUCHED),
+                    # yapf: disable
+                    _HWIDSectionChangeStatusMsg.UNTOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
             )), validation_token='fingerprint')
     self.assertEqual(resp, expected_resp)
 
@@ -1545,24 +1609,32 @@ class SelfServiceShardTest(unittest.TestCase):
                             component_class='comp_cls1',
                             original_name='comp_name1',
                             original_status='unqualified',
-                            support_status_case=_SupportStatusCase.UNQUALIFIED,
+                            # yapf: disable
+                            support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                             is_newly_added=False, avl_info=None, has_avl=False,
                             seq_no=2, component_name_with_correct_seq_no=None,
                             diff_prev=None, null_values=True,
                             probe_value_alignment_status=(
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                                # yapf: disable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                # yapf: enable
                     'comp2':
                         _ComponentInfoMsg(
                             component_class='comp_cls2',
                             original_name='comp_cls2_111_222#9',
                             original_status='unqualified',
-                            support_status_case=_SupportStatusCase.UNQUALIFIED,
+                            # yapf: disable
+                            support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                             is_newly_added=False, avl_info=_AvlInfoMsg(
                                 cid=111, qid=222), has_avl=True, seq_no=1,
                             component_name_with_correct_seq_no=(
                                 'comp_cls2_111_222#1'), diff_prev=None,
                             null_values=True, probe_value_alignment_status=(
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                                # yapf: disable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                # yapf: enable
                 })))
     self.assertEqual(resp, expected_resp)
 
@@ -1665,69 +1737,122 @@ class SelfServiceShardTest(unittest.TestCase):
         analysis_report=_AnalysisReportMsg(
             unqualified_support_status=[
                 'deprecated', 'unsupported', 'unqualified', 'duplicate'
-            ], qualified_support_status=['supported'], hwid_config_lines=[],
+            ],
+            qualified_support_status=['supported'],
+            hwid_config_lines=[],
             component_infos={
                 'comp1':
                     _ComponentInfoMsg(
-                        component_class='comp_cls1', original_name='comp_name1',
+                        component_class='comp_cls1',
+                        original_name='comp_name1',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
-                        is_newly_added=False, has_avl=False, seq_no=2,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
+                        is_newly_added=False,
+                        has_avl=False,
+                        seq_no=2,
                         diff_prev=_DiffStatusMsg(
-                            unchanged=True, name_changed=False,
-                            support_status_changed=False, values_changed=False,
+                            unchanged=True,
+                            name_changed=False,
+                            support_status_changed=False,
+                            values_changed=False,
                             prev_comp_name='comp_name1',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                _SupportStatusCase.UNQUALIFIED),
+                                # yapf: disable
+                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                             probe_value_alignment_status_changed=False,
                             prev_probe_value_alignment_status=(
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                                # yapf: disable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 'comp2':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_111_222#9',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
-                        is_newly_added=True, has_avl=True, avl_info=_AvlInfoMsg(
-                            cid=111, qid=222), seq_no=1,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
+                        is_newly_added=True,
+                        has_avl=True,
+                        avl_info=_AvlInfoMsg(cid=111, qid=222),
+                        seq_no=1,
                         component_name_with_correct_seq_no=(
                             'comp_cls2_111_222#1'),
                         diff_prev=_DiffStatusMsg(
-                            unchanged=False, name_changed=True,
-                            support_status_changed=False, values_changed=False,
+                            unchanged=False,
+                            name_changed=True,
+                            support_status_changed=False,
+                            values_changed=False,
                             prev_comp_name='old_comp_name',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                _SupportStatusCase.UNQUALIFIED),
+                                # yapf: disable
+                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                            # yapf: enable
                             probe_value_alignment_status_changed=True,
                             prev_probe_value_alignment_status=(
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+                                # yapf: disable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
                         probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.ALIGNED)),
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.ALIGNED)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 'comp3':
                     _ComponentInfoMsg(
-                        component_class='comp_cls2', original_name='comp_name3',
+                        component_class='comp_cls2',
+                        original_name='comp_name3',
                         original_status='unqualified',
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,
-                        is_newly_added=True, has_avl=False, seq_no=2,
-                        null_values=True, probe_value_alignment_status=(
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
-            }, touched_sections=_HWIDSectionChangeMsg(
-                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
-                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                        # yapf: disable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                        # yapf: enable
+                        is_newly_added=True,
+                        has_avl=False,
+                        seq_no=2,
+                        null_values=True,
+                        probe_value_alignment_status=(
+                            # yapf: disable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+            },
+            touched_sections=_HWIDSectionChangeMsg(
+                # yapf: disable
+                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 encoded_fields_change_status={
-                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
-                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
-                    'comp_cls3_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,
+                    # yapf: disable
+                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    # yapf: disable
+                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    # yapf: disable
+                    'comp_cls3_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
                 },
-                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,
-                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                # yapf: disable
+                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
                 framework_version_change_status=(
-                    _HWIDSectionChangeStatusMsg.UNTOUCHED),
-            )), validation_token='fingerprint')
+                    # yapf: disable
+                    _HWIDSectionChangeStatusMsg.UNTOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+            )),
+        validation_token='fingerprint')
 
     self.assertEqual(resp, expected_resp)
 
@@ -2142,9 +2267,13 @@ class SelfServiceShardTest(unittest.TestCase):
     new_comp_msg = _ComponentInfoMsg(
         component_class='comp_cls_1', original_name='new_comp',
         original_status='supported',
-        support_status_case=_SupportStatusCase.SUPPORTED, is_newly_added=True,
+        # yapf: disable
+        support_status_case=_SupportStatusCase.SUPPORTED, is_newly_added=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         seq_no=3,
-        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)
+        # yapf: disable
+        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     self.assertCountEqual([
         _ChangeUnitMsg(
             add_encoding_combination=_AddEncodingCombinationMsg(
@@ -2230,11 +2359,15 @@ class SelfServiceShardTest(unittest.TestCase):
     # MANUAL_REVIEW_REQUIRED.
     change_unit_mapping = split_resp.change_units
     approved_cl_action = _ClActionMsg(
-        approval_case=_ClActionMsg.ApprovalCase.APPROVED,
+        # yapf: disable
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         reviewers=['reviewer1@notgoogle.com', 'reviewer2@notgoogle.com'],
         ccs=['cc1@notgoogle.com', 'cc2@notgoogle.com'])
     review_required_cl_action = _ClActionMsg(
-        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW,
+        # yapf: disable
+        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         reviewers=['reviewer3@notgoogle.com', 'reviewer4@notgoogle.com'],
         ccs=['cc3@notgoogle.com', 'cc4@notgoogle.com'])
 
@@ -2550,9 +2683,13 @@ class SelfServiceShardTest(unittest.TestCase):
     # Act
     change_unit_mapping = split_resp.change_units
     approved_cl_action = _ClActionMsg(
-        approval_case=_ClActionMsg.ApprovalCase.APPROVED)
+        # yapf: disable
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     review_required_cl_action = _ClActionMsg(
-        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW)
+        # yapf: disable
+        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
     # Set the changes of comp_cls1 comps AUTO_APPROVED and set the
     # other changes as MANUAL_REVIEW_REQUIRED.
     for identity, change_unit in change_unit_mapping.items():
@@ -2801,10 +2938,18 @@ class SelfServiceShardTest(unittest.TestCase):
                 unchanged=True, prev_comp_name='avl_skipped_comp',
                 prev_support_status='supported',
                 prev_probe_value_alignment_status=(
-                    _PVAlignmentStatusMsg.NO_PROBE_INFO),
-                prev_support_status_case=_SupportStatusCase.SUPPORTED),
-            probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO,
-            support_status_case=_SupportStatusCase.SUPPORTED,
+                    # yapf: disable
+                    _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                # yapf: enable
+                # yapf: disable
+                prev_support_status_case=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            support_status_case=_SupportStatusCase.SUPPORTED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
             skip_avl_check=True,
             marked_untracked=False,
         )
@@ -3044,9 +3189,14 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj', region_comps=[
-            _ComponentMsg(name='kr', status=_SupportStatusCase.SUPPORTED),
-            _ComponentMsg(name='jp', status=_SupportStatusCase.UNQUALIFIED),
+        project='proj',
+        region_comps=[
+            # yapf: disable
+            _ComponentMsg(name='kr', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            # yapf: disable
+            _ComponentMsg(name='jp', status=_SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     resp = self.service.CreateHwidRegionCl(req)
     comps = action.GetComponents(['region'])
@@ -3089,9 +3239,13 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj', region_comps=[
-            _ComponentMsg(name='invalid_region',
-                          status=_SupportStatusCase.SUPPORTED),
+        project='proj',
+        region_comps=[
+            _ComponentMsg(
+                name='invalid_region',
+                # yapf: disable
+                status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.CreateHwidRegionCl(req)
@@ -3110,8 +3264,11 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj', region_comps=[
-            _ComponentMsg(name='jp', status=_SupportStatusCase.SUPPORTED),
+        project='proj',
+        region_comps=[
+            # yapf: disable
+            _ComponentMsg(name='jp', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.CreateHwidRegionCl(req)
@@ -3130,8 +3287,11 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj', region_comps=[
-            _ComponentMsg(name='us', status=_SupportStatusCase.SUPPORTED),
+        project='proj',
+        region_comps=[
+            # yapf: disable
+            _ComponentMsg(name='us', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     resp = self.service.CreateHwidRegionCl(req)
 
@@ -3148,9 +3308,14 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
-        project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
-                          status=_SupportStatusCase.SUPPORTED),
+        project='proj',
+        comps=[
+            _ComponentMsg(
+                component_class='comp_cls1',
+                name='comp_cls1_1',
+                # yapf: disable
+                status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     resp = self.service.UpdateHwidDbComponents(req)
     comps = action.GetComponents(['comp_cls1'])
@@ -3193,9 +3358,14 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
-        project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
-                          status=_SupportStatusCase.SUPPORTED),
+        project='proj',
+        comps=[
+            _ComponentMsg(
+                component_class='comp_cls1',
+                name='comp_cls1_1',
+                # yapf: disable
+                status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.UpdateHwidDbComponents(req)
@@ -3214,9 +3384,14 @@ class SelfServiceShardTest(unittest.TestCase):
     # yapf: enable
 
     req = hwid_api_messages_pb2.UpdateHwidDbComponentsRequest(
-        project='proj', comps=[
-            _ComponentMsg(component_class='comp_cls1', name='comp_cls1_1',
-                          status=_SupportStatusCase.UNQUALIFIED),
+        project='proj',
+        comps=[
+            _ComponentMsg(
+                component_class='comp_cls1',
+                name='comp_cls1_1',
+                # yapf: disable
+                status=_SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
         ])
     resp = self.service.UpdateHwidDbComponents(req)
 
