@@ -782,6 +782,11 @@ class MemoryConverterTest(ConverterTestCase):
           name: "part"
           description: "Part number."
           value_type: STRING
+        }
+        parameter_definitions {
+          name: "extra_part"
+          description: "Extra part number."
+          value_type: STRING
         }''', probe_info_analytics.ProbeFunctionDefinition())
     self.assertCountEqual(actual.parameter_definitions,
                           expect.parameter_definitions)
@@ -835,6 +840,35 @@ class MemoryConverterTest(ConverterTestCase):
     # yapf: enable
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
+  def testParseProbeParam_MergeExtraPartNumbers(self):
+    probe_params = [
+        _CreateStrProbeParam('part', 'abcd1234'),
+        _CreateStrProbeParam('extra_part', 'extra-abcd1234'),
+    ]
+
+    # yapf: disable
+    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'dram', 'comp_name', {
+                'eval': {
+                    'memory': {}
+                },
+                'expect': [{
+                    'part': [True, 'str', '!eq abcd1234'],
+                },{
+                    'part': [True, 'str', '!eq extra-abcd1234'],
+                }]
+            })
+    ]
+    # yapf: disable
+    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
         'dram': [{
@@ -863,6 +897,25 @@ class MemoryConverterTest(ConverterTestCase):
     expected_probe_params = [
         _CreateStrProbeParam('part', 'ABC123'),
         _CreateStrProbeParam('part', 'def456')
+    ]
+    self.assertCountEqual(actual, expected_probe_params)
+
+  def testGetNormalizedProbeParams_MergeExtraPartNumbers(self):
+    probe_params = [
+        _CreateStrProbeParam('part', 'ABC123'),
+        _CreateStrProbeParam('part', 'def456'),
+        _CreateStrProbeParam('extra_part', 'extra-ABC123'),
+        _CreateStrProbeParam('extra_part', 'extra-def456'),
+    ]
+
+    # yapf: disable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    expected_probe_params = [
+        _CreateStrProbeParam('part', 'ABC123'),
+        _CreateStrProbeParam('part', 'def456'),
+        _CreateStrProbeParam('extra_part', 'extra-ABC123'),
+        _CreateStrProbeParam('extra_part', 'extra-def456'),
     ]
     self.assertCountEqual(actual, expected_probe_params)
 

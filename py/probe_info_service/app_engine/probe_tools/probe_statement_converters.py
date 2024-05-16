@@ -1672,6 +1672,65 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
     return parsed_results
 
 
+class DRAMProbeInfoConverter(_SingleProbeFuncConverter):
+  """A customized converter for the DRAM probe function."""
+
+  _RUNTIME_PROBE_CATEGORY = 'dram'
+  _PROBE_FUNCTION_NAME = 'memory'
+  _PART = 'part'
+  _EXTRA_PART = 'extra_part'
+
+  def __init__(self):
+    super().__init__(
+        ps_generator=probe_config_definition.GetProbeStatementDefinition(
+            self._RUNTIME_PROBE_CATEGORY),
+        probe_function_name=self._PROBE_FUNCTION_NAME,
+        probe_params=[
+            _ProbeFunctionParam(self._PART),
+        ],
+    )
+
+  @functools.cached_property
+  def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
+    return {
+        self._PART:
+            _SingleProbeStatementParam(
+                param_name=self._PART,
+                value_converter=_ParamValueConverter('string'),
+                description='Part number.',
+            ),
+        self._EXTRA_PART:
+            _SingleProbeStatementParam(
+                param_name=self._EXTRA_PART,
+                value_converter=_ParamValueConverter('string'),
+                description='Extra part number.',
+            ),
+    }
+
+  def _MergeAliasFields(
+      self,
+      probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
+  ) -> Mapping[str, Sequence[_ProbeParamInput]]:
+    merged = dict(probe_param_inputs)
+    merged[self._PART] = [
+        *merged.get(self._PART, []), *merged.pop(self._EXTRA_PART, [])
+    ]
+    return merged
+
+  def CollectExpectedFields(
+      self,
+      probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
+      allow_missing_params: bool,
+      comp_name_for_probe_statement: Optional[str],
+  ) -> Sequence[Mapping[str, Any]]:
+    """See base class."""
+    return super().CollectExpectedFields(
+        probe_param_inputs=self._MergeAliasFields(probe_param_inputs),
+        allow_missing_params=allow_missing_params,
+        comp_name_for_probe_statement=comp_name_for_probe_statement,
+    )
+
+
 def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
   # TODO(yhong): Separate the data piece out the code logic.
   return [
@@ -1732,10 +1791,7 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
               _InformationalParam('height', 'The height of display panel.',
                                   _ParamValueConverter('int')),
           ]),
-      _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
-          'dram', 'memory', probe_params=[
-              _ProbeFunctionParam('part'),
-          ]),
+      DRAMProbeInfoConverter(),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'mmc_host', 'mmc_host',
           converter_name='emmc_pcie_storage_bridge.mmc_host', probe_params=[
@@ -1751,7 +1807,9 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
                   'pci_class', value_converter=_ParamValueConverter(
                       'string', _RemoveHexPrefixAndCapitalize,
                       _AddHexPrefixIfNotExistAndLowerize)),
-          ], probe_function_argument={'is_emmc_attached': True}),
+          ], probe_function_argument={
+              'is_emmc_attached': True
+          }),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'storage', 'mmc_storage', probe_params=[
               *_MMC_BASIC_PARAMS,
