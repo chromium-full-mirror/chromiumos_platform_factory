@@ -61,6 +61,22 @@ class DramConverterCollectionTest(unittest.TestCase):
 
     self.assertEqual(result.alignment_status, _PVAlignmentStatus.ALIGNED)
 
+  def testMatchExtraPartNumber(self):
+    comp_values = {
+        'part': 'extra-part-number',
+        'size': '12345',
+        'slot': '3',
+    }
+    probe_info = converter_test_utils.ProbeInfoFromMapping({
+        'part': 'part-number',
+        'extra_part': 'extra-part-number',
+    })
+
+    result = self._converter_collection.Match(comp_values, probe_info)
+
+    self.assertEqual(result.alignment_status, _PVAlignmentStatus.ALIGNED)
+    self.assertEqual(result.converter_identifier, 'full_length_match_extra')
+
 
 if __name__ == '__main__':
   unittest.main()

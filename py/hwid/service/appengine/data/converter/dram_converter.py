@@ -14,6 +14,7 @@ _ConvertedValueSpec = converter.ConvertedValueSpec
 
 class DRAMAVLAttrs(converter.AVLAttrs):
   PART = 'part'
+  EXTRA_PART = 'extra_part'
 
 
 class _SpacelessFormatter(converter_types.IStrFormatter):
@@ -27,6 +28,17 @@ _DRAM_CONVERTERS: Sequence[converter.FieldNameConverter] = [
     converter.FieldNameConverter.FromFieldMap(
         'full_length_match', {
             DRAMAVLAttrs.PART:
+                _ConvertedValueSpec(
+                    'part',
+                    converter_types.FormattedStrType.CreateInstanceFactory(
+                        formatter_self=_SpacelessFormatter(),
+                        formatter_other=_SpacelessFormatter(),
+                    ),
+                ),
+        }),
+    converter.FieldNameConverter.FromFieldMap(
+        'full_length_match_extra', {
+            DRAMAVLAttrs.EXTRA_PART:
                 _ConvertedValueSpec(
                     'part',
                     converter_types.FormattedStrType.CreateInstanceFactory(
