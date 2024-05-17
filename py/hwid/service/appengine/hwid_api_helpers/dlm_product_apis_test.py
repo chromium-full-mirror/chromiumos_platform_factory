@@ -5,6 +5,7 @@
 import unittest
 from unittest import mock
 
+from google.api_core import exceptions as google_api_exceptions
 from google.cloud import ndb
 
 from cros.factory.hwid.service.appengine.data import dlm_product_data
@@ -20,6 +21,8 @@ _BatchUpdateDlmProductResponse = (
     hwid_api_messages_pb2.BatchUpdateDlmProductResponse)
 _DlmDevice = hwid_api_messages_pb2.DlmDevice
 _DlmProduct = hwid_api_messages_pb2.DlmProduct
+_DlmDeviceUpdateResult = hwid_api_messages_pb2.DlmDeviceUpdateResult
+_DlmProductUpdateResult = hwid_api_messages_pb2.DlmProductUpdateResult
 _UpdateDlmDeviceRequest = hwid_api_messages_pb2.UpdateDlmDeviceRequest
 _UpdateDlmDeviceResponse = hwid_api_messages_pb2.UpdateDlmDeviceResponse
 _UpdateDlmProductRequest = hwid_api_messages_pb2.UpdateDlmProductRequest
@@ -54,7 +57,11 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.UpdateDlmProduct(req)
 
-    self.assertEqual(res, _UpdateDlmProductResponse(product_id=1))
+    self.assertEqual(
+        res,
+        _UpdateDlmProductResponse(
+            product_id=1, update_result=_DlmProductUpdateResult(
+                product_id=1, result_type=_DlmProductUpdateResult.SUCCESS)))
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(len(products), 1)
@@ -79,7 +86,11 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.UpdateDlmProduct(req)
 
-    self.assertEqual(res, _UpdateDlmProductResponse(product_id=1))
+    self.assertEqual(
+        res,
+        _UpdateDlmProductResponse(
+            product_id=1, update_result=_DlmProductUpdateResult(
+                product_id=1, result_type=_DlmProductUpdateResult.SUCCESS)))
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query())
       # Entity keys can only be accessed in context.
@@ -103,29 +114,51 @@ class DLMProductShardTest(unittest.TestCase):
     product = _DlmProduct(id=1)
     req = _UpdateDlmProductRequest(product=product)
 
-    with self.assertRaisesRegex(
-        protorpc_utils.ProtoRPCException,
-        "Got invalid product data: missing required field 'board'") as ex:
-      self.service.UpdateDlmProduct(req)
+    res = self.service.UpdateDlmProduct(req)
 
-    self.assertEqual(ex.exception.code,
-                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+    self.assertEqual(
+        res,
+        _UpdateDlmProductResponse(
+            product_id=1, update_result=_DlmProductUpdateResult(
+                product_id=1, result_type=_DlmProductUpdateResult.INVALID_DATA,
+                error_msg="Missing required field 'board'")))
 
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(products, [])
 
   @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
-  def testUpdateDlmProduct_ProductUpdateFailed(self, mock_update_dlm_products):
+  def testUpdateDlmProduct_NDBError(self, mock_update_dlm_products):
     product = _DlmProduct(id=1, board='test_board', model='test_model',
                           product_status=_DlmProduct.SHIPPED, device_id=1)
     req = _UpdateDlmProductRequest(product=product)
     mock_update_dlm_products.side_effect = ndb.exceptions.BadValueError(
         'Bad Value Error')
 
+    res = self.service.UpdateDlmProduct(req)
+
+    self.assertEqual(
+        res,
+        _UpdateDlmProductResponse(
+            product_id=1, update_result=_DlmProductUpdateResult(
+                product_id=1, result_type=_DlmProductUpdateResult.UNKNOWN_ERROR,
+                error_msg='Bad Value Error')))
+
+    with self._ndb_connector.CreateClientContext():
+      products = list(dlm_product_data.DLMProduct.query())
+    self.assertEqual(products, [])
+
+  @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
+  def testUpdateDlmProduct_GoogleAPIError(self, mock_update_dlm_products):
+    product = _DlmProduct(id=1, board='test_board', model='test_model',
+                          product_status=_DlmProduct.SHIPPED, device_id=1)
+    req = _UpdateDlmProductRequest(product=product)
+    mock_update_dlm_products.side_effect = google_api_exceptions.GoogleAPIError(
+        'Google API Error')
+
     with self.assertRaisesRegex(
         protorpc_utils.ProtoRPCException,
-        "Failed to update product data with exception: Bad Value Error") as ex:
+        "Failed to update product data with exception: Google API Error") as ex:
       self.service.UpdateDlmProduct(req)
 
     self.assertEqual(ex.exception.code,
@@ -144,7 +177,15 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.BatchUpdateDlmProduct(req)
 
-    self.assertEqual(res, _BatchUpdateDlmProductResponse(product_ids=[1, 2]))
+    self.assertEqual(
+        res,
+        _BatchUpdateDlmProductResponse(
+            product_ids=[1, 2], update_results=[
+                _DlmProductUpdateResult(
+                    product_id=1, result_type=_DlmProductUpdateResult.SUCCESS),
+                _DlmProductUpdateResult(
+                    product_id=2, result_type=_DlmProductUpdateResult.SUCCESS)
+            ]))
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(len(products), 2)
@@ -181,7 +222,15 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.BatchUpdateDlmProduct(req)
 
-    self.assertEqual(res, _BatchUpdateDlmProductResponse(product_ids=[1, 3]))
+    self.assertEqual(
+        res,
+        _BatchUpdateDlmProductResponse(
+            product_ids=[1, 3], update_results=[
+                _DlmProductUpdateResult(
+                    product_id=1, result_type=_DlmProductUpdateResult.SUCCESS),
+                _DlmProductUpdateResult(
+                    product_id=3, result_type=_DlmProductUpdateResult.SUCCESS)
+            ]))
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(len(products), 3)
@@ -227,7 +276,17 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.BatchUpdateDlmProduct(req)
 
-    self.assertEqual(res, _BatchUpdateDlmProductResponse(product_ids=[1, 3, 4]))
+    self.assertEqual(
+        res,
+        _BatchUpdateDlmProductResponse(
+            product_ids=[1, 3, 4], update_results=[
+                _DlmProductUpdateResult(
+                    product_id=1, result_type=_DlmProductUpdateResult.SUCCESS),
+                _DlmProductUpdateResult(
+                    product_id=3, result_type=_DlmProductUpdateResult.SUCCESS),
+                _DlmProductUpdateResult(
+                    product_id=4, result_type=_DlmProductUpdateResult.SUCCESS)
+            ]))
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(len(products), 4)
@@ -263,33 +322,71 @@ class DLMProductShardTest(unittest.TestCase):
   def testBatchUpdateDlmProduct_MissingRequiredFields(self):
     p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
                      product_status=_DlmProduct.SHIPPED, device_id=1)
-    p2 = _DlmProduct(id=2)
+    p2 = _DlmProduct()
     req = _BatchUpdateDlmProductRequest(products=[p1, p2])
 
-    with self.assertRaisesRegex(
-        protorpc_utils.ProtoRPCException,
-        "Got invalid product data: missing required field 'board'") as ex:
-      self.service.BatchUpdateDlmProduct(req)
+    res = self.service.BatchUpdateDlmProduct(req)
+    self.assertEqual(
+        res,
+        _BatchUpdateDlmProductResponse(
+            product_ids=[0, 1], update_results=[
+                _DlmProductUpdateResult(
+                    result_type=_DlmProductUpdateResult.INVALID_DATA,
+                    error_msg="Missing required field 'id'"),
+                _DlmProductUpdateResult(
+                    product_id=1, result_type=_DlmProductUpdateResult.SUCCESS)
+            ]))
 
-    self.assertEqual(ex.exception.code,
-                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+    with self._ndb_connector.CreateClientContext():
+      products = list(dlm_product_data.DLMProduct.query())
+    self.assertEqual(len(products), 1)
+    p1 = products[0]
+    self.assertEqual(p1.id, 1)
+    self.assertEqual(p1.board, 'TEST_BOARD_1')
+    self.assertEqual(p1.model, 'TEST_MODEL_1')
+    self.assertEqual(p1.product_status, _DlmProduct.SHIPPED)
+    self.assertEqual(p1.device_id, 1)
+
+  @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
+  def testBatchUpdateDlmProduct_NDBError(self, mock_update_dlm_products):
+    p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
+                     product_status=_DlmProduct.SHIPPED, device_id=1)
+    p2 = _DlmProduct(id=2, board='test_board_2', model='test_model_2',
+                     product_status=_DlmProduct.DEVELOPMENT, device_id=2)
+    req = _BatchUpdateDlmProductRequest(products=[p1, p2])
+    mock_update_dlm_products.side_effect = ndb.exceptions.BadValueError(
+        'Bad Value Error')
+
+    res = self.service.BatchUpdateDlmProduct(req)
+    self.assertEqual(
+        res,
+        _BatchUpdateDlmProductResponse(
+            product_ids=[1, 2], update_results=[
+                _DlmProductUpdateResult(
+                    product_id=1,
+                    result_type=_DlmProductUpdateResult.UNKNOWN_ERROR,
+                    error_msg='Bad Value Error'),
+                _DlmProductUpdateResult(
+                    product_id=2,
+                    result_type=_DlmProductUpdateResult.UNKNOWN_ERROR,
+                    error_msg='Bad Value Error')
+            ]))
 
     with self._ndb_connector.CreateClientContext():
       products = list(dlm_product_data.DLMProduct.query())
     self.assertEqual(products, [])
 
   @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
-  def testBatchUpdateDlmProduct_ProductUpdateFailed(self,
-                                                    mock_update_dlm_products):
+  def testBatchUpdateDlmProduct_GoogleAPIError(self, mock_update_dlm_products):
     p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
                      product_status=_DlmProduct.SHIPPED, device_id=1)
     req = _BatchUpdateDlmProductRequest(products=[p1])
-    mock_update_dlm_products.side_effect = ndb.exceptions.BadValueError(
-        'Bad Value Error')
+    mock_update_dlm_products.side_effect = google_api_exceptions.GoogleAPIError(
+        'Google API Error')
 
     with self.assertRaisesRegex(
         protorpc_utils.ProtoRPCException,
-        "Failed to update product data with exception: Bad Value Error") as ex:
+        "Failed to update product data with exception: Google API Error") as ex:
       self.service.BatchUpdateDlmProduct(req)
 
     self.assertEqual(ex.exception.code,
@@ -314,7 +411,11 @@ class DLMProductShardTest(unittest.TestCase):
 
     res = self.service.UpdateDlmDevice(req)
 
-    self.assertEqual(res, _UpdateDlmDeviceResponse(device_id=2))
+    self.assertEqual(
+        res,
+        _UpdateDlmDeviceResponse(
+            device_id=2, update_result=_DlmDeviceUpdateResult(
+                device_id=2, result_type=_DlmDeviceUpdateResult.SUCCESS)))
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query())
@@ -346,18 +447,18 @@ class DLMProductShardTest(unittest.TestCase):
     device = _DlmDevice(id=1, model='test_model')
     req = _UpdateDlmDeviceRequest(device=device)
 
-    with self.assertRaisesRegex(
-        protorpc_utils.ProtoRPCException,
-        "Got invalid device data: missing required field 'board'") as ex:
-      self.service.UpdateDlmDevice(req)
+    res = self.service.UpdateDlmDevice(req)
 
-    self.assertEqual(ex.exception.code,
-                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+    self.assertEqual(
+        res,
+        _UpdateDlmDeviceResponse(
+            device_id=1, update_result=_DlmDeviceUpdateResult(
+                device_id=1, result_type=_DlmDeviceUpdateResult.INVALID_DATA,
+                error_msg="Missing required field 'board'")))
 
   @mock.patch.object(dlm_product_data.DLMProductManager,
                      'UpdateDLMProductsByDeviceId')
-  def testUpdateDlmDevice_ProductUpdateFailed(
-      self, mock_update_dlm_products_by_device_id):
+  def testUpdateDlmDevice_NDBError(self, mock_update_dlm_products_by_device_id):
     p1 = self._CreateDLMProduct(id=1, board='TEST_BOARD_1',
                                 model='TEST_MODEL_1', product_status=1,
                                 device_id=1)
@@ -366,9 +467,42 @@ class DLMProductShardTest(unittest.TestCase):
     mock_update_dlm_products_by_device_id.side_effect = (
         ndb.exceptions.BadValueError('Bad Value Error'))
 
+    res = self.service.UpdateDlmDevice(req)
+
+    self.assertEqual(
+        res,
+        _UpdateDlmDeviceResponse(
+            device_id=1, update_result=_DlmDeviceUpdateResult(
+                device_id=1, result_type=_DlmDeviceUpdateResult.UNKNOWN_ERROR,
+                error_msg='Bad Value Error')))
+
+    with self._ndb_connector.CreateClientContext():
+      res = list(dlm_product_data.DLMProduct.query())
+      # Entity keys can only be accessed in context.
+      p1 = p1.key.get()
+      self.assertCountEqual(res, [p1])
+
+    self.assertEqual(p1.id, 1)
+    self.assertEqual(p1.board, 'TEST_BOARD_1')
+    self.assertEqual(p1.model, 'TEST_MODEL_1')
+    self.assertEqual(p1.product_status, 1)
+    self.assertEqual(p1.device_id, 1)
+
+  @mock.patch.object(dlm_product_data.DLMProductManager,
+                     'UpdateDLMProductsByDeviceId')
+  def testUpdateDlmDevice_GoogleAPIError(self,
+                                         mock_update_dlm_products_by_device_id):
+    p1 = self._CreateDLMProduct(id=1, board='TEST_BOARD_1',
+                                model='TEST_MODEL_1', product_status=1,
+                                device_id=1)
+    device = _DlmDevice(id=1, board='test_board_2', model='test_model_2')
+    req = _UpdateDlmDeviceRequest(device=device)
+    mock_update_dlm_products_by_device_id.side_effect = (
+        google_api_exceptions.GoogleAPIError('Google API Error'))
+
     with self.assertRaisesRegex(
         protorpc_utils.ProtoRPCException,
-        "Failed to update product data with exception: Bad Value Error") as ex:
+        "Failed to update product data with exception: Google API Error") as ex:
       self.service.UpdateDlmDevice(req)
 
     self.assertEqual(ex.exception.code,

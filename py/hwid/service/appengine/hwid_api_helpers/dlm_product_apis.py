@@ -2,8 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import logging
 from typing import Sequence
 
+from google.api_core import exceptions as google_api_exceptions
 from google.cloud import ndb
 
 from cros.factory.hwid.service.appengine import auth
@@ -17,6 +19,8 @@ _BatchUpdateDlmProductRequest = (
     hwid_api_messages_pb2.BatchUpdateDlmProductRequest)
 _BatchUpdateDlmProductResponse = (
     hwid_api_messages_pb2.BatchUpdateDlmProductResponse)
+_DlmProductUpdateResult = hwid_api_messages_pb2.DlmProductUpdateResult
+_DlmDeviceUpdateResult = hwid_api_messages_pb2.DlmDeviceUpdateResult
 _UpdateDlmDeviceRequest = hwid_api_messages_pb2.UpdateDlmDeviceRequest
 _UpdateDlmDeviceResponse = hwid_api_messages_pb2.UpdateDlmDeviceResponse
 _UpdateDlmProductRequest = hwid_api_messages_pb2.UpdateDlmProductRequest
@@ -39,8 +43,9 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
       self, request: _UpdateDlmProductRequest) -> _UpdateDlmProductResponse:
     """Create or update the product data with DLM product data."""
     product = request.product
-    updated_product_ids = self._UpdateDLMProducts([product])
-    return _UpdateDlmProductResponse(product_id=updated_product_ids[0])
+    update_result = self._UpdateDLMProducts([product])[0]
+    return _UpdateDlmProductResponse(product_id=update_result.product_id,
+                                     update_result=update_result)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -49,8 +54,10 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
       request: _BatchUpdateDlmProductRequest) -> _BatchUpdateDlmProductResponse:
     """Create or update the product data with DLM product list."""
     products = request.products
-    updated_product_ids = self._UpdateDLMProducts(products)
-    return _BatchUpdateDlmProductResponse(product_ids=updated_product_ids)
+    update_results = self._UpdateDLMProducts(products)
+    return _BatchUpdateDlmProductResponse(
+        product_ids=[res.product_id for res in update_results],
+        update_results=update_results)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -60,9 +67,11 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
     device = request.device
     for field in ['id', 'board']:
       if not getattr(device, field):
-        raise protorpc_utils.ProtoRPCException(
-            protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
-            f'Got invalid device data: missing required field {field!r}')
+        return _UpdateDlmDeviceResponse(
+            device_id=device.id, update_result=_DlmDeviceUpdateResult(
+                device_id=device.id,
+                result_type=_DlmDeviceUpdateResult.ResultType.INVALID_DATA,
+                error_msg=f'Missing required field {field!r}'))
 
     try:
       self._dlm_product_manager.UpdateDLMProductsByDeviceId(
@@ -71,46 +80,76 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
           device.model.upper() or None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
     except ndb.exceptions.Error as e:
+      logging.error('Failed to update product data with exception: %s', e)
+      return _UpdateDlmDeviceResponse(
+          device_id=device.id, update_result=_DlmDeviceUpdateResult(
+              device_id=device.id,
+              result_type=_DlmDeviceUpdateResult.ResultType.UNKNOWN_ERROR,
+              error_msg=str(e)))
+    except google_api_exceptions.GoogleAPIError as e:
+      # Raise an exception to trigger the client to retry.
       raise protorpc_utils.ProtoRPCException(
           protorpc_utils.RPCCanonicalErrorCode.INTERNAL,
           f'Failed to update product data with exception: {e}') from e
 
-    return _UpdateDlmDeviceResponse(device_id=device.id)
+    return _UpdateDlmDeviceResponse(
+        device_id=device.id, update_result=_DlmDeviceUpdateResult(
+            device_id=device.id,
+            result_type=_DlmDeviceUpdateResult.ResultType.SUCCESS))
 
   def _UpdateDLMProducts(
-      self,
-      products: Sequence[hwid_api_messages_pb2.DlmProduct]) -> Sequence[int]:
+      self, products: Sequence[hwid_api_messages_pb2.DlmProduct]
+  ) -> Sequence[_DlmProductUpdateResult]:
     """Create or update the product data with DLM product list.
 
     Args:
       products: The list of product to update or create.
 
     Returns:
-      A list containing id of updated products.
+      A list of update result.
 
     Raises:
-      protorpc_utils.ProtoRPCException: If any of the given products is missing
-          required fields.
+      protorpc_utils.ProtoRPCException: If the Datastore query fails.
     """
     dlm_products = []
+    update_results = []
     for product in products:
       for field in ['id', 'board', 'device_id']:
         if not getattr(product, field):
-          raise protorpc_utils.ProtoRPCException(
-              protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
-              f'Got invalid product data: missing required field {field!r}')
-      dlm_products.append(
-          dlm_product_data.DLMProduct(id=product.id,
-                                      board=product.board.upper(),
-                                      model=product.model.upper() or None,
-                                      product_status=product.product_status,
-                                      device_id=product.device_id))
+          update_results.append(
+              _DlmProductUpdateResult(
+                  product_id=product.id,
+                  result_type=_DlmProductUpdateResult.ResultType.INVALID_DATA,
+                  error_msg=f'Missing required field {field!r}'))
+          break
+      else:
+        dlm_products.append(
+            dlm_product_data.DLMProduct(id=product.id,
+                                        board=product.board.upper(),
+                                        model=product.model.upper() or None,
+                                        product_status=product.product_status,
+                                        device_id=product.device_id))
+        update_results.append(
+            _DlmProductUpdateResult(
+                product_id=product.id,
+                result_type=_DlmProductUpdateResult.ResultType.SUCCESS))
 
-    try:
-      self._dlm_product_manager.UpdateDLMProducts(dlm_products)
-    except ndb.exceptions.Error as e:
-      raise protorpc_utils.ProtoRPCException(
-          protorpc_utils.RPCCanonicalErrorCode.INTERNAL,
-          f'Failed to update product data with exception: {e}') from e
+    if dlm_products:
+      try:
+        self._dlm_product_manager.UpdateDLMProducts(dlm_products)
+      except ndb.exceptions.Error as e:
+        logging.error('Failed to update product data with exception: %s', e)
+        update_results = [
+            _DlmProductUpdateResult(
+                product_id=product.id,
+                result_type=_DlmProductUpdateResult.ResultType.UNKNOWN_ERROR,
+                error_msg=str(e)) for product in products
+        ]
+      except google_api_exceptions.GoogleAPIError as e:
+        # Raise an exception to trigger the client to retry.
+        raise protorpc_utils.ProtoRPCException(
+            protorpc_utils.RPCCanonicalErrorCode.INTERNAL,
+            f'Failed to update product data with exception: {e}') from e
 
-    return sorted(product.id for product in dlm_products)
+    update_results.sort(key=lambda x: x.product_id or 0)
+    return update_results

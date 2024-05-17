@@ -1073,6 +1073,20 @@ message DlmProduct {
   int64 device_id = 5;
 }
 
+message DlmProductUpdateResult {
+  enum ResultType {
+    TYPE_UNSPECIFIED = 0;
+
+    SUCCESS = 1;
+    INVALID_DATA = 2;
+    UNKNOWN_ERROR = 3;
+  }
+
+  int64 product_id = 1;
+  ResultType result_type = 2;
+  string error_msg = 3;
+}
+
 // The request of updating or creating product with DLM product data.
 message UpdateDlmProductRequest {
   // The DLM product data used to update or create product.
@@ -1089,12 +1103,16 @@ message BatchUpdateDlmProductRequest {
 message UpdateDlmProductResponse {
   // The id of the requested product.
   int64 product_id = 1;
+  // The update result for the requested product.
+  DlmProductUpdateResult update_result = 2;
 }
 
 // The response of updating or creating product with DLM product list.
 message BatchUpdateDlmProductResponse {
   // The id list of the requested products.
   repeated int64 product_ids = 1;
+  // The update result for the requested products.
+  repeated DlmProductUpdateResult update_results = 2;
 }
 
 // The device data from DLM.
@@ -1107,6 +1125,20 @@ message DlmDevice {
   string model = 3;
 }
 
+message DlmDeviceUpdateResult {
+  enum ResultType {
+    TYPE_UNSPECIFIED = 0;
+
+    SUCCESS = 1;
+    INVALID_DATA = 2;
+    UNKNOWN_ERROR = 3;
+  }
+
+  int64 device_id = 1;
+  ResultType result_type = 2;
+  string error_msg = 3;
+}
+
 // The request of updating products with DLM device data.
 message UpdateDlmDeviceRequest {
   // The DLM device data used to update products.
@@ -1117,6 +1149,8 @@ message UpdateDlmDeviceRequest {
 message UpdateDlmDeviceResponse {
   // The id of the requested device.
   int64 device_id = 1;
+  // The update result for the requested device.
+  DlmDeviceUpdateResult update_result = 2;
 }
 
 // The request of update components in HWID DB.
