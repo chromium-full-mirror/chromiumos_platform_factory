@@ -7,6 +7,8 @@ This module overwrites the functions we are interested in to make a separation
 from the origin yaml module.
 """
 
+from __future__ import annotations
+
 import collections
 import functools
 import itertools
@@ -24,7 +26,7 @@ from cros.factory.utils import schema
 from cros.factory.utils import yaml_utils
 
 
-from typing import TYPE_CHECKING, DefaultDict, Optional, Set  # isort:skip
+from typing import Any, TYPE_CHECKING, DefaultDict, MutableMapping, Optional, Set  # isort:skip
 
 if TYPE_CHECKING:
   _SafeLoader = yaml.SafeLoader
@@ -393,6 +395,25 @@ class _LinkAVLYAMLTagHandler(_HWIDV3YAMLTagHandler):
   YAML_TAG = '!link_avl'
   TARGET_CLASS = rule.AVLProbeValue
 
+  _PROBE_INFO_SCHEMA = schema.FixedDict(
+      'probe info', items={
+          'identifier':
+              schema.Scalar('probe info identifier', str),
+          'params':
+              schema.Dict(
+                  'probe info params', schema.Scalar('params key', str),
+                  schema.List('params values', schema.Scalar(
+                      'params value', str))),
+      })
+
+  @classmethod
+  def ParseProbeInfo(
+      cls, value: Optional[Dict[str, Any]]) -> Optional[rule.AVLProbeInfo]:
+    if value is None:
+      return None
+    cls._PROBE_INFO_SCHEMA.Validate(value)
+    return rule.AVLProbeInfo(value['identifier'], value['params'])
+
   @classmethod
   def YAMLConstructor(cls, loader, node,
                       deep=False) -> Optional[rule.AVLProbeValue]:
@@ -406,21 +427,37 @@ class _LinkAVLYAMLTagHandler(_HWIDV3YAMLTagHandler):
         loader, node, deep=True)
     converter_identifier = existing_values['converter']
     probe_value_matched = existing_values['probe_value_matched']
+    probe_info = cls.ParseProbeInfo(existing_values.get('probe_info'))
+    probe_info_matched = existing_values.get('probe_info_matched', False)
+    probe_info_override = cls.ParseProbeInfo(
+        existing_values.get('probe_info_override'))
+    probe_info_override_matched = existing_values.get(
+        'probe_info_override_matched', False)
     values = existing_values['original_values']
     # For backward compatibility, convert to None if original_values is None.
     if values is None:
       return None
-    return cls.TARGET_CLASS(converter_identifier, probe_value_matched, values)
+    return cls.TARGET_CLASS(converter_identifier, probe_value_matched,
+                            probe_info, probe_info_matched, probe_info_override,
+                            probe_info_override_matched, values)
 
   @classmethod
   def YAMLRepresenter(cls, dumper, data: rule.AVLProbeValue):
     if cls.IsDumperInternal(dumper):
-      return dumper.represent_mapping(
-          cls.YAML_TAG, {
-              'converter': data.converter_identifier,
-              'probe_value_matched': data.probe_value_matched,
-              'original_values': Dict(data)
-          })
+      mapping: MutableMapping[str, Any] = {
+          'converter': data.converter_identifier,
+          'probe_value_matched': data.probe_value_matched,
+          'original_values': Dict(data),
+      }
+      # Only dump these values if they are not None.
+      if data.probe_info is not None:
+        mapping['probe_info'] = data.probe_info.ToDict()
+        mapping['probe_info_matched'] = data.probe_info_matched
+      if data.probe_info_override is not None:
+        mapping['probe_info_override'] = data.probe_info_override.ToDict()
+        mapping[
+            'probe_info_override_matched'] = data.probe_info_override_matched
+      return dumper.represent_mapping(cls.YAML_TAG, mapping)
     return dumper.represent_dict(data.items())
 
 

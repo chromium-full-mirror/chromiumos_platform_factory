@@ -71,12 +71,12 @@ class DatabaseTest(unittest.TestCase):
 
     db.SetLinkAVLProbeValue(
         'cls4', 'comp7',
-        rule.AVLProbeValue('converter-identifier1', True,
-                           yaml.Dict(comp7_old_values)))
+        rule.AVLProbeValue('converter-identifier1', True, None, False, None,
+                           False, yaml.Dict(comp7_old_values)))
     db.SetLinkAVLProbeValue(
         'cls3', 'comp5',
-        rule.AVLProbeValue('converter-identifier2', False,
-                           yaml.Dict(comp5_old_values)))
+        rule.AVLProbeValue('converter-identifier2', False, None, False, None,
+                           False, yaml.Dict(comp5_old_values)))
 
     loaded_db = database.Database.LoadData(
         db.DumpDataWithoutChecksum(internal=True))
@@ -91,7 +91,6 @@ class DatabaseTest(unittest.TestCase):
     self.assertEqual('converter-identifier2', comp5_values.converter_identifier)
     self.assertFalse(comp5_values.probe_value_matched)
     self.assertEqual(yaml.Dict(comp5_values), yaml.Dict(comp5_old_values))
-
 
   def testSetBundleUUIDs(self):
     db = database.WritableDatabase.LoadFile(
@@ -850,7 +849,7 @@ class ComponentsTest(unittest.TestCase):
         ]), status='supported')
     comp_internal1 = database.ComponentInfo(
         rule.AVLProbeValue(
-            'identifier1', False,
+            'identifier1', False, None, False, None, False,
             yaml.Dict([
                 ('a1', 'b1'),
                 ('a2', 'b2'),
@@ -858,7 +857,7 @@ class ComponentsTest(unittest.TestCase):
             ])), status='supported')
     comp_internal2 = database.ComponentInfo(
         rule.AVLProbeValue(
-            'identifier1', False,
+            'identifier1', False, None, False, None, False,
             yaml.Dict([
                 ('a3', 'b3'),
                 ('a2', 'b2'),
@@ -866,7 +865,7 @@ class ComponentsTest(unittest.TestCase):
             ])), status='supported')
     comp_internal_diff = database.ComponentInfo(
         rule.AVLProbeValue(
-            'identifier2', True,
+            'identifier2', True, None, False, None, False,
             yaml.Dict([
                 ('a1', 'b1'),
                 ('a2', 'b2'),
@@ -876,6 +875,36 @@ class ComponentsTest(unittest.TestCase):
     self.assertNotEqual(comp_external.comp_hash, comp_internal1.comp_hash)
     self.assertEqual(comp_internal1.comp_hash, comp_internal2.comp_hash)
     self.assertNotEqual(comp_internal1.comp_hash, comp_internal_diff.comp_hash)
+
+  def testComponentHashInternalProbeInfoOrder(self):
+    # Test probe info order won't change the hash.
+    probe_info1 = rule.AVLProbeInfo(
+        'identifier', yaml.Dict([
+            ('key1', ['value1']),
+            ('key2', ['value2']),
+        ]))
+    probe_info2 = rule.AVLProbeInfo(
+        'identifier', yaml.Dict([
+            ('key2', ['value2']),
+            ('key1', ['value1']),
+        ]))
+    comp_1 = database.ComponentInfo(
+        rule.AVLProbeValue(
+            'identifier1', False, probe_info1, True, probe_info2, True,
+            yaml.Dict([
+                ('a1', 'b1'),
+                ('a2', 'b2'),
+                ('a3', 'b3'),
+            ])), status='supported')
+    comp_2 = database.ComponentInfo(
+        rule.AVLProbeValue(
+            'identifier1', False, probe_info2, True, probe_info1, True,
+            yaml.Dict([
+                ('a1', 'b1'),
+                ('a2', 'b2'),
+                ('a3', 'b3'),
+            ])), status='supported')
+    self.assertEqual(comp_1.comp_hash, comp_2.comp_hash)
 
   def testUpdateComponent_MappingUpdate(self):
 

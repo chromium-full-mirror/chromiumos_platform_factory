@@ -123,11 +123,9 @@ class ComponentInfo:
         return values
       if values is None:
         return None
-      sorted_values = yaml.Dict(sorted(values.items()))
-      if not isinstance(values, v3_rule.AVLProbeValue):
-        return sorted_values
-      return v3_rule.AVLProbeValue(values.converter_identifier,
-                                   values.probe_value_matched, sorted_values)
+      if isinstance(values, v3_rule.AVLProbeValue):
+        return values.Sorted()
+      return yaml.Dict(sorted(values.items()))
 
     if self.bundle_uuids:
       component_dict: collections.OrderedDict = v3_rule.FromFactoryBundle(

@@ -367,11 +367,13 @@ class ContentsAnalyzerTest(unittest.TestCase):
         contents_analyzer.ProbeValueAlignmentStatus.NOT_ALIGNED)
     self.assertEqual(
         contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues(
-            rule.AVLProbeValue('identifier', True, collections.OrderedDict())),
+            rule.AVLProbeValue('identifier', True, None, False, None, False,
+                               collections.OrderedDict())),
         contents_analyzer.ProbeValueAlignmentStatus.ALIGNED)
     self.assertEqual(
         contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues(
-            rule.AVLProbeValue('identifier', False, collections.OrderedDict())),
+            rule.AVLProbeValue('identifier', False, None, False, None, False,
+                               collections.OrderedDict())),
         contents_analyzer.ProbeValueAlignmentStatus.NOT_ALIGNED)
     self.assertEqual(
         contents_analyzer.ProbeValueAlignmentStatus.FromProbeValues({}),

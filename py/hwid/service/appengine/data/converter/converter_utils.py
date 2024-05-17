@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 import collections
-from typing import Mapping, NamedTuple, Optional
+from typing import DefaultDict, List, Mapping, NamedTuple, Optional
 
 from cros.factory.hwid.service.appengine.data.converter import audio_codec_converter
 from cros.factory.hwid.service.appengine.data.converter import battery_converter
@@ -23,6 +23,7 @@ from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.hwid.v3 import rule as v3_rule
+from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 
 
 # A map to collect converter collections.
@@ -83,6 +84,20 @@ class _GetAVLKeyAcceptor(
     return None
 
 
+def _StubbyProbeInfoToDBProbeInfo(
+    stubby_probe_info: stubby_pb2.ProbeInfo) -> v3_rule.AVLProbeInfo:
+  params: DefaultDict[str, List[str]] = collections.defaultdict(list)
+  for param in stubby_probe_info.probe_parameters:
+    value: str
+    if param.HasField("string_value"):
+      value = param.string_value
+    else:
+      value = f'{param.int_value}'
+    params[param.name].append(value)
+  return v3_rule.AVLProbeInfo(stubby_probe_info.probe_function_name,
+                              collections.OrderedDict(params))
+
+
 class ConverterManager:
 
   def __init__(self, collection_map: Mapping[str,
@@ -129,9 +144,21 @@ class ConverterManager:
             continue
           match_result = converter_collection.Match(comp_values, probe_info,
                                                     bool(avl_key.qid))
+          probe_info_override = None
+          if isinstance(comp_values, v3_rule.AVLProbeValue):
+            probe_info_override = comp_values.probe_info_override
+
+          probe_info_matched = (
+              match_result.alignment_status == _PVAlignmentStatus.ALIGNED)
+          #TODO(chungsheng): Implement probe info override.
+          probe_info_override_matched = False
+          probe_value_matched = (
+              probe_info_matched or probe_info_override_matched)
+
           avl_probe_value = v3_rule.AVLProbeValue(
-              match_result.converter_identifier,
-              match_result.alignment_status == _PVAlignmentStatus.ALIGNED,
+              match_result.converter_identifier, probe_value_matched,
+              _StubbyProbeInfoToDBProbeInfo(probe_info), probe_info_matched,
+              probe_info_override, probe_info_override_matched,
               collections.OrderedDict(comp_values))
           db_builder.SetLinkAVLProbeValue(comp_cls, comp_name, avl_probe_value)
     db = db_builder.Build()

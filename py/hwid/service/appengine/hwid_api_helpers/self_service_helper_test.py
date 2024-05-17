@@ -4,7 +4,6 @@
 
 import datetime
 import os
-import re
 import textwrap
 from typing import Mapping, Optional, Sequence, Tuple, Type
 import unittest
@@ -32,6 +31,7 @@ from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
+from cros.factory.hwid.service.appengine.test_utils import ApplyUnifiedDiff as _ApplyUnifiedDiff
 from cros.factory.hwid.v3 import builder as v3_builder
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import name_pattern_adapter
@@ -95,29 +95,6 @@ _HWID_V3_REGION_FILE = os.path.join(
 _HWID_V3_UPDATE_COMP_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/v3-update-comp.yaml')
-
-
-def _ApplyUnifiedDiff(src: str, diff: str) -> str:
-  src_lines = src.splitlines(keepends=True)
-  src_next_line_no = 0
-  result_lines = []
-  for diff_line in diff.splitlines(keepends=True)[2:]:
-    hunk_header = re.fullmatch(r'@@\s+-(\d+)(?:,\d+)?\s+\+\d+(?:,\d+)?\s+@@',
-                               diff_line.rstrip())
-    if hunk_header:
-      hunk_begin_line_no = int(hunk_header.group(1)) - 1
-      while src_next_line_no < hunk_begin_line_no:
-        result_lines.append(src_lines[src_next_line_no])
-        src_next_line_no += 1
-      continue
-    if diff_line[0] in (' ', '\n'):
-      result_lines.append(src_lines[src_next_line_no])
-      src_next_line_no += 1
-    elif diff_line[0] == '-':
-      src_next_line_no += 1
-    elif diff_line[0] == '+':
-      result_lines.append(diff_line[1:])
-  return ''.join(result_lines + src_lines[src_next_line_no:])
 
 
 def _CreateFakeSelfServiceShard(
@@ -2717,11 +2694,11 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum:
-        +checksum: 24ab053b998f9bd18273c6b2ebfb3d17285eb893
+        +checksum: 1af3ce3098209e2de7b03db964067adcc8de1cf3
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
-        @@ -133,15 +133,25 @@
+        @@ -133,15 +133,37 @@
                    probe_value_matched: true
                comp_cls1_3:
                  status: supported
@@ -2731,22 +2708,34 @@ class SelfServiceShardTest(unittest.TestCase):
         +          converter: converter1
         +          original_values:
         +            value: '3'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
                comp_cls1_4:
-        +        status: supported
-        +        values: !link_avl
+                 status: supported
+                 values: !link_avl
         +          converter: converter2
         +          original_values:
         +            value2: '4'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
         +      comp_cls1_5:
-                 status: supported
-                 values: !link_avl
+        +        status: supported
+        +        values: !link_avl
                    converter: converter1
                    original_values:
         -            value: '4'
         -          probe_value_matched: false
         +            value: '5'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
            comp_cls2:
              items:
@@ -2755,16 +2744,16 @@ class SelfServiceShardTest(unittest.TestCase):
     expected_review_required_diff = textwrap.dedent('''\
         ---
         +++
-        @@ -11,7 +10,7 @@
+        @@ -11,7 +11,7 @@
          # 若修改将使设备配置變為无效，并且不得销售此设备。
          #
          #####
-        -checksum: 24ab053b998f9bd18273c6b2ebfb3d17285eb893
-        +checksum: b5ff010eb9860e7733b7fa21bc0444c4091b4eea
+        -checksum: 1af3ce3098209e2de7b03db964067adcc8de1cf3
+        +checksum: c4b0ec30d8b720f84ebf76ced7f80299bd520b42
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
-        @@ -41,6 +40,7 @@
+        @@ -41,6 +41,7 @@
            - ro_main_firmware_field: 1
            - comp_cls1_field: 2
            - comp_cls2_field: 3
@@ -2772,7 +2761,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
          encoded_fields:
            chassis_field:
-        @@ -76,6 +76,8 @@
+        @@ -76,6 +77,8 @@
                comp_cls1: comp_cls1_3
              3:
                comp_cls1: comp_cls1_4
@@ -2781,7 +2770,7 @@ class SelfServiceShardTest(unittest.TestCase):
            comp_cls2_field:
              0:
                comp_cls2: comp_cls2_6
-        @@ -85,6 +87,8 @@
+        @@ -85,6 +88,8 @@
                comp_cls2: comp_cls2_8
              3:
                comp_cls2: comp_cls2_9
@@ -2790,7 +2779,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
          components:
            mainboard:
-        @@ -167,14 +171,24 @@
+        @@ -179,14 +184,36 @@
                    probe_value_matched: true
                comp_cls2_8:
                  status: supported
@@ -2800,22 +2789,34 @@ class SelfServiceShardTest(unittest.TestCase):
         +          converter: converter1
         +          original_values:
         +            value: '3'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
                comp_cls2_9:
-        +        status: supported
-        +        values: !link_avl
+                 status: supported
+                 values: !link_avl
         +          converter: converter2
         +          original_values:
         +            value2: '4'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
         +      comp_cls2_10:
-                 status: supported
-                 values: !link_avl
+        +        status: supported
+        +        values: !link_avl
                    converter: converter1
                    original_values:
         -            value: '4'
         -          probe_value_matched: false
         +            value: '5'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
         +          probe_value_matched: true
 
          rules: []

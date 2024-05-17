@@ -258,16 +258,14 @@ class LinkAVLTest(unittest.TestCase):
     self.assertFalse(obj.probe_value_matched)
 
   def testAVLProbeValue_Dump(self):
-    # yapf: disable
-    obj = rule.AVLProbeValue('converter', False, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    obj = rule.AVLProbeValue('converter', False, None, False, None, False,
+                             yaml.Dict([('key', 'value')]))
     dump_str = yaml.safe_dump(obj)
     self.assertEqual(yaml.safe_load("{key: value}"), yaml.safe_load(dump_str))
 
   def testAVLProbeValue_DumpInternal(self):
-    # yapf: disable
-    obj1 = rule.AVLProbeValue('converter', True, {'key': 'value'})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    obj1 = rule.AVLProbeValue('converter', True, None, False, None, False,
+                              yaml.Dict([('key', 'value')]))
     dump_str = yaml.safe_dump(obj1, internal=True)
     # Current version of PyYaml does not support sort_keys=False feature in
     # represent_mapping method, so this test only ensures that loaded obj is the
@@ -292,6 +290,100 @@ class LinkAVLTest(unittest.TestCase):
     })
     dump_str = yaml.safe_dump(obj, internal=True)
     self.assertEqual('value: null\n', dump_str)
+
+  def testAVLProbeValue_DumpInternalProbeInfo(self):
+    probe_info1 = rule.AVLProbeInfo('identifier1',
+                                    yaml.Dict([('key', ['value'])]))
+    probe_info2 = rule.AVLProbeInfo('identifier2',
+                                    yaml.Dict([('key', ['value'])]))
+    obj1 = rule.AVLProbeValue('converter', True, probe_info1, True, probe_info2,
+                              True, yaml.Dict([('key', 'value')]))
+    dump_str = yaml.safe_dump(obj1, internal=True)
+    # Current version of PyYaml does not support sort_keys=False feature in
+    # represent_mapping method, so this test only ensures that loaded obj is the
+    # same as the original one.
+    obj2 = yaml.safe_load(dump_str)
+
+    self.assertIsInstance(obj2, rule.AVLProbeValue)
+    self.assertDictEqual(obj2, obj1)
+    self.assertEqual(probe_info1, obj2.probe_info)
+    self.assertEqual(probe_info2, obj2.probe_info_override)
+    self.assertTrue(obj2.probe_info_matched)
+    self.assertTrue(obj2.probe_info_override_matched)
+
+  def testAVLProbeValue_WontDumpNoneProbeInfo(self):
+    obj = yaml.safe_load(
+        textwrap.dedent('''\
+            value: !link_avl
+              converter: converter1
+              probe_value_matched: false
+              original_values: {key: value}
+              probe_info: null
+              probe_info_matched: false
+              probe_info_override: null
+              probe_info_override_matched: false
+            '''))
+    self.assertIsInstance(obj['value'], rule.AVLProbeValue)
+    self.assertIsNone(obj['value'].probe_info)
+    self.assertIsNone(obj['value'].probe_info_override)
+    self.assertFalse(obj['value'].probe_info_matched)
+    self.assertFalse(obj['value'].probe_info_override_matched)
+    dump_str = yaml.safe_dump(obj, internal=True)
+    self.assertEqual(
+        textwrap.dedent('''\
+            value: !link_avl
+              converter: converter1
+              original_values:
+                key: value
+              probe_value_matched: false
+            '''), dump_str)
+
+  def testAVLProbeValue_DumpFalseProbeInfoMatched(self):
+    obj = yaml.safe_load(
+        textwrap.dedent('''\
+            value: !link_avl
+              converter: converter1
+              original_values: {key: value}
+              probe_info:
+                identifier: identifier
+                params:
+                  key:
+                  - value
+              probe_info_matched: false
+              probe_info_override:
+                identifier: identifier
+                params:
+                  key:
+                  - value
+              probe_info_override_matched: false
+              probe_value_matched: false
+            '''))
+    self.assertIsInstance(obj['value'], rule.AVLProbeValue)
+    self.assertIsNotNone(obj['value'].probe_info)
+    self.assertIsNotNone(obj['value'].probe_info_override)
+    self.assertFalse(obj['value'].probe_info_matched)
+    self.assertFalse(obj['value'].probe_info_override_matched)
+    dump_str = yaml.safe_dump(obj, internal=True)
+    self.assertEqual(
+        textwrap.dedent('''\
+            value: !link_avl
+              converter: converter1
+              original_values:
+                key: value
+              probe_info:
+                identifier: identifier
+                params:
+                  key:
+                  - value
+              probe_info_matched: false
+              probe_info_override:
+                identifier: identifier
+                params:
+                  key:
+                  - value
+              probe_info_override_matched: false
+              probe_value_matched: false
+            '''), dump_str)
 
 
 @rule.RuleFunction(['string'])

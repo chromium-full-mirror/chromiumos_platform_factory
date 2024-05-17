@@ -3,14 +3,15 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 import os.path
 import pickle
-import re
 import textwrap
 from typing import Iterable, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple
 import unittest
 
 from cros.factory.hwid.service.appengine import change_unit_utils
+from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
@@ -20,6 +21,7 @@ from cros.factory.utils import file_utils
 
 
 # Shorter identifiers.
+_ApplyUnifiedDiff = test_utils.ApplyUnifiedDiff
 _HWIDComponentAnalysisResult = contents_analyzer.HWIDComponentAnalysisResult
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
 _DiffStatus = contents_analyzer.DiffStatus
@@ -46,29 +48,6 @@ _TEST_DATABASE_NAME = 'test_change_unit_db.yaml'
 _TEST_INITIAL_DB_NAME = 'test_database_initial.yaml'
 _TEST_DATABASE_PATH = os.path.join(_TEST_DATA_PATH, _TEST_DATABASE_NAME)
 _TEST_INITIAL_DB_PATH = os.path.join(_TEST_DATA_PATH, _TEST_INITIAL_DB_NAME)
-
-
-def _ApplyUnifiedDiff(src: str, diff: str) -> str:
-  src_lines = src.splitlines(keepends=True)
-  src_next_line_no = 0
-  result_lines = []
-  for diff_line in diff.splitlines(keepends=True)[2:]:
-    hunk_header = re.fullmatch(r'@@\s+-(\d+)(?:,\d+)?\s+\+\d+(?:,\d+)?\s+@@',
-                               diff_line.rstrip())
-    if hunk_header:
-      hunk_begin_line_no = int(hunk_header.group(1)) - 1
-      while src_next_line_no < hunk_begin_line_no:
-        result_lines.append(src_lines[src_next_line_no])
-        src_next_line_no += 1
-      continue
-    if diff_line[0] in (' ', '\n'):
-      result_lines.append(src_lines[src_next_line_no])
-      src_next_line_no += 1
-    elif diff_line[0] == '-':
-      src_next_line_no += 1
-    elif diff_line[0] == '+':
-      result_lines.append(diff_line[1:])
-  return ''.join(result_lines + src_lines[src_next_line_no:])
 
 
 def _GenerateNewComponentAnalysis(seq_no: int, comp_cls: str = 'comp_cls_1',
@@ -366,15 +345,15 @@ class CompChangeTest(ChangeUnitTestBase):
         v3_rule.AVLProbeValue(
             identifier='identifier1',
             probe_value_matched=True,
-            # yapf: disable
-            values={  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                'field1': 'value1',
-                'field2': 'value2'
-            },
-        ),
-        'supported',
-        {
+            probe_info=None,
+            probe_info_matched=False,
+            probe_info_override=None,
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('field1', 'value1'),
+                ('field2', 'value2'),
+            ]),
+        ), 'supported', {
             'info1': 'val1'
         })
     new_comp = _CompChange(

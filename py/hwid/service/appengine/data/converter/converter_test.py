@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 from typing import Mapping, Tuple
 import unittest
 
@@ -735,25 +736,41 @@ class ConverterManagerTest(unittest.TestCase):
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            # yapf: disable
             identifier='converter1',
             probe_value_matched=True,
-            values={  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                'converted_key1': 'value1',
-                'converted_key2': 'value2'
-            }),
+            probe_info=v3_rule.AVLProbeInfo(
+                '',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['value1']),
+                    ('avl_attr_name2', ['value2']),
+                ])),
+            probe_info_matched=True,
+            probe_info_override=None,
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('converted_key1', 'value1'),
+                ('converted_key2', 'value2'),
+            ]),
+        ),
         avl_linked_db.GetComponents(comp_cls)[comp_name1].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            # yapf: disable
             identifier='converter1',
             probe_value_matched=False,
-            values={  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                'converted_key1': 'value1',
-                'converted_key2': 'value-not-2'
-            }),
+            probe_info=v3_rule.AVLProbeInfo(
+                '',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['value1']),
+                    ('avl_attr_name2', ['value2']),
+                ])),
+            probe_info_matched=False,
+            probe_info_override=None,
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('converted_key1', 'value1'),
+                ('converted_key2', 'value-not-2'),
+            ]),
+        ),
         avl_linked_db.GetComponents(comp_cls)[comp_name2].values)
 
   def testLinkAVL_LookupProbeInfoByCIDQID(self):
@@ -801,26 +818,116 @@ class ConverterManagerTest(unittest.TestCase):
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            # yapf: disable
             identifier='converter1',
             probe_value_matched=True,
-            values={  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                'converted_key1': 'value1',
-                'converted_key2': 'value2'
-            }),
+            probe_info=v3_rule.AVLProbeInfo(
+                '',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['value1']),
+                    ('avl_attr_name2', ['value2']),
+                ])),
+            probe_info_matched=True,
+            probe_info_override=None,
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('converted_key1', 'value1'),
+                ('converted_key2', 'value2'),
+            ]),
+        ),
         avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
-            # yapf: disable
             identifier='converter1',
             probe_value_matched=True,
-            values={  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                'converted_key1': 'value1',
-                'converted_key2': 'another-value2'
-            }),
+            probe_info=v3_rule.AVLProbeInfo(
+                '',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['value1']),
+                    ('avl_attr_name2', ['another-value2']),
+                ])),
+            probe_info_matched=True,
+            probe_info_override=None,
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('converted_key1', 'value1'),
+                ('converted_key2', 'another-value2'),
+            ]),
+        ),
         avl_linked_db.GetComponents('comp_cls')['comp_cls_123_2'].values)
+
+  def testLinkAVL_ProbeInfoOverridePreserved(self):
+    # Arrange.
+    test_converter = converter.FieldNameConverter.FromFieldMap(
+        'converter1', {
+            TestAVLAttrs.AVL_ATTR1:
+                converter.ConvertedValueSpec('converted_key1'),
+            TestAVLAttrs.AVL_ATTR2:
+                converter.ConvertedValueSpec('converted_key2'),
+        })
+    converter_collection = converter.ConverterCollection('comp_cls')
+    converter_collection.AddConverter(test_converter)
+    converter_manager = converter_utils.ConverterManager({
+        'comp_cls': converter_collection
+    })
+    with v3_builder.DatabaseBuilder.FromEmpty('CHROMEBOOK', 'PROTO') as builder:
+      value = v3_rule.AVLProbeValue(
+          identifier='converter1',
+          probe_value_matched=True,
+          probe_info=None,
+          probe_info_matched=False,
+          probe_info_override=v3_rule.AVLProbeInfo(
+              'identifier',
+              collections.OrderedDict([
+                  ('avl_attr_name1', ['override_value1']),
+                  ('avl_attr_name2', ['value2']),
+              ])),
+          probe_info_override_matched=True,
+          values=collections.OrderedDict([
+              ('converted_key1', 'value1'),
+              ('converted_key2', 'value2'),
+          ]),
+      )
+      builder.AddComponent('comp_cls', 'comp_cls_123_1', value, 'supported')
+    db_with_components_only = builder.Build().DumpDataWithoutChecksum(
+        internal=True)
+    avl_resource = _HWIDDBExternalResourceFromProbeInfos({
+        (123, 1):
+            _ProbeInfoFromMapping({
+                'avl_attr_name1': 'value1',
+                'avl_attr_name2': 'value2',
+            }),
+    })
+
+    # Act.
+    avl_linked_db_content = converter_manager.LinkAVL(db_with_components_only,
+                                                      avl_resource)
+
+    # Assert.
+    avl_linked_db = database.Database.LoadData(avl_linked_db_content)
+    self.assertEqual(
+        v3_rule.AVLProbeValue(
+            identifier='converter1',
+            probe_value_matched=True,
+            probe_info=v3_rule.AVLProbeInfo(
+                '',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['value1']),
+                    ('avl_attr_name2', ['value2']),
+                ])),
+            probe_info_matched=True,
+            probe_info_override=v3_rule.AVLProbeInfo(
+                'identifier',
+                collections.OrderedDict([
+                    ('avl_attr_name1', ['override_value1']),
+                    ('avl_attr_name2', ['value2']),
+                ])),
+            probe_info_override_matched=False,
+            values=collections.OrderedDict([
+                ('converted_key1', 'value1'),
+                ('converted_key2', 'value2'),
+            ]),
+        ),
+        avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
 
 
 if __name__ == '__main__':

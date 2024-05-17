@@ -11,13 +11,16 @@ http://pyyaml.org/wiki/PyYAMLDocumentation#Constructorsrepresentersresolvers
 for some examples.
 """
 
+from __future__ import annotations
+
 import collections
+import dataclasses
 import functools
 import logging
 import re
 import threading
 import time
-from typing import Optional, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 from cros.factory.utils import type_utils
 
@@ -386,31 +389,81 @@ class InternalTags:
   """A parent class of internal tags."""
 
 
+@dataclasses.dataclass
+class AVLProbeInfo:
+  identifier: str
+  params: collections.OrderedDict[str, Sequence[str]]
+
+  def Sorted(self) -> AVLProbeInfo:
+    return AVLProbeInfo(
+        self.identifier,
+        collections.OrderedDict(
+            sorted((key, sorted(value)) for key, value in self.params.items())))
+
+  def ToDict(self) -> Mapping[str, Any]:
+    return {
+        'identifier': self.identifier,
+        'params': self.params,
+    }
+
+
 class AVLProbeValue(collections.OrderedDict, InternalTags):
   """A class which holds the probe values linked with the ones on AVL.
+
+  Attributes:
+    identifier: String to identify the converter used during matching.
+    probe_value_matched: If the probe values are matched.
+    probe_info: Cached probe info to match the probe value.
+    probe_info_matched: If probe_info matches probe value.
+    probe_info_override: Another probe value which is maintained manually.
+    probe_info_override_matched: If probe_info_override matches probe value.
   """
 
   def __init__(self, identifier: Optional[str], probe_value_matched: bool,
+               probe_info: Optional[AVLProbeInfo], probe_info_matched: bool,
+               probe_info_override: Optional[AVLProbeInfo],
+               probe_info_override_matched: bool,
                values: collections.OrderedDict, *args, **kwargs):
     if values is None:
       raise ValueError("values shouldn't be None")
     super().__init__(values, *args, **kwargs)
     self._converter_identifier = identifier
     self._probe_value_matched = probe_value_matched
+    self._probe_info = probe_info
+    self._probe_info_matched = probe_info_matched
+    self._probe_info_override = probe_info_override
+    self._probe_info_override_matched = probe_info_override_matched
 
   def __eq__(self, rhs):
-    return (self.__class__ is rhs.__class__ and
-            super().__eq__(rhs) and
+    return (self.__class__ is rhs.__class__ and super().__eq__(rhs) and
             self.converter_identifier == rhs.converter_identifier and
-            self.probe_value_matched == rhs.probe_value_matched)
+            self.probe_value_matched == rhs.probe_value_matched and
+            self._probe_info == rhs.probe_info and
+            self._probe_info_matched == rhs.probe_info_matched and
+            self._probe_info_override == rhs.probe_info_override and
+            self._probe_info_override_matched
+            == rhs.probe_info_override_matched)
 
   def __reduce__(self):
     args = (
         self._converter_identifier,
         self._probe_value_matched,
+        self._probe_info,
+        self._probe_info_matched,
+        self._probe_info_override,
+        self._probe_info_override_matched,
         collections.OrderedDict(self),
     )
     return (self.__class__, args)
+
+  def Sorted(self) -> AVLProbeValue:
+    sort_optional = lambda x: x.Sorted() if x is not None else None
+    return AVLProbeValue(self._converter_identifier, self._probe_value_matched,
+                         sort_optional(self._probe_info),
+                         self._probe_info_matched,
+                         sort_optional(self._probe_info_override),
+                         self._probe_info_override_matched,
+                         collections.OrderedDict(sorted(self.items())))
 
   @property
   def converter_identifier(self) -> Optional[str]:
@@ -419,6 +472,22 @@ class AVLProbeValue(collections.OrderedDict, InternalTags):
   @property
   def probe_value_matched(self) -> bool:
     return self._probe_value_matched
+
+  @property
+  def probe_info(self) -> Optional[AVLProbeInfo]:
+    return self._probe_info
+
+  @property
+  def probe_info_matched(self) -> bool:
+    return self._probe_info_matched
+
+  @property
+  def probe_info_override(self) -> Optional[AVLProbeInfo]:
+    return self._probe_info_override
+
+  @property
+  def probe_info_override_matched(self) -> bool:
+    return self._probe_info_override_matched
 
 
 class FromFactoryBundle(collections.OrderedDict, InternalTags):

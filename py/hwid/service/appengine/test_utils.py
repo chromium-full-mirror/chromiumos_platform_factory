@@ -4,6 +4,7 @@
 
 import fnmatch
 import math
+import re
 import tempfile
 import time
 from typing import Callable, Optional
@@ -182,3 +183,26 @@ class FakeModuleCollection:
   def AddAVLNameMapping(self, component_id, name):
     with self._ndb_connector.CreateClientContext():
       decoder_data.AVLNameMapping(component_id=component_id, name=name).put()
+
+
+def ApplyUnifiedDiff(src: str, diff: str) -> str:
+  src_lines = src.splitlines(keepends=True)
+  src_next_line_no = 0
+  result_lines = []
+  for diff_line in diff.splitlines(keepends=True)[2:]:
+    hunk_header = re.fullmatch(r'@@\s+-(\d+)(?:,\d+)?\s+\+\d+(?:,\d+)?\s+@@',
+                               diff_line.rstrip())
+    if hunk_header:
+      hunk_begin_line_no = int(hunk_header.group(1)) - 1
+      while src_next_line_no < hunk_begin_line_no:
+        result_lines.append(src_lines[src_next_line_no])
+        src_next_line_no += 1
+      continue
+    if diff_line[0] in (' ', '\n'):
+      result_lines.append(src_lines[src_next_line_no])
+      src_next_line_no += 1
+    elif diff_line[0] == '-':
+      src_next_line_no += 1
+    elif diff_line[0] == '+':
+      result_lines.append(diff_line[1:])
+  return ''.join(result_lines + src_lines[src_next_line_no:])

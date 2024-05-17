@@ -61,7 +61,8 @@ class AVLProbeValueTest(unittest.TestCase):
     values = collections.OrderedDict({
         'key': 'value'
     })
-    apv = v3_rule.AVLProbeValue('identifier', False, values)
+    apv = v3_rule.AVLProbeValue('identifier', False, None, False, None, False,
+                                values)
 
     self.assertEqual(apv.converter_identifier, 'identifier')
     self.assertFalse(apv.probe_value_matched, False)
@@ -69,13 +70,90 @@ class AVLProbeValueTest(unittest.TestCase):
 
   def testNoneValues(self):
     self.assertRaisesRegex(ValueError, "values shouldn't be None",
-                           v3_rule.AVLProbeValue, 'identifier', False, None)
+                           v3_rule.AVLProbeValue, 'identifier', False, None,
+                           False, None, False, None)
+
+  def testProbeInfo(self):
+    probe_info = v3_rule.AVLProbeInfo(
+        'identifier',
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1']),
+        ]))
+    apv = v3_rule.AVLProbeValue('', False, probe_info, True, None, False,
+                                collections.OrderedDict())
+    assert apv.probe_info is not None
+    self.assertEqual(apv.probe_info.identifier, 'identifier')
+    self.assertEqual(
+        apv.probe_info.params,
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1']),
+        ]))
+    self.assertTrue(apv.probe_info_matched)
+    self.assertIsNone(apv.probe_info_override)
+    self.assertFalse(apv.probe_info_override_matched)
+
+    apv2 = v3_rule.AVLProbeValue('', False, None, False, probe_info, True,
+                                 collections.OrderedDict())
+    assert apv2.probe_info_override is not None
+    self.assertEqual(apv2.probe_info_override.identifier, 'identifier')
+    self.assertEqual(
+        apv2.probe_info_override.params,
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1']),
+        ]))
+    self.assertTrue(apv2.probe_info_override_matched)
+    self.assertIsNone(apv2.probe_info)
+    self.assertFalse(apv2.probe_info_matched)
 
   def testPickle(self):
-    apv = v3_rule.AVLProbeValue('', False,
+    probe_info = v3_rule.AVLProbeInfo(
+        'identifier',
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1']),
+        ]))
+    apv = v3_rule.AVLProbeValue('', False, probe_info, True, probe_info, True,
                                 collections.OrderedDict([('key', 'value')]))
 
     self.assertEqual(apv, pickle.loads(pickle.dumps(apv)))
+
+  def testSorted(self):
+    probe_info1 = v3_rule.AVLProbeInfo(
+        'identifier1',
+        collections.OrderedDict([
+            ('key2', ['value2', 'value1']),
+            ('key1', ['value2', 'value1']),
+        ]))
+    sorted_probe_info1 = v3_rule.AVLProbeInfo(
+        'identifier1',
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1', 'value2']),
+        ]))
+    probe_info2 = v3_rule.AVLProbeInfo(
+        'identifier2',
+        collections.OrderedDict([
+            ('key2', ['value2', 'value1']),
+            ('key1', ['value2', 'value1']),
+        ]))
+    sorted_probe_info2 = v3_rule.AVLProbeInfo(
+        'identifier2',
+        collections.OrderedDict([
+            ('key1', ['value1', 'value2']),
+            ('key2', ['value1', 'value2']),
+        ]))
+    apv = v3_rule.AVLProbeValue(
+        '', False, probe_info1, True, probe_info2, True,
+        collections.OrderedDict([('key2', 'value2'), ('key1', 'value1')]))
+
+    self.assertEqual(
+        apv.Sorted(),
+        v3_rule.AVLProbeValue(
+            '', False, sorted_probe_info1, True, sorted_probe_info2, True,
+            collections.OrderedDict([('key1', 'value1'), ('key2', 'value2')])))
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@
 # 若修改将使设备配置變為无效，并且不得销售此设备。
 #
 #####
-checksum: 808d9939fd4261e0328205d65f47fe05db7c4fe6
+checksum: 50fd54593c11bdbbdc015eb863e4640facf74b84
 
 ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -173,35 +173,43 @@ components:
   audio_codec:
     items:
       codec_0:
+        status: supported
         values:
           compact_str: Codec 0
       codec_1:
+        status: supported
         values:
           compact_str: Codec 1
       hdmi_0:
+        status: supported
         values:
           compact_str: HDMI 0
       hdmi_1:
+        status: supported
         values:
           compact_str: HDMI 1
   battery:
     items:
       battery_small:
+        status: supported
         values:
           manufacturer: manufacturer1
           model_name: model1
           technology: Battery Li-ion
       battery_medium:
+        status: supported
         values:
           manufacturer: manufacturer2
           model_name: model2
           technology: Battery Li-ion
       battery_large:
+        status: supported
         values:
           manufacturer: manufacturer3
           model_name: model3
           technology: Battery Li-ion
       battery_huge:
+        status: supported
         values:
           manufacturer: manufacturer4
           model_name: model4
@@ -209,6 +217,7 @@ components:
   bluetooth:
     items:
       bluetooth_0:
+        status: supported
         values:
           idVendor: '0123'
           idProduct: abcd
@@ -216,6 +225,7 @@ components:
   camera:
     items:
       camera_0:
+        status: supported
         values:
           idVendor: '4567'
           idProduct: abcd
@@ -223,6 +233,7 @@ components:
   cellular:
     items:
       cellular_0:
+        status: supported
         values:
           idVendor: 89ab
           idProduct: abcd
@@ -230,31 +241,38 @@ components:
   chipset:
     items:
       chipset_0:
+        status: supported
         values:
           compact_str: cdef:abcd
   cpu:
     items:
       cpu_0:
+        status: supported
         values:
           name: CPU @ 1.80GHz
           cores: '4'
       cpu_1:
+        status: supported
         values:
           name: CPU @ 2.00GHz
           cores: '4'
       cpu_2:
+        status: supported
         values:
           name: CPU @ 2.20GHz
           cores: '4'
       cpu_3:
+        status: supported
         values:
           name: CPU @ 2.40GHz
           cores: '4'
       cpu_4:
+        status: supported
         values:
           name: CPU @ 2.60GHz
           cores: '4'
       cpu_5:
+        status: supported
         values:
           name: CPU @ 2.80GHz
           cores: '4'
@@ -262,112 +280,166 @@ components:
     probeable: false
     items:
       display_panel_0:
+        status: supported
         values: null
   dram:
     items:
       dram_0:
+        status: supported
         values:
           part: part0
           size: 4G
       dram_1:
+        status: supported
         values:
           part: part1
           size: 4G
       dram_1234_5678:
+        status: supported
         values:
           part: part2
           size: 4G
       dram_1234_5678#4:
+        status: supported
         values:
           part: part2
           size: 4G
           slot: '3'
       not_dram_1234_5678:
+        status: supported
         values:
           part: part3
           size: 4G
   ec_flash_chip:
     items:
       ec_flash_chip_0:
+        status: supported
         values:
           compact_str: EC Flash Chip
   embedded_controller:
     items:
       embedded_controller_0:
+        status: supported
         values:
           compact_str: Embedded Controller
   flash_chip:
     items:
       flash_chip_0:
+        status: supported
         values:
           compact_str: Flash Chip
   keyboard:
     probeable: false
     items:
       keyboard_gb:
+        status: supported
         values: null
       keyboard_us:
+        status: supported
         values: null
   storage:
     items:
       storage_0:
+        status: supported
         values: !link_avl
           converter: test-converter1
-          probe_value_matched: true
           original_values:
             model: model0
             sectors: '0'
             serial: !re '#123\d+$'
             vendor: vendor0
+          probe_info:
+            identifier: storage_func
+            params:
+              pi_model:
+              - model0
+              pi_vendor:
+              - vendor0
+              pi_sectors:
+              - '0'
+          probe_info_matched: true
+          probe_value_matched: true
       storage_1:
+        status: supported
         values:
           model: model1
           sectors: '100'
           vendor: vendor1
           serial: !re '#123\d+$'
       storage_2:
+        status: supported
         values: !link_avl
           converter: test-converter1
-          probe_value_matched: false
           original_values:
             model: model2
             sectors: '200'
             vendor: vendor2
+          probe_info:
+            identifier: storage_func
+            params:
+              pi_model:
+              - model2
+              pi_vendor:
+              - vendor2
+              pi_sectors:
+              - '201'
+          probe_value_matched: false
         information:
           comp_group: storage_0
       storage_3:
+        status: supported
         values: !link_avl
           converter: null
-          probe_value_matched: false
           original_values:
             model: model3
             sectors: '300'
             vendor: vendor3
+          probe_info:
+            identifier: storage_func
+            params:
+              pi_vendor:
+              - vendor3
+              pi_sectors:
+              - '300'
+          probe_value_matched: false
       storage_4:
+        status: supported
         values: !link_avl
           converter: test-converter2
-          probe_value_matched: true
           original_values:
             mmc_name: name4
             mmc_manfid: '0x0000ab'
+          probe_info:
+            identifier: storage_func
+            params:
+              pi_name:
+              - name4
+              pi_manfid:
+              - ab
+          probe_info_matched: true
+          probe_value_matched: true
   hash_gbb:
     items:
       hash_gbb_0:
+        status: supported
         values:
           compact_str: gv2#hash_gbb_0
   key_recovery:
     items:
       key_recovery_0:
+        status: supported
         values:
           compact_str: kv3#key_recovery_0
   key_root:
     items:
       key_root_0:
+        status: supported
         values:
           compact_str: kv3#key_root_0
   ro_ec_firmware:
     items:
       ro_ec_firmware_0:
+        status: supported
         values:
           compact_str: ev2#ro_ec_firmware_0
       ro_ec_firmware_1: !from_factory_bundle
@@ -381,6 +453,7 @@ components:
       ro_main_firmware_0: !from_factory_bundle
         bundle_uuids:
         - uuid1
+        status: supported
         values:
           compact_str: mv2#ro_main_firmware_0
       ro_main_firmware_1: !from_factory_bundle
