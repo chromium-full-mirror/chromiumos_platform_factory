@@ -404,6 +404,14 @@ class AVLProbeValue(collections.OrderedDict, InternalTags):
             self.converter_identifier == rhs.converter_identifier and
             self.probe_value_matched == rhs.probe_value_matched)
 
+  def __reduce__(self):
+    args = (
+        self._converter_identifier,
+        self._probe_value_matched,
+        collections.OrderedDict(self),
+    )
+    return (self.__class__, args)
+
   @property
   def converter_identifier(self) -> Optional[str]:
     return self._converter_identifier

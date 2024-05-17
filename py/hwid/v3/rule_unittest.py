@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 import collections
+import pickle
 import unittest
 
 from cros.factory.hwid.v3 import rule as v3_rule
@@ -69,6 +70,12 @@ class AVLProbeValueTest(unittest.TestCase):
   def testNoneValues(self):
     self.assertRaisesRegex(ValueError, "values shouldn't be None",
                            v3_rule.AVLProbeValue, 'identifier', False, None)
+
+  def testPickle(self):
+    apv = v3_rule.AVLProbeValue('', False,
+                                collections.OrderedDict([('key', 'value')]))
+
+    self.assertEqual(apv, pickle.loads(pickle.dumps(apv)))
 
 
 if __name__ == '__main__':
