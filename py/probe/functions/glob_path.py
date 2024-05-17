@@ -8,10 +8,11 @@ import os
 from cros.factory.probe.lib import probe_function
 from cros.factory.utils.arg_utils import Arg
 
+
 DEFAULT_KEY = 'path'
 
 
-class GlobPathFunction(probe_function.ProbeFunction):
+class GlobPathFunction(probe_function.AbstractProbeFunction):
   """Finds all the pathnames matching the pattern.
 
   Description

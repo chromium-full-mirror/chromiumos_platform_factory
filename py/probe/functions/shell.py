@@ -9,10 +9,11 @@ from cros.factory.probe.lib import probe_function
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 
+
 DEFAULT_KEY = 'shell_raw'
 
 
-class ShellFunction(probe_function.ProbeFunction):
+class ShellFunction(probe_function.AbstractProbeFunction):
   """Execute the shell command and return the output.
 
   Description

@@ -11,7 +11,8 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class ConcatFunctionTest(unittest.TestCase):
-  class MockFunction(probe_function.ProbeFunction):
+
+  class MockFunction(probe_function.AbstractProbeFunction):
     ARGS = [Arg('data', (list, dict), 'The probed data.')]
     def Probe(self):
       return self.args.data

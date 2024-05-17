@@ -17,11 +17,11 @@ def CreateRuntimeProbeFunction(probe_function_name, args):
     probe_function_name: runtime probe function name to be called.
     args: See cros.factory.probe.Function.ARGS.
   Returns:
-    A class derived from probe_function.ProbeFunction to run the runtime probe
-    function.
+    A class derived from probe_function.AbstractProbeFunction to run the runtime
+    probe function.
   """
 
-  class RuntimeProbeFunction(probe_function.ProbeFunction):
+  class RuntimeProbeFunction(probe_function.AbstractProbeFunction):
     FUNCTION_NAME = probe_function_name
     ARGS = args
 

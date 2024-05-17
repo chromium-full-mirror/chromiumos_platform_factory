@@ -18,7 +18,7 @@ class Sequence(combination_function.CombinationFunction):
     ...
 
   This function is very useful when you want to union the outputs of a series
-  of :ref:`probe functions <ProbeFunction>`.
+  of :ref:`probe functions <AbstractProbeFunction>`.
 
   Examples
   --------

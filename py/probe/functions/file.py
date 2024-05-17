@@ -29,7 +29,7 @@ def ReadFile(path, binary_mode=False, skip=0, size=-1):
   return data
 
 
-class FileFunction(probe_function.ProbeFunction):
+class FileFunction(probe_function.AbstractProbeFunction):
   """Read the content of a file.
 
   Description

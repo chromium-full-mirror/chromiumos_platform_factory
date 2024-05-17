@@ -92,7 +92,7 @@ def Hexify(value):
   return f'0x{number:02x}'
 
 
-class I2CFunction(probe_function.ProbeFunction):
+class I2CFunction(probe_function.AbstractProbeFunction):
   """Probes the I2C device.
 
   Description

@@ -80,9 +80,12 @@ class EvalFunctionCmd(SubCommand):
   @classmethod
   def _AddArgument(cls, parser):
     function.LoadFunctions()
-    func_list = [func_name for func_name in function.GetRegisteredFunctions()
-                 if issubclass(function.GetFunctionClass(func_name),
-                               probe_function.ProbeFunction)]
+    func_list = [
+        func_name for func_name in function.GetRegisteredFunctions()
+        if issubclass(
+            function.GetFunctionClass(func_name),
+            probe_function.AbstractProbeFunction)
+    ]
     func_parsers = parser.add_subparsers()
     for func_name in func_list:
       func_cls = function.GetFunctionClass(func_name)

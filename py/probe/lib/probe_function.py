@@ -7,7 +7,7 @@ import copy
 from cros.factory.probe import function
 
 
-class ProbeFunction(function.Function):
+class AbstractProbeFunction(function.Function):
   """The base class of probe functions.
 
   While evaluation, the function probes the result, and update to the input

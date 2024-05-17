@@ -11,11 +11,12 @@ from cros.factory.probe.lib import probe_function
 
 
 class ProbeFunctionTest(unittest.TestCase):
-  class MockProbeFunction(probe_function.ProbeFunction):
+
+  class MockProbeFunction(probe_function.AbstractProbeFunction):
     def Probe(self):
       return {'result': 'FOO'}
 
-  class MockProbeFunction2(probe_function.ProbeFunction):
+  class MockProbeFunction2(probe_function.AbstractProbeFunction):
     def Probe(self):
       return [{'result': 'FOO1'}, {'result': 'FOO2'}]
 
