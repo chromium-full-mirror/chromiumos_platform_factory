@@ -10,7 +10,7 @@ A plugin to query data in BigQuery.
 
 import abc
 
-import google.auth
+import google.auth  # type: ignore #TODO(b/338318729) Fixit!
 from google.auth import impersonated_credentials
 from google.cloud import bigquery
 from google.oauth2 import service_account

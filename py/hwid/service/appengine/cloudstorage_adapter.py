@@ -9,7 +9,7 @@ import logging
 import os.path
 from typing import Optional, Sequence, Union
 
-import google.cloud.exceptions
+import google.cloud.exceptions  # type: ignore #TODO(b/338318729) Fixit!
 from google.cloud import storage
 
 

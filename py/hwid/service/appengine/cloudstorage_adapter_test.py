@@ -9,7 +9,7 @@ from typing import NamedTuple
 import unittest
 from unittest import mock
 
-import google.cloud.exceptions
+import google.cloud.exceptions  # type: ignore #TODO(b/338318729) Fixit!
 
 from cros.factory.hwid.service.appengine import cloudstorage_adapter
 from cros.factory.hwid.v3 import filesystem_adapter

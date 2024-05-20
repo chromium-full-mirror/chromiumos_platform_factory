@@ -12,7 +12,7 @@ from . import file_utils
 
 
 try:
-  import google.auth
+  import google.auth  # type: ignore #TODO(b/338318729) Fixit!
   from google.auth import impersonated_credentials
   from google.cloud import storage
   from google.oauth2 import service_account

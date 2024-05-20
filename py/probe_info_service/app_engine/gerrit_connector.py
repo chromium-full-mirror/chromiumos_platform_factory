@@ -12,7 +12,7 @@ import urllib.parse
 # yapf: disable
 import certifi  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 # yapf: enable
-import google.auth
+import google.auth  # type: ignore #TODO(b/338318729) Fixit!
 # yapf: disable
 import urllib3  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 

@@ -20,22 +20,16 @@ import urllib.parse
 
 # yapf: disable
 import certifi  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
-# yapf: disable
 from dulwich import client as dw_client  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
 from dulwich import errors as dw_errors
 from dulwich import objects as dw_objects
 from dulwich import porcelain
 from dulwich import refs as dw_refs
 from dulwich import repo as dw_repo
-import google.auth
+import google.auth  # type: ignore #TODO(b/338318729) Fixit!
 from google.auth import impersonated_credentials
 import google.auth.transport.requests
-# yapf: disable
 import urllib3  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
-# yapf: disable
 import urllib3.exceptions  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 from cros.factory.hwid.v3 import filesystem_adapter

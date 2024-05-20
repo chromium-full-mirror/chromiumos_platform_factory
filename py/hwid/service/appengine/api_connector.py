@@ -7,7 +7,7 @@ import os
 from typing import Mapping, Sequence
 import urllib
 
-import google.auth
+import google.auth  # type: ignore #TODO(b/338318729) Fixit!
 from google.auth import impersonated_credentials
 from google.auth.transport import requests as ga_requests
 
