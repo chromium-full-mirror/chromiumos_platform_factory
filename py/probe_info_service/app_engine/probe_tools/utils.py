@@ -37,6 +37,8 @@ def ToRestrictedPatternArray(pattern: str) -> Sequence[str]:
     `re.error`: If `pattern` is not a valid regex pattern.
   """
   # Make sure the pattern is a valid regex pattern.
+  # TODO(b/341607226): Make sure pattern is str.
+  pattern = str(pattern)
   re.compile(pattern)
 
   def _HandleCharacterSet(pattern_it: Iterator) -> str:

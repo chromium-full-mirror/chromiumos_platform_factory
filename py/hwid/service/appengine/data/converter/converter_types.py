@@ -140,4 +140,6 @@ class FormattedStrType(str, ConvertedValueType):
 class FormattedRegexStrType(FormattedStrType):
 
   def IsEqual(self, formatted_self: str, formatted_other: str) -> bool:
+    # TODO(b/341607226): Make sure formatted_self is str.
+    formatted_self = str(formatted_self)
     return bool(re.fullmatch(formatted_self, formatted_other))
