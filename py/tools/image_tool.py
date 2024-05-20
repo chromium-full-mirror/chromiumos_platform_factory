@@ -14,7 +14,6 @@ import abc
 import argparse
 import contextlib
 import copy
-from distutils import version as version_utils
 import errno
 import glob
 import inspect
@@ -33,6 +32,7 @@ import time
 from typing import Any, Dict
 import urllib.parse
 
+from packaging import version as version_utils
 import yaml
 
 
@@ -2894,12 +2894,11 @@ class ChromeOSFactoryBundle:
       test_configs = self._ParseCrosConfig(designs, rootfs)
       if not test_configs:
         lsb_data = LSBFile(os.path.join(rootfs, 'etc', 'lsb-release'))
-        version = version_utils.LooseVersion(
-            lsb_data.GetChromeOSVersion(remove_milestone=True))
-        if version < version_utils.LooseVersion('10212.0.0'):
-          print(
-              f'Skip cros_config verification for early test image: {version!r}'
-          )
+        version_string = lsb_data.GetChromeOSVersion(remove_milestone=True)
+        parsed_version = version_utils.parse(version_string)
+        if parsed_version < version_utils.parse('10212.0.0'):
+          print(f'Skip cros_config verification for early test image: '
+                f'{version_string!r}')
           return
 
     release_part = Partition(self.release_image, PART_CROS_ROOTFS_A)
