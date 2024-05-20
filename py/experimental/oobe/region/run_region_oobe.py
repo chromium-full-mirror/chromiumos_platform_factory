@@ -44,7 +44,6 @@ def main():
           'stop ui; '
           # Update the VPD
           f'vpd {vpd_command_args}; '
-          'dump_vpd_log --force; '
           # Delete local state to re-run OOBE
           'rm -rf /home/chronos /home/user; '
           # Restart the UI
