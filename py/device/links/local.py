@@ -5,7 +5,7 @@
 """Implementation of cros.factory.device.device_types.IDeviceLink on local
 system."""
 
-import pipes
+import shlex
 import shutil
 import subprocess
 from typing import IO, Any, Optional, Sequence, Union
@@ -68,7 +68,7 @@ class LocalLink(device_types.IDeviceLink):
     # file or directory' error.
 
     if not isinstance(command, str):
-      command = ' '.join(pipes.quote(param) for param in command)
+      command = ' '.join(shlex.quote(param) for param in command)
 
     if self._shell_path:
       # Shell path is specified and we have to quote explicitly.

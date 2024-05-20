@@ -17,8 +17,8 @@ import functools
 import json
 import logging
 import os
-import pipes
 import re
+import shlex
 import sys
 from tempfile import gettempdir
 import threading
@@ -381,7 +381,7 @@ def CreateReportArchive(device_sn=None, add_file=None):
       raise Error(f'Not an absolute path: {f}')
     if not os.path.exists(f):
       raise Error(f'File does not exist: {f}')
-    tar_cmd += f' {pipes.quote(f[1:])}'
+    tar_cmd += f' {shlex.quote(f[1:])}'
   cmd_result = Shell(tar_cmd)
 
   if cmd_result.status == 1:
@@ -1258,7 +1258,7 @@ def UploadReport(options):
                                 retry_interval=retry_interval,
                                 allow_fail=options.upload_allow_fail)
   elif method == 'cpfe':
-    report_upload.CpfeUpload(target_path, pipes.quote(param),
+    report_upload.CpfeUpload(target_path, shlex.quote(param),
                              max_retry_times=options.upload_max_retry_times,
                              retry_interval=retry_interval,
                              allow_fail=options.upload_allow_fail)

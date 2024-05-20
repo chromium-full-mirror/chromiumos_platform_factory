@@ -6,7 +6,7 @@
 
 import glob
 import logging
-import pipes
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -28,7 +28,7 @@ def CommandsToShell(command: Union[str, Sequence[str]]) -> str:
   """
   if isinstance(command, str):
     return command
-  return ' '.join(map(pipes.quote, command))
+  return ' '.join(map(shlex.quote, command))
 
 
 class SystemInterface:

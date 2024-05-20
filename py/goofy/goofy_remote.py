@@ -10,8 +10,8 @@ import argparse
 import glob
 import logging
 import os
-import pipes
 import re
+import shlex
 import sys
 from typing import Union
 
@@ -193,7 +193,7 @@ def main():
 
   # Call goofy_remote on the remote host, allowing it to tweak test lists.
   ssh_runner.Spawn(
-      ['goofy_remote', '--local'] + [pipes.quote(x) for x in sys.argv[1:]],
+      ['goofy_remote', '--local'] + [shlex.quote(x) for x in sys.argv[1:]],
       check_call=True, log=True)
 
   if args.hwid:

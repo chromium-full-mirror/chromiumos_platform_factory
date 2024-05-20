@@ -13,7 +13,7 @@ import gzip
 import hashlib
 import logging
 import os
-import pipes
+import shlex
 import shutil
 import stat
 import subprocess
@@ -692,7 +692,7 @@ def WriteWithSudo(file_path, content):
     content: The content to write.
   """
   # Write with sudo, since only root can write this.
-  process = process_utils.Spawn(f'cat > {pipes.quote(file_path)}', sudo=True,
+  process = process_utils.Spawn(f'cat > {shlex.quote(file_path)}', sudo=True,
                                 stdin=subprocess.PIPE, shell=True)
   # yapf: disable
   process.stdin.write(content)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long

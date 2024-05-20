@@ -4,8 +4,8 @@
 
 import logging
 import os
-import pipes
 import re
+import shlex
 from subprocess import PIPE
 from subprocess import Popen
 from typing import Dict, List, Optional, Union
@@ -50,7 +50,7 @@ def Shell(cmd, stdin=None, log=True, sys_interface=None):
     sys_interface: The SystemInterface of the device. If set to None, use Popen.
   """
   if not isinstance(cmd, str):
-    cmd = ' '.join(pipes.quote(param) for param in cmd)
+    cmd = ' '.join(shlex.quote(param) for param in cmd)
   if sys_interface is None:
     process = Popen(  # pylint: disable=consider-using-with
         cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True, encoding='utf-8')

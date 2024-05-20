@@ -5,7 +5,7 @@
 """System module for memory."""
 
 import abc
-import pipes
+import shlex
 
 from cros.factory.device import device_types
 
@@ -33,7 +33,7 @@ class LinuxMemory(IMemory):
   def ResizeSharedMemory(self, size='100%'):
     """See IMemory.ResizeSharedMemory."""
     self._device.CheckCall(
-        f'mount -o remount,size={pipes.quote(size)} /dev/shm')
+        f'mount -o remount,size={shlex.quote(size)} /dev/shm')
 
   def GetTotalMemoryKB(self):
     """Gets total memory of system in kB"""

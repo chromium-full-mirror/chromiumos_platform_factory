@@ -4,7 +4,7 @@
 
 """Android family boards."""
 
-import pipes
+import shlex
 
 from cros.factory.device.boards import linux
 from cros.factory.device import device_types
@@ -28,7 +28,7 @@ class AndroidBoard(linux.LinuxBoard):
     # To make sure TMPDIR is applied on all sub commands (for instance, "a; b"
     # or "(a; b)" we want to make sure the command is quoted before invocation.
     if not isinstance(command, str):
-      command = ' '.join(pipes.quote(param) for param in command)
+      command = ' '.join(shlex.quote(param) for param in command)
 
     command = [f'TMPDIR={self.TMPDIR}', 'sh', '-c', command]
     return super().Popen(command, stdin=stdin, stdout=stdout, stderr=stderr,

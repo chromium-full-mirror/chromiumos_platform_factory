@@ -7,7 +7,7 @@
 import collections
 import enum
 import logging
-import pipes
+import shlex
 import subprocess
 import threading
 from typing import IO, Any, List, Optional, Sequence, Union
@@ -177,10 +177,10 @@ class SSHLink(device_types.IDeviceLink):
             encoding: Optional[str] = 'utf-8') -> process_utils.ExtendedPopen:
     """See IDeviceLink.Shell"""
     if not isinstance(command, str):
-      command = ' '.join(map(pipes.quote, command))
+      command = ' '.join(map(shlex.quote, command))
 
     if cwd:
-      command = f'cd {pipes.quote(cwd)} ; {command}'
+      command = f'cd {shlex.quote(cwd)} ; {command}'
 
     logging.debug('SSHLink: Run [%r]', command)
     proc = self._ssh_runner.Spawn(command, shell=False, close_fds=True,

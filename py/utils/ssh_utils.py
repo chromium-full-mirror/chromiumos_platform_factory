@@ -11,8 +11,8 @@ testing_rsa and partner_testing_rsa identities.
 import abc
 import logging
 import os
-import pipes
 import queue
+import shlex
 import subprocess
 import threading
 import time
@@ -141,7 +141,7 @@ class SSHRunner(ISSHRunner):
     if command is not None and not isinstance(command, str):
       if len(command) == 0:
         raise ValueError('Command as a sequence must not be empty.')
-      command = ' '.join(map(pipes.quote, command))
+      command = ' '.join(map(shlex.quote, command))
 
     sig = self._GetDeviceSignature()
     command = [command] if command is not None else []
@@ -170,7 +170,7 @@ class SSHRunner(ISSHRunner):
     if exclude_patterns:
       rsync_options += sum([['--exclude', pat] for pat in exclude_patterns], [])
 
-    ssh_options = 'ssh ' + (' '.join(map(pipes.quote, self._GetSSHOptions())))
+    ssh_options = 'ssh ' + (' '.join(map(shlex.quote, self._GetSSHOptions())))
     rsh_params = ['-e', ssh_options] + list(src) + [dest]
 
     return ['rsync'] + rsync_options + rsh_params

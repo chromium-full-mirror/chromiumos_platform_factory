@@ -6,7 +6,7 @@
 
 import logging
 import os
-import pipes
+import shlex
 import subprocess
 import tempfile
 from typing import IO, Any, Optional, Sequence, Union
@@ -126,9 +126,9 @@ class ADBLink(device_types.IDeviceLink):
     # Convert list-style commands to single string because we need to run
     # multiple commands in same session (and needs shell=True).
     if not isinstance(command, str):
-      command = ' '.join(pipes.quote(param) for param in command)
+      command = ' '.join(shlex.quote(param) for param in command)
     if cwd:
-      command = f'cd {pipes.quote(cwd)} ; {command}'
+      command = f'cd {shlex.quote(cwd)} ; {command}'
 
     # ADB protocol currently mixes stderr and stdout in same channel (i.e., the
     # stdout by adb command has both stderr and stdout from device) so we do

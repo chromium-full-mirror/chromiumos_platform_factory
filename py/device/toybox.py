@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 from collections import namedtuple
-import pipes
+import shlex
 
 from cros.factory.device import device_types
 from cros.factory.utils import debug_utils
@@ -609,10 +609,12 @@ class Toybox(device_types.DeviceComponent):
     """
     args = (euid, exact, full, group, newest, oldest, parent, pgroup, session,
             signal, terminal, uid, pattern)
-    arg_options = (['-u', str(euid)], '-x', '-f', ['-G', str(group)], '-n',
-                   '-o', ['-P', str(parent)], ['-g', str(pgroup)],
-                   ['-s', str(session)], ['-l', str(signal)],
-                   ['-t', str(terminal)], ['-U', uid], pipes.quote(pattern))
+    arg_options = (['-u',
+                    str(euid)], '-x', '-f', ['-G', str(group)], '-n', '-o', [
+                        '-P', str(parent)
+                    ], ['-g', str(pgroup)], ['-s', str(session)], [
+                        '-l', str(signal)
+                    ], ['-t', str(terminal)], ['-U', uid], shlex.quote(pattern))
 
     return self._device.CheckCall(self._BuildCommand(
         'pkill',

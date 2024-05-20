@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import pipes
+import shlex
 
 from cros.factory.device import device_types
 
@@ -68,9 +68,9 @@ class HardwareMonitor(device_types.DeviceComponent):
     # yapf: disable
     search_path = self._device.path.join(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
-        self._hwmon_path, '*', pipes.quote(attr_name))
+        self._hwmon_path, '*', shlex.quote(attr_name))
     output = self._device.CheckOutput(
-        f'grep {search_path} -l -e {pipes.quote(f"^{attr_value}$")}')
+        f'grep {search_path} -l -e {shlex.quote(f"^{attr_value}$")}')
 
     # yapf: disable
     return [HardwareMonitorDevice(self._device, self._device.path.dirname(path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long

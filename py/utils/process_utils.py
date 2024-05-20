@@ -7,9 +7,9 @@ import getpass
 import io
 import logging
 import os
-import pipes
 import re
 import select
+import shlex
 import signal
 import subprocess
 import sys
@@ -238,7 +238,7 @@ def LogAndCheckCall(args: Union[str, Sequence[str]], *, encoding: None,
 def LogAndCheckCall(args: Union[str, Sequence[str]], *,
                     encoding: Optional[str] = 'utf-8', **kwargs):
   """Logs a command and invokes CheckCall."""
-  logging.info('Running: %s', ' '.join(pipes.quote(arg) for arg in args))
+  logging.info('Running: %s', ' '.join(shlex.quote(arg) for arg in args))
   return CheckCall(args, encoding=encoding, **kwargs)
 
 
@@ -257,7 +257,7 @@ def LogAndCheckOutput(args: Union[str, Sequence[str]], *, encoding: None,
 def LogAndCheckOutput(args: Union[str, Sequence[str]], *,
                       encoding: Optional[str] = 'utf-8', **kwargs):
   """Logs a command and invokes CheckOutput."""
-  logging.info('Running: %s', ' '.join(pipes.quote(arg) for arg in args))
+  logging.info('Running: %s', ' '.join(shlex.quote(arg) for arg in args))
   return CheckOutput(args, encoding=encoding, **kwargs)
 
 
@@ -351,7 +351,7 @@ def Spawn(args: Union[str, Sequence[str]], *, encoding: Optional[str] = 'utf-8',
   else:
     if isinstance(args, str):
       raise TypeError('Command must be a sequence (list/tuple) of string.')
-    args_to_log = ' '.join(map(pipes.quote, args))
+    args_to_log = ' '.join(map(shlex.quote, args))
 
   logger = logging
   log = kwargs.pop('log', False)

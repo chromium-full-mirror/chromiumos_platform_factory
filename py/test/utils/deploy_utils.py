@@ -4,7 +4,7 @@
 
 import abc
 import os
-import pipes
+import shlex
 import subprocess
 import tempfile
 
@@ -177,7 +177,7 @@ class FactoryBin(AbstractFactoryTools):
   def DryRun(self, command):
     """Returns the command that will be executed."""
     if not isinstance(command, str):
-      command = ' '.join(map(pipes.quote, command))
+      command = ' '.join(map(shlex.quote, command))
 
     command = f"PATH={os.path.join(paths.FACTORY_DIR, 'bin')}:$PATH {command}"
     return command
