@@ -16,6 +16,7 @@ goog.require('cros.factory.utils');
 goog.require('goog.crypt');
 goog.require('goog.crypt.Sha1');
 goog.require('goog.date.DateTime');
+goog.require('goog.debug.Console');
 goog.require('goog.debug.FancyWindow');
 goog.require('goog.dom');
 goog.require('goog.dom.iframe');
@@ -858,6 +859,9 @@ cros.factory.Goofy = class {
      * @type {?goog.math.Size}
      */
     this.cachedViewportSize = null;
+
+    const logconsole = new goog.debug.Console();
+    logconsole.setCapturing(true);
 
     // Set up magic keyboard shortcuts.
     goog.events.listen(
