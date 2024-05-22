@@ -1707,7 +1707,7 @@ class DRAMProbeInfoConverter(_SingleProbeFuncConverter):
             ),
     }
 
-  def _MergeAliasFields(
+  def _MergeAliasProbeParamInputs(
       self,
       probe_param_inputs: Mapping[str, Sequence[_ProbeParamInput]],
   ) -> Mapping[str, Sequence[_ProbeParamInput]]:
@@ -1715,6 +1715,15 @@ class DRAMProbeInfoConverter(_SingleProbeFuncConverter):
     merged[self._PART] = [
         *merged.get(self._PART, []), *merged.pop(self._EXTRA_PART, [])
     ]
+    return merged
+
+  def _MergeAliasProbeParams(
+      self,
+      probe_params: Sequence[_ProbeParameter],
+  ) -> Sequence[_ProbeParameter]:
+    merged = copy.deepcopy(probe_params)
+    for param in merged:
+      param.name = self._PART
     return merged
 
   def CollectExpectedFields(
@@ -1725,10 +1734,42 @@ class DRAMProbeInfoConverter(_SingleProbeFuncConverter):
   ) -> Sequence[Mapping[str, Any]]:
     """See base class."""
     return super().CollectExpectedFields(
-        probe_param_inputs=self._MergeAliasFields(probe_param_inputs),
+        probe_param_inputs=self._MergeAliasProbeParamInputs(probe_param_inputs),
         allow_missing_params=allow_missing_params,
         comp_name_for_probe_statement=comp_name_for_probe_statement,
     )
+
+  def ParseProbeResult(
+      self, probe_result: Mapping[str, Sequence[Mapping[str, str]]]
+  ) -> Sequence[_ParsedProbeParameter]:
+    """See base class."""
+    parsed_result = list(super().ParseProbeResult(probe_result))
+    extra_parsed_result = copy.deepcopy(parsed_result)
+    for res in extra_parsed_result:
+      res.probe_parameter.name = self._EXTRA_PART
+
+    return parsed_result + extra_parsed_result
+
+  def MatchProbeResult(
+      self, probe_params: Sequence[probe_info_analytics.ProbeParameter],
+      parsed_probe_result: Sequence[_ParsedProbeParameter]
+  ) -> _ProbeResultMatchResult:
+    """See base class."""
+    match_result = super().MatchProbeResult(
+        probe_params=self._MergeAliasProbeParams(probe_params),
+        parsed_probe_result=[
+            res for res in parsed_probe_result
+            if res.probe_parameter.name == self._PART
+        ],
+    )
+    if self._PART in match_result.param_name_to_category:
+      return _ProbeResultMatchResult({
+          **match_result.param_name_to_category,
+          self._EXTRA_PART:
+              match_result.param_name_to_category[self._PART],
+      })
+
+    return match_result
 
 
 def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:

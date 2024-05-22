@@ -182,6 +182,14 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         json_utils.DumpStr(json_utils.LoadStr(lhs), pretty=True),
         json_utils.DumpStr(json_utils.LoadStr(rhs), pretty=True))
 
+  def _AssertProbeInfoTestResult(self, lhs: _ProbeInfoTestResult,
+                                 rhs: _ProbeInfoTestResult):
+    self.assertEqual(lhs.result_type, rhs.result_type)
+    self.assertCountEqual(lhs.probe_parameter_suggestions,
+                          rhs.probe_parameter_suggestions)
+    self.assertEqual(lhs.intrivial_error_msg, rhs.intrivial_error_msg)
+    self.assertEqual(lhs.suggestion_msg, rhs.suggestion_msg)
+
   def testWithMultiProbeStatementProbeInfo_ThenCanDump(self):
     # Arrange.
     pi_analyzer = analyzers.ProbeInfoAnalyzer([_FakeMultiProbeInfoConverter()])
@@ -355,7 +363,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
 
       result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
 
-      self.assertEqual(
+      self._AssertProbeInfoTestResult(
           result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED))
 
     with self.subTest('IntrivialError'):
@@ -369,7 +377,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           result_type=_ProbeInfoTestResult.INTRIVIAL_ERROR,
           intrivial_error_msg=(
               'The return code of runtime probe is non-zero: 3.'))
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('PartiallyProbed'):
       # Arrange, invoke the probe bundle.
@@ -384,7 +392,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           intrivial_error_msg=(
               "Component(s) not found: ({'comp_name-for_param2'})." +
               f'\n{analyzers.USE_LATEST_IMAGE}'))
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('ProbedResultsMismatched'):
       # Arrange, invoke the probe bundle.
@@ -411,7 +419,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                   hint=('expected: \"[\'value2\']\", probed 1 the_category '
                         'component(s) with value:\ncomponent 1: \"bbb\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS)
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('MultipleGenericProbedResults'):
       # Arrange, invoke the probe bundle.
@@ -449,7 +457,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                         'component 2: \"ddd\"'))
           ], suggestion_msg=(analyzers.PROBED_GENERIC_COMPS + ' ' +
                              analyzers.MULTIPLE_PROBED_COMPS))
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('ProbeInfoBecomeOutOfDate'):
       # Arrange, invoke the probe bundle.
@@ -469,7 +477,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           pi_analyzer.CreateProbeDataSource(
               FakeComponentName('comp_name'), updated_pi), bundle_output)
 
-      self.assertEqual(
+      self._AssertProbeInfoTestResult(
           result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.LEGACY))
 
     with self.subTest('ComponentNameCIDMismatch'):
@@ -565,11 +573,10 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           bundle_content, runtime_probe_stdout='''
               { "battery": [ {"name": "comp_name"}] }''')
 
-      result = pi_analyzer.AnalyzeDeviceProbeResultPayload([pds], bundle_output)
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
 
-      self.assertEqual(
-          result.probe_info_test_results,
-          [_ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED)])
+      self._AssertProbeInfoTestResult(
+          result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED))
 
     with self.subTest('NotProbed_WithNormalGenericProbeResults'):
       # Arrange, invoke the probe bundle.
@@ -600,7 +607,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                         'battery component(s) with value:\ncomponent 1: '
                         '\"YYY\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS)
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('NotProbed_WithTruncatedProbeValues'):
       # Arrange, invoke the probe bundle.
@@ -632,7 +639,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                         '\"1234567\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
           ps_converters.BatteryProbeInfoConverter.PROBED_TRUNCATED_BATTERY)
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
   def testWithRegexBatteryProbeStatementProbeInfo_ThenCanTestByQualBundle(self):
     # Arrange.
@@ -667,11 +674,10 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           bundle_content, runtime_probe_stdout='''
               { "battery": [ {"name": "comp_name"}] }''')
 
-      result = pi_analyzer.AnalyzeDeviceProbeResultPayload([pds], bundle_output)
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
 
-      self.assertEqual(
-          result.probe_info_test_results,
-          [_ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED)])
+      self._AssertProbeInfoTestResult(
+          result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED))
 
     with self.subTest('NotProbed_WithNormalGenericProbeResults'):
       # Arrange, invoke the probe bundle.
@@ -706,7 +712,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                         '\"ABC0\"\ncomponent 2: \"ABC1\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
           analyzers.MULTIPLE_PROBED_COMPS)
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
     with self.subTest('NotProbed_WithTruncatedProbeResult'):
       # Arrange, invoke the probe bundle.
@@ -733,7 +739,80 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
                         '\"123Cd4\"'))
           ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
           ps_converters.BatteryProbeInfoConverter.PROBED_TRUNCATED_BATTERY)
-      self.assertEqual(result, expected_result)
+      self._AssertProbeInfoTestResult(result, expected_result)
+
+  def testWithMemoryProbeStatementProbeInfo_ThenCanTestByQualBundle(self):
+    # Arrange.
+    pi_analyzer = analyzers.ProbeInfoAnalyzer([
+        converter for converter in ps_converters.GetAllConverters()
+        if converter.GetName() == 'dram.memory'
+    ])
+    pi = text_format.Parse(
+        '''probe_function_name: "dram.memory"
+           probe_parameters {
+            name: "part" string_value: "ABC123"
+           }
+           probe_parameters {
+            name: "extra_part" string_value: "extra-ABC123"
+           }''', _ProbeInfo())
+
+    # Act, generate the probe bundle.
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
+    actual = pi_analyzer.GenerateProbeBundlePayload([pds])
+
+    # Assert, the bundle is generated.
+    self.assertEqual(actual.probe_info_parsed_results[0].result_type,
+                     _ProbeInfoParsedResult.PASSED)
+    self.assertIsNotNone(actual.output)
+    # yapf: disable
+    bundle_content = actual.output.content  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    with self.subTest('Probed'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "dram": [ {"name": "comp_name"}] }''')
+
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+
+      self._AssertProbeInfoTestResult(
+          result, _ProbeInfoTestResult(result_type=_ProbeInfoTestResult.PASSED))
+
+    with self.subTest('NotProbed_WithGenericProbeResults'):
+      # Arrange, invoke the probe bundle.
+      bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+          bundle_content, runtime_probe_stdout='''
+              { "dram": [ {
+                  "name": "generic",
+                  "values": {
+                    "part": "XXX"
+              } }, {
+                  "name": "generic",
+                  "values": {
+                    "part": "YYY"
+              } } ] }''')
+
+      # yapf: disable
+      result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+
+      expected_result = _ProbeInfoTestResult(
+          result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
+          probe_parameter_suggestions=[
+              _ProbeParameterSuggestion(
+                  index=0,
+                  hint=('expected: \"[\'ABC123\']\", probed 2 dram '
+                        'component(s) with value:\ncomponent 1: \"XXX\"\n'
+                        'component 2: \"YYY\"')),
+              _ProbeParameterSuggestion(
+                  index=1,
+                  hint=('expected: \"[\'extra-ABC123\']\", probed 2 dram '
+                        'component(s) with value:\ncomponent 1: \"XXX\"\n'
+                        'component 2: \"YYY\"')),
+          ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS + ' ' +
+          analyzers.MULTIPLE_PROBED_COMPS)
+      self._AssertProbeInfoTestResult(result, expected_result)
 
 if __name__ == '__main__':
   unittest.main()

@@ -881,7 +881,10 @@ class MemoryConverterTest(ConverterTestCase):
     # yapf: enable
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter('dram',
-                                       _CreateStrProbeParam('part', 'ABCD1234'))
+                                       _CreateStrProbeParam('part',
+                                                            'ABCD1234')),
+        analyzers.ParsedProbeParameter(
+            'dram', _CreateStrProbeParam('extra_part', 'ABCD1234'))
     ]
     self.assertCountEqual(actual, expected_probe_parameters)
 
@@ -918,6 +921,79 @@ class MemoryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('extra_part', 'extra-def456'),
     ]
     self.assertCountEqual(actual, expected_probe_params)
+
+  def testMatchProbeResult_Pass_MatchPartNumber(self):
+    probe_params = [
+        _CreateStrProbeParam('part', 'ABC123'),
+        _CreateStrProbeParam('part', 'def456'),
+        _CreateStrProbeParam('extra_part', 'extra-ABC123'),
+        _CreateStrProbeParam('extra_part', 'extra-def456'),
+    ]
+    probe_result = {
+        'dram': [{
+            'part': 'def456'
+        }],
+    }
+    # yapf: disable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    # yapf: disable
+    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+                                              parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult({})
+    self.assertEqual(actual, expected_match_result)
+
+  def testMatchProbeResult_Pass_MatchExtraPartNumber(self):
+    probe_params = [
+        _CreateStrProbeParam('part', 'ABC123'),
+        _CreateStrProbeParam('part', 'def456'),
+        _CreateStrProbeParam('extra_part', 'extra-ABC123'),
+        _CreateStrProbeParam('extra_part', 'extra-def456'),
+    ]
+    probe_result = {
+        'dram': [{
+            'part': 'extra-ABC123'
+        }],
+    }
+    # yapf: disable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    # yapf: disable
+    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+                                              parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult({})
+    self.assertEqual(actual, expected_match_result)
+
+  def testMatchProbeResult_Fail_ResultShouldContainExtraPartNumbers(self):
+    probe_params = [
+        _CreateStrProbeParam('part', 'ABC123'),
+        _CreateStrProbeParam('part', 'def456'),
+        _CreateStrProbeParam('extra_part', 'extra-ABC123'),
+        _CreateStrProbeParam('extra_part', 'extra-def456'),
+    ]
+    probe_result = {
+        'dram': [{
+            'part': 'XYZ789-1'
+        }],
+    }
+    # yapf: disable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+    # yapf: disable
+    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+                                              parsed_probe_result)
+
+    expected_match_result = analyzers.ProbeResultMatchResult(
+        {'part': 'dram', 'extra_part': 'dram'})
+    self.assertEqual(actual, expected_match_result)
 
 
 class MmcStorageConverterTest(ConverterTestCase):
