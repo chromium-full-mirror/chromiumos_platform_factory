@@ -26,7 +26,7 @@ def ParseArguments(raw_args):
 def Main(raw_args):
   args = ParseArguments(raw_args)
   logging.basicConfig(level=logging.WARNING - args.verbosity * 10)
-  server_address = ('localhost', args.port)
+  server_address = ('0.0.0.0', args.port)
   server = http_server.HTTPServer(server_address,
                                   request_handler.RequestHandler)
   logging.info('Starting HWID Extractor server on http://localhost:%d',
