@@ -478,17 +478,19 @@ lint:
 	$(if $(CROS_CHROOT_VERSION),,$(info Entering chroot for "make $@" ...))
 	$(ENTER_CHROOT_PREFIX)$(MK_DIR)/pylint.sh $(LINT_ALLOWLIST)
 
-mypy-proto-pyi: $(PROJECT_PROTO_FILES) $(EXTERNAL_PROJECT_PROTO_FILES)
+mypy: $(PROJECT_PROTO_FILES) $(EXTERNAL_PROJECT_PROTO_FILES)
+ifeq ($(CROS_CHROOT_VERSION),)
+	$(info Entering chroot for "make $@" ...)
+	@$(ENTER_CHROOT_PREFIX) $(MAKE) -$(MAKEFLAGS) $@
+else
 # These proto files are imported from cros.factory.
 	protoc -I=py_pkg --pyi_out=py_pkg $(PROJECT_PROTO_FILES:py/%=cros/factory/%)
 # These proto files are imported directly (no package).
 	protoc $(addprefix -I=,$(dir $(EXTERNAL_PROJECT_PROTO_FILES))) \
 		--pyi_out=py_pkg $(EXTERNAL_PROJECT_PROTO_FILES)
-
-mypy: mypy-proto-pyi
-	$(if $(CROS_CHROOT_VERSION),,$(info Entering chroot for "make $@" ...))
-	$(ENTER_CHROOT_PREFIX)$(MK_DIR)/mypy.sh mypy \
+	$(MK_DIR)/mypy.sh mypy \
 		--config-file="$(MYPY_CONFIG)" $(MYPY_FILES)
+endif
 
 format:
 	$(if $(CROS_CHROOT_VERSION),,$(info Entering chroot for "make $@" ...))
