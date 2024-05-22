@@ -17,7 +17,8 @@ from cros.factory.hwid_extractor import servod
 from cros.factory.utils import json_utils
 
 
-WWW_ROOT_DIR = os.path.join(os.path.dirname(__file__), 'www')
+WWW_ROOT_DIR = os.getenv('PATH_HWID_EXTRACTOR_WWW',
+                         os.path.join(os.path.dirname(__file__), 'www'))
 CONFIG_JSON = os.path.join(WWW_ROOT_DIR, 'config.json')
 
 

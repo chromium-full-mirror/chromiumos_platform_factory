@@ -18,8 +18,9 @@ SERVOD_INIT_TIMEOUT_SEC = 10
 SERVOD_KILL_TIMEOUT_SEC = 3
 
 # Directory where hdctools installs configuration files into.
-LIB_DIR = os.path.join(
-    sysconfig.get_python_lib(standard_lib=False), 'servo', 'data')
+LIB_DIR = os.getenv(
+    'PATH_SERVO_DATA',
+    os.path.join(sysconfig.get_python_lib(standard_lib=False), 'servo', 'data'))
 
 
 def GetSupportedBoards():
