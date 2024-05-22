@@ -123,9 +123,11 @@ class Servod:
 
     with open(stdout_file, 'w', encoding='utf8') as stdout, open(
         stderr_file, 'w', encoding='utf8') as stderr:
-      servod_process = process_utils.Spawn(self._servod_cmd, stdout=stdout,
-                                           stderr=stderr,
-                                           env={"I_NEED_SERVOD", "1"})
+      # TODO(b/343624632): remove `I_NEED_SERVOD` when we drop support for the
+      # HWID extractor in the chroot environment.
+      servod_process = process_utils.Spawn(
+          self._servod_cmd, stdout=stdout, stderr=stderr, env=dict(
+              os.environ, I_NEED_SERVOD='1'))
     self._exit_stack.callback(process_utils.TerminateOrKillProcess,
                               servod_process, SERVOD_KILL_TIMEOUT_SEC)
 
