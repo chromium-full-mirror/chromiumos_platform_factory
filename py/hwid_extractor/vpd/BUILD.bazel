@@ -1,0 +1,100 @@
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+cc_binary(
+    name = "vpd",
+    srcs = ["vpd.cc"],
+    copts = [
+        "-Wno-implicit-fallthrough",
+        "-Ivpd/include"
+    ],
+    features = ["fully_static_link"],
+    linkopts = [
+        "-lfmap",
+    ],
+    deps = [
+        ":libvpd",
+        ":libvpd_c",
+        "@abseil-cpp//absl/log:log",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
+
+cc_library(
+    name = "libvpd",
+    srcs = [
+        "cache.cc",
+        "cache_file.cc",
+        "encoder.cc",
+        "flashrom.cc",
+        "libvpd.cc",
+        "sysfs.cc",
+        "util/file.cc",
+        "util/string.cc",
+    ],
+    hdrs = [
+        "cache.h",
+        "cache_file.h",
+        "encoder.h",
+        "flashrom.h",
+        "include/lib/vpd.h",
+        "sysfs.h",
+        "types.h",
+        "export.h",
+        "util/file.h",
+        "util/string.h",
+        "vpd.h",
+        "vpd_provider_interface.h",
+    ],
+    copts = [
+        "-Ivpd/include",
+        "-Ivpd/include/lib",
+        "-fPIC",
+    ],
+    linkopts = [
+        "-luuid",
+        "-lflashrom",
+        "-lpci",
+        "-ludev",
+        "-lz",
+        "-lm",
+    ],
+    deps = [
+        ":libvpd_c",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/log:log",
+        "@abseil-cpp//absl/strings:str_format",
+    ],
+)
+
+cc_library(
+    name = "libvpd_c",
+    srcs = [
+        "lib/checksum.c",
+        "lib/flashrom.c",
+        "lib/lib_smbios.c",
+        "lib/lib_vpd.c",
+        "lib/vpd_container.c",
+        "lib/vpd_decode.c",
+        "lib/vpd_encode.c",
+    ],
+    hdrs = [
+        "include/lib/checksum.h",
+        "include/lib/flashrom.h",
+        "include/lib/lib_smbios.h",
+        "include/lib/lib_vpd.h",
+        "include/lib/vpd.h",
+        "include/lib/vpd_decode.h",
+        "include/lib/vpd_tables.h",
+        "lib/vpd_decode.c",
+    ],
+    copts = [
+        "-Ivpd/include",
+        "-Ivpd/include/lib",
+        "-Ivpd/lib",
+    ],
+    linkopts = [
+        "-luuid",
+    ],
+)
