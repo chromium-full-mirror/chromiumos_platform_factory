@@ -70,14 +70,6 @@ class _AudioChecker(_SkipAVLChecker):
           'Failed to fetch audio codec blocklist from datastore.') from e
 
 
-class _AlwaysSkipChecker(_SkipAVLChecker):
-  """Always skips AVL check."""
-
-  def ShouldSkip(self, comp_info: database.ComponentInfo) -> bool:
-    """See base class."""
-    return True
-
-
 class AVLMetadataManager:
 
   def __init__(self, ndb_connector: ndbc_module.NDBConnector,
@@ -86,7 +78,6 @@ class AVLMetadataManager:
     self._avl_metadata_setting = avl_metadata_setting
     self._checkers = {
         'audio_codec': _AudioChecker(self._ndb_connector),
-        'sku': _AlwaysSkipChecker(),
     }
 
   @property

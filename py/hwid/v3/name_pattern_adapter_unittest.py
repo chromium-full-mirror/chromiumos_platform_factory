@@ -58,6 +58,14 @@ class NamePatternTest(unittest.TestCase):
     self.assertEqual(name_info,
                      name_pattern_adapter.LegacyNameInfo('no_avl_info'))
 
+  def testMatches_SkuMatchedAsLegacy(self):
+    name_pattern = name_pattern_adapter.NamePatternAdapter().GetNamePattern(
+        'sku')
+
+    name_info = name_pattern.Matches('sku_100#10')
+
+    self.assertEqual(name_info, name_pattern_adapter.LegacyNameInfo('sku_100'))
+
   def testGenerateAVLName_NoQid(self):
     name_info = name_pattern_adapter.LinkAVLNameRegularInfo(cid=123)
     avl_name = self._name_pattern.GenerateAVLName(name_info)

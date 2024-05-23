@@ -13,6 +13,9 @@ from cros.factory.utils import json_utils
 SEQ_SEP = '#'  # Separator between the component name and the sequential suffix.
 _COMP_SEQ_SUFFIX_PATTERN = re.compile(f'{re.escape(SEQ_SEP)}'
                                       r'\d+$')
+# For certain component types which might have the '{comp_type}_{number}'
+# name pattern but they are not tracked in AVL.
+_KNOWN_COMP_TYPES_UNTRACKED_IN_AVL = frozenset(['sku'])
 
 
 def TrimSequenceSuffix(comp_name: str) -> str:
@@ -243,6 +246,8 @@ class NamePattern:
     self._gen_avl_name_acceptor = GenerateNameAcceptor(self._comp_cls)
 
   def Matches(self, tag: str) -> NameInfo:
+    if self._comp_cls in _KNOWN_COMP_TYPES_UNTRACKED_IN_AVL:
+      return LegacyNameInfo(TrimSequenceSuffix(tag))
     matched_result = self._comp_pattern.fullmatch(tag)
     if matched_result:
       cid = _GetTypedMatchGroup(matched_result, 'cid', int)
