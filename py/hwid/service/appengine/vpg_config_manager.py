@@ -154,6 +154,8 @@ class VPGConfigManager:
     # yapf: enable
         lambda: collections.defaultdict(set))
     for product in dlm_products:
+      if product.model is None or product.model == '':
+        continue
       product_status_mapping[product.board][product.model].add(
           product.product_status)
 

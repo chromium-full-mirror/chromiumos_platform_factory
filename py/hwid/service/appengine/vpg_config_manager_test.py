@@ -87,6 +87,12 @@ class VPGConfigManagerTest(unittest.TestCase):
     # Overridden by models_force_vp_off. No payload is generated.
     self._CreateDLMProduct(id=8, board='BOARD2', model='MODEL8',
                            product_status=_DlmProduct.SHIPPED, device_id=6)
+    # Model name is null. No payload is generated.
+    self._CreateDLMProduct(id=9, board='BOARD1',
+                           product_status=_DlmProduct.APPROVED, device_id=7)
+    # Board is not in vpg_config. No payload is generated.
+    self._CreateDLMProduct(id=10, board='BOARD3', model='MODEL9',
+                           product_status=_DlmProduct.SHIPPED, device_id=8)
 
     self._vpg_config_manager.Update(True)
 
