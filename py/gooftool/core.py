@@ -4,10 +4,12 @@
 
 import codecs
 from collections import namedtuple
+import contextlib
 from contextlib import contextmanager
 import datetime
 from distutils.version import LooseVersion
 import glob
+import json
 import logging
 import os
 import re
@@ -181,41 +183,102 @@ class Gooftool:
 
       return sub_dir_names
 
-    def _GetNumDLCToBeVerified():
-      num_dlcs = 0
-      with sys_utils.MountPartition(
-          self._util.GetReleaseRootPartitionPath()) as root:
-        dlc_metadata_path = os.path.join(root, _DLCMETADATADIR)
-        # Enumerate all the possible paths to factory installed DLC metadata.
-        sub_dir_names = _ListSubDirectories(dlc_metadata_path)
-        for sub_dir_name in sub_dir_names:
-          metadata_path = os.path.join(dlc_metadata_path, sub_dir_name,
-                                       'package', 'imageloader.json')
-          if os.path.exists(metadata_path):
-            metadata = json_utils.LoadFile(metadata_path)
-            # A DLC is a factory installed DLC if `factory-install` is true.
-            if metadata['factory-install']:
-              num_dlcs += 1
+    def _UseLegacyDLCMetadata():
+      """Check if the DLC metadata in release rootfs is using old format.
 
-      return num_dlcs
+      According to b/341860616#comment13, the legacy DLC metadata format is
+      removed in 15875.0.0.
+      """
+      release_image_version = LooseVersion(self._util.GetReleaseImageVersion())
+      return release_image_version < LooseVersion('15875.0.0')
 
-    dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
-                                  wipe.DLC_CACHE_PAYLOAD_NAME)
-    expected_num_dlcs = _GetNumDLCToBeVerified()
+    def _GetDLCIDsToBeVerified(rootfs):
+      factory_install_dlc_ids = []
+      dlc_metadata_path = os.path.join(rootfs, _DLCMETADATADIR)
+      # Enumerate all the possible paths to factory installed DLC metadata.
+      dlc_ids = _ListSubDirectories(dlc_metadata_path)
+      for dlc_id in dlc_ids:
+        metadata_path = os.path.join(dlc_metadata_path, dlc_id, 'package',
+                                     'imageloader.json')
+        if os.path.exists(metadata_path):
+          metadata = json_utils.LoadFile(metadata_path)
+          # A DLC is a factory installed DLC if `factory-install` is true.
+          if metadata['factory-install']:
+            factory_install_dlc_ids.append(dlc_id)
 
-    try:
-      file_utils.CheckPath(dlc_cache_path)
-    except IOError:
-      if expected_num_dlcs == 0:
-        logging.info(
-            'Cannot find %s. Factory installed DLC images are not enabled. '
-            'Skip checking.', dlc_cache_path)
-        return
-      raise Error('No factory installed DLC images found! Expected number of'
-                  ' DLCs: %d! %s' % (expected_num_dlcs, _DLC_ERROR_TEMPLATE))
+      return factory_install_dlc_ids
 
-    with file_utils.TempDirectory() as tmpdir:
-      # The DLC images are stored as compressed format.
+    def _DecompressDLCMetadata(release_rootfs, dst_dir):
+      """Decompress DLC's metadata using dlc_metadata_util.
+
+      For backward compatibility, we need to decompress DLC's metadata and
+      transform them back to the old json format under
+      `/opt/google/dlc/<dlc_id>/package/imageloader.json`.
+
+      Args:
+        release_rootfs: Path to the mounted release rootfs.
+        dst_dir: The destination directory to store the decompressed metadata.
+      """
+      # Here we use `dlc_metadata_util`` from the release rootfs, since the
+      # test rootfs from the factory branch might not contain this binary.
+      dlc_list = self._util.shell([
+          'chroot', release_rootfs, 'dlc_metadata_util',
+          f'--metadata_dir={_DLCMETADATADIR}', '--list', '--factory_install'
+      ])
+      if not dlc_list.success:
+        raise Error('Failed to get the factory-install DLC list.')
+      dlc_ids = json.loads(dlc_list.stdout)
+
+      for dlc_id in dlc_ids:
+        get_metadata = self._util.shell([
+            'chroot', release_rootfs, 'dlc_metadata_util', '--get',
+            f'--id={dlc_id}'
+        ])
+        if not get_metadata.success:
+          raise Error('Failed to get DLC\'s metadata via `dlc_metadata_util`.')
+        # The old format only has the fields in `manifest`.
+        metadata = json.loads(get_metadata.stdout)['manifest']
+        metadata_dir = os.path.join(dst_dir, _DLCMETADATADIR, dlc_id, 'package')
+        file_utils.TryMakeDirs(metadata_dir)
+        file_utils.WriteFile(
+            os.path.join(metadata_dir, 'imageloader.json'),
+            json.dumps(metadata))
+
+    with contextlib.ExitStack() as stack:
+      release_rootfs = stack.enter_context(
+          sys_utils.MountPartition(self._util.GetReleaseRootPartitionPath()))
+      tmpdir = stack.enter_context(file_utils.TempDirectory())
+
+      # b/341860616: The format of the DLC's metadata have changed. Before,
+      # they are stored as json files inside the release rootfs, and we can
+      # read directly from them. Now, the metadata are compressed. We need to
+      # use `dlc_metadata_util` to decompress the metadata, transform them back
+      # to the old format, and store them under a mocked rootfs.
+      use_dlc_legacy_metadata = _UseLegacyDLCMetadata()
+      if not use_dlc_legacy_metadata:
+        logging.info('DLC metadata is compressed. Decompressing the '
+                     'metadata')
+        _DecompressDLCMetadata(release_rootfs, tmpdir)
+
+      rootfs_with_dlc_metadata = (
+          release_rootfs if use_dlc_legacy_metadata else tmpdir)
+      dlc_ids_to_be_verified = _GetDLCIDsToBeVerified(rootfs_with_dlc_metadata)
+      expected_num_dlcs = len(dlc_ids_to_be_verified)
+
+      dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
+                                    wipe.DLC_CACHE_PAYLOAD_NAME)
+      try:
+        file_utils.CheckPath(dlc_cache_path)
+      except IOError:
+        if expected_num_dlcs == 0:
+          logging.info(
+              'Cannot find %s. Factory installed DLC images are not enabled. '
+              'Skip checking.', dlc_cache_path)
+          return
+        raise Error('No factory installed DLC images found! Expected number of'
+                    ' DLCs: %d! %s' %
+                    (expected_num_dlcs, _DLC_ERROR_TEMPLATE)) from None
+
       decompress_command = 'tar -xpvf %s -C %s' % (dlc_cache_path, tmpdir)
       logging.info(decompress_command)
       decompress_out = self._util.shell(decompress_command)
@@ -227,8 +290,7 @@ class Gooftool:
       dlc_image_path = os.path.join(tmpdir, 'unencrypted', 'dlc-factory-images')
 
       # Enumerate all the DLC sub-directories under dlc_image_path.
-      sub_dir_names = _ListSubDirectories(dlc_image_path)
-      cur_num_dlcs = len(sub_dir_names)
+      cur_num_dlcs = len(_ListSubDirectories(dlc_image_path))
 
       if cur_num_dlcs != expected_num_dlcs:
         raise Error(
@@ -239,20 +301,17 @@ class Gooftool:
         logging.info('No DLC images under %s. Skip checking.', dlc_image_path)
         return
 
-      # Mount the release rootfs and check the hashes of the images
+      logging.info('DLC ids to be verified: %r', dlc_ids_to_be_verified)
       error_messages = {}
-      with sys_utils.MountPartition(
-          self._util.GetReleaseRootPartitionPath()) as root:
-        for sub_dir_name in sub_dir_names:
-          image_path = os.path.join(dlc_image_path, sub_dir_name, 'package',
-                                    'dlc.img')
-          verify_command = '%s --id=%s --image=%s --rootfs_mount=%s' % \
-                           (_DLCVERIFY, sub_dir_name, image_path, root)
-          logging.info(verify_command)
-          check_hash_out = self._util.shell(verify_command)
+      for dlc_id in dlc_ids_to_be_verified:
+        image_path = os.path.join(dlc_image_path, dlc_id, 'package', 'dlc.img')
+        verify_command = '%s --id=%s --image=%s --rootfs_mount=%s' % \
+                          (_DLCVERIFY, dlc_id, image_path, rootfs_with_dlc_metadata)
+        logging.info(verify_command)
+        check_hash_out = self._util.shell(verify_command)
 
-          if not check_hash_out.success:
-            error_messages[image_path] = check_hash_out.stderr
+        if not check_hash_out.success:
+          error_messages[image_path] = check_hash_out.stderr
 
       if error_messages:
         raise Error('%r. %s' % (error_messages, _DLC_ERROR_TEMPLATE))
