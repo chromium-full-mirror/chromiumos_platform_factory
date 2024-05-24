@@ -45,6 +45,7 @@ Dependency
 - chromeos_config (cros_config)
 - hammerd
 - usb_updater2
+- hammer_info.py
 
 Examples
 --------
@@ -71,8 +72,8 @@ If explicitly supplying detachable base info (Krane for example)::
 """
 
 import logging
+import os.path
 import re
-import subprocess
 
 from cros.factory.device import device_utils
 from cros.factory.test.i18n import _
@@ -82,7 +83,6 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
 from cros.factory.utils import sys_utils
-from cros.factory.utils import type_utils
 
 
 BASE_FW_DIR = '/lib/firmware'
@@ -97,6 +97,8 @@ class UpdateDetachableBaseTest(test_case.TestCase):
       Arg('from_release', bool, 'Find the firmwares from release rootfs.',
           default=True),
       Arg('usb_path', str, 'USB path for searching the detachable base.',
+          default=None),
+      Arg('i2c_path', str, 'I2C path for searching the detachable base.',
           default=None),
       Arg('product_id', int, 'Product ID of the USB device.', default=None),
       Arg('vendor_id', int, 'Vendor ID of the USB device.', default=None),
@@ -119,7 +121,9 @@ class UpdateDetachableBaseTest(test_case.TestCase):
 
     # Read preconfigured values from cros_config if args are not provided.
     if self.args.usb_path is None:
-      self.args.usb_path = self.CrosConfig('usb-path')
+      self.args.usb_path = self.CrosConfig('usb-path', check_output=False)
+    if self.args.i2c_path is None:
+      self.args.i2c_path = self.CrosConfig('i2c-path', check_output=False)
     if self.args.product_id is None:
       self.args.product_id = int(self.CrosConfig('product-id'))
     if self.args.vendor_id is None:
@@ -131,8 +135,10 @@ class UpdateDetachableBaseTest(test_case.TestCase):
       self.args.touchpad_image_path = self.dut.path.join(
           BASE_FW_DIR, self.CrosConfig('touch-image-name'))
 
+
+    assert self.args.usb_path or self.args.i2c_path
+
     self.device_id = f'{self.args.vendor_id:04x}:{self.args.product_id:04x}'
-    self.usb_info = UsbInfo(self.device_id)
 
   def runDetachableTest(self):
     if self.args.update:
@@ -149,38 +155,12 @@ class UpdateDetachableBaseTest(test_case.TestCase):
       # Getting info of touchpad on base / EC on base / target EC image
       # respectively.  b/146536191: Must query touchpad info before base EC
       # info.
-      tp_info = self.usb_info.GetTouchpadInfo()
-      ec_info = self.usb_info.GetBaseInfo()
-      fw_info = self.usb_info.GetFirmwareInfo(self.args.ec_image_path)
-      key_version = self.GetDetachableKeyVersion()
 
-      self.VerifyBaseInfo(ec=ec_info, tp=tp_info, fw=fw_info,
-                          key_version=key_version)
+      ec_info = self.GetBaseInfo()
+      fw_info = self.GetFirmwareInfo(self.args.ec_image_path)
+
+      self.VerifyBaseInfo(ec=ec_info, fw=fw_info)
       session.console.info('Detachable base verification done.')
-
-  def GetDetachableKeyVersion(self, retry_times=3):
-    '''Gets the firmware version on the detachable base.
-
-    Gets the firmware version via hammer_info.py with retry.
-    '''
-
-    @sync_utils.RetryDecorator(max_attempt_count=retry_times, interval_sec=0.5)
-    def _CheckOutput():
-      try:
-        key_version = process_utils.CheckOutput(
-            ['hammer_info.py', 'key_version'])
-        return int(key_version)
-      except subprocess.CalledProcessError as e:
-        if e.returncode != 3:
-          self.fail(
-              f'hammer_info.py failed (exit status {e.returncode}): {e.stderr}')
-        raise
-
-    try:
-      return _CheckOutput()
-    except type_utils.MaxRetryError:
-      self.fail(
-          f'Failed to get detachable base version over {retry_times} time(s)')
 
   def runTest(self):
     self.ui.SetState(_('Please connect the detachable base.'))
@@ -200,7 +180,7 @@ class UpdateDetachableBaseTest(test_case.TestCase):
       self.runDetachableTest()
 
   @classmethod
-  def CrosConfig(cls, key):
+  def CrosConfig(cls, key, check_output=True):
     """Helper method for cros_config key retrieval.
 
     Args:
@@ -209,8 +189,8 @@ class UpdateDetachableBaseTest(test_case.TestCase):
     Returns:
       The value of the provided key.
     """
-    return process_utils.LogAndCheckOutput(
-        ['cros_config', '/detachable-base', key])
+    return process_utils.SpawnOutput(['cros_config', '/detachable-base', key],
+                                     check_output=check_output, log=True)
 
   def UpdateDetachableBase(self):
     """Main update method which calls hammerd to do base FW update.
@@ -220,13 +200,21 @@ class UpdateDetachableBaseTest(test_case.TestCase):
     """
     minijail0_cmd = ['/sbin/minijail0', '-e', '-N', '-p', '-l',
                      '-u', 'hammerd', '-g', 'hammerd', '-c', '0002']
+    if self.args.usb_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      device_path = f'--usb_path={self.args.usb_path}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    else:
+      device_path = f'--i2c_path={self.args.i2c_path}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
     hammerd_cmd = [
-        '/usr/bin/hammerd', '--at_boot=true', '--force_inject_entropy=true',
-        '--update_if=always', f'--product_id={int(self.args.product_id)}',
-        f'--vendor_id={int(self.args.vendor_id)}',
-        f'--usb_path={self.args.usb_path}',
-        f'--ec_image_path={self.args.ec_image_path}',
-        f'--touchpad_image_path={self.args.touchpad_image_path}'
+        '/usr/bin/hammerd',
+        '--at_boot=true',
+        '--force_inject_entropy=true',
+        '--update_if=always',
+        f'--product_id={int(self.args.product_id)}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        f'--vendor_id={int(self.args.vendor_id)}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        device_path,
+        f'--ec_image_path={self.args.ec_image_path}',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        f'--touchpad_image_path={self.args.touchpad_image_path}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     ]
 
     try:
@@ -258,15 +246,13 @@ class UpdateDetachableBaseTest(test_case.TestCase):
           f'Hammerd update failed (exit status {int(e.returncode)}). Please '
           f'check /var/log/hammerd.log for detail.')
 
-  def VerifyBaseInfo(self, ec, tp, fw, key_version):
+  def VerifyBaseInfo(self, ec, fw):
     """Verify base is updated properly by comparing its attributes with the
     target FW.
 
     Args:
-      ec: A dictionary of the on-board EC info.
-      tp: A dictionary of the on-board touchpad info.
+      ec: A dictionary of the keyboard info from hammer_info.py.
       fw: A dictionary of the target EC FW info.
-      key_version: Int number represents the version of the signing key.
     """
     self.assertEqual(
         ec['ro_version'], fw['ro']['version'],
@@ -277,59 +263,29 @@ class UpdateDetachableBaseTest(test_case.TestCase):
         f"Base EC may not be properly updated: Base RW version "
         f"{ec['rw_version']} ({fw['rw']['version']} expected).")
     self.assertIn(
-        int(tp['tp_vendor'], 16), VENDOR_IDS,
-        f"Touchpad may not be properly updated: Vendor {tp['tp_vendor']} (any "
-        f"of {[hex(x) for x in VENDOR_IDS]} expected).")
+        int(ec['touchpad_pid'], 16), VENDOR_IDS,
+        f"Touchpad may not be properly updated: Vendor {ec['touchpad_pid']} "
+        f"(any of {[hex(x) for x in VENDOR_IDS]} expected).")
     self.assertNotEqual(
-        tp['tp_fw_checksum'], '0x0000',
-        f"Touchpad may not be properly updated: checksum {tp['tp_fw_checksum']}"
-        f" (unexpected).")
+        ec['touchpad_fw_checksum'], '0x0000',
+        f"Touchpad may not be properly updated: checksum "
+        f"{ec['touchpad_fw_checksum']} (unexpected).")
     self.assertGreaterEqual(
-        key_version, 3,
+        int(ec['key_version']), 3,
         f'key version not greater or higher than MP (>= 3), used key version: '
-        f'{int(key_version)}')
+        f"{ec['key_version']}")
+    self.assertEqual(ec['wp_screw'], 'True', 'Hardware WP not enabled')
+    self.assertEqual(ec['wp_all'], 'True', 'Software WP not enabled')
 
   def BaseIsReady(self):
-    try:
-      process_utils.CheckCall(['lsusb', '-d', self.device_id])
-    except process_utils.CalledProcessError:
-      return 0
-    return 1
-
-
-class UsbInfo:
-  """Helper class to get USB device info via usb_updater2 or lsusb."""
-
-  def __init__(self, device_id):
-    self._device_id = device_id
-
-  def CmdWithArgs(self, args, cmd='usb_updater2', tries=5):
-    """Helper method that appends USB device ID to USB related command,
-    retries the command and returns its output.
-
-    Args:
-      args: The args or subcommand to be passed to usb command.
-      cmd: The main USB related command. The default is `usb_updater2`.
-      tries: times to retry. The default is 5.
-
-    Returns:
-      The output of `cmd`.
-
-    Raises:
-      CalledProcessError if `cmd` failed up to `tries` times.
-    """
-
-    @sync_utils.RetryDecorator(max_attempt_count=tries, interval_sec=0.5,
-                               reraise=True)
-    def _LogAndCheckOutput():
+    if self.args.usb_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       try:
-        return process_utils.LogAndCheckOutput([cmd, '-d', self._device_id] +
-                                               args)
+        process_utils.CheckCall(['lsusb', '-d', self.device_id])
       except process_utils.CalledProcessError:
-        logging.warning('Failed to call %s, trying again.', cmd)
-        raise
-
-    return _LogAndCheckOutput()
+        return 0
+      return 1
+    return os.path.exists(os.path.join("/sys/bus/i2c/devices/",
+                                       self.args.i2c_path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
   def GetBaseInfo(self):
     """Retrieve and parse on-board EC info.
@@ -337,53 +293,8 @@ class UsbInfo:
     Returns:
       A dictionary containing on-board EC info.
     """
-    key_trans = {
-        'Flash protection status': 'wp_status',
-        'maximum PDU size': 'pdu_size',
-        'min_rollback': 'min_rollback',
-        'version': 'ro_version',
-    }
-    res = {}
-
-    for line in self.CmdWithArgs(['-f']).splitlines():
-      if ':' in line:
-        k, v = line.split(':', 1)
-        if k in key_trans:
-          res[key_trans[k]] = v.strip()
-
-    # Extra step to read RW version via lsusb.
-    # usb_updater2 is unable to read the version of current FW section which
-    # base is running on (usually RW), so using lsusb instead.
-    # The code is a bit nasty here, because we only care about the RW version
-    # and the lsusb content is not easy to be parsed without regexp.
-    for line in self.CmdWithArgs(['-vv'], cmd='lsusb').splitlines():
-      if re.search(r'iConfiguration\s*\d*\s*RW', line):
-        res['rw_version'] = line.split(':', 1)[1].strip()
-
-    return res
-
-  def GetTouchpadInfo(self):
-    """Retrieve and parse on-board touchpad info.
-
-    Returns:
-      A dictionary containing on-board touchpad info.
-    """
-    key_trans = {
-        'fw_fw_checksum': 'tp_fw_checksum',
-        'fw_version': 'tp_version',
-        'id': 'tp_id',
-        'status': 'tp_status',
-        'vendor': 'tp_vendor',
-    }
-    res = {}
-
-    for line in self.CmdWithArgs(['-t']).splitlines():
-      if ':' in line:
-        k, v = line.split(':', 1)
-        if k in key_trans:
-          res[key_trans[k]] = v.strip()
-
-    return res
+    output = process_utils.LogAndCheckOutput(['hammer_info.py'])
+    return dict(re.findall(r'(\S+)="(\S+?)"', output))
 
   def GetFirmwareInfo(self, fw_path):
     """Retrieve and parse given EC FW info.
@@ -402,7 +313,8 @@ class UsbInfo:
     }
     res = {'ro': {}, 'rw': {}}
 
-    for line in self.CmdWithArgs(['-b', fw_path]).splitlines():
+    for line in process_utils.LogAndCheckOutput(['usb_updater2', '-b',
+                                                 fw_path]).splitlines():
       mode, *rest = line.split()
       if mode in ('RO', 'RW'):
         for kv in rest:
