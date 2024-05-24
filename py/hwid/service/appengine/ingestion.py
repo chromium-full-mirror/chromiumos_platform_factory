@@ -295,9 +295,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
 
     # Only upload CL for production.
     dryrun_upload = self._config_data.env != 'prod'
+    live_hwid_repo = self.hwid_repo_manager.GetLiveHWIDRepo()
 
     try:
-      self.vpg_config_manager.Update(dryrun_upload)
+      self.vpg_config_manager.Update(dryrun_upload, live_hwid_repo)
     except vpg_config_manager.VPGConfigGenerationException as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 

@@ -13,6 +13,7 @@ from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine import git_util
+from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 
@@ -102,6 +103,11 @@ def _ToSortedDict(target: Mapping[Any, Any]) -> collections.OrderedDict:
 class VPGConfigManager:
   """Manager for updating verification payload generator config file."""
 
+  _INVALID_PRODUCT_STATUS = {
+      hwid_api_messages_pb2.DlmProduct.UNKNOWN,
+      hwid_api_messages_pb2.DlmProduct.CANCELED,
+  }
+
   def __init__(self, dlm_product_manager: dlm_product_data.DLMProductManager,
                cl_upload_manager: cl_upload_config.VPGTargetsCLUploadManager):
     self._logger = logging.getLogger(self.__class__.__name__)
@@ -137,11 +143,13 @@ class VPGConfigManager:
           f'Failed to load {file_path}: {ex}.') from None
 
   def _GetProductStatusMapping(
-      self, vpg_config: VPGConfig) -> Mapping[str, Mapping[str, Set[int]]]:
+      self, vpg_config: VPGConfig, live_hwid_repo: hwid_repo.HWIDRepo
+  ) -> Mapping[str, Mapping[str, Set[int]]]:
     """Get a mapping maps (board, model) to product status set.
 
     Args:
       vpg_config: VPGConfig instance created from vpg_config.yaml
+      live_hwid_repo: See Update().
 
     Returns:
       A dictionary with (board, model) as key, and the set that collects
@@ -154,8 +162,12 @@ class VPGConfigManager:
     # yapf: enable
         lambda: collections.defaultdict(set))
     for product in dlm_products:
-      if product.model is None or product.model == '':
+      if (
+          product.model not in live_hwid_repo.hwid_db_metadata_of_name or
+          product.product_status in self._INVALID_PRODUCT_STATUS
+      ):
         continue
+
       product_status_mapping[product.board][product.model].add(
           product.product_status)
 
@@ -190,7 +202,7 @@ class VPGConfigManager:
       self._logger.error('CL is not created: %r', str(ex))
       raise VPGConfigGenerationException('CL is not created') from ex
 
-  def Update(self, dryrun: bool):
+  def Update(self, dryrun: bool, live_hwid_repo: hwid_repo.HWIDRepo):
     """Update vpg_targets.yaml with product status and vpg_config.yaml.
 
     This function uses the DLM product data and the manually maintained config
@@ -201,6 +213,7 @@ class VPGConfigManager:
 
     Args:
       dryrun: True to do everything except actually upload the CL.
+      live_hwid_repo: A HWIDRepo instance being processed.
     """
     self._logger.info('Start syncing')
 
@@ -215,7 +228,8 @@ class VPGConfigManager:
         lambda: collections.defaultdict(dict))
     models_vp_on.update(vpg_config.models_force_vp_on)
 
-    product_status_mapping = self._GetProductStatusMapping(vpg_config)
+    product_status_mapping = self._GetProductStatusMapping(vpg_config,
+                                                           live_hwid_repo)
     for board, model_to_status in product_status_mapping.items():
       for model, product_status in model_to_status.items():
         if vpg_config.ShouldSkipProductStatus(board, model):
@@ -223,8 +237,6 @@ class VPGConfigManager:
 
         if hwid_api_messages_pb2.DlmProduct.SHIPPED in product_status:
           model_config = {}
-        elif product_status == {hwid_api_messages_pb2.DlmProduct.CANCELED}:
-          continue
         else:
           model_config = {
               'encrypted': True

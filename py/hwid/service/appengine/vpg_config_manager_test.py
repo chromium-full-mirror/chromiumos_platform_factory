@@ -9,6 +9,8 @@ from unittest import mock
 
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import dlm_product_data
+from cros.factory.hwid.service.appengine import git_util
+from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.service.appengine import vpg_config_manager
@@ -37,6 +39,10 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._vpg_config_manager = vpg_config_manager.VPGConfigManager(
         self._modules.fake_dlm_product_manager, self._mock_cl_upload_manager)
 
+    fake_repo = git_util.MemoryRepo('')
+    self._fake_live_hwid_repo = hwid_repo.HWIDRepo(fake_repo, 'test_repo',
+                                                   'test_branch', None)
+
     self.addCleanup(mock.patch.stopall)
     self._mock_get_gerrit_auth_cookie = mock.patch.object(
         vpg_config_manager.git_util, 'GetGerritAuthCookie',
@@ -61,10 +67,25 @@ class VPGConfigManagerTest(unittest.TestCase):
       entity.put()
     return entity
 
-  def testUpdate(self):
+  @mock.patch(
+      'cros.factory.hwid.service.appengine.hwid_repo.HWIDRepoView'
+      '.hwid_db_metadata_of_name', new_callable=mock.PropertyMock)
+  def testUpdate(self, mock_hwid_db_metadata_of_name):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
     self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
     self._mock_cl_upload_manager.ShouldCreateCL.return_value = True
+    hwid_db_metadata_of_name = {
+        'MODEL3': hwid_repo.HWIDDBMetadata('MODEL3', 'BOARD1', 3, 'MODEL3'),
+        'MODEL4': hwid_repo.HWIDDBMetadata('MODEL4', 'BOARD1', 3, 'MODEL4'),
+        'MODEL5': hwid_repo.HWIDDBMetadata('MODEL5', 'BOARD2', 3, 'MODEL5'),
+        'MODEL6': hwid_repo.HWIDDBMetadata('MODEL6', 'BOARD2', 3, 'MODEL6'),
+        'MODEL7': hwid_repo.HWIDDBMetadata('MODEL7', 'BOARD1', 3, 'MODEL7'),
+        'MODEL8': hwid_repo.HWIDDBMetadata('MODEL8', 'BOARD2', 3, 'MODEL8'),
+        'MODEL9': hwid_repo.HWIDDBMetadata('MODEL9', 'BOARD1', 3, 'MODEL9'),
+        'MODEL11': hwid_repo.HWIDDBMetadata('MODEL11', 'BOARD3', 3, 'MODEL11'),
+    }
+    mock_hwid_db_metadata_of_name.return_value = hwid_db_metadata_of_name
+
     # None of MODEL3 products are shipped. Generate encrypted payload.
     self._CreateDLMProduct(id=1, board='BOARD1', model='MODEL3',
                            product_status=_DlmProduct.APPROVED, device_id=1)
@@ -90,11 +111,17 @@ class VPGConfigManagerTest(unittest.TestCase):
     # Model name is null. No payload is generated.
     self._CreateDLMProduct(id=9, board='BOARD1',
                            product_status=_DlmProduct.APPROVED, device_id=7)
-    # Board is not in vpg_config. No payload is generated.
-    self._CreateDLMProduct(id=10, board='BOARD3', model='MODEL9',
-                           product_status=_DlmProduct.SHIPPED, device_id=8)
+    # Status is unknown. No payload is generated.
+    self._CreateDLMProduct(id=10, board='BOARD1', model='MODEL9',
+                           product_status=_DlmProduct.UNKNOWN, device_id=8)
+    # MODEL10 has no HWID DB. No payload is generated.
+    self._CreateDLMProduct(id=11, board='BOARD1', model='MODEL10',
+                           product_status=_DlmProduct.SHIPPED, device_id=9)
+    # BOARD3 is not in vpg_config. No payload is generated.
+    self._CreateDLMProduct(id=12, board='BOARD3', model='MODEL11',
+                           product_status=_DlmProduct.SHIPPED, device_id=10)
 
-    self._vpg_config_manager.Update(True)
+    self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 
     self._mock_cl_upload_manager.CreateCL.assert_called_with(
         True, 'https://chrome-internal.googlesource.com/'
@@ -111,7 +138,7 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
     self._mock_cl_upload_manager.ShouldCreateCL.return_value = False
 
-    self._vpg_config_manager.Update(True)
+    self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 
     self._mock_cl_upload_manager.CreateCL.assert_not_called()
     self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_not_called()
@@ -120,7 +147,7 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
     self._mock_cl_upload_manager.ShouldGenerateContent.return_value = False
 
-    self._vpg_config_manager.Update(True)
+    self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 
     self._mock_cl_upload_manager.CreateCL.assert_not_called()
     self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_not_called()
