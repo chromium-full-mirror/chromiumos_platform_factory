@@ -244,7 +244,7 @@ def LogAndCheckCall(args: Union[str, Sequence[str]], *,
 
 @overload
 def LogAndCheckOutput(args: Union[str, Sequence[str]], *,
-                      encoding: str = 'utf-8', **kwargs) -> ExtendedPopen[str]:
+                      encoding: str = 'utf-8', **kwargs) -> str:
   ...
 
 
