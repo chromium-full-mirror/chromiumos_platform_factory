@@ -42,6 +42,8 @@ class CreateBundleRequestInfo:
         firmware info in HWID DB or not.
     cc_emails: A list of emails which should be also notified when a request
         is processed.
+    no_firmware: A boolean value which represents calling `finalize_bundle`
+        command with `--no-firmware` or not.
     firmware_source: The firmware source, `None` if it isn't set.
     hwid_related_bug_number: The bug number to create a HWID CL, `None` if it
         isn't set.
@@ -55,6 +57,7 @@ class CreateBundleRequestInfo:
   release_image_version: str
   update_hwid_db_firmware_info: bool
   cc_emails: List[str]
+  no_firmware: bool
   firmware_source: Optional[str] = None
   hwid_related_bug_number: Optional[int] = None
 
@@ -70,9 +73,9 @@ class CreateBundleRequestInfo:
         test_image_version=metadata.test_image_version,
         release_image_version=metadata.release_image_version,
         update_hwid_db_firmware_info=hwid_option.update_db_firmware_info,
-        cc_emails=list(
-            request.cc_emails), firmware_source=metadata.firmware_source or
-        None, hwid_related_bug_number=hwid_option.related_bug_number or None)
+        cc_emails=list(request.cc_emails), no_firmware=metadata.no_firmware,
+        firmware_source=metadata.firmware_source or None,
+        hwid_related_bug_number=hwid_option.related_bug_number or None)
     return info
 
 

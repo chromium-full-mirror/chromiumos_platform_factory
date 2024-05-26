@@ -32,6 +32,7 @@ class StubbyHandlerTest(unittest.TestCase):
     bundle_metadata.toolkit_version = '11111.0.0'
     bundle_metadata.test_image_version = '22222.0.0'
     bundle_metadata.release_image_version = '33333.0.0'
+    bundle_metadata.no_firmware = False
     self._create_bundle_request.hwid_option.update_db_firmware_info = False
 
     self._get_bundle_info_request = factorybundle_v2_pb2.GetBundleInfoRequest()

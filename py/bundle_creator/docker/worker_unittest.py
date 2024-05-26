@@ -94,6 +94,7 @@ class CreateBundleTaskTest(unittest.TestCase):
     request.bundle_metadata.test_image_version = self._test_image_version
     request.bundle_metadata.release_image_version = (
         self._release_image_version)
+    request.bundle_metadata.no_firmware = False
     request.hwid_option.update_db_firmware_info = False
     self._message = factorybundle_v2_pb2.CreateBundleMessage()
     self._message.doc_id = self._doc_id
@@ -105,7 +106,8 @@ class CreateBundleTaskTest(unittest.TestCase):
         toolkit_version=self._toolkit_version,
         test_image_version=self._test_image_version,
         release_image_version=self._release_image_version,
-        update_hwid_db_firmware_info=False, cc_emails=self._cc_emails)
+        update_hwid_db_firmware_info=False, cc_emails=self._cc_emails,
+        no_firmware=False)
 
   def testFromPubSubMessage_withoutOptionalFields_returnsExpectedValue(self):
     task = CreateBundleTask.FromPubSubMessage(
@@ -117,6 +119,8 @@ class CreateBundleTaskTest(unittest.TestCase):
   def testFromPubSubMessage_withOptionalFields_verifiesOptionalFields(self):
     self._message.request.bundle_metadata.firmware_source = (
         self._firmware_source)
+    self._message.request.bundle_metadata.no_firmware = True
+    self._message.request.hwid_option.update_db_firmware_info = True
     self._message.request.hwid_option.related_bug_number = (
         self._hwid_related_bug_number)
 
@@ -125,6 +129,8 @@ class CreateBundleTaskTest(unittest.TestCase):
                                        attributes={}))
 
     self.assertEqual(task.firmware_source, self._firmware_source)
+    self.assertTrue(task.no_firmware)
+    self.assertTrue(task.update_hwid_db_firmware_info)
     self.assertEqual(task.hwid_related_bug_number,
                      self._hwid_related_bug_number)
 
@@ -145,11 +151,13 @@ class CreateBundleTaskTest(unittest.TestCase):
 
   def testToOriginalRequest_withOptionalFields_verifiesOptionalFields(self):
     self._task.firmware_source = self._firmware_source
+    self._task.update_hwid_db_firmware_info = True
     self._task.hwid_related_bug_number = self._hwid_related_bug_number
 
     request = self._task.ToOriginalRequest()
 
     self.assertEqual(request.firmware_source, self._firmware_source)
+    self.assertTrue(request.update_hwid_db_firmware_info)
     self.assertEqual(request.hwid_related_bug_number,
                      self._hwid_related_bug_number)
 
@@ -224,6 +232,7 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
     bundle_metadata.toolkit_version = '11111.0.0'
     bundle_metadata.test_image_version = '22222.0.0'
     bundle_metadata.release_image_version = '33333.0.0'
+    bundle_metadata.no_firmware = False
     self._message.request.hwid_option.update_db_firmware_info = False
     self._firestore_connector.ClearCollection('user_requests')
     self._firestore_connector.ClearCollection('has_firmware_settings')
@@ -233,7 +242,8 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
         toolkit_version=bundle_metadata.toolkit_version,
         test_image_version=bundle_metadata.test_image_version,
         release_image_version=bundle_metadata.release_image_version,
-        update_hwid_db_firmware_info=False, cc_emails=[])
+        update_hwid_db_firmware_info=False, cc_emails=[],
+        no_firmware=bundle_metadata.no_firmware)
     self._message.doc_id = self._firestore_connector.CreateUserRequest(
         info, 'v2')
     self._pubsub_connector.CreateSubscription(self._TOPIC_NAME,
@@ -384,6 +394,22 @@ class EasyBundleCreationWorkerTest(unittest.TestCase):
 
     manifest = self._ReadManifest()
     self.assertEqual(manifest['has_firmware'], has_firmware_setting_value)
+
+  def testTryProcessRequest_generalCase_verifiesFinalizeBundleArguments(self):
+    self._PublishCreateBundleMessage()
+
+    self._worker.TryProcessRequest()
+
+    self.assertNotIn('--no-firmware', self._mock_check_output.call_args.args[0])
+
+  def testTryProcessRequest_withNoFirmware_verifiesFinalizeBundleArguments(
+      self):
+    self._message.request.bundle_metadata.no_firmware = True
+    self._PublishCreateBundleMessage()
+
+    self._worker.TryProcessRequest()
+
+    self.assertIn('--no-firmware', self._mock_check_output.call_args.args[0])
 
   def testTryProcessRequest_succeed_verifiesCallingStorageConnector(self):
     self._PublishCreateBundleMessage()

@@ -9,6 +9,7 @@ message BundleMetadata {
   string test_image_version = 5;
   string release_image_version = 6;
   string firmware_source = 7;
+  bool no_firmware = 8;
 }
 
 message BundleInfo {

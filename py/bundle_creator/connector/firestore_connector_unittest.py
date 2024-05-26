@@ -31,6 +31,7 @@ class CreateBundleRequestInfoTest(unittest.TestCase):
     self._request.bundle_metadata.toolkit_version = '11111.0.0'
     self._request.bundle_metadata.test_image_version = '22222.0.0'
     self._request.bundle_metadata.release_image_version = '33333.0.0'
+    self._request.bundle_metadata.no_firmware = False
     self._request.hwid_option.update_db_firmware_info = False
     self._request.cc_emails.append('foo.cc@bar')
 
@@ -41,7 +42,7 @@ class CreateBundleRequestInfoTest(unittest.TestCase):
         email='foo@bar', board='board', project='project', phase='proto',
         toolkit_version='11111.0.0', test_image_version='22222.0.0',
         release_image_version='33333.0.0', update_hwid_db_firmware_info=False,
-        cc_emails=['foo.cc@bar'])
+        cc_emails=['foo.cc@bar'], no_firmware=False)
     self.assertEqual(info, expected_info)
 
   def testFromCreateBundleRequest_optionalFields_verifiesOptionalFields(self):
@@ -68,7 +69,7 @@ class FirestoreConnectorTest(unittest.TestCase):
         email='foo@bar', board='board', project='project', phase='proto',
         toolkit_version='11111.0.0', test_image_version='12222.0.0',
         release_image_version='13333.0.0', update_hwid_db_firmware_info=False,
-        cc_emails=[])
+        cc_emails=[], no_firmware=False)
 
     self._datetime_now = datetime.datetime(2022, 6, 8, 0, 0)
     mock_datetime_patcher = mock.patch(
@@ -121,6 +122,7 @@ class FirestoreConnectorTest(unittest.TestCase):
         'toolkit_version': self._info.toolkit_version,
         'test_image_version': self._info.test_image_version,
         'release_image_version': self._info.release_image_version,
+        'no_firmware': self._info.no_firmware,
         'status': firestore_connector.UserRequestStatus.NOT_STARTED.name,
         'request_time': self._FIRESTORE_CURRENT_DATETIME,
         'update_hwid_db_firmware_info': False,

@@ -82,8 +82,15 @@ class UserRequestTest(unittest.TestCase):
     request = UserRequest(self._snapshot).ToCreateBundleRequest(self._requester)
 
     self.assertEqual(request.bundle_metadata.firmware_source, '44444.0.0')
-    self.assertEqual(request.hwid_option.update_db_firmware_info, True)
+    self.assertTrue(request.hwid_option.update_db_firmware_info)
     self.assertEqual(request.hwid_option.related_bug_number, 123456789)
+
+  def testToCreateBundleRequest_withNoFirmware_verifiesNoFirmware(self):
+    self._snapshot['no_firmware'] = True
+
+    request = UserRequest(self._snapshot).ToCreateBundleRequest(self._requester)
+
+    self.assertTrue(request.bundle_metadata.no_firmware)
 
 
 class RetryFailureTaskTest(unittest.TestCase):
@@ -167,6 +174,7 @@ class RetryFailureWorkerTest(unittest.TestCase):
     bundle_metadata.toolkit_version = '11111.0.0'
     bundle_metadata.test_image_version = '22222.0.0'
     bundle_metadata.release_image_version = '33333.0.0'
+    bundle_metadata.no_firmware = True
     self._expected_request.hwid_option.update_db_firmware_info = False
     self._expected_snapshot = {
         'email':
@@ -184,6 +192,8 @@ class RetryFailureWorkerTest(unittest.TestCase):
             '22222.0.0',
         'release_image_version':
             '33333.0.0',
+        'no_firmware':
+            True,
         'update_hwid_db_firmware_info':
             False,
         'status':
@@ -290,6 +300,7 @@ class RetryFailureWorkerTest(unittest.TestCase):
         'toolkit_version': '11111.0.0',
         'test_image_version': '22222.0.0',
         'release_image_version': '33333.0.0',
+        'no_firmware': True,
         'update_hwid_db_firmware_info': False,
     }
     base_doc.update(required_data)

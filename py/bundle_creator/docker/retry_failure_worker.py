@@ -60,6 +60,7 @@ class UserRequest:
     firmware_source = self.snapshot.get('firmware_source', '')
     if firmware_source:
       metadata.firmware_source = firmware_source
+    metadata.no_firmware = self.snapshot.get('no_firmware', False)
 
     hwid_option = request.hwid_option
     hwid_option.update_db_firmware_info = self.snapshot.get(
