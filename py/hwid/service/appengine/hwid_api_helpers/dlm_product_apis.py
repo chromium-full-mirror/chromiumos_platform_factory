@@ -23,8 +23,6 @@ _DlmProductUpdateResult = hwid_api_messages_pb2.DlmProductUpdateResult
 _DlmDeviceUpdateResult = hwid_api_messages_pb2.DlmDeviceUpdateResult
 _UpdateDlmDeviceRequest = hwid_api_messages_pb2.UpdateDlmDeviceRequest
 _UpdateDlmDeviceResponse = hwid_api_messages_pb2.UpdateDlmDeviceResponse
-_UpdateDlmProductRequest = hwid_api_messages_pb2.UpdateDlmProductRequest
-_UpdateDlmProductResponse = hwid_api_messages_pb2.UpdateDlmProductResponse
 
 
 # yapf: disable
@@ -36,16 +34,6 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
       dlm_product_manager: dlm_product_data.DLMProductManager,
   ):
     self._dlm_product_manager = dlm_product_manager
-
-  @protorpc_utils.ProtoRPCServiceMethod
-  @auth.RpcCheck
-  def UpdateDlmProduct(
-      self, request: _UpdateDlmProductRequest) -> _UpdateDlmProductResponse:
-    """Create or update the product data with DLM product data."""
-    product = request.product
-    update_result = self._UpdateDLMProducts([product])[0]
-    return _UpdateDlmProductResponse(product_id=update_result.product_id,
-                                     update_result=update_result)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -75,9 +63,11 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
 
     try:
       self._dlm_product_manager.UpdateDLMProductsByDeviceId(
-          device.id, device.board.upper(),
+          device.id,
+          device.board.upper(),
           # yapf: disable
-          device.model.upper() or None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          device.model.upper() or None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          device.type)
       # yapf: enable
     except ndb.exceptions.Error as e:
       logging.error('Failed to update product data with exception: %s', e)
@@ -124,11 +114,11 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
           break
       else:
         dlm_products.append(
-            dlm_product_data.DLMProduct(id=product.id,
-                                        board=product.board.upper(),
-                                        model=product.model.upper() or None,
-                                        product_status=product.product_status,
-                                        device_id=product.device_id))
+            dlm_product_data.DLMProduct(
+                id=product.id, board=product.board.upper(),
+                model=product.model.upper() or None,
+                product_status=product.product_status,
+                device_id=product.device_id, device_type=product.device_type))
         update_results.append(
             _DlmProductUpdateResult(
                 product_id=product.id,

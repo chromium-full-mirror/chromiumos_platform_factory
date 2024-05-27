@@ -29,12 +29,12 @@ class DLMProductManagerTest(unittest.TestCase):
     return entity
 
   def testUpdateDLMProducts_CreateNewProducts(self):
-    product1 = dlm_product_data.DLMProduct(id=1, board='test_board_1',
-                                           model='test_model_1',
-                                           product_status=1, device_id=1)
-    product2 = dlm_product_data.DLMProduct(id=2, board='test_board_2',
-                                           model='test_model_2',
-                                           product_status=2, device_id=2)
+    product1 = dlm_product_data.DLMProduct(
+        id=1, board='test_board_1', model='test_model_1', product_status=1,
+        device_id=1, device_type=1)
+    product2 = dlm_product_data.DLMProduct(
+        id=2, board='test_board_2', model='test_model_2', product_status=2,
+        device_id=2, device_type=2)
 
     self._manager.UpdateDLMProducts(products=[product1, product2])
 
@@ -47,26 +47,28 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertEqual(res[0].model, 'test_model_1')
     self.assertEqual(res[0].product_status, 1)
     self.assertEqual(res[0].device_id, 1)
+    self.assertEqual(res[0].device_type, 1)
 
     self.assertEqual(res[1].id, 2)
     self.assertEqual(res[1].board, 'test_board_2')
     self.assertEqual(res[1].model, 'test_model_2')
     self.assertEqual(res[1].product_status, 2)
     self.assertEqual(res[1].device_id, 2)
+    self.assertEqual(res[1].device_type, 2)
 
   def testUpdateDLMProducts_UpdateExistingProducts(self):
     self._CreateDLMProduct(id=1, board='test_board_1', model='test_model_1',
-                           product_status=1, device_id=1)
+                           product_status=1, device_id=1, device_type=1)
     self._CreateDLMProduct(id=2, board='test_board_2', model='test_model_2',
-                           product_status=2, device_id=2)
+                           product_status=2, device_id=2, device_type=1)
     self._CreateDLMProduct(id=3, board='test_board_3', model='test_model_3',
-                           product_status=3, device_id=3)
-    updated_p2 = dlm_product_data.DLMProduct(id=2, board='test_board_4',
-                                             model='test_model_4',
-                                             product_status=4, device_id=4)
-    updated_p3 = dlm_product_data.DLMProduct(id=3, board='test_board_5',
-                                             model='test_model_5',
-                                             product_status=5, device_id=5)
+                           product_status=3, device_id=3, device_type=1)
+    updated_p2 = dlm_product_data.DLMProduct(
+        id=2, board='test_board_4', model='test_model_4', product_status=4,
+        device_id=4, device_type=2)
+    updated_p3 = dlm_product_data.DLMProduct(
+        id=3, board='test_board_5', model='test_model_5', product_status=5,
+        device_id=5, device_type=2)
 
     self._manager.UpdateDLMProducts(products=[updated_p2, updated_p3])
 
@@ -79,35 +81,38 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertEqual(res[0].model, 'test_model_1')
     self.assertEqual(res[0].product_status, 1)
     self.assertEqual(res[0].device_id, 1)
+    self.assertEqual(res[0].device_type, 1)
 
     self.assertEqual(res[1].id, 2)
     self.assertEqual(res[1].board, 'test_board_4')
     self.assertEqual(res[1].model, 'test_model_4')
     self.assertEqual(res[1].product_status, 4)
     self.assertEqual(res[1].device_id, 4)
+    self.assertEqual(res[1].device_type, 2)
 
     self.assertEqual(res[2].id, 3)
     self.assertEqual(res[2].board, 'test_board_5')
     self.assertEqual(res[2].model, 'test_model_5')
     self.assertEqual(res[2].product_status, 5)
     self.assertEqual(res[2].device_id, 5)
+    self.assertEqual(res[2].device_type, 2)
 
   def testUpdateDLMProducts_UpdateExistingAndCreateNewProducts(self):
     self._CreateDLMProduct(id=1, board='test_board_1', model='test_model_1',
-                           product_status=1, device_id=1)
+                           product_status=1, device_id=1, device_type=1)
     self._CreateDLMProduct(id=2, board='test_board_2', model='test_model_2',
-                           product_status=2, device_id=2)
+                           product_status=2, device_id=2, device_type=1)
     self._CreateDLMProduct(id=3, board='test_board_3', model='test_model_3',
-                           product_status=3, device_id=3)
-    updated_p2 = dlm_product_data.DLMProduct(id=2, board='test_board_4',
-                                             model='test_model_4',
-                                             product_status=4, device_id=4)
-    updated_p3 = dlm_product_data.DLMProduct(id=3, board='test_board_5',
-                                             model='test_model_5',
-                                             product_status=5, device_id=5)
+                           product_status=3, device_id=3, device_type=1)
+    updated_p2 = dlm_product_data.DLMProduct(
+        id=2, board='test_board_4', model='test_model_4', product_status=4,
+        device_id=4, device_type=2)
+    updated_p3 = dlm_product_data.DLMProduct(
+        id=3, board='test_board_5', model='test_model_5', product_status=5,
+        device_id=5, device_type=2)
     new_p4 = dlm_product_data.DLMProduct(id=4, board='test_board_6',
                                          model='test_model_6', product_status=1,
-                                         device_id=1)
+                                         device_id=1, device_type=1)
 
     self._manager.UpdateDLMProducts(products=[updated_p2, updated_p3, new_p4])
 
@@ -120,37 +125,41 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertEqual(res[0].model, 'test_model_1')
     self.assertEqual(res[0].product_status, 1)
     self.assertEqual(res[0].device_id, 1)
+    self.assertEqual(res[0].device_type, 1)
 
     self.assertEqual(res[1].id, 2)
     self.assertEqual(res[1].board, 'test_board_4')
     self.assertEqual(res[1].model, 'test_model_4')
     self.assertEqual(res[1].product_status, 4)
     self.assertEqual(res[1].device_id, 4)
+    self.assertEqual(res[1].device_type, 2)
 
     self.assertEqual(res[2].id, 3)
     self.assertEqual(res[2].board, 'test_board_5')
     self.assertEqual(res[2].model, 'test_model_5')
     self.assertEqual(res[2].product_status, 5)
     self.assertEqual(res[2].device_id, 5)
+    self.assertEqual(res[2].device_type, 2)
 
     self.assertEqual(res[3].id, 4)
     self.assertEqual(res[3].board, 'test_board_6')
     self.assertEqual(res[3].model, 'test_model_6')
     self.assertEqual(res[3].product_status, 1)
     self.assertEqual(res[3].device_id, 1)
+    self.assertEqual(res[3].device_type, 1)
 
   def testGetDLMProductsByBoards(self):
     p1 = self._CreateDLMProduct(id=1, board='test_board_1',
                                 model='test_model_1', product_status=1,
-                                device_id=1)
+                                device_id=1, device_type=1)
     p2 = self._CreateDLMProduct(id=2, board='test_board_2',
                                 model='test_model_2', product_status=2,
-                                device_id=2)
+                                device_id=2, device_type=2)
     p3 = self._CreateDLMProduct(id=3, board='test_board_2',
                                 model='test_model_2', product_status=3,
-                                device_id=2)
+                                device_id=2, device_type=2)
     self._CreateDLMProduct(id=4, board='test_board_3', model='test_model_3',
-                           product_status=1, device_id=3)
+                           product_status=1, device_id=3, device_type=1)
 
     res = self._manager.GetDLMProductsByBoards(['test_board_1', 'test_board_2'])
 
@@ -160,9 +169,9 @@ class DLMProductManagerTest(unittest.TestCase):
 
   def testGetDLMProductsByBoards_NoMatchingResult(self):
     self._CreateDLMProduct(id=1, board='test_board_1', model='test_model_1',
-                           product_status=1, device_id=1)
+                           product_status=1, device_id=1, device_type=1)
     self._CreateDLMProduct(id=2, board='test_board_2', model='test_model_2',
-                           product_status=2, device_id=2)
+                           product_status=2, device_id=2, device_type=1)
 
     res = self._manager.GetDLMProductsByBoards(['test_board_3'])
 
@@ -171,15 +180,16 @@ class DLMProductManagerTest(unittest.TestCase):
   def testUpdateDLMProductsByDeviceId(self):
     p1 = self._CreateDLMProduct(id=1, board='test_board_1',
                                 model='test_model_1', product_status=1,
-                                device_id=1)
+                                device_id=1, device_type=1)
     p2 = self._CreateDLMProduct(id=2, board='test_board_2',
                                 model='test_model_2', product_status=2,
-                                device_id=2)
+                                device_id=2, device_type=1)
     p3 = self._CreateDLMProduct(id=3, board='test_board_2',
                                 model='test_model_2', product_status=3,
-                                device_id=2)
+                                device_id=2, device_type=1)
 
-    self._manager.UpdateDLMProductsByDeviceId(2, 'test_board_3', 'test_model_3')
+    self._manager.UpdateDLMProductsByDeviceId(2, 'test_board_3', 'test_model_3',
+                                              2)
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query())
@@ -194,18 +204,21 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertEqual(p1.model, 'test_model_1')
     self.assertEqual(p1.product_status, 1)
     self.assertEqual(p1.device_id, 1)
+    self.assertEqual(p1.device_type, 1)
 
     self.assertEqual(p2.id, 2)
     self.assertEqual(p2.board, 'test_board_3')
     self.assertEqual(p2.model, 'test_model_3')
     self.assertEqual(p2.product_status, 2)
     self.assertEqual(p2.device_id, 2)
+    self.assertEqual(p2.device_type, 2)
 
     self.assertEqual(p3.id, 3)
     self.assertEqual(p3.board, 'test_board_3')
     self.assertEqual(p3.model, 'test_model_3')
     self.assertEqual(p3.product_status, 3)
     self.assertEqual(p3.device_id, 2)
+    self.assertEqual(p3.device_type, 2)
 
 
 if __name__ == '__main__':

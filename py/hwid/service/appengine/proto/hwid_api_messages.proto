@@ -1048,6 +1048,13 @@ message CreateOrRefreshSplittedHwidDbClsResponse {
   HwidDbCommit final_hwid_db_commit = 7;
 }
 
+enum DeviceType {
+  UNKNOWN = 0;
+
+  DEVICE = 1;
+  REFERENCE_BOARD = 2;
+}
+
 // The product data from DLM.
 message DlmProduct {
   enum ProductStatus {
@@ -1071,6 +1078,8 @@ message DlmProduct {
   ProductStatus product_status = 4;
   // The id of the device to which the product belongs.
   int64 device_id = 5;
+  // The type of the device to which the product belongs.
+  DeviceType device_type = 6;
 }
 
 message DlmProductUpdateResult {
@@ -1087,24 +1096,10 @@ message DlmProductUpdateResult {
   string error_msg = 3;
 }
 
-// The request of updating or creating product with DLM product data.
-message UpdateDlmProductRequest {
-  // The DLM product data used to update or create product.
-  DlmProduct product = 1;
-}
-
 // The request of updating or creating product with DLM product list.
 message BatchUpdateDlmProductRequest {
   // The DLM product list used to update or create products.
   repeated DlmProduct products = 1;
-}
-
-// The response of updating or creating product with DLM product data.
-message UpdateDlmProductResponse {
-  // The id of the requested product.
-  int64 product_id = 1;
-  // The update result for the requested product.
-  DlmProductUpdateResult update_result = 2;
 }
 
 // The response of updating or creating product with DLM product list.
@@ -1123,6 +1118,8 @@ message DlmDevice {
   string board = 2;
   // The model name of the device.
   string model = 3;
+  // The type of the device.
+  DeviceType type = 4;
 }
 
 message DlmDeviceUpdateResult {
@@ -1268,10 +1265,6 @@ service HwidService {
   // Create or refresh HWID DB CLs by given CL number.
   rpc CreateOrRefreshSplittedHwidDbCls(CreateOrRefreshSplittedHwidDbClsRequest)
       returns (CreateOrRefreshSplittedHwidDbClsResponse);
-
-  // Update or create DLM product data with DLM product data.
-  rpc UpdateDlmProduct(UpdateDlmProductRequest)
-      returns (UpdateDlmProductResponse);
 
   // Update or create DLM product data with DLM product list.
   rpc BatchUpdateDlmProduct(BatchUpdateDlmProductRequest)

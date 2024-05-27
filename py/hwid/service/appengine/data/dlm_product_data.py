@@ -19,6 +19,7 @@ class DLMProduct(ndb.Model):
     model: The model name of the device to which the product belongs.
     product_status: The status of the product.
     device_id: The id of the device to which the product belongs.
+    device_type: The type of the device to which the product belongs.
   """
 
   id = ndb.IntegerProperty(indexed=True, required=True)
@@ -26,6 +27,7 @@ class DLMProduct(ndb.Model):
   model = ndb.StringProperty()
   product_status = ndb.IntegerProperty(required=True)
   device_id = ndb.IntegerProperty(indexed=True, required=True)
+  device_type = ndb.IntegerProperty()
 
 
 class DLMProductManager:
@@ -53,14 +55,17 @@ class DLMProductManager:
 
       ndb.model.put_multi(list(products_to_update.values()))
 
-  def UpdateDLMProductsByDeviceId(self, device_id: int, board: str, model: str):
+  def UpdateDLMProductsByDeviceId(self, device_id: int, board: str, model: str,
+                                  device_type: int):
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       q = DLMProduct.query().filter(DLMProduct.device_id == device_id)
       products_to_update = []
       for product in q:
-        if product.board != board or product.model != model:
+        if (product.board, product.model, product.device_type) != (board, model,
+                                                                   device_type):
           product.board = board
           product.model = model
+          product.device_type = device_type
           products_to_update.append(product)
 
       if products_to_update:
