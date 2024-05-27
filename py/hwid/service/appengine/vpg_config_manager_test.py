@@ -17,6 +17,7 @@ from cros.factory.hwid.service.appengine import vpg_config_manager
 from cros.factory.utils import file_utils
 
 
+_DeviceType = hwid_api_messages_pb2.DeviceType
 _DlmProduct = hwid_api_messages_pb2.DlmProduct
 
 _TEST_VPG_CONFIG_PATH = os.path.join(
@@ -83,43 +84,60 @@ class VPGConfigManagerTest(unittest.TestCase):
         'MODEL8': hwid_repo.HWIDDBMetadata('MODEL8', 'BOARD2', 3, 'MODEL8'),
         'MODEL9': hwid_repo.HWIDDBMetadata('MODEL9', 'BOARD1', 3, 'MODEL9'),
         'MODEL11': hwid_repo.HWIDDBMetadata('MODEL11', 'BOARD3', 3, 'MODEL11'),
+        'MODEL12': hwid_repo.HWIDDBMetadata('MODEL12', 'BOARD1', 3, 'MODEL12'),
     }
     mock_hwid_db_metadata_of_name.return_value = hwid_db_metadata_of_name
 
     # None of MODEL3 products are shipped. Generate encrypted payload.
     self._CreateDLMProduct(id=1, board='BOARD1', model='MODEL3',
-                           product_status=_DlmProduct.APPROVED, device_id=1)
+                           product_status=_DlmProduct.APPROVED, device_id=1,
+                           device_type=_DeviceType.DEVICE)
     # One of MODEL4 products is shipped. Generate normal payload.
     self._CreateDLMProduct(id=2, board='BOARD1', model='MODEL4',
-                           product_status=_DlmProduct.APPROVED, device_id=2)
+                           product_status=_DlmProduct.APPROVED, device_id=2,
+                           device_type=_DeviceType.DEVICE)
     self._CreateDLMProduct(id=3, board='BOARD1', model='MODEL4',
-                           product_status=_DlmProduct.SHIPPED, device_id=2)
+                           product_status=_DlmProduct.SHIPPED, device_id=2,
+                           device_type=_DeviceType.DEVICE)
     # One of MODEL3 products is not canceled. Generate encrypted payload.
     self._CreateDLMProduct(id=4, board='BOARD2', model='MODEL5',
-                           product_status=_DlmProduct.APPROVED, device_id=3)
+                           product_status=_DlmProduct.APPROVED, device_id=3,
+                           device_type=_DeviceType.DEVICE)
     self._CreateDLMProduct(id=5, board='BOARD2', model='MODEL5',
-                           product_status=_DlmProduct.CANCELED, device_id=3)
+                           product_status=_DlmProduct.CANCELED, device_id=3,
+                           device_type=_DeviceType.DEVICE)
     # All MODEL3 products are canceled. No payload is generated.
     self._CreateDLMProduct(id=6, board='BOARD2', model='MODEL6',
-                           product_status=_DlmProduct.CANCELED, device_id=4)
+                           product_status=_DlmProduct.CANCELED, device_id=4,
+                           device_type=_DeviceType.DEVICE)
     # Overridden by models_force_vp_on. Generate encrypted payload.
     self._CreateDLMProduct(id=7, board='BOARD1', model='MODEL7',
-                           product_status=_DlmProduct.SHIPPED, device_id=5)
+                           product_status=_DlmProduct.SHIPPED, device_id=5,
+                           device_type=_DeviceType.DEVICE)
     # Overridden by models_force_vp_off. No payload is generated.
     self._CreateDLMProduct(id=8, board='BOARD2', model='MODEL8',
-                           product_status=_DlmProduct.SHIPPED, device_id=6)
+                           product_status=_DlmProduct.SHIPPED, device_id=6,
+                           device_type=_DeviceType.DEVICE)
     # Model name is null. No payload is generated.
     self._CreateDLMProduct(id=9, board='BOARD1',
-                           product_status=_DlmProduct.APPROVED, device_id=7)
+                           product_status=_DlmProduct.APPROVED, device_id=7,
+                           device_type=_DeviceType.DEVICE)
     # Status is unknown. No payload is generated.
     self._CreateDLMProduct(id=10, board='BOARD1', model='MODEL9',
-                           product_status=_DlmProduct.UNKNOWN, device_id=8)
+                           product_status=_DlmProduct.UNKNOWN, device_id=8,
+                           device_type=_DeviceType.DEVICE)
     # MODEL10 has no HWID DB. No payload is generated.
     self._CreateDLMProduct(id=11, board='BOARD1', model='MODEL10',
-                           product_status=_DlmProduct.SHIPPED, device_id=9)
+                           product_status=_DlmProduct.SHIPPED, device_id=9,
+                           device_type=_DeviceType.DEVICE)
     # BOARD3 is not in vpg_config. No payload is generated.
     self._CreateDLMProduct(id=12, board='BOARD3', model='MODEL11',
-                           product_status=_DlmProduct.SHIPPED, device_id=10)
+                           product_status=_DlmProduct.SHIPPED, device_id=10,
+                           device_type=_DeviceType.DEVICE)
+    # MODEL12 is a reference board. No payload is generated.
+    self._CreateDLMProduct(id=13, board='BOARD1', model='MODEL12',
+                           product_status=_DlmProduct.APPROVED, device_id=11,
+                           device_type=_DeviceType.REFERENCE_BOARD)
 
     self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 

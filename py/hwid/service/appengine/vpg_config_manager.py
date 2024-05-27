@@ -18,6 +18,10 @@ from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # p
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 
 
+_DeviceType = hwid_api_messages_pb2.DeviceType
+_DlmProduct = hwid_api_messages_pb2.DlmProduct
+
+
 class VPGConfig:
 
   def __init__(self, boards_vp_on: Mapping[str, Any],
@@ -104,8 +108,8 @@ class VPGConfigManager:
   """Manager for updating verification payload generator config file."""
 
   _INVALID_PRODUCT_STATUS = {
-      hwid_api_messages_pb2.DlmProduct.UNKNOWN,
-      hwid_api_messages_pb2.DlmProduct.CANCELED,
+      _DlmProduct.UNKNOWN,
+      _DlmProduct.CANCELED,
   }
 
   def __init__(self, dlm_product_manager: dlm_product_data.DLMProductManager,
@@ -164,7 +168,8 @@ class VPGConfigManager:
     for product in dlm_products:
       if (
           product.model not in live_hwid_repo.hwid_db_metadata_of_name or
-          product.product_status in self._INVALID_PRODUCT_STATUS
+          product.product_status in self._INVALID_PRODUCT_STATUS or
+          product.device_type == _DeviceType.REFERENCE_BOARD
       ):
         continue
 
@@ -235,7 +240,7 @@ class VPGConfigManager:
         if vpg_config.ShouldSkipProductStatus(board, model):
           continue
 
-        if hwid_api_messages_pb2.DlmProduct.SHIPPED in product_status:
+        if _DlmProduct.SHIPPED in product_status:
           model_config = {}
         else:
           model_config = {
