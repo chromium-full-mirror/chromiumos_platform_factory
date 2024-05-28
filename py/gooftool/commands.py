@@ -1286,6 +1286,8 @@ def FpmcuInitializeEntropy(options):
     # yapf: disable
     *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
+    *ClearFactoryVPDEntries.__args__,
+    *ClearGBBFlags.__args__,
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
@@ -1307,6 +1309,8 @@ def SMTFinalize(options):
   UploadReport(options)
 
   if options.boot_to_shimless:
+    ClearGBBFlags(options)
+    ClearFactoryVPDEntries(options)
     event_log.Log(WIPE_IN_PLACE)
     wipe_args = PrepareWipeArgs(options)
 
