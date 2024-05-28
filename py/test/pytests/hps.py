@@ -25,6 +25,8 @@ To test HPS, add this into test list::
 
 """
 
+from typing import Optional
+
 from cros.factory.device import device_utils
 from cros.factory.test import test_case
 from cros.factory.test.utils import hps_utils
@@ -32,6 +34,12 @@ from cros.factory.utils.arg_utils import Arg
 
 
 DEFAULT_HPS_FACTORY_TIMEOUT = 3600
+
+
+class HPSTestArgs:
+  hps_factory_path: str
+  dev: Optional[str]
+  timeout_secs: int
 
 
 class HPSTest(test_case.TestCase):
@@ -45,15 +53,12 @@ class HPSTest(test_case.TestCase):
       Arg('timeout_secs', int, 'The timeout of the test command.',
           default=DEFAULT_HPS_FACTORY_TIMEOUT),
   ]
+  args: HPSTestArgs
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._hps_device = hps_utils.HPSDevice(
-        # yapf: disable
-        self._dut, self.args.hps_factory_path, self.args.dev)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        self._dut, self.args.hps_factory_path, self.args.dev)
 
   def runTest(self):
-    # yapf: disable
-    self._hps_device.RunFactoryProcess(timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._hps_device.RunFactoryProcess(timeout_secs=self.args.timeout_secs)
