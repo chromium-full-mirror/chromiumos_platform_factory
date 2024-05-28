@@ -19,16 +19,17 @@ from cros.factory.utils import file_utils
 LoadStr = json.loads
 
 
-def LoadFile(file_path):
+def LoadFile(file_path, **json_loads_kwargs):
   """Deserialize a file consists of a JSON string to a Python object.
 
   Args:
     file_path: The path of the file to be deserialize.
+    json_loads_kwargs: Any allowable arguments to json.loads.
 
   Returns:
     The deserialized Python object.
   """
-  return LoadStr(file_utils.ReadFile(file_path))
+  return LoadStr(file_utils.ReadFile(file_path), **json_loads_kwargs)
 
 
 def DumpStr(obj, pretty=False, newline=None, **json_dumps_kwargs):

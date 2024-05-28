@@ -1064,7 +1064,8 @@ class FinalizeBundle:
         logging.warning(
             'Finalize bundle with an unsigned(dev signed) firmware.')
 
-      manifest = json_utils.LoadFile(os.path.join(temp_dir, 'manifest.json'))
+      manifest = json_utils.LoadFile(
+          os.path.join(temp_dir, 'manifest.json'), strict=False)
       firmware_record['firmware_records'] = []
 
       fp_firmware_hash = cls._ExtractFingerprintFirmwareHash(image_path, models)
