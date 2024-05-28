@@ -1083,6 +1083,7 @@ def VerifyHWID(options):
     _no_write_protect_cmd_arg,  # this
     _has_ec_pubkey_cmd_arg,  # this
     _is_reference_board_cmd_arg,  # this
+    _boot_to_shimless_cmd_arg, # this
     # yapf: disable
     *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
@@ -1109,10 +1110,6 @@ def VerifyBeforeGSCFinalize(options):
   ready to be finalized before GSCFinalize, but does not modify state.
   """
   VerifyAltSetting(options)
-  if not options.no_write_protect:
-    VerifyManagementEngineLocked(options)
-  VerifyHWID(options)
-  VerifyFeatureManagementFlags(options)
   VerifySystemTime(options)
   if options.has_ec_pubkey:
     VerifyECKey(options)
@@ -1122,11 +1119,17 @@ def VerifyBeforeGSCFinalize(options):
   VerifyRootFs(options)
   VerifyDLCImages(options)
   VerifyTPM(options)
-  VerifyVPD(options)
   VerifyReleaseChannel(options)
-  if not options.is_reference_board:
-    VerifyRLZCode(options)
   VerifyCrosConfig(options)
+
+  if not options.boot_to_shimless:
+    VerifyHWID(options)
+    VerifyFeatureManagementFlags(options)
+    VerifyVPD(options)
+    if not options.no_write_protect:
+      VerifyManagementEngineLocked(options)
+    if not options.is_reference_board:
+      VerifyRLZCode(options)
 
 
 @Command(
@@ -1288,12 +1291,14 @@ def FpmcuInitializeEntropy(options):
     # yapf: enable
     *ClearFactoryVPDEntries.__args__,
     *ClearGBBFlags.__args__,
+    *LockHPS.__args__,
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
     # yapf: disable
     *PrepareWipeArgs.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
+    *VerifyBeforeGSCFinalize.__args__,
 )
 def SMTFinalize(options):
   """Call this function to finalize MLB in SMT stage.
@@ -1306,11 +1311,19 @@ def SMTFinalize(options):
   event_log.Log('gsc_smt_write_flash_info')
   LogSourceHashes(options)
   LogSystemDetails(options)
-  UploadReport(options)
 
   if options.boot_to_shimless:
     ClearGBBFlags(options)
     ClearFactoryVPDEntries(options)
+    VerifyBeforeGSCFinalize(options)
+    if hps_utils.HasHPS():
+      if not options.no_write_protect:
+        # We cannot lock HPS after HWWP is enabled.
+        LockHPS(options)
+
+  UploadReport(options)
+
+  if options.boot_to_shimless:
     event_log.Log(WIPE_IN_PLACE)
     wipe_args = PrepareWipeArgs(options)
 
