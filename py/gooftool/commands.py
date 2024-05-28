@@ -1186,6 +1186,8 @@ def FpmcuInitializeEntropy(options):
 @Command(
     'smt_finalize',
     *GetGooftool.__args__,
+    *ClearFactoryVPDEntries.__args__,
+    *ClearGBBFlags.__args__,
     *LogSourceHashes.__args__,
     *LogSystemDetails.__args__,
     *UploadReport.__args__,
@@ -1205,6 +1207,8 @@ def SMTFinalize(options):
   UploadReport(options)
 
   if options.boot_to_shimless:
+    ClearGBBFlags(options)
+    ClearFactoryVPDEntries(options)
     event_log.Log(WIPE_IN_PLACE)
     wipe_args = PrepareWipeArgs(options)
 
