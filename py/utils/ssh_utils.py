@@ -76,12 +76,12 @@ class ISSHRunner(abc.ABC):
     sure to check if a trailing slash is required.
 
     Args:
-      src: One ore more paths of local files or directories.
+      src: One or more paths of local files or directories.
       dest: The path of remote file or directory.
       exclude_patterns: Filename which matches the pattern in excluded.
       preserve_symlinks: Copy symlinks as symlinks and treat symlinked directory
                          on receiver as directory.
-      exclude_cvs: Ignore files in the same way CVS does.
+      exclude_csv: Ignore files in the same way CSV does.
       force: Force deletion of directories even if not empty.
       kwargs: See docstring of Spawn.
 
@@ -282,7 +282,8 @@ class _SSHControlMasterWatcher:
     killed.
 
     Args:
-      pid: PID of process using SSH ppid: parent PID of given process
+      pid: PID of process using SSH.
+      ppid: parent PID of given process.
     """
     if not self.IsRunning():
       logging.warning('Watcher is not running, so %d is not added.', pid)
@@ -337,6 +338,7 @@ class _SSHControlMasterWatcher:
         logging.info('Monitoring %s to %s', self._link_class_name,
                      device_address, exc_info=True)
         return False
+
 
     while True:
       # get a new process from queue to monitor
