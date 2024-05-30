@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 """DLM product data model and its manager."""
 
-from typing import Sequence
+from typing import Optional, Sequence
 
 from google.cloud import ndb
 
@@ -28,6 +28,24 @@ class DLMProduct(ndb.Model):
   product_status = ndb.IntegerProperty(required=True)
   device_id = ndb.IntegerProperty(indexed=True, required=True)
   device_type = ndb.IntegerProperty()
+
+
+class DLMDevice(ndb.Model):
+  """The device data in DLM.
+
+  Attributes:
+    id: The device id.
+    board: The board name of the device.
+    model: The model name of the device.
+    device_type: The type of the device.
+    factory_branch: The factory branch.
+  """
+
+  id = ndb.IntegerProperty(indexed=True, required=True)
+  board = ndb.StringProperty(required=True)
+  model = ndb.StringProperty()
+  device_type = ndb.IntegerProperty()
+  factory_branch = ndb.StringProperty()
 
 
 class DLMProductManager:
@@ -71,6 +89,25 @@ class DLMProductManager:
       if products_to_update:
         ndb.model.put_multi(products_to_update)
 
+  def GetDLMDeviceByModel(self, model: str) -> Optional[DLMDevice]:
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      return DLMDevice.query(DLMDevice.model == model).get()
+
+  def UpdateDLMDeviceById(self, device_id: int, board: str,
+                          model: Optional[str], device_type: Optional[int],
+                          factory_branch: Optional[str]):
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      current_entity = DLMDevice.query(DLMDevice.id == device_id).get()
+      entity = current_entity if current_entity is not None else DLMDevice(
+          id=device_id)
+      entity.board = board
+      entity.model = model
+      entity.device_type = device_type
+      entity.factory_branch = factory_branch
+
+      entity.put()
+
   def CleanAllForTest(self):
     with self._ndb_connector.CreateClientContext():
       ndb.delete_multi(DLMProduct.query().iter(keys_only=True))
+      ndb.delete_multi(DLMDevice.query().iter(keys_only=True))

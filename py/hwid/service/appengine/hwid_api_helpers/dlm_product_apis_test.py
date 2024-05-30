@@ -49,6 +49,14 @@ class DLMProductShardTest(unittest.TestCase):
       entity.put()
     return entity
 
+  def _CreateDLMDevice(self, **kwargs) -> dlm_product_data.DLMDevice:
+    entity = dlm_product_data.DLMDevice()
+
+    with self._ndb_connector.CreateClientContext():
+      entity.populate(**kwargs)
+      entity.put()
+    return entity
+
   def testBatchUpdateDlmProduct_CreateNewProducts(self):
     p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
                      product_status=_DlmProduct.SHIPPED, device_id=1,
@@ -312,8 +320,11 @@ class DLMProductShardTest(unittest.TestCase):
     p3 = self._CreateDLMProduct(id=3, board='TEST_BOARD_2',
                                 model='TEST_MODEL_2', product_status=3,
                                 device_id=2, device_type=_DeviceType.DEVICE)
+    d1 = self._CreateDLMDevice(id=2, board='TEST_BOARD_2', model='TEST_MODEL_2',
+                               device_type=_DeviceType.DEVICE)
     device = _DlmDevice(id=2, board='test_board_3', model='test_model_3',
-                        type=_DeviceType.REFERENCE_BOARD)
+                        type=_DeviceType.REFERENCE_BOARD,
+                        factory_branch='factory-testboard-12345.B')
     req = _UpdateDlmDeviceRequest(device=device)
 
     res = self.service.UpdateDlmDevice(req)
@@ -331,6 +342,10 @@ class DLMProductShardTest(unittest.TestCase):
       p2 = p2.key.get()
       p3 = p3.key.get()
       self.assertCountEqual(res, [p1, p2, p3])
+
+      d1 = d1.key.get()
+      dev_res = list(dlm_product_data.DLMDevice.query())
+      self.assertCountEqual(dev_res, [d1])
 
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
@@ -352,6 +367,33 @@ class DLMProductShardTest(unittest.TestCase):
     self.assertEqual(p3.product_status, 3)
     self.assertEqual(p3.device_id, 2)
     self.assertEqual(p3.device_type, _DeviceType.REFERENCE_BOARD)
+
+    self.assertEqual(d1.id, 2)
+    self.assertEqual(d1.board, 'TEST_BOARD_3')
+    self.assertEqual(d1.model, 'TEST_MODEL_3')
+    self.assertEqual(d1.device_type, _DeviceType.REFERENCE_BOARD)
+    self.assertEqual(d1.factory_branch, 'factory-testboard-12345.B')
+
+  def testUpdateDlmDeviceMissingFields(self):
+    device = _DlmDevice(id=2, board='test_board_3')
+    req = _UpdateDlmDeviceRequest(device=device)
+
+    res = self.service.UpdateDlmDevice(req)
+
+    self.assertEqual(
+        res,
+        _UpdateDlmDeviceResponse(
+            device_id=2, update_result=_DlmDeviceUpdateResult(
+                device_id=2, result_type=_DlmDeviceUpdateResult.SUCCESS)))
+
+    with self._ndb_connector.CreateClientContext():
+      d1 = dlm_product_data.DLMDevice.query().get()
+
+    self.assertEqual(d1.id, 2)
+    self.assertEqual(d1.board, 'TEST_BOARD_3')
+    self.assertEqual(d1.model, None)
+    self.assertEqual(d1.device_type, 0)
+    self.assertEqual(d1.factory_branch, None)
 
   def testUpdateDlmDevice_MissingRequiredFields(self):
     device = _DlmDevice(id=1, model='test_model')

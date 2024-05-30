@@ -1120,6 +1120,8 @@ message DlmDevice {
   string model = 3;
   // The type of the device.
   DeviceType type = 4;
+  // The factory branch.
+  string factory_branch = 5;
 }
 
 message DlmDeviceUpdateResult {

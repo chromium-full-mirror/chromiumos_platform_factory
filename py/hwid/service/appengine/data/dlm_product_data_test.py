@@ -28,6 +28,14 @@ class DLMProductManagerTest(unittest.TestCase):
       entity.put()
     return entity
 
+  def _CreateDLMDevice(self, **kwargs) -> dlm_product_data.DLMDevice:
+    entity = dlm_product_data.DLMDevice()
+
+    with self._ndb_connector.CreateClientContext():
+      entity.populate(**kwargs)
+      entity.put()
+    return entity
+
   def testUpdateDLMProducts_CreateNewProducts(self):
     product1 = dlm_product_data.DLMProduct(
         id=1, board='test_board_1', model='test_model_1', product_status=1,
@@ -219,6 +227,40 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertEqual(p3.product_status, 3)
     self.assertEqual(p3.device_id, 2)
     self.assertEqual(p3.device_type, 2)
+
+  def testGetDLMDeviceByModel(self):
+    d1 = self._CreateDLMDevice(id=2, board='board', model='test_model_3')
+
+    self.assertIsNone(self._manager.GetDLMDeviceByModel('not_found'))
+    self.assertEqual(self._manager.GetDLMDeviceByModel('test_model_3'), d1)
+
+  def testUpdateDLMDeviceById(self):
+    d1 = self._CreateDLMDevice(id=2, board='board')
+
+    self._manager.UpdateDLMDeviceById(
+        device_id=2, board='test_board_3', model='test_model_2', device_type=1,
+        factory_branch='factory-testboard-12345.B')
+    self._manager.UpdateDLMDeviceById(
+        device_id=3, board='test_board_3', model='test_model_3', device_type=1,
+        factory_branch='factory-testboard-12345.B')
+
+    with self._ndb_connector.CreateClientContext():
+      self.assertEqual(dlm_product_data.DLMDevice.query().count(), 2)
+      d1 = d1.key.get()
+      d2 = dlm_product_data.DLMDevice.query(
+          dlm_product_data.DLMDevice.id == 3).get()
+
+    self.assertEqual(d1.id, 2)
+    self.assertEqual(d1.board, 'test_board_3')
+    self.assertEqual(d1.model, 'test_model_2')
+    self.assertEqual(d1.device_type, 1)
+    self.assertEqual(d1.factory_branch, 'factory-testboard-12345.B')
+
+    self.assertEqual(d2.id, 3)
+    self.assertEqual(d2.board, 'test_board_3')
+    self.assertEqual(d2.model, 'test_model_3')
+    self.assertEqual(d2.device_type, 1)
+    self.assertEqual(d2.factory_branch, 'factory-testboard-12345.B')
 
 
 if __name__ == '__main__':

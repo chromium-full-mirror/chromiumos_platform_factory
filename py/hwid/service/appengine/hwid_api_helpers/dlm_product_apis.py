@@ -62,6 +62,13 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
                 error_msg=f'Missing required field {field!r}'))
 
     try:
+      self._dlm_product_manager.UpdateDLMDeviceById(
+          device.id,
+          device.board.upper(),
+          device.model.upper() or None,
+          device.type,
+          device.factory_branch or None,
+      )
       self._dlm_product_manager.UpdateDLMProductsByDeviceId(
           device.id,
           device.board.upper(),
