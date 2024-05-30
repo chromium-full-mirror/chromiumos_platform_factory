@@ -1935,37 +1935,37 @@ class ChromeOSFactoryBundle:
       stateful_free_space: extra free space to claim in MB.
       verbose: provide more verbose output when initializing disk image.
     """
-
-    def _CalculateDLCManifestSize(manifests_dir):
-      total_size = 0
-      for subdir in os.listdir(manifests_dir):
-        manifest = os.path.join(manifests_dir, subdir, 'package',
-                                'imageloader.json')
-        if not os.path.exists(manifest):
-          continue
-        with open(manifest, encoding='utf8') as f:
-          data = json.load(f)
-          if data['factory-install']:
-            # We need to preserve `2 * preallocated size`.
-            # (See b/219670647#comment13)
-            total_size = total_size + int(data['pre-allocated-size']) * 2
-
-      return total_size
-
     def _CalculateDLCRuntimeSize(dev):
       """Calculate the size we need for factory installed DLC in runtime."""
       total_size = 0
       part = Partition(dev, PART_CROS_ROOTFS_A)
       with part.MountAsCrOSRootfs() as rootfs:
-        manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
-        if os.path.exists(manifests_dir):
-          total_size = _CalculateDLCManifestSize(manifests_dir)
+        manifests_dir = os.path.join('opt', 'google', 'dlc')
+        if os.path.exists(os.path.join(rootfs, manifests_dir)):
+          dlc_ids_str = Sudo([
+              'chroot', rootfs, 'dlc_metadata_util',
+              f'--metadata_dir={os.path.join(os.sep, manifests_dir)}', '--list',
+              '--factory_install'
+          ], output=True)
+          logging.info('Image contains factory installed DLCs %s', dlc_ids_str)
+          dlc_ids = json.loads(dlc_ids_str)
+          for dlc_id in dlc_ids:
+            metadata = Sudo([
+                'chroot', rootfs, 'dlc_metadata_util',
+                f'--metadata_dir={os.path.join(os.sep, manifests_dir)}',
+                '--get', f'--id={dlc_id}'
+            ], output=True)
+            # We need to preserve `2 * preallocated size`.
+            # (See b/219670647#comment13)
+            pre_alloc = int(
+                json.loads(metadata)['manifest']['pre-allocated-size'])
+            total_size += pre_alloc * 2
 
       if not total_size:
-        logging.debug('No factory installed DLC found. Do nothing.')
+        logging.info('No factory installed DLC found. Do nothing.')
       else:
-        logging.debug('Preallocate %d M for factory installed DLC...',
-                      (total_size // MEGABYTE))
+        logging.info('Preallocate %d M for factory installed DLC...',
+                     (total_size // MEGABYTE))
       return total_size
 
     new_size = self.InitDiskImage(output, sectors, sector_size, verbose)
@@ -1988,11 +1988,11 @@ class ChromeOSFactoryBundle:
     #   2. The preallocated size for factory installed DLC.
     reserve_size = stateful_free_space * MEGABYTE + \
                    _CalculateDLCRuntimeSize(output)
-    logging.debug('Will reserve additional space (%d M) for runtime overhead.',
-                  (reserve_size // MEGABYTE))
+    logging.info('Will reserve additional space (%d M) for runtime overhead.',
+                 (reserve_size // MEGABYTE))
     # Reserve additional 5% for root.
     total_fs_size = int((part.GetFileSystemSize() + reserve_size) * 1.05)
-    logging.debug('Total reserved space: %d M', (total_fs_size // MEGABYTE))
+    logging.info('Total reserved space: %d M', (total_fs_size // MEGABYTE))
     if total_fs_size >= part.size:
       raise RuntimeError(
           'Stateful partition is too small! Please increase the size of '
