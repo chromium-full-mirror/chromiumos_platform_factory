@@ -6,6 +6,9 @@ import collections
 import datetime
 import json
 import os
+import re
+
+from google.api_core import exceptions as api_exceptions
 
 from cros.factory.bundle_creator.app_engine_v2 import config
 from cros.factory.bundle_creator.connector import firestore_connector
@@ -14,8 +17,6 @@ from cros.factory.bundle_creator.connector import storage_connector
 from cros.factory.bundle_creator.proto import factorybundle_v2_pb2  # pylint: disable=no-name-in-module
 from cros.factory.bundle_creator.utils import allowlist_utils
 from cros.factory.bundle_creator.utils import protorpc_utils
-
-from google.api_core import exceptions as api_exceptions
 
 
 IMAGE_ARCHIVE_BUCKET = 'chromeos-image-archive'
@@ -59,25 +60,15 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
   ) -> factorybundle_v2_pb2.GetBundleInfoResponse:
     response = factorybundle_v2_pb2.GetBundleInfoResponse()
 
-    for storage_bundle_info in self._storage_connector.GetBundleInfosByProject(
-        request.project):
-      bundle_info = factorybundle_v2_pb2.BundleInfo()
-      bundle_info.metadata.MergeFrom(
-          storage_bundle_info.metadata.ToV2BundleMetadata())
-      bundle_info.doc_id = storage_bundle_info.metadata.doc_id
-      bundle_info.creator = storage_bundle_info.metadata.email
-      bundle_info.status = firestore_connector.UserRequestStatus.SUCCEEDED.name
-      bundle_info.blob_path = storage_bundle_info.blob_path
-      bundle_info.filename = storage_bundle_info.filename
-      bundle_info.bundle_created_timestamp_sec = float(
-          storage_bundle_info.created_timestamp_sec)
-      response.bundle_infos.append(bundle_info)
+    storage_bundle_info_mapping = {
+        s.metadata.doc_id: s
+        for s in self._storage_connector.GetBundleInfosByProject(
+            request.project)
+    }
 
     for snapshot in self._firestore_connector.GetUserRequestsByProject(
         request.project):
       status = snapshot.get('status', '')
-      if status == firestore_connector.UserRequestStatus.SUCCEEDED.name:
-        continue
       bundle_info = factorybundle_v2_pb2.BundleInfo()
       bundle_info.metadata.board = snapshot.get('board', '')
       bundle_info.metadata.project = snapshot.get('project', '')
@@ -101,6 +92,17 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
       if 'end_time' in snapshot:
         bundle_info.request_end_time_sec = datetime.datetime.timestamp(
             snapshot.get('end_time'))
+
+      if status == firestore_connector.UserRequestStatus.SUCCEEDED.name:
+        if bundle_info.doc_id in storage_bundle_info_mapping:
+          bundle_info.bundle_created_timestamp_sec = float(
+              storage_bundle_info_mapping[
+                  bundle_info.doc_id].created_timestamp_sec)
+        if 'gs_path' in snapshot:
+          gs_path = snapshot.get('gs_path')
+          bundle_info.blob_path = re.sub(r'gs://[^/]+/', '', gs_path)
+          bundle_info.filename = os.path.basename(bundle_info.blob_path)
+
       response.bundle_infos.append(bundle_info)
 
     response.bundle_infos.sort(
