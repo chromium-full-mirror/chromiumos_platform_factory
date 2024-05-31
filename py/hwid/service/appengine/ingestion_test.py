@@ -11,6 +11,7 @@ from cros.factory.hwid.service.appengine import config as config_module
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine import hwid_repo
@@ -41,6 +42,8 @@ def _CreateMockConfig(fake_modules: test_utils.FakeModuleCollection):
   mock_config.dlm_product_manager = fake_modules.fake_dlm_product_manager
   mock_config.vpg_config_cl_upload_manager = mock.create_autospec(
       cl_upload_config.VPGTargetsCLUploadManager, instance=True)
+  mock_config.vpg_targets_data_manager = mock.create_autospec(
+      vpg_targets_data.VPGTargetsDataManager, instance=True)
   return mock_config
 
 
@@ -82,6 +85,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
                                      'BETTERCBOARD'),
         ], delete_missing=True)
     ])
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_called_once()
 
   def testRefreshWithLimitedModels(self):
     hwid_db_metadata_list = [
@@ -106,6 +110,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
             hwid_repo.HWIDDBMetadata('SBOARD', 'SBOARD', 3, 'SBOARD'),
         ], delete_missing=False)
     ])
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
   def testRefreshWithLimitedBoards(self):
     hwid_db_metadata_list = [
@@ -129,6 +134,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
             hwid_repo.HWIDDBMetadata('KPROJ3', 'KBOARD', 3, 'KPROJ3'),
         ], delete_missing=False)
     ])
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
   def testRefreshWithInvalidLimitedBoards(self):
     hwid_db_metadata_list = [
@@ -144,6 +150,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.IngestHwidDb(request)
     self.assertEqual(ex.exception.detail, 'No model meets the limit.')
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
   def testRefreshWithLimitedBoardsAndModels(self):
     hwid_db_metadata_list = [
@@ -166,6 +173,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
             hwid_repo.HWIDDBMetadata('KPROJ1', 'KBOARD', 3, 'KPROJ1'),
         ], delete_missing=False)
     ])
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
   def testRefreshWithInvalidLimitedBoardsAndModels(self):
     hwid_db_metadata_list = [
@@ -182,6 +190,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.IngestHwidDb(request)
     self.assertEqual(ex.exception.detail, 'No model meets the limit.')
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
   def testRefreshWithoutBoardsInfo(self):
     live_hwid_repo = self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value
@@ -191,6 +200,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.IngestHwidDb(request)
     self.assertEqual(ex.exception.detail, 'Got exception from HWID repo.')
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
 
 class SyncNameMappingRPCProviderTest(unittest.TestCase):

@@ -140,6 +140,7 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
         config.hsp_cl_upload_manager, self.hwid_action_manager, config_data)
     self.vpg_config_manager = vpg_config_manager.VPGConfigManager(
         config.dlm_product_manager, config.vpg_config_cl_upload_manager)
+    self.vpg_targets_data_manager = config.vpg_targets_data_manager
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
                       dryrun: bool, limit_models: bool, force_update: bool,
@@ -219,6 +220,9 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
 
     self.hwid_action_manager.ReloadMemcacheCacheFromFiles(
         limit_models=list(limit_models) if limit_models else None)
+    if not do_limit:
+      # Don't refresh VPG targets in e2e tests.
+      self.vpg_targets_data_manager.RefreshVpgTargets()
 
     # Skip if env is local (dev)
     if self._config_data.env == 'dev':

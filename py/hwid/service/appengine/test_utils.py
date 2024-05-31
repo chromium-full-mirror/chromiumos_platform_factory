@@ -15,6 +15,7 @@ from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action as hwid_action_module
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
@@ -112,6 +113,11 @@ class FakeModuleCollection:
     self.fake_bom_data_cacher = bc_helper_module.BOMDataCacher(
         # yapf: disable
         FakeMemcacheAdapter())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    self.fake_vpg_targets_memcache = FakeMemcacheAdapter()
+    # yapf: disable
+    self.fake_vpg_targets_data_manager = vpg_targets_data.VPGTargetsDataManager(
+        self.fake_vpg_targets_memcache)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
     self.fake_hwid_action_manager = hwid_action_manager.HWIDActionManager(
         self.fake_hwid_db_data_manager,

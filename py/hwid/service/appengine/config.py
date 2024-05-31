@@ -13,6 +13,7 @@ from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import decoder_data
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import self_service_helper as ss_helper_module
@@ -27,6 +28,7 @@ from cros.factory.utils import type_utils
 _CONFIG_DATA = config_data.CONFIG
 HWID_PREPROC_DATA_MEMCACHE_NAMESPACE = 'HWIDObject'
 BOM_DATA_MEMCACHE_NAMESPACE = 'BOMAndConfigless'
+VPG_TARGETS_DATA_MEMCACHE_NAMESPACE = 'VPGTargets'
 
 
 class _Config:
@@ -51,6 +53,8 @@ class _Config:
         reading/writing HWID DB data/metadata.
     bom_data_cacher: A BOMDataCacher instance responsible for cache responses of
         BOM related APIs.
+    vpg_targets_data_manager: A VPGTargetsDataManager instance responsible for
+        reading/writing VPG targets in memcache.
     hwid_action_manager: A HWIDActionManager object. The object maintains
         HWIDAction objects, which provide HWID DB related operations.
     hwid_repo_manager: A HWIDRepoManager object, which provides functionalities
@@ -92,8 +96,12 @@ class _Config:
         namespace=HWID_PREPROC_DATA_MEMCACHE_NAMESPACE)
     bom_data_memcache_adapter = memcache_adapter.MemcacheAdapter(
         namespace=BOM_DATA_MEMCACHE_NAMESPACE)
+    vpg_targets_data_memcache_adapter = memcache_adapter.MemcacheAdapter(
+        namespace=VPG_TARGETS_DATA_MEMCACHE_NAMESPACE)
     self.bom_data_cacher = bc_helper_module.BOMDataCacher(
         bom_data_memcache_adapter)
+    self.vpg_targets_data_manager = vpg_targets_data.VPGTargetsDataManager(
+        vpg_targets_data_memcache_adapter)
     self.hwid_data_cachers = [self.bom_data_cacher]
     self.hwid_action_manager = hwid_action_manager.HWIDActionManager(
         self.hwid_db_data_manager,

@@ -113,6 +113,7 @@ class BOMAndConfiglessHelper:
       decoder_data_manager: decoder_data.DecoderDataManager,
       bom_data_cacher: BOMDataCacher,
   ):
+    # TODO(b/308306344): Migrate to vpg_targets_data.
     self._vpg_targets = _CONFIG_DATA.vpg_targets
     self._decoder_data_manager = decoder_data_manager
     self._bom_data_cacher = bom_data_cacher

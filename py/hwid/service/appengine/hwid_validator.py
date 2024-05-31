@@ -93,6 +93,7 @@ class HwidValidator:
 
     db = analyzer.curr_db_instance
     assert db is not None
+    # TODO(b/308306344): Migrate to vpg_targets_data.
     vpg_target = config_data.CONFIG.vpg_targets.get(db.project)
     if vpg_target:
       errors = vpg_module.GenerateVerificationPayload(
