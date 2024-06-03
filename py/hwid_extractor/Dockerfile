@@ -40,6 +40,18 @@ ENV CC=/usr/bin/clang-18 CXX=/usr/bin/clang++-18
 #     update-alternatives --install /usr/bin/ld ld /usr/bin/ld.lld-18 100
 # ENV LD=/usr/bin/ld.lld-18
 
+
+################################################################################
+# Cache servod base image.
+#
+# TODO(b/344717468): Due to an unknown bug, kaniko on Cloud Run job fails to
+# pull servod image at the last stage, so we cache the image here as a
+# workaround. We should remove this stage once verify the problem is fixed.
+
+FROM us-docker.pkg.dev/chromeos-hw-tools/servod/servod:release AS servod
+WORKDIR /hwid_extractor
+
+
 ################################################################################
 # Build libudev.a.
 
@@ -130,10 +142,8 @@ RUN cd /workspace && \
 ################################################################################
 # Build HWID extractor.
 
-FROM us-docker.pkg.dev/chromeos-hw-tools/servod/servod:release
+FROM servod
 COPY --from=vpd_builder /usr/sbin/vpd /usr/sbin/vpd
-
-WORKDIR /hwid_extractor
 ADD py/utils/__init__.py \
     py/utils/file_utils.py \
     py/utils/json_utils.py \
