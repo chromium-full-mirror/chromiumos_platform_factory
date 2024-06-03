@@ -3,8 +3,10 @@
 # found in the LICENSE file.
 
 from cros.factory.hwid.v3.avl import builder
+from cros.factory.hwid.v3.avl.converter import audio_codec
 
 
 def GetDefaultBuilder() -> builder.Builder:
   b = builder.Builder()
+  b.AddConverterSet(audio_codec.GetConverterSet())
   return b
