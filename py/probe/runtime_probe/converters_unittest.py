@@ -34,6 +34,15 @@ class ConverterTest(unittest.TestCase):
 
     self.assertIsNone(converter.Parse('xyz'))
 
+  def testReConverter(self):
+    converter = converters.REConverter()
+    expected = converters.ConvertedRE('.*')
+    self.assertIsNotNone(converter.Parse('.*'))
+
+    self.assertEqual('.*', converter.Format(expected))
+
+    self.assertIsNone(converter.Parse('('))
+
 
 if __name__ == '__main__':
   unittest.main()

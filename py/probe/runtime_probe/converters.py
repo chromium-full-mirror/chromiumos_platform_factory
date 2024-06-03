@@ -5,7 +5,9 @@
 """
 
 import abc
-from typing import Generic, NamedTuple, Optional, TypeVar
+import dataclasses
+import re
+from typing import Generic, Optional, TypeVar
 
 
 _T = TypeVar('_T')
@@ -61,7 +63,8 @@ class IntegerConverter(IConverter[int]):
     return str(value)
 
 
-class ConvertedHex(NamedTuple):
+@dataclasses.dataclass(frozen=True)
+class ConvertedHex:
   """A helper type to distinguish with normal str."""
   value: str
 
@@ -81,5 +84,31 @@ class HexConverter(IConverter[ConvertedHex]):
       return None
 
   def Format(self, value: ConvertedHex) -> str:
+    """See base class."""
+    return value.value
+
+
+@dataclasses.dataclass(frozen=True)
+class ConvertedRE:
+  """A helper type to distinguish with normal str."""
+  value: str
+
+
+class REConverter(IConverter[ConvertedRE]):
+  """Converts RE strings to ConvertedRE."""
+
+  def Parse(self, value: str) -> Optional[ConvertedRE]:
+    """See base class.
+
+    We assume that all raw string values applied to this converter will also be
+    RE.
+    """
+    try:
+      re.compile(value)
+    except re.error:
+      return None
+    return ConvertedRE(value)
+
+  def Format(self, value: ConvertedRE) -> str:
     """See base class."""
     return value.value

@@ -11,7 +11,7 @@ from cros.factory.probe.runtime_probe import converters
 from cros.factory.probe.runtime_probe import probe_types
 
 
-_T = TypeVar('_T', int, str, converters.ConvertedHex)
+_T = TypeVar('_T', int, str, converters.ConvertedHex, converters.ConvertedRE)
 
 
 class FieldProbeInfoSuggestion(NamedTuple, Generic[_T]):
@@ -36,6 +36,7 @@ class OrProbeInfoSuggestion(NamedTuple):
 ProbeInfoSuggestion = Union['FieldProbeInfoSuggestion[str]',
                             'FieldProbeInfoSuggestion[int]',
                             'FieldProbeInfoSuggestion[converters.ConvertedHex]',
+                            'FieldProbeInfoSuggestion[converters.ConvertedRE]',
                             AndProbeInfoSuggestion, OrProbeInfoSuggestion]
 """Suggestions when matchers can't match a component.
 
@@ -99,12 +100,15 @@ class _FieldEqualMatcher(IMatcher, Generic[_T]):
         ]
     }
 
+  def _MatchExpectedValue(self, got: _T) -> bool:
+    return got == self._expected_value
+
   def GetProbeInfoSuggestion(
       self, component: probe_types.Component) -> Optional[ProbeInfoSuggestion]:
     """See IMatcher."""
     got_raw = component.field_values.get(self._field_name)
     got = self.CONVERTER.Parse(got_raw) if got_raw is not None else None
-    if got == self._expected_value:
+    if got is not None and self._MatchExpectedValue(got):
       return None
 
     return FieldProbeInfoSuggestion(field_name=self._field_name,
@@ -129,34 +133,19 @@ class IntegerEqualMatcher(_FieldEqualMatcher[int]):
   CONVERTER = converters.IntegerConverter()
 
 
-class REMatcher(IMatcher):
-  """Matches if the field value pass the regular expression."""
+class REMatcher(_FieldEqualMatcher[converters.ConvertedRE]):
+  """Matches if the value pass the RE or is the same RE string.
 
-  def __init__(self, field_name: str, regular_expression: str):
-    self._field_name = field_name
-    self._regular_expression = regular_expression
+  Note that matching a regular expression string is only supported on the Python
+  side. In RuntimeProbe, the components always contain actual values rather than
+  a regular expression.
+  """
+  OPERATOR = probe_types.MatherOperator.RE
+  CONVERTER = converters.REConverter()
 
-  def Match(self, component: probe_types.Component) -> bool:
-    """See IMatcher."""
-    return self.GetProbeInfoSuggestion(component) is None
-
-  def GenerateProbeConfigMatcherStatement(self) -> Mapping[str, Any]:
-    """See IMatcher."""
-    return {
-        'operator': probe_types.MatherOperator.RE.name,
-        'operand': [self._field_name, self._regular_expression]
-    }
-
-  def GetProbeInfoSuggestion(
-      self,
-      component: probe_types.Component) -> Optional[FieldProbeInfoSuggestion]:
-    """See IMatcher."""
-    got = component.field_values.get(self._field_name)
-    if got is not None and re.fullmatch(self._regular_expression, got):
-      return None
-
-    return FieldProbeInfoSuggestion(field_name=self._field_name,
-                                    expected=self._regular_expression, got=got)
+  def _MatchExpectedValue(self, got: converters.ConvertedRE):
+    return (got == self._expected_value or
+            re.fullmatch(self._expected_value.value, got.value))
 
 
 class AndMatcher(IMatcher):

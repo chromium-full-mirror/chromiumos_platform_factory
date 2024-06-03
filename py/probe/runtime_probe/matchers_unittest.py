@@ -37,7 +37,7 @@ class MatchersTest(unittest.TestCase):
             },
         ),
         (
-            matchers.REMatcher('field_a', 'abc[0-9]+'),
+            matchers.REMatcher('field_a', converters.ConvertedRE('abc[0-9]+')),
             {
                 'operator': 'RE',
                 'operand': ['field_a', 'abc[0-9]+']
@@ -112,8 +112,11 @@ class MatchersTest(unittest.TestCase):
         ),
         (
             matchers.REMatcher,
-            'abc[0-9]+',
-            [('RE', 'abc123')],
+            converters.ConvertedRE('abc[0-9]+'),
+            [
+                ('RE_str', 'abc123'),
+                ('RE_RE', 'abc[0-9]+'),
+            ],
         ),
     ]:
       for test_name, field_value in fields:
@@ -154,9 +157,9 @@ class MatchersTest(unittest.TestCase):
         ),
         (
             matchers.REMatcher,
-            'abc[0-9]+',
+            converters.ConvertedRE('abc[0-9]+'),
             [
-                ('RE_not_match', 'abcdef', 'abcdef'),
+                ('RE_not_match', 'abcdef', converters.ConvertedRE('abcdef')),
                 ('field_not_found', None, None),
             ],
         ),
