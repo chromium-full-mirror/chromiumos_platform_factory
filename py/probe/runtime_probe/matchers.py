@@ -25,6 +25,8 @@ class MatherOperator(enum.Enum):
   STRING_EQUAL = enum.auto()
   HEX_EQUAL = enum.auto()
   INTEGER_EQUAL = enum.auto()
+  INTEGER_LESS = enum.auto()
+  INTEGER_GREATER = enum.auto()
   RE = enum.auto()
 
 
@@ -151,6 +153,24 @@ class IntegerEqualMatcher(FieldMatcher[int]):
   """See base class."""
   OPERATOR = MatherOperator.INTEGER_EQUAL
   CONVERTER = converters.IntegerConverter()
+
+
+class IntegerLessMatcher(FieldMatcher[int]):
+  """See base class."""
+  OPERATOR = MatherOperator.INTEGER_LESS
+  CONVERTER = converters.IntegerConverter()
+
+  def _MatchExpectedValue(self, got: int) -> bool:
+    return got < self._expected_value
+
+
+class IntegerGreaterMatcher(FieldMatcher[int]):
+  """See base class."""
+  OPERATOR = MatherOperator.INTEGER_GREATER
+  CONVERTER = converters.IntegerConverter()
+
+  def _MatchExpectedValue(self, got: int) -> bool:
+    return got > self._expected_value
 
 
 class REMatcher(FieldMatcher[converters.ConvertedRE]):

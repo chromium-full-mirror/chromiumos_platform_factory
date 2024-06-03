@@ -29,6 +29,20 @@ class MatchersTest(unittest.TestCase):
             },
         ),
         (
+            matchers.IntegerLessMatcher('field_a', 1234),
+            {
+                'operator': 'INTEGER_LESS',
+                'operand': ['field_a', '1234']
+            },
+        ),
+        (
+            matchers.IntegerGreaterMatcher('field_a', 1234),
+            {
+                'operator': 'INTEGER_GREATER',
+                'operand': ['field_a', '1234']
+            },
+        ),
+        (
             matchers.HexEqualMatcher('field_a',
                                      converters.ConvertedHex('0x1a2b')),
             {
@@ -99,7 +113,17 @@ class MatchersTest(unittest.TestCase):
         (
             matchers.IntegerEqualMatcher,
             1234,
-            [('integer', '1234')],
+            [('integer_equal', '1234')],
+        ),
+        (
+            matchers.IntegerLessMatcher,
+            1234,
+            [('integer_less', '1233')],
+        ),
+        (
+            matchers.IntegerGreaterMatcher,
+            1234,
+            [('integer_greater', '1235')],
         ),
         (
             matchers.HexEqualMatcher,
@@ -142,6 +166,24 @@ class MatchersTest(unittest.TestCase):
             1234,
             [
                 ('integer_not_match', '5678', 5678),
+                ('field_not_found', None, None),
+                ('field_not_int', 'not_int', None),
+            ],
+        ),
+        (
+            matchers.IntegerLessMatcher,
+            1234,
+            [
+                ('integer_not_match', '1234', 1234),
+                ('field_not_found', None, None),
+                ('field_not_int', 'not_int', None),
+            ],
+        ),
+        (
+            matchers.IntegerGreaterMatcher,
+            1234,
+            [
+                ('integer_not_match', '1234', 1234),
                 ('field_not_found', None, None),
                 ('field_not_int', 'not_int', None),
             ],
