@@ -34,6 +34,21 @@ class ConverterTest(unittest.TestCase):
 
     self.assertIsNone(converter.Parse('xyz'))
 
+  def testHexConverterFormat(self):
+    value = converters.ConvertedHex('0x12ab')
+    with self.subTest():
+      self.assertEqual(converters.HexConverter().Format(value), '0x12ab')
+    with self.subTest('NoPrefix'):
+      self.assertEqual(
+          converters.HexConverter(prefix=False).Format(value), '12ab')
+    with self.subTest('Padding'):
+      self.assertEqual(
+          converters.HexConverter(padding_size=6).Format(value), '0x0012ab')
+    with self.subTest('NoPrefix_Padding'):
+      self.assertEqual(
+          converters.HexConverter(prefix=False, padding_size=6).Format(value),
+          '0012ab')
+
   def testReConverter(self):
     converter = converters.REConverter()
     expected = converters.ConvertedRE('.*')

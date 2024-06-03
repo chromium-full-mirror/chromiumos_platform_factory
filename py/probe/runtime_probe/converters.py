@@ -79,6 +79,10 @@ class HexConverter(IConverter[ConvertedHex]):
   0x, e.g. 0x12ab.
   """
 
+  def __init__(self, prefix=True, padding_size=None):
+    self._prefix = prefix
+    self._padding_size = padding_size
+
   def Parse(self, value: str) -> Optional[ConvertedHex]:
     """See base class."""
     try:
@@ -88,7 +92,12 @@ class HexConverter(IConverter[ConvertedHex]):
 
   def Format(self, value: ConvertedHex) -> str:
     """See base class."""
-    return value.value
+    v = value.value[2:]
+    if self._padding_size:
+      v = v.zfill(self._padding_size)
+    if self._prefix:
+      v = '0x' + v
+    return v
 
 
 @dataclasses.dataclass(frozen=True)
