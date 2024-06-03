@@ -15,6 +15,8 @@ from cros.factory.bundle_creator.proto import factorybundle_v2_pb2  # pylint: di
 from cros.factory.bundle_creator.utils import allowlist_utils
 from cros.factory.bundle_creator.utils import protorpc_utils
 
+from google.api_core import exceptions as api_exceptions
+
 
 IMAGE_ARCHIVE_BUCKET = 'chromeos-image-archive'
 
@@ -155,20 +157,24 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
   ) -> factorybundle_v2_pb2.GetFirmwareInfoPreviewResponse:
     archive_dir = (f'{request.board}-release/R{request.milestone}'
                    f'-{request.version}')
-    cros_config = self._image_archive_storage_connector.ReadFile(
-        os.path.join(archive_dir, 'config.yaml'))
-    build_report = self._image_archive_storage_connector.ReadFile(
-        os.path.join(archive_dir, 'build_report.json'))
     fw_info_preview = collections.defaultdict(set)
 
-    for conf in json.loads(cros_config)['chromeos']['configs']:
-      if conf.get('name') != request.project:
-        continue
-      if 'fingerprint' in conf and 'board' in conf['fingerprint']:
-        fw_info_preview['fp-ro-image'].add(conf['fingerprint']['board'])
-      if 'sku-id' in conf['identity']:
-        fw_info_preview['sku-id'].add(str(conf['identity']['sku-id']))
+    try:
+      cros_config = self._image_archive_storage_connector.ReadFile(
+          os.path.join(archive_dir, 'config.yaml'))
+      for conf in json.loads(cros_config)['chromeos']['configs']:
+        if conf.get('name') != request.project:
+          continue
+        if 'fingerprint' in conf and 'board' in conf['fingerprint']:
+          fw_info_preview['fp-ro-image'].add(conf['fingerprint']['board'])
+        if 'sku-id' in conf['identity']:
+          fw_info_preview['sku-id'].add(str(conf['identity']['sku-id']))
+    except api_exceptions.NotFound:
+      # TODO(b/344448755): read sku/fp from other place
+      pass
 
+    build_report = self._image_archive_storage_connector.ReadFile(
+        os.path.join(archive_dir, 'build_report.json'))
     for report in json.loads(build_report)['config'].get('models', []):
       if report.get('name') != request.project:
         continue
