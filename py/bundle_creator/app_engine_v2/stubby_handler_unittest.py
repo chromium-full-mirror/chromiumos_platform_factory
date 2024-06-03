@@ -182,6 +182,28 @@ class StubbyHandlerTest(unittest.TestCase):
                                bundle_created_timestamp_sec=base_timestamp_sec))
     self.assertEqual(response, expected_response)
 
+  def testGetBundleInfo_withNoFirmware_verifiesNoFirmware(self):
+    base_datetime = DatetimeWithNanoseconds(2024, 6, 3, 10, 50, 00,
+                                            tzinfo=pytz.UTC)
+    self._mock_storage_connector.GetBundleInfosByProject.return_value = []
+    self._mock_firestore_connector.GetUserRequestsByProject.return_value = [
+        self._CreateUserRequest('doc_1',
+                                firestore_connector.UserRequestStatus.FAILED,
+                                base_datetime),
+        self._CreateUserRequest(
+            'doc_2', firestore_connector.UserRequestStatus.FAILED,
+            base_datetime + datetime.timedelta(seconds=100), no_firmware=False),
+        self._CreateUserRequest(
+            'doc_3', firestore_connector.UserRequestStatus.FAILED,
+            base_datetime + datetime.timedelta(seconds=200), no_firmware=True),
+    ]
+
+    response = self._stubby_handler.GetBundleInfo(self._get_bundle_info_request)
+
+    self.assertTrue(response.bundle_infos[0].metadata.no_firmware)
+    self.assertFalse(response.bundle_infos[1].metadata.no_firmware)
+    self.assertFalse(response.bundle_infos[2].metadata.no_firmware)
+
   def testDownloadBundle_succeed_returnsExpectedResponse(self):
     response = self._stubby_handler.DownloadBundle(
         self._download_bundle_request)
@@ -345,6 +367,8 @@ class StubbyHandlerTest(unittest.TestCase):
       snapshot['error_message'] = kwargs['error_message']
     if 'gs_path' in kwargs:
       snapshot['gs_path'] = kwargs['gs_path']
+    if 'no_firmware' in kwargs:
+      snapshot['no_firmware'] = kwargs['no_firmware']
     return snapshot
 
   def _CreateBundleInfo(self, doc_id: str,

@@ -79,6 +79,7 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
       bundle_info.metadata.release_image_version = snapshot.get(
           'release_image_version', '')
       bundle_info.metadata.firmware_source = snapshot.get('firmware_source', '')
+      bundle_info.metadata.no_firmware = snapshot.get('no_firmware', False)
       bundle_info.doc_id = snapshot.get('id', '')
       bundle_info.creator = snapshot.get('email', '')
       bundle_info.status = status
