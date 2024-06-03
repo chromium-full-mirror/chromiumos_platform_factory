@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-14 16:45+CST\n"
+"PO-Revision-Date: 2024-06-03 11:13+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -2037,8 +2037,12 @@ msgstr ""
 
 #: ../py/test/pytests/display_interactive/static/display_interactive.html
 msgid ""
-"Display Interactive Test;<br>After checking, test will automatically pass."
+"Display Interactive Test; <br>Please connect to the test station, then press "
+"Space to start the test. <br>The test will automatically pass after checking."
 msgstr ""
+"Hiển thị Kiểm tra Tương tác; <br>Vui lòng kết nối với trạm kiểm tra, sau đó "
+"nhấn phím cách để bắt đầu kiểm tra. <br>Kiểm tra sẽ tự động vượt qua sau khi "
+"kiểm tra."
 
 #: ../py/test/pytests/display_point_static/display_point.html
 msgid ""

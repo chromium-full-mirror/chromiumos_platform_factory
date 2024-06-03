@@ -1,42 +1,74 @@
-// Copyright 2022 The ChromiumOS Authors
+// Copyright 2024 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
 /**
  * API for display interactive test.
  */
-window.DisplayInteractiveTest = class {
-  constructor() {
-    this.fullscreenElement = document.getElementById('fullscreen');
-    this.displayDiv = document.getElementById('display-div');
-  }
+class DisplayInteractiveTest {
   /**
-   * Toggles the fullscreen display visibility.
+   * Constructor for DisplayInteractiveTest.
+   */
+  constructor() {
+    this.fullscreen = false;
+    this.fullscreenElement = document.getElementById("display-full-screen");
+    this.displayDiv = document.getElementById("display-div");
+    // Add transition for smooth changes.
+    this.displayDiv.style.transition =
+      "background-image 0.2s ease-in-out, background-color 0.2s ease-in-out";
+  }
+
+  /**
+   * Toggles the fullscreen display.
    */
   toggleFullscreen() {
-    this.fullscreenElement.classList.toggle('hidden');
-    window.test.setFullScreen(true);
+    this.fullscreen = !this.fullscreen;
+    this.fullscreenElement.classList.toggle("hidden", !this.fullscreen);
+    window.test.setFullScreen(this.fullscreen);
   }
+
   /**
-   * Show css pattern on display.
+   * Shows a display pattern.
+   * @param {string} patternType The type of pattern to show
+   *     (css, image, message).
+   * @param {string} pattern The pattern to apply.
+   *     - For css: Class name to apply to displayDiv.
+   *     - For image: Image path relative to the current file.
+   *     - For message: Message to display.
    */
-  showPattern(pattern) {
-    this.pattern = pattern;
-    cros.factory.utils.removeClassesWithPrefix(this.displayDiv, '');
-    this.displayDiv.style.backgroundImage = '';
-    this.displayDiv.classList.remove('custom-image');
-    this.displayDiv.classList.add(`${this.pattern}`);
+  showPattern(patternType, pattern) {
+    this._clearDisplay();
+    // Map pattern types to actions.
+    const patternActions = {
+      css: () => this.displayDiv.classList.add(pattern),
+      image: () => {
+        this.displayDiv.style.backgroundImage = `url(./${pattern})`;
+        this.displayDiv.classList.add("custom-image");
+      },
+      message: () => {
+        const textMessageDiv = document.createElement("div");
+        textMessageDiv.classList.add("text-message");
+        textMessageDiv.textContent = pattern;
+        this.displayDiv.appendChild(textMessageDiv);
+      },
+    };
+    const action = patternActions[patternType];
+    // Execute the action if it exists.
+    action?.();
   }
+
   /**
-   * Show local image on display.
+   * Clears the display, removing any applied styles or images.
    */
-  showImage(image) {
-    this.displayDiv.style.backgroundImage = `url(./${image}.png)`;
-    this.displayDiv.classList.add('custom-image');
+  _clearDisplay() {
+    // Remove all classes from the display div.
+    this.displayDiv.classList.remove(...this.displayDiv.classList);
+    this.displayDiv.style.backgroundImage = "";
+    this.displayDiv.classList.remove("custom-image");
+    const textMessageElements =
+      this.displayDiv.querySelectorAll(".text-message");
+    textMessageElements.forEach((element) => element.remove());
   }
-  /**
-   * Fails the test.
-   */
-  failTest(reason) {
-    window.test.fail(`${reason}`);
-  }
-};
+}
+
+window.DisplayInteractiveTest = DisplayInteractiveTest;

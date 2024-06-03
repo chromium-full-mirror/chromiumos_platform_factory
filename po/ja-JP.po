@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-14 16:45+CST\n"
+"PO-Revision-Date: 2024-06-03 11:13+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -2042,10 +2042,13 @@ msgstr "すべての画像を表示した後、Enterキーを押して合格に�
 
 #: ../py/test/pytests/display_interactive/static/display_interactive.html
 msgid ""
-"Display Interactive Test;<br>After checking, test will automatically pass."
+"Display Interactive Test; <br>Please connect to the test station, then press "
+"Space to start the test. <br>The test will automatically pass after checking."
 msgstr ""
-"ディスプレイインタラクティブテスト;<br>確認後、テストは自動的に合格になりま"
-"す。"
+"インタラクティブテストを表示します。\n"
+"テストステーションに接続してから、スペースキーを押してテストを開始してくださ"
+"い。\n"
+"テストは自動的に完了し、合格します。"
 
 #: ../py/test/pytests/display_point_static/display_point.html
 msgid ""

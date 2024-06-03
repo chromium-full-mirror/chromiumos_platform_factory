@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-05-14 16:45+CST\n"
+"PO-Revision-Date: 2024-06-03 11:13+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -2012,8 +2012,11 @@ msgstr "拨放完所有影像后,压下Enter表示成功"
 
 #: ../py/test/pytests/display_interactive/static/display_interactive.html
 msgid ""
-"Display Interactive Test;<br>After checking, test will automatically pass."
-msgstr "显示交互测试, 等待测试站检查, 检查完成后测试将自动通过"
+"Display Interactive Test; <br>Please connect to the test station, then press "
+"Space to start the test. <br>The test will automatically pass after checking."
+msgstr ""
+"显示交互式测试；<br>请连接到测试站，然后按“空格键”开始测试。 <br>测试将在检查"
+"后自动通过。"
 
 #: ../py/test/pytests/display_point_static/display_point.html
 msgid ""
