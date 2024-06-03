@@ -3,10 +3,9 @@
 # found in the LICENSE file.
 """Defines classes building a probe config for Runtime Probe."""
 
-import typing
+from typing import Mapping, Optional
 
 from cros.factory.probe.runtime_probe import matchers
-from cros.factory.probe.runtime_probe import probe_types
 from cros.factory.utils import json_utils
 
 
@@ -44,8 +43,9 @@ class ProbeConfigBuilder:
     self._result = json_utils.LoadStr(base_json)
 
   def AddComponent(self, category_name: str, component_name: str,
-                   probe_function: probe_types.ProbeFunction,
-                   matcher: typing.Optional[matchers.IMatcher] = None):
+                   probe_function_name: str, probe_function_args: Mapping[str,
+                                                                          str],
+                   matcher: Optional[matchers.IMatcher] = None):
     if category_name not in self._result:
       self._result[category_name] = {}
     if component_name in self._result[category_name]:
@@ -53,7 +53,7 @@ class ProbeConfigBuilder:
                        f'been added to category {category_name}')
     probe_statement = {
         'eval': {
-            probe_function.name: probe_function.args
+            probe_function_name: probe_function_args
         },
     }
     if matcher:

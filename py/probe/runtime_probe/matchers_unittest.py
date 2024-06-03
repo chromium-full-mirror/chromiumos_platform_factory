@@ -3,17 +3,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from typing import Any, Mapping, Sequence, Tuple, Type
 import unittest
 
 from cros.factory.probe.runtime_probe import converters
 from cros.factory.probe.runtime_probe import matchers
-from cros.factory.probe.runtime_probe import probe_types
 
 
 class MatchersTest(unittest.TestCase):
 
   def testGenerateProbeConfigMatcherStatement(self):
-    for matcher, statement in [
+    tests: Sequence[Tuple[matchers.IMatcher, Mapping[str, Any]]] = [
         (
             matchers.StringEqualMatcher('field_a', 'value_a'),
             {
@@ -83,12 +83,11 @@ class MatchersTest(unittest.TestCase):
                 ]
             },
         ),
-    ]:
+    ]
+    for matcher, statement in tests:
       with self.subTest(matcher=matcher):
         self.assertEqual(statement,
-                         # yapf: disable
-                         matcher.GenerateProbeConfigMatcherStatement())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+                         matcher.GenerateProbeConfigMatcherStatement())
 
   def testFieldMatch(self):
     for matcher_cls, expected_value, fields in [
@@ -122,13 +121,14 @@ class MatchersTest(unittest.TestCase):
       for test_name, field_value in fields:
         with self.subTest(matcher_cls=matcher_cls, test_name=test_name):
           matcher = matcher_cls('field_a', expected_value)
-          component = probe_types.Component(
-              name='FooComponent', field_values={'field_a': field_value})
+          component = {
+              'field_a': field_value
+          }
           self.assertTrue(matcher.Match(component))
           self.assertIsNone(matcher.GetProbeInfoSuggestion(component))
 
   def testFieldNotMatch(self):
-    for matcher_cls, expected_value, fields in [
+    tests: Sequence[Tuple[Type[matchers.FieldMatcher], Any, Sequence]] = [
         (
             matchers.StringEqualMatcher,
             'value_a',
@@ -163,18 +163,14 @@ class MatchersTest(unittest.TestCase):
                 ('field_not_found', None, None),
             ],
         ),
-    ]:
-      # yapf: disable
-      for test_name, field_value, got_value in fields:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    ]
+    for matcher_cls, expected_value, fields in tests:
+      for test_name, field_value, got_value in fields:
         with self.subTest(test_name=test_name, matcher_cls=matcher_cls):
           matcher = matcher_cls('field_a', expected_value)
-          if field_value is None:
-            component = probe_types.Component(name='FooComponent',
-                                              field_values={})
-          else:
-            component = probe_types.Component(
-                name='FooComponent', field_values={'field_a': field_value})
+          component = {}
+          if field_value is not None:
+            component['field_a'] = field_value
           self.assertFalse(matcher.Match(component))
           self.assertEqual(
               matchers.FieldProbeInfoSuggestion(
@@ -212,15 +208,16 @@ class MatchersTest(unittest.TestCase):
             ],
         ),
     ]:
-      for test_name, field_value in fields:
+      for test_name, component in fields:
         with self.subTest(test_name=test_name, matcher=matcher):
-          component = probe_types.Component(name='FooComponent',
-                                            field_values=field_value)
           self.assertTrue(matcher.Match(component))
           self.assertIsNone(matcher.GetProbeInfoSuggestion(component))
 
   def testMultipleNotMatch(self):
-    for matcher, fields in [
+    tests: Sequence[Tuple[matchers.IMatcher,
+                          Sequence[Tuple[str, Mapping[str, str],
+                                         matchers.ProbeInfoSuggestion]]]]
+    tests = [
         (
             matchers.AndMatcher([
                 matchers.StringEqualMatcher('field_a', 'value_a'),
@@ -277,13 +274,10 @@ class MatchersTest(unittest.TestCase):
                 ),
             ],
         ),
-    ]:
-      # yapf: disable
-      for test_name, field_value, suggestion in fields:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    ]
+    for matcher, fields in tests:
+      for test_name, component, suggestion in fields:
         with self.subTest(test_name=test_name, matcher=matcher):
-          component = probe_types.Component(name='FooComponent',
-                                            field_values=field_value)
           self.assertFalse(matcher.Match(component))
           self.assertEqual(suggestion,
                            matcher.GetProbeInfoSuggestion(component))

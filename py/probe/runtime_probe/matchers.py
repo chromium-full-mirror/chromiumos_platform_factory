@@ -3,40 +3,60 @@
 # found in the LICENSE file.
 """Defines matchers to match a comoponet or generate matcher statement"""
 
+from __future__ import annotations
+
 import abc
+import dataclasses
+import enum
 import re
-from typing import Any, Collection, Generic, Mapping, NamedTuple, Optional, TypeVar, Union
+from typing import Any, Generic, Mapping, Optional, Sequence, TypeVar, Union
 
 from cros.factory.probe.runtime_probe import converters
-from cros.factory.probe.runtime_probe import probe_types
+
+
+class MatherOperator(enum.Enum):
+  """Matcher operators supported by RuntimeProbe.
+
+  Only these may be utilized in the probe config. The RuntimeProbe must
+  implement them before they may be generated into a probe config.
+  """
+  AND = enum.auto()
+  OR = enum.auto()
+  STRING_EQUAL = enum.auto()
+  HEX_EQUAL = enum.auto()
+  INTEGER_EQUAL = enum.auto()
+  RE = enum.auto()
 
 
 _T = TypeVar('_T', int, str, converters.ConvertedHex, converters.ConvertedRE)
 
 
-class FieldProbeInfoSuggestion(NamedTuple, Generic[_T]):
+@dataclasses.dataclass
+class FieldProbeInfoSuggestion(Generic[_T]):
   """Explans a field edit suggestion."""
   field_name: str
   expected: _T
   got: Optional[_T]
 
 
-class AndProbeInfoSuggestion(NamedTuple):
+@dataclasses.dataclass
+class AndProbeInfoSuggestion:
   """Suggestions that should all be applied to pass an AndMatcher.
   """
-  suggestions: Collection['ProbeInfoSuggestion']
+  suggestions: Sequence[ProbeInfoSuggestion]
 
 
-class OrProbeInfoSuggestion(NamedTuple):
+@dataclasses.dataclass
+class OrProbeInfoSuggestion:
   """Suggestions that should be applied at least one to pass an OrMatcher.
   """
-  suggestions: Collection['ProbeInfoSuggestion']
+  suggestions: Sequence[ProbeInfoSuggestion]
 
 
-ProbeInfoSuggestion = Union['FieldProbeInfoSuggestion[str]',
-                            'FieldProbeInfoSuggestion[int]',
-                            'FieldProbeInfoSuggestion[converters.ConvertedHex]',
-                            'FieldProbeInfoSuggestion[converters.ConvertedRE]',
+ProbeInfoSuggestion = Union[FieldProbeInfoSuggestion[str],
+                            FieldProbeInfoSuggestion[int],
+                            FieldProbeInfoSuggestion[converters.ConvertedHex],
+                            FieldProbeInfoSuggestion[converters.ConvertedRE],
                             AndProbeInfoSuggestion, OrProbeInfoSuggestion]
 """Suggestions when matchers can't match a component.
 
@@ -49,7 +69,7 @@ class IMatcher(abc.ABC):
   """Interface for a matcher."""
 
   @abc.abstractmethod
-  def Match(self, component: probe_types.Component) -> bool:
+  def Match(self, component: Mapping[str, str]) -> bool:
     """Matches a component.
 
     Returns: true if matches. Otherwise false.
@@ -66,26 +86,26 @@ class IMatcher(abc.ABC):
 
   @abc.abstractmethod
   def GetProbeInfoSuggestion(
-      self, component: probe_types.Component) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
     """Generates suggestion for editing ProbeInfo.
 
     Returns: None if component matches. Otherwise returns the suggestion.
     """
 
 
-class _FieldEqualMatcher(IMatcher, Generic[_T]):
+class FieldMatcher(IMatcher, Generic[_T]):
   """Matches if the field value is equal to the expected value.
 
   The value will be converted to type _T before comparison.
   """
-  OPERATOR: probe_types.MatherOperator
+  OPERATOR: MatherOperator
   CONVERTER: converters.IConverter[_T]
 
   def __init__(self, field_name: str, expected_value: _T):
     self._field_name = field_name
     self._expected_value: _T = expected_value
 
-  def Match(self, component: probe_types.Component) -> bool:
+  def Match(self, component: Mapping[str, str]) -> bool:
     """See IMatcher."""
     return self.GetProbeInfoSuggestion(component) is None
 
@@ -104,9 +124,9 @@ class _FieldEqualMatcher(IMatcher, Generic[_T]):
     return got == self._expected_value
 
   def GetProbeInfoSuggestion(
-      self, component: probe_types.Component) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
     """See IMatcher."""
-    got_raw = component.field_values.get(self._field_name)
+    got_raw = component.get(self._field_name)
     got = self.CONVERTER.Parse(got_raw) if got_raw is not None else None
     if got is not None and self._MatchExpectedValue(got):
       return None
@@ -115,32 +135,32 @@ class _FieldEqualMatcher(IMatcher, Generic[_T]):
                                     expected=self._expected_value, got=got)
 
 
-class StringEqualMatcher(_FieldEqualMatcher[str]):
+class StringEqualMatcher(FieldMatcher[str]):
   """See base class."""
-  OPERATOR = probe_types.MatherOperator.STRING_EQUAL
+  OPERATOR = MatherOperator.STRING_EQUAL
   CONVERTER = converters.NopConverter()
 
 
-class HexEqualMatcher(_FieldEqualMatcher[converters.ConvertedHex]):
+class HexEqualMatcher(FieldMatcher[converters.ConvertedHex]):
   """See base class."""
-  OPERATOR = probe_types.MatherOperator.HEX_EQUAL
+  OPERATOR = MatherOperator.HEX_EQUAL
   CONVERTER = converters.HexConverter()
 
 
-class IntegerEqualMatcher(_FieldEqualMatcher[int]):
+class IntegerEqualMatcher(FieldMatcher[int]):
   """See base class."""
-  OPERATOR = probe_types.MatherOperator.INTEGER_EQUAL
+  OPERATOR = MatherOperator.INTEGER_EQUAL
   CONVERTER = converters.IntegerConverter()
 
 
-class REMatcher(_FieldEqualMatcher[converters.ConvertedRE]):
+class REMatcher(FieldMatcher[converters.ConvertedRE]):
   """Matches if the value pass the RE or is the same RE string.
 
   Note that matching a regular expression string is only supported on the Python
   side. In RuntimeProbe, the components always contain actual values rather than
   a regular expression.
   """
-  OPERATOR = probe_types.MatherOperator.RE
+  OPERATOR = MatherOperator.RE
   CONVERTER = converters.REConverter()
 
   def _MatchExpectedValue(self, got: converters.ConvertedRE):
@@ -151,10 +171,10 @@ class REMatcher(_FieldEqualMatcher[converters.ConvertedRE]):
 class AndMatcher(IMatcher):
   """Contains matchers which should all be applied to match."""
 
-  def __init__(self, matchers: Collection[IMatcher]):
+  def __init__(self, matchers: Sequence[IMatcher]):
     self._matchers = matchers
 
-  def Match(self, component: probe_types.Component) -> bool:
+  def Match(self, component: Mapping[str, str]) -> bool:
     """See IMatcher."""
     return all(m.Match(component) for m in self._matchers)
 
@@ -162,16 +182,16 @@ class AndMatcher(IMatcher):
     """See IMatcher."""
     return {
         'operator':
-            probe_types.MatherOperator.AND.name,
+            MatherOperator.AND.name,
         'operand': [
             m.GenerateProbeConfigMatcherStatement() for m in self._matchers
         ]
     }
 
   def GetProbeInfoSuggestion(
-      self, component: probe_types.Component) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
     """See IMatcher."""
-    suggestions: Collection[ProbeInfoSuggestion] = list(
+    suggestions: Sequence[ProbeInfoSuggestion] = list(
         filter(None,
                [m.GetProbeInfoSuggestion(component) for m in self._matchers]))
     if not suggestions:
@@ -184,10 +204,10 @@ class AndMatcher(IMatcher):
 class OrMatcher(IMatcher):
   """Contains matchers which should be applied at least one to match."""
 
-  def __init__(self, matchers: Collection[IMatcher]):
+  def __init__(self, matchers: Sequence[IMatcher]):
     self._matchers = matchers
 
-  def Match(self, component: probe_types.Component) -> bool:
+  def Match(self, component: Mapping[str, str]) -> bool:
     """See IMatcher."""
     return any(m.Match(component) for m in self._matchers)
 
@@ -195,16 +215,16 @@ class OrMatcher(IMatcher):
     """See IMatcher."""
     return {
         'operator':
-            probe_types.MatherOperator.OR.name,
+            MatherOperator.OR.name,
         'operand': [
             m.GenerateProbeConfigMatcherStatement() for m in self._matchers
         ]
     }
 
   def GetProbeInfoSuggestion(
-      self, component: probe_types.Component) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
     """See IMatcher."""
-    suggestions: Collection[ProbeInfoSuggestion] = list(
+    suggestions: Sequence[ProbeInfoSuggestion] = list(
         filter(None,
                [m.GetProbeInfoSuggestion(component) for m in self._matchers]))
     if len(suggestions) != len(self._matchers):

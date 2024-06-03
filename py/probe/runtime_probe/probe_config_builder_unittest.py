@@ -8,20 +8,18 @@ import unittest
 
 from cros.factory.probe.runtime_probe import matchers
 from cros.factory.probe.runtime_probe import probe_config_builder
-from cros.factory.probe.runtime_probe import probe_types
 
 
 class ProbeConfigBuilderTest(unittest.TestCase):
 
   def testBuild(self):
     builder = probe_config_builder.ProbeConfigBuilder()
-    builder.AddComponent(
-        'category_a', 'component_a',
-        probe_types.ProbeFunction('probe_function_a', {'arg1': 'value_1'}))
-    builder.AddComponent(
-        'category_a', 'component_b',
-        probe_types.ProbeFunction('probe_function_a', {'arg1': 'value_1'}),
-        matchers.StringEqualMatcher('field_a', 'value_a'))
+    builder.AddComponent('category_a', 'component_a', 'probe_function_a', {
+        'arg1': 'value_1'
+    })
+    builder.AddComponent('category_a', 'component_b', 'probe_function_a', {
+        'arg1': 'value_1'
+    }, matchers.StringEqualMatcher('field_a', 'value_a'))
 
     self.assertEqual(
         textwrap.dedent("""\
@@ -74,13 +72,12 @@ class ProbeConfigBuilderTest(unittest.TestCase):
               }
             }
             """))
-    builder.AddComponent(
-        'category_a', 'component_a',
-        probe_types.ProbeFunction('probe_function_a', {'arg1': 'value_1'}))
-    builder.AddComponent(
-        'category_a', 'component_b',
-        probe_types.ProbeFunction('probe_function_a', {'arg1': 'value_1'}),
-        matchers.StringEqualMatcher('field_a', 'value_a'))
+    builder.AddComponent('category_a', 'component_a', 'probe_function_a', {
+        'arg1': 'value_1'
+    })
+    builder.AddComponent('category_a', 'component_b', 'probe_function_a', {
+        'arg1': 'value_1'
+    }, matchers.StringEqualMatcher('field_a', 'value_a'))
     self.assertEqual(
         textwrap.dedent("""\
             {
