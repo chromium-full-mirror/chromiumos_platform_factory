@@ -653,7 +653,7 @@ def VerifySnBits(options):
     # yapf: disable
     *GetGooftool.__args__)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 # yapf: enable
-def VerifyCBIEEPROMWPStatus(options):
+def VerifyCbiEepromWPStatus(options):
   """Verify CBI EEPROM status.
 
   If cbi_eeprom_wp_status is Absent, CBI EEPROM must be absent. If
@@ -661,7 +661,7 @@ def VerifyCBIEEPROMWPStatus(options):
   protection must be off.
   """
 
-  return GetGooftool(options).VerifyCBIEEPROMWPStatus(
+  return GetGooftool(options).VerifyCbiEepromWPStatus(
       options.cbi_eeprom_wp_status)
 
 
@@ -1359,7 +1359,7 @@ def SMTFinalize(options):
     *UploadReport.__args__,
     *VerifyAfterGSCFinalize.__args__,
     *VerifyBeforeGSCFinalize.__args__,
-    *VerifyCBIEEPROMWPStatus.__args__,
+    *VerifyCbiEepromWPStatus.__args__,
 )
 def Finalize(options):
   """Verify system readiness and trigger transition into release state.
@@ -1408,7 +1408,7 @@ def Finalize(options):
     event_log.Log('wp', fw='both', status='skipped')
   else:
     WriteProtect(options)
-  VerifyCBIEEPROMWPStatus(options)
+  VerifyCbiEepromWPStatus(options)
   FpmcuInitializeEntropy(options)
   LogSystemDetails(options)
   UploadReport(options)

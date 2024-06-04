@@ -886,7 +886,7 @@ class Gooftool:
                      ectool_flashprotect, re.MULTILINE):
       raise Error('write protectioin switch of EC is disabled.')
 
-  def VerifyCBIEEPROMWPStatus(self, cbi_eeprom_wp_status):
+  def VerifyCbiEepromWPStatus(self, cbi_eeprom_wp_status):
     """Verifies CBI EEPROM write protection status."""
 
     cbi_utils.VerifyCbiEepromWpStatus(self._util.sys_interface,
