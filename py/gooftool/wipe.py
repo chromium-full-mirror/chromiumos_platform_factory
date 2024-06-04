@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 """Transition to release state directly without reboot."""
 
+from distutils import version
 import json
 import logging
 import os
@@ -15,6 +16,7 @@ import tempfile
 import textwrap
 import time
 
+from cros.factory.device import info
 from cros.factory.gooftool import chroot
 from cros.factory.gooftool.common import ExecFactoryPar
 from cros.factory.gooftool.common import Shell
@@ -23,6 +25,7 @@ from cros.factory.test.env import paths
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sync_utils
+from cros.factory.utils import sys_interface
 from cros.factory.utils import sys_utils
 from cros.factory.utils import type_utils
 
@@ -694,8 +697,19 @@ def _InformShopfloor(factory_server_url: str):
 
 def _Cutoff():
   logging.debug('cutoff')
-  cutoff_script = os.path.join(CUTOFF_SCRIPT_DIR, 'cutoff.sh')
-  process_utils.Spawn([cutoff_script], check_call=True)
+  device = sys_interface.SystemInterface()
+  system_info = info.SystemInfo(device)
+  if version.StrictVersion(
+      system_info.test_image_version) >= version.StrictVersion('15906.0.0'):
+    process_utils.Spawn(['factory_installer', 'battery-cutoff'],
+                        check_call=True)
+  else:
+    logging.warning('Running new toolkit with old test image.')
+    logging.warning('cutoff.sh is deprecated in new toolkit. '
+                    'Please upgrade test image to version >= 15906.0.0 or '
+                    'downgrade toolkit to version < 15906.0.0.')
+    cutoff_script = os.path.join(CUTOFF_SCRIPT_DIR, 'cutoff.sh')
+    process_utils.Spawn([cutoff_script], check_call=True)
 
 
 def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
