@@ -9,6 +9,14 @@ Description
 Tests that the fingerprint sensor is connected properly and has no defect
 by executing commands through the fingerprint micro-controller.
 
+Internal references
+^^^^^^^^^^^^^^^^^^^
+- go/cros-fingerprint-factory-requirements#Documents
+
+The testing procedures, such as (inverted) checkerboard and reset pixel, are
+defined in the MTS (Module Test Specification) and ITS (In-Device Test
+Specification) docs. By default, the pytest uses the acceptance criteria of ITS.
+
 Test Procedure
 --------------
 
@@ -154,7 +162,7 @@ class FingerprintTest(test_case.TestCase):
           default=False),
       Arg('max_reset_pixel_dev', int,
           ('The maximum deviation from the median per column for a pixel from '
-           'test reset image.'), default=55),
+           'test reset image.'), default=65),
       Arg('max_error_reset_pixels', int,
           'The maximum number of error pixels in the test_reset image.',
           default=5),
