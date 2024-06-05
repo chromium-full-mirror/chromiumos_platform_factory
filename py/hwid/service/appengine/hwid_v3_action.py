@@ -9,6 +9,7 @@ from typing import List, Mapping, Optional
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine.hwid_action_helpers import v3_self_service_helper as ss_helper_module
@@ -60,8 +61,11 @@ class HWIDV3Action(hwid_action.HWIDAction):
         suppress_support_status=suppress_support_status, internal=internal)
 
   def AnalyzeDBEditableSection(
-      self, draft_db_editable_section: Optional[hwid_db_data.HWIDDBData],
-      derive_fingerprint_only: bool, require_hwid_db_lines: bool,
+      self,
+      draft_db_editable_section: Optional[hwid_db_data.HWIDDBData],
+      derive_fingerprint_only: bool,
+      require_hwid_db_lines: bool,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
       avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
       avl_resource: Optional[
@@ -69,12 +73,13 @@ class HWIDV3Action(hwid_action.HWIDAction):
       hwid_bundle_checksum: Optional[str] = None,
       avl_metadata_manager: Optional[
           avl_metadata_util.AVLMetadataManager] = None,
-      device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None
+      device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None,
   ) -> hwid_action.DBEditableSectionAnalysisReport:
     return self._ss_helper.AnalyzeDBEditableSection(
         draft_db_editable_section, derive_fingerprint_only,
-        require_hwid_db_lines, internal, avl_converter_manager, avl_resource,
-        hwid_bundle_checksum, avl_metadata_manager, device_metadata)
+        require_hwid_db_lines, vpg_targets_data_manager, internal,
+        avl_converter_manager, avl_resource, hwid_bundle_checksum,
+        avl_metadata_manager, device_metadata)
 
   def GetHWIDBundleResourceInfo(self, fingerprint_only=False):
     return self._ss_helper.GetHWIDBundleResourceInfo(fingerprint_only)

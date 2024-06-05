@@ -20,6 +20,7 @@ from cros.factory.hwid.service.appengine import change_unit_utils
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import features
 from cros.factory.hwid.service.appengine import git_util
@@ -767,6 +768,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       avl_metadata_manager: avl_metadata_util.AVLMetadataManager,
       feature_matcher_builder_class: Type[FeatureMatcherBuilder],
       battery_config_fetcher: hwid_action.IBatteryConfigFetcher,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
   ):
     self._hwid_action_manager = hwid_action_manager_inst
@@ -777,6 +779,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     self._avl_metadata_manager = avl_metadata_manager
     self._feature_matcher_builder_class = feature_matcher_builder_class
     self._battery_config_fetcher = battery_config_fetcher
+    self._vpg_targets_data_manager = vpg_targets_data_manager
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
 
@@ -847,8 +850,9 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       # yapf: enable
       analysis = action.AnalyzeDBEditableSection(
           cache.new_hwid_db_editable_section, derive_fingerprint_only=False,
-          require_hwid_db_lines=False, internal=True,
-          avl_converter_manager=self._avl_converter_manager,
+          require_hwid_db_lines=False,
+          vpg_targets_data_manager=self._vpg_targets_data_manager,
+          internal=True, avl_converter_manager=self._avl_converter_manager,
           avl_resource=request.db_external_resource,
           avl_metadata_manager=self._avl_metadata_manager)
     except (KeyError, ValueError, RuntimeError, hwid_repo.HWIDRepoError) as ex:
@@ -1223,6 +1227,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       report = action.AnalyzeDBEditableSection(
           request.hwid_db_editable_section or None, False,
           require_hwid_db_lines,
+          vpg_targets_data_manager=self._vpg_targets_data_manager,
           hwid_bundle_checksum=request.hwid_bundle_checksum,
           avl_metadata_manager=self._avl_metadata_manager,
           device_metadata=request.device_metadata)

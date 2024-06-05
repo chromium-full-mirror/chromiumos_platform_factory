@@ -3,11 +3,11 @@
 # found in the LICENSE file.
 """Validator for HWID configs."""
 
-from typing import List, Optional
+from typing import List, Mapping, Optional
 
-from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import verification_payload_generator as vpg_module
+from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
@@ -47,6 +47,8 @@ class HwidValidator:
 
   def ValidateChange(
       self, hwid_config_contents: str, prev_hwid_config_contents: Optional[str],
+      vpg_targets: Mapping[
+          str, vpg_config_module.VerificationPayloadGeneratorConfig],
       prev_hwid_config_contents_with_bundle_uuid: Optional[str] = None,
       device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None):
     """Validates a HWID config change.
@@ -93,8 +95,7 @@ class HwidValidator:
 
     db = analyzer.curr_db_instance
     assert db is not None
-    # TODO(b/308306344): Migrate to vpg_targets_data.
-    vpg_target = config_data.CONFIG.vpg_targets.get(db.project)
+    vpg_target = vpg_targets.get(db.project)
     if vpg_target:
       errors = vpg_module.GenerateVerificationPayload(
           [(db, vpg_target)], encryption_key=_ENCRYPTION_TEST_KEY).error_msgs

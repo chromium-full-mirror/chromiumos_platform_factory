@@ -11,6 +11,7 @@ from typing import Collection, Dict, List, Mapping, NamedTuple, Optional, Set
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
@@ -370,8 +371,11 @@ class HWIDAction:
         f'`GetDBEditableSection` is not supported in HWID v{self.HWID_VERSION}')
 
   def AnalyzeDBEditableSection(
-      self, draft_db_editable_section: Optional[hwid_db_data.HWIDDBData],
-      derive_fingerprint_only: bool, require_hwid_db_lines: bool,
+      self,
+      draft_db_editable_section: Optional[hwid_db_data.HWIDDBData],
+      derive_fingerprint_only: bool,
+      require_hwid_db_lines: bool,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
       avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
       avl_resource: Optional[
@@ -379,7 +383,7 @@ class HWIDAction:
       hwid_bundle_checksum: Optional[str] = None,
       avl_metadata_manager: Optional[
           avl_metadata_util.AVLMetadataManager] = None,
-      device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None
+      device_metadata: Optional[hwid_api_messages_pb2.DeviceMetadata] = None,
   ) -> DBEditableSectionAnalysisReport:
     """Deep analyzes the HWID DB editable section.
 
@@ -391,6 +395,8 @@ class HWIDAction:
           compare.
       derive_fingerprint_only: Whether only fingerprint is required.
       require_hwid_db_lines: A flag indicating if DB line analysis is required.
+      vpg_targets_data_manager: A manager responsible for reading/writing VPG
+          targets in memcache.
       internal: Whether this report returns an internal format of HWID DB.
       avl_converter_manager: A manager responsible for converting AVL probe
           values to HWID probe values for comparison.

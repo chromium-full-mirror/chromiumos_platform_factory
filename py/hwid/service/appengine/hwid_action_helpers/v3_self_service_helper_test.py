@@ -8,6 +8,7 @@ import re
 import tempfile
 from typing import Optional
 import unittest
+from unittest import mock
 
 from google.protobuf import text_format
 
@@ -15,6 +16,7 @@ from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import features
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine.hwid_action_helpers import v3_self_service_helper as ss_helper
@@ -49,6 +51,12 @@ class _TestAVLAttrs(converter.AVLAttrs):
 
 class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
+  def setUp(self):
+    super().setUp()
+    self._mock_vpg_targets_data_manager = mock.create_autospec(
+        vpg_targets_data.VPGTargetsDataManager, instance=True)
+    self._mock_vpg_targets_data_manager.GetVpgTargets.return_value = {}
+
   def testGetDBEditableSection(self):
     helper_inst = self._LoadSSHelper('v3-golden.yaml')
 
@@ -72,10 +80,12 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
     change_info1 = helper_inst1.AnalyzeDBEditableSection(
         'the same editable section', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
     change_info2 = helper_inst2.AnalyzeDBEditableSection(
         'the same editable section', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertNotEqual(change_info1.fingerprint, change_info2.fingerprint)
 
@@ -84,10 +94,12 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
     change_info1 = helper_inst.AnalyzeDBEditableSection(
         'editable section 1', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
     change_info2 = helper_inst.AnalyzeDBEditableSection(
         'editable section 2', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertNotEqual(change_info1.fingerprint, change_info2.fingerprint)
 
@@ -97,10 +109,12 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
     change_info1 = helper_inst.AnalyzeDBEditableSection(
         'the same editable section', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
     change_info2 = helper_inst.AnalyzeDBEditableSection(
         'the same editable section', derive_fingerprint_only=True,
-        require_hwid_db_lines=False)
+        require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(change_info1.fingerprint, change_info2.fingerprint)
 
@@ -110,7 +124,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     editable_section = helper_inst_after.GetDBEditableSection()
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
-        editable_section, False, True)
+        editable_section, False, True,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(analysis_report.precondition_errors, [])
     self.assertEqual(analysis_report.validation_errors, [])
@@ -121,7 +136,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
     analysis_report = helper_inst.AnalyzeDBEditableSection(
         draft_db_editable_section=None, derive_fingerprint_only=False,
-        require_hwid_db_lines=True)
+        require_hwid_db_lines=True,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(analysis_report.precondition_errors, [])
     self.assertEqual(analysis_report.validation_errors, [])
@@ -134,7 +150,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     editable_section = helper_inst_after.GetDBEditableSection()
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
-        editable_section, True, False)
+        editable_section, True, False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(analysis_report.precondition_errors, [])
     self.assertEqual(analysis_report.validation_errors, [])
@@ -146,7 +163,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     helper_inst = self._LoadSSHelper('v3-golden-before.yaml')
 
     analysis_report = helper_inst.AnalyzeDBEditableSection(
-        'invalid hwid db contents', False, True)
+        'invalid hwid db contents', False, True,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(analysis_report.validation_errors[0].code,
                      hwid_action.DBValidationErrorCode.SCHEMA_ERROR)
@@ -157,7 +175,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
         os.path.join(_TESTDATA_PATH, 'v3-schema-error-editable-content.yaml'))
 
     analysis_report = helper_inst.AnalyzeDBEditableSection(
-        schema_error_content, False, True)
+        schema_error_content, False, True,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertEqual(analysis_report.validation_errors[0].code,
                      hwid_action.DBValidationErrorCode.SCHEMA_ERROR)
@@ -168,7 +187,9 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     editable_section = helper_inst_after.GetDBEditableSection()
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
-        editable_section, False, True, hwid_bundle_checksum='invalid_checksum')
+        editable_section, False, True,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
+        hwid_bundle_checksum='invalid_checksum')
 
     self.assertEqual(analysis_report.precondition_errors[0].code,
                      hwid_action.DBValidationErrorCode.CHECKSUM_ERROR)
@@ -200,6 +221,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     report = helper_inst.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
         internal=True, avl_converter_manager=avl_converter_manager,
         avl_resource=avl_resource)
     converted_db = database.Database.LoadData(
@@ -217,7 +239,8 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     editable_section = helper_inst_after.GetDBEditableSection()
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
-        editable_section, False, False)
+        editable_section, False, False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
     self.assertTrue(analysis_report.noop_for_external_db)
 
@@ -230,6 +253,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
         internal=True, avl_converter_manager=converter_manager,
         avl_resource=resource_msg)
 
@@ -249,6 +273,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
         internal=False, avl_metadata_manager=avl_metadata_manager)
 
     skippable_comps = [

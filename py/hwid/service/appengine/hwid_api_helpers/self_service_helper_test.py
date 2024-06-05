@@ -17,6 +17,7 @@ from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data.converter import converter as converter_module
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import features
 from cros.factory.hwid.service.appengine import git_util
@@ -109,6 +110,8 @@ def _CreateFakeSelfServiceShard(
     feature_matcher_builder_class: (
         Optional[Type[ss_helper_module.FeatureMatcherBuilder]]) = None,
     battery_config_fetcher: Optional[hwid_action.IBatteryConfigFetcher] = None,
+    vpg_targets_data_manager: Optional[
+        vpg_targets_data.VPGTargetsDataManager] = None,
     cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
 ) -> ss_helper_module.SelfServiceShard:
   avl_metadata_manager = (
@@ -133,6 +136,7 @@ def _CreateFakeSelfServiceShard(
       (feature_matcher_builder_class or
        ss_helper_module.FeatureMatcherBuilderImpl),
       battery_config_fetcher,
+      vpg_targets_data_manager or modules.fake_vpg_targets_data_manager,
       cq_count_over_limit_cl_reviewers)
 
 
@@ -527,11 +531,15 @@ class SelfServiceShardTest(unittest.TestCase):
         hwid_action.IBatteryConfigFetcher, instance=True)
     self._mock_battery_config_fetcher.FetchContents.return_value = None
     self._mock_battery_config_fetcher.GetLastVersion.return_value = None
+    self._mock_vpg_targets_data_manager = mock.create_autospec(
+        vpg_targets_data.VPGTargetsDataManager, instance=True)
+    self._mock_vpg_targets_data_manager.GetVpgTargets.return_value = {}
 
     self.service = _CreateFakeSelfServiceShard(
         self._modules, self._mock_hwid_repo_manager,
         feature_matcher_builder_class=self._mock_feature_matcher_builder_class,
-        battery_config_fetcher=self._mock_battery_config_fetcher)
+        battery_config_fetcher=self._mock_battery_config_fetcher,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
 
   def tearDown(self):
     self._modules.ClearAll()
@@ -2633,6 +2641,7 @@ class SelfServiceShardTest(unittest.TestCase):
         self._modules,
         self._mock_hwid_repo_manager,
         avl_converter_manager=mock_avl_converter_manager,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
     )
     # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(shard, project,

@@ -16,6 +16,7 @@ from cros.chromeoshwid import update_checksum  # isort: split
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import hwid_db_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import hwid_validator
@@ -116,6 +117,7 @@ class HWIDV3SelfServiceActionHelper:
       draft_db_editable_section: Optional[hwid_db_data.HWIDDBData],
       derive_fingerprint_only: bool,
       require_hwid_db_lines: bool,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
       avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
       avl_resource: Optional[
@@ -201,8 +203,9 @@ class HWIDV3SelfServiceActionHelper:
     try:
       # Patch bundle_uuids to external DB to validate NOT editing components
       # with bundle_uuids.
+      vpg_targets = vpg_targets_data_manager.GetVpgTargets()
       self._hwid_validator.ValidateChange(
-          new_hwid_db_contents, curr_hwid_db_contents,
+          new_hwid_db_contents, curr_hwid_db_contents, vpg_targets,
           self.PatchFirmwareBundleUUIDs(curr_hwid_db_contents), device_metadata)
     except hwid_validator.ValidationError as ex:
       return report_factory(ex.errors, [], [], {})
