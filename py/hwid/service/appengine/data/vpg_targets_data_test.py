@@ -19,6 +19,25 @@ _TEST_VPG_TARGETS_PATH = os.path.join(
     os.path.dirname(__file__), '../testdata', 'test_vpg_targets.yaml')
 _TEST_VPG_TARGETS_DATA = file_utils.ReadFile(_TEST_VPG_TARGETS_PATH,
                                              encoding=None)
+_TEST_VPG_TARGETS = {
+    'MODEL1':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+            ignore_error=['stylus']),
+    'MODEL2':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(),
+    'MODEL3':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+            waived_comp_categories=['dram'], encrypted=True),
+    'MODEL4':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+            waived_comp_categories=['dram']),
+    'MODEL5':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+            encrypted=True),
+    'MODEL7':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+            encrypted=True),
+}
 
 
 class VPGTargetsDataManager(unittest.TestCase):
@@ -65,10 +84,12 @@ class VPGTargetsDataManager(unittest.TestCase):
                     ignore_error=[], waived_comp_categories=[], encrypted=False)
         })
 
-  def testGetVpgTargets_NoDataInMemcache(self):
+  def testGetVpgTargets_NoDataInMemcache_ShouldRefreshVpgTargets(self):
+    self._mock_get_file_content.return_value = _TEST_VPG_TARGETS_DATA
+
     res = self._manager.GetVpgTargets()
 
-    self.assertIsNone(res)
+    self.assertEqual(res, _TEST_VPG_TARGETS)
 
   def testSetVpgTargets(self):
     vpg_targets: Mapping[str, Any] = {
@@ -87,7 +108,7 @@ class VPGTargetsDataManager(unittest.TestCase):
   def testRefreshVpgTargets(self):
     self._mock_get_file_content.return_value = _TEST_VPG_TARGETS_DATA
 
-    self._manager.RefreshVpgTargets()
+    res = self._manager.RefreshVpgTargets()
 
     self.assertEqual(
         self._fake_vpg_targets_memcache.Get('raw_content'), {
@@ -115,6 +136,7 @@ class VPGTargetsDataManager(unittest.TestCase):
                 }
             }
         })
+    self.assertEqual(res, _TEST_VPG_TARGETS)
 
 
 if __name__ == '__main__':

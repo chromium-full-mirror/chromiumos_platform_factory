@@ -133,14 +133,14 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     self.decoder_data_manager = config.decoder_data_manager
     self.hwid_repo_manager = config.hwid_repo_manager
     self.goldeneye_filesystem = config.goldeneye_filesystem
+    self.vpg_targets_data_manager = config.vpg_targets_data_manager
     self.vp_manager = payload_management.VerificationPayloadManager(
         config.vp_cl_upload_manager, self.hwid_action_manager, config_data,
-        self.decoder_data_manager)
+        self.decoder_data_manager, self.vpg_targets_data_manager)
     self.hsp_manager = payload_management.HWIDSelectionPayloadManager(
         config.hsp_cl_upload_manager, self.hwid_action_manager, config_data)
     self.vpg_config_manager = vpg_config_manager.VPGConfigManager(
         config.dlm_product_manager, config.vpg_config_cl_upload_manager)
-    self.vpg_targets_data_manager = config.vpg_targets_data_manager
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
                       dryrun: bool, limit_models: bool, force_update: bool,

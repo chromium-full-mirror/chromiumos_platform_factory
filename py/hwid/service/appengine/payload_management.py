@@ -16,6 +16,7 @@ from typing import Collection, Mapping, NamedTuple, Optional, Sequence
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import decoder_data as decoder_data_module
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_manager_module
@@ -394,17 +395,21 @@ class VerificationPayloadManager(PayloadManager):
       cl_upload_manager: cl_upload_config.VerificationPayloadCLUploadManager,
       hwid_action_manager: hwid_action_manager_module.HWIDActionManager,
       config_data: config_data_module.Config,
-      decoder_data_manager: decoder_data_module.DecoderDataManager):
+      decoder_data_manager: decoder_data_module.DecoderDataManager,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager):
 
     super().__init__(cl_upload_manager, hwid_action_manager, config_data)
     self._decoder_data_manager = decoder_data_manager
+    self._vpg_targets_data_manager = vpg_targets_data_manager
+    self._vpg_targets: Optional[Mapping[
+        str, vpg_config_module.VerificationPayloadGeneratorConfig]] = None
 
   def _GetSupportedModels(
       self, limit_models: Collection[str],
       live_hwid_repo: hwid_repo.HWIDRepo) -> Mapping[str, Collection[str]]:
     """See base class."""
-    # TODO(b/308306344): Migrate to vpg_targets.yaml.
-    models = set(self._config_data.vpg_targets)
+    assert self._vpg_targets is not None
+    models = set(self._vpg_targets)
     if limit_models:
       models &= set(limit_models)
     return self._GetBoardModelsMapping(models, live_hwid_repo)
@@ -412,10 +417,10 @@ class VerificationPayloadManager(PayloadManager):
   def _GeneratePayloads(self, board: str, models: Collection[str],
                         skip_model_check: bool = False) -> Optional[_Payload]:
     """See base class."""
+    assert self._vpg_targets is not None
     key = next(iter(self._config_data.vpg_keys), None)
     if key is None and any(
-        vpg_target.encrypted
-        for vpg_target in self._config_data.vpg_targets.values()):
+        vpg_target.encrypted for vpg_target in self._vpg_targets.values()):
       self._logger.error('Missing encrpytion keys')
       return None
     db_list = []
@@ -430,7 +435,7 @@ class VerificationPayloadManager(PayloadManager):
         db_list.append(
             (db, vpg_config_module.VerificationPayloadGeneratorConfig.Create()))
       else:
-        vpg_target = self._config_data.vpg_targets[model]
+        vpg_target = self._vpg_targets[model]
         db_list.append((db, vpg_target))
 
     result = vpg_module.GenerateVerificationPayload(db_list, key)
@@ -502,3 +507,11 @@ class VerificationPayloadManager(PayloadManager):
     if 'primary_identifier' in payload.metadata:
       self._decoder_data_manager.UpdatePrimaryIdentifiers(
           payload.metadata['primary_identifier'])
+
+  def Update(self, dryrun: bool, limit_models: Collection[str],
+             force_update: bool, live_hwid_repo: hwid_repo.HWIDRepo,
+             skip_model_check: bool = False) -> Mapping[str, UpdatedResult]:
+    """See base class."""
+    self._vpg_targets = self._vpg_targets_data_manager.GetVpgTargets()
+    return super().Update(dryrun, limit_models, force_update, live_hwid_repo,
+                          skip_model_check)
