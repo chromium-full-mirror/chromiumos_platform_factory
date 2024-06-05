@@ -64,6 +64,7 @@ JOB_TO_INSTANCE_KEY = {
     'ml-service': 'TASK',
     'timberslide': 'LOG_PATH',
     'timberslide-watcher': 'LOG_PATH',
+    'btadapterd': 'INDEX',
 }
 
 
@@ -377,6 +378,9 @@ def _StopAllUpstartJobs(exclude_list=None):
       stop_cmd = ['stop', service]
       if instance_val:
         instance_key = JOB_TO_INSTANCE_KEY.get(service)
+        # TODO: Parse the stderr of status to get the instance_key.
+        process_utils.Spawn(['status', service], log=True,
+                            log_stderr_on_error=True)
         if instance_key is None:
           raise WipeError(
               f'Fail to get the instance key of service {service} ('
