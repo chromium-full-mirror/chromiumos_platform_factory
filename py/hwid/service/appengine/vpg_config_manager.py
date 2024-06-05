@@ -110,6 +110,7 @@ class VPGConfigManager:
   _INVALID_PRODUCT_STATUS = {
       _DlmProduct.UNKNOWN,
       _DlmProduct.CANCELED,
+      _DlmProduct.ON_HOLD,
   }
 
   def __init__(self, dlm_product_manager: dlm_product_data.DLMProductManager,

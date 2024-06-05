@@ -85,6 +85,7 @@ class VPGConfigManagerTest(unittest.TestCase):
         'MODEL9': hwid_repo.HWIDDBMetadata('MODEL9', 'BOARD1', 3, 'MODEL9'),
         'MODEL11': hwid_repo.HWIDDBMetadata('MODEL11', 'BOARD3', 3, 'MODEL11'),
         'MODEL12': hwid_repo.HWIDDBMetadata('MODEL12', 'BOARD1', 3, 'MODEL12'),
+        'MODEL13': hwid_repo.HWIDDBMetadata('MODEL13', 'BOARD1', 3, 'MODEL13'),
     }
     mock_hwid_db_metadata_of_name.return_value = hwid_db_metadata_of_name
 
@@ -138,6 +139,10 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._CreateDLMProduct(id=13, board='BOARD1', model='MODEL12',
                            product_status=_DlmProduct.APPROVED, device_id=11,
                            device_type=_DeviceType.REFERENCE_BOARD)
+    # Status is on-hold. No payload is generated.
+    self._CreateDLMProduct(id=14, board='BOARD1', model='MODEL13',
+                           product_status=_DlmProduct.ON_HOLD, device_id=12,
+                           device_type=_DeviceType.DEVICE)
 
     self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 
