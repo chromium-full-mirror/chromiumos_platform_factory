@@ -71,7 +71,8 @@ class ProtoRPCServiceTest(unittest.TestCase):
         spec=bc_helper_module.BOMAndConfiglessHelper,
         wraps=bc_helper_module.BOMAndConfiglessHelper(
             self._modules.fake_decoder_data_manager,
-            self._modules.fake_bom_data_cacher))
+            self._modules.fake_bom_data_cacher,
+            self._modules.fake_vpg_targets_data_manager))
     self._release_version_manager = mock.create_autospec(
         release_version_utils.ReleaseVersionManager, instance=True)
     self.service = project_info_apis.ProjectInfoShard(

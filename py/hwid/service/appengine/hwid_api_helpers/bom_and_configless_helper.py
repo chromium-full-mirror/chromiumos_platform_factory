@@ -7,8 +7,8 @@ import logging
 import operator
 from typing import Collection, Dict, Mapping, NamedTuple, Optional, Sequence
 
-from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data import decoder_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
@@ -18,7 +18,6 @@ from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.hwid.v3 import rule as v3_rule
 
 
-_CONFIG_DATA = config_data.CONFIG
 # Set TTL to 30 days.
 _DEFAULT_BOMCACHER_TTL = int(datetime.timedelta(days=30).total_seconds())
 
@@ -112,11 +111,11 @@ class BOMAndConfiglessHelper:
       self,
       decoder_data_manager: decoder_data.DecoderDataManager,
       bom_data_cacher: BOMDataCacher,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
   ):
-    # TODO(b/308306344): Migrate to vpg_targets_data.
-    self._vpg_targets = _CONFIG_DATA.vpg_targets
     self._decoder_data_manager = decoder_data_manager
     self._bom_data_cacher = bom_data_cacher
+    self._vpg_targets_data_manager = vpg_targets_data_manager
     self._generate_avl_info_acceptor = common_helper.GenerateAVLInfoAcceptor()
 
   def BatchGetBOMAndConfigless(
@@ -147,7 +146,11 @@ class BOMAndConfiglessHelper:
       logging.debug('Getting BOM for %r.', hwid_string)
       project = _ExtractProjectName(hwid_string)
 
-      vpg_config = self._vpg_targets.get(project)
+      if require_vp_info:
+        vpg_targets = self._vpg_targets_data_manager.GetVpgTargets()
+        vpg_config = vpg_targets.get(project)
+      else:
+        vpg_config = None
 
       bom = configless = error = None
       try:

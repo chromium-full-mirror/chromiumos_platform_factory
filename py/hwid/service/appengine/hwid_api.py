@@ -29,7 +29,8 @@ def GetAllHWIDServiceShards(
   goldeneye_memcache_adapter = memcache_adapter.MemcacheAdapter(
       namespace=ingestion.GOLDENEYE_MEMCACHE_NAMESPACE)
   bc_helper = bc_helper_module.BOMAndConfiglessHelper(
-      config.decoder_data_manager, config.bom_data_cacher)
+      config.decoder_data_manager, config.bom_data_cacher,
+      config.vpg_targets_data_manager)
   project_info_shard = project_info_apis.ProjectInfoShard(
       config.hwid_action_manager,
       config.hwid_db_data_manager,

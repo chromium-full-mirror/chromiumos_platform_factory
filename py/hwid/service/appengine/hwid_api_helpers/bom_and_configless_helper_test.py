@@ -36,7 +36,6 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
   def setUp(self):
     super().setUp()
     self._module_collection = test_utils.FakeModuleCollection()
-    self._vpg_targets = {}
     self._fake_hwid_action_manager = mock.Mock(
         spec=self._module_collection.fake_hwid_action_manager,
         wraps=self._module_collection.fake_hwid_action_manager)
@@ -44,6 +43,7 @@ class BOMAndConfiglessHelperTest(unittest.TestCase):
     self._bc_helper = bc_helper_module.BOMAndConfiglessHelper(
         self._module_collection.fake_decoder_data_manager,
         self._fake_bom_data_cacher,
+        self._module_collection.fake_vpg_targets_data_manager,
     )
 
   def tearDown(self):

@@ -47,6 +47,7 @@ class GetDUTLabelShardTest(unittest.TestCase):
         wraps=bc_helper_module.BOMAndConfiglessHelper(
             self._module_collection.fake_decoder_data_manager,
             self._module_collection.fake_bom_data_cacher,
+            self._module_collection.fake_vpg_targets_data_manager,
         ))
     self._sku_helper = mock.Mock(
         spec=sku_helper_module.SKUHelper, wraps=sku_helper_module.SKUHelper(
@@ -307,7 +308,8 @@ class GetBOMShardTest(unittest.TestCase):
     self._modules = test_utils.FakeModuleCollection()
     self._default_fake_bc_helper = bc_helper_module.BOMAndConfiglessHelper(
         self._modules.fake_decoder_data_manager,
-        self._modules.fake_bom_data_cacher)
+        self._modules.fake_bom_data_cacher,
+        self._modules.fake_vpg_targets_data_manager)
     self._mock_bc_helper = mock.Mock(
         spec=bc_helper_module.BOMAndConfiglessHelper,
         wrap=self._default_fake_bc_helper)
@@ -654,6 +656,7 @@ class GetSKUShardTest(unittest.TestCase):
     self._fake_default_bc_helper = bc_helper_module.BOMAndConfiglessHelper(
         self._modules.fake_decoder_data_manager,
         self._modules.fake_bom_data_cacher,
+        self._modules.fake_vpg_targets_data_manager,
     )
     self._mock_bc_helper = mock.Mock(
         spec=bc_helper_module.BOMAndConfiglessHelper,
