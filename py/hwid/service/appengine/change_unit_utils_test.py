@@ -219,7 +219,8 @@ class ChangeUnitTestBase(unittest.TestCase):
         target_db = database.Database.LoadData(target_db_content)
 
         # Act.
-        change_unit_manager = _ChangeUnitManager(self._base_db, target_db)
+        change_unit_manager = _ChangeUnitManager(self._base_db)
+        change_unit_manager.ApplyChange(target_db)
         change_unit_manager.SetApprovalStatus({
             change_unit_identity: _ApprovalStatus.AUTO_APPROVED
             for change_unit_identity in change_unit_manager.GetChangeUnits()
@@ -680,7 +681,8 @@ class PadEncodingBitsTest(ChangeUnitTestBase):
     db_before = database.Database.LoadData(self.db_content_before)
     db_after = database.Database.LoadData(self.db_content_after)
 
-    change_unit_manager = _ChangeUnitManager(db_before, db_after)
+    change_unit_manager = _ChangeUnitManager(db_before)
+    change_unit_manager.ApplyChange(db_after)
     change_units_reprs = [
         repr(c) for c in change_unit_manager.GetChangeUnits().values()
     ]
@@ -1235,10 +1237,10 @@ class ChangeUnitManagerTest(unittest.TestCase):
                    comp_2_1:
     '''))
 
-    manager = _ChangeUnitManager(self._base_db,
-                                 database.Database.LoadData(new_db_content))
+    manager = _ChangeUnitManager(self._base_db)
+    manager.ApplyChange(database.Database.LoadData(new_db_content))
 
-    graph = manager.ExportDependencyGraph()
+    graph = manager.ExportDependencyGraph(readable=True)
 
     self.assertDictEqual(
         {
@@ -1332,7 +1334,7 @@ class ChangeUnitManagerTest(unittest.TestCase):
     db_with_new_comp_field = database.Database.LoadData(
         new_encoded_field_db_content)
 
-    _ChangeUnitManager(self._base_db, db_with_new_comp_field)
+    _ChangeUnitManager(self._base_db).ApplyChange(db_with_new_comp_field)
 
     self.assertCountEqual(
         {'comp_cls_2'}, db_with_new_comp_field.GetComponentClasses('new_field'))
@@ -1449,8 +1451,8 @@ class ChangeUnitManagerTest(unittest.TestCase):
 
     for test_dataset in test_datasets:
       with self.subTest(f'with approal status: {test_dataset.change_status!r}'):
-        manager = _ChangeUnitManager(self._base_db,
-                                     database.Database.LoadData(new_db_content))
+        manager = _ChangeUnitManager(self._base_db)
+        manager.ApplyChange(database.Database.LoadData(new_db_content))
         identity_map = {}
         for identity, change_unit in manager.GetChangeUnits().items():
           identity_map[repr(change_unit)] = identity
@@ -1642,8 +1644,8 @@ class ChangeUnitManagerTest(unittest.TestCase):
     patched_db = database.Database.LoadData(patched_db_content)
 
     # Act.
-    manager = _ChangeUnitManager(initial_db, patched_db)
-    change_units = manager.GetChangeUnits()
+    manager = _ChangeUnitManager(initial_db)
+    change_units = manager.ApplyChange(patched_db)
     manager.SetApprovalStatus({
         identity: _ApprovalStatus.MANUAL_REVIEW_REQUIRED
         for identity in change_units
@@ -1661,8 +1663,8 @@ class ChangeUnitManagerTest(unittest.TestCase):
     unchanged_new_db = database.Database.LoadData(initial_db_content)
 
     # Act.
-    manager = _ChangeUnitManager(initial_db, unchanged_new_db)
-    change_units = manager.GetChangeUnits()
+    manager = _ChangeUnitManager(initial_db)
+    change_units = manager.ApplyChange(unchanged_new_db)
     manager.SetApprovalStatus({
         identity: _ApprovalStatus.MANUAL_REVIEW_REQUIRED
         for identity in change_units
@@ -1697,8 +1699,7 @@ class ChangeUnitManagerTest(unittest.TestCase):
     self.assertRaisesRegex(
         _SplitChangeUnitException,
         r'Image IDs are removed: {1}',
-        _ChangeUnitManager,
-        self._base_db,
+        _ChangeUnitManager(self._base_db).ApplyChange,
         database.Database.LoadData(new_db_content),
     )
 
@@ -1722,9 +1723,10 @@ class ChangeUnitManagerTest(unittest.TestCase):
                        value: '1'
     '''))
 
-    manager = _ChangeUnitManager(self._base_db,
-                                 database.Database.LoadData(new_db_content),
-                                 skip_avl_check_checker=Checker)
+    manager = _ChangeUnitManager(self._base_db)
+    manager.ApplyChange(
+        database.Database.LoadData(new_db_content),
+        skip_avl_check_checker=Checker)
 
     comp_change = next(iter(manager.GetChangeUnits().values()))
     # yapf: disable
@@ -1738,10 +1740,60 @@ class ChangeUnitManagerTest(unittest.TestCase):
       del category, comp
       return True
 
-    manager = _ChangeUnitManager(self._base_db, self._base_db,
-                                 skip_avl_check_checker=DummyChecker)
+    manager = _ChangeUnitManager(self._base_db)
+    manager.ApplyChange(self._base_db, skip_avl_check_checker=DummyChecker)
 
     pickle.dumps(manager)  # without PicklingError
+
+  def testDependencyGraph_ApplyChangeTwice_SecondDependsOnFirst(self):
+    new_db_1 = _ApplyUnifiedDiff(
+        self._base_db_content,
+        textwrap.dedent('''\
+            ---
+            +++
+            @@ -114,6 +114,7 @@
+                     values:
+                       value: '1'
+                   comp_3_2:
+            +        status: deprecated
+                     values:
+                       value: '2'
+               comp_cls_4:
+    '''))
+    new_db_2 = _ApplyUnifiedDiff(
+        new_db_1,
+        textwrap.dedent('''\
+            ---
+            +++
+            @@ -114,7 +114,7 @@
+                     values:
+                       value: '1'
+                   comp_3_2:
+            +        status: supported
+            -        status: deprecated
+                     values:
+                       value: '2'
+               comp_cls_4:
+    '''))
+
+    manager = _ChangeUnitManager(self._base_db)
+    db1_units = manager.ApplyChange(database.Database.LoadData(new_db_1))
+    db2_units = manager.ApplyChange(database.Database.LoadData(new_db_2))
+    change_units = manager.GetChangeUnits()
+
+    graph = manager.ExportDependencyGraph()
+
+    self.assertEqual(1, len(db1_units))
+    self.assertEqual(1, len(db2_units))
+    db1_unit_id = next(iter(db1_units))
+    db2_unit_id = next(iter(db2_units))
+
+    self.assertEqual(1, len(graph[db1_unit_id]))
+    noop_id = next(iter(graph[db1_unit_id]))
+
+    self.assertIsInstance(change_units[noop_id], change_unit_utils.Noop)
+    self.assertIn(noop_id, graph[db1_unit_id])
+    self.assertIn(db2_unit_id, graph[noop_id])
 
 
 if __name__ == '__main__':

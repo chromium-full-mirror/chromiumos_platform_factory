@@ -1594,9 +1594,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           avl_resource)
       new_db = database.Database.LoadData(new_hwid_db_contents_internal)
 
+    change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
     try:
-      change_unit_manager = change_unit_utils.ChangeUnitManager(
-          old_db, new_db, self._avl_metadata_manager.SkipAVLCheck)
+      change_units = change_unit_manager.ApplyChange(
+          new_db, self._avl_metadata_manager.SkipAVLCheck)
     except _SplitChangeUnitException as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
     self._session_cache_adapter.Put(
@@ -1608,7 +1609,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
         change_units={
             identity: _ConvertChangeUnitToMsg(change_unit)
             for identity, change_unit in
-            change_unit_manager.GetChangeUnits().items()
+            change_units.items()
         })
 
   @protorpc_utils.ProtoRPCServiceMethod

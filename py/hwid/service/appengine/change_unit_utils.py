@@ -482,7 +482,7 @@ class ReplaceRules(ChangeUnit):
 
   def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
     # Rules must be patched last.  Note that the self-reference will be skipped
-    # in ChangeUnitManager._SetDependency().
+    # in _SetDependency().
     yield _ALL_OTHER_CHANGE_UNIT_DEP_SPEC
 
 
@@ -504,6 +504,24 @@ class RenameImages(ChangeUnit):
 
   def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
     # Rename all existing image names does not depend on other change units.
+    yield from ()
+
+
+class Noop(ChangeUnit):
+  """A change unit doing nothing."""
+
+  def __init__(self):
+    super().__init__(self.CreateDepSpec())
+
+  @classmethod
+  def CreateDepSpec(cls) -> ChangeUnitDepSpec:
+    return ChangeUnitDepSpec(cls)
+
+  @_UnifyException
+  def Patch(self, unused_db_builder: builder.DatabaseBuilder):
+    """See base class."""
+
+  def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
     yield from ()
 
 
@@ -726,6 +744,43 @@ def _ExtractReplaceRules(old_db: database.Database,
     # yapf: enable
 
 
+def _ExtractChangeUnits(
+    old_db: database.Database, new_db: database.Database,
+    skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
+                                              bool]] = None
+) -> Iterable[ChangeUnit]:
+  """Extracts change units from two HWID DBs.
+
+  Args:
+    old_db: the old database instance.
+    new_db: the new database instance need to be extracted.
+    skip_avl_check_checker: An optional checker to determine if a component
+      does not require AVL check.
+
+  Returns:
+    An iterable of change units.
+
+  Raises:
+    SplitChangeUnitException: If the DB change cannot be splitted.
+  """
+  analyzer = contents_analyzer.ContentsAnalyzer(
+      new_db.DumpDataWithoutChecksum(internal=True), None,
+      old_db.DumpDataWithoutChecksum(internal=True))
+  analysis = analyzer.AnalyzeChange(
+      None, False, skip_avl_check_checker=skip_avl_check_checker)
+  analysis_mapping: MutableMapping[Tuple[str, str],
+                                   _HWIDComponentAnalysisResult] = {}
+  for comp_analysis in analysis.hwid_components.values():
+    analysis_mapping[comp_analysis.comp_cls, comp_analysis.comp_name] = (
+        comp_analysis)
+
+  yield from itertools.chain(
+      _ExtractCompChanges(analysis_mapping, new_db),
+      _ExtractEncodingRelatedChanges(analysis_mapping, old_db, new_db),
+      _ExtractRenameImages(old_db, new_db), _ExtractNewImageIds(old_db, new_db),
+      _ExtractReplaceRules(old_db, new_db))
+
+
 def _ReverseCompIdxMapping(
     db: database.Database) -> Mapping[str, Mapping[str, int]]:
   """Builds a mapping of (comp_cls, comp_name) -> idx.
@@ -788,6 +843,32 @@ class DependencyNode:
     return not self.n_prerequisites
 
 
+def _SetDependency(dependent: DependencyNode, depended: DependencyNode):
+  if dependent not in depended.dependents:
+    depended.dependents.add(dependent)
+    dependent.n_prerequisites += 1
+
+
+def _BuildDependencies(
+    change_units: Iterable[ChangeUnit]
+) -> Mapping[ChangeUnitIdentity, DependencyNode]:
+  by_dep_spec: DefaultDict[ChangeUnitDepSpec, Set[ChangeUnitIdentity]] = (
+      collections.defaultdict(set))
+  dep_nodes: MutableMapping[ChangeUnitIdentity, DependencyNode] = {}
+  for change_unit in change_units:
+    identity = change_unit.identity
+    dep_nodes[identity] = DependencyNode(identity)
+    by_dep_spec[change_unit.dep_spec].add(identity)
+    if _ALL_OTHER_CHANGE_UNIT_DEP_SPEC not in change_unit.GetDependedSpecs():
+      by_dep_spec[_ALL_OTHER_CHANGE_UNIT_DEP_SPEC].add(identity)
+
+  for change_unit in change_units:
+    for depended_spec in change_unit.GetDependedSpecs():
+      for depended_id in by_dep_spec[depended_spec]:
+        _SetDependency(dep_nodes[change_unit.identity], dep_nodes[depended_id])
+  return dep_nodes
+
+
 class ChangeSplitResult(NamedTuple):
   auto_mergeable_db: database.Database
   auto_mergeable_change_unit_identities: Sequence[str]
@@ -806,86 +887,85 @@ class ChangeSplitResult(NamedTuple):
 class ChangeUnitManager:
   """Supports topological sort of change units and splitting the HWID change."""
 
-  def __init__(
-      self, old_db: database.Database, new_db: database.Database,
-      skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
-                                                bool]] = None):
+  def __init__(self, old_db: database.Database):
     """Initializer.
 
     Raises:
       SplitChangeUnitException: If the DB change cannot be splitted.
     """
     self._old_db = old_db
-    self._new_db = new_db
+    self._new_db = old_db
     self._change_units: MutableMapping[ChangeUnitIdentity, ChangeUnit] = {}
-    self._by_dep_spec: DefaultDict[ChangeUnitDepSpec,
-                                   Set[ChangeUnitIdentity]] = (
-                                       collections.defaultdict(set))
     self._dep_nodes: MutableMapping[ChangeUnitIdentity, DependencyNode] = {}
-    change_units = self._ExtractChangeUnits(skip_avl_check_checker)
-    self._BuildDependencies(change_units)
 
-  def _ExtractChangeUnits(
-      self,
+  def ApplyChange(
+      self, new_db: database.Database,
       skip_avl_check_checker: Optional[Callable[[str, database.ComponentInfo],
                                                 bool]] = None
-  ) -> Iterable[ChangeUnit]:
-    """Extracts change units from two HWID DBs.
+  ) -> Mapping[ChangeUnitIdentity, ChangeUnit]:
+    """Applies the change to the previous snapshot.
 
     Args:
+      new_db: the new database to be applied.
       skip_avl_check_checker: An optional checker to determine if a component
         does not require AVL check.
 
     Returns:
-      An iterable of change units.
-
-    Raises:
-      SplitChangeUnitException: If the DB change cannot be splitted.
+      The mapping of identities to the newly created change units.
     """
-    analyzer = contents_analyzer.ContentsAnalyzer(
-        self._new_db.DumpDataWithoutChecksum(internal=True), None,
-        self._old_db.DumpDataWithoutChecksum(internal=True))
-    analysis = analyzer.AnalyzeChange(
-        None, False, skip_avl_check_checker=skip_avl_check_checker)
-    analysis_mapping: MutableMapping[Tuple[str, str],
-                                     _HWIDComponentAnalysisResult] = {}
-    for comp_analysis in analysis.hwid_components.values():
-      analysis_mapping[comp_analysis.comp_cls, comp_analysis.comp_name] = (
-          comp_analysis)
-
-    yield from itertools.chain(
-        _ExtractCompChanges(analysis_mapping, self._new_db),
-        _ExtractEncodingRelatedChanges(analysis_mapping, self._old_db,
-                                       self._new_db),
-        _ExtractRenameImages(self._old_db, self._new_db),
-        _ExtractNewImageIds(self._old_db, self._new_db),
-        _ExtractReplaceRules(self._old_db, self._new_db))
-
-  def _BuildDependencies(self, change_units: Iterable[ChangeUnit]):
+    change_units = list(
+        _ExtractChangeUnits(self._new_db, new_db, skip_avl_check_checker))
+    if not change_units:
+      return {}
     for change_unit in change_units:
-      identity = change_unit.identity
-      self._dep_nodes[identity] = DependencyNode(identity)
       self._change_units[change_unit.identity] = change_unit
-      self._by_dep_spec[change_unit.dep_spec].add(change_unit.identity)
-      if _ALL_OTHER_CHANGE_UNIT_DEP_SPEC not in change_unit.GetDependedSpecs():
-        self._by_dep_spec[_ALL_OTHER_CHANGE_UNIT_DEP_SPEC].add(
-            change_unit.identity)
+    dep_nodes = _BuildDependencies(change_units)
+    self._MergeDependencyNodes(dep_nodes)
+    self._new_db = new_db
+    return {
+        c.identity: c
+        for c in change_units
+    }
 
-    for change_unit in self._change_units.values():
-      for depended_spec in change_unit.GetDependedSpecs():
-        for depended_id in self._GetChangeUnitIdentitiesByDepSpec(
-            depended_spec):
-          self._SetDependency(self._dep_nodes[change_unit.identity],
-                              self._dep_nodes[depended_id])
+  def _MergeDependencyNodes(self, dep_nodes: Mapping[ChangeUnitIdentity,
+                                                     DependencyNode]):
+    """Makes every leaf nodes depend on new independent nodes."""
+    if not self._dep_nodes:
+      self._dep_nodes.update(dep_nodes)
+      return
+
+    noop = Noop()
+    self._change_units[noop.identity] = noop
+    barrier = DependencyNode(noop.identity)
+    # Set the barrier depends on all leaf nodes.
+    for node in self._dep_nodes.values():
+      if not node.dependents:
+        _SetDependency(barrier, node)
+    self._dep_nodes[barrier.identity] = barrier
+    self._dep_nodes[barrier.identity].approval_status = (
+        ApprovalStatus.AUTO_APPROVED)
+
+    # Set all new independent nodes depend on the barrier.
+    for identity, node in dep_nodes.items():
+      self._dep_nodes[identity] = node
+      if node.independent:
+        _SetDependency(node, barrier)
 
   def ExportDependencyGraph(
-      self) -> Mapping[ChangeUnitIdentity, Set[ChangeUnitIdentity]]:
+      self,
+      readable=False) -> Mapping[ChangeUnitIdentity, Set[ChangeUnitIdentity]]:
     """Export the dependencies of the change units by ChangeUnitIdentity."""
+    if readable:
+      return {
+          repr(self._change_units[dep_identity]): {
+              repr(self._change_units[dependent.identity])
+              for dependent in depended.dependents
+          }
+          for dep_identity, depended in self._dep_nodes.items()
+      }
     return {
-        repr(self._change_units[dep_identity]): {
-            repr(self._change_units[dependent.identity])
-            for dependent in depended.dependents
-        }
+        dep_identity: {dependent.identity
+                       for dependent in depended.dependents}
         for dep_identity, depended in self._dep_nodes.items()
     }
 
@@ -897,19 +977,10 @@ class ChangeUnitManager:
       assert status != ApprovalStatus.REJECTED
       self._dep_nodes[identity].approval_status = status
 
-  def _GetChangeUnitIdentitiesByDepSpec(
-      self, spec: ChangeUnitDepSpec) -> Iterable[ChangeUnitIdentity]:
-    yield from self._by_dep_spec[spec]
-
   def GetChangeUnits(self) -> Mapping[ChangeUnitIdentity, ChangeUnit]:
     """Gets the mapping of identity -> change unit."""
 
     return self._change_units
-
-  def _SetDependency(self, dependent: DependencyNode, depended: DependencyNode):
-    if dependent not in depended.dependents:
-      depended.dependents.add(dependent)
-      dependent.n_prerequisites += 1
 
   def _PatchInTopologicalOrder(
       self, db_data: str, condition: Callable[[DependencyNode], bool],
@@ -927,8 +998,9 @@ class ChangeUnitManager:
       while q:
         node = q.popleft()
         remaining.remove(node.identity)
-        patched_change_unit_identities.append(node.identity)
-        self._change_units[node.identity].Patch(db_builder)
+        if not isinstance(node, Noop):
+          patched_change_unit_identities.append(node.identity)
+          self._change_units[node.identity].Patch(db_builder)
         for dependent in node.dependents:
           dependent.n_prerequisites -= 1
           if condition(dependent):
