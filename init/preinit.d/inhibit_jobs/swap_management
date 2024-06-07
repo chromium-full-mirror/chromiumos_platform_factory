@@ -1,0 +1,7 @@
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+swap_management holds stateful partition after `stop swap_management` so it
+breaks `clobber-state factory` in the CrOS device factory finalization. Check
+b/294122409 and b/336939602#comment20.

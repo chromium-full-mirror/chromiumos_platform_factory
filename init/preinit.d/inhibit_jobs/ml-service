@@ -1,3 +1,11 @@
+# Copyright 2024 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 Plugging in AC triggers ml-service because it has smart charging support used
 by powerd. Since we don't really need this job in the factory, we disable it
 here.
+
+ml-service holds stateful partition after `stop ml-service` so it breaks
+`clobber-state factory` in the CrOS device factory finalization. Check
+b/241077407.
