@@ -45,7 +45,7 @@ load_venv() {
 
   if ! [ -e "${venv_path}"/hash ] || \
      ! diff <(md5sum "${venv_requirements}") "${venv_path}"/hash ; then
-    pip install --require-hashes -r "${venv_requirements}" --quiet
+    pip install --require-hashes --no-deps -r "${venv_requirements}" --quiet
     md5sum "${venv_requirements}" > "${venv_path}"/hash
   fi
 }
