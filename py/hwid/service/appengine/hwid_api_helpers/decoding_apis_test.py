@@ -405,6 +405,46 @@ class GetBOMShardTest(unittest.TestCase):
             error='bad hwid'),
         msg)
 
+  def testGetBom_IncludeProject(self):
+    self._SetupFakeHWIDAction(
+        'proj1',
+        _FeatureEnablementStatus(
+            enablement_type=_FeatureEnablementType.HARD_BRANDED,
+            hw_compliance_version=1,
+        ))
+
+    self._mock_bc_helper.BatchGetBOMEntry.return_value = {
+        TEST_HWID:
+            _BOMEntry(
+                [
+                    ComponentMsg(name='qux', component_class='baz'),
+                    # yapf: disable
+                ],
+                '',
+                '',
+                StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                'proj1'
+            )  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+    }
+
+    req = hwid_api_messages_pb2.BomRequest(hwid=TEST_HWID, include_project=True)
+    msg = self.service.GetBom(req)
+
+    self.assertEqual(
+        hwid_api_messages_pb2.BomResponse(
+            # yapf: disable
+            status=StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+            # yapf: enable
+            components=[
+                ComponentMsg(name='qux', component_class='baz'),
+            ],
+            feature_enablement_status=_FeatureEnablementStatusMsg(
+                enablement_type=_FeatureEnablementStatusMsg.HARD_BRANDED,
+                hw_compliance_version=1),
+            project='proj1',
+        ), msg)
+
   def testBatchGetBom(self):
     hwid1 = 'TEST HWID 1'
     hwid2 = 'TEST HWID 2'
@@ -534,6 +574,75 @@ class GetBOMShardTest(unittest.TestCase):
                 ),
                 # yapf: disable
             }, status=StatusMsg.BAD_REQUEST, error='value error'), msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+  def testBatchGetBom_IncludeProject(self):
+    hwid1 = 'TEST1 HWID 1'
+    hwid2 = 'TEST2 HWID 2'
+    self._mock_bc_helper.BatchGetBOMEntry.return_value = {
+        hwid1:
+            _BOMEntry(
+                [
+                    ComponentMsg(name='qux1', component_class='baz1'),
+                    ComponentMsg(name='rox1', component_class='baz1'),
+                    # yapf: disable
+                ],
+                '',
+                '',
+                StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                'TEST1'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+        hwid2:
+            _BOMEntry(
+                [
+                    ComponentMsg(name='qux2', component_class='baz2'),
+                    ComponentMsg(name='rox2', component_class='baz2'),
+                    # yapf: disable
+                ],
+                '',
+                '',
+                StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit!
+                'TEST2'),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+    }
+    self._SetupFakeHWIDAction('TEST1')
+    self._SetupFakeHWIDAction('TEST2')
+
+    req = hwid_api_messages_pb2.BatchGetBomRequest(
+        hwid=[hwid1, hwid2],
+        include_project=True,
+    )
+    msg = self.service.BatchGetBom(req)
+
+    self.assertEqual(
+        hwid_api_messages_pb2.BatchGetBomResponse(
+            boms={
+                hwid1:
+ hwid_api_messages_pb2.BatchGetBomResponse.Bom(
+                    # yapf: disable
+                    status=StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    components=[
+                        ComponentMsg(name='qux1', component_class='baz1'),
+                        ComponentMsg(name='rox1', component_class='baz1'),
+                    ],
+                    feature_enablement_status=_FEATURE_DISABLED_STATUS_MSG,
+                    project='TEST1',
+                ),
+                hwid2:
+ hwid_api_messages_pb2.BatchGetBomResponse.Bom(
+                    # yapf: disable
+                    status=StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                    # yapf: enable
+                    components=[
+                        ComponentMsg(name='qux2', component_class='baz2'),
+                        ComponentMsg(name='rox2', component_class='baz2'),
+                    ],
+                    feature_enablement_status=_FEATURE_DISABLED_STATUS_MSG,
+                    project='TEST2',
+                ),
+                # yapf: disable
+            }, status=StatusMsg.SUCCESS), msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
 

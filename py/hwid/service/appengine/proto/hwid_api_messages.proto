@@ -97,6 +97,8 @@ message BomRequest {
   bool verbose = 2;
   // A flag to disable AVL name lookup to speed up request.
   bool no_avl_name = 3;
+  // A flag to indicate whether the project is returned.
+  bool include_project = 4;
 }
 
 
@@ -131,6 +133,8 @@ message BomResponse {
   Status status = 5;
   // Indicates the enablement status of the versioned features on the device.
   FeatureEnablementStatus feature_enablement_status = 7;
+  // The project decoded from the HWID string.
+  string project = 8;
 }
 
 // A request to query BOM data from given HWID strings.
@@ -141,6 +145,8 @@ message BatchGetBomRequest {
   bool verbose = 2;
   // A flag to disable AVL name lookup to speed up request.
   bool no_avl_name = 3;
+  // A flag to indicate whether the project is returned.
+  bool include_project = 4;
 }
 
 // The response to BatchGetBOMRequest.
@@ -161,6 +167,8 @@ message BatchGetBomResponse {
     Status status = 5;
     // Indicates the enablement status of the versioned features on the device.
     FeatureEnablementStatus feature_enablement_status = 7;
+    // The project decoded from the HWID string.
+    string project = 8;
   }
   map<string, Bom> boms = 1;
   string error = 2;

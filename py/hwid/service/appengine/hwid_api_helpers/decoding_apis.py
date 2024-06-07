@@ -92,6 +92,8 @@ class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/3
         error=bom_entry.error,
         status=bom_entry.status,
     )
+    if request.include_project:
+      response.project = bom_entry.project
     # yapf: disable
     if bom_entry.status == hwid_api_messages_pb2.Status.SUCCESS:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
@@ -118,6 +120,8 @@ class GetBOMShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/3
       current_bom_response = hwid_api_messages_pb2.BatchGetBomResponse.Bom(
           components=bom_entry.components, phase=bom_entry.phase,
           error=bom_entry.error, status=bom_entry.status)
+      if request.include_project:
+        current_bom_response.project = bom_entry.project
       # yapf: disable
       if bom_entry.status == hwid_api_messages_pb2.Status.SUCCESS:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
