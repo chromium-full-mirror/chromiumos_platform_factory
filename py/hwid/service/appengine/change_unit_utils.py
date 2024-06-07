@@ -708,12 +708,11 @@ def _ExtractNewImageIds(old_db: database.Database,
 
   if old_db.is_initial:  # old_db is an initial DB.
     first_bit_pattern_in_new_db = new_db.GetPattern(pattern_idx=0)
-    if not first_bit_pattern_in_new_db.fields:
-      raise SplitChangeUnitException('Empty bit pattern in the upload change.')
-    yield AssignBitMappingToEncodingPattern(
-        image_descs=[ImageDesc(0, new_db.GetImageName(0))],
-        bit_mapping=list(first_bit_pattern_in_new_db.fields),
-        contains_last=(max_image_id == 0), reused_pattern_idx=0)
+    if first_bit_pattern_in_new_db.fields:
+      yield AssignBitMappingToEncodingPattern(
+          image_descs=[ImageDesc(0, new_db.GetImageName(0))],
+          bit_mapping=list(first_bit_pattern_in_new_db.fields),
+          contains_last=(max_image_id == 0), reused_pattern_idx=0)
 
 
 def _ExtractReplaceRules(old_db: database.Database,

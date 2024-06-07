@@ -1654,6 +1654,25 @@ class ChangeUnitManagerTest(unittest.TestCase):
     self.assertTrue(
         _RelaxedDBEqual(patched_db, split_result.review_required_db))
 
+  def testPatchInitialDB_NoChange(self):
+    # Arrange.
+    initial_db_content = file_utils.ReadFile(_TEST_INITIAL_DB_PATH)
+    initial_db = database.Database.LoadData(initial_db_content)
+    unchanged_new_db = database.Database.LoadData(initial_db_content)
+
+    # Act.
+    manager = _ChangeUnitManager(initial_db, unchanged_new_db)
+    change_units = manager.GetChangeUnits()
+    manager.SetApprovalStatus({
+        identity: _ApprovalStatus.MANUAL_REVIEW_REQUIRED
+        for identity in change_units
+    })
+    split_result = manager.SplitChange()
+
+    # Assert.
+    self.assertTrue(
+        _RelaxedDBEqual(unchanged_new_db, split_result.review_required_db))
+
   def testSplitChangeFail_RemoveImage(self):
     new_db_content = _ApplyUnifiedDiff(
         self._base_db_content,
