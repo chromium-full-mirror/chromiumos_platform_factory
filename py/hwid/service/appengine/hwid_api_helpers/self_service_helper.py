@@ -19,6 +19,7 @@ from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine import change_unit_utils
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
+from cros.factory.hwid.service.appengine.data import dlm_component_list
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
@@ -128,6 +129,7 @@ _CHANGE_UNIT_APPROVAL_STATUS_MAP = {
 }
 _SplitChangeUnitException = change_unit_utils.SplitChangeUnitException
 _ApplyChangeUnitException = change_unit_utils.ApplyChangeUnitException
+_DataSource = hwid_api_messages_pb2.ChangeUnit.DataSource
 
 
 def _ConvertTouchedSectionToMsg(
@@ -288,9 +290,9 @@ def _CheckIfHWIDDBCLShouldBeAbandoned(
   return False, None
 
 
-def _ConvertChangeUnitToMsg(
-    change_unit: change_unit_utils.ChangeUnit) -> _ChangeUnitMsg:
-  msg = _ChangeUnitMsg()
+def _ConvertChangeUnitToMsg(change_unit: change_unit_utils.ChangeUnit,
+                            data_source: _DataSource) -> _ChangeUnitMsg:
+  msg = _ChangeUnitMsg(data_source=data_source)
   if isinstance(change_unit, change_unit_utils.CompChange):
     msg.comp_change.CopyFrom(_ConvertCompInfoToMsg(change_unit.comp_analysis))
   elif isinstance(change_unit, change_unit_utils.AddEncodingCombination):
@@ -1583,8 +1585,10 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     except (KeyError, ValueError, RuntimeError) as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
+    response = hwid_api_messages_pb2.SplitHwidDbChangeResponse()
     old_db = database.Database.LoadData(
         action.PatchHeader(action.GetDBEditableSection(internal=True)))
+    change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
     if session_cache.new_hwid_db_editable_section is None:
       new_db = old_db
     else:
@@ -1593,24 +1597,32 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           action.PatchHeader(session_cache.new_hwid_db_editable_section),
           avl_resource)
       new_db = database.Database.LoadData(new_hwid_db_contents_internal)
-
-    change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
     try:
       change_units = change_unit_manager.ApplyChange(
           new_db, self._avl_metadata_manager.SkipAVLCheck)
     except _SplitChangeUnitException as ex:
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+    for identity, change_unit in change_units.items():
+      response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
+          change_unit, _DataSource.HWID_CONFIG))
+
+    new_db = dlm_component_list.PatchComponentList(
+        new_db, avl_resource.dlm_components)
+    try:
+      change_units = change_unit_manager.ApplyChange(
+          new_db, self._avl_metadata_manager.SkipAVLCheck)
+    except _SplitChangeUnitException as ex:
+      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+    for identity, change_unit in change_units.items():
+      response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
+          change_unit, _DataSource.COMPONENT_LIST))
+
     self._session_cache_adapter.Put(
         request.session_token,
         session_cache._replace(change_unit_manager=change_unit_manager,
                                avl_resource=avl_resource),
         expiry=_SESSION_TIMEOUT)
-    return hwid_api_messages_pb2.SplitHwidDbChangeResponse(
-        change_units={
-            identity: _ConvertChangeUnitToMsg(change_unit)
-            for identity, change_unit in
-            change_units.items()
-        })
+    return response
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck

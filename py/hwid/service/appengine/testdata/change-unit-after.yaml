@@ -11,7 +11,7 @@
 # 若修改将使设备配置變為无效，并且不得销售此设备。
 #
 #####
-checksum: d25d3c8fd4d62bdffd77955d8e192178fb3b94fc
+checksum: 1d5ba91bf43bb981694a384f58e66332610b54bd
 
 ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -104,11 +104,11 @@ encoded_fields:
       comp_cls_3: comp_3_2
   new_field:
     0:
-      comp_cls_1: new_comp
+      comp_cls_1: comp_cls_1_1_1
     1:
       comp_cls_1:
-      - new_comp
-      - new_comp
+      - comp_cls_1_1_1
+      - comp_cls_1_1_1
 
 components:
   mainboard:
@@ -152,7 +152,7 @@ components:
         status: supported
         values:
           value: '2'
-      new_comp:
+      comp_cls_1_1_1:
         status: supported
         values:
           value: '3'

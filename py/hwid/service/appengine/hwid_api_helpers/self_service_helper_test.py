@@ -68,6 +68,8 @@ _ApprovalStatus = change_unit_utils.ApprovalStatus
 _ActionHelperCls = v3_action_helper.HWIDV3SelfServiceActionHelper
 _DbChangeRequestMetadata = hwid_api_messages_pb2.DbChangeRequestMetadata
 _ComponentMsg = hwid_api_messages_pb2.Component
+_DataSource = hwid_api_messages_pb2.ChangeUnit.DataSource
+_DlmComponentMsg = hwid_api_messages_pb2.DlmComponentInfo
 
 _HWID_V3_FROM_FACTORY_BUNDLE_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -2234,53 +2236,70 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    # yapf: disable
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
 
     # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project,
                                                  new_db_data)
     session_token = analyze_resp.validation_token
 
-    db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource()
+    db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
+        dlm_components=[
+            _DlmComponentMsg(
+                avl_info=_AvlInfoMsg(
+                    cid=1, qid=1), related_hwid_classes=['comp_cls_1'],
+                has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=False)
+        ])
     split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
         session_token=session_token, db_external_resource=db_external_resource)
 
     split_resp = self.service.SplitHwidDbChange(split_req)
 
     new_comp_msg = _ComponentInfoMsg(
-        component_class='comp_cls_1', original_name='new_comp',
+        component_class='comp_cls_1', original_name='comp_cls_1_1_1',
         original_status='supported',
-        # yapf: disable
-        support_status_case=_SupportStatusCase.SUPPORTED, is_newly_added=True,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        seq_no=3,
-        # yapf: disable
-        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        support_status_case=_SupportStatusCase.SUPPORTED, is_newly_added=True,
+        avl_info=_AvlInfoMsg(cid=1, qid=1), has_avl=True, seq_no=3,
+        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)
+    comp_list_change = _ComponentInfoMsg(
+        component_class='comp_cls_1', original_name='comp_cls_1_1_1',
+        original_status='deprecated',
+        support_status_case=_SupportStatusCase.DEPRECATED, avl_info=_AvlInfoMsg(
+            cid=1, qid=1), has_avl=True, seq_no=3, diff_prev=_DiffStatusMsg(
+                support_status_changed=True, prev_comp_name='comp_cls_1_1_1',
+                prev_support_status='supported',
+                prev_probe_value_alignment_status=_PVAlignmentStatusMsg
+                .NO_PROBE_INFO,
+                prev_support_status_case=_SupportStatusCase.SUPPORTED),
+        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)
     self.assertCountEqual([
         _ChangeUnitMsg(
+            data_source=_DataSource.HWID_CONFIG,
             add_encoding_combination=_AddEncodingCombinationMsg(
                 comp_cls='comp_cls_1', comp_info=[new_comp_msg])),
-        _ChangeUnitMsg(comp_change=new_comp_msg),
+        _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
+                       comp_change=new_comp_msg),
+        _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
+                       new_image_id=_NewImageIdMsg(
+                           image_names=['NEW_PHASE'],
+                       )),
         _ChangeUnitMsg(
-            new_image_id=_NewImageIdMsg(
-                image_names=['NEW_PHASE'],
-            )),
-        _ChangeUnitMsg(
+            data_source=_DataSource.HWID_CONFIG,
             add_encoding_combination=_AddEncodingCombinationMsg(
                 comp_cls='comp_cls_1', comp_info=[new_comp_msg, new_comp_msg])),
         _ChangeUnitMsg(
-            new_image_id=_NewImageIdMsg(
+            data_source=_DataSource.HWID_CONFIG, new_image_id=_NewImageIdMsg(
                 image_names=[
                     'PHASE_NO_NEW_PATTERN_1', 'PHASE_NO_NEW_PATTERN_2'
                 ], with_new_encoding_pattern=True)),
         _ChangeUnitMsg(
-            new_image_id=_NewImageIdMsg(
+            data_source=_DataSource.HWID_CONFIG, new_image_id=_NewImageIdMsg(
                 image_names=['PHASE_NEW_PATTERN_1', 'PHASE_NEW_PATTERN_2'],
                 with_new_encoding_pattern=True)),
-        _ChangeUnitMsg(pad_encoding_bits=_PadEncodingBitsMsg()),
+        _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
+                       pad_encoding_bits=_PadEncodingBitsMsg()),
+        _ChangeUnitMsg(data_source=_DataSource.COMPONENT_LIST,
+                       comp_change=comp_list_change),
     ], list(split_resp.change_units.values()))
 
   def testSplitHwidDbChange_PassWhenNoChange(self):
@@ -2396,7 +2415,7 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum: 3e9825a9a00edbbce83997944d47a6d412f604ca
-        +checksum: 222abbbca451589a2cc44535fbe67f4feccb9ac2
+        +checksum: 7e2b35baa9d1ee6b80337589d676e33c62a61cc8
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2435,7 +2454,7 @@ class SelfServiceShardTest(unittest.TestCase):
                  status: supported
                  values:
                    value: '2'
-        +      new_comp:
+        +      comp_cls_1_1_1:
         +        status: supported
         +        values:
         +          value: '3'
@@ -2451,8 +2470,8 @@ class SelfServiceShardTest(unittest.TestCase):
          # 若修改将使设备配置變為无效，并且不得销售此设备。
          #
          #####
-        -checksum: 222abbbca451589a2cc44535fbe67f4feccb9ac2
-        +checksum: 1f8a06e90af7fb1150e7bdf9d7d0e36461565648
+        -checksum: 7e2b35baa9d1ee6b80337589d676e33c62a61cc8
+        +checksum: 4a4d70a2aa4aa645697ed1e7269be486bef55c71
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2493,11 +2512,11 @@ class SelfServiceShardTest(unittest.TestCase):
                comp_cls_3: comp_3_2
         +  new_field:
         +    0:
-        +      comp_cls_1: new_comp
+        +      comp_cls_1: comp_cls_1_1_1
         +    1:
         +      comp_cls_1:
-        +      - new_comp
-        +      - new_comp
+        +      - comp_cls_1_1_1
+        +      - comp_cls_1_1_1
 
          components:
            mainboard:

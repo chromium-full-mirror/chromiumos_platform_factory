@@ -35,6 +35,9 @@ components:
         status: unqualified
         values: null
       comp_cls1_subcomp_2:
+        status: supported
+        values: null
+      comp_cls1_untracked:
         status: unqualified
         values: null
 

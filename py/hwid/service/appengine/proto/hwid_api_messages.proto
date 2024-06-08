@@ -453,7 +453,9 @@ message DlmCameraInfo {
 }
 
 message DlmComponentInfo {
+  // TODO(b/345601806): use avl_info.cid instead.
   int64 cid = 1;
+  // TODO(b/345601806): use avl_info.qid instead.
   int64 qid = 2;
 
   bool is_cpu = 3;
@@ -469,6 +471,15 @@ message DlmComponentInfo {
 
   bool is_camera = 10;
   DlmCameraInfo camera_info = 11;
+
+  // AVL info of the component.
+  AvlInfo avl_info = 12;
+  // The related HWID component classes of the component.
+  repeated string related_hwid_classes = 13;
+  // Whether claim_for_pvt_or_mp_use is set.
+  bool has_claim_for_pvt_or_mp_use = 14;
+  // Whether the component is claimed for PVT/MP use.
+  bool claim_for_pvt_or_mp_use = 15;
 }
 
 message FeatureInfo {
@@ -910,6 +921,15 @@ message ChangeUnit {
     RenameImages rename_images = 5;
     PadEncodingBits pad_encoding_bits = 6;
   }
+
+  // Data source types.
+  enum DataSource {
+    DATA_SOURCE_UNSPECIFIED = 0;
+    HWID_CONFIG = 1;
+    COMPONENT_LIST = 2;
+  }
+  // Data source where the change comes from.
+  DataSource data_source = 7;
 }
 
 // The response of splitted HWID DB change units.
