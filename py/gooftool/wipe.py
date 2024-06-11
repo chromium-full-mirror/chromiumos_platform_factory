@@ -212,7 +212,7 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
       'mount-encrypted', 'od', 'pango-view', 'pkill', 'pv', 'python', 'reboot',
       'setterm', 'sh', 'shutdown', 'stop', 'umount', 'vpd', 'curl', 'lsof',
       'jq', '/sbin/frecon', 'stressapptest', 'fuser', 'login', 'factory_ufs',
-      'ufs-utils'
+      'ufs-utils', 'factory_installer'
   ]
 
   etc_issue = textwrap.dedent("""
