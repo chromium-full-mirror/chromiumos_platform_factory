@@ -10,7 +10,7 @@ import os.path
 import re
 import textwrap
 import time
-from typing import Collection, Iterator, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple, Type
+from typing import Callable, Collection, Iterator, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple, Type
 import uuid
 
 from google.protobuf import json_format
@@ -725,9 +725,13 @@ class EmptyBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
 class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
   """A battery config fetcher that fetches the contents from remote git repo."""
 
-  def __init__(self, gerrit_review_url: str, gitiles_url: str, repo_name: str,
-               base_dir: str):
+  def __init__(self, gerrit_review_url: str, gitiles_url: str,
+               required_git_auth_cookie: bool, repo_name: str, base_dir: str):
     self._gerrit_review_url = gerrit_review_url
+    self._git_auth_cookie_getter: Callable[[], str] = (
+        lambda: git_util.GetGerritAuthCookie()
+        if required_git_auth_cookie else lambda: ''
+    )
     self._gitiles_url = gitiles_url
     self._repo_name = repo_name
     self._path_prefix = f'{base_dir}/' if base_dir else ''
@@ -744,14 +748,14 @@ class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
         board, project)
     return git_util.GetFileContent(
         self._gerrit_review_url, self._repo_name, battery_config_path_in_repo,
-        commit_id=version, auth_cookie=git_util.GetGerritAuthCookie())
+        commit_id=version, auth_cookie=self._git_auth_cookie_getter())
 
   def GetLastVersion(self, board: str, project: str) -> Optional[str]:
     """See base class."""
     file_path = self._BuildBatteryConfigFilePath(board, project)
     return git_util.GetLastMergedChangeCommit(
         self._gitiles_url, self._repo_name, file_path, 'HEAD',
-        auth_cookie=git_util.GetGerritAuthCookie())
+        auth_cookie=self._git_auth_cookie_getter())
 
 
 # yapf: disable

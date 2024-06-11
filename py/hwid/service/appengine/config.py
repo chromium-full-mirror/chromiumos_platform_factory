@@ -141,6 +141,7 @@ class _Config:
       # yapf: enable
           battery_config_setting['gerrit_review_url'],
           battery_config_setting['gitiles_url'],
+          battery_config_setting['git_auth_cookie_required'],
           battery_config_setting['repo_name'],
           battery_config_setting['base_dir'])
 
