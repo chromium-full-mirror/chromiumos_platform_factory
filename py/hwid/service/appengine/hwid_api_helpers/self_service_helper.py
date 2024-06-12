@@ -729,8 +729,8 @@ class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
                required_git_auth_cookie: bool, repo_name: str, base_dir: str):
     self._gerrit_review_url = gerrit_review_url
     self._git_auth_cookie_getter: Callable[[], str] = (
-        lambda: git_util.GetGerritAuthCookie()
-        if required_git_auth_cookie else lambda: ''
+        git_util.GetGerritAuthCookie
+        if required_git_auth_cookie else str
     )
     self._gitiles_url = gitiles_url
     self._repo_name = repo_name
