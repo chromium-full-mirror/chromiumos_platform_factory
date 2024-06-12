@@ -271,9 +271,18 @@ class TestsCommand(Subcommand):
         ['Factory Toolkit', f'{system_info.toolkit_version}'],
     ]
     if readiness:
-      header.append([
-          'Test Category', 'Component Readiness', 'Test Station', 'Test Group',
-          'Test Item', 'Test Status'
+      header.extend([
+        ['Preflash Image With Preflash Storage'],
+        ['Preflash Image With Net Download'],
+        ['Preflash Image With Netboot Frimware'],
+        ['Preflash Image With RMA Shim'],
+        ['Factory FAI'],
+        ['Factory Reset OQC Net Download'],
+        ['Factory Reset OQC RMA Shim'],
+        ['Run GRT'],
+        ['HWID Probing'],
+        ['Test Category', 'Component Readiness', 'Test Station', 'Test Group',
+         'Test Item', 'Test Status']
       ])
     return header
 
