@@ -9,7 +9,6 @@ from typing import NamedTuple, Optional, Sequence
 import yaml
 
 from cros.factory.hwid.service.appengine import hwid_repo
-from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.utils import file_utils
 from cros.factory.utils import type_utils
 
@@ -20,11 +19,6 @@ DEFAULT_CONFIGURATION = {
     # Allow unauthenticated access when running a local dev server and
     # during tests.
     'ge_bucket': 'chromeos-build-release-console-staging',
-    'vpg_targets': {
-        'SARIEN': {  # for unittests
-            'waived_comp_categories': ['ethernet']
-        }
-    },
     'hwid_repo_branch': 'stabilize-15251.B',
     'project_region': '',
     'queue_name': '',
@@ -137,8 +131,6 @@ class Config:
   Attributes:
     cloud_project: The cloud project of the service.
     env: The deployment environment.
-    vpg_targets: A mapping of {project: VerificationPayloadGeneratorConfig}
-        specifying the customization of the payload generation.
     dryrun_upload: A bool indicating whether the CL upload process is dryrun (
         just logging without actually create one) or not.
     project_region: The project region used in cloud tasks.
@@ -160,9 +152,6 @@ class Config:
       conf = DEFAULT_CONFIGURATION
 
     self.env = conf['env']
-    self.vpg_targets = (
-        vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate(
-            conf.get('vpg_targets', {})))
     self.vpg_keys = conf.get('vpg_keys', [])
     self.dryrun_upload = conf.get('dryrun_upload', True)
     self.project_region = conf['project_region']

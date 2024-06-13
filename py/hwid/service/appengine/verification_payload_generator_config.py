@@ -41,22 +41,6 @@ class VerificationPayloadGeneratorConfig(NamedTuple):
 
   @classmethod
   def BatchCreate(
-      cls, config: Mapping[str, dict]
-  ) -> Mapping[str, VerificationPayloadGeneratorConfig]:
-    """Create batch configs from a dictionary.
-
-    Args:
-      config: A dictionary where key is model name and value is config
-    Returns:
-      A dictionary where key is model name and value is a verification payload
-        generator config instance.
-    """
-    # TODO(b/308306344): Migrate to BatchCreateForVpgTargets()
-    return {k: cls.Create(**v)
-            for k, v in config.items()}
-
-  @classmethod
-  def BatchCreateForVpgTargets(
       cls, models_vp_on: Mapping[str, Mapping[str, dict]]
   ) -> Mapping[str, VerificationPayloadGeneratorConfig]:
     """Create batch configs from a dictionary.

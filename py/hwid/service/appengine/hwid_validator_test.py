@@ -43,8 +43,7 @@ GOLDEN_HWIDV3_DATA_FROM_FACTORY_BUNDLE = file_utils.ReadFile(
 GOLDEN_HWIDV3_DATA_FROM_FACTORY_BUNDLE_MODIFIED = file_utils.ReadFile(
     os.path.join(TESTDATA_PATH, 'v3-from-factory-bundle-modified.yaml'))
 FAKE_VPG_TARGETS = (
-    vpg_config_module.VerificationPayloadGeneratorConfig
-    .BatchCreateForVpgTargets({
+    vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate({
         'SARIEN': {
             'SARIEN': {
                 'waived_comp_categories': ['ethernet']

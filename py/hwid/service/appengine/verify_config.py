@@ -82,6 +82,7 @@ def VerifyConfig(commit: Optional[str] = None,
                  hwid_commit: Optional[str] = None) -> bool:
   """Verify the HWID service config."""
 
+  # TODO(b/308306344): Verify vpg_config.yaml instead.
   if not IsChanged(CONFIGURATIONS_YAML_PATH, FACTORY_PRIVATE_DIR):
     logging.info('VerifyConfig: skipped')
     return True

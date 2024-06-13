@@ -34,8 +34,8 @@ class VPGTargetsDataManager:
     if raw_content is None:
       return self.RefreshVpgTargets()
 
-    return (vpg_config_module.VerificationPayloadGeneratorConfig
-            .BatchCreateForVpgTargets(raw_content['models_vp_on']))
+    return vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate(
+        raw_content['models_vp_on'])
 
   def SetVpgTargets(self, vpg_targets: Mapping[str, Any]):
     """Sets VPG targets in memcache."""
@@ -60,5 +60,5 @@ class VPGTargetsDataManager:
                                           auth_cookie=auth_cookie).decode()
     vpg_targets = yaml.safe_load(raw_content)
     self.SetVpgTargets(vpg_targets)
-    return (vpg_config_module.VerificationPayloadGeneratorConfig
-            .BatchCreateForVpgTargets(vpg_targets['models_vp_on']))
+    return vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate(
+        vpg_targets['models_vp_on'])

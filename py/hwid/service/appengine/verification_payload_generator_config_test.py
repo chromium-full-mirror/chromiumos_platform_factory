@@ -30,23 +30,6 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     self.assertTrue(vpg_config.encrypted)
 
   def testBatchCreate(self):
-    config = {
-        'MODEL1': {
-            'waived_comp_categories': ['battery'],
-            'ignore_error': ['stylus'],
-        },
-        'MODEL2': {
-            'waived_comp_categories': ['memory'],
-        },
-    }
-    vpg_configs = (
-        vpg_config_module.VerificationPayloadGeneratorConfig.BatchCreate(config)
-    )
-    self.assertEqual(vpg_configs['MODEL1'].ignore_error, ['stylus'])
-    self.assertEqual(vpg_configs['MODEL1'].waived_comp_categories, ['battery'])
-    self.assertEqual(vpg_configs['MODEL2'].waived_comp_categories, ['memory'])
-
-  def testBatchCreateForVpgTargets(self):
     models_vp_on = {
         'BOARD1': {
             'MODEL1': {
@@ -67,7 +50,7 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     # yapf: disable
     vpg_configs = (
         vpg_config_module.VerificationPayloadGeneratorConfig
-        .BatchCreateForVpgTargets(models_vp_on))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        .BatchCreate(models_vp_on))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
     self.assertEqual(len(vpg_configs), 3)
