@@ -31,20 +31,21 @@ To test screen rotation, and have a timeout of an hour:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:TabletRotation
+  generic_ec_component_accel_examples:AccelerometerIMUTests.TabletRotation
 
 To provide more parameters for accelerometer when testing:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:ScreenRotation.TabletRotationAll
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  ScreenRotation.TabletRotationAll
 
 To test screen rotation for Chrome and prompt operator to flip before and after
 the test, we can combine the test with `tablet_mode.py <./tablet_mode.html>`_:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:ScreenRotation
+  generic_ec_component_accel_examples:AccelerometerIMUTests.ScreenRotation
 
 """
 

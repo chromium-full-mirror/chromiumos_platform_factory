@@ -35,7 +35,7 @@ To verify that secdata version is 1.0:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.CheckSecdataVersion
+  generic_tpm_examples:TPMTests.CommonTests.CheckSecdataVersion
 
 """
 

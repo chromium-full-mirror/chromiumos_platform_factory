@@ -36,7 +36,7 @@ To test AP RO verification, add this to test list:
 
 .. test_list::
 
-  generic_tpm_examples:Ti50Tests.Ti50APROVerification
+  generic_tpm_examples:TPMTests.Ti50Tests.Ti50APROVerification
 
 """
 

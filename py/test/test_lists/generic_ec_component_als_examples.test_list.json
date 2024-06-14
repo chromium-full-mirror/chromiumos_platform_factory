@@ -9,6 +9,14 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "AmbientLightSensorTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "LightSensor",
+        "LightSensorCalibration",
+        "LightSensorCalibrationWithMockedChamber"
+      ]
+    },
     "LightSensorCalibrationWithMockedChamber": {
       "inherit": "LightSensorCalibration",
       "label": "Light Sensor Calibration With Mocked Chamber",
@@ -21,8 +29,6 @@
     }
   },
   "tests": [
-    "LightSensor",
-    "LightSensorCalibration",
-    "LightSensorCalibrationWithMockedChamber"
+    "AmbientLightSensorTests"
   ]
 }

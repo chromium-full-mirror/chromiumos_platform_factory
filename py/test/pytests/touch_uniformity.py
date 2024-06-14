@@ -32,7 +32,7 @@ Sample test_list entry:
 
 .. test_list::
 
-  generic_touchscreen_examples:TouchscreenUniformity
+  generic_touchscreen_examples:TouchscreenTests.TouchscreenUniformity
 
 """
 

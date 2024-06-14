@@ -76,13 +76,13 @@ Step 4 (clear inactivate slot)
 
 .. test_list::
 
-  generic_tpm_examples:Cr50Tests.UpdateCr50Firmware
+  generic_tpm_examples:TPMTests.Cr50Tests.UpdateCr50Firmware
 
 "UpdateTi50Firmware"
 
 .. test_list::
 
-  generic_tpm_examples:Ti50Tests.UpdateTi50Firmware
+  generic_tpm_examples:TPMTests.Ti50Tests.UpdateTi50Firmware
 
 Sometimes, e.g. b/145973336, it's required to update GSC firmware without
 upstart mode.
@@ -93,7 +93,7 @@ again and succeeds in the second run:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.UpdateGSCFirmwareWithoutUpstart
+  generic_tpm_examples:TPMTests.CommonTests.UpdateGSCFirmwareWithoutUpstart
 
 To update Cr50 firmware with the Cr50 firmware image in station::
 
@@ -110,14 +110,14 @@ in the release image:
 
 .. test_list::
 
-  generic_tpm_examples:Cr50Tests.UpdateCr50Firmware.CheckCr50FirmwareVersion
+  generic_tpm_examples:TPMTests.Cr50Tests.UpdateCr50Firmware.CheckCr50FirmwareVersion
 
 To update the Ti50 firmware version from 0.0.15 (or earlier) to 0.0.16 (or
 later) with prepvt firmware. See b/236793753 for more detail:
 
 .. test_list::
 
-  generic_tpm_examples:Ti50Tests.UpdateTi50From0o0o15To0o0o16
+  generic_tpm_examples:TPMTests.Ti50Tests.UpdateTi50From0o0o15To0o0o16
 
 """
 # pylint: enable=line-too-long

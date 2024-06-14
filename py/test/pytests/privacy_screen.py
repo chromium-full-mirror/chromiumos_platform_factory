@@ -25,7 +25,7 @@ Turn privacy screen on and then validate state:
 
 .. test_list::
 
-  generic_display_panel_examples:PrivacyScreen
+  generic_display_panel_examples:DisplayPanelTests.PrivacyScreen
 
 Argument ``target_state`` is required and must be either ``on`` or ``off``.
 """

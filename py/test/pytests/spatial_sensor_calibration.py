@@ -38,15 +38,18 @@ To run this test, add this into test list:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:GyroscopeCalibrationByEC
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  GyroscopeCalibrationByEC
 
 .. test_list::
 
-  generic_ec_component_accel_examples:BaseAccelerometersCalibrationByEC
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  BaseAccelerometersCalibrationByEC
 
 .. test_list::
 
-  generic_ec_component_accel_examples:LidAccelerometersCalibrationByEC
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  LidAccelerometersCalibrationByEC
 
 """
 

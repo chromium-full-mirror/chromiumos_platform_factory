@@ -35,7 +35,7 @@ To perform 3 subtests,
 
 .. test_list::
 
-  generic_ec_component_als_examples:LightSensor
+  generic_ec_component_als_examples:AmbientLightSensorTests.LightSensor
 
 The sensor value represents in lux. For reference, see
 https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-iio.

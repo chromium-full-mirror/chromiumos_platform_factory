@@ -26,7 +26,7 @@ timeout:
 
 .. test_list::
 
-  generic_battery_examples:Charger
+  generic_battery_examples:BatteryTests.Charger
 
 """
 

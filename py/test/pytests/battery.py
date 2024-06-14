@@ -27,14 +27,14 @@ add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryCapacity
+  generic_battery_examples:BatteryTests.BatteryCapacity
 
 To check if the battery design capacity lies in [4000, 5000], add this in test
 list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryCapacityBetween4000And5000
+  generic_battery_examples:BatteryTests.BatteryCapacityBetween4000And5000
 
 """
 

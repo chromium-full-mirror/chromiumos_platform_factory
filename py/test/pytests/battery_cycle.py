@@ -31,7 +31,7 @@ Add this into test list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryCycle
+  generic_battery_examples:BatteryTests.BatteryCycle
 
 """
 

@@ -23,7 +23,7 @@ To use the test:
 
 .. test_list::
 
-  generic_ethernet_examples:Ethernet
+  generic_ethernet_examples:EthernetTests.Ethernet
 
 """
 

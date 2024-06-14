@@ -44,7 +44,7 @@ properly and fits the default quality settings:
 
 .. test_list::
 
-  generic_fingerprint_examples:FPSTest
+  generic_fingerprint_examples:FingerprintTests.FPSTest
 
 To check if the sensor has at most 10 dead pixels,
 with bounds for the pixel grayscale median values and finger detection zones,
@@ -52,20 +52,21 @@ add this in test list:
 
 .. test_list::
 
-  generic_fingerprint_examples:FPSTestPlusPixelMedianTestForDartmonkey
+  generic_fingerprint_examples:FingerprintTests.
+  FPSTestPlusPixelMedianTestForDartmonkey
 
 To show 10 captures on the screen:
 
 .. test_list::
 
-  generic_fingerprint_examples:FPSTestPlusManualTest
+  generic_fingerprint_examples:FingerprintTests.FPSTestPlusManualTest
 
 To test SNR value with a rubber stamp. Only work for Dartmonkey, see b/180757318
 for more info:
 
 .. test_list::
 
-  generic_fingerprint_examples:FPSTestPlusRubberStamperTest
+  generic_fingerprint_examples:FingerprintTests.FPSTestPlusRubberStamperTest
 
 """
 

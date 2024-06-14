@@ -37,7 +37,7 @@ To calibrate the speaker device hw:1,0, add this into test list:
 
 .. test_list::
 
-  generic_audio_examples:DSMCalibration
+  generic_audio_examples:AudioTests.DSMCalibration
 
 See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
 ``output_dev``.

@@ -29,13 +29,13 @@ To perform a basic battery test, add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryBasic
+  generic_battery_examples:BatteryTests.BatteryBasic
 
 To relax the limitation of battery cycle count to 5:
 
 .. test_list::
 
-  generic_battery_examples:BatteryBasicCycleCountAtMost5
+  generic_battery_examples:BatteryTests.BatteryBasicCycleCountAtMost5
 
 """
 

@@ -31,7 +31,7 @@ An example:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.ClearTPMOwnerRequestGroup
+  generic_tpm_examples:TPMTests.CommonTests.ClearTPMOwnerRequestGroup
 
 """
 

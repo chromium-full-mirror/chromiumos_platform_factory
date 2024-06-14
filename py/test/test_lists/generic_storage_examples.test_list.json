@@ -46,16 +46,22 @@
         "dir": "/home/root",
         "file_size": 10485760
       }
+    },
+    "StorageTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeStorage",
+        "BadBlocks",
+        "BadBlocks2GB",
+        "BadBlocksForceOnSSD",
+        "BadBlocksForceOnSSD10MB",
+        "StorageSimpleStress",
+        "StorageSimpleStress3Times",
+        "VerifyRootPartition"
+      ]
     }
   },
   "tests": [
-    "ProbeStorage",
-    "BadBlocks",
-    "BadBlocks2GB",
-    "BadBlocksForceOnSSD",
-    "BadBlocksForceOnSSD10MB",
-    "StorageSimpleStress",
-    "StorageSimpleStress3Times",
-    "VerifyRootPartition"
+    "StorageTests"
   ]
 }

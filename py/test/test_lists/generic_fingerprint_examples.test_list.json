@@ -202,6 +202,23 @@
         "rubber_finger_present": true
       }
     },
+    "FingerprintTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "SetHasFingerprint",
+        "UnsetHasFingerprint",
+        "ProbeFingerprintSensor",
+        "UpdateFPFirmware",
+        "CheckFPFirmware",
+        "UpdateFPFirmwareWithLocalBuildFirmware",
+        "FPSTest",
+        "FPSTestPlusManualTest",
+        "FPSTestPlusPixelMedianTestForDartmonkey",
+        "FPSTestPlusPixelMedianTestForBloonchipper",
+        "FPSTestPlusRubberStamperTest",
+        "FPSGroup"
+      ]
+    },
     "ProbeFingerprintSensor": {
       "pytest_name": "probe.probe",
       "label": "Probe Fingerprint Sensor",
@@ -243,17 +260,6 @@
     }
   },
   "tests": [
-    "SetHasFingerprint",
-    "UnsetHasFingerprint",
-    "ProbeFingerprintSensor",
-    "UpdateFPFirmware",
-    "CheckFPFirmware",
-    "UpdateFPFirmwareWithLocalBuildFirmware",
-    "FPSTest",
-    "FPSTestPlusManualTest",
-    "FPSTestPlusPixelMedianTestForDartmonkey",
-    "FPSTestPlusPixelMedianTestForBloonchipper",
-    "FPSTestPlusRubberStamperTest",
-    "FPSGroup"
+    "FingerprintTests"
   ]
 }

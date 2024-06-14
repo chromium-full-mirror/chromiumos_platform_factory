@@ -53,13 +53,13 @@ in test list:
 
 .. test_list::
 
-  generic_touchpad_examples:TouchpadHover
+  generic_touchpad_examples:TouchpadTests.TouchpadHover
 
 If calibration is required:
 
 .. test_list::
 
-  generic_touchpad_examples:TouchpadCalibrateAndHover
+  generic_touchpad_examples:TouchpadTests.TouchpadCalibrateAndHover
 
 """
 

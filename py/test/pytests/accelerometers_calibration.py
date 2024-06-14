@@ -42,13 +42,15 @@ To run horizontal calibration on base accelerometer:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:BaseAccelerometersCalibration
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  BaseAccelerometersCalibration
 
 To run horizontal calibration on lid accelerometer:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:LidAccelerometersCalibration
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  LidAccelerometersCalibration
 
 """
 

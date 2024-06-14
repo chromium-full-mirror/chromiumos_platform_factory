@@ -32,7 +32,7 @@ To run the test on base gyroscope:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:GyroscopeAngle
+  generic_ec_component_accel_examples:AccelerometerIMUTests.GyroscopeAngle
 
 """
 

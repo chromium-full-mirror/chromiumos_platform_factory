@@ -38,7 +38,7 @@ data:
 
 .. test_list::
 
-  generic_audio_examples:AudioQuality
+  generic_audio_examples:AudioTests.AudioQuality
 
 (Optional) Use pytest
 `download_from_factory_drive.py <./download_from_factory_drive.html>`_

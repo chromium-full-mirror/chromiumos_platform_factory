@@ -88,64 +88,64 @@ To run a manual capture test:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraManual
+  generic_camera_examples:CameraTests.FrontCameraManual
 
 To run camera_assemble test, and specify the minimal luminance ratio to 0.7:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraAssemble07
+  generic_camera_examples:CameraTests.FrontCameraAssemble07
 
 To run QR scan test, and specify camera resolution to 1920 x 1080:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraQRScan1920x1080
+  generic_camera_examples:CameraTests.FrontCameraQRScan1920x1080
 
 To run camera_assemble_qr test:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraAssembleQR
+  generic_camera_examples:CameraTests.FrontCameraAssembleQR
 
 To run facial recognition test:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraFace
+  generic_camera_examples:CameraTests.FrontCameraFace
 
 To stress camera for 1000 seconds, and don't show the image:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraStress
+  generic_camera_examples:CameraTests.FrontCameraStress
 
 To stress camera capturing for 100 frames, have a timeout of 1000 seconds, and
 don't show the image:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraFrames
+  generic_camera_examples:CameraTests.FrontCameraFrames
 
 To check the camera capturing black frames (the maximum brightness less than
 10), this is a subitem of testing camera privacy switch:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraBrightness
+  generic_camera_examples:CameraTests.FrontCameraBrightness
 
 This is used if camera_characteristics.conf is not ready. Users must replace
 ``camera_usb_vid_pid`` with vid pid they are testing:
 
 .. test_list::
 
-  generic_camera_examples:CameraNoCharacteristics
+  generic_camera_examples:CameraTests.CameraNoCharacteristics
 
 To test the LED of the front camera:
 
 .. test_list::
 
-  generic_camera_examples:FrontCameraLED
+  generic_camera_examples:CameraTests.FrontCameraLED
 
 """
 

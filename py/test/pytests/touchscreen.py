@@ -60,37 +60,37 @@ To test touchscreen with 30x20 blocks, add this in test list:
 
 .. test_list::
 
-  generic_touchscreen_examples:Touchscreen30x20
+  generic_touchscreen_examples:TouchscreenTests.Touchscreen30x20
 
 To test touchscreen without time limit:
 
 .. test_list::
 
-  generic_touchscreen_examples:TouchscreenWithoutTimeLimit
+  generic_touchscreen_examples:TouchscreenTests.TouchscreenWithoutTimeLimit
 
 To test touchscreen in end-to-end mode:
 
 .. test_list::
 
-  generic_touchscreen_examples:TouchscreenE2EMode
+  generic_touchscreen_examples:TouchscreenTests.TouchscreenE2EMode
 
 To test touchscreen without spiral order restriction:
 
 .. test_list::
 
-  generic_touchscreen_examples:TouchscreenArbitraryOrder
+  generic_touchscreen_examples:TouchscreenTests.TouchscreenArbitraryOrder
 
 To test stylus in hover mode:
 
 .. test_list::
 
-  generic_touchscreen_examples:StylusSpiralHoverMode
+  generic_touchscreen_examples:TouchscreenTests.StylusSpiralHoverMode
 
 To test stylus in touch mode:
 
 .. test_list::
 
-  generic_touchscreen_examples:StylusSpiralTouchMode
+  generic_touchscreen_examples:TouchscreenTests.StylusSpiralTouchMode
 
 Trouble Shooting
 ----------------
@@ -119,6 +119,7 @@ from cros.factory.utils.arg_utils import Arg
 # pylint: disable=no-name-in-module
 # yapf: disable
 from cros.factory.external.py_lib.evdev import ecodes  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
 
 # yapf: enable
 

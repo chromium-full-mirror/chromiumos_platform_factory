@@ -11,6 +11,35 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "AccelerometerIMUTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "SetHasBaseAccelerometer",
+        "UnsetHasBaseAccelerometer",
+        "SetHasLidAccelerometer",
+        "UnsetHasLidAccelerometer",
+        "SetHasBaseGyroscope",
+        "UnsetHasBaseGyroscope",
+        "SetHasTabletmode",
+        "UnsetHasTabletmode",
+        "BaseAccelerometersCalibration",
+        "BaseAccelerometersCalibrationByEC",
+        "BaseAccelerometers",
+        "BaseAccelerometersLooserLimits",
+        "LidAccelerometersCalibration",
+        "LidAccelerometersCalibrationByEC",
+        "LidAccelerometers",
+        "AccelerometersLidAngle",
+        "GyroscopeCalibration",
+        "GyroscopeCalibrationByEC",
+        "Gyroscope",
+        "GyroscopeAngle",
+        "GoToTabletModeAndGoBack",
+        "GoToTabletModeAndGoBackSetLid",
+        "ScreenRotation",
+        "TabletRotation"
+      ]
+    },
     "BaseAccelerometersCalibrationByEC": {
       "pytest_name": "spatial_sensor_calibration",
       "label": "Base Accelerometers Calibration By EC",
@@ -137,29 +166,6 @@
     }
   },
   "tests": [
-    "SetHasBaseAccelerometer",
-    "UnsetHasBaseAccelerometer",
-    "SetHasLidAccelerometer",
-    "UnsetHasLidAccelerometer",
-    "SetHasBaseGyroscope",
-    "UnsetHasBaseGyroscope",
-    "SetHasTabletmode",
-    "UnsetHasTabletmode",
-    "BaseAccelerometersCalibration",
-    "BaseAccelerometersCalibrationByEC",
-    "BaseAccelerometers",
-    "BaseAccelerometersLooserLimits",
-    "LidAccelerometersCalibration",
-    "LidAccelerometersCalibrationByEC",
-    "LidAccelerometers",
-    "AccelerometersLidAngle",
-    "GyroscopeCalibration",
-    "GyroscopeCalibrationByEC",
-    "Gyroscope",
-    "GyroscopeAngle",
-    "GoToTabletModeAndGoBack",
-    "GoToTabletModeAndGoBackSetLid",
-    "ScreenRotation",
-    "TabletRotation"
+    "AccelerometerIMUTests"
   ]
 }

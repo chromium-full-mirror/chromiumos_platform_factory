@@ -24,7 +24,7 @@ To check that audio can be recorded and played, add this into test list:
 
 .. test_list::
 
-  generic_audio_examples:AudioDiagnostic
+  generic_audio_examples:AudioTests.AudioDiagnostic
 
 """
 

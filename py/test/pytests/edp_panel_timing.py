@@ -36,7 +36,7 @@ To test the eDP:
 
 .. test_list::
 
-  generic_display_panel_examples:EDPPanelTiming
+  generic_display_panel_examples:DisplayPanelTests.EDPPanelTiming
 
 """
 

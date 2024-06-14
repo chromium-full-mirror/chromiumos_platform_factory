@@ -48,20 +48,20 @@ running the tests with disk generates more unusual memory traffic:
 
 .. test_list::
 
-  generic_dram_examples:StressAppTest
+  generic_dram_examples:DRAMTests.StressAppTest
 
 To stress CPU and memory (90% of free memory) without disk:
 
 .. test_list::
 
-  generic_dram_examples:StressAppTestOnlyCPUAndMemory
+  generic_dram_examples:DRAMTests.StressAppTestOnlyCPUAndMemory
 
 To stress CPU, memory (90% of free memory), and the disk using stateful
 partition for one day:
 
 .. test_list::
 
-  generic_dram_examples:StressAppTestForOneDay
+  generic_dram_examples:DRAMTests.StressAppTestForOneDay
 
 To stress using only two threads, and only run on cpu core 2 and 3::
 

@@ -51,7 +51,7 @@ To check battery can charge and discharge, add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:ChargeDischargeCurrent
+  generic_battery_examples:BatteryTests.ChargeDischargeCurrent
 
 Sometimes, the system consumes more power than the charger. In that case, we
 could set the min_charging_current to negative value, and the test would pass
@@ -59,21 +59,22 @@ if the battery discharges less than 150 mA. See b/183679223#comment25:
 
 .. test_list::
 
-  generic_battery_examples:ChargeDischargeCurrentExpectNoChargeWhenCharging
+  generic_battery_examples:BatteryTests.
+  ChargeDischargeCurrentExpectNoChargeWhenCharging
 
 Alternatively, we could also set current_difference to just test the difference
 between charge and discharge:
 
 .. test_list::
 
-  generic_battery_examples:ChargeDischargeCurrentDifference
+  generic_battery_examples:BatteryTests.ChargeDischargeCurrentDifference
 
 To check that a 15V USB type C power adapter is connected to port 0, add this
 in test list:
 
 .. test_list::
 
-  generic_battery_examples:Charger15VInPort0
+  generic_battery_examples:BatteryTests.Charger15VInPort0
 
 """
 

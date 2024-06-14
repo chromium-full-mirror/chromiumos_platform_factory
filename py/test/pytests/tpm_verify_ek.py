@@ -30,7 +30,7 @@ Examples of how to use this test:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.TPMVerifyEKGroup
+  generic_tpm_examples:TPMTests.CommonTests.TPMVerifyEKGroup
 
 """
 

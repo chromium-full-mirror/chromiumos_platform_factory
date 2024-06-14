@@ -35,17 +35,18 @@ added as simple as:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:BaseAccelerometers
+  generic_ec_component_accel_examples:AccelerometerIMUTests.BaseAccelerometers
 
 .. test_list::
 
-  generic_ec_component_accel_examples:LidAccelerometers
+  generic_ec_component_accel_examples:AccelerometerIMUTests.LidAccelerometers
 
 You can also change the limits of each axis to loose the criteria:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:BaseAccelerometersLooserLimits
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  BaseAccelerometersLooserLimits
 
 """
 

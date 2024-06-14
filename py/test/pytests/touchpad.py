@@ -34,13 +34,13 @@ To test touchpad with default parameters, add this in test list:
 
 .. test_list::
 
-  generic_touchpad_examples:Touchpad
+  generic_touchpad_examples:TouchpadTests.Touchpad
 
 If you want to change the time limit to 100 seconds::
 
 .. test_list::
 
-  generic_touchpad_examples:Touchpad100Seconds
+  generic_touchpad_examples:TouchpadTests.Touchpad100Seconds
 
 """
 

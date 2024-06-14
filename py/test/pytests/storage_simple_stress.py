@@ -36,13 +36,13 @@ To test read/write of a 10MB file under `/home/root`:
 
 .. test_list:
 
-  generic_storage_examples:StorageSimpleStress
+  generic_storage_examples:StorageTests.StorageSimpleStress
 
 To test read/write of a 10MB file 3 times:
 
 .. test_list:
 
-  generic_storage_examples:StorageSimpleStress3Times
+  generic_storage_examples:StorageTests.StorageSimpleStress3Times
 
 """
 

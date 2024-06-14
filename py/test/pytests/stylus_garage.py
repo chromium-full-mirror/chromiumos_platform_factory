@@ -24,13 +24,13 @@ To run default test:
 
 .. test_list::
 
-  generic_touchscreen_examples:StylusGarage
+  generic_touchscreen_examples:TouchscreenTests.StylusGarage
 
 To test both of the stylus and the garage with a test group:
 
 .. test_list::
 
-  generic_touchscreen_examples:StylusAndGarage
+  generic_touchscreen_examples:TouchscreenTests.StylusAndGarage
 
 """
 

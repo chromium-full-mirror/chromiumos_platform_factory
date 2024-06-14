@@ -8,6 +8,32 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "CameraTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeCamera",
+        "FrontCameraAssemble",
+        "FrontCameraAssembleQR",
+        "FrontCameraFace",
+        "FrontCameraLED",
+        "FrontCameraManual",
+        "FrontCameraManualOpenCV",
+        "FrontCameraQRScan",
+        "RearCameraAssemble",
+        "RearCameraAssembleQR",
+        "RearCameraFace",
+        "RearCameraLED",
+        "RearCameraManual",
+        "RearCameraManualOpenCV",
+        "RearCameraQRScan",
+        "CameraNoCharacteristics",
+        "FrontCameraAssemble07",
+        "FrontCameraQRScan1920x1080",
+        "FrontCameraStress",
+        "FrontCameraFrames",
+        "FrontCameraBrightness"
+      ]
+    },
     "FrontCameraAssemble07": {
       "inherit": "FrontCameraAssemble",
       "label": "Front Camera Assemble 07",
@@ -75,26 +101,6 @@
     }
   },
   "tests": [
-    "ProbeCamera",
-    "FrontCameraAssemble",
-    "FrontCameraAssembleQR",
-    "FrontCameraFace",
-    "FrontCameraLED",
-    "FrontCameraManual",
-    "FrontCameraManualOpenCV",
-    "FrontCameraQRScan",
-    "RearCameraAssemble",
-    "RearCameraAssembleQR",
-    "RearCameraFace",
-    "RearCameraLED",
-    "RearCameraManual",
-    "RearCameraManualOpenCV",
-    "RearCameraQRScan",
-    "CameraNoCharacteristics",
-    "FrontCameraAssemble07",
-    "FrontCameraQRScan1920x1080",
-    "FrontCameraStress",
-    "FrontCameraFrames",
-    "FrontCameraBrightness"
+    "CameraTests"
   ]
 }

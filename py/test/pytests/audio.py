@@ -44,14 +44,14 @@ To check if the audio can be played, add this in test list:
 
 .. test_list::
 
-  generic_audio_examples:SpeakerManual
+  generic_audio_examples:AudioTests.SpeakerManual
 
 To check that headphone is plugged in before audio is played, add this in test
 list:
 
 .. test_list::
 
-  generic_audio_examples:HeadphoneManual
+  generic_audio_examples:AudioTests.HeadphoneManual
 
 See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
 ``output_dev``.

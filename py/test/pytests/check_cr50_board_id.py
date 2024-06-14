@@ -34,14 +34,14 @@ To check if the board ID is still unprogrammed, add this in test list:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.AssertGSCBoardIDIsUnset
+  generic_tpm_examples:TPMTests.CommonTests.AssertGSCBoardIDIsUnset
 
 To check if the board ID flags is set to normal prePVT, you can set the argument
 ``board_id_flags`` to `PHASE_PREPVT`:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.AssertGSCBoardIDIsPrePVT
+  generic_tpm_examples:TPMTests.CommonTests.AssertGSCBoardIDIsPrePVT
 
 """
 

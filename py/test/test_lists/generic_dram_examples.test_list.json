@@ -9,6 +9,20 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "DRAMTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeDram",
+        "UpdateDramPartNum",
+        "MemorySize",
+        "MemorySizeMaxDiffRatio5Percent",
+        "MemorySizeCompareToDeviceData",
+        "MRCCache",
+        "StressAppTest",
+        "StressAppTestOnlyCPUAndMemory",
+        "StressAppTestForOneDay"
+      ]
+    },
     "MemorySizeCompareToDeviceData": {
       "label": "Memory Size Compare To Device Data",
       "child_action_on_failure": "STOP",
@@ -84,14 +98,6 @@
     }
   },
   "tests": [
-    "ProbeDram",
-    "UpdateDramPartNum",
-    "MemorySize",
-    "MemorySizeMaxDiffRatio5Percent",
-    "MemorySizeCompareToDeviceData",
-    "MRCCache",
-    "StressAppTest",
-    "StressAppTestOnlyCPUAndMemory",
-    "StressAppTestForOneDay"
+    "DRAMTests"
   ]
 }

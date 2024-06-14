@@ -36,27 +36,27 @@ list:
 
 .. test_list::
 
-  generic_wireless_examples:BluetoothDetectAdapterOnly
+  generic_wireless_examples:WirelessTests.BluetoothDetectAdapterOnly
 
 To scan remote bluetooth device and try to find at least one device whose name
 contains 'Chromebook':
 
 .. test_list::
 
-  generic_wireless_examples:BluetoothScanChromebook
+  generic_wireless_examples:WirelessTests.BluetoothScanChromebook
 
 To check the the largest average RSSI among all scanned devices is bigger than
 threshold:
 
 .. test_list::
 
-  generic_wireless_examples:BluetoothScanSpecificStrength
+  generic_wireless_examples:WirelessTests.BluetoothScanSpecificStrength
 
 To pair, connect with, and disconnect with the bluetooth device:
 
 .. test_list::
 
-  generic_wireless_examples:BluetoothPairWithDevice
+  generic_wireless_examples:WirelessTests.BluetoothPairWithDevice
 
 """
 

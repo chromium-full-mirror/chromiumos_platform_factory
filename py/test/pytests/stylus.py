@@ -33,14 +33,14 @@ list:
 
 .. test_list::
 
-  generic_touchscreen_examples:Stylus
+  generic_touchscreen_examples:TouchscreenTests.Stylus
 
 To check if the magnet in left side will cause problems, add this in test list
 to draw a line from left-top to left-bottom:
 
 .. test_list::
 
-  generic_touchscreen_examples:StylusTopLeftToBottomLeft
+  generic_touchscreen_examples:TouchscreenTests.StylusTopLeftToBottomLeft
 
 """
 

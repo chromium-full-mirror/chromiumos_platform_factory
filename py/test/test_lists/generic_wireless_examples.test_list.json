@@ -191,27 +191,33 @@
           ]
         ]
       }
+    },
+    "WirelessTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeWireless",
+        "ExampleWifiSSIDList",
+        "WirelessAntenna",
+        "WirelessAntennaSpecificFrequency",
+        "WirelessAntennaSwitchAntenna",
+        "WirelessAntennaRadiotap",
+        "IntelWirelessAntenna",
+        "MediatekWirelessAntenna",
+        "QualcommAtherosWirelessAntenna",
+        "RealtekWirelessAntenna",
+        "WifiThroughputInChamber",
+        "ExampleWirelessConnect2G",
+        "ExampleWirelessConnect5G",
+        "WirelessDisconnect",
+        "Bluetooth",
+        "BluetoothDetectAdapterOnly",
+        "BluetoothScanChromebook",
+        "BluetoothScanSpecificStrength",
+        "BluetoothPairWithDevice"
+      ]
     }
   },
   "tests": [
-    "ProbeWireless",
-    "ExampleWifiSSIDList",
-    "WirelessAntenna",
-    "WirelessAntennaSpecificFrequency",
-    "WirelessAntennaSwitchAntenna",
-    "WirelessAntennaRadiotap",
-    "IntelWirelessAntenna",
-    "MediatekWirelessAntenna",
-    "QualcommAtherosWirelessAntenna",
-    "RealtekWirelessAntenna",
-    "WifiThroughputInChamber",
-    "ExampleWirelessConnect2G",
-    "ExampleWirelessConnect5G",
-    "WirelessDisconnect",
-    "Bluetooth",
-    "BluetoothDetectAdapterOnly",
-    "BluetoothScanChromebook",
-    "BluetoothScanSpecificStrength",
-    "BluetoothPairWithDevice"
+    "WirelessTests"
   ]
 }

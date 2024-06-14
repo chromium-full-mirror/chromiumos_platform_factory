@@ -42,27 +42,27 @@ behavior), add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BlockingCharge
+  generic_battery_examples:BatteryTests.BlockingCharge
 
 To charge the device to minimum battery level needed for cutoff, add this in
 test list:
 
 .. test_list::
 
-  generic_battery_examples:BlockingChargeToCutOffSetting
+  generic_battery_examples:BatteryTests.BlockingChargeToCutOffSetting
 
 To charge the device to 75 percent, add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BlockingChargeTo75
+  generic_battery_examples:BatteryTests.BlockingChargeTo75
 
 To charge the device 10 percent more, and only allow 5 minutes time for
 charging, add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BlockingCharge10PercentMoreIn5Minutes
+  generic_battery_examples:BatteryTests.BlockingCharge10PercentMoreIn5Minutes
 
 """
 

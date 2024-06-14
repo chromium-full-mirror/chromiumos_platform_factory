@@ -41,7 +41,7 @@ includes some iperf3 tests.:
 
 .. test_list::
 
-  generic_wireless_examples:WifiThroughputInChamber
+  generic_wireless_examples:WirelessTests.WifiThroughputInChamber
 
 """
 

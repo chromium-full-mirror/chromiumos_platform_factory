@@ -39,13 +39,13 @@ To run this test on DUT, add a test item in the test list:
 
 .. test_list::
 
-  generic_wireless_examples:WirelessAntenna
+  generic_wireless_examples:WirelessTests.WirelessAntenna
 
 Set the 2nd element in a service if you only want to use a specific frequency:
 
 .. test_list::
 
-  generic_wireless_examples:WirelessAntennaSpecificFrequency
+  generic_wireless_examples:WirelessTests.WirelessAntennaSpecificFrequency
 
 """
 

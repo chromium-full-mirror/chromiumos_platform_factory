@@ -26,6 +26,28 @@
         "wav_file": "/usr/local/factory/third_party/SPK48k.wav"
       }
     },
+    "AudioTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeAudioCodec",
+        "ScanAudioCardName",
+        "AudioJackConformance",
+        "AudioJack",
+        "DSMCalibration",
+        "SpeakerDMicConformance",
+        "SpeakerDMic",
+        "SpeakerDMic2",
+        "SpeakerExtmic",
+        "SpeakerChannel0DMic",
+        "SpeakerDMicNoiseTest",
+        "SpeakerDMicSineWaveTest",
+        "AudioDiagnostic",
+        "SpeakerDMicManual",
+        "SpeakerManual",
+        "HeadphoneManual",
+        "AudioQuality"
+      ]
+    },
     "DSMCalibration": {
       "pytest_name": "dsm_calibration",
       "args": {
@@ -175,22 +197,6 @@
     }
   },
   "tests": [
-    "ProbeAudioCodec",
-    "ScanAudioCardName",
-    "AudioJackConformance",
-    "AudioJack",
-    "DSMCalibration",
-    "SpeakerDMicConformance",
-    "SpeakerDMic",
-    "SpeakerDMic2",
-    "SpeakerExtmic",
-    "SpeakerChannel0DMic",
-    "SpeakerDMicNoiseTest",
-    "SpeakerDMicSineWaveTest",
-    "AudioDiagnostic",
-    "SpeakerDMicManual",
-    "SpeakerManual",
-    "HeadphoneManual",
-    "AudioQuality"
+    "AudioTests"
   ]
 }

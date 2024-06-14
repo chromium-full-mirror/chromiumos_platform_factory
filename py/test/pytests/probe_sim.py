@@ -33,7 +33,7 @@ An example:
 
 .. test_list::
 
-  generic_cellular_examples:ProbeSim
+  generic_cellular_examples:CellularTests.ProbeSim
 
 """
 

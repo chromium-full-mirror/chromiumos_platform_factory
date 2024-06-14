@@ -26,7 +26,8 @@ Usage examples:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:AccelerometersLidAngle
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  AccelerometersLidAngle
 
 """
 

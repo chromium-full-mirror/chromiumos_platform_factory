@@ -32,7 +32,7 @@ To set, verify and clear AP RO hash, add this to test list:
 
 .. test_list::
 
-  generic_tpm_examples:Cr50Tests.Cr50APROVerificationGroup
+  generic_tpm_examples:TPMTests.Cr50Tests.Cr50APROVerificationGroup
 
 """
 

@@ -8,9 +8,16 @@
   "options": {
     "auto_run_on_start": false
   },
-  "definitions": {},
+  "definitions": {
+    "EthernetTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeEthernet",
+        "Ethernet"
+      ]
+    }
+  },
   "tests": [
-    "ProbeEthernet",
-    "Ethernet"
+    "EthernetTests"
   ]
 }

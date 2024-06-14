@@ -46,19 +46,19 @@ To run default test:
 
 .. test_list::
 
-  generic_storage_examples:BadBlocks
+  generic_storage_examples:StorageTests.BadBlocks
 
 To change the portion of disk to 2 GB:
 
 .. test_list::
 
-  generic_storage_examples:BadBlocks2GB
+  generic_storage_examples:StorageTests.BadBlocks2GB
 
 To force running badblocks:
 
 .. test_list::
 
-  generic_storage_examples:BadBlocksForceOnSSD
+  generic_storage_examples:StorageTests.BadBlocksForceOnSSD
 
 Troubleshooting
 ---------------

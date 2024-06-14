@@ -8,11 +8,18 @@
   "options": {
     "auto_run_on_start": false
   },
-  "definitions": {},
+  "definitions": {
+    "CellularTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeCellular",
+        "ModemSecurity",
+        "ProbeImei",
+        "ProbeSim"
+      ]
+    }
+  },
   "tests": [
-    "ProbeCellular",
-    "ModemSecurity",
-    "ProbeImei",
-    "ProbeSim"
+    "CellularTests"
   ]
 }

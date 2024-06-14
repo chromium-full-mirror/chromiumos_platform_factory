@@ -36,13 +36,15 @@ To run the test, add this in test list:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:GoToTabletModeAndGoBack
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  GoToTabletModeAndGoBack
 
 Set lid_filter to choose the lid sensor explicitly:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:GoToTabletModeAndGoBackSetLid
+  generic_ec_component_accel_examples:AccelerometerIMUTests.
+  GoToTabletModeAndGoBackSetLid
 
 To test screen rotation for Chrome and prompt operator to flip before and after
 the test, we can combine the test with
@@ -50,7 +52,7 @@ the test, we can combine the test with
 
 .. test_list::
 
-  generic_ec_component_accel_examples:ScreenRotation
+  generic_ec_component_accel_examples:AccelerometerIMUTests.ScreenRotation
 
 """
 

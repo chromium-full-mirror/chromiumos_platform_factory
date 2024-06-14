@@ -40,7 +40,8 @@ To start the test in interactive mode:
 
 .. test_list::
 
-  generic_display_panel_examples:EnterFrontOfScreenTestInteractiveMode
+  generic_display_panel_examples:DisplayPanelTests.
+  EnterFrontOfScreenTestInteractiveMode
 
 """
 

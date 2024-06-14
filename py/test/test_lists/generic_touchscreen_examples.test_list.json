@@ -71,6 +71,25 @@
         "e2e_mode": true
       }
     },
+    "TouchscreenTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeTouchscreen",
+        "Stylus",
+        "StylusTopLeftToBottomLeft",
+        "StylusSpiralHoverMode",
+        "StylusSpiralTouchMode",
+        "StylusGarage",
+        "StylusAndGarage",
+        "Touchscreen",
+        "Touchscreen30x20",
+        "TouchscreenWithoutTimeLimit",
+        "TouchscreenE2EMode",
+        "TouchscreenArbitraryOrder",
+        "TouchscreenUniformity",
+        "TouchDeviceFWUpdate"
+      ]
+    },
     "TouchscreenWithoutTimeLimit": {
       "inherit": "Touchscreen",
       "label": "Touchscreen Without TimeLimit",
@@ -80,19 +99,6 @@
     }
   },
   "tests": [
-    "ProbeTouchscreen",
-    "Stylus",
-    "StylusTopLeftToBottomLeft",
-    "StylusSpiralHoverMode",
-    "StylusSpiralTouchMode",
-    "StylusGarage",
-    "StylusAndGarage",
-    "Touchscreen",
-    "Touchscreen30x20",
-    "TouchscreenWithoutTimeLimit",
-    "TouchscreenE2EMode",
-    "TouchscreenArbitraryOrder",
-    "TouchscreenUniformity",
-    "TouchDeviceFWUpdate"
+    "TouchscreenTests"
   ]
 }

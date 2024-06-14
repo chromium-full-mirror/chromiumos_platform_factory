@@ -25,7 +25,7 @@ An example:
 
 .. test_list::
 
-  generic_storage_examples:VerifyRootPartition
+  generic_storage_examples:StorageTests.VerifyRootPartition
 
 """
 

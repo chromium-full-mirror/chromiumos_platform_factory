@@ -28,7 +28,7 @@ An example:
 
 .. test_list::
 
-  generic_display_panel_examples:BrightnessLCDBacklight
+  generic_display_panel_examples:DisplayPanelTests.BrightnessLCDBacklight
 
 """
 

@@ -53,21 +53,21 @@ To compare and check the memory size from ``mosys`` and kernel:
 
 .. test_list::
 
-  generic_dram_examples:MemorySize
+  generic_dram_examples:DRAMTests.MemorySize
 
 To compare and check the memory size from ``mosys`` and kernel, with difference
 up to 5 percent:
 
 .. test_list::
 
-  generic_dram_examples:MemorySizeMaxDiffRatio5Percent
+  generic_dram_examples:DRAMTests.MemorySizeMaxDiffRatio5Percent
 
 To compare and check the memory size from ``mosys``, kernel, and device data
 ``component.memory_size``:
 
 .. test_list::
 
-  generic_dram_examples:MemorySizeCompareToDeviceData
+  generic_dram_examples:DRAMTests.MemorySizeCompareToDeviceData
 
 """
 

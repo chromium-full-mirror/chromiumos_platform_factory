@@ -23,7 +23,7 @@ To perform a battery test, add this in test list:
 
 .. test_list::
 
-  generic_battery_examples:BatterySysfs
+  generic_battery_examples:BatteryTests.BatterySysfs
 
 - To disable max cycle count check, set ``maximum_cycle_count`` to ``-1``.
 - To disable wear level check, set ``percent_battery_wear_allowed`` to ``-1``.

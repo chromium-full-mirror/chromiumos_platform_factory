@@ -42,7 +42,7 @@ The following argument will probe imei from field ``EquipmentIdentifier``:
 
 .. test_list::
 
-  generic_cellular_examples:ProbeImei
+  generic_cellular_examples:CellularTests.ProbeImei
 
 Example output::
 

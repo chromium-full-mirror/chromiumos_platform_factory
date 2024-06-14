@@ -39,7 +39,7 @@ To test display on remote DUT:
 
 .. test_list::
 
-  generic_display_panel_examples:FrontOfScreenTestStation
+  generic_display_panel_examples:DisplayPanelTests.FrontOfScreenTestStation
 
 """
 

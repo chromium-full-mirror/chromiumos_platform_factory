@@ -28,7 +28,7 @@ Sample test_list entry:
 
 .. test_list::
 
-  generic_display_panel_examples:DisplayPoint
+  generic_display_panel_examples:DisplayPanelTests.DisplayPoint
 
 """
 

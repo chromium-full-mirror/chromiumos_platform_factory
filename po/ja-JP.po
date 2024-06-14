@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-06-03 11:13+UTC\n"
+"PO-Revision-Date: 2024-06-24 19:42+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4641,6 +4641,10 @@ msgstr "PSR ログを開始する"
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Update Intel Firmware"
 msgstr "Intel ファームウェアを更新する"
+
+#: ../py/test/test_lists/main_readiness.test_list.json
+msgid "Main Readiness Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/main_wipe.test_list.json
 msgid "Execute Wipe Test-List"

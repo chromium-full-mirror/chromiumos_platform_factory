@@ -63,6 +63,14 @@
         ]
       }
     },
+    "TPMTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "CommonTests",
+        "Cr50Tests",
+        "Ti50Tests"
+      ]
+    },
     "Ti50Tests": {
       "inherit": "TestGroup",
       "subtests": [
@@ -90,8 +98,6 @@
     }
   },
   "tests": [
-    "CommonTests",
-    "Cr50Tests",
-    "Ti50Tests"
+    "TPMTests"
   ]
 }

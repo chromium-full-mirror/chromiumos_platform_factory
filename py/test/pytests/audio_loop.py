@@ -63,25 +63,25 @@ To run Audiofuntest on external mic (default) and speakers:
 
 .. test_list::
 
-  generic_audio_examples:SpeakerExtmic
+  generic_audio_examples:AudioTests.SpeakerExtmic
 
 To run Audiofuntest on internal mics and speaker channel 0:
 
 .. test_list::
 
-  generic_audio_examples:SpeakerChannel0DMic
+  generic_audio_examples:AudioTests.SpeakerChannel0DMic
 
 To run noise test on internal mics and speaker:
 
 .. test_list::
 
-  generic_audio_examples:SpeakerDMicNoiseTest
+  generic_audio_examples:AudioTests.SpeakerDMicNoiseTest
 
 To run sine wave test on internal mics and speaker:
 
 .. test_list::
 
-  generic_audio_examples:SpeakerDMicSineWaveTest
+  generic_audio_examples:AudioTests.SpeakerDMicSineWaveTest
 
 """
 

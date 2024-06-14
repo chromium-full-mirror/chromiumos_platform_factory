@@ -31,7 +31,7 @@ To verify the tpm state, add this to test list:
 
 .. test_list::
 
-  generic_tpm_examples:CommonTests.TPMState
+  generic_tpm_examples:TPMTests.CommonTests.TPMState
 
 """
 

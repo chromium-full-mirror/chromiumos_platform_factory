@@ -63,27 +63,27 @@ To test display functionality, add this into test list:
 
 .. test_list::
 
-  generic_display_panel_examples:Display
+  generic_display_panel_examples:DisplayPanelTests.Display
 
 To test display functionality, show gray image, idle for an hour and pass, add
 this into test list:
 
 .. test_list::
 
-  generic_display_panel_examples:DisplayGrayForAnHour
+  generic_display_panel_examples:DisplayPanelTests.DisplayGrayForAnHour
 
 To test images with symptoms, add this into test list:
 
 .. test_list::
 
-  generic_display_panel_examples:FrontOfScreenTestSymptom
+  generic_display_panel_examples:DisplayPanelTests.FrontOfScreenTestSymptom
 
 To test display functionality, and show some more images, add this into test
 list:
 
 .. test_list::
 
-  generic_display_panel_examples:FrontOfScreenTestMoreImages
+  generic_display_panel_examples:DisplayPanelTests.FrontOfScreenTestMoreImages
 
 Default images in compressed file ``test_images.tar.bz2``::
 

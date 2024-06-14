@@ -23,7 +23,7 @@ To run the test, do:
 
 .. test_list::
 
-  generic_tpm_examples:Ti50Tests.UpdateTi50Firmware.ClearInactiveTi50Slot
+  generic_tpm_examples:TPMTests.Ti50Tests.UpdateTi50Firmware.ClearInactiveTi50Slot
 
 """
 

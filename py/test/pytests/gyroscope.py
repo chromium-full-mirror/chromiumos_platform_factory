@@ -33,7 +33,7 @@ To run a test on base gyroscope:
 
 .. test_list::
 
-  generic_ec_component_accel_examples:Gyroscope
+  generic_ec_component_accel_examples:AccelerometerIMUTests.Gyroscope
 
 """
 

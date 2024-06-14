@@ -38,13 +38,13 @@ To test AP RO verification, add this to test list:
 
 .. test_list::
 
-  generic_tpm_examples:Cr50Tests.Cr50APROVerificationGroup
+  generic_tpm_examples:TPMTests.Cr50Tests.Cr50APROVerificationGroup
 
 To use manual test of AP RO verification, add this to test list:
 
 .. test_list::
 
-  generic_tpm_examples:Cr50Tests.Cr50APROVerificationManual
+  generic_tpm_examples:TPMTests.Cr50Tests.Cr50APROVerificationManual
 
 """
 

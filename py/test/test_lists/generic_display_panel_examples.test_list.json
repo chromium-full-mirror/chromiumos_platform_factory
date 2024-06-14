@@ -38,6 +38,24 @@
         "idle_timeout": 3600
       }
     },
+    "DisplayPanelTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeDisplayPanel",
+        "Backlight",
+        "BacklightSmallerAdjustLevel",
+        "BrightnessLCDBacklight",
+        "Display",
+        "DisplayGrayForAnHour",
+        "EnterFrontOfScreenTestInteractiveMode",
+        "FrontOfScreenTestSymptom",
+        "FrontOfScreenTestMoreImages",
+        "FrontOfScreenTestStation",
+        "DisplayPoint",
+        "EDPPanelTiming",
+        "PrivacyScreen"
+      ]
+    },
     "EnterFrontOfScreenTestInteractiveMode": {
       "pytest_name": "display_interactive.display_interactive",
       "label": "Enter Front Of Screen Test Interactive Mode",
@@ -102,18 +120,6 @@
     }
   },
   "tests": [
-    "ProbeDisplayPanel",
-    "Backlight",
-    "BacklightSmallerAdjustLevel",
-    "BrightnessLCDBacklight",
-    "Display",
-    "DisplayGrayForAnHour",
-    "EnterFrontOfScreenTestInteractiveMode",
-    "FrontOfScreenTestSymptom",
-    "FrontOfScreenTestMoreImages",
-    "FrontOfScreenTestStation",
-    "DisplayPoint",
-    "EDPPanelTiming",
-    "PrivacyScreen"
+    "DisplayPanelTests"
   ]
 }

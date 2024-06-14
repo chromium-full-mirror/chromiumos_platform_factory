@@ -43,6 +43,28 @@
         "POWER"
       ]
     },
+    "BatteryTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeBattery",
+        "BatteryBasic",
+        "BatteryBasicCycleCountAtMost5",
+        "BatteryCapacity",
+        "BatteryCapacityBetween4000And5000",
+        "BatteryCycle",
+        "BatterySysfs",
+        "BlockingCharge",
+        "BlockingChargeToCutOffSetting",
+        "BlockingChargeTo75",
+        "BlockingCharge10PercentMoreIn5Minutes",
+        "BCICGroup",
+        "ChargeDischargeCurrent",
+        "ChargeDischargeCurrentExpectNoChargeWhenCharging",
+        "ChargeDischargeCurrentDifference",
+        "Charger15VInPort0",
+        "Charger"
+      ]
+    },
     "BlockingCharge10PercentMoreIn5Minutes": {
       "inherit": "BlockingCharge",
       "label": "Blocking Charge 10 Percent More In 5 Minutes",
@@ -109,22 +131,6 @@
     }
   },
   "tests": [
-    "ProbeBattery",
-    "BatteryBasic",
-    "BatteryBasicCycleCountAtMost5",
-    "BatteryCapacity",
-    "BatteryCapacityBetween4000And5000",
-    "BatteryCycle",
-    "BatterySysfs",
-    "BlockingCharge",
-    "BlockingChargeToCutOffSetting",
-    "BlockingChargeTo75",
-    "BlockingCharge10PercentMoreIn5Minutes",
-    "BCICGroup",
-    "ChargeDischargeCurrent",
-    "ChargeDischargeCurrentExpectNoChargeWhenCharging",
-    "ChargeDischargeCurrentDifference",
-    "Charger15VInPort0",
-    "Charger"
+    "BatteryTests"
   ]
 }

@@ -21,13 +21,13 @@ To run this test on DUT, add a test item in the test list:
 
 .. test_list::
 
-  generic_wireless_examples:ExampleWirelessConnect2G
+  generic_wireless_examples:WirelessTests.ExampleWirelessConnect2G
 
 To disconnect to all WiFi services.:
 
 .. test_list::
 
-  generic_wireless_examples:WirelessDisconnect
+  generic_wireless_examples:WirelessTests.WirelessDisconnect
 
 """
 

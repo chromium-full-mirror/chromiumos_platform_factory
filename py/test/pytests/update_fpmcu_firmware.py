@@ -46,21 +46,22 @@ add this in test list:
 
 .. test_list::
 
-  generic_fingerprint_examples:UpdateFPFirmware
+  generic_fingerprint_examples:FingerprintTests.UpdateFPFirmware
 
 To update the fingerprint firmware with a specified image in the station/DUT
 (only recommended in pre-PVT stages):
 
 .. test_list::
 
-  generic_fingerprint_examples:UpdateFPFirmwareWithLocalBuildFirmware
+  generic_fingerprint_examples:FingerprintTests.
+  UpdateFPFirmwareWithLocalBuildFirmware
 
 To check if the fingerprint firmware version is equal to the version in the
 release image:
 
 .. test_list::
 
-  generic_fingerprint_examples:CheckFPFirmware
+  generic_fingerprint_examples:FingerprintTests.CheckFPFirmware
 
 """
 

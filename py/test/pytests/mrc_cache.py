@@ -27,7 +27,7 @@ py/tools/mrc_cache.py, add this to test list:
 
 .. test_list::
 
-  generic_dram_examples:MRCCache
+  generic_dram_examples:DRAMTests.MRCCache
 
 """
 

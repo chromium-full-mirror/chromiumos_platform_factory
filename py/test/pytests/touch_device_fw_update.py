@@ -33,7 +33,7 @@ in test list:
 
 .. test_list::
 
-  generic_touchscreen_examples:TouchDeviceFWUpdate
+  generic_touchscreen_examples:TouchscreenTests.TouchDeviceFWUpdate
 
 """
 

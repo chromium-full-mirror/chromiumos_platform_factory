@@ -30,14 +30,14 @@ To test display backlight functionality, add this into test list:
 
 .. test_list::
 
-  generic_display_panel_examples:Backlight
+  generic_display_panel_examples:DisplayPanelTests.Backlight
 
 To test display backlight functionality, and have a smaller change on each
 space pressed, add this into test list:
 
 .. test_list::
 
-  generic_display_panel_examples:BacklightSmallerAdjustLevel
+  generic_display_panel_examples:DisplayPanelTests.BacklightSmallerAdjustLevel
 
 """
 

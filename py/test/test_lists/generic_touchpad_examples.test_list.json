@@ -38,13 +38,19 @@
     },
     "TouchpadHover": {
       "pytest_name": "touchpad_hover"
+    },
+    "TouchpadTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "ProbeTouchpad",
+        "Touchpad",
+        "Touchpad100Seconds",
+        "TouchpadCalibrateAndHover",
+        "TouchpadHover"
+      ]
     }
   },
   "tests": [
-    "ProbeTouchpad",
-    "Touchpad",
-    "Touchpad100Seconds",
-    "TouchpadCalibrateAndHover",
-    "TouchpadHover"
+    "TouchpadTests"
   ]
 }

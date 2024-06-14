@@ -32,7 +32,7 @@ To verify and set modem access level to 0:
 
 .. test_list::
 
-  generic_cellular_examples:ModemSecurity
+  generic_cellular_examples:CellularTests.ModemSecurity
 
 """
 

@@ -68,13 +68,13 @@ this into test list:
 
 .. test_list::
 
-  generic_ec_component_als_examples:LightSensorCalibration
+  generic_ec_component_als_examples:AmbientLightSensorTests.LightSensorCalibration
 
 To debug and use a mocked light chamber:
 
 .. test_list::
 
-  generic_ec_component_als_examples:LightSensorCalibrationWithMockedChamber
+  generic_ec_component_als_examples:AmbientLightSensorTests.LightSensorCalibrationWithMockedChamber
 
 Trouble Shooting
 ----------------
