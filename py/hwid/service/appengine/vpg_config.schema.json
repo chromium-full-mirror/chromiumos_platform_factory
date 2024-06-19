@@ -1,19 +1,18 @@
 {
   "type": "object",
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "boards": {
+      "type": "string"
+    },
     "models": {
       "type": "string"
     },
     "component_category": {
       "type": "string"
     },
-    "vpg_targets": {
+    "vpg_config": {
       "type": "object",
-      "propertyNames": {
-        "$ref": "#/definitions/models"
-      },
       "patternProperties": {
         ".*": {
           "properties": {
@@ -52,20 +51,38 @@
       }
     }
   },
-  "patternProperties": {
-    ".*": {
-      "if": {
-        "properties": {
-          "bucket": {}
-        }
+  "properties": {
+    "boards_vp_on": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/definitions/boards"
       },
-      "then": {
-        "properties": {
-          "bucket": {
-            "type": "string"
+      "$ref": "#/definitions/vpg_config"
+    },
+    "models_force_vp_on": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/definitions/boards"
+      },
+      "patternProperties": {
+        ".*": {
+          "propertyNames": {
+            "$ref": "#/definitions/models"
           },
-          "vpg_targets": {
-            "$ref": "#/definitions/vpg_targets"
+          "$ref": "#/definitions/vpg_config"
+        }
+      }
+    },
+    "models_force_vp_off": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/definitions/boards"
+      },
+      "patternProperties": {
+        ".*": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models"
           }
         }
       }

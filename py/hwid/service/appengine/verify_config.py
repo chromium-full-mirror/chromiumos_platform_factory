@@ -21,10 +21,10 @@ APPENGINE_DIR = pathlib.Path(__file__).resolve().parent
 FACTORY_DIR = APPENGINE_DIR.parent.parent.parent.parent
 FACTORY_PRIVATE_DIR = FACTORY_DIR.parent / 'factory-private'
 CHROMEOS_HWID_DIR = FACTORY_DIR.parent / 'chromeos-hwid'
-CONFIG_SCHEMA_PATH = (
-    FACTORY_DIR / 'py/hwid/service/appengine/config.schema.json')
-CONFIGURATIONS_YAML_PATH = (
-    FACTORY_PRIVATE_DIR / 'config/hwid/service/appengine/configurations.yaml')
+VPG_CONFIG_SCHEMA_PATH = (
+    FACTORY_DIR / 'py/hwid/service/appengine/vpg_config.schema.json')
+VPG_CONFIG_YAML_PATH = (
+    FACTORY_PRIVATE_DIR / 'config/hwid/service/appengine/vpg_config.yaml')
 PROJECTS_YAML_PATH = CHROMEOS_HWID_DIR / 'projects.yaml'
 
 
@@ -70,11 +70,18 @@ def IsChanged(path: pathlib.Path, repo_path: pathlib.Path) -> bool:
 def LoadConfigSchema(hwid_commit: Optional[str] = None) -> Mapping:
   """Load the JSON schema for HWID service config."""
 
-  schema = json.loads(ReadGitFile(CONFIG_SCHEMA_PATH))
   hwid_db_metadata = yaml.safe_load(
       ReadGitFile(PROJECTS_YAML_PATH, hwid_commit))
-  # Limit vpg_targets with model names.
-  schema['definitions']['models']['enum'] = sorted(hwid_db_metadata)
+  models = set()
+  boards = set()
+  for model, metadata in hwid_db_metadata.items():
+    models.add(model)
+    boards.add(metadata['board'])
+
+  schema = json.loads(ReadGitFile(VPG_CONFIG_SCHEMA_PATH))
+  # Limit vpg_config with models and boards in HWID.
+  schema['definitions']['models']['enum'] = sorted(models)
+  schema['definitions']['boards']['enum'] = sorted(boards)
   return schema
 
 
@@ -82,11 +89,10 @@ def VerifyConfig(commit: Optional[str] = None,
                  hwid_commit: Optional[str] = None) -> bool:
   """Verify the HWID service config."""
 
-  # TODO(b/308306344): Verify vpg_config.yaml instead.
-  if not IsChanged(CONFIGURATIONS_YAML_PATH, FACTORY_PRIVATE_DIR):
+  if not IsChanged(VPG_CONFIG_YAML_PATH, FACTORY_PRIVATE_DIR):
     logging.info('VerifyConfig: skipped')
     return True
-  config = yaml.safe_load(ReadGitFile(CONFIGURATIONS_YAML_PATH, commit))
+  config = yaml.safe_load(ReadGitFile(VPG_CONFIG_YAML_PATH, commit))
   schema = LoadConfigSchema(hwid_commit)
   try:
     jsonschema.validate(instance=config, schema=schema)
