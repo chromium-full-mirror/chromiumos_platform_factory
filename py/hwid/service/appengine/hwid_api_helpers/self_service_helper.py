@@ -4,6 +4,7 @@
 
 import abc
 import datetime
+import functools
 import io
 import logging
 import os.path
@@ -20,6 +21,7 @@ from cros.factory.hwid.service.appengine import change_unit_utils
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import dlm_component_list
+from cros.factory.hwid.service.appengine.data import firmware_qual
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
@@ -130,6 +132,8 @@ _CHANGE_UNIT_APPROVAL_STATUS_MAP = {
 _SplitChangeUnitException = change_unit_utils.SplitChangeUnitException
 _ApplyChangeUnitException = change_unit_utils.ApplyChangeUnitException
 _DataSource = hwid_api_messages_pb2.ChangeUnit.DataSource
+
+_ApplyFunction = Callable[[database.Database], database.Database]
 
 
 def _ConvertTouchedSectionToMsg(
@@ -1588,7 +1592,6 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     response = hwid_api_messages_pb2.SplitHwidDbChangeResponse()
     old_db = database.Database.LoadData(
         action.PatchHeader(action.GetDBEditableSection(internal=True)))
-    change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
     if session_cache.new_hwid_db_editable_section is None:
       new_db = old_db
     else:
@@ -1597,25 +1600,29 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           action.PatchHeader(session_cache.new_hwid_db_editable_section),
           avl_resource)
       new_db = database.Database.LoadData(new_hwid_db_contents_internal)
-    try:
-      change_units = change_unit_manager.ApplyChange(
-          new_db, self._avl_metadata_manager.SkipAVLCheck)
-    except _SplitChangeUnitException as ex:
-      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
-    for identity, change_unit in change_units.items():
-      response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
-          change_unit, _DataSource.HWID_CONFIG))
+    apply_functions: Sequence[Tuple[_ApplyFunction, _DataSource]] = [
+        (lambda x: x, _DataSource.HWID_CONFIG),
+        (functools.partial(
+            dlm_component_list.PatchComponentList,
+            comp_list=avl_resource.dlm_components),
+         _DataSource.COMPONENT_LIST),
+        (functools.partial(
+            firmware_qual.PatchFirmwareQualStatus,
+            firmware_quals=avl_resource.firmware_quals),
+         _DataSource.FIRMWARE_QUAL),
+    ]
 
-    new_db = dlm_component_list.PatchComponentList(
-        new_db, avl_resource.dlm_components)
-    try:
-      change_units = change_unit_manager.ApplyChange(
-          new_db, self._avl_metadata_manager.SkipAVLCheck)
-    except _SplitChangeUnitException as ex:
-      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
-    for identity, change_unit in change_units.items():
-      response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
-          change_unit, _DataSource.COMPONENT_LIST))
+    change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
+    for func, data_source in apply_functions:
+      new_db = func(new_db)
+      try:
+        change_units = change_unit_manager.ApplyChange(
+            new_db, self._avl_metadata_manager.SkipAVLCheck)
+      except _SplitChangeUnitException as ex:
+        raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+      for identity, change_unit in change_units.items():
+        response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
+            change_unit, data_source))
 
     self._session_cache_adapter.Put(
         request.session_token,

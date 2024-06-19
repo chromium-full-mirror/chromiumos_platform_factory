@@ -70,6 +70,7 @@ _DbChangeRequestMetadata = hwid_api_messages_pb2.DbChangeRequestMetadata
 _ComponentMsg = hwid_api_messages_pb2.Component
 _DataSource = hwid_api_messages_pb2.ChangeUnit.DataSource
 _DlmComponentMsg = hwid_api_messages_pb2.DlmComponentInfo
+_FirmwareQualMsg = hwid_api_messages_pb2.FirmwareQual
 
 _HWID_V3_FROM_FACTORY_BUNDLE_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -2246,10 +2247,11 @@ class SelfServiceShardTest(unittest.TestCase):
     db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
         dlm_components=[
             _DlmComponentMsg(
-                avl_info=_AvlInfoMsg(
-                    cid=1, qid=1), related_hwid_classes=['comp_cls_1'],
+                avl_info=_AvlInfoMsg(cid=1, qid=1),
+                related_hwid_classes=['comp_cls_1'],
                 has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=False)
-        ])
+        ],
+    )
     split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
         session_token=session_token, db_external_resource=db_external_resource)
 
@@ -2301,6 +2303,32 @@ class SelfServiceShardTest(unittest.TestCase):
         _ChangeUnitMsg(data_source=_DataSource.COMPONENT_LIST,
                        comp_change=comp_list_change),
     ], list(split_resp.change_units.values()))
+
+  def testSplitHwidDbChange_PatchFirmwareQuals(self):
+    project = 'CHROMEBOOK'
+    db_data = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
+    # Config repo and action.
+    self._ConfigLiveHWIDRepo(project, 3, db_data)
+    action = self._CreateFakeHWIDBAction(project, db_data)
+    self._modules.ConfigHWID(project, 3, db_data, hwid_action=action)
+
+    # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
+    analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project, db_data)
+    session_token = analyze_resp.validation_token
+
+    db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
+        firmware_quals=[_FirmwareQualMsg(build_version='1111.1.1')])
+    split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
+        session_token=session_token, db_external_resource=db_external_resource)
+
+    split_resp = self.service.SplitHwidDbChange(split_req)
+
+    self.assertEqual(2, len(split_resp.change_units))
+    for change_unit in split_resp.change_units.values():
+      self.assertEqual(change_unit.comp_change.support_status_case,
+                       _SupportStatusCase.SUPPORTED)
+      self.assertTrue(change_unit.comp_change.diff_prev.support_status_changed)
+      self.assertEqual(change_unit.data_source, _DataSource.FIRMWARE_QUAL)
 
   def testSplitHwidDbChange_PassWhenNoChange(self):
     # Arrange.
