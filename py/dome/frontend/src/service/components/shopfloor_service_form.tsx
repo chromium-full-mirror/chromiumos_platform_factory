@@ -42,7 +42,12 @@ ShopfloorServiceFormProps
           <Button type="submit" color="primary">
             Deploy
           </Button>
-          <Button type="submit" color="primary" onClick={handleTestConnection}>
+          <Button
+            type="submit"
+            color="primary"
+            onClick={handleTestConnection}
+            data-testid="deploy-test-btn"
+          >
             Deploy & Test
           </Button>
         </CardActions>

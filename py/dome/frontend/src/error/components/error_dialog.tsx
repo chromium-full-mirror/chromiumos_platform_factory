@@ -53,7 +53,12 @@ type ErrorDialogProps =
 const ErrorDialog: React.SFC<ErrorDialogProps> =
   ({message, show, showMore, hideErrorDialog,
     showMoreErrorMessage, classes}) => (
-    <Dialog maxWidth="md" open={show} onClose={hideErrorDialog}>
+    <Dialog
+      data-testid="error-dialog"
+      maxWidth="md"
+      open={show}
+      onClose={hideErrorDialog}
+    >
       <DialogContent>
         An error has occured, please copy the following error message, and
         contact the ChromeOS factory team.

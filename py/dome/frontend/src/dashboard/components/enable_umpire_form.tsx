@@ -150,7 +150,11 @@ const EnableUmpireForm: React.SFC<EnableUmpireFormProps> = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button color="primary" onClick={submitForm}>
+        <Button
+          data-testid="enable-confirm-btn"
+          color="primary"
+          onClick={submitForm}
+        >
           {hasExisting ? 'Add' : 'Create'}
         </Button>
         <Button onClick={onCancel}>Cancel</Button>

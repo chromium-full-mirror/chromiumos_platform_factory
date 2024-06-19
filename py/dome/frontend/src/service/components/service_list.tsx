@@ -73,11 +73,19 @@ class ServiceList extends React.Component<ServiceListProps, ServiceListStates> {
           const expanded = this.state.expanded[k] || false;
           return (
             <Card key={k} raised={false} square>
-              <ListItem button onClick={() => this.toggleExpand(k)}>
+              <ListItem
+                button
+                onClick={() => this.toggleExpand(k)}
+                data-testid={`service-title-${k}`}
+              >
                 <ListItemText primary={k} />
                 {expanded ? <ExpandLess /> : <ExpandMore />}
               </ListItem>
-              <Collapse in={expanded} timeout="auto">
+              <Collapse
+                in={expanded}
+                timeout="auto"
+                data-testid={`service-${k}`}
+              >
                 {
                   (k === 'shopFloor') ?
                   <ShopfloorServiceForm

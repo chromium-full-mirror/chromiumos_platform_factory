@@ -107,13 +107,17 @@ class ProjectsApp extends React.Component<ProjectAppProps, DialogStates> {
                 </Typography>
               </ListItem>
             ) : (
-              projectNames.map((name) => (
+              projectNames.map((name, idx) => (
                 <ListItem
+                  data-testid={`project-${idx}`}
                   key={name}
                   button
                   onClick={() => switchProject(name)}
                 >
-                  <ListItemText primary={name} />
+                  <ListItemText
+                    primary={name}
+                    data-testid={`project-name-${idx}`}
+                  />
                   <ListItemSecondaryAction>
                     <Tooltip title="delete this project">
                       <IconButton

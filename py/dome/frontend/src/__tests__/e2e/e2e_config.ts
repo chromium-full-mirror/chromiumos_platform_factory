@@ -6,4 +6,5 @@ export default {
     url: 'http://dome-dev-nginx/',
     pageWidth: 1280,
     pageHeight: 720,
+    umpireFakeProjectName: 'fake_correct_project_name',
 };
