@@ -431,6 +431,10 @@ def GetAllProbeStatementGenerators():
           ]),
       _SameNameFieldRecord('vendor', HexToHexValueConverter(
           4, has_prefix=False)),
+      _SameNameFieldRecord('bus', HexToHexValueConverter(4, has_prefix=False),
+                           is_optional=True, expect_probe_value=False),
+      _SameNameFieldRecord('version', HexToHexValueConverter(
+          4, has_prefix=False), is_optional=True, expect_probe_value=False),
   ]
   input_device_fields_old = [
       _FieldRecord(
@@ -446,6 +450,10 @@ def GetAllProbeStatementGenerators():
           HexToHexValueConverter(4, has_prefix=False),
           InputDeviceVendorValueConverter(),
       ]),
+      _SameNameFieldRecord('bus', HexToHexValueConverter(4, has_prefix=False),
+                           is_optional=True, expect_probe_value=False),
+      _SameNameFieldRecord('version', HexToHexValueConverter(
+          4, has_prefix=False), is_optional=True, expect_probe_value=False),
   ]
   all_probe_statement_generators['stylus'] = [
       _ProbeStatementGenerator(

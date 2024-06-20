@@ -302,8 +302,10 @@
         "componentCategory": "touchpad",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -312,8 +314,10 @@
         "componentCategory": "touchscreen",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -322,8 +326,10 @@
         "componentCategory": "stylus",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -438,8 +444,10 @@
         "componentCategory": "touchpad",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -448,8 +456,10 @@
         "componentCategory": "touchscreen",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -458,8 +468,10 @@
         "componentCategory": "stylus",
         "fieldNames": [
           "name",
+          "bus",
           "product",
           "vendor",
+          "version",
           "fw_version",
           "device_type"
         ]
@@ -750,6 +762,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -767,6 +783,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -781,6 +801,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -798,6 +822,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -812,6 +840,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -829,6 +861,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -1310,6 +1346,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -1327,6 +1367,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -1341,6 +1385,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -1360,6 +1408,10 @@
           "vendor": [
             false,
             "hex"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       },
@@ -1370,6 +1422,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "name": [
             true,
             "str",
@@ -1384,6 +1440,10 @@
             true,
             "hex",
             "!eq 0x12AB"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       },
@@ -1394,6 +1454,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "name": [
             true,
             "str",
@@ -1408,6 +1472,10 @@
             true,
             "hex",
             "!eq 0x12AB"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       }
@@ -1420,6 +1488,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -1439,6 +1511,10 @@
           "vendor": [
             false,
             "hex"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       },
@@ -1449,6 +1525,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "name": [
             true,
             "str",
@@ -1463,6 +1543,10 @@
             true,
             "hex",
             "!eq 0x12AB"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       },
@@ -1473,6 +1557,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "name": [
             true,
             "str",
@@ -1487,6 +1575,10 @@
             true,
             "hex",
             "!eq 0x12AB"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       },
@@ -1497,6 +1589,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "product": [
             true,
             "hex",
@@ -1506,6 +1602,10 @@
             true,
             "hex",
             "!eq 0x04F3"
+          ],
+          "version": [
+            false,
+            "hex"
           ]
         }
       }
@@ -2077,6 +2177,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2094,6 +2198,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -2108,6 +2216,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2125,6 +2237,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -2139,6 +2255,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2156,6 +2276,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -2554,6 +2678,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2571,6 +2699,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -2585,6 +2717,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2602,6 +2738,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -2616,6 +2756,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -2633,6 +2777,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3031,6 +3179,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3048,6 +3200,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3062,6 +3218,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3079,6 +3239,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3093,6 +3257,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3110,6 +3278,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3549,6 +3721,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3566,6 +3742,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3580,6 +3760,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3597,6 +3781,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -3611,6 +3799,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -3628,6 +3820,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4057,6 +4253,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4074,6 +4274,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4088,6 +4292,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4105,6 +4313,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4119,6 +4331,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4136,6 +4352,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4478,6 +4698,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4495,6 +4719,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4509,6 +4737,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4526,6 +4758,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]
@@ -4540,6 +4776,10 @@
           }
         },
         "expect": {
+          "bus": [
+            false,
+            "hex"
+          ],
           "device_type": [
             false,
             "str"
@@ -4557,6 +4797,10 @@
             "hex"
           ],
           "vendor": [
+            false,
+            "hex"
+          ],
+          "version": [
             false,
             "hex"
           ]

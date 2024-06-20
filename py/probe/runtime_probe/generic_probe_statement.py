@@ -66,19 +66,25 @@ def GetAllGenericProbeStatementInfoRecords():
               'bus_type', 'pci_vendor_id', 'pci_device_id', 'pci_revision',
               'pci_subsystem', 'usb_vendor_id', 'usb_product_id',
               'usb_bcd_device'
-          ], probe_function_argument={'device_type': 'cellular'}),
+          ], probe_function_argument={
+              'device_type': 'cellular'
+          }),
       GenericProbeStatementInfoRecord(
           'ethernet', 'network', [
               'bus_type', 'pci_vendor_id', 'pci_device_id', 'pci_revision',
               'pci_subsystem', 'usb_vendor_id', 'usb_product_id',
               'usb_bcd_device'
-          ], probe_function_argument={'device_type': 'ethernet'}),
+          ], probe_function_argument={
+              'device_type': 'ethernet'
+          }),
       GenericProbeStatementInfoRecord(
           'wireless', 'network', [
               'bus_type', 'pci_vendor_id', 'pci_device_id', 'pci_revision',
               'pci_subsystem', 'usb_vendor_id', 'usb_product_id',
               'usb_bcd_device', 'sdio_vendor_id', 'sdio_device_id'
-          ], probe_function_argument={'device_type': 'wifi'}),
+          ], probe_function_argument={
+              'device_type': 'wifi'
+          }),
       GenericProbeStatementInfoRecord('dram', 'memory',
                                       ['part', 'size', 'slot']),
       GenericProbeStatementInfoRecord('camera', 'generic_camera', [
@@ -91,27 +97,39 @@ def GetAllGenericProbeStatementInfoRecords():
       GenericProbeStatementInfoRecord(
           'touchpad', 'input_device', [
               'name',
+              'bus',
               'product',
               'vendor',
+              'version',
               'fw_version',
               'device_type',
-          ], probe_function_argument={'device_type': 'touchpad'}),
+          ], probe_function_argument={
+              'device_type': 'touchpad'
+          }),
       GenericProbeStatementInfoRecord(
           'touchscreen', 'input_device', [
               'name',
+              'bus',
               'product',
               'vendor',
+              'version',
               'fw_version',
               'device_type',
-          ], probe_function_argument={'device_type': 'touchscreen'}),
+          ], probe_function_argument={
+              'device_type': 'touchscreen'
+          }),
       GenericProbeStatementInfoRecord(
           'stylus', 'input_device', [
               'name',
+              'bus',
               'product',
               'vendor',
+              'version',
               'fw_version',
               'device_type',
-          ], probe_function_argument={'device_type': 'stylus'}),
+          ], probe_function_argument={
+              'device_type': 'stylus'
+          }),
   ]
 
 

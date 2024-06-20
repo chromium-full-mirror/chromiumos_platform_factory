@@ -441,9 +441,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
                     }
                 },
                 'expect': {
+                    'bus': [False, 'hex'],
                     'name': [True, 'str', '!eq foo'],
                     'product': [True, 'hex', '!eq 0x1122'],
                     'vendor': [True, 'hex', '!eq 0x5566'],
+                    'version': [False, 'hex'],
                 }
             }))
 
@@ -463,9 +465,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
                     }
                 },
                 'expect': {
+                    'bus': [False, 'hex'],
                     'name': [True, 'str', '!eq foo'],
                     'product': [True, 'hex', '!eq 0x1122'],
                     'vendor': [True, 'hex', '!eq 0x5566'],
+                    'version': [False, 'hex'],
                 }
             }))
 
@@ -488,9 +492,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
                     }
                 },
                 'expect': {
+                    'bus': [False, 'hex'],
                     'name': [True, 'str', '!eq foo'],
                     'product': [True, 'hex', '!eq 0x11223344'],
                     'vendor': [True, 'hex', '!eq 0x5566'],
+                    'version': [False, 'hex'],
                 }
             }))
 
@@ -512,8 +518,10 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
                     }
                 },
                 'expect': {
+                    'bus': [False, 'hex'],
                     'product': [True, 'hex', '!eq 0x1122'],
                     'vendor': [True, 'hex', '!eq 0x04F3'],
+                    'version': [False, 'hex'],
                 }
             }))
 
@@ -538,8 +546,10 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
                     }
                 },
                 'expect': {
+                    'bus': [False, 'hex'],
                     'product': [True, 'hex', '!eq 0x1122'],
                     'vendor': [True, 'hex', '!eq 0x04F3'],
+                    'version': [False, 'hex'],
                 }
             }))
 
