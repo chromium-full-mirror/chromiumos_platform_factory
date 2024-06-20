@@ -47,6 +47,28 @@ To update BCIC from the latest hwid bundle::
     }
   }
 
+To update BCIC from the local hwid bundle::
+
+  {
+    "pytest_name": "bcic",
+    "args": {
+      "action": "SET",
+      "use_latest_hwid_bundle": false
+    }
+  }
+
+
+To update BCIC from a local battert config::
+
+  {
+    "pytest_name": "bcic",
+    "args": {
+      "action": "SET",
+      "use_latest_hwid_bundle": false
+      "file_path": "/usr/share/bcic/rex.battery_config.json"
+    }
+  }
+
 To check BCIC::
 
   {
@@ -101,12 +123,12 @@ class BCICTest(test_case.TestCase):
     # yapf: disable
     if self.args.action == EnumAction.SET:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      self.assertTrue(
-          # yapf: disable
-          self.args.use_latest_hwid_bundle != bool(self.args.file_path),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          'Provide either a `file_path` or enable `use_latest_hwid_bundle`'
-          'to indicate the battery config source')
+      if self.args.use_latest_hwid_bundle and self.args.file_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        raise ValueError('Conflicting options: Cannot use both latest HWID'
+                         'bundle and a specified file path. Please choose one.')
+      if not self.args.use_latest_hwid_bundle and not self.args.file_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        logging.warning('No HWID bundle source specified. Using the current'
+                        'HWID bundle on DUT.')
 
   def runTest(self):
     # yapf: disable
