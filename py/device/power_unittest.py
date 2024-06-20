@@ -102,7 +102,7 @@ class ECToolPowerInfoTest(unittest.TestCase):
   """Unittest for power.ECToolPowerInfoMixin."""
   _MOCK_EC_BATTERY_READ = textwrap.dedent("""
       Battery info:
-        Manufacturer:           LGC
+        Manufacturer:           LGC MOCK
         Device name:            AC14B8K
         Chemistry   :           LION
         Serial number:          09FE
@@ -193,7 +193,7 @@ class ECToolPowerInfoTest(unittest.TestCase):
   def testGetBatteryManufacturer(self):
     self.board.CallOutput = mock.MagicMock(
         return_value=self._MOCK_EC_BATTERY_READ)
-    self.assertEqual(self.power.GetBatteryManufacturer(), 'LGC')
+    self.assertEqual(self.power.GetBatteryManufacturer(), 'LGC MOCK')
 
   def testGetInfoDict(self):
     self.board.CallOutput = mock.MagicMock(
@@ -209,7 +209,7 @@ class ECToolPowerInfoTest(unittest.TestCase):
         'chargePct': 50,
         'wearPct': 1,
         'cycleCount': 4,
-        'manufacturer': 'LGC',
+        'manufacturer': 'LGC MOCK',
         'device_name': 'AC14B8K'
     }
     self.assertEqual(self.power.GetInfoDict(), expected_dict)

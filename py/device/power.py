@@ -559,12 +559,26 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
       return re_object[0].split()
     return []
 
-  def _GetECToolBatteryAttribute(self, key_name, item_type=str):
-    re_object = re.findall(f'{key_name}'
-                           r'\s+(\S+)',
-                           # yapf: disable
+  def _GetECToolBatteryAttribute(self, key_name, item_type=str,
+                                 allow_space=False):
+    """Retrieves a specific attribute value from 'ectool battery' command.
+
+    Args:
+      key_name: The name of the attribute to extract (e.g., "Present voltage").
+      item_type: The expected data type of the attribute.
+      allow_space: Whether the attribute value can contain spaces.
+
+    Returns:
+      The attribute value converted to the specified `item_type`.
+
+    Raises:
+      self.Error: If the specified `key_name` is not found in the output.
+    """
+
+    pattern = rf'{key_name}\s+(.+)' if allow_space else rf'{key_name}\s+(\S+)'
+    re_object = re.findall(pattern,
                            self._device.CallOutput(['ectool', 'battery']))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+
     if re_object:
       return item_type(re_object[0])
     # yapf: disable
@@ -658,9 +672,9 @@ class ECToolPowerInfoMixin(AbstractPowerInfoMixin):
     https://crrev.com/c/5096745.
     """
     try:
-      return self._GetECToolBatteryAttribute('Manufacturer:')
+      return self._GetECToolBatteryAttribute('Manufacturer:', allow_space=True)
     except device_types.DeviceException:
-      return self._GetECToolBatteryAttribute('OEM name:')
+      return self._GetECToolBatteryAttribute('OEM name:', allow_space=True)
 
   def GetBatteryDeviceName(self):
     """See AbstractPowerInfoMixin.GetBatteryDeviceName
