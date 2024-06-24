@@ -85,10 +85,7 @@ class TestListDirective(code.CodeBlock):
 
   def run(self):
     self.content = cast(StringList, self.content)  # type: ignore
-    if len(self.content) != 1:
-      raise TestListDirectiveError(
-          f'The content of `.. {self.directive_name}` must be exact one line '
-          f'which contains the test object name. content={self.content}.')
+    self.content = StringList(["".join(self.content)])
 
     test_object_name = self.content[0]
     test_list_id, test_object_path = test_object_name.split(':', 1)
