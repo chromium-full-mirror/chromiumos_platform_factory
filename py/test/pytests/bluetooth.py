@@ -318,21 +318,26 @@ class BluetoothTest(test_case.TestCase):
       # yapf: enable
       # Import this module only when a test station needs it.
       # A base SMT test station does not need to use the charge fixture.
-      # pylint: disable=no-name-in-module
-      # yapf: disable
-      from cros.factory.test.fixture import base_charge_fixture  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
-      # yapf: enable
-      # Note: only reset the fixture in InitializeFixture test.
-      #       This will stop charging and disable the magnet initially.
-      #       For the following tests, do not reset the fixture so that
-      #       the charging could be continued across tests in the test list
-      #       defined in the base_host. The purpose is to keep charging the
-      #       battery while executing other tests.
-      self.fixture = base_charge_fixture.BaseChargeFixture(
-          # yapf: disable
-          reset=self.args.reset_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      # Add try catch since base_charge_fixture can't be import in unittest
+      try:
+        # pylint: disable=no-name-in-module
+        # yapf: disable
+        from cros.factory.test.fixture import base_charge_fixture  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+        # yapf: enable
+        # Note: only reset the fixture in InitializeFixture test.
+        #       This will stop charging and disable the magnet initially.
+        #       For the following tests, do not reset the fixture so that
+        #       the charging could be continued across tests in the test list
+        #       defined in the base_host. The purpose is to keep charging the
+        #       battery while executing other tests.
+        self.fixture = base_charge_fixture.BaseChargeFixture(
+            # yapf: disable
+            reset=self.args.reset_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+      except Exception:
+        pass
 
     # yapf: disable
     if self.args.expected_adapter_count:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -551,6 +556,7 @@ class BluetoothTest(test_case.TestCase):
     battery_level_2 = state.DataShelfGetValue(READ_BATTERY_STEP_2)
     session.console.info('%s: %s', READ_BATTERY_STEP_1, battery_level_1)
     session.console.info('%s: %s', READ_BATTERY_STEP_2, battery_level_2)
+    log_arg_2 = battery_level_2
 
     if not battery_level_1 or not battery_level_2:
       fail_msg = 'Battery levels should be read twice. read_1: %s, read_2: %s'
@@ -564,9 +570,10 @@ class BluetoothTest(test_case.TestCase):
       #       the expected_battery_level since battery_level_2 is read while
       #       charging and its value is usually larger than its actual value.
       fail_msg = 'Measured battery level %s is less than the expected level %s.'
+      log_arg_2 = self.args.expected_battery_level  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     else:
       return
-    self.FailTask(fail_msg % (battery_level_1, battery_level_2))
+    self.FailTask(fail_msg % (battery_level_1, log_arg_2))
 
   def ReadBatteryLevel(self, mac, step):
     """Read battery level."""
@@ -999,7 +1006,7 @@ class BluetoothTest(test_case.TestCase):
         average_rssi > average_rssi_upper_threshold):
       fail_msg += (
           f'Average RSSI {average_rssi:.2f} greater than the upper threshold '
-          f'{average_rssi_upper_threshold:.2f}')
+          f'{average_rssi_upper_threshold:.2f}\n')
 
     # Convert dbus.Int16 in rssis below to regular integers.
     status = (('pass' if fail_msg == '' else 'fail') +
@@ -1126,7 +1133,8 @@ class BluetoothTest(test_case.TestCase):
         if success_to_remove:
           return
         self.FailTask('InputTestTask: Fail to remove input')
-      self.FailTask('Failed by operator')
+      else:
+        self.FailTask('Failed by operator')
     finally:
       if need_to_cleanup:
         success_to_remove = RemoveInput()
