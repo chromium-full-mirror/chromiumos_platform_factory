@@ -41,9 +41,7 @@
     "Cr50Tests": {
       "inherit": "TestGroup",
       "subtests": [
-        "UpdateCr50Firmware",
-        "Cr50APROVerificationGroup",
-        "Cr50APROVerificationManual"
+        "UpdateCr50Firmware"
       ]
     },
     "ProbeTPM": {

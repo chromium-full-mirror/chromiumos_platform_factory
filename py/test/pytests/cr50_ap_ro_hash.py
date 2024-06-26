@@ -28,11 +28,7 @@ Dependency
 
 Examples
 --------
-To set, verify and clear AP RO hash, add this to test list:
-
-.. test_list::
-
-  generic_tpm_examples:TPMTests.Cr50Tests.Cr50APROVerificationGroup
+The feature is decided to be deprecated, no need to add this test item.
 
 """
 
