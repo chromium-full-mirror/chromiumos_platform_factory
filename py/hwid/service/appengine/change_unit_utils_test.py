@@ -1781,7 +1781,13 @@ class ChangeUnitManagerTest(unittest.TestCase):
     db2_units = manager.ApplyChange(database.Database.LoadData(new_db_2))
     change_units = manager.GetChangeUnits()
 
+    manager.SetApprovalStatus({
+        change_unit_identity: _ApprovalStatus.AUTO_APPROVED
+        for change_unit_identity in change_units
+    })
+
     graph = manager.ExportDependencyGraph()
+    split_result = manager.SplitChange()
 
     self.assertEqual(1, len(db1_units))
     self.assertEqual(1, len(db2_units))
@@ -1790,6 +1796,11 @@ class ChangeUnitManagerTest(unittest.TestCase):
 
     self.assertEqual(1, len(graph[db1_unit_id]))
     noop_id = next(iter(graph[db1_unit_id]))
+
+    self.assertNotIn(noop_id,
+                     split_result.auto_mergeable_change_unit_identities)
+    self.assertNotIn(noop_id,
+                     split_result.review_required_change_unit_identities)
 
     self.assertIsInstance(change_units[noop_id], change_unit_utils.Noop)
     self.assertIn(noop_id, graph[db1_unit_id])

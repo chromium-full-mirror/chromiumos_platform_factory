@@ -998,7 +998,7 @@ class ChangeUnitManager:
       while q:
         node = q.popleft()
         remaining.remove(node.identity)
-        if not isinstance(node, Noop):
+        if not isinstance(self._change_units[node.identity], Noop):
           patched_change_unit_identities.append(node.identity)
           self._change_units[node.identity].Patch(db_builder)
         for dependent in node.dependents:
