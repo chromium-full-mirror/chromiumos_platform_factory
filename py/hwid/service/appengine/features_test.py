@@ -18,6 +18,8 @@ from cros.factory.utils import type_utils
 def _BuildDLMComponentEntry(
     cid: int,
     qid: Optional[int] = None,
+    *,
+    is_subcomp: bool = False,
     cpu_property: Optional[Mapping] = None,
     virtual_dimm_property: Optional[Mapping] = None,
     storage_function_property: Optional[Mapping] = None,
@@ -31,7 +33,7 @@ def _BuildDLMComponentEntry(
     return cls(**kwargs)
 
   return features.DLMComponentEntry(
-      dlm_id=features.DLMComponentEntryID(cid, qid),
+      dlm_id=features.DLMComponentEntryID(cid, qid, is_subcomp),
       cpu_property=_BuildIfNotNone(features.CPUProperty, cpu_property),
       virtual_dimm_property=_BuildIfNotNone(features.VirtualDIMMProperty,
                                             virtual_dimm_property),
@@ -651,6 +653,14 @@ class StorageV1SpecTest(unittest.TestCase):
                   storage: storage_1
                 2:
                   storage: storage_2
+                3:
+                  storage: storage_subcomp_4
+                4:
+                  storage: storage_4
+                5:
+                  storage: storage_subcomp_5
+                6:
+                  storage: storage_5
               storage_bridge_field:
                 0:
                   storage_bridge: []
@@ -660,12 +670,27 @@ class StorageV1SpecTest(unittest.TestCase):
                   storage_bridge: storage_bridge_3
         """))
     dlm_db = _BuildDLMComponentDatabase([
-        _BuildDLMComponentEntry(1,
-                                storage_function_property={'size_in_gb': 64}),
-        _BuildDLMComponentEntry(2,
-                                storage_function_property={'size_in_gb': 128}),
-        _BuildDLMComponentEntry(3,
-                                storage_function_property={'size_in_gb': 256}),
+        _BuildDLMComponentEntry(1, storage_function_property={
+            'size_in_gb': 64
+        }),
+        _BuildDLMComponentEntry(2, storage_function_property={
+            'size_in_gb': 128
+        }),
+        _BuildDLMComponentEntry(3, storage_function_property={
+            'size_in_gb': 256
+        }),
+        _BuildDLMComponentEntry(4, is_subcomp=False, storage_function_property={
+            'size_in_gb': 64
+        }),
+        _BuildDLMComponentEntry(4, is_subcomp=True, storage_function_property={
+            'size_in_gb': 256
+        }),
+        _BuildDLMComponentEntry(5, is_subcomp=True, storage_function_property={
+            'size_in_gb': 64
+        }),
+        _BuildDLMComponentEntry(5, is_subcomp=False, storage_function_property={
+            'size_in_gb': 256
+        }),
     ])
 
     actual = features.StorageV1Spec().FindSatisfiedEncodedValues(db, dlm_db)
@@ -673,7 +698,7 @@ class StorageV1SpecTest(unittest.TestCase):
                          for k, v in actual.items()}
 
     self.assertDictEqual(comparable_actual, {
-        'storage_field': (2, ),
+        'storage_field': (2, 3, 6),
         'storage_bridge_field': (1, 2)
     })
 

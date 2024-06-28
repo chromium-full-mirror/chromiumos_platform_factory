@@ -203,15 +203,21 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
     ]))
 
   def _CreateDLMComponentEntry(
-      self, cid: int, qid: Optional[int] = None,
+      self,
+      cid: int,
+      qid: Optional[int] = None,
+      *,
+      is_subcomp: bool = False,
       cpu_property: Optional[features.CPUProperty] = None,
       virtual_dimm_property: Optional[features.VirtualDIMMProperty] = None,
       storage_function_property: (
           Optional[features.StorageFunctionProperty]) = None,
       display_property: Optional[features.DisplayProperty] = None,
-      camera_property: Optional[features.CameraProperty] = None):
+      camera_property: Optional[features.CameraProperty] = None,
+  ):
     return features.DLMComponentEntry(
-        dlm_id=features.DLMComponentEntryID(cid=cid, qid=qid),
+        dlm_id=features.DLMComponentEntryID(cid=cid, qid=qid,
+                                            is_subcomp=is_subcomp),
         cpu_property=cpu_property, virtual_dimm_property=virtual_dimm_property,
         storage_function_property=storage_function_property,
         display_panel_property=display_property,
@@ -450,6 +456,37 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
     self.assertDictEqual(
         self._GetConvertedDLMComponentDatabaseFromMock(),
         {expected_converted_dlm_entry.dlm_id: expected_converted_dlm_entry})
+
+  def testBuild_WithSubCompStorage_Success(self):
+    db = self._BuildHWIDDBForTest(components={
+        'storage': {
+            'storage_subcomp_1': {
+                'vid': 'abcd'
+            }
+        }
+    })
+    extra_resource = hwid_api_messages_pb2.HwidDbExternalResource()
+    extra_resource.device_feature_version = 1
+    msg = extra_resource.dlm_components.add(
+        cid=1,
+        is_storage=True,
+        avl_info=hwid_api_messages_pb2.AvlInfo(cid=1, is_subcomp=True),
+    )
+    msg.storage_info.size_in_gb = 256
+
+    inst = ss_helper_module.FeatureMatcherBuilderImpl.Create(db, extra_resource)
+    result = inst.Build()
+
+    self._AssertFeatureMatcherBuildResultSuccess(result)
+    expected_converted_dlm_entry = self._CreateDLMComponentEntry(
+        cid=1,
+        is_subcomp=True,
+        storage_function_property=features.StorageFunctionProperty(
+            size_in_gb=256),
+    )
+    self.assertEqual(self._GetConvertedDLMComponentDatabaseFromMock(), {
+        expected_converted_dlm_entry.dlm_id: expected_converted_dlm_entry
+    })
 
   def testBuild_WithDisplaySizeMismatch_SuccessWithWarnings(self):
     db = self._BuildHWIDDBForTest(components={

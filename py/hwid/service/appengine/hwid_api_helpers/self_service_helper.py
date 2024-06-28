@@ -640,8 +640,11 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
   def _BuildDLMComponentDB(self) -> features.DLMComponentDatabase:
     dlm_component_db = {}
     for dlm_component_info in self._extra_resource.dlm_components:
-      dlm_id = features.DLMComponentEntryID(dlm_component_info.cid,
-                                            dlm_component_info.qid or None)
+      dlm_id = features.DLMComponentEntryID(
+          cid=dlm_component_info.cid,
+          qid=dlm_component_info.qid or None,
+          is_subcomp=dlm_component_info.avl_info.is_subcomp,
+      )
       dlm_component_db[dlm_id] = features.DLMComponentEntry(
           dlm_id, cpu_property=self._GetCPUProperty(dlm_component_info),
           virtual_dimm_property=self._GetVirtualDIMMProperty(

@@ -19,9 +19,11 @@ class DLMComponentEntryID(NamedTuple):
   Attributes:
     cid: The DLM component ID.
     qid: The DLM qualification ID if the target entry is a qualification.
+    is_subcomp: A bool indicating if the DLM component entry is a subcomp.
   """
   cid: int
   qid: Optional[int]
+  is_subcomp: bool
 
 
 class CPUProperty(NamedTuple):
@@ -477,11 +479,11 @@ class CreateDLMCompEntryAcceptor(
   def AcceptRegularComp(self, cid: int,
                         qid: Optional[int]) -> Optional[DLMComponentEntryID]:
     """See base class."""
-    return DLMComponentEntryID(cid, qid)
+    return DLMComponentEntryID(cid, qid, False)
 
   def AcceptSubcomp(self, cid: int) -> Optional[DLMComponentEntryID]:
     """See base class."""
-    return DLMComponentEntryID(cid, None)
+    return DLMComponentEntryID(cid, None, True)
 
   def AcceptUntracked(self) -> Optional[DLMComponentEntryID]:
     """See base class."""
