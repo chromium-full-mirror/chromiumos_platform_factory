@@ -23,6 +23,8 @@ encoded_fields:
       comp_cls1: comp_cls1_1_1
     2:
       comp_cls1: comp_cls1_subcomp_2
+    3:
+      comp_cls1: comp_cls1_3
 
 components:
   region: !region_component
@@ -30,14 +32,21 @@ components:
     items:
       comp_cls1_1:
         status: unqualified
-        values: null
+        values:
+          key: value1
       comp_cls1_1_1:
         status: unqualified
-        values: null
+        values:
+          key: value2
       comp_cls1_subcomp_2:
         status: supported
-        values: null
+        values:
+          key: value3
       comp_cls1_untracked:
+        status: unqualified
+        values:
+          key: value4
+      comp_cls1_3:
         status: unqualified
         values: null
 

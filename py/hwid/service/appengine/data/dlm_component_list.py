@@ -49,7 +49,7 @@ def PatchComponentList(db: database.Database,
   }
   for comp_cls in all_classes:
     name_pattern = npa.NamePattern(comp_cls)
-    for comp_name, comp_info in new_db.GetComponents(comp_cls).items():
+    for comp_name, comp_info in new_db.GetComponents(comp_cls, False).items():
       avl_info = name_pattern.Matches(comp_name).Provide(AVL_INFO_ACCEPTOR)
       if avl_info is None:
         continue

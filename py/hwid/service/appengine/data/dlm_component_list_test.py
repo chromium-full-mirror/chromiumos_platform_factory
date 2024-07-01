@@ -43,6 +43,19 @@ class DlmComponentListTest(unittest.TestCase):
     self.assertEqual(comps['comp_cls1_1_1'].status, 'unsupported')
     self.assertEqual(comps['comp_cls1_subcomp_2'].status, 'deprecated')
 
+  def testPathComponentList_ExcludeDefaultComps(self):
+    db = database.Database.LoadFile(GOLDEN_HWIDV3_FILE, verify_checksum=False)
+    comp_list = [
+        _DlmComponentMsg(
+            avl_info=_AvlInfoMsg(cid=3), related_hwid_classes=['comp_cls1'],
+            has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=True),
+    ]
+
+    new_db = dlm_component_list.PatchComponentList(db, comp_list)
+
+    comps = new_db.GetComponents('comp_cls1')
+    self.assertEqual(comps['comp_cls1_3'].status, 'unqualified')
+
 
 if __name__ == '__main__':
   unittest.main()
