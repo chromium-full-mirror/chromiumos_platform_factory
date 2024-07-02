@@ -363,19 +363,22 @@ def GetAllProbeStatementGenerators():
 
   # TODO(yhong): Also convert SDIO network component probe statements.
   network_pci_fields = [
-      _FieldRecord('vendor', 'pci_vendor_id', HexToHexValueConverter(4)),
+      _FieldRecord(['vendor', 'pci_vendor_id'], 'pci_vendor_id',
+                   HexToHexValueConverter(4)),
       # TODO(yhong): Set `pci_device_id` to non optional field when b/150914933
       #     is resolved.
-      _FieldRecord('device', 'pci_device_id', HexToHexValueConverter(4),
-                   is_optional=True),
-      _FieldRecord('revision_id', 'pci_revision', HexToHexValueConverter(2),
-                   is_optional=True),
-      _FieldRecord('subsystem_device', 'pci_subsystem',
+      _FieldRecord(['device', 'pci_device_id'], 'pci_device_id',
+                   HexToHexValueConverter(4), is_optional=True),
+      _FieldRecord(['revision_id', 'pci_revision'], 'pci_revision',
+                   HexToHexValueConverter(2), is_optional=True),
+      _FieldRecord(['subsystem_device', 'pci_subsystem'], 'pci_subsystem',
                    HexToHexValueConverter(4), is_optional=True),
   ]
   network_sdio_fields = [
-      _FieldRecord('vendor', 'sdio_vendor_id', HexToHexValueConverter(4)),
-      _FieldRecord('device', 'sdio_device_id', HexToHexValueConverter(4)),
+      _FieldRecord(['vendor', 'sdio_vendor_id'], 'sdio_vendor_id',
+                   HexToHexValueConverter(4)),
+      _FieldRecord(['device', 'sdio_device_id'], 'sdio_device_id',
+                   HexToHexValueConverter(4)),
   ]
   usb_fields = [
       _FieldRecord(['idVendor', 'usb_vendor_id'], 'usb_vendor_id',

@@ -380,6 +380,97 @@ class NetworkProbeStatementGeneratorTest(unittest.TestCase):
                 }]
             }))
 
+  def testPciSuccess_WithPciPrefix(self):
+    ps_gen = _vp_generator.GetAllProbeStatementGenerators()['wireless'][0]
+    ps = ps_gen.TryGenerate('name1', {
+        'pci_vendor_id': '0x1234',
+        'pci_device_id': '0x5678'
+    })
+    self.assertEqual(
+        ps,
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'name1', {
+                'eval': {
+                    'network': {
+                        'device_type': 'wifi'
+                    }
+                },
+                'expect': {
+                    'pci_device_id': [True, 'hex', '!eq 0x5678'],
+                    'pci_revision': [False, 'hex'],
+                    'pci_subsystem': [False, 'hex'],
+                    'pci_vendor_id': [True, 'hex', '!eq 0x1234']
+                }
+            }))
+
+    ps = ps_gen.TryGenerate(
+        'name1', {
+            'pci_vendor_id': '0x1234',
+            'pci_device_id': '0x5678',
+            'pci_subsystem': '0x0123'
+        })
+    self.assertEqual(
+        ps,
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'name1', {
+                'eval': {
+                    'network': {
+                        'device_type': 'wifi'
+                    }
+                },
+                'expect': {
+                    'pci_device_id': [True, 'hex', '!eq 0x5678'],
+                    'pci_revision': [False, 'hex'],
+                    'pci_subsystem': [True, 'hex', '!eq 0x0123'],
+                    'pci_vendor_id': [True, 'hex', '!eq 0x1234']
+                }
+            }))
+
+    ps = ps_gen.TryGenerate(
+        'name1', {
+            'pci_vendor_id': '0x1234',
+            'pci_device_id': '0x5678',
+            'pci_revision': '0x01',
+            'pci_subsystem': '0x0123'
+        })
+    self.assertEqual(
+        ps,
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'name1', {
+                'eval': {
+                    'network': {
+                        'device_type': 'wifi'
+                    }
+                },
+                'expect': {
+                    'pci_device_id': [True, 'hex', '!eq 0x5678'],
+                    'pci_revision': [True, 'hex', '!eq 0x01'],
+                    'pci_subsystem': [True, 'hex', '!eq 0x0123'],
+                    'pci_vendor_id': [True, 'hex', '!eq 0x1234']
+                }
+            }))
+
+  def testSdioSuccess_WithSdioPrefix(self):
+    ps_gen = _vp_generator.GetAllProbeStatementGenerators()['wireless'][0]
+    ps = ps_gen.TryGenerate('name1', {
+        'sdio_vendor_id': '0x1234',
+        'sdio_device_id': '0x5678'
+    })
+    self.assertEqual(
+        ps,
+        probe_config_types.ComponentProbeStatement(
+            'wireless', 'name1', {
+                'eval': {
+                    'network': {
+                        'device_type': 'wifi'
+                    }
+                },
+                'expect': {
+                    'sdio_device_id': [True, 'hex', '!eq 0x5678'],
+                    'sdio_vendor_id': [True, 'hex', '!eq 0x1234']
+                }
+            }))
+
   def testPciOrSdioFail(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['wireless'][0]
     self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1',
