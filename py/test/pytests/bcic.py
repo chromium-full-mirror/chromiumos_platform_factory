@@ -328,5 +328,9 @@ class BCICTest(test_case.TestCase):
     active_battery_config = self.GetBatteryConfig('', flatten=False)
     active_manufacturer, active_device_name = next(
         iter(active_battery_config.keys())).split(',')
+
+    # Use startswith() instead of equality for device name comparison because
+    # some active battery configs store only a prefix of the full device name
+    # (as seen in b/297307194#comment14).
     return (probed_manufacturer == active_manufacturer and
-            probed_device_name == active_device_name)
+            probed_device_name.startswith(active_device_name))
