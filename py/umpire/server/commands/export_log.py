@@ -133,6 +133,9 @@ class LogExporter:
       if log_type == 'csv':
         compressed_file_name = 'csv.tar.bz2'
         dst_path = os.path.join(dst_dir, compressed_file_name)
+        if not os.path.exists(os.path.join(umpire_data_dir, sub_dir)):
+          raise common.UmpireError(
+              f'Failed to export {log_type}: No csv found.')
         self.CompressFilesFromListToPath({umpire_data_dir: [sub_dir]}, dst_path)
 
         if os.path.isfile(dst_path):
