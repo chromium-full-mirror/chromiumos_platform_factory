@@ -213,13 +213,15 @@ class FirmwareContent:
   @classmethod
   def Load(cls, target):
     """Create class instance for target, using cached copy if available."""
-    if target in cls._target_cache:
-      return cls._target_cache[target]
+    key = f"{target}_{cls.__name__}"
+
+    if key in cls._target_cache:
+      return cls._target_cache[key]
     obj = cls()
     obj.target = target
     obj.flashrom = Flashrom(target)
     obj.cached_files = []
-    cls._target_cache[target] = obj
+    cls._target_cache[key] = obj
     return obj
 
   def GetChipId(self):
