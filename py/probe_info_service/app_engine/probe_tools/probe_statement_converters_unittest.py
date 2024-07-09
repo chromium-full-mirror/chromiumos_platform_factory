@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import typing
 from typing import Optional, Sequence
 import unittest
 
@@ -25,7 +26,8 @@ def _CreateIntProbeParam(name: str,
   return probe_info_analytics.ProbeParameter(name=name, int_value=value)
 
 
-def _GetConverter(name: str) -> Optional[analyzers.IProbeInfoConverter]:
+def _GetConverter(
+    name: str) -> Optional[analyzers.IBidirectionalProbeInfoConverter]:
   for converter in ps_converters.GetAllConverters():
     if name == converter.GetName():
       return converter
@@ -2546,6 +2548,219 @@ class WirelessConverterTest(ConverterTestCase):
     expected_match_result = analyzers.ProbeResultMatchResult(
         {'wifi_probe_attributes': 'wireless'})
     self.assertEqual(actual, expected_match_result)
+
+
+class ECComponentStandaloneComponentConverterTest(ConverterTestCase):
+
+  _COMPONENT_TYPES = ('accel', 'als', 'charger')
+
+  def _GetConverter(
+      self, component_type: str) -> analyzers.IBidirectionalProbeInfoConverter:
+    converter = _GetConverter(f'ec_component.ec_component_{component_type}')
+    assert converter is not None
+    return converter
+
+  def testGenerateDefinition(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        converter = self._GetConverter(component_type)
+
+        actual = converter.GenerateDefinition()
+
+        expect = text_format.Parse(
+            f'''
+            name: "ec_component.ec_component_{component_type}"
+            description: "Probe EC components by manifest."
+            parameter_definitions {{
+              name: "{component_type}_component_name"
+              description: "Name identifier of the component in the manifest."
+              value_type: STRING
+            }}''', probe_info_analytics.ProbeFunctionDefinition())
+        self.assertCountEqual(actual.parameter_definitions,
+                              expect.parameter_definitions)
+
+  def testParseProbeParam_CanGenerateProbeStatement(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        probe_params = [
+            _CreateStrProbeParam(f'{component_type}_component_name',
+                                 'the_name_in_manifest'),
+        ]
+
+        converter = self._GetConverter(component_type)
+        actual = converter.ParseProbeParams(
+            probe_params, allow_missing_params=False,
+            comp_name_for_probe_statement='comp_name')
+
+        expected_probe_statements = [
+            probe_config_types.ComponentProbeStatement(
+                'ec_component', 'comp_name', {
+                    'eval': {
+                        'ec_component': {'type': component_type},
+                    },
+                    'expect': {
+                        'component_name': [
+                            True,
+                            'str',
+                            '!eq the_name_in_manifest'
+                        ],
+                    }
+                },
+            )
+        ]
+        self.assertCountEqual(
+            typing.cast(Sequence[probe_config_types.ComponentProbeStatement],
+                        actual.output),
+            expected_probe_statements)
+        self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
+  def testParseProbeResult_CanParseProbeResult(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        probe_result = {
+            'ec_component': [
+                {
+                    'component_type': component_type,
+                    'component_name': 'ABC'
+                },
+                {
+                    'component_type': 'other_type',
+                    'component_name': 'DEF'
+                },
+            ]
+        }
+
+        converter = self._GetConverter(component_type)
+        actual = converter.ParseProbeResult(probe_result)
+
+        expected_probe_parameters = [
+            analyzers.ParsedProbeParameter(
+                'ec_component',
+                _CreateStrProbeParam(
+                    f'{component_type}_component_name', 'ABC')),
+        ]
+        self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testGetNormalizedProbeParams_CanGetParamsWithCorrectFormat(self):
+    for component_type in self._COMPONENT_TYPES:
+      param_name = f'{component_type}_component_name'
+      with self.subTest(component_type=component_type):
+        probe_params = [_CreateStrProbeParam(param_name, 'ABC')]
+
+        converter = self._GetConverter(component_type)
+        actual = converter.GetNormalizedProbeParams(probe_params)
+
+        expected_probe_params = [_CreateStrProbeParam(param_name, 'ABC')]
+        self.assertCountEqual(actual, expected_probe_params)
+
+
+class ECComponentUSBCConverterTest(ConverterTestCase):
+  def setUp(self):
+    super().setUp()
+    converter = _GetConverter('usb_c.ec_components')
+    assert converter is not None
+    self._converter = converter
+
+  def testParseProbeParam_CanGenerateProbeStatement(self):
+    probe_params = [
+        _CreateStrProbeParam('bc12_component_name', 'bc12_name'),
+        _CreateStrProbeParam('tcpc_component_name', 'tcpc_name'),
+    ]
+
+    actual = self._converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'ec_component', 'comp_name-bc12', {
+                'eval': {
+                    'ec_component': {'type': 'bc12'},
+                },
+                'expect': {
+                    'component_name': [True, 'str', '!eq bc12_name'],
+                }
+            },
+        ),
+        probe_config_types.ComponentProbeStatement(
+            'ec_component', 'comp_name-tcpc', {
+                'eval': {
+                    'ec_component': {'type': 'tcpc'},
+                },
+                'expect': {
+                    'component_name': [True, 'str', '!eq tcpc_name'],
+                }
+            },
+        ),
+    ]
+    self.assertCountEqual(
+        typing.cast(Sequence[probe_config_types.ComponentProbeStatement],
+                    actual.output), expected_probe_statements)
+    self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
+  def testParseProbeResult_CanParseProbeResult(self):
+    probe_result = {
+        'ec_component': [
+            {
+                'component_type': 'ppc',
+                'component_name': 'ppc_name'
+            },
+            {
+                'component_type': 'bc12',
+                'component_name': 'bc12_name'
+            },
+        ]
+    }
+
+    actual = self._converter.ParseProbeResult(probe_result)
+
+    expected_probe_parameters = [
+        analyzers.ParsedProbeParameter(
+            'ec_component',
+            _CreateStrProbeParam('ppc_component_name', 'ppc_name')),
+        analyzers.ParsedProbeParameter(
+            'ec_component',
+            _CreateStrProbeParam('bc12_component_name', 'bc12_name')),
+    ]
+    self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testParseProbeResult_CanMatchParsedProbeResultsWithUnrelatedComponents(
+      self):
+    probe_params = [
+        _CreateStrProbeParam('bc12_component_name', 'bc12_name'),
+        _CreateStrProbeParam('tcpc_component_name', 'tcpc_name'),
+    ]
+    probe_result = {
+        'ec_component': [
+            {
+                'component_type': 'charger',
+                'component_name': 'charger_probed_name',
+            },
+            {
+                'component_type': 'bc12',
+                'component_name': 'bc12_probed_name',
+            },
+            {
+                'component_type': 'ppc',
+                'component_name': 'ppc_probed_name',
+            },
+        ]
+    }
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)
+
+    actual = self._converter.MatchProbeResult(probe_params, parsed_probe_result)
+
+    expected = analyzers.ProbeResultMatchResult(
+        {'bc12_component_name': 'ec_component', 'tcpc_component_name': None})
+    self.assertEqual(actual, expected)
+
+  def testGetNormalizedProbeParams_CanGetParamsWithCorrectFormat(self):
+    probe_params = [_CreateStrProbeParam('tcpc_component_name', 'ABC')]
+
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
+
+    expected_probe_params = [_CreateStrProbeParam('tcpc_component_name', 'ABC')]
+    self.assertCountEqual(actual, expected_probe_params)
 
 
 if __name__ == '__main__':

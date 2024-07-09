@@ -66,6 +66,9 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         'cpu.generic_cpu',
         'display_panel.edid',
         'dram.memory',
+        'ec_component.ec_component_accel',
+        'ec_component.ec_component_als',
+        'ec_component.ec_component_charger',
         'emmc_pcie_assembly.generic',
         'emmc_pcie_storage_bridge.mmc_host',
         'raw_probe_statement',
@@ -73,6 +76,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         'storage.nvme_storage',
         'storage.ufs_storage',
         'touchscreen_module.generic_input_device_and_edid',
+        'usb_c.ec_components',
         'wireless.pci_wireless_network',
         'wireless.sdio_wireless_network',
     ])

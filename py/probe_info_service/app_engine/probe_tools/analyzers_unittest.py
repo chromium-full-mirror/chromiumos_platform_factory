@@ -540,6 +540,65 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
           result.probe_info_test_results,
           [_ProbeInfoTestResult(result_type=_ProbeInfoTestResult.NOT_PROBED)])
 
+  def testWithUSBCProbeInfoAndProbedSomeFeatures_ThenBuildSuggestions(self):
+    # Arrange, prepare the probe info.
+    pi_analyzer = analyzers.ProbeInfoAnalyzer([
+        converter for converter in ps_converters.GetAllConverters()
+        if converter.GetName() == 'usb_c.ec_components'
+    ])
+    pi = text_format.Parse(
+        '''probe_function_name: "usb_c.ec_components"
+           probe_parameters {
+            name: "ppc_component_name" string_value: "ppc_name"
+           }
+           probe_parameters {
+            name: "bc12_component_name" string_value: "bc12_name"
+           }''', _ProbeInfo())
+    # And then prepare the probe bundle.
+    pds = pi_analyzer.CreateProbeDataSource(FakeComponentName('comp_name'), pi)
+    generate_result = pi_analyzer.GenerateProbeBundlePayload([pds])
+    self.assertEqual(generate_result.probe_info_parsed_results[0].result_type,
+                     _ProbeInfoParsedResult.PASSED)
+    self.assertIsNotNone(generate_result.output)
+    bundle_content: bytes = generate_result.output.content  # type: ignore
+    # And then run the probe bundle.
+    bundle_output = self._InvokeProbeBundleWithStubRuntimeProbe(
+        bundle_content, runtime_probe_stdout='''
+            { "ec_component": [
+              { "name": "generic",
+                "values": {
+                  "component_type": "charger",
+                  "component_name": "unrelated_charger_name"
+              } },
+              { "name": "generic",
+                "values": {
+                  "component_type": "ppc",
+                  "component_name": "real_ppc_name"
+              } },
+              { "name": "generic",
+                "values": {
+                  "component_type": "tcpc",
+                  "component_name": "real_tcpc_name"
+              } }
+          ] }''')
+
+    # Act.
+    result = pi_analyzer.AnalyzeQualProbeTestResultPayload(pds, bundle_output)
+
+    expected_result = _ProbeInfoTestResult(
+        result_type=_ProbeInfoTestResult.PROBE_PRAMETER_SUGGESTION,
+        probe_parameter_suggestions=[
+            _ProbeParameterSuggestion(
+                index=0,
+                hint=('expected: \"[\'ppc_name\']\", probed 1 '
+                      'ec_component component(s) with value:\ncomponent 1: '
+                      '\"real_ppc_name\"')),
+            _ProbeParameterSuggestion(
+                index=1, hint=('expected: \"[\'bc12_name\']\", probed 0 '
+                               'component with the expected value.')),
+        ], suggestion_msg=analyzers.PROBED_GENERIC_COMPS)
+    self._AssertProbeInfoTestResult(result, expected_result)
+
   def testWithBatteryProbeStatementProbeInfo_ThenCanTestByQualBundle(self):
     # Arrange.
     pi_analyzer = analyzers.ProbeInfoAnalyzer([

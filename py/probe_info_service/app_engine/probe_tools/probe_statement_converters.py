@@ -12,7 +12,7 @@ import enum
 import functools
 import itertools
 import re
-from typing import Any, Callable, Collection, List, Mapping, NamedTuple, Optional, Sequence, Tuple
+from typing import Any, Callable, Collection, List, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple
 
 from cros.factory.probe.runtime_probe import probe_config_definition
 from cros.factory.probe.runtime_probe import probe_config_types
@@ -729,18 +729,26 @@ class _ProbeFuncConverter(_IBidirectionalProbeInfoConverter):
     """See base class."""
     matchers = self.GenerateMatchers(probe_params)
 
-    # Collect names of all mismatched parameters.
-    param_name_to_category = {}
+    # Collect names of all mismatched parameters, default to "not probed".
+    param_name_to_category: MutableMapping[str, Optional[str]] = {
+        param_name: None
+        for param_name in matchers
+    }
     for parsed_result in parsed_probe_result:
       param = parsed_result.probe_parameter
-      if param.name in param_name_to_category:
+      if param.name not in matchers:
+        # unrelated parsed parameter
+        continue
+      if param_name_to_category.get(param.name) is not None:
+        # already mismatch
         continue
 
       param_val = utils.GetProbeParameterValue(param)
       if matchers[param.name].Match(param_val):
-        continue
-
-      param_name_to_category[param.name] = parsed_result.component_category
+        # Identified a matched parsed parameter, remove the "not probed" flag.
+        param_name_to_category.pop(param.name, None)
+      else:
+        param_name_to_category[param.name] = parsed_result.component_category
 
     return _ProbeResultMatchResult(param_name_to_category)
 
@@ -920,6 +928,23 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
         comp_name_for_probe_statement,
     )
 
+  def _ShouldSkipProbeValues(self, probe_values: Mapping[str, str]) -> bool:
+    """When parsing probe results, whether to skip the given `probe_values`.
+
+    Default to not skipping anything. Sub-classes can override the default
+    behavior to apply more complicate rules.
+
+    Args:
+      probe_values: The component probe values to determine if
+        `ParseProbeResult()` should skip them or not.
+
+    Returns:
+      A boolean flag, `True` if and only if `ParseProbeResult()` should skip
+      the given probe values.
+    """
+    del probe_values
+    return False
+
   def ParseProbeResult(
       self, probe_result: Mapping[str, Sequence[Mapping[str, str]]]
   ) -> Sequence[_ParsedProbeParameter]:
@@ -928,6 +953,8 @@ class _SingleProbeFuncConverter(_ProbeFuncConverter):
                                              [])
     parsed_results = []
     for probe_values in category_probe_result:
+      if self._ShouldSkipProbeValues(probe_values):
+        continue
       # yapf: disable
       res = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
@@ -997,12 +1024,23 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
   show multiple functionalities from software's point of view.
   """
 
-  def __init__(self, name: str, description: str,
-               sub_converters: Mapping[str, _SingleProbeFuncConverter]):
+  def __init__(
+      self,
+      name: str,
+      description: str,
+      sub_converters: Mapping[str, _SingleProbeFuncConverter],
+      optional_sub_converters: (
+          Optional[Mapping[str, _SingleProbeFuncConverter]]) = None,
+  ):
+    optional_sub_converters = optional_sub_converters or {}
+    if set(sub_converters) & set(optional_sub_converters):
+      raise ValueError('Duplicate sub-converters.')
     super().__init__()
     self._name = name
     self._description = description
-    self._sub_converters = sub_converters
+    self._required_sub_converters = sub_converters
+    self._optional_sub_converters = optional_sub_converters
+    self._sub_converters = dict(sub_converters, **optional_sub_converters)
 
   @functools.cached_property
   def probe_info_params(self) -> Mapping[str, _SingleProbeStatementParam]:
@@ -1047,6 +1085,9 @@ class _MultiProbeFuncConverter(_ProbeFuncConverter):
             probe_param_inputs[param_name] = remaining_probe_param_inputs.pop(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
             # yapf: enable
                 param_name)
+      if (not probe_param_inputs and
+          sub_converter_name in self._optional_sub_converters):
+        continue
       sub_comp_name = (f'{comp_name_for_probe_statement}-{sub_converter_name}'
                        if comp_name_for_probe_statement else None)
       sub_probe_info_artifacts.append(
@@ -1267,6 +1308,38 @@ def BuildTouchscreenModuleConverter() -> _IBidirectionalProbeInfoConverter:
       'touchscreen_module.generic_input_device_and_edid',
       'Probe statement converter for touchscreen modules with eDP displays.',
       sub_converters)
+
+
+class _TypedECComponentProbeFuncConverter(_SingleProbeFuncConverter):
+
+  def __init__(self, component_type: str):
+    ps_generator = probe_config_definition.GetProbeStatementDefinition(
+        'ec_component')
+    converter_name = f'ec_component.ec_component_{component_type}'
+    probe_param = _ProbeFunctionParam(
+        f'{component_type}_component_name',
+        probe_statement_param_name='component_name')
+    super().__init__(ps_generator, 'ec_component',
+                     converter_name=converter_name, probe_params=[probe_param],
+                     probe_function_argument={
+                         'type': component_type
+                     })
+    self._component_type = component_type
+
+  def _ShouldSkipProbeValues(self, probe_values: Mapping[str, str]) -> bool:
+    return probe_values.get('component_type', '') != self._component_type
+
+
+def _BuildUSBCICConverter() -> _IBidirectionalProbeInfoConverter:
+  optional_sub_converters = {
+      component_type: _TypedECComponentProbeFuncConverter(component_type)
+      for component_type in ('ppc', 'bc12', 'tcpc')
+  }
+  return _MultiProbeFuncConverter(
+      'usb_c.ec_components',
+      ('Probe USB-C integrate components by features that exports as EC '
+       'components.'), sub_converters={},
+      optional_sub_converters=optional_sub_converters)
 
 
 _MMC_BASIC_PARAMS = (
@@ -1899,4 +1972,8 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
           attribute_names=['vendor_id', 'device_id'],
           allow_missing_params=False,
       ),
+      _TypedECComponentProbeFuncConverter('charger'),
+      _TypedECComponentProbeFuncConverter('accel'),
+      _TypedECComponentProbeFuncConverter('als'),
+      _BuildUSBCICConverter()
   ]

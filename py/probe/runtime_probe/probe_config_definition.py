@@ -227,6 +227,14 @@ def _GetAllProbeStatementDefinitions():
                             'The probed kernel name of audio codec comp.')
   probe_statement_definitions['audio_codec'] = builder.Build()
 
+  # Create EC component builder
+  builder = probe_config_types.ProbeStatementDefinitionBuilder('ec_component')
+  builder.AddProbeFunction('ec_component', 'Probe EC components by manifest.')
+  builder.AddStrOutputField('component_type', 'The component type.')
+  builder.AddStrOutputField(
+      'component_name', 'Name identifier of the component in the manifest.')
+  probe_statement_definitions['ec_component'] = builder.Build()
+
   return probe_statement_definitions
 
 

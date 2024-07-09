@@ -36,7 +36,7 @@ class ParsedProbeParameter(NamedTuple):
 
 class ProbeResultMatchResult(NamedTuple):
   """The names of mismatched parameters and their component categories."""
-  param_name_to_category: Mapping[str, str]
+  param_name_to_category: Mapping[str, Optional[str]]
 
   @property
   def mismatch_param_names(self) -> Collection[str]:
@@ -717,6 +717,8 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
       return [], ''
 
     generic_parsed_results = converter.ParseProbeResult(generic_probe_result)
+    if not generic_parsed_results:
+      return [], ''
     match_result = converter.MatchProbeResult(probe_parameters,
                                               generic_parsed_results)
     mismatch_param_names = match_result.mismatch_param_names
@@ -741,6 +743,12 @@ class ProbeInfoAnalyzer(probe_info_analytics.IProbeInfoAnalyzer):
 
     param_hints = {}
     for param_name in mismatch_param_names:
+      if not generic_probe_params[param_name]:
+        param_hints[param_name] = (
+            f'expected: "{expected_params[param_name]}", probed 0 component '
+            'with the expected value.')
+        continue
+
       lines = [
           (f'expected: "{expected_params[param_name]}", '
            f'probed {len(generic_probe_params[param_name])} '

@@ -25,25 +25,11 @@ class StubbyHandlerTest(unittest.TestCase):
     # This API is stateless, so just simply verify the call stack.
     req = stubby_pb2.GetProbeSchemaRequest()
     resp = self._stubby_handler.GetProbeSchema(req)
-    self.assertCountEqual(
-        [f.name for f in resp.probe_schema.probe_function_definitions], [
-            'audio_codec.audio_codec',
-            'battery.generic_battery',
-            'camera.mipi_camera',
-            'camera.usb_camera',
-            'cpu.generic_cpu',
-            'display_panel.edid',
-            'dram.memory',
-            'emmc_pcie_assembly.generic',
-            'emmc_pcie_storage_bridge.mmc_host',
-            'raw_probe_statement',
-            'storage.mmc_storage',
-            'storage.nvme_storage',
-            'storage.ufs_storage',
-            'touchscreen_module.generic_input_device_and_edid',
-            'wireless.pci_wireless_network',
-            'wireless.sdio_wireless_network',
-        ])
+    # Just check if the response is not empty.  A comprehensive test should be
+    # performed by ./probe_tools/analyzers_unittest.py.
+    self.assertIn(
+        'audio_codec.audio_codec',
+        [f.name for f in resp.probe_schema.probe_function_definitions])
 
   def testGetProbeMetadata_IncludeProbeStatementPreviewOfValidInput(self):
     req = stubby_pb2.GetProbeMetadataRequest(
