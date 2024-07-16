@@ -43,8 +43,7 @@ def PatchFirmwareQualStatus(
       firmware_quals, db.GetComponents(common.FirmwareComps.RO_MAIN_FIRMWARE))
   for comp_cls in common.FirmwareComps:
     for comp_name, comp_info in db.GetComponents(comp_cls).items():
-      if comp_info.status in (common.ComponentStatus.deprecated,
-                              common.ComponentStatus.supported):
+      if comp_info.status != common.ComponentStatus.unqualified:
         continue
       if bundle_uuids.intersection(comp_info.bundle_uuids):
         new_db.SetComponentStatus(comp_cls, comp_name,
