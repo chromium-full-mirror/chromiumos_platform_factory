@@ -76,7 +76,7 @@ main() {
 
   local factory_server_url="$1"
   if [ -z "${factory_server_url}" ]; then
-    factory_server_url="${FACTORY_SERVER_URL:?}"
+    factory_server_url="${FACTORY_SERVER_URL}"
   fi
 
   if [ -z "${factory_server_url}" ]; then
