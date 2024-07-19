@@ -349,12 +349,6 @@ main() {
       reboot)
         reboot
       ;;
-      ectool_cutoff)
-        # If virtual dev mode was enabled, ectool cutoff will leave the device
-        # in developer mode. Unfortunately we can't check that because TPM
-        # service was not running, and tpm_nvread won't work.
-        ectool batterycutoff at-shutdown && shutdown -h now
-      ;;
       battery_cutoff)
         crossystem battery_cutoff_request=1 && sleep 3 && reboot
       ;;
