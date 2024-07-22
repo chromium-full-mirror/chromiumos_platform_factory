@@ -4235,10 +4235,8 @@ class EditLSBCommand(AbstractSubCommand):
 
     All options are defined in src/platform/factory/sh/cutoff/options.sh
     """
-    self._DoOptions(
-        'Select cutoff method', 'CUTOFF_METHOD',
-        ['shutdown', 'reboot', 'battery_cutoff', 'ectool_cutoff',
-         'ec_hibernate'])
+    self._DoOptions('Select cutoff method', 'CUTOFF_METHOD',
+                    ['shutdown', 'reboot', 'battery_cutoff', 'ec_hibernate'])
     self._DoOptions(
         'Select cutoff AC state', 'CUTOFF_AC_STATE',
         ['none', 'remove_ac', 'connect_ac'])
@@ -4516,10 +4514,8 @@ class EditToolkitConfigCommand(AbstractSubCommand):
     """
     subconfig_key = TOOLKIT_SUBCONFIG_CUTOFF
     self.config_wip = {}
-    self._DoOptions(
-        'Select cutoff method', 'CUTOFF_METHOD',
-        ['shutdown', 'reboot', 'battery_cutoff', 'ectool_cutoff',
-         'ec_hibernate'])
+    self._DoOptions('Select cutoff method', 'CUTOFF_METHOD',
+                    ['shutdown', 'reboot', 'battery_cutoff', 'ec_hibernate'])
     self._DoOptions(
         'Select cutoff AC state', 'CUTOFF_AC_STATE',
         ['none', 'remove_ac', 'connect_ac'])

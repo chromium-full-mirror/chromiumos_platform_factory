@@ -7,7 +7,6 @@
         "shutdown",
         "reboot",
         "battery_cutoff",
-        "ectool_cutoff",
         "ec_hibernate"
       ]
     },

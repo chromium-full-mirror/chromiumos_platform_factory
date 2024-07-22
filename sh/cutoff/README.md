@@ -55,12 +55,9 @@ in your board overlay and put the files in `files/py/config/cutoff.json`.
 There are few options you can set:
 
  - `CUTOFF_METHOD`: What to do for cut-off. Available options: `shutdown`,
-     `reboot`, `ectool_cutoff`, `battery_cutoff` and `ec_hibernate`.
+     `reboot`, `battery_cutoff` and `ec_hibernate`.
      - `shutdown` & `reboot`: are commonly used on devices without battery.
      (e.g. Chromeboxes)
-     - `ectool_cutoff`: notifies EC to do cutoff immediately without waiting
-     for disk to write the cached data back to storage. This might corrupt the
-     file system, and thus, `battery_cutoff` is more preferred if supported.
      - `battery_cutoff`: uses nvdata (via crossystem) to schedule an EC cutoff
      in the AP firmware stage of the next boot. No storage cache issues because
      the kernel is not started yet.
