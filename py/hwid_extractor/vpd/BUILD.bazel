@@ -16,6 +16,7 @@ cc_binary(
     deps = [
         ":libvpd",
         ":libvpd_c",
+        "@abseil-cpp//absl/log:initialize",
         "@abseil-cpp//absl/log:log",
         "@abseil-cpp//absl/strings:str_format",
     ],
