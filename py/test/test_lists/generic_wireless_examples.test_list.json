@@ -81,30 +81,58 @@
       }
     },
     "ExampleWirelessConnect2G": {
-      "inherit": "WirelessConnect",
+      "inherit": "TestGroup",
       "label": "Example Wireless Connect 2G",
-      "args": {
-        "service_name": [
-          {
-            "ssid": "GoogleGuest-Legacy",
-            "security": "none",
-            "passphrase": ""
+      "subtests": [
+        {
+          "inherit": "Scan",
+          "label": "Scan Wifi 2G Name",
+          "args": {
+            "device_data_key": "factory.wifi_2G_name",
+            "label": "Wifi 2G Name"
           }
-        ]
-      }
+        },
+        {
+          "inherit": "WirelessConnect",
+          "label": "Example Wireless Connect 2G",
+          "args": {
+            "service_name": [
+              {
+                "ssid": "eval! device.factory.wifi_2G_name",
+                "security": "none",
+                "passphrase": ""
+              }
+            ]
+          }
+        }
+      ]
     },
     "ExampleWirelessConnect5G": {
-      "inherit": "WirelessConnect",
+      "inherit": "TestGroup",
       "label": "Example Wireless Connect 5G",
-      "args": {
-        "service_name": [
-          {
-            "ssid": "GoogleGuest-IPv4",
-            "security": "none",
-            "passphrase": ""
+      "subtests": [
+        {
+          "inherit": "Scan",
+          "label": "Scan Wifi 5G Name",
+          "args": {
+            "device_data_key": "factory.wifi_5G_name",
+            "label": "Wifi 5G Name"
           }
-        ]
-      }
+        },
+        {
+          "inherit": "WirelessConnect",
+          "label": "Example Wireless Connect 5G",
+          "args": {
+            "service_name": [
+              {
+                "ssid": "eval! device.factory.wifi_5G_name",
+                "security": "none",
+                "passphrase": ""
+              }
+            ]
+          }
+        }
+      ]
     },
     "IntelWirelessAntenna": {
       "inherit": "WirelessAntennaRadiotap",

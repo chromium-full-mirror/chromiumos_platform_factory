@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-06-26 03:04+UTC\n"
+"PO-Revision-Date: 2024-07-23 17:50+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4595,8 +4595,24 @@ msgid "Example WifiSSIDList"
 msgstr "WifiSSIDList の例"
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Wifi 2G Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Scan Wifi 2G Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example Wireless Connect 2G"
 msgstr "2G ワイヤレス接続の例"
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Wifi 5G Name"
+msgstr ""
+
+#: ../py/test/test_lists/generic_wireless_examples.test_list.json
+msgid "Scan Wifi 5G Name"
+msgstr ""
 
 #: ../py/test/test_lists/generic_wireless_examples.test_list.json
 msgid "Example Wireless Connect 5G"
