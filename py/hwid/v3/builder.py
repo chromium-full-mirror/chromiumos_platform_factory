@@ -1103,3 +1103,8 @@ class DatabaseBuilder:
   def ReplaceRules(self, rule_expr_list: Sequence[Mapping[str, Any]]):
     """See database.WritableDatabase.ReplaceRules."""
     self._database.ReplaceRules(rule_expr_list)
+
+  @_EnsureInBuilderContext
+  def RemoveComponent(self, comp_cls: str, comp_name: str):
+    """See database.WritableDatabase.RemoveComponent."""
+    self._database.RemoveComponent(comp_cls, comp_name)

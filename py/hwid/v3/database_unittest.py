@@ -261,6 +261,32 @@ class DatabaseTest(unittest.TestCase):
         verify_checksum=False)
     self.assertCountEqual(db.GetActiveRegionComponents(), ['us', 'jp', 'gb'])
 
+  def testRemoveComponent(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    db.RemoveComponent('cls1', 'comp1')
+
+    self.assertNotIn('comp1', db.GetComponents('cls1'))
+    # 0: {cls1: comp1} should be removed
+    self.assertEqual(db.GetEncodedField('field1'), {
+        1: {
+            'cls1': ['comp2']
+        }
+    })
+
+  def testRemoveComponent_RemovePatternFieldWhenEmpty(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    db.RemoveComponent('cls2', 'comp3')
+
+    self.assertNotIn('comp3', db.GetComponents('cls2'))
+    self.assertNotIn('field2', db.raw_encoded_fields)
+    for i in range(db.GetPatternCount()):
+      self.assertNotIn('field2', dict(db.GetPattern(pattern_idx=i).fields))
 
 class ImageIdTest(unittest.TestCase):
 
@@ -1083,6 +1109,22 @@ class ComponentsTest(unittest.TestCase):
       c.UpdateComponent('region', 'us', 'us', None, 'unqualified')
 
 
+  def testRemoveComponent_Success(self):
+    c = database.Components({
+        'cls1': {
+            'items': {
+                'comp1': {
+                    'values': {
+                        'a': 'b'
+                    },
+                },
+            }
+        }
+    })
+    c.RemoveComponent('cls1', 'comp1')
+    self.assertEqual(0, len(c.component_classes))
+
+
 class EncodedFieldsTest(unittest.TestCase):
 
   def testExport(self):
@@ -1262,6 +1304,49 @@ class EncodedFieldsTest(unittest.TestCase):
         'b': ['BB']
     })
 
+  def testAddFieldComponents_FindSmallestUnsedIndex(self):
+    e = database.EncodedFields({
+        'e1': {
+            0: {
+                'a': 'A',
+                'b': 'B'
+            },
+            2: {
+                'a': ['AA', 'AX'],
+                'b': 'BB'
+            }
+        }
+    })
+    e.AddFieldComponents('e1', {
+        'a': ['AA'],
+        'b': ['BB']
+    })
+
+    self.assertEqual(
+        Unordered(e.Export(None)), {
+            'e1': {
+                0: {
+                    'a': 'A',
+                    'b': 'B'
+                },
+                1: {
+                    'a': 'AA',
+                    'b': 'BB'
+                },
+                2: {
+                    'a': ['AA', 'AX'],
+                    'b': 'BB'
+                }
+            }
+        })
+
+    # `e1` should encode only component class `a` and `b`.
+    self.assertRaises(common.HWIDException, e.AddFieldComponents, 'e1', {
+        'c': ['CC'],
+        'a': ['AAAAAA'],
+        'b': ['BB']
+    })
+
   def testAddNewField(self):
     e = database.EncodedFields({'e1': {
         0: {
@@ -1345,6 +1430,35 @@ class EncodedFieldsTest(unittest.TestCase):
     self.assertEqual(e.GetComponentClasses('e2'), {'c', 'd'})
     self.assertEqual(e.GetFieldForComponent('c'), 'e2')
     self.assertEqual(e.GetFieldForComponent('x'), None)
+
+  def testRemoveEncodedFieldsByComponent(self):
+    e = database.EncodedFields({
+        'e1': {
+            0: {
+                'a': 'A',
+                'b': 'B'
+            },
+            1: {
+                'a': ['AA', 'AAA'],
+                'b': 'B'
+            }
+        },
+        'e2': {
+            0: {
+                'a': ['A', 'AAA'],
+                'b': 'B'
+            }
+        }
+    })
+    e.RemoveEncodedFieldsByComponent('a', 'A')
+    self.assertEqual(e._fields, {
+        'e1': {
+            1: {
+                'a': ['AA', 'AAA'],
+                'b': 'B'
+            }
+        },
+    })
 
 
 class PatternTest(unittest.TestCase):

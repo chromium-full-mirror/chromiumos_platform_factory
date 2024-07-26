@@ -843,6 +843,21 @@ class WritableDatabase(Database):
     renamed.update(image_name_mapping)
     self._image_id = ImageId(renamed)
 
+  def RemoveComponent(self, comp_cls: str, comp_name: str):
+    """Removes the component and encoded fields including the component."""
+    self._components.RemoveComponent(comp_cls, comp_name)
+    self._encoded_fields.RemoveEncodedFieldsByComponent(comp_cls, comp_name)
+    if self.GetEncodedFieldForComponent(comp_cls) is None:
+      # If the removed component is the last one in the encoded field, remove
+      # the encoded fields in the pattern as well. Otherwise the database will
+      # become unencodable.
+      for i in range(self.GetPatternCount()):
+        pattern = self.GetPattern(pattern_idx=i)
+        pattern.fields[:] = [
+            field for field in pattern.fields
+            if field.name in self._encoded_fields
+        ]
+
   @property
   def framework_version(self) -> int:
     return self._framework_version
@@ -1161,6 +1176,9 @@ class EncodedFields:
   def __ne__(self, rhs):
     return not self == rhs
 
+  def __contains__(self, field_name):
+    return field_name in self._fields
+
   @property
   def can_encode(self):
     return self._can_encode
@@ -1291,9 +1309,12 @@ class EncodedFields:
             'The components combination %r already exists (at index %r).',
             components, existing_index)
 
-    index = (
-        _index if _index is not None else
-        max(self._fields[field_name].keys() or [-1]) + 1)
+    index = _index
+    if index is None:
+      # Find the smallest unused index
+      all_indexes = self._fields[field_name].keys()
+      index = min(set(range(len(all_indexes) + 1)) - set(all_indexes))
+
     self._fields[field_name][index] = yaml.Dict(
         sorted([(c, self._SimplifyList(n)) for c, n in components.items()]))
 
@@ -1337,6 +1358,19 @@ class EncodedFields:
             new_name if comp_name == old_name else comp_name
             for comp_name in comp_names
         ])
+
+  def RemoveEncodedFieldsByComponent(self, comp_cls: str, comp_name: str):
+    """Removes all encoded fields including the component."""
+    for field_name in self.GetFieldsForComponent(comp_cls):
+      remove_combinations = set()
+      for index, combination in self._fields[field_name].items():
+        if comp_name in combination[comp_cls]:
+          remove_combinations.add(index)
+      for index in remove_combinations:
+        del self._fields[field_name][index]
+      if not self._fields[field_name]:
+        del self._fields[field_name]
+        del self._field_to_comp_classes[field_name]
 
   def _RegisterNewEmptyField(self, field_name, comp_classes):
     if not comp_classes:
@@ -1836,6 +1870,12 @@ class Components:
     self._components[comp_cls].UpdateComponent(
         old_name, new_name,
         ComponentInfo(values, support_status, information, bundle_uuids))
+
+  def RemoveComponent(self, comp_cls: str, comp_name: str):
+    """Removes a component by name."""
+    del self._components[comp_cls][comp_name]
+    if not self._components[comp_cls]:
+      del self._components[comp_cls]
 
 
 class Pattern:
