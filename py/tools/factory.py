@@ -259,7 +259,7 @@ class TestsCommand(Subcommand):
         '--output', '-o', type=str, default=None, metavar='path',
         help='Path to store the csv file. Print to stdout if not set.')
 
-  def _GetHeader(self, readiness=False):
+  def _GetHeader(self):
     device = sys_interface.SystemInterface()
     system_info = info.SystemInfo(device)
     header = [
@@ -269,9 +269,6 @@ class TestsCommand(Subcommand):
         ['FW Version', f'{system_info.firmware_version}'],
         ['Test Image Version', f'{system_info.test_image_version}'],
         ['Factory Toolkit', f'{system_info.toolkit_version}'],
-    ]
-    if readiness:
-      header.extend([
         ['Preflash Image With Preflash Storage'],
         ['Preflash Image With Net Download'],
         ['Preflash Image With Netboot Frimware'],
@@ -281,9 +278,8 @@ class TestsCommand(Subcommand):
         ['Factory Reset OQC RMA Shim'],
         ['Run GRT'],
         ['HWID Probing'],
-        ['Test Category', 'Component Readiness', 'Test Station', 'Test Group',
-         'Test Item', 'Test Status']
-      ])
+        []
+    ]
     return header
 
   @functools.lru_cache(maxsize=1000)
@@ -387,7 +383,7 @@ class TestsCommand(Subcommand):
       for test_category in t['related_components']:
         report.setdefault(test_category, []).append(t)
 
-    output_csv += self._GetHeader(readiness=True)
+    output_csv += self._GetHeader()
     for category, categorized_tests in report.items():
       readiness = 'Ready' if all(t['status'] == state.TestState.PASSED
                                  for t in categorized_tests) else 'Not Ready'
