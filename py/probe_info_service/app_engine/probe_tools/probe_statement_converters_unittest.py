@@ -2763,5 +2763,121 @@ class ECComponentUSBCConverterTest(ConverterTestCase):
     self.assertCountEqual(actual, expected_probe_params)
 
 
+class TouchComponentConverterTest(ConverterTestCase):
+
+  _COMPONENT_TYPES = ('touchscreen', 'touchpad', 'stylus')
+
+  def _GetConverter(
+      self, component_type: str) -> analyzers.IBidirectionalProbeInfoConverter:
+    converter = _GetConverter(f'{component_type}.input_device')
+    assert converter is not None
+    return converter
+
+  def testGenerateDefinition(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        converter = self._GetConverter(component_type)
+
+        actual = converter.GenerateDefinition()
+
+        expect = text_format.Parse(
+            f'''
+            name: "{component_type}.input_device"
+            description: "Probe input devices from procfs."
+            parameter_definitions {{
+              name: "product"
+              description: "Product ID."
+              value_type: STRING
+            }}
+            parameter_definitions {{
+              name: "vendor"
+              description: "Vendor ID."
+              value_type: STRING
+            }}
+            ''', probe_info_analytics.ProbeFunctionDefinition())
+        self.assertCountEqual(actual.parameter_definitions,
+                              expect.parameter_definitions)
+
+  def testParseProbeParam_CanGenerateProbeStatement(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        probe_params = [
+            _CreateStrProbeParam('vendor', '01AB'),
+            _CreateStrProbeParam('product', '23CD'),
+        ]
+
+        converter = self._GetConverter(component_type)
+        actual = converter.ParseProbeParams(
+            probe_params, allow_missing_params=False,
+            comp_name_for_probe_statement='comp_name')
+
+        expected_probe_statements = [
+            probe_config_types.ComponentProbeStatement(
+                component_type, 'comp_name', {
+                    'eval': {
+                        'input_device': {'device_type': component_type},
+                    },
+                    'expect': {
+                        'vendor': [
+                            True,
+                            'hex',
+                            '!eq 0x01AB'
+                        ],
+                        'product': [
+                            True,
+                            'hex',
+                            '!eq 0x23CD'
+                        ],
+                    }
+                },
+            )
+        ]
+        self.assertCountEqual(
+            typing.cast(Sequence[probe_config_types.ComponentProbeStatement],
+                        actual.output),
+            expected_probe_statements)
+        self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
+  def testParseProbeResult_CanParseProbeResult(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        probe_result = {
+            component_type: [
+                {
+                    'vendor': '01ab',
+                    'product': '0x2345cdef',
+                },
+            ]
+        }
+
+        converter = self._GetConverter(component_type)
+        actual = converter.ParseProbeResult(probe_result)
+
+        expected_probe_parameters = [
+            analyzers.ParsedProbeParameter(
+                component_type, _CreateStrProbeParam('vendor', '01AB')),
+            analyzers.ParsedProbeParameter(
+                component_type, _CreateStrProbeParam('product', '2345CDEF')),
+        ]
+        self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testGetNormalizedProbeParams_CanGetParamsWithCorrectFormat(self):
+    for component_type in self._COMPONENT_TYPES:
+      with self.subTest(component_type=component_type):
+        probe_params = [
+            _CreateStrProbeParam('vendor', '01aB'),
+            _CreateStrProbeParam('product', '23cD'),
+        ]
+
+        converter = self._GetConverter(component_type)
+        actual = converter.GetNormalizedProbeParams(probe_params)
+
+        expected_probe_params = [
+            _CreateStrProbeParam('vendor', '01AB'),
+            _CreateStrProbeParam('product', '23CD'),
+        ]
+        self.assertCountEqual(actual, expected_probe_params)
+
+
 if __name__ == '__main__':
   unittest.main()

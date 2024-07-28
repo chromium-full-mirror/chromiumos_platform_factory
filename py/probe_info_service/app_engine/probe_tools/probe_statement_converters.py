@@ -1172,6 +1172,13 @@ def _AddHexPrefixIfNotExistAndLowerize(value: str) -> str:
   return lowerized_val
 
 
+def _RemoveHexPrefixIfExistAndCapitalize(value: str) -> str:
+  capitalized_val = value.upper()
+  if capitalized_val.startswith('0X'):
+    return capitalized_val[2:]
+  return capitalized_val
+
+
 def _ResizeHexStr(length: int, lowerize=False, capitalize=False,
                   prefix=True) -> Callable:
   """Creates a function to resize the input hex string.
@@ -1845,6 +1852,18 @@ class DRAMProbeInfoConverter(_SingleProbeFuncConverter):
     return match_result
 
 
+_TOUCH_COMPONENT_PROBE_PARAMS = (
+    _ProbeFunctionParam(
+        'vendor', value_converter=_ParamValueConverter(
+            'string', value_converter=_CapitalizeHexValueWithoutPrefix,
+            value_reverter=_CapitalizeHexValueWithoutPrefix)),
+    _ProbeFunctionParam(
+        'product', value_converter=_ParamValueConverter(
+            'string', value_converter=_RemoveHexPrefixIfExistAndCapitalize,
+            value_reverter=_RemoveHexPrefixIfExistAndCapitalize)),
+)
+
+
 def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
   # TODO(yhong): Separate the data piece out the code logic.
   return [
@@ -1975,5 +1994,20 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
       _TypedECComponentProbeFuncConverter('charger'),
       _TypedECComponentProbeFuncConverter('accel'),
       _TypedECComponentProbeFuncConverter('als'),
-      _BuildUSBCICConverter()
+      _BuildUSBCICConverter(),
+      _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
+          'touchpad', 'input_device',
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
+              'device_type': 'touchpad'
+          }),
+      _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
+          'touchscreen', 'input_device',
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
+              'device_type': 'touchscreen'
+          }),
+      _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
+          'stylus', 'input_device', probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
+          probe_function_argument={
+              'device_type': 'stylus'
+          }),
   ]
