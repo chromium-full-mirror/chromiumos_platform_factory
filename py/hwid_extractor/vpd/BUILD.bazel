@@ -32,6 +32,7 @@ cc_library(
         "libvpd.cc",
         "sysfs.cc",
         "util/file.cc",
+        "util/scoped_umask.cc",
         "util/string.cc",
     ],
     hdrs = [
@@ -44,6 +45,7 @@ cc_library(
         "types.h",
         "export.h",
         "util/file.h",
+        "util/scoped_umask.h",
         "util/string.h",
         "vpd.h",
         "vpd_provider_interface.h",
