@@ -99,6 +99,9 @@ _HWID_V3_REGION_FILE = os.path.join(
 _HWID_V3_UPDATE_COMP_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '../testdata/v3-update-comp.yaml')
+_HWID_V3_REGION_AFTER_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '../testdata/v3-golden-region-after.yaml')
 
 
 def _CreateFakeSelfServiceShard(
@@ -2937,6 +2940,47 @@ class SelfServiceShardTest(unittest.TestCase):
                      review_required_call['hwid_db_contents'])
     self.assertEqual(review_required_db_content_internal,
                      review_required_call['hwid_db_contents_internal'])
+
+  def testCreateOrRefreshSplittedHwidDbCls_ModifyRegionInvalidArgument(self):
+    # Arrange.
+    project = 'CHROMEBOOK'
+    old_db_data = file_utils.ReadFile(_HWID_V3_REGION_FILE)
+    new_db_data = file_utils.ReadFile(_HWID_V3_REGION_AFTER_FILE)
+    # Config repo and action.
+    self._ConfigLiveHWIDRepo(project, 3, old_db_data)
+    action = self._CreateFakeHWIDBAction(project, old_db_data)
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
+
+    # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
+    analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project,
+                                                 new_db_data)
+    session_token = analyze_resp.validation_token
+    split_resp = _SplitHwidDbChange(
+        self.service, session_token,
+        hwid_api_messages_pb2.HwidDbExternalResource())
+
+    create_cl_req = (
+        hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsRequest(
+            session_token=session_token,
+            original_requester='requester@notgoogle.com',
+            description='description', bug_number=100))
+    approval_status = create_cl_req.approval_status
+
+    change_unit_mapping = split_resp.change_units
+    approved_cl_action = _ClActionMsg(
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED)
+
+    for identity in change_unit_mapping:
+      approval_status[identity].CopyFrom(approved_cl_action)
+
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
+      self.service.CreateOrRefreshSplittedHwidDbCls(create_cl_req)
+
+    self.assertEqual(ex.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+    self.assertEqual(
+        'Cannot apply change unit CompChange:region:us: Region component class'
+        ' is not modifiable.', ex.exception.detail)
 
   def testUpdateAudioCodecKernelNames_HasIntersection(self):
     req = hwid_api_messages_pb2.UpdateAudioCodecKernelNamesRequest(

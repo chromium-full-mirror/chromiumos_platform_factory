@@ -24,15 +24,15 @@ _HWIDComponentAnalysisResult = contents_analyzer.HWIDComponentAnalysisResult
 ChangeUnitIdentity = str
 
 
-class SplitChangeUnitException(Exception):
+class SplitChangeUnitException(ValueError):
   """Raised when the predefined change units can't frame the DB change."""
 
 
-class ApplyChangeUnitException(Exception):
+class ApplyChangeUnitException(ValueError):
   """Raised when a change unit cannot be applied."""
 
 
-class _ApprovalStatusUnsetException(Exception):
+class _ApprovalStatusUnsetException(ValueError):
   """Raised when the approval status of a change unit has not been set."""
 
 
@@ -44,7 +44,7 @@ def _UnifyException(func):
       return func(self, *args, **kwargs)
     except (common.HWIDException, builder.BuilderException) as e:
       raise ApplyChangeUnitException(
-          f'Cannot apply change unit {self!r}.') from e
+          f'Cannot apply change unit {self!r}: {e}') from e
 
   return _Wrapper
 
