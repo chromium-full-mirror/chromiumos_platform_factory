@@ -118,6 +118,13 @@ COPY bin "${server_dir}/bin"
 COPY sh "${server_dir}/sh"
 COPY py "${server_dir}/py"
 
+# Generate protobuf bindings
+RUN python -m grpc_tools.protoc -I/usr/local/factory/py_pkg \
+      --python_out=/usr/local/factory/py_pkg \
+      --pyi_out=/usr/local/factory/py_pkg \
+      --grpc_python_out=/usr/local/factory/py_pkg \
+      cros/factory/umpire/server/proto/shop_floor.proto
+
 # These arguments change every time and ARG instructions will affect all
 # following RUN instructions. We should put them in the end of Dockerfile to
 # avoid making Docker cache mechanism useless.

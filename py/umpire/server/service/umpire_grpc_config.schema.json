@@ -1,0 +1,11 @@
+
+{
+  "key_file": {
+    "description": "Path to server.pem",
+    "type": "string"
+  },
+  "cert_file": {
+    "description": "Path to server.crt",
+    "type": "string"
+  }
+}

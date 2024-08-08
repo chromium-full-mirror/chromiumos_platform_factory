@@ -65,6 +65,7 @@ _HTTP_POST_PORT_OFFSET = 5
 _INSTALOG_PULL_SOCKET_OFFSET = 6
 _INSTALOG_HTTP_PORT_OFFSET = 7
 _INSTALOG_CUSTOMIZED_OUTPUT_OFFSET = 8
+_GRPC_PORT_OFFSET = 9
 
 PROJECT_NAME_ENV_KEY = 'UMPIRE_PROJECT_NAME'
 PROJECT_PORT_ENV_KEY = 'UMPIRE_PROJECT_PORT'
@@ -157,6 +158,10 @@ class UmpireEnv:
   @property
   def umpire_rpc_port(self):
     return self.umpire_base_port + _RPC_PORT_OFFSET
+
+  @property
+  def umpire_grpc_port(self):
+    return self.umpire_base_port + _GRPC_PORT_OFFSET
 
   @property
   def umpire_rsync_port(self):

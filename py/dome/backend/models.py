@@ -59,6 +59,7 @@ UMPIRE_RSYNC_PORT_OFFSET = 4
 UMPIRE_INSTALOG_PULL_SOCKET_PORT_OFFSET = 6
 UMPIRE_START_WAIT_SECS = 5
 UMPIRE_INSTALOG_CUSTOMIZED_OUTPUT_PORT_OFFSET = 8
+UMPIRE_GRPC_PORT_OFFSET = 9
 UMPIRE_MAX_PORT_OFFSET = 19
 
 # TODO(littlecvr): use volume container instead of absolute path.
@@ -624,25 +625,46 @@ class Project(django.db.models.Model):
       #                  function in that script because this job should be
       #                  done by Dome only
       cmd = [
-          'docker', 'run', '--detach', '--privileged', '--tmpfs',
-          '/run:rw,size=16384k', '--volume', f'{DOCKER_SHARED_DIR}:/mnt',
+          'docker',
+          'run',
+          '--detach',
+          '--privileged',
+          '--tmpfs',
+          '/run:rw,size=16384k',
+          '--volume',
+          f'{DOCKER_SHARED_DIR}:/mnt',
           '--volume',
           (f'{UMPIRE_DOCKER_DIR}/{self.name}:'
-           f'{UMPIRE_BASE_DIR_IN_UMPIRE_CONTAINER}'), '--volume',
-          f'{DOCKER_SHARED_TMP_VOLUME}:{SHARED_TMP_DIR}', '--publish',
-          f'{int(port)}:{int(UMPIRE_BASE_PORT)}', '--publish',
+           f'{UMPIRE_BASE_DIR_IN_UMPIRE_CONTAINER}'),
+          '--volume',
+          f'{DOCKER_SHARED_TMP_VOLUME}:{SHARED_TMP_DIR}',
+          '--publish',
+          f'{int(port)}:{int(UMPIRE_BASE_PORT)}',
+          '--publish',
           (f'{int(port + UMPIRE_RPC_PORT_OFFSET)}:'
-           f'{int(UMPIRE_BASE_PORT + UMPIRE_RPC_PORT_OFFSET)}'), '--publish',
+           f'{int(UMPIRE_BASE_PORT + UMPIRE_RPC_PORT_OFFSET)}'),
+          '--publish',
           (f'{int(port + UMPIRE_RSYNC_PORT_OFFSET)}:'
-           f'{int(UMPIRE_BASE_PORT + UMPIRE_RSYNC_PORT_OFFSET)}'), '--publish',
+           f'{int(UMPIRE_BASE_PORT + UMPIRE_RSYNC_PORT_OFFSET)}'),
+          '--publish',
           (f'{int(port + UMPIRE_INSTALOG_PULL_SOCKET_PORT_OFFSET)}:'
            f'{int(UMPIRE_BASE_PORT + UMPIRE_INSTALOG_PULL_SOCKET_PORT_OFFSET)}'
-          ), '--publish',
+          ),
+          '--publish',
           (f'{int(port + UMPIRE_INSTALOG_CUSTOMIZED_OUTPUT_PORT_OFFSET)}:'
            f'{UMPIRE_BASE_PORT + UMPIRE_INSTALOG_CUSTOMIZED_OUTPUT_PORT_OFFSET}'
-          ), '--env', f'UMPIRE_PROJECT_NAME={self.name}', '--env',
-          f'UMPIRE_PROJECT_PORT={port}', '--restart', 'unless-stopped',
-          '--name', container_name
+          ),
+          '--publish',
+          (f'{int(port + UMPIRE_GRPC_PORT_OFFSET)}:'
+           f'{UMPIRE_BASE_PORT + UMPIRE_GRPC_PORT_OFFSET}'),
+          '--env',
+          f'UMPIRE_PROJECT_NAME={self.name}',
+          '--env',
+          f'UMPIRE_PROJECT_PORT={port}',
+          '--restart',
+          'unless-stopped',
+          '--name',
+          container_name,
       ]
       if LOCALTIME_DOCKER_PATH:
         cmd += ['--volume', f'{LOCALTIME_DOCKER_PATH}:/etc/localtime:ro']
