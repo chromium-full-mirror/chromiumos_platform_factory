@@ -88,7 +88,7 @@ COPY py/umpire/server/requirements.txt "${umpire_dir}/"
 COPY py/dome/requirements.txt "${dome_dir}/"
 COPY py/instalog/requirements_for_docker.txt "${instalog_dir}/"
 RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir --upgrade setuptools && \
+    pip3 install --no-cache-dir --upgrade setuptools==70.3.0 && \
     pip3 install --no-cache-dir --upgrade wheel
 RUN pip3 install --no-cache-dir \
       -r "${umpire_dir}/requirements.txt" \
