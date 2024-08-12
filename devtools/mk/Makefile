@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 REQUIREMENTS_INPUTS = \
 	coverage.requirements.in \
+	grpc_tool.requirements.in \
 	mypy.requirements.in \
 	pylint.requirements.in \
 	sphinx.requirements.in \

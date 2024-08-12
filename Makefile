@@ -95,6 +95,8 @@ PROJECT_PROTO_FILES = \
 	$(wildcard py/hwid/service/appengine/proto/*.proto) \
 	$(wildcard py/probe_info_service/app_engine/*.proto) \
 	$(wildcard py/probe_info_service/app_engine/probe_tools/*.proto)
+PROJECT_PROTO_GRPC_FILES = \
+	$(wildcard py/umpire/server/proto/*.proto)
 EXTERNAL_PROJECT_PROTO_FILES = \
   $(wildcard ../../platform2/hardware_verifier/proto/*.proto) \
   $(wildcard ../../platform2/system_api/dbus/runtime_probe/*.proto) \
@@ -186,6 +188,11 @@ proto:
 	  $(PROTO_FILES),\
 	  $(info - Compiling proto resource file $(file)) \
 	  protoc $(file) --python_out=pyi_out:py${\n} )
+
+grpc_proto: $(PROJECT_PROTO_GRPC_FILES)
+	$(MK_DIR)/grpc_tool.sh $(PYTHON) -m grpc_tools.protoc \
+	  -Ipy_pkg --python_out=py_pkg --pyi_out=py_pkg --grpc_python_out=py_pkg \
+		$(PROJECT_PROTO_GRPC_FILES:py/%=cros/factory/%)
 
 # Resource/Toolkit uses the pb2 file generated at build time.
 # The reason we're not incorporating it into `make proto`
@@ -479,12 +486,17 @@ lint:
 	$(ENTER_CHROOT_PREFIX)$(MK_DIR)/pylint.sh $(LINT_ALLOWLIST)
 
 mypy: $(PROJECT_PROTO_FILES) $(EXTERNAL_PROJECT_PROTO_FILES)
+mypy: $(PROJECT_PROTO_GRPC_FILES)
 ifeq ($(CROS_CHROOT_VERSION),)
 	$(info Entering chroot for "make $@" ...)
 	@$(ENTER_CHROOT_PREFIX) $(MAKE) -$(MAKEFLAGS) $@
 else
 # These proto files are imported from cros.factory.
 	protoc -I=py_pkg --pyi_out=py_pkg $(PROJECT_PROTO_FILES:py/%=cros/factory/%)
+# These proto files are imported from cros.factory.
+	$(MK_DIR)/grpc_tool.sh $(PYTHON) -m grpc_tools.protoc \
+	  -Ipy_pkg --python_out=py_pkg --pyi_out=py_pkg --grpc_python_out=py_pkg \
+		$(PROJECT_PROTO_GRPC_FILES:py/%=cros/factory/%)
 # These proto files are imported directly (no package).
 	protoc $(addprefix -I=,$(dir $(EXTERNAL_PROJECT_PROTO_FILES))) \
 		--pyi_out=py_pkg $(EXTERNAL_PROJECT_PROTO_FILES)

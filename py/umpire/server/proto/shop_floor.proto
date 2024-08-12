@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package com.google.desktop.factory.shopfloor;
+
+import "google/protobuf/struct.proto";
+
+message GetVersionRequest {}
+
+message GetVersionResponse {
+  string version = 1;
+}
+
+message NotifyStartRequest {
+  .google.protobuf.Struct data = 1;
+  string station = 2;
+}
+
+message NotifyStartResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+message NotifyEndRequest {
+  .google.protobuf.Struct data = 1;
+  string station = 2;
+}
+
+message NotifyEndResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+message NotifyEventRequest {
+  .google.protobuf.Struct data = 1;
+  string event = 2;
+}
+
+message NotifyEventResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+message GetDeviceInfoRequest {
+  .google.protobuf.Struct data = 1;
+}
+
+message GetDeviceInfoResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+message ActivateRegCodeRequest {
+  string ubind_attribute = 1;
+  string gbind_attribute = 2;
+  string hwid = 3;
+}
+
+message ActivateRegCodeResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+message UpdateTestResultRequest {
+  .google.protobuf.Struct data = 1;
+  string test_id = 2;
+  string status = 3;
+  .google.protobuf.Struct details = 4;
+}
+
+message UpdateTestResultResponse {
+  .google.protobuf.Struct data = 1;
+}
+
+service ShopFloor {
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-getversion
+   */
+  rpc GetVersion(GetVersionRequest) returns (GetVersionResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-notifystart
+   */
+  rpc NotifyStart(NotifyStartRequest) returns (NotifyStartResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-notifyend
+   */
+  rpc NotifyEnd(NotifyEndRequest) returns (NotifyEndResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-notifyevent
+   */
+  rpc NotifyEvent(NotifyEventRequest) returns (NotifyEventResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-getdeviceinfo
+   */
+  rpc GetDeviceInfo(GetDeviceInfoRequest) returns (GetDeviceInfoResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-activateregcode
+   */
+  rpc ActivateRegCode(ActivateRegCodeRequest)
+      returns (ActivateRegCodeResponse) {}
+
+  /* Check
+   * https://storage.googleapis.com/chromeos-factory-docs/sdk/md/py/shopfloor/README.html#method-updatetestresult
+   */
+  rpc UpdateTestResult(UpdateTestResultRequest)
+      returns (UpdateTestResultResponse) {}
+}
