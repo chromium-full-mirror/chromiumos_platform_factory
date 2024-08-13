@@ -47,6 +47,8 @@ class UmpireGrpc(umpire_service.UmpireService):
         f'0.0.0.0:{env.umpire_grpc_port}',
         '--log-file',
         log_path,
+        '--shopfloor-service-url',
+        env.shopfloor_service_url,
     ]
     if keyfile and certfile:
       args.extend([

@@ -15,20 +15,79 @@ DUT <== gRPC ==> This servicer <== webservice_utils ==> shopfloor
 
 We run this servicer in the factory server so we don't need to support SOAP or
 xmlrpc in DUT.
-
-The methods are not yet implemented.
 """
 
 import logging
+import typing
+
+from google.protobuf import json_format
+from google.protobuf import struct_pb2
 
 from cros.factory.umpire.server.proto import shop_floor_pb2
 from cros.factory.umpire.server.proto import shop_floor_pb2_grpc
+from cros.factory.utils import webservice_utils
+
+
+def ToDict(value: struct_pb2.Struct):
+  return json_format.MessageToDict(value)
+
+
+def ToStruct(value) -> struct_pb2.Struct:
+  ret = struct_pb2.Struct()
+  ret.update(value)
+  return ret
 
 
 class ShopFloorServicer(shop_floor_pb2_grpc.ShopFloorServicer):
 
-  def GetVersion(self, request, context):
+  def __init__(self, shopfloor_service_url: str) -> None:
+    super().__init__()
+    self._url = shopfloor_service_url
+    self._proxy = webservice_utils.CreateWebServiceProxy(
+        shopfloor_service_url, use_twisted=False)
+
+  def GetVersion(self, request: shop_floor_pb2.GetVersionRequest, context):
     del request
     del context
     logging.info('GetVersion')
-    return shop_floor_pb2.GetVersionResponse(version="1.0")
+    ret = typing.cast(str, self._proxy.callRemote('GetVersion'))
+    return shop_floor_pb2.GetVersionResponse(version=ret)
+
+  def NotifyStart(self, request: shop_floor_pb2.NotifyStartRequest, context):
+    del context
+    ret = self._proxy.callRemote('NotifyStart', ToDict(request.data),
+                                 request.station)
+    return shop_floor_pb2.NotifyStartResponse(data=ToStruct(ret))
+
+  def NotifyEnd(self, request: shop_floor_pb2.NotifyEndRequest, context):
+    del context
+    ret = self._proxy.callRemote('NotifyEnd', ToDict(request.data),
+                                 request.station)
+    return shop_floor_pb2.NotifyEndResponse(data=ToStruct(ret))
+
+  def NotifyEvent(self, request: shop_floor_pb2.NotifyEventRequest, context):
+    del context
+    ret = self._proxy.callRemote('NotifyEvent', ToDict(request.data),
+                                 request.event)
+    return shop_floor_pb2.NotifyEventResponse(data=ToStruct(ret))
+
+  def GetDeviceInfo(self, request: shop_floor_pb2.GetDeviceInfoRequest,
+                    context):
+    del context
+    ret = self._proxy.callRemote('GetDeviceInfo', ToDict(request.data))
+    return shop_floor_pb2.GetDeviceInfoResponse(data=ToStruct(ret))
+
+  def ActivateRegCode(self, request: shop_floor_pb2.ActivateRegCodeRequest,
+                      context):
+    del context
+    ret = self._proxy.callRemote('ActivateRegCode', request.ubind_attribute,
+                                 request.gbind_attribute, request.hwid)
+    return shop_floor_pb2.ActivateRegCodeResponse(data=ToStruct(ret))
+
+  def UpdateTestResult(self, request: shop_floor_pb2.UpdateTestResultRequest,
+                       context):
+    del context
+    ret = self._proxy.callRemote('UpdateTestResult', ToDict(request.data),
+                                 request.test_id, request.status,
+                                 ToDict(request.details))
+    return shop_floor_pb2.UpdateTestResultResponse(data=ToStruct(ret))

@@ -36,6 +36,7 @@ class RunGrpcArgs:
   certfile: Optional[str] = None
   root_certfile: Optional[str] = None
   log_file: Optional[str] = None
+  shopfloor_service_url: str = ''
 
 
 def SetupConnection(grpc_server: grpc._server._Server, args: RunGrpcArgs):
@@ -65,7 +66,8 @@ def StartGrpcServer(args: RunGrpcArgs):
 
   grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
   shop_floor_pb2_grpc.add_ShopFloorServicer_to_server(
-      shop_floor_servicer.ShopFloorServicer(), grpc_server)
+      shop_floor_servicer.ShopFloorServicer(args.shopfloor_service_url),
+      grpc_server)
 
   SetupConnection(grpc_server, args)
 
@@ -87,6 +89,8 @@ def main():
                       help='Use this for tls.')
   parser.add_argument('--log-file', type=str, default=None,
                       help='File to store the log.')
+  parser.add_argument('--shopfloor-service-url', type=str, default='',
+                      help='The shopfloor service url.')
   args = parser.parse_args()
   StartGrpcServer(typing.cast(RunGrpcArgs, args))
 
