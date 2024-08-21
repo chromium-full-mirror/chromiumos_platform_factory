@@ -284,5 +284,18 @@
         "component_name"
       ]
     }
+  },
+  "ec_component_pdc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "pdc"
+        }
+      },
+      "keys": [
+        "component_type",
+        "component_name"
+      ]
+    }
   }
 }
