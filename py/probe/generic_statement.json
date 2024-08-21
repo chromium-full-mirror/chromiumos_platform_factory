@@ -242,5 +242,14 @@
         }
       }
     }
+  },
+  "ec_component_pdc": {
+    "generic": {
+      "eval": {
+        "ec_component": {
+          "type": "pdc"
+        }
+      }
+    }
   }
 }
