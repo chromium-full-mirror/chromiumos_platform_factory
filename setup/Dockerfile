@@ -4,7 +4,7 @@
 
 # Remember to uprev the alpine in py/umpire/server/e2e_test/Dockerfile too.
 FROM alpine:3.17
-MAINTAINER Mao Huang <littlecvr@google.com>
+LABEL maintainer="ChromeOS Factory Eng <chromeos-factory-eng@google.com>"
 
 # need to explicitly assign PYTHONPATH for uwsgi
 ENV PYTHONPATH="/usr/local/factory/py_pkg"
@@ -85,11 +85,12 @@ ADD build/docker/uftp.tgz /usr/bin
 
 # Prepare requirements file and install pip packages.
 COPY py/umpire/server/requirements.txt "${umpire_dir}/"
+COPY py/umpire/server/docker-base-tooling.requirement.txt "${umpire_dir}/"
 COPY py/dome/requirements.txt "${dome_dir}/"
 COPY py/instalog/requirements_for_docker.txt "${instalog_dir}/"
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir --upgrade setuptools==70.3.0 && \
-    pip3 install --no-cache-dir --upgrade wheel
+RUN pip3 install --no-cache-dir \
+      -r "${umpire_dir}/docker-base-tooling.requirement.txt" \
+      --require-hashes
 RUN pip3 install --no-cache-dir \
       -r "${umpire_dir}/requirements.txt" \
       -r "${dome_dir}/requirements.txt" \

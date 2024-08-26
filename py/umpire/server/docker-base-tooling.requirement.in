@@ -1,0 +1,5 @@
+pip==24.2
+wheel==0.44.0
+# Cannot use setuptools>=71.0.0.
+# Check https://github.com/pypa/setuptools/issues/4483.
+setuptools==70.3.0
