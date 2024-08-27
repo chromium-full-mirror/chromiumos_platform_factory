@@ -5,6 +5,8 @@
 
 import unittest
 
+from google.cloud import ndb
+
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 
@@ -25,6 +27,7 @@ class DLMProductManagerTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       entity.populate(**kwargs)
+      entity.key = ndb.Key(entity.ENTITY_KIND, kwargs['id'])
       entity.put()
     return entity
 
@@ -33,6 +36,7 @@ class DLMProductManagerTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       entity.populate(**kwargs)
+      entity.key = ndb.Key(entity.ENTITY_KIND, kwargs['id'])
       entity.put()
     return entity
 
@@ -48,7 +52,10 @@ class DLMProductManagerTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
-    self.assertEqual(len(res), 2)
+      self.assertEqual(len(res), 2)
+      # Entity keys can only be accessed in context.
+      self.assertEqual(res[0].key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(res[1].key, ndb.Key('DLMProduct', 2))
 
     self.assertEqual(res[0].id, 1)
     self.assertEqual(res[0].board, 'test_board_1')
@@ -82,7 +89,11 @@ class DLMProductManagerTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
-    self.assertEqual(len(res), 3)
+      self.assertEqual(len(res), 3)
+      # Entity keys can only be accessed in context.
+      self.assertEqual(res[0].key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(res[1].key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(res[2].key, ndb.Key('DLMProduct', 3))
 
     self.assertEqual(res[0].id, 1)
     self.assertEqual(res[0].board, 'test_board_1')
@@ -126,7 +137,12 @@ class DLMProductManagerTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
-    self.assertEqual(len(res), 4)
+      self.assertEqual(len(res), 4)
+      # Entity keys can only be accessed in context.
+      self.assertEqual(res[0].key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(res[1].key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(res[2].key, ndb.Key('DLMProduct', 3))
+      self.assertEqual(res[3].key, ndb.Key('DLMProduct', 4))
 
     self.assertEqual(res[0].id, 1)
     self.assertEqual(res[0].board, 'test_board_1')
@@ -206,6 +222,9 @@ class DLMProductManagerTest(unittest.TestCase):
       p2 = p2.key.get()
       p3 = p3.key.get()
       self.assertCountEqual(res, [p1, p2, p3])
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(p2.key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(p3.key, ndb.Key('DLMProduct', 3))
 
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'test_board_1')
@@ -234,21 +253,27 @@ class DLMProductManagerTest(unittest.TestCase):
     self.assertIsNone(self._manager.GetDLMDeviceByModel('not_found'))
     self.assertEqual(self._manager.GetDLMDeviceByModel('test_model_3'), d1)
 
-  def testUpdateDLMDeviceById(self):
+  def testUpdateDLMDevice(self):
     d1 = self._CreateDLMDevice(id=2, board='board')
 
-    self._manager.UpdateDLMDeviceById(
-        device_id=2, board='test_board_3', model='test_model_2', device_type=1,
+    device1 = dlm_product_data.DLMDevice(
+        id=2, board='test_board_3', model='test_model_2', device_type=1,
         factory_branch='factory-testboard-12345.B')
-    self._manager.UpdateDLMDeviceById(
-        device_id=3, board='test_board_3', model='test_model_3', device_type=1,
+    device2 = dlm_product_data.DLMDevice(
+        id=3, board='test_board_3', model='test_model_3', device_type=1,
         factory_branch='factory-testboard-12345.B')
+
+    self._manager.UpdateDLMDevice(device1)
+    self._manager.UpdateDLMDevice(device2)
 
     with self._ndb_connector.CreateClientContext():
       self.assertEqual(dlm_product_data.DLMDevice.query().count(), 2)
+      # Entity keys can only be accessed in context.
       d1 = d1.key.get()
       d2 = dlm_product_data.DLMDevice.query(
           dlm_product_data.DLMDevice.id == 3).get()
+      self.assertEqual(d1.key, ndb.Key('DLMDevice', 2))
+      self.assertEqual(d2.key, ndb.Key('DLMDevice', 3))
 
     self.assertEqual(d1.id, 2)
     self.assertEqual(d1.board, 'test_board_3')

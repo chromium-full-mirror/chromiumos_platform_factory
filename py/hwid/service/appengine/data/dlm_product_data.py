@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 """DLM product data model and its manager."""
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 from google.cloud import ndb
 
@@ -21,6 +21,8 @@ class DLMProduct(ndb.Model):
     device_id: The id of the device to which the product belongs.
     device_type: The type of the device to which the product belongs.
   """
+
+  ENTITY_KIND = 'DLMProduct'
 
   id = ndb.IntegerProperty(indexed=True, required=True)
   board = ndb.StringProperty(required=True)
@@ -41,11 +43,20 @@ class DLMDevice(ndb.Model):
     factory_branch: The factory branch.
   """
 
+  ENTITY_KIND = 'DLMDevice'
+
   id = ndb.IntegerProperty(indexed=True, required=True)
   board = ndb.StringProperty(required=True)
   model = ndb.StringProperty()
   device_type = ndb.IntegerProperty()
   factory_branch = ndb.StringProperty()
+
+
+@ndb.transactional()
+def _SaveEntities(entities: Sequence[Union[DLMProduct, DLMDevice]]):
+  for entity in entities:
+    entity.key = ndb.Key(entity.ENTITY_KIND, entity.id)
+  ndb.put_multi(entities)
 
 
 class DLMProductManager:
@@ -60,18 +71,8 @@ class DLMProductManager:
       return list(q)
 
   def UpdateDLMProducts(self, products: Sequence[DLMProduct]):
-    products_to_update = {
-        product.id: product
-        for product in products
-    }
-    product_ids = list(products_to_update)
     with self._ndb_connector.CreateClientContextWithGlobalCache():
-      q = DLMProduct.query(DLMProduct.id.IN(product_ids))
-      for existing_product in q:
-        # Update the existing products by using the same key.
-        products_to_update[existing_product.id].key = existing_product.key
-
-      ndb.model.put_multi(list(products_to_update.values()))
+      _SaveEntities(products)
 
   def UpdateDLMProductsByDeviceId(self, device_id: int, board: str, model: str,
                                   device_type: int):
@@ -93,19 +94,9 @@ class DLMProductManager:
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       return DLMDevice.query(DLMDevice.model == model).get()
 
-  def UpdateDLMDeviceById(self, device_id: int, board: str,
-                          model: Optional[str], device_type: Optional[int],
-                          factory_branch: Optional[str]):
+  def UpdateDLMDevice(self, device: DLMDevice):
     with self._ndb_connector.CreateClientContextWithGlobalCache():
-      current_entity = DLMDevice.query(DLMDevice.id == device_id).get()
-      entity = current_entity if current_entity is not None else DLMDevice(
-          id=device_id)
-      entity.board = board
-      entity.model = model
-      entity.device_type = device_type
-      entity.factory_branch = factory_branch
-
-      entity.put()
+      _SaveEntities([device])
 
   def CleanAllForTest(self):
     with self._ndb_connector.CreateClientContext():

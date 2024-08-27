@@ -46,6 +46,7 @@ class DLMProductShardTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       entity.populate(**kwargs)
+      entity.key = ndb.Key(entity.ENTITY_KIND, kwargs['id'])
       entity.put()
     return entity
 
@@ -54,17 +55,18 @@ class DLMProductShardTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       entity.populate(**kwargs)
+      entity.key = ndb.Key(entity.ENTITY_KIND, kwargs['id'])
       entity.put()
     return entity
 
   def testBatchUpdateDlmProduct_CreateNewProducts(self):
-    p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
-                     product_status=_DlmProduct.SHIPPED, device_id=1,
-                     device_type=_DeviceType.DEVICE)
-    p2 = _DlmProduct(id=2, board='test_board_2', model='test_model_2',
-                     product_status=_DlmProduct.DEVELOPMENT, device_id=2,
-                     device_type=_DeviceType.DEVICE)
-    req = _BatchUpdateDlmProductRequest(products=[p1, p2])
+    new_p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
+                         product_status=_DlmProduct.SHIPPED, device_id=1,
+                         device_type=_DeviceType.DEVICE)
+    new_p2 = _DlmProduct(id=2, board='test_board_2', model='test_model_2',
+                         product_status=_DlmProduct.DEVELOPMENT, device_id=2,
+                         device_type=_DeviceType.DEVICE)
+    req = _BatchUpdateDlmProductRequest(products=[new_p1, new_p2])
 
     res = self.service.BatchUpdateDlmProduct(req)
 
@@ -78,11 +80,14 @@ class DLMProductShardTest(unittest.TestCase):
                     product_id=2, result_type=_DlmProductUpdateResult.SUCCESS)
             ]))
     with self._ndb_connector.CreateClientContext():
-      products = list(dlm_product_data.DLMProduct.query())
-    self.assertEqual(len(products), 2)
+      products = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+      self.assertEqual(len(products), 2)
+      p1 = products[0]
+      p2 = products[1]
+      # Entity keys can only be accessed in context.
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(p2.key, ndb.Key('DLMProduct', 2))
 
-    p1 = products[0]
-    p2 = products[1]
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
     self.assertEqual(p1.model, 'TEST_MODEL_1')
@@ -98,14 +103,12 @@ class DLMProductShardTest(unittest.TestCase):
     self.assertEqual(p2.device_type, _DeviceType.DEVICE)
 
   def testBatchUpdateDlmProduct_UpdateExistingProducts(self):
-    p1 = self._CreateDLMProduct(id=1, board='TEST_BOARD_1',
-                                model='TEST_MODEL_1',
-                                product_status=_DlmProduct.APPROVED,
-                                device_id=1, device_type=_DeviceType.DEVICE)
-    p2 = self._CreateDLMProduct(id=2, board='TEST_BOARD_2',
-                                model='TEST_MODEL_2',
-                                product_status=_DlmProduct.SHIPPED, device_id=2,
-                                device_type=_DeviceType.DEVICE)
+    self._CreateDLMProduct(id=1, board='TEST_BOARD_1', model='TEST_MODEL_1',
+                           product_status=_DlmProduct.APPROVED, device_id=1,
+                           device_type=_DeviceType.DEVICE)
+    self._CreateDLMProduct(id=2, board='TEST_BOARD_2', model='TEST_MODEL_2',
+                           product_status=_DlmProduct.SHIPPED, device_id=2,
+                           device_type=_DeviceType.DEVICE)
     self._CreateDLMProduct(id=3, board='TEST_BOARD_3', model='TEST_MODEL_3',
                            product_status=_DlmProduct.DEVELOPMENT, device_id=3,
                            device_type=_DeviceType.DEVICE)
@@ -130,12 +133,16 @@ class DLMProductShardTest(unittest.TestCase):
                     product_id=3, result_type=_DlmProductUpdateResult.SUCCESS)
             ]))
     with self._ndb_connector.CreateClientContext():
-      products = list(dlm_product_data.DLMProduct.query())
-    self.assertEqual(len(products), 3)
+      products = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+      self.assertEqual(len(products), 3)
+      p1 = products[0]
+      p2 = products[1]
+      p3 = products[2]
+      # Entity keys can only be accessed in context.
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(p2.key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(p3.key, ndb.Key('DLMProduct', 3))
 
-    p1 = products[0]
-    p2 = products[1]
-    p3 = products[2]
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
     self.assertEqual(p1.model, 'TEST_MODEL_1')
@@ -174,10 +181,11 @@ class DLMProductShardTest(unittest.TestCase):
     updated_p3 = _DlmProduct(id=3, board='test_board_4', model='test_model_4',
                              product_status=_DlmProduct.ON_HOLD, device_id=4,
                              device_type=_DeviceType.REFERENCE_BOARD)
-    p4 = _DlmProduct(id=4, board='test_board_4', model='test_model_4',
-                     product_status=_DlmProduct.APPROVED, device_id=4,
-                     device_type=_DeviceType.DEVICE)
-    req = _BatchUpdateDlmProductRequest(products=[updated_p1, updated_p3, p4])
+    new_p4 = _DlmProduct(id=4, board='test_board_4', model='test_model_4',
+                         product_status=_DlmProduct.APPROVED, device_id=4,
+                         device_type=_DeviceType.DEVICE)
+    req = _BatchUpdateDlmProductRequest(
+        products=[updated_p1, updated_p3, new_p4])
 
     res = self.service.BatchUpdateDlmProduct(req)
 
@@ -193,13 +201,18 @@ class DLMProductShardTest(unittest.TestCase):
                     product_id=4, result_type=_DlmProductUpdateResult.SUCCESS)
             ]))
     with self._ndb_connector.CreateClientContext():
-      products = list(dlm_product_data.DLMProduct.query())
-    self.assertEqual(len(products), 4)
+      products = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+      self.assertEqual(len(products), 4)
+      p1 = products[0]
+      p2 = products[1]
+      p3 = products[2]
+      p4 = products[3]
+      # Entity keys can only be accessed in context.
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(p2.key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(p3.key, ndb.Key('DLMProduct', 3))
+      self.assertEqual(p4.key, ndb.Key('DLMProduct', 4))
 
-    p1 = products[0]
-    p2 = products[1]
-    p3 = products[2]
-    p4 = products[3]
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
     self.assertEqual(p1.model, 'TEST_MODEL_1')
@@ -229,11 +242,11 @@ class DLMProductShardTest(unittest.TestCase):
     self.assertEqual(p4.device_type, _DeviceType.DEVICE)
 
   def testBatchUpdateDlmProduct_MissingRequiredFields(self):
-    p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
-                     product_status=_DlmProduct.SHIPPED, device_id=1,
-                     device_type=_DeviceType.DEVICE)
-    p2 = _DlmProduct()
-    req = _BatchUpdateDlmProductRequest(products=[p1, p2])
+    new_p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
+                         product_status=_DlmProduct.SHIPPED, device_id=1,
+                         device_type=_DeviceType.DEVICE)
+    new_p2 = _DlmProduct()
+    req = _BatchUpdateDlmProductRequest(products=[new_p1, new_p2])
 
     res = self.service.BatchUpdateDlmProduct(req)
     self.assertEqual(
@@ -248,9 +261,12 @@ class DLMProductShardTest(unittest.TestCase):
             ]))
 
     with self._ndb_connector.CreateClientContext():
-      products = list(dlm_product_data.DLMProduct.query())
-    self.assertEqual(len(products), 1)
-    p1 = products[0]
+      products = list(dlm_product_data.DLMProduct.query(order_by=['id']))
+      self.assertEqual(len(products), 1)
+      p1 = products[0]
+      # Entity keys can only be accessed in context.
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
     self.assertEqual(p1.model, 'TEST_MODEL_1')
@@ -260,13 +276,13 @@ class DLMProductShardTest(unittest.TestCase):
 
   @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
   def testBatchUpdateDlmProduct_NDBError(self, mock_update_dlm_products):
-    p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
-                     product_status=_DlmProduct.SHIPPED, device_id=1,
-                     device_type=_DeviceType.DEVICE)
-    p2 = _DlmProduct(id=2, board='test_board_2', model='test_model_2',
-                     product_status=_DlmProduct.DEVELOPMENT, device_id=2,
-                     device_type=_DeviceType.DEVICE)
-    req = _BatchUpdateDlmProductRequest(products=[p1, p2])
+    new_p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
+                         product_status=_DlmProduct.SHIPPED, device_id=1,
+                         device_type=_DeviceType.DEVICE)
+    new_p2 = _DlmProduct(id=2, board='test_board_2', model='test_model_2',
+                         product_status=_DlmProduct.DEVELOPMENT, device_id=2,
+                         device_type=_DeviceType.DEVICE)
+    req = _BatchUpdateDlmProductRequest(products=[new_p1, new_p2])
     mock_update_dlm_products.side_effect = ndb.exceptions.BadValueError(
         'Bad Value Error')
 
@@ -291,10 +307,10 @@ class DLMProductShardTest(unittest.TestCase):
 
   @mock.patch.object(dlm_product_data.DLMProductManager, 'UpdateDLMProducts')
   def testBatchUpdateDlmProduct_GoogleAPIError(self, mock_update_dlm_products):
-    p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
-                     product_status=_DlmProduct.SHIPPED, device_id=1,
-                     device_type=_DeviceType.DEVICE)
-    req = _BatchUpdateDlmProductRequest(products=[p1])
+    new_p1 = _DlmProduct(id=1, board='test_board_1', model='test_model_1',
+                         product_status=_DlmProduct.SHIPPED, device_id=1,
+                         device_type=_DeviceType.DEVICE)
+    req = _BatchUpdateDlmProductRequest(products=[new_p1])
     mock_update_dlm_products.side_effect = google_api_exceptions.GoogleAPIError(
         'Google API Error')
 
@@ -336,16 +352,20 @@ class DLMProductShardTest(unittest.TestCase):
                 device_id=2, result_type=_DlmDeviceUpdateResult.SUCCESS)))
 
     with self._ndb_connector.CreateClientContext():
-      res = list(dlm_product_data.DLMProduct.query())
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
       # Entity keys can only be accessed in context.
       p1 = p1.key.get()
       p2 = p2.key.get()
       p3 = p3.key.get()
       self.assertCountEqual(res, [p1, p2, p3])
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
+      self.assertEqual(p2.key, ndb.Key('DLMProduct', 2))
+      self.assertEqual(p3.key, ndb.Key('DLMProduct', 3))
 
       d1 = d1.key.get()
-      dev_res = list(dlm_product_data.DLMDevice.query())
+      dev_res = list(dlm_product_data.DLMDevice.query(order_by=['id']))
       self.assertCountEqual(dev_res, [d1])
+      self.assertEqual(d1.key, ndb.Key('DLMDevice', 2))
 
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
@@ -388,6 +408,8 @@ class DLMProductShardTest(unittest.TestCase):
 
     with self._ndb_connector.CreateClientContext():
       d1 = dlm_product_data.DLMDevice.query().get()
+      # Entity keys can only be accessed in context.
+      self.assertEqual(d1.key, ndb.Key('DLMDevice', 2))
 
     self.assertEqual(d1.id, 2)
     self.assertEqual(d1.board, 'TEST_BOARD_3')
@@ -429,10 +451,11 @@ class DLMProductShardTest(unittest.TestCase):
                 error_msg='Bad Value Error')))
 
     with self._ndb_connector.CreateClientContext():
-      res = list(dlm_product_data.DLMProduct.query())
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
       # Entity keys can only be accessed in context.
       p1 = p1.key.get()
       self.assertCountEqual(res, [p1])
+      self.assertEqual(p1.key, ndb.Key('DLMProduct', 1))
 
     self.assertEqual(p1.id, 1)
     self.assertEqual(p1.board, 'TEST_BOARD_1')
@@ -461,7 +484,7 @@ class DLMProductShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.INTERNAL)
 
     with self._ndb_connector.CreateClientContext():
-      res = list(dlm_product_data.DLMProduct.query())
+      res = list(dlm_product_data.DLMProduct.query(order_by=['id']))
       # Entity keys can only be accessed in context.
       p1 = p1.key.get()
       self.assertCountEqual(res, [p1])
