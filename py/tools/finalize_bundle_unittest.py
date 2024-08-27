@@ -8,6 +8,7 @@ import contextlib
 import os
 import shutil
 import tempfile
+import textwrap
 import unittest
 from unittest import mock
 
@@ -485,6 +486,12 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
           os.path.join(dirpath, 'signer_config.csv'),
           'model_name,firmware_image,key_id,ec_image,brand_code\n'
           'randomSignId,image_path,DEFAULT,ec_image_path,ZZCR')
+      file_utils.WriteFile(
+          os.path.join(dirpath, 'VERSION.signer'),
+          textwrap.dedent('''
+              Signed with keyset in /keys/keyset/public/CorsolaMPKeys-v14 .
+              recovery: fake_recovery_key
+              '''))
 
     patcher = mock.patch(finalize_bundle.__name__ + '._PackFirmwareUpdater')
     self.pack_mock = patcher.start()
@@ -555,6 +562,8 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
     })
     self.assertEqual(
         firmware_record, {
+            'firmware_signer':
+                'CorsolaMPKeys-v14',
             'firmware_records': [{
                 'model': 'test',
                 'firmware_keys': [{
@@ -576,6 +585,37 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                 }]
             }]
         })
+
+  def testExtractFirmwareInfo_InvalidSigner(self):
+
+    def _InvalidSignerMockPack(unused_updater_path, dirpath,
+                               unused_operation='pack'):
+      file_utils.WriteFile(
+          os.path.join(dirpath, 'VERSION.signer'),
+          textwrap.dedent('''
+              Signed without keyset in /keys/keyset/public/CorsolaMPKeys-v14 .
+              recovery: fake_recovery_key
+              '''))
+
+    self.pack_mock.side_effect = _InvalidSignerMockPack
+    self.config_yaml = json_utils.DumpStr({
+        'chromeos': {
+            'configs': [{
+                'name': 'test',
+                'firmware': {
+                    'image-name': 'randomFWKey'
+                },
+                'firmware-signing': {
+                    'signature-id': 'randomSignId'
+                },
+                'identity': {
+                    'sku-id': 123
+                }
+            }]
+        }
+    })
+    with self.assertRaises(ValueError):
+      finalize_bundle.FinalizeBundle.ExtractFirmwareInfo('fake_image')
 
   def testExtractFirmwareInfo_SharedFirmwareKey(self):
     self.config_yaml = json_utils.DumpStr({
@@ -637,6 +677,8 @@ class ExtractFirmwareInfoTest(FinalizeBundleTestBase):
                          {'randomFWKey': ['randomFWKey']})
     self.assertEqual(
         firmware_record, {
+            'firmware_signer':
+                'CorsolaMPKeys-v14',
             'firmware_records': [{
                 'model': 'randomFWKey',
                 'firmware_keys': [{

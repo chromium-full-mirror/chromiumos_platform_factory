@@ -1055,10 +1055,11 @@ class FinalizeBundle:
       signer_path = os.path.join(temp_dir, 'VERSION.signer')
       if os.path.exists(signer_path):
         signer_output = file_utils.ReadFile(signer_path)
-        match = re.search(r'.*/cros/keys/([^\s]+)', signer_output)
-        # yapf: disable
-        signer = match.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        # See chromite/signing/lib/firmware.py for the signer format
+        match = re.search(r'Signed with keyset in ([^\s]+)', signer_output)
+        if match is None:
+          raise ValueError(f'Failed to parse VERSION.signer: {signer_output}')
+        signer = match.group(1).split('/')[-1]
         firmware_record['firmware_signer'] = signer
       else:
         logging.warning(
