@@ -13,8 +13,6 @@
 : ${CUTOFF_BATTERY_MIN_VOLTAGE:=}
 : ${CUTOFF_BATTERY_MAX_VOLTAGE:=}
 : ${SHOPFLOOR_URL:=}
-: ${CONTINUE_KEY:=}
-: ${QRCODE_INFO:=}
 
 # After calling display_wipe_message.sh to draw image with frecon, we must
 # redirect text output to active terminal to display information on the screen.
@@ -65,7 +63,7 @@ options_load_file() {
   for key in CUTOFF_METHOD CUTOFF_AC_STATE \
       CUTOFF_BATTERY_MIN_PERCENTAGE CUTOFF_BATTERY_MAX_PERCENTAGE \
       CUTOFF_BATTERY_MIN_VOLTAGE CUTOFF_BATTERY_MAX_VOLTAGE \
-      SHOPFLOOR_URL TTY CONTINUE_KEY QRCODE_INFO; do
+      SHOPFLOOR_URL TTY; do
     # "jq -n -f" allows more flexible JSON, for example keys without quotes or
     # comments started with #.
     value="$(jq -n -f "${file}" | jq -r ".${key}")"
@@ -144,8 +142,6 @@ options_check_values() {
   echo "CUTOFF_BATTERY_MAX_VOLTAGE=${CUTOFF_BATTERY_MAX_VOLTAGE}"
   echo "SHOPFLOOR_URL=${SHOPFLOOR_URL}"
   echo "TTY=${TTY}"
-  echo "CONTINUE_KEY=${CONTINUE_KEY}"
-  echo "QRCODE_INFO=${QRCODE_INFO}"
   echo "---------------------"
 }
 
@@ -161,8 +157,6 @@ options_usage_help() {
     [--max-battery-voltage <maximum battery voltage>]
     [--shopfloor <shopfloor_url]
     [--tty <tty_path>]
-    [--continue_key <key>]
-    [--qrcode_info <qrcode info>]
     "
   exit 1
 }
@@ -203,14 +197,6 @@ options_parse_command_line() {
       --tty )
         shift
         TTY="$1"
-        ;;
-      --continue_key )
-        shift
-        CONTINUE_KEY="$1"
-        ;;
-      --qrcode_info )
-        shift
-        QRCODE_INFO="$1"
         ;;
       * )
         options_usage_help "$1"
