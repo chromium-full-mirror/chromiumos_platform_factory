@@ -588,8 +588,9 @@ class ProtoRPCServiceTest(unittest.TestCase):
   def testGetSoftBrandEligibility_PushedReleaseOnly(self,
                                                     mock_matcher_builder_cls):
 
-    def MockGetCommitID(repo_name: str,
-                        image_version: version_module.Version) -> str:
+    def MockGetCommitID(
+        repo_name: str,
+        image_version: release_version_utils.ImageVersion) -> str:
       # Customize a commit ID based on repo_name and image_version.
       return f'commit-{pathlib.Path(repo_name).name}-{image_version.version}'
 

@@ -4,7 +4,7 @@
 
 import datetime
 import enum
-from typing import Mapping, NamedTuple, Optional
+from typing import Mapping, NamedTuple, Optional, Union
 from xml.dom import minidom
 
 from google.cloud import bigquery
@@ -32,7 +32,7 @@ class ImageVersionType(enum.Enum):
 
 class ImageVersion(NamedTuple):
   milestone: int
-  version: version_module.Version
+  version: Union[version_module.Version, version_module.LegacyVersion]
 
 
 class PushedReleaseVersion(ndb.Model):
