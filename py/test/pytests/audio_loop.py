@@ -1256,7 +1256,7 @@ class AudioLoopTest(test_case.TestCase):
       """
 
       _merge_threshold_size_480_boards = ('brya', 'rex', 'volteer', 'hades',
-                                          'nissa')
+                                          'nissa', 'brox')
 
       lsb_data = image_tool.LSBFile(os.path.join('/', 'etc', 'lsb-release'))
       board_name = lsb_data.GetChromeOSBoard().lower()
