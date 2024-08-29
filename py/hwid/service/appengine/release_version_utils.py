@@ -4,7 +4,8 @@
 
 import datetime
 import enum
-from typing import Mapping, NamedTuple, Optional, Union
+import logging
+from typing import Mapping, NamedTuple, Optional
 from xml.dom import minidom
 
 from google.cloud import bigquery
@@ -19,8 +20,6 @@ from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 
 # yapf: enable
 
-
-
 _MANIFEST_VERSIONS_PROJECT = 'chromeos/manifest-versions'
 _BUILDSPEC_PATH = 'buildspecs/{milestone}/{version}.xml'
 
@@ -32,7 +31,7 @@ class ImageVersionType(enum.Enum):
 
 class ImageVersion(NamedTuple):
   milestone: int
-  version: Union[version_module.Version, version_module.LegacyVersion]
+  version: version_module.Version
 
 
 class PushedReleaseVersion(ndb.Model):
@@ -66,6 +65,34 @@ def _ExtractRevisionFromManifest(dom, repo_name: str) -> Optional[str]:
 
 class CommitUnavailableError(Exception):
   """An exception raised when the commit ID is unavailable given the config."""
+
+
+class InvalidVersionError(ValueError):
+  """An exception raised when the version string is invalid."""
+
+
+def ParseVersion(version_str: str) -> version_module.Version:
+  """Parses version to a Version instance.
+
+  Args:
+    version_str: A version string.
+
+  Returns:
+    A Version instance.
+
+  Raises:
+    InvalidVersionError when the version string is invalid.
+  """
+
+  try:
+    version = version_module.parse(version_str)
+  except version_module.InvalidVersion:
+    raise InvalidVersionError(f'Invalid version: {version_str}') from None
+
+  if not isinstance(version, version_module.Version):
+    raise InvalidVersionError(f'Invalid version: {version_str}')
+
+  return version
 
 
 class ReleaseVersionManager:
@@ -104,17 +131,21 @@ class ReleaseVersionManager:
           entity.key.delete()
         else:
           if entity.stable_milestone:
-            pushed_versions[ImageVersionType.LATEST_PUSHED_STABLE] = (
-                ImageVersion(
-                    entity.stable_milestone,
-                    version_module.parse(entity.stable_version),
-                ))
+            try:
+              version = ParseVersion(entity.stable_version)
+            except InvalidVersionError:
+              logging.info('Skip invalid version: %s', entity.stable_version)
+            else:
+              pushed_versions[ImageVersionType.LATEST_PUSHED_STABLE] = (
+                  ImageVersion(entity.stable_milestone, version))
           if entity.lts_milestone:
-            pushed_versions[ImageVersionType.LATEST_PUSHED_LTS] = (
-                ImageVersion(
-                    entity.lts_milestone,
-                    version_module.parse(entity.lts_version),
-                ))
+            try:
+              version = ParseVersion(entity.lts_version)
+            except InvalidVersionError:
+              logging.info('Skip invalid version: %s', entity.lts_version)
+            else:
+              pushed_versions[ImageVersionType.LATEST_PUSHED_LTS] = (
+                  ImageVersion(entity.lts_milestone, version))
           return pushed_versions
 
     client = bigquery.Client(project=self._bigquery_cloud_project)
@@ -126,8 +157,12 @@ class ReleaseVersionManager:
     query = client.query(self._latest_push_sql, job_config=job_config)
     rows = query.result()
     for row in rows:
-      candidate = ImageVersion(row['milestone'],
-                               version_module.parse(row['version']))
+      try:
+        version = ParseVersion(row['version'])
+      except InvalidVersionError:
+        logging.info('Skip invalid version: %s', row['version'])
+        continue
+      candidate = ImageVersion(row['milestone'], version)
       if row['release_type'] in ('LTC', 'LTR'):
         pushed_versions[ImageVersionType.LATEST_PUSHED_LTS] = max(
             candidate,

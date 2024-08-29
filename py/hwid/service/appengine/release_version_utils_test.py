@@ -9,17 +9,12 @@ from typing import Optional
 import unittest
 from unittest import mock
 
-# yapf: disable
-from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import release_version_utils
 from cros.factory.hwid.service.appengine import test_utils
 
 
 # yapf: enable
-
-
 
 _ImageVersionType = release_version_utils.ImageVersionType
 _ImageVersion = release_version_utils.ImageVersion
@@ -108,17 +103,17 @@ class ReleaseVersionManagerTest(unittest.TestCase):
     mock_bq_client_cls.assert_called_once_with(project='cloud-project')
     mock_bq_client.query.assert_called_once_with('push-sql with @project',
                                                  job_config=mock.ANY)
-    self.assertDictEqual(
+    self.assertEqual(
         {
             _ImageVersionType.LATEST_PUSHED_LTS:
                 _ImageVersion(
                     milestone=120,
-                    version=version_module.parse('22222.22.2'),
+                    version=release_version_utils.ParseVersion('22222.22.2'),
                 ),
             _ImageVersionType.LATEST_PUSHED_STABLE:
                 _ImageVersion(
                     milestone=140,
-                    version=version_module.parse('44444.44.4'),
+                    version=release_version_utils.ParseVersion('44444.44.4'),
                 ),
         }, release_versions)
     with self._ndb_connector.CreateClientContext():
@@ -163,17 +158,17 @@ class ReleaseVersionManagerTest(unittest.TestCase):
     mock_bq_client_cls.assert_called_once_with(project='cloud-project')
     mock_bq_client.query.assert_called_once_with('push-sql with @project',
                                                  job_config=mock.ANY)
-    self.assertDictEqual(
+    self.assertEqual(
         {
             _ImageVersionType.LATEST_PUSHED_LTS:
                 _ImageVersion(
                     milestone=100,
-                    version=version_module.parse('1111.11.1'),
+                    version=release_version_utils.ParseVersion('1111.11.1'),
                 ),
             _ImageVersionType.LATEST_PUSHED_STABLE:
                 _ImageVersion(
                     milestone=200,
-                    version=version_module.parse('11111.11.1'),
+                    version=release_version_utils.ParseVersion('11111.11.1'),
                 ),
         }, release_versions)
 
@@ -192,17 +187,17 @@ class ReleaseVersionManagerTest(unittest.TestCase):
         'THEPROJ')
 
     mock_bq_client_cls.assert_not_called()
-    self.assertDictEqual(
+    self.assertEqual(
         {
             _ImageVersionType.LATEST_PUSHED_LTS:
                 _ImageVersion(
                     milestone=120,
-                    version=version_module.parse('22222.22.2'),
+                    version=release_version_utils.ParseVersion('22222.22.2'),
                 ),
             _ImageVersionType.LATEST_PUSHED_STABLE:
                 _ImageVersion(
                     milestone=140,
-                    version=version_module.parse('44444.44.4'),
+                    version=release_version_utils.ParseVersion('44444.44.4'),
                 ),
         }, release_versions)
 
@@ -219,12 +214,12 @@ class ReleaseVersionManagerTest(unittest.TestCase):
         'THEPROJ')
 
     mock_bq_client_cls.assert_not_called()
-    self.assertDictEqual(
+    self.assertEqual(
         {
             _ImageVersionType.LATEST_PUSHED_STABLE:
                 _ImageVersion(
                     milestone=140,
-                    version=version_module.parse('44444.44.4'),
+                    version=release_version_utils.ParseVersion('44444.44.4'),
                 ),
         }, release_versions)
 
@@ -268,17 +263,17 @@ class ReleaseVersionManagerTest(unittest.TestCase):
     mock_bq_client_cls.assert_called_once_with(project='cloud-project')
     mock_bq_client.query.assert_called_once_with('push-sql with @project',
                                                  job_config=mock.ANY)
-    self.assertDictEqual(
+    self.assertEqual(
         {
             _ImageVersionType.LATEST_PUSHED_LTS:
                 _ImageVersion(
                     milestone=120,
-                    version=version_module.parse('22222.22.2'),
+                    version=release_version_utils.ParseVersion('22222.22.2'),
                 ),
             _ImageVersionType.LATEST_PUSHED_STABLE:
                 _ImageVersion(
                     milestone=140,
-                    version=version_module.parse('44444.44.4'),
+                    version=release_version_utils.ParseVersion('44444.44.4'),
                 ),
         }, release_versions)
     with self._ndb_connector.CreateClientContext():
@@ -290,6 +285,34 @@ class ReleaseVersionManagerTest(unittest.TestCase):
     self.assertEqual(cached_release_version.stable_version, '44444.44.4')
     self.assertEqual(cached_release_version.lts_milestone, 120)
     self.assertEqual(cached_release_version.lts_version, '22222.22.2')
+
+  @mock.patch.object(release_version_utils.bigquery, 'Client')
+  def testGetLatestPushedVersion_InvalidVersionStr(self, mock_bq_client_cls):
+    mock_bq_client = mock_bq_client_cls.return_value
+    mock_bq_client.query.return_value.result.return_value = [
+        {
+            'milestone': 139,
+            'version': '12345.1.1',
+            'release_type': 'SCHEDULED_RELEASE',
+        },
+        {
+            'milestone': 140,
+            'version': 'this-is-an-invalid-version',
+            'release_type': 'SCHEDULED_RELEASE',
+        },
+    ]
+
+    release_versions = self._release_version_manager.GetLatestPushedVersions(
+        'THEPROJ')
+
+    self.assertEqual(
+        {
+            _ImageVersionType.LATEST_PUSHED_STABLE:
+                _ImageVersion(
+                    milestone=139,
+                    version=release_version_utils.ParseVersion('12345.1.1'),
+                ),
+        }, release_versions)
 
   @mock.patch.object(release_version_utils.git_util, 'GetGerritAuthCookie')
   @mock.patch.object(release_version_utils.git_util, 'GetFileContent')
@@ -323,7 +346,7 @@ class ReleaseVersionManagerTest(unittest.TestCase):
         repo_name='target-repo',
         image_version=_ImageVersion(
             milestone=100,
-            version=version_module.parse('12345.67.8'),
+            version=release_version_utils.ParseVersion('12345.67.8'),
         ),
     )
 
@@ -356,7 +379,7 @@ class ReleaseVersionManagerTest(unittest.TestCase):
         repo_name='target-repo',
         image_version=_ImageVersion(
             milestone=100,
-            version=version_module.parse('12345.67.8'),
+            version=release_version_utils.ParseVersion('12345.67.8'),
         ),
     )
 
@@ -389,7 +412,7 @@ class ReleaseVersionManagerTest(unittest.TestCase):
           repo_name='target-repo',
           image_version=_ImageVersion(
               milestone=100,
-              version=version_module.parse('12345.67.8'),
+              version=release_version_utils.ParseVersion('12345.67.8'),
           ),
       )
 
@@ -429,7 +452,7 @@ class ReleaseVersionManagerTest(unittest.TestCase):
           repo_name='target-repo',
           image_version=_ImageVersion(
               milestone=100,
-              version=version_module.parse('12345.67.8'),
+              version=release_version_utils.ParseVersion('12345.67.8'),
           ),
       )
 
