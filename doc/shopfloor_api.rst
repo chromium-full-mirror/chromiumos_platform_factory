@@ -16,7 +16,7 @@ standardized interface.
 Shopfloor Service API
 ---------------------
 
-.. py:module:: shopfloor_service
+.. py:module:: cros.factory.shopfloor.xmlrpc_shopfloor_service
 
 .. autoclass:: ShopfloorService
    :members:
