@@ -139,7 +139,7 @@ _EVIOCGKEYCODE_V2 = ((2 << 30) | (struct.calcsize(_INPUT_KEYMAP_ENTRY) << 16) |
 _DEFAULT_FN_KEYCODES_IN_FIRST_ROW = [59, 60, 61, 62, 63, 64, 65, 66, 67, 68]
 _ESC_KEY_CODE = 1
 _POWER_KEY_CODE = 116
-_LAST_FN_KEYCODES = [116, 142, 183]
+_LAST_FN_KEYCODES = [115, 116, 142, 183]
 
 
 class KeyboardTest(test_case.TestCase):
