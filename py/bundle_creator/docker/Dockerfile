@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y \
     zip
 
 COPY docker/requirements.txt /root/
-RUN pip install --require-hashes -r /root/requirements.txt
+RUN pip install --no-deps --require-hashes -r /root/requirements.txt
 
 # Install gcloud command.
 ARG gcloud_archive_name="google-cloud-sdk-363.0.0-linux-x86_64.tar.gz"

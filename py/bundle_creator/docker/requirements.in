@@ -11,3 +11,4 @@ google-auth-httplib2==0.0.3
 google-api-python-client==1.9.3
 # The `jsonschema` module is required for installing factory toolkit.
 jsonschema==4.17.3
+packaging==21.3
