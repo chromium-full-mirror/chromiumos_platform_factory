@@ -297,6 +297,9 @@ window.KEY_CONFIG = {
   '111': {
     'default': { 'text': 'delete' }
   },
+  '115': {
+    'default': { 'text': '🔒' }
+  },
   '116': {
     'default': { 'text': '⏻', 'height': 0.5 }
   },
