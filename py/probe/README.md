@@ -300,6 +300,7 @@ the config file.  The output of the probe framework is also in json format:
 ```
 
 #### An Example of the Output
+
 ```json
 {
   "camera": [
@@ -314,10 +315,11 @@ the config file.  The output of the probe framework is also in json format:
         "key_a": "value_a"
       }
     }
-  },
+  ],
   "touchscreen": []
 }
 ```
+
 |||---|||
 
 ### Program Interface

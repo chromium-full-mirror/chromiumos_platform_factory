@@ -116,8 +116,9 @@ A parser module parses the raw DRM key list file into python list of DRM keys
 (also called "de-serialization").
 
 For example, if the raw DRM key list file is in JSON format:
+
 ```json
-[{'key': '123'}, {'key': '456'}]
+[{"key": "123"}, {"key": "456"}]
 ```
 
 Then the parser module could be:
