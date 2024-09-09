@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import annotations
+
 import abc
 import collections
 import enum
@@ -112,18 +114,14 @@ class CameraProperty(NamedTuple):
   @classmethod
   def FromAttributes(cls, is_user_facing: bool, has_tnr: bool,
                      horizontal_resolution: int,
-                     vertical_resolution: int) -> DisplayProperty:
-    # yapf: disable
-    return cls(is_user_facing, has_tnr, horizontal_resolution,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+                     vertical_resolution: int) -> CameraProperty:
+    return cls(is_user_facing, has_tnr, horizontal_resolution,
                vertical_resolution, None)
 
   @classmethod
   def FromCompatibleVersions(
-      cls, compatible_versions: Collection[int]) -> DisplayProperty:
-    # yapf: disable
-    return cls(None, None, None, None, compatible_versions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+      cls, compatible_versions: Collection[int]) -> CameraProperty:
+    return cls(None, None, None, None, compatible_versions)
 
 
 class DLMComponentEntry(NamedTuple):

@@ -4,7 +4,7 @@
 
 import abc
 import logging
-from typing import Collection, NamedTuple, Optional
+from typing import Callable, Collection, MutableSequence, NamedTuple, Optional, Sequence, Set
 
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine.data import config_data
@@ -41,13 +41,9 @@ def _ConvertImageVersionTypeToMsg(
 ) -> _ImageVersionTypeMsg.ValueType:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
   # yapf: enable
   if image_version_type == _ImageVersionType.LATEST_PUSHED_STABLE:
-    # yapf: disable
-    return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return _ImageVersionTypeMsg.LATEST_PUSHED_STABLE
   if image_version_type == _ImageVersionType.LATEST_PUSHED_LTS:
-    # yapf: disable
-    return _ImageVersionTypeMsg.LATEST_PUSHED_LTS  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return _ImageVersionTypeMsg.LATEST_PUSHED_LTS
   raise ValueError(f'Unexpected image version type {image_version_type!r}')
 
 
@@ -57,9 +53,9 @@ def _ExtractProjectName(hwid: str) -> str:
   return project
 
 
-def _NormalizeProjectString(string: str) -> Optional[str]:
+def _NormalizeProjectString(string: str) -> str:
   """Normalizes a string to account for things like case."""
-  return string.strip().upper() if string else None
+  return string.strip().upper()
 
 
 class _SoftBrandEligibilityChecker(abc.ABC):
@@ -138,9 +134,7 @@ class _SoftBrandEligibilityCheckerSpec(NamedTuple):
   payload_config: config_data.CLSetting
 
 
-# yapf: disable
-class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+class ProjectInfoShard(common_helper.HWIDServiceShardBase):
 
   def __init__(
       self,
@@ -164,9 +158,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     projects = [m.project for m in metadata_list]
 
     response = hwid_api_messages_pb2.ProjectsResponse(
-        # yapf: disable
-        status=hwid_api_messages_pb2.Status.SUCCESS, projects=sorted(projects))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        status=hwid_api_messages_pb2.Status.SUCCESS, projects=sorted(projects))
     return response
 
   @protorpc_utils.ProtoRPCServiceMethod
@@ -174,13 +166,10 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   def GetHwids(self, request):
     """Return a filtered list of HWIDs for the given project."""
     project = _NormalizeProjectString(request.project)
-    # yapf: disable
-    parse_filter_field = lambda value: set(filter(None, value)) or None  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parse_filter_field: Callable = lambda value: set(filter(None, value)
+                                                    ) or None
     try:
-      # yapf: disable
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      action = self._hwid_action_manager.GetHWIDAction(project)
       hwids = action.EnumerateHWIDs(
           with_classes=parse_filter_field(request.with_classes),
           without_classes=parse_filter_field(request.without_classes),
@@ -191,9 +180,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     return hwid_api_messages_pb2.HwidsResponse(
-        # yapf: disable
-        status=hwid_api_messages_pb2.Status.SUCCESS, hwids=hwids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        status=hwid_api_messages_pb2.Status.SUCCESS, hwids=hwids)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -201,18 +188,14 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a list of all component classes for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      # yapf: disable
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      action = self._hwid_action_manager.GetHWIDAction(project)
       classes = action.GetComponentClasses()
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentClassesResponse(
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     return hwid_api_messages_pb2.ComponentClassesResponse(
-        # yapf: disable
-        status=hwid_api_messages_pb2.Status.SUCCESS, component_classes=classes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        status=hwid_api_messages_pb2.Status.SUCCESS, component_classes=classes)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -220,33 +203,26 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     """Return a filtered list of components for the given project."""
     project = _NormalizeProjectString(request.project)
     try:
-      # yapf: disable
-      action = self._hwid_action_manager.GetHWIDAction(project)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      action = self._hwid_action_manager.GetHWIDAction(project)
       components = action.GetComponents(
-          # yapf: disable
-          with_classes=set(filter(None, request.with_classes)) or None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          with_classes=list(set(filter(None, request.with_classes))) or None)
     except (KeyError, ValueError, RuntimeError) as ex:
       return hwid_api_messages_pb2.ComponentsResponse(
           status=common_helper.ConvertExceptionToStatus(ex), error=str(ex))
 
     components_list = []
     for cls, comps in components.items():
-      # yapf: disable
-      for comp, comp_info in comps.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      for comp, comp_info in comps.items():
         # yapf: enable
         status = (
-            common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[comp_info.status])
+            common_helper.SUPPORT_STATUS_CASE_OF_HWID_STRING[comp_info.status])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: disable
-        avl_info, fields = None, []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        avl_info = None
+        fields: Sequence[hwid_api_messages_pb2.Field] = []
         if request.include_avl:
           avl_info = self._bc_helper.GetAVLInfo(cls, comp)
         if request.include_fields and comp_info.values is not None:
-          # yapf: disable
-          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          fields = bc_helper_module.GenerateFieldsMessage(comp_info.values)
 
         components_list.append(
             hwid_api_messages_pb2.Component(
@@ -254,9 +230,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
                 fields=fields, has_avl=bool(avl_info), status=status))
 
     return hwid_api_messages_pb2.ComponentsResponse(
-        # yapf: disable
-        status=hwid_api_messages_pb2.Status.SUCCESS, components=components_list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        status=hwid_api_messages_pb2.Status.SUCCESS, components=components_list)
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -266,9 +240,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def GetPotentiallySoftBrandedHwidPrefixes(self, unused_request):
-    # yapf: disable
-    hwid_prefixes = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    hwid_prefixes: Set[str] = set()
     for project in self._hwid_action_manager.ListProjects():
       action = self._hwid_action_manager.GetHWIDAction(project)
       try:
@@ -336,7 +308,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       protorpc_utils.ProtoRPCException: if unexpected image type is returned
         from ReleaseVersionManager.GetLatestPushedVersions.
     """
-    checkers = []
+    checkers: MutableSequence[_SoftBrandEligibilityChecker] = []
     # Collect feature matcher from TOT.
     try:
       action = self._hwid_action_manager.GetHWIDAction(proj)
@@ -347,9 +319,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
     ):
       checkers.append(
           _ErrorSoftBrandEligibilityChecker(
-              # yapf: disable
-              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
+              version_type=_ImageVersionTypeMsg.TOT,
               error=_SoftBrandEligibilityMsg.Error(
                   message=f'Unable to get hwid_action of project {proj}.')))
       return checkers
@@ -359,20 +329,14 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
       logging.exception('Cannot get feature matcher from project %s', proj)
       checkers.append(
           _ErrorSoftBrandEligibilityChecker(
-              # yapf: disable
-              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
+              version_type=_ImageVersionTypeMsg.TOT,
               error=_SoftBrandEligibilityMsg.Error(
                   message=('Cannot get feature matcher of TOT from project '
                            f'{proj}.'))))
     else:
       checkers.append(
-          # yapf: disable
-          _NormalSoftBrandEligibilityChecker(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
-              # yapf: disable
-              version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
+          _NormalSoftBrandEligibilityChecker(
+              version_type=_ImageVersionTypeMsg.TOT,
               feature_matcher=feature_matcher,
           ))
 
@@ -411,9 +375,7 @@ class ProjectInfoShard(common_helper.HWIDServiceShardBase):  # type: ignore #TOD
               payload_config,
           ))
       if checker is not None:
-        # yapf: disable
-        checkers.append(checker)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        checkers.append(checker)
     return checkers
 
   def _CreateEligibilityCheckerBySpec(

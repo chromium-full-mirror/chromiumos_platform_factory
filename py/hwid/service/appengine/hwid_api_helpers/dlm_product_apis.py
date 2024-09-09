@@ -25,9 +25,7 @@ _UpdateDlmDeviceRequest = hwid_api_messages_pb2.UpdateDlmDeviceRequest
 _UpdateDlmDeviceResponse = hwid_api_messages_pb2.UpdateDlmDeviceResponse
 
 
-# yapf: disable
-class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+class DLMProductShard(common_helper.HWIDServiceShardBase):
 
   def __init__(
       self,
@@ -71,12 +69,8 @@ class DLMProductShard(common_helper.HWIDServiceShardBase):  # type: ignore #TODO
     try:
       self._dlm_product_manager.UpdateDLMDevice(dlm_device)
       self._dlm_product_manager.UpdateDLMProductsByDeviceId(
-          device.id,
-          device.board.upper(),
-          # yapf: disable
-          device.model.upper() or None,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          device.type)
-      # yapf: enable
+          device.id, device.board.upper(),
+          device.model.upper() or None, device.type)
     except ndb.exceptions.Error as e:
       logging.error('Failed to update product data with exception: %s', e)
       return _UpdateDlmDeviceResponse(

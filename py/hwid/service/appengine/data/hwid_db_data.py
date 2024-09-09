@@ -184,27 +184,23 @@ class HWIDDBDataManager:
       return None
 
   def UpdateProjectContent(self,
-                           gerrit_cl_hwid_repo: hwid_repo.GerritCLHWIDRepo,
+                           gerrit_tot_hwid_repo: hwid_repo.GerritToTHWIDRepo,
                            repo_metadata: hwid_repo.HWIDDBMetadata):
     """Updates HWID DB content
 
     Args:
-      gerrit_cl_hwid_repo: The HWID repo view of a specific Gerrit CL.
+      gerrit_tot_hwid_repo: The HWID repo view of a specific Gerrit CL.
       repo_metadata: HWID DB metadata.
     """
     try:
       metadata = self.GetHWIDDBMetadataOfProject(repo_metadata.name)
-      # yapf: disable
-      metadata.commit = gerrit_cl_hwid_repo.commit_id  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      metadata.commit = gerrit_tot_hwid_repo.commit_id
     except HWIDDBNotFoundError:
       metadata = self._CreateHWIDDBMetadata(repo_metadata,
-                                            # yapf: disable
-                                            gerrit_cl_hwid_repo.commit_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                                            gerrit_tot_hwid_repo.commit_id)
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       metadata.put()
-    file_changes = self._LoadProjectFiles(gerrit_cl_hwid_repo, metadata)
+    file_changes = self._LoadProjectFiles(gerrit_tot_hwid_repo, metadata)
     for file_path, file_contents in file_changes.items():
       if file_contents is None:
         self._TryDeleteFile(file_path)

@@ -20,11 +20,12 @@ from cros.factory.hwid.service.appengine import hwid_action as hwid_action_modul
 from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
 from cros.factory.hwid.service.appengine import hwid_preproc_data
+from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 from cros.factory.hwid.v3 import filesystem_adapter
 
 
-class FakeMemcacheAdapter:
+class FakeMemcacheAdapter(memcache_adapter.IMemcacheAdapter):
 
   def __init__(self):
     self._data = {}

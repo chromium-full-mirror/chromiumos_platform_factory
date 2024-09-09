@@ -130,18 +130,12 @@ def _CreateFakeSelfServiceShard(
       battery_config_fetcher or ss_helper_module.EmptyBatteryConfigFetcher())
   return ss_helper_module.SelfServiceShard(
       hwid_action_manager_inst or modules.fake_hwid_action_manager,
-      hwid_repo_manager,
-      hwid_db_data_manager or modules.fake_hwid_db_data_manager,
-      avl_converter_manager or
-      # yapf: disable
-      modules.fake_avl_converter_manager,
-      session_cache_adapter or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      modules.fake_session_cache_adapter,
-      avl_metadata_manager,
+      hwid_repo_manager, hwid_db_data_manager or
+      modules.fake_hwid_db_data_manager, avl_converter_manager or
+      modules.fake_avl_converter_manager, session_cache_adapter or
+      modules.fake_session_cache_adapter, avl_metadata_manager,
       (feature_matcher_builder_class or
-       ss_helper_module.FeatureMatcherBuilderImpl),
-      battery_config_fetcher,
+       ss_helper_module.FeatureMatcherBuilderImpl), battery_config_fetcher,
       vpg_targets_data_manager or modules.fake_vpg_targets_data_manager,
       cq_count_over_limit_cl_reviewers)
 
@@ -177,9 +171,7 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
                                            _ComponentValue]]] = None,
   ) -> database.Database:
     components = components or {}
-    # yapf: disable
-    db_components = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    db_components = {}  # type: ignore
     for comp_class, comp_names_and_values in components.items():
       for comp_name, comp_value in comp_names_and_values.items():
         db_comps_of_class = db_components.setdefault(comp_class, {'items': {}})
@@ -542,13 +534,8 @@ class FeatureMatcherBuilderImplTest(unittest.TestCase):
 
     self._AssertFeatureMatcherBuildResultSuccess(result)
     expected_converted_dlm_entry = self._CreateDLMComponentEntry(
-        # yapf: disable
-        cid=1,
-        camera_property=features.CameraProperty.FromAttributes(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            is_user_facing=True,
-            has_tnr=True,
-            horizontal_resolution=1000,
+        cid=1, camera_property=features.CameraProperty.FromAttributes(
+            is_user_facing=True, has_tnr=True, horizontal_resolution=1000,
             vertical_resolution=500))
     self.assertDictEqual(
         self._GetConvertedDLMComponentDatabaseFromMock(),
@@ -599,9 +586,7 @@ class SelfServiceShardTest(unittest.TestCase):
                      protorpc_utils.RPCCanonicalErrorCode.NOT_FOUND)
 
   def testGetHwidDbEditableSection_InternalError(self):
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '2', 'db data', hwid_action=None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 2, 'db data', hwid_action=None)
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -613,9 +598,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSection_NotV3(self):
     action = hwid_action.HWIDAction()  # Default doesn't support any operations.
     action.HWID_VERSION = 0
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 0, 'db data', hwid_action=action)
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -627,9 +610,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSection_Success(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetDBEditableSection.return_value = 'aa\nbb'
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     resp = self.service.GetHwidDbEditableSection(req)
@@ -639,9 +620,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testGetHwidDbEditableSectionChange_ProjectNotV3(self):
     action = hwid_action.HWIDAction()  # Default doesn't support any operations.
     action.HWID_VERSION = 0
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '0', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 0, 'db data', hwid_action=action)
 
     req = hwid_api_messages_pb2.GetHwidDbEditableSectionRequest(project='proj')
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
@@ -653,9 +632,7 @@ class SelfServiceShardTest(unittest.TestCase):
   def testCreateHwidDbEditableSectionChangeCl_InvalidValidationToken(self):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-2', 'db data after change 2',
@@ -678,9 +655,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -710,9 +685,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -742,9 +715,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -775,9 +746,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'validation-token-value-1', 'db data after change 1',
@@ -852,85 +821,53 @@ class SelfServiceShardTest(unittest.TestCase):
                     component_class='comp_cls1',
                     original_name='comp_name1',
                     original_status='unqualified',
-                    # yapf: disable
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,
                     is_newly_added=False,
                     seq_no=2,
                     null_values=False,
                     diff_prev=_DiffStatusMsg(
-                        unchanged=True,
-                        name_changed=False,
-                        support_status_changed=False,
-                        values_changed=False,
+                        unchanged=True, name_changed=False,
+                        support_status_changed=False, values_changed=False,
                         prev_comp_name='comp_name1',
                         prev_support_status='unqualified',
-                        # yapf: disable
-                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,
                         probe_value_alignment_status_changed=False,
                         prev_probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                     probe_value_alignment_status=(
-                        # yapf: disable
-                        _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                        _PVAlignmentStatusMsg.NO_PROBE_INFO),
                 ),
             'comp2':
                 _ComponentInfoMsg(
                     component_class='comp_cls2',
                     original_name='comp_cls2_111_222#9',
                     original_status='unqualified',
-                    # yapf: disable
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
-                    is_newly_added=True,
-                    avl_info=_AvlInfoMsg(
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,
+                    is_newly_added=True, avl_info=_AvlInfoMsg(
                         cid=111,
                         qid=222,
-                    ),
-                    has_avl=True,
-                    seq_no=1,
+                    ), has_avl=True, seq_no=1,
                     component_name_with_correct_seq_no='comp_cls2_111_222#1',
-                    null_values=False,
-                    diff_prev=_DiffStatusMsg(
-                        unchanged=False,
-                        name_changed=True,
-                        support_status_changed=False,
-                        values_changed=False,
+                    null_values=False, diff_prev=_DiffStatusMsg(
+                        unchanged=False, name_changed=True,
+                        support_status_changed=False, values_changed=False,
                         prev_comp_name='old_comp_name',
                         prev_support_status='unqualified',
-                        # yapf: disable
-                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                        prev_support_status_case=_SupportStatusCase.UNQUALIFIED,
                         probe_value_alignment_status_changed=True,
                         prev_probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                     probe_value_alignment_status=(
-                        # yapf: disable
-                        _PVAlignmentStatusMsg.ALIGNED)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+                        _PVAlignmentStatusMsg.ALIGNED)),
             'comp3':
                 _ComponentInfoMsg(
-                    component_class='comp_cls2',
-                    original_name='comp_name3',
+                    component_class='comp_cls2', original_name='comp_name3',
                     original_status='unqualified',
-                    # yapf: disable
-                    support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
-                    is_newly_added=True,
-                    seq_no=2,
-                    null_values=True,
+                    support_status_case=_SupportStatusCase.UNQUALIFIED,
+                    is_newly_added=True, seq_no=2, null_values=True,
                     probe_value_alignment_status=(
-                        # yapf: disable
-                        _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-        },
-        resp.analysis_report.component_infos)
+                        _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+        }, resp.analysis_report.component_infos)
     self.assertCountEqual(
         ['deprecated', 'unsupported', 'unqualified', 'duplicate'],
         resp.analysis_report.unqualified_support_status)
@@ -955,24 +892,20 @@ class SelfServiceShardTest(unittest.TestCase):
       action.GenerateBatteryConfigMetadata.return_value = None
       return action
 
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data ver 1',
                              hwid_action_factory=CreateMockHWIDAction)
-    req = hwid_api_messages_pb2.AnalyzeHwidDbEditableSectionRequest(
+    req1 = hwid_api_messages_pb2.AnalyzeHwidDbEditableSectionRequest(
         project='proj', hwid_db_editable_section='db data after change')
-    resp = self.service.AnalyzeHwidDbEditableSection(req)
+    resp = self.service.AnalyzeHwidDbEditableSection(req1)
     token_that_will_become_expired = resp.validation_token
 
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data ver 2')
 
-    # yapf: disable
-    req = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    req2 = hwid_api_messages_pb2.CreateHwidDbEditableSectionChangeClRequest(
         project='proj', validation_token=token_that_will_become_expired)
 
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
-      self.service.CreateHwidDbEditableSectionChangeCl(req)
+      self.service.CreateHwidDbEditableSectionChangeCl(req2)
 
     self.assertEqual(ex.exception.code,
                      protorpc_utils.RPCCanonicalErrorCode.ABORTED)
@@ -1301,9 +1234,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_PreconditionErrors(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, False, [
@@ -1332,14 +1263,10 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_Pass(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
     ModificationStatus = (
-        # yapf: disable
         hwid_action.DBEditableSectionLineAnalysisResult.ModificationStatus)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
     Part = hwid_action.DBEditableSectionLineAnalysisResult.Part  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
     action.AnalyzeDBEditableSection.return_value = (
@@ -1444,22 +1371,16 @@ class SelfServiceShardTest(unittest.TestCase):
                     _ComponentInfoMsg(
                         component_class='comp_cls1', original_name='comp_name1',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
                         is_newly_added=False, has_avl=False, seq_no=2,
                         null_values=True, probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                 'comp2':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_111_222#9',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
                         is_newly_added=True,
                         has_avl=True,
                         avl_info=_AvlInfoMsg(cid=111, qid=222),
@@ -1467,18 +1388,14 @@ class SelfServiceShardTest(unittest.TestCase):
                         component_name_with_correct_seq_no=(
                             'comp_cls2_111_222#1'),
                         probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO),
                     ),
                 'comp3':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_untracked',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
                         is_newly_added=False,
                         has_avl=False,
                         avl_info=None,
@@ -1489,55 +1406,33 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_comp_name='comp_cls2_123_456',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                # yapf: disable
-                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _SupportStatusCase.UNQUALIFIED),
                             probe_value_alignment_status_changed=False,
                             prev_probe_value_alignment_status=(
-                                # yapf: disable
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO),
                             marked_untracked_changed=True),
                         probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO),
                         skip_avl_check=False,
                         marked_untracked=True,
                     ),
             }, touched_sections=_HWIDSectionChangeMsg(
-                # yapf: disable
-                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                # yapf: disable
-                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
                 encoded_fields_change_status={
-                    # yapf: disable
-                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
-                    # yapf: disable
-                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
+                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,
                 },
-                # yapf: disable
-                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                # yapf: disable
-                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,
+                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
                 framework_version_change_status=(
-                    # yapf: disable
-                    _HWIDSectionChangeStatusMsg.UNTOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                    _HWIDSectionChangeStatusMsg.UNTOUCHED),
             )), validation_token='fingerprint')
     self.assertEqual(resp, expected_resp)
 
   def testAnalyzeHwidDbEditableSection_NoopChange(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, True, [], [], [], {}))
@@ -1566,9 +1461,7 @@ class SelfServiceShardTest(unittest.TestCase):
                                          {}))
       return action
 
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', '',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, '',
                              hwid_action_factory=CreateMockHWIDAction)
     self._ConfigHWIDRepoManager('PROJ', 3, 'db data ver 1',
                                 'db data ver 1(internal)')
@@ -1619,9 +1512,7 @@ class SelfServiceShardTest(unittest.TestCase):
               }))
       return action
 
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data',
                              hwid_action_factory=CreateMockHWIDAction,
                              raw_db_internal='db data')
     self._ConfigHWIDRepoManager('PROJ', 3, 'db data', 'db data(internal)')
@@ -1637,32 +1528,24 @@ class SelfServiceShardTest(unittest.TestCase):
                             component_class='comp_cls1',
                             original_name='comp_name1',
                             original_status='unqualified',
-                            # yapf: disable
-                            support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            support_status_case=_SupportStatusCase.UNQUALIFIED,
                             is_newly_added=False, avl_info=None, has_avl=False,
                             seq_no=2, component_name_with_correct_seq_no=None,
                             diff_prev=None, null_values=True,
                             probe_value_alignment_status=(
-                                # yapf: disable
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                     'comp2':
                         _ComponentInfoMsg(
                             component_class='comp_cls2',
                             original_name='comp_cls2_111_222#9',
                             original_status='unqualified',
-                            # yapf: disable
-                            support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            support_status_case=_SupportStatusCase.UNQUALIFIED,
                             is_newly_added=False, avl_info=_AvlInfoMsg(
                                 cid=111, qid=222), has_avl=True, seq_no=1,
                             component_name_with_correct_seq_no=(
                                 'comp_cls2_111_222#1'), diff_prev=None,
                             null_values=True, probe_value_alignment_status=(
-                                # yapf: disable
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                 })))
     self.assertEqual(resp, expected_resp)
 
@@ -1670,9 +1553,7 @@ class SelfServiceShardTest(unittest.TestCase):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetHWIDBundleResourceInfo.return_value = (
         hwid_action.BundleResourceInfo('fingerprint_value_1', {}))
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data ver 1', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data ver 1', hwid_action=action)
 
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       req = hwid_api_messages_pb2.CreateHwidBundleRequest(
@@ -1684,9 +1565,7 @@ class SelfServiceShardTest(unittest.TestCase):
 
   def testAnalyzeHwidDbEditableSection_DiffStatus(self):
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
     action.AnalyzeDBEditableSection.return_value = (
         hwid_action.DBEditableSectionAnalysisReport(
             'fingerprint', 'new_db_content', None, False, [], [], [], {
@@ -1765,122 +1644,69 @@ class SelfServiceShardTest(unittest.TestCase):
         analysis_report=_AnalysisReportMsg(
             unqualified_support_status=[
                 'deprecated', 'unsupported', 'unqualified', 'duplicate'
-            ],
-            qualified_support_status=['supported'],
-            hwid_config_lines=[],
+            ], qualified_support_status=['supported'], hwid_config_lines=[],
             component_infos={
                 'comp1':
                     _ComponentInfoMsg(
-                        component_class='comp_cls1',
-                        original_name='comp_name1',
+                        component_class='comp_cls1', original_name='comp_name1',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
-                        is_newly_added=False,
-                        has_avl=False,
-                        seq_no=2,
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        is_newly_added=False, has_avl=False, seq_no=2,
                         diff_prev=_DiffStatusMsg(
-                            unchanged=True,
-                            name_changed=False,
-                            support_status_changed=False,
-                            values_changed=False,
+                            unchanged=True, name_changed=False,
+                            support_status_changed=False, values_changed=False,
                             prev_comp_name='comp_name1',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                # yapf: disable
-                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                                _SupportStatusCase.UNQUALIFIED),
                             probe_value_alignment_status_changed=False,
                             prev_probe_value_alignment_status=(
-                                # yapf: disable
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                         probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                 'comp2':
                     _ComponentInfoMsg(
                         component_class='comp_cls2',
                         original_name='comp_cls2_111_222#9',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
-                        is_newly_added=True,
-                        has_avl=True,
-                        avl_info=_AvlInfoMsg(cid=111, qid=222),
-                        seq_no=1,
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        is_newly_added=True, has_avl=True, avl_info=_AvlInfoMsg(
+                            cid=111, qid=222), seq_no=1,
                         component_name_with_correct_seq_no=(
                             'comp_cls2_111_222#1'),
                         diff_prev=_DiffStatusMsg(
-                            unchanged=False,
-                            name_changed=True,
-                            support_status_changed=False,
-                            values_changed=False,
+                            unchanged=False, name_changed=True,
+                            support_status_changed=False, values_changed=False,
                             prev_comp_name='old_comp_name',
                             prev_support_status='unqualified',
                             prev_support_status_case=(
-                                # yapf: disable
-                                _SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                                _SupportStatusCase.UNQUALIFIED),
                             probe_value_alignment_status_changed=True,
                             prev_probe_value_alignment_status=(
-                                # yapf: disable
-                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
+                                _PVAlignmentStatusMsg.NO_PROBE_INFO)),
                         probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.ALIGNED)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                            _PVAlignmentStatusMsg.ALIGNED)),
                 'comp3':
                     _ComponentInfoMsg(
-                        component_class='comp_cls2',
-                        original_name='comp_name3',
+                        component_class='comp_cls2', original_name='comp_name3',
                         original_status='unqualified',
-                        # yapf: disable
-                        support_status_case=_SupportStatusCase.UNQUALIFIED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                        # yapf: enable
-                        is_newly_added=True,
-                        has_avl=False,
-                        seq_no=2,
-                        null_values=True,
-                        probe_value_alignment_status=(
-                            # yapf: disable
-                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-            },
-            touched_sections=_HWIDSectionChangeMsg(
-                # yapf: disable
-                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                # yapf: disable
-                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                        support_status_case=_SupportStatusCase.UNQUALIFIED,
+                        is_newly_added=True, has_avl=False, seq_no=2,
+                        null_values=True, probe_value_alignment_status=(
+                            _PVAlignmentStatusMsg.NO_PROBE_INFO)),
+            }, touched_sections=_HWIDSectionChangeMsg(
+                image_id_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
+                pattern_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
                 encoded_fields_change_status={
-                    # yapf: disable
-                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
-                    # yapf: disable
-                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
-                    # yapf: disable
-                    'comp_cls3_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                    # yapf: enable
+                    'comp_cls1_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
+                    'comp_cls2_fields': _HWIDSectionChangeStatusMsg.TOUCHED,
+                    'comp_cls3_fields': _HWIDSectionChangeStatusMsg.UNTOUCHED,
                 },
-                # yapf: disable
-                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                # yapf: disable
-                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                components_change_status=_HWIDSectionChangeStatusMsg.TOUCHED,
+                rules_change_status=_HWIDSectionChangeStatusMsg.UNTOUCHED,
                 framework_version_change_status=(
-                    # yapf: disable
-                    _HWIDSectionChangeStatusMsg.UNTOUCHED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-            )),
-        validation_token='fingerprint')
+                    _HWIDSectionChangeStatusMsg.UNTOUCHED),
+            )), validation_token='fingerprint')
 
     self.assertEqual(resp, expected_resp)
 
@@ -1935,9 +1761,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -1961,9 +1785,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     firmware_record = _FirmwareRecord(
         model='proj', firmware_keys=[
@@ -1987,9 +1809,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_AFTER_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -2001,9 +1821,7 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(_HWID_V3_FROM_FACTORY_BUNDLE_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     bundle_record = _FactoryBundleRecord(
         board='board', firmware_signer='BoardMPKeys-V1',
@@ -2020,9 +1838,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     bundle_record = _FactoryBundleRecord(
         board='board', firmware_signer='BoardMPKeys-V1', firmware_records=[
@@ -2048,9 +1864,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj'], supported=True))
@@ -2070,9 +1884,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     firmware_record = _FirmwareRecord(
         model='proj', ro_fp_firmware=[
@@ -2108,9 +1920,7 @@ class SelfServiceShardTest(unittest.TestCase):
     self._ConfigLiveHWIDRepo('PROJ', 3, 'db data')
     action = mock.create_autospec(hwid_action.HWIDAction, instance=True)
     action.GetDBV3.return_value = mock.MagicMock(spec=database.WritableDatabase)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', 'db data', hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, 'db data', hwid_action=action)
 
     firmware_record = _FirmwareRecord(model='proj')
     bundle_record = _FactoryBundleRecord(board='board',
@@ -2130,9 +1940,7 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = [hwid_repo.HWIDRepoError]
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj']))
@@ -2150,12 +1958,8 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo.CommitHWIDDB.side_effect = [123, hwid_repo.HWIDRepoError]
     action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
     action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ1', 3, raw_db, hwid_action=action_proj1)
+    self._modules.ConfigHWID('PROJ2', 3, raw_db, hwid_action=action_proj2)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))
@@ -2174,12 +1978,8 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo.CommitHWIDDB.side_effect = [123, 456]
     action_proj1 = self._CreateFakeHWIDBAction('PROJ1', raw_db)
     action_proj2 = self._CreateFakeHWIDBAction('PROJ2', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ1', '3', raw_db, hwid_action=action_proj1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ2', '3', raw_db, hwid_action=action_proj2)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ1', 3, raw_db, hwid_action=action_proj1)
+    self._modules.ConfigHWID('PROJ2', 3, raw_db, hwid_action=action_proj2)
 
     req = hwid_api_messages_pb2.CreateHwidDbFirmwareInfoUpdateClRequest(
         bundle_record=self._CreateBundleRecord(['proj1', 'proj2']))
@@ -2307,9 +2107,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    # yapf: disable
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
     # Call AnalyzeHwidDbEditableSection without new_db_data to start a HWID DB
     # change workflow.
     analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project, '')
@@ -2332,9 +2130,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    # yapf: disable
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
     self._mock_feature_matcher_builder.Build.return_value = (
         ss_helper_module.FeatureMatcherBuildResult(
             has_warnings=False, commit_message='unused msg',
@@ -2361,15 +2157,11 @@ class SelfServiceShardTest(unittest.TestCase):
     # MANUAL_REVIEW_REQUIRED.
     change_unit_mapping = split_resp.change_units
     approved_cl_action = _ClActionMsg(
-        # yapf: disable
-        approval_case=_ClActionMsg.ApprovalCase.APPROVED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED,
         reviewers=['reviewer1@notgoogle.com', 'reviewer2@notgoogle.com'],
         ccs=['cc1@notgoogle.com', 'cc2@notgoogle.com'])
     review_required_cl_action = _ClActionMsg(
-        # yapf: disable
-        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW,
         reviewers=['reviewer3@notgoogle.com', 'reviewer4@notgoogle.com'],
         ccs=['cc3@notgoogle.com', 'cc4@notgoogle.com'])
 
@@ -2577,6 +2369,67 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual('generated feature matcher payload',
                      review_required_call['feature_matcher_source'])
 
+  def testCreateOrRefreshSplittedHwidDbCls_RefreshCl_VerifyChangeIds(self):
+    # Arrange.
+    project = 'CHROMEBOOK'
+    old_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_BEFORE)
+    new_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_AFTER)
+    # Config repo and action.
+    self._ConfigLiveHWIDRepo(project, 3, old_db_data)
+    action = self._CreateFakeHWIDBAction(project, old_db_data)
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
+    self._mock_hwid_repo_manager.GetHWIDDBCLInfo.return_value = (
+        self._CreateHWIDDBCLWithDefaults(
+            cl_number=123,
+            status=hwid_repo.HWIDDBCLStatus.NEW,
+            parent_cl_ids=[(456, '456')],
+        ))
+
+    # Call AnalyzeHwidDbEditableSection to start a HWID DB change workflow.
+    analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project,
+                                                 new_db_data)
+    session_token = analyze_resp.validation_token
+    split_resp = _SplitHwidDbChange(
+        self.service, session_token,
+        hwid_api_messages_pb2.HwidDbExternalResource())
+
+    create_cl_req = (
+        hwid_api_messages_pb2.CreateOrRefreshSplittedHwidDbClsRequest(
+            session_token=session_token,
+            original_requester='requester@notgoogle.com',
+            description='description', bug_number=100, cl_number=123))
+    approval_status = create_cl_req.approval_status
+
+    # Act: only set one AddEncodingCombination change unit as
+    # MANUAL_REVIEW_REQUIRED.
+    change_unit_mapping = split_resp.change_units
+    approved_cl_action = _ClActionMsg(
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED)
+    review_required_cl_action = _ClActionMsg(
+        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW)
+
+    for identity, change_unit in change_unit_mapping.items():
+      if change_unit.WhichOneof(
+          'change_unit_type') != 'add_encoding_combination':
+        approval_status[identity].CopyFrom(approved_cl_action)
+      elif len(change_unit.add_encoding_combination.comp_info) != 1:
+        approval_status[identity].CopyFrom(approved_cl_action)
+      else:
+        # The combination of
+        #   comp_cls_1: new_comp
+        approval_status[identity].CopyFrom(review_required_cl_action)
+
+    self.service.CreateOrRefreshSplittedHwidDbCls(create_cl_req)
+
+    # Validate the two CommitHWIDDB calls.
+    live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
+    self.assertEqual(2, live_hwid_repo.CommitHWIDDB.call_count)
+    auto_approved_call, review_required_call = (
+        kwargs for (unused_args,
+                    kwargs) in live_hwid_repo.CommitHWIDDB.call_args_list)
+    self.assertEqual(auto_approved_call['change_id'], '456')
+    self.assertEqual(review_required_call['change_id'], '123')
+
   def testCreateOrRefreshSplittedHwidDbCls_AVLAlignmentChanges(self):
 
     def CreateMockAVLConverterManager(
@@ -2603,9 +2456,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    # yapf: disable
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
 
     mock_avl_converter_manager = CreateMockAVLConverterManager({
         'comp_cls1': [
@@ -2686,13 +2537,9 @@ class SelfServiceShardTest(unittest.TestCase):
     # Act
     change_unit_mapping = split_resp.change_units
     approved_cl_action = _ClActionMsg(
-        # yapf: disable
-        approval_case=_ClActionMsg.ApprovalCase.APPROVED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        approval_case=_ClActionMsg.ApprovalCase.APPROVED)
     review_required_cl_action = _ClActionMsg(
-        # yapf: disable
-        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        approval_case=_ClActionMsg.ApprovalCase.NEED_MANUAL_REVIEW)
     # Set the changes of comp_cls1 comps AUTO_APPROVED and set the
     # other changes as MANUAL_REVIEW_REQUIRED.
     for identity, change_unit in change_unit_mapping.items():
@@ -2975,9 +2822,7 @@ class SelfServiceShardTest(unittest.TestCase):
     # Config repo and action.
     self._ConfigLiveHWIDRepo(project, 3, old_db_data)
     action = self._CreateFakeHWIDBAction(project, old_db_data)
-    # yapf: disable
-    self._modules.ConfigHWID(project, '3', old_db_data, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
     # Update blocklist of audio codec kernel names.
     blocklist_req = hwid_api_messages_pb2.UpdateAudioCodecKernelNamesRequest(
         blocklisted_kernel_names=['skippable_kernel_names'])
@@ -3006,18 +2851,10 @@ class SelfServiceShardTest(unittest.TestCase):
                 unchanged=True, prev_comp_name='avl_skipped_comp',
                 prev_support_status='supported',
                 prev_probe_value_alignment_status=(
-                    # yapf: disable
-                    _PVAlignmentStatusMsg.NO_PROBE_INFO),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                # yapf: disable
-                prev_support_status_case=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            support_status_case=_SupportStatusCase.SUPPORTED,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+                    _PVAlignmentStatusMsg.NO_PROBE_INFO),
+                prev_support_status_case=_SupportStatusCase.SUPPORTED),
+            probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO,
+            support_status_case=_SupportStatusCase.SUPPORTED,
             skip_avl_check=True,
             marked_untracked=False,
         )
@@ -3240,19 +3077,12 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.return_value = 123
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj',
-        region_comps=[
-            # yapf: disable
-            _ComponentMsg(name='kr', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            _ComponentMsg(name='jp', status=_SupportStatusCase.UNQUALIFIED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        project='proj', region_comps=[
+            _ComponentMsg(name='kr', status=_SupportStatusCase.SUPPORTED),
+            _ComponentMsg(name='jp', status=_SupportStatusCase.UNQUALIFIED),
         ])
     resp = self.service.CreateHwidRegionCl(req)
     comps = action.GetComponents(['region'])
@@ -3290,18 +3120,12 @@ class SelfServiceShardTest(unittest.TestCase):
     raw_db = file_utils.ReadFile(_HWID_V3_REGION_FILE)
     self._ConfigLiveHWIDRepo('PROJ', 3, raw_db)
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj',
-        region_comps=[
-            _ComponentMsg(
-                name='invalid_region',
-                # yapf: disable
-                status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        project='proj', region_comps=[
+            _ComponentMsg(name='invalid_region',
+                          status=_SupportStatusCase.SUPPORTED),
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.CreateHwidRegionCl(req)
@@ -3315,16 +3139,11 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj',
-        region_comps=[
-            # yapf: disable
-            _ComponentMsg(name='jp', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        project='proj', region_comps=[
+            _ComponentMsg(name='jp', status=_SupportStatusCase.SUPPORTED),
         ])
     with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
       self.service.CreateHwidRegionCl(req)
@@ -3338,16 +3157,11 @@ class SelfServiceShardTest(unittest.TestCase):
     live_hwid_repo = self._mock_hwid_repo_manager.GetLiveHWIDRepo.return_value
     live_hwid_repo.CommitHWIDDB.side_effect = hwid_repo.HWIDRepoError
     action = self._CreateFakeHWIDBAction('PROJ', raw_db)
-    # yapf: disable
-    self._modules.ConfigHWID('PROJ', '3', raw_db, hwid_action=action)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._modules.ConfigHWID('PROJ', 3, raw_db, hwid_action=action)
 
     req = hwid_api_messages_pb2.CreateHwidRegionClRequest(
-        project='proj',
-        region_comps=[
-            # yapf: disable
-            _ComponentMsg(name='us', status=_SupportStatusCase.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+        project='proj', region_comps=[
+            _ComponentMsg(name='us', status=_SupportStatusCase.SUPPORTED),
         ])
     resp = self.service.CreateHwidRegionCl(req)
 

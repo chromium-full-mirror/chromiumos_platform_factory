@@ -11,8 +11,7 @@ from typing import Callable, Optional
 import unittest
 from unittest import mock
 
-# yapf: disable
-from packaging import version as version_module  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+from packaging import version as version_module
 
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import feature_matching
@@ -24,10 +23,6 @@ from cros.factory.hwid.service.appengine import release_version_utils
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.v3 import database
 from cros.factory.test.l10n import regions
-
-
-# yapf: enable
-
 
 
 AVLInfoMsg = hwid_api_messages_pb2.AvlInfo
@@ -96,11 +91,8 @@ class ProtoRPCServiceTest(unittest.TestCase):
 
     self.assertEqual(
         hwid_api_messages_pb2.ProjectsResponse(
-            # yapf: disable
-            status=StatusMsg.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            projects=sorted(['ALPHA', 'BRAVO', 'CHARLIE'])),
-        msg)
+            status=StatusMsg.SUCCESS,
+            projects=sorted(['ALPHA', 'BRAVO', 'CHARLIE'])), msg)
 
   def testGetHwids_ProjectNotFound(self):
     # There's no project in the backend datastore by default.
@@ -108,9 +100,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.HwidsRequest(project='no_such_project')
     msg = self.service.GetHwids(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)
 
   def testGetHwids_InternalError(self):
     self._modules.ConfigHWID('FOO', 3, 'db data')
@@ -118,9 +108,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.HwidsRequest(project='foo')
     msg = self.service.GetHwids(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)
 
   def testGetHwids_BadRequestError(self):
     hwid_action_inst = hwid_action.HWIDAction()
@@ -134,9 +122,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
                                                without_classes=['bar', 'baz'])
       msg = self.service.GetHwids(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.BAD_REQUEST)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.BAD_REQUEST)
 
   def testGetHwids_Success(self):
     hwid_action_inst = hwid_action.HWIDAction()
@@ -150,9 +136,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
 
     self.assertEqual(
         hwid_api_messages_pb2.HwidsResponse(
-            # yapf: disable
-            status=StatusMsg.SUCCESS, hwids=['alfa', 'bravo', 'charlie']), msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+            status=StatusMsg.SUCCESS, hwids=['alfa', 'bravo', 'charlie']), msg)
 
   def testGetComponentClasses_ProjectNotFoundError(self):
     # There's no project in the backend datastore by default.
@@ -160,9 +144,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentClassesRequest(project='nosuchproject')
     msg = self.service.GetComponentClasses(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)
 
   def testGetComponentClasses_ProjectUnavailableError(self):
     self._modules.ConfigHWID('FOO', 3, 'db data')
@@ -170,9 +152,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentClassesRequest(project='foo')
     msg = self.service.GetComponentClasses(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)
 
   def testGetComponentClasses_Success(self):
     fake_hwid_action = mock.create_autospec(hwid_action.HWIDAction,
@@ -183,9 +163,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentClassesRequest(project='foo')
     msg = self.service.GetComponentClasses(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SUCCESS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
     self.assertCountEqual(list(msg.component_classes), ['dram', 'storage'])
 
   def testGetComponents_ProjectNotFoundError(self):
@@ -194,9 +172,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentsRequest(project='nosuchproject')
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.NOT_FOUND)
 
   def testGetComponents_ProjectUnavailableError(self):
     self._modules.ConfigHWID('FOO', 3, 'db data')
@@ -204,17 +180,19 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentsRequest(project='foo')
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertEqual(msg.status, StatusMsg.SERVER_ERROR)
 
   def testGetComponents_SuccessWithAllComponentClasses(self):
     sampled_components = {
         'dram': {
-            'dram1': database.ComponentInfo({'key': 'value'}, 'supported')
+            'dram1': database.ComponentInfo({
+                'key': 'value'
+            }, 'supported')
         },
         'storage': {
-            'storage1': database.ComponentInfo({'key': 'value'}, 'supported')
+            'storage1': database.ComponentInfo({
+                'key': 'value'
+            }, 'supported')
         },
     }
 
@@ -233,25 +211,13 @@ class ProtoRPCServiceTest(unittest.TestCase):
     req = hwid_api_messages_pb2.ComponentsRequest(project='foo')
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SUCCESS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertCountEqual(
-        msg.components,
-        [
-            ComponentMsg(
-                component_class='dram',
-                name='dram1',
-                # yapf: disable
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            ComponentMsg(
-                component_class='storage',
-                name='storage1',
-                # yapf: disable
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-        ])
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram1',
+                     status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1',
+                     status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetComponents_SuccessWithLimitedComponentClasses(self):
     sampled_components = {
@@ -279,19 +245,11 @@ class ProtoRPCServiceTest(unittest.TestCase):
                                                   with_classes=['dram'])
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SUCCESS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertCountEqual(
-        msg.components,
-        [
-            ComponentMsg(
-                component_class='dram',
-                name='dram1',
-                # yapf: disable
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-        ])
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram1',
+                     status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetComponents_SuccessWithIncludeAVL(self):
     sampled_components = {
@@ -319,29 +277,14 @@ class ProtoRPCServiceTest(unittest.TestCase):
                                                   include_avl=True)
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SUCCESS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertCountEqual(
-        msg.components,
-        [
-            ComponentMsg(
-                component_class='dram',
-                name='dram_1_2',
-                avl_info=AVLInfoMsg(
-                    # yapf: disable
-                    cid=1,
-                    qid=2),
-                has_avl=True,
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            ComponentMsg(
-                component_class='storage',
-                name='storage1',
-                # yapf: disable
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-        ])
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(
+            component_class='dram', name='dram_1_2', avl_info=AVLInfoMsg(
+                cid=1, qid=2), has_avl=True, status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1',
+                     status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetComponents_SuccessWithIncludeFields(self):
     sampled_components = {
@@ -369,31 +312,15 @@ class ProtoRPCServiceTest(unittest.TestCase):
                                                   include_fields=True)
     msg = self.service.GetComponents(req)
 
-    # yapf: disable
-    self.assertEqual(msg.status, StatusMsg.SUCCESS)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.assertCountEqual(
-        msg.components,
-        [
-            ComponentMsg(
-                component_class='dram',
-                name='dram_1_2',
-                fields=[
-                    FieldMsg(name='key', value='value')
-                    # yapf: disable
-                ],
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            ComponentMsg(
-                component_class='storage',
-                name='storage1',
-                fields=[
-                    FieldMsg(name='key', value='value')
-                    # yapf: disable
-                ],
-                status=SupportStatus.SUPPORTED),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-        ])
+    self.assertEqual(msg.status, StatusMsg.SUCCESS)
+    self.assertCountEqual(msg.components, [
+        ComponentMsg(component_class='dram', name='dram_1_2', fields=[
+            FieldMsg(name='key', value='value')
+        ], status=SupportStatus.SUPPORTED),
+        ComponentMsg(component_class='storage', name='storage1', fields=[
+            FieldMsg(name='key', value='value')
+        ], status=SupportStatus.SUPPORTED),
+    ])
 
   def testGetRegionList_Success(self):
     resp = self.service.GetRegionList(
@@ -557,27 +484,21 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA A2A-B2B-C2C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             eligible=True,
                         )
                     ]),
                 'PROJ1-AAAA A3A-B3B-C3C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             eligible=True,
                         )
                     ]),
                 'PROJ1-AAAA A4A-B4B-C4C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             eligible=False,
                         )
                     ]),
@@ -647,72 +568,54 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA commit-overlay-board1-private-12345.67.8':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             eligible=True,
                         ),
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,
                             eligible=False,
                         ),
                     ]),
                 'PROJ1-AAAA commit-overlay-board1-private-9999.99.9':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             eligible=False,
                         ),
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,
                             eligible=True,
                         ),
                     ]),
                 'PROJ1-AAAA this does not match any':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             eligible=False,
                         ),
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,
                             eligible=False,
                         ),
                     ]),
@@ -732,9 +635,7 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA A2A-B2B-C2C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Unable to get hwid_action of project '
                                          'PROJ1.')),
@@ -774,25 +675,19 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA A2A-B2B-C2C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             error=_SoftBrandEligibilityMsg.Error(
                                 message='PROJ1 is not a HWIDv3 project.'),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.LATEST_PUSHED_LTS,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message='PROJ1 is not a HWIDv3 project.'),
                         ),
@@ -828,18 +723,14 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA A2A-B2B-C2C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=(
                                     'Cannot get commit ID from ImageVersion('
@@ -885,18 +776,14 @@ class ProtoRPCServiceTest(unittest.TestCase):
                 'PROJ1-AAAA A2A-B2B-C2C':
                     _SoftBrandEligibilityMsg(eligibility_entries=[
                         _SoftBrandEligibilityMsg.Entry(
-                            # yapf: disable
-                            version_type=_ImageVersionTypeMsg.TOT,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
+                            version_type=_ImageVersionTypeMsg.TOT,
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher of TOT '
                                          'from project PROJ1.')),
                         ),
                         _SoftBrandEligibilityMsg.Entry(
                             version_type=(
-                                # yapf: disable
-                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                # yapf: enable
+                                _ImageVersionTypeMsg.LATEST_PUSHED_STABLE),
                             error=_SoftBrandEligibilityMsg.Error(
                                 message=('Cannot get feature matcher from '
                                          'commit-id of chromeos/overlays/'

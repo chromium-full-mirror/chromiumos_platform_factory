@@ -5,7 +5,7 @@
 import datetime
 import logging
 import operator
-from typing import Collection, Dict, Mapping, NamedTuple, Optional, Sequence
+from typing import Collection, Dict, NamedTuple, Optional, Sequence
 
 from cros.factory.hwid.service.appengine.data import decoder_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
@@ -14,6 +14,7 @@ from cros.factory.hwid.service.appengine import hwid_action_manager
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
 from cros.factory.hwid.service.appengine import memcache_adapter
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import name_pattern_adapter
 from cros.factory.hwid.v3 import rule as v3_rule
 
@@ -79,16 +80,13 @@ def GetBOMAndConfiglessStatusAndError(bom_configless):
     return (common_helper.ConvertExceptionToStatus(
         bom_configless.error), str(bom_configless.error))
   if bom_configless.bom is None:
-    # yapf: disable
-    return (hwid_api_messages_pb2.Status.NOT_FOUND, 'HWID not found.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-  # yapf: disable
-  return (hwid_api_messages_pb2.Status.SUCCESS, None)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+    return (hwid_api_messages_pb2.Status.NOT_FOUND, 'HWID not found.')
+  return (hwid_api_messages_pb2.Status.SUCCESS, None)
 
 
 def GenerateFieldsMessage(
-    field_dict: Mapping[str, str]) -> Optional[hwid_api_messages_pb2.Field]:
+    field_dict: database.ProbedValueType
+) -> Sequence[hwid_api_messages_pb2.Field]:
   fields = []
   for fname, fvalue in field_dict.items():
     field = hwid_api_messages_pb2.Field()
@@ -100,9 +98,7 @@ def GenerateFieldsMessage(
       field.value = str(fvalue)
     fields.append(field)
   fields.sort(key=lambda field: field.name)
-  # yapf: disable
-  return fields  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+  return fields
 
 
 class BOMAndConfiglessHelper:
@@ -174,9 +170,7 @@ class BOMAndConfiglessHelper:
     proj_mapping = {}
     for hwid in hwids:
       status, error = common_helper.FastFailKnownBadHWID(hwid)
-      # yapf: disable
-      if status != hwid_api_messages_pb2.Status.SUCCESS:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if status != hwid_api_messages_pb2.Status.SUCCESS:
         # Filter out bad HWIDs.
         result[hwid] = BOMEntry(None, '', error, status, '')
         continue
@@ -197,40 +191,29 @@ class BOMAndConfiglessHelper:
       project = proj_mapping[hwid]
       status, error = GetBOMAndConfiglessStatusAndError(bom_configless)
 
-      # yapf: disable
-      if status != hwid_api_messages_pb2.Status.SUCCESS:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if status != hwid_api_messages_pb2.Status.SUCCESS:
         result[hwid] = BOMEntry(None, '', error, status, '')
         self._bom_data_cacher.SetBOMEntryCache(project, cache_key, result[hwid])
         continue
       bom = bom_configless.bom
-      components = []
 
-      # yapf: disable
-      for component in bom.GetComponents():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        fields = GenerateFieldsMessage(component.fields) if verbose else []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if bom is None:
+        continue
+
+      components = []
+      for component in bom.GetComponents():
+        fields = GenerateFieldsMessage(component.fields) if verbose else []
         avl_info = self.GetAVLInfo(component.cls, component.name, no_avl_name)
         components.append(
             hwid_api_messages_pb2.Component(
                 component_class=component.cls, name=component.name,
-                # yapf: disable
-                fields=fields, avl_info=avl_info, has_avl=bool(avl_info)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+                fields=fields, avl_info=avl_info, has_avl=bool(avl_info)))
 
       components.sort(key=operator.attrgetter('component_class', 'name'))
 
-      # yapf: disable
-      result[hwid] = BOMEntry(components, bom.phase, '',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                              # yapf: enable
-                              # yapf: disable
-                              status=hwid_api_messages_pb2.Status.SUCCESS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                              # yapf: enable
-                              # yapf: disable
-                              project=bom.project or '')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      result[hwid] = BOMEntry(components, bom.phase, '',
+                              status=hwid_api_messages_pb2.Status.SUCCESS,
+                              project=bom.project or '')
       self._bom_data_cacher.SetBOMEntryCache(project, cache_key, result[hwid])
     return result
 

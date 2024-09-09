@@ -573,7 +573,7 @@ class DatabaseBuilder:
       logging.info('Update the checksum.')
       checksum_updater.UpdateFile(database_path)
 
-  def Build(self) -> database.Database:
+  def Build(self) -> database.WritableDatabase:
     """Build the database."""
 
     if self._in_context:

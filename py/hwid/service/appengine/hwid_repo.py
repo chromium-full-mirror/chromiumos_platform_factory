@@ -8,7 +8,7 @@ import collections
 import functools
 import logging
 import re
-from typing import Mapping, NamedTuple, Optional, Sequence
+from typing import Mapping, NamedTuple, Optional, Sequence, Union
 
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.v3 import filesystem_adapter
@@ -520,7 +520,7 @@ class HWIDRepoManager:
   def GetGerritToTHWIDRepo(self) -> GerritToTHWIDRepo:
     return GerritToTHWIDRepo(self._repo_branch)
 
-  def AbandonCL(self, cl_number: int, reason=None):
+  def AbandonCL(self, cl_number: Union[str, int], reason=None):
     """Abandons the given CL number."""
     return git_util.AbandonCL(INTERNAL_REPO_REVIEW_URL,
                               git_util.GetGerritAuthCookie(), cl_number,

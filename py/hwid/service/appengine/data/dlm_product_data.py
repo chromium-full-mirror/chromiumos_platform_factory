@@ -74,8 +74,8 @@ class DLMProductManager:
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       _SaveEntities(products)
 
-  def UpdateDLMProductsByDeviceId(self, device_id: int, board: str, model: str,
-                                  device_type: int):
+  def UpdateDLMProductsByDeviceId(self, device_id: int, board: str,
+                                  model: Optional[str], device_type: int):
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       q = DLMProduct.query().filter(DLMProduct.device_id == device_id)
       products_to_update = []

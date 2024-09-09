@@ -4,6 +4,7 @@
 
 """A connector to memcache that deals with the 1M data size limitiation."""
 
+import abc
 import logging
 import os
 import pickle
@@ -11,6 +12,7 @@ from typing import Collection, Optional, Union
 
 # yapf: disable
 import redis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
 
 # yapf: enable
 
@@ -27,7 +29,34 @@ class MemcacheAdapterException(Exception):
   pass
 
 
-class MemcacheAdapter:
+class IMemcacheAdapter(abc.ABC):
+
+  @abc.abstractmethod
+  def ClearAll(self):
+    """Clear all items in cache.
+
+    This method is for testing purpose since each integration test should have
+    empty cache in the beginning.
+    """
+
+  @abc.abstractmethod
+  def Put(self, key, value, expiry: Optional[int] = None):
+    """Store an object too large to fit directly into memcache."""
+
+  @abc.abstractmethod
+  def Get(self, key):
+    """Retrieve and re-assemble a large object from memcache."""
+
+  @abc.abstractmethod
+  def DelByPattern(self, entry_key_pattern: str):
+    """Deletes entries by the given pattern.
+
+    Args:
+      entry_key_pattern: The pattern of keys to delete.
+    """
+
+
+class MemcacheAdapter(IMemcacheAdapter):
   """Memcache connector that can store objects larger than 1M.
 
   This connector will save items to the memcache by first serializing the object
@@ -46,11 +75,6 @@ class MemcacheAdapter:
                               health_check_interval=30)
 
   def ClearAll(self):
-    """Clear all items in cache.
-
-    This method is for testing purpose since each integration test should have
-    empty cache in the beginning.
-    """
     self.client.flushall()
 
   def _KeyWithNamespace(self, key: str, chunk_id: Optional[int] = None) -> str:
@@ -69,7 +93,6 @@ class MemcacheAdapter:
     return chunks
 
   def Put(self, key, value, expiry: Optional[int] = None):
-    """Store an object too large to fit directly into memcache."""
     serialized_value = pickle.dumps(value, PICKLE_PROTOCOL_VERSION)
 
     chunks = self.BreakIntoChunks(key, serialized_value)
@@ -83,7 +106,6 @@ class MemcacheAdapter:
         self.client.expire(chunk_key, expiry)
 
   def Get(self, key):
-    """Retrieve and re-assemble a large object from memcache."""
     keys = [self._KeyWithNamespace(key, i) for i in range(MAX_NUMBER_CHUNKS)]
     chunks = self.client.mget(keys)
     serialized_data = b''.join(filter(None, chunks))
@@ -97,12 +119,6 @@ class MemcacheAdapter:
       return None
 
   def DelByPattern(self, entry_key_pattern: str):
-    """Deletes entries by the given pattern.
-
-    Args:
-      entry_key_pattern: The pattern of keys to delete.
-    """
-
     keys = self.client.keys(self._KeyWithNamespace(entry_key_pattern))
     if keys:
       self.client.delete(*keys)

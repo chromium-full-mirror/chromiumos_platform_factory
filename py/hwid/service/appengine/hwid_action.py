@@ -6,7 +6,7 @@
 import abc
 import collections
 import copy
-from typing import Collection, Dict, List, Mapping, NamedTuple, Optional, Set
+from typing import Dict, List, Mapping, NamedTuple, Optional, Set
 
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
@@ -79,7 +79,7 @@ class BOM:
   def __init__(self):
     self._components = {}
     self.phase = ''
-    self.project = None
+    self.project = ''
 
   def HasComponent(self, component):
     """Tests whether the bom has a component."""
@@ -324,8 +324,8 @@ class HWIDAction:
         f'`GetComponentsClasses` is not supported in HWID v{self.HWID_VERSION}')
 
   def GetComponents(
-      self,
-      with_classes: Optional[List[str]] = None) -> Mapping[str, Collection]:
+      self, with_classes: Optional[List[str]] = None
+  ) -> Mapping[str, Mapping[str, v3_database.ComponentInfo]]:
     """Get a filtered dict of all components for the given project.
 
     Args:
