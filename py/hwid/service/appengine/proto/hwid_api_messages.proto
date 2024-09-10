@@ -860,24 +860,6 @@ message SetChangeClBotApprovalStatusRequest {
 // The response of setting CL approval status.
 message SetChangeClBotApprovalStatusResponse {}
 
-// The request of setting firmware info support status.
-message SetFirmwareInfoSupportStatusRequest {
-  // Project name.
-  string project = 1;
-  // Version string of firmware to be queried.
-  string version_string = 5;
-  // CL metadata
-  DbChangeRequestMetadata request_metadata = 9;
-
-  reserved 2 to 4, 6 to 8;
-}
-
-// The response of setting firmware info support status.
-message SetFirmwareInfoSupportStatusResponse {
-  // Created commit.
-  HwidDbCommit commit = 1;
-}
-
 // The request to split HWID DB changes.
 message SplitHwidDbChangeRequest {
   // The session token of the CL creation workflow.
@@ -1186,22 +1168,6 @@ message UpdateDlmDeviceResponse {
   DlmDeviceUpdateResult update_result = 2;
 }
 
-// The request of update components in HWID DB.
-message UpdateHwidDbComponentsRequest {
-  // Project name.
-  string project = 1;
-  // CL metadata.
-  DbChangeRequestMetadata request_metadata = 2;
-  // All components to be updated.
-  repeated Component comps = 3;
-}
-
-// The response of update components in HWID DB.
-message UpdateHwidDbComponentsResponse {
-  // Created HWID CL.
-  HwidDbCommit commit = 1;
-}
-
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1269,10 +1235,6 @@ service HwidService {
   rpc CreateHwidDbInitCl(CreateHwidDbInitClRequest)
       returns (CreateHwidDbInitClResponse);
 
-  // Set support status for firmware info components.
-  rpc SetFirmwareInfoSupportStatus(SetFirmwareInfoSupportStatusRequest)
-      returns (SetFirmwareInfoSupportStatusResponse);
-
   // Split HWID DB change into auto-mergeable and review-required changes.
   rpc SplitHwidDbChange(SplitHwidDbChangeRequest)
       returns (SplitHwidDbChangeResponse);
@@ -1309,8 +1271,4 @@ service HwidService {
   // Update DLM product data with DLM device data.
   rpc UpdateDlmDevice(UpdateDlmDeviceRequest)
       returns (UpdateDlmDeviceResponse);
-
-  // Update components in the HWID database.
-  rpc UpdateHwidDbComponents(UpdateHwidDbComponentsRequest)
-      returns (UpdateHwidDbComponentsResponse);
 }
