@@ -280,6 +280,10 @@ class PluginRunner(plugin_sandbox.ICore, log_utils.LoggerMixin):
       print(event.Serialize())
     return True
 
+  def PreEmit(self, plugin, events):
+    """See Core.PreEmit."""
+    return self.Emit(plugin, events)
+
   def NewStream(self, plugin):
     """See Core.NewStream."""
     del plugin

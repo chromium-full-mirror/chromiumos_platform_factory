@@ -592,8 +592,34 @@ class ReportParser(log_utils.LoggerMixin):
         process_event['endTime'] - process_event['startTime'])
     result_queue.put((report_event, process_event))
 
+  def ParseEventlog(self, report_dir, report_event, process_event):
+    eventlog_path = os.path.join(report_dir, 'events')
+    if os.path.exists(eventlog_path):
+      eventlog_report_event = copy.deepcopy(report_event)
+      if self.ParseEventlogEvents(eventlog_path, eventlog_report_event,
+                                  process_event):
+        report_event.payload = eventlog_report_event.payload
+    else:
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.EventlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+
+  def ParseTestlog(self, report_dir, report_event, process_event):
+    testlog_path = os.path.join(report_dir, 'var', 'factory', 'testlog',
+                                'events.json')
+    if os.path.exists(testlog_path):
+      testlog_report_event = copy.deepcopy(report_event)
+      if self.ParseTestlogEvents(testlog_path, testlog_report_event,
+                                 process_event):
+        report_event.payload = testlog_report_event.payload
+    else:
+      # yapf: disable
+      SetProcessEventStatus(ERROR_CODE.TestlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+
   def DecompressAndParse(self, report_path, report_event, process_event):
     """Decompresses the factory report and parse it."""
+    testlog_is_newer = False
     with file_utils.TempDirectory(dir=self._tmp_dir) as report_dir:
       if not tarfile.is_tarfile(report_path):
         # yapf: disable
@@ -602,6 +628,21 @@ class ReportParser(log_utils.LoggerMixin):
         return
       with tarfile.open(report_path, 'r:xz', ignore_zeros=True) as report_tar:
         report_tar.extractall(report_dir)
+
+        try:
+          eventlog_mtime = report_tar.getmember('events').mtime
+          testlog_mtime = report_tar.getmember(
+              'var/factory/testlog/events.json').mtime
+          report_mtime = os.stat(report_path).st_mtime
+          # If the modification time of Eventlog file is later than the
+          # modification time of factory report, we should not trust it.
+          # Normally, the modification time of Eventlog file is older than
+          # Testlog file for less than 600 seconds
+          if report_mtime > eventlog_mtime > testlog_mtime + 600:
+            testlog_is_newer = True
+        except Exception:
+          self.exception('Exception encountered')
+
       process_event['decompressEndTime'] = time.time()
 
       metadata_path = os.path.join(report_dir, 'metadata.json')
@@ -611,28 +652,15 @@ class ReportParser(log_utils.LoggerMixin):
         report_event['serverUuid'] = metadata_dict.get('server_uuid', None)
         report_event['domeVersion'] = metadata_dict.get('dome_version', None)
 
-      eventlog_path = os.path.join(report_dir, 'events')
-      if os.path.exists(eventlog_path):
-        eventlog_report_event = copy.deepcopy(report_event)
-        if self.ParseEventlogEvents(eventlog_path, eventlog_report_event,
-                                    process_event):
-          report_event.payload = eventlog_report_event.payload
-      else:
-        # yapf: disable
-        SetProcessEventStatus(ERROR_CODE.EventlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
 
-      testlog_path = os.path.join(report_dir, 'var', 'factory', 'testlog',
-                                  'events.json')
-      if os.path.exists(testlog_path):
-        testlog_report_event = copy.deepcopy(report_event)
-        if self.ParseTestlogEvents(testlog_path, testlog_report_event,
-                                   process_event):
-          report_event.payload = testlog_report_event.payload
+      # We found some mismatching information in eventlogs and testlogs, and we
+      # believe the newer one contains correct data. See b/361219514.
+      if testlog_is_newer:
+        self.ParseTestlog(report_dir, report_event, process_event)
+        self.ParseEventlog(report_dir, report_event, process_event)
       else:
-        # yapf: disable
-        SetProcessEventStatus(ERROR_CODE.TestlogFileNotFound, process_event)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.ParseEventlog(report_dir, report_event, process_event)
+        self.ParseTestlog(report_dir, report_event, process_event)
 
       if 'hwid' not in report_event:
         factory_log_path = os.path.join(report_dir, 'var', 'factory', 'log',
