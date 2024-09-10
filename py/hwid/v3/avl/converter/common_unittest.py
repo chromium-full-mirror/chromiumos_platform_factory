@@ -140,6 +140,66 @@ class CommonTest(unittest.TestCase):
           })
       self.assertEqual(logs, [])
 
+  def testJoinFieldConverters(self):
+    with builder.BuilderErrorLogger('') as logs:
+      res = common.JoinFieldConverters([
+          (
+              runtime_probe_matchers.StringEqualMatcher('key1', 'value1'),
+              common.NopSuggester(),
+          ),
+          (
+              runtime_probe_matchers.StringEqualMatcher('key2', 'value2'),
+              common.NopSuggester(),
+          ),
+      ])
+
+      assert res is not None
+      self.assertEqual(
+          res[0].GenerateProbeConfigMatcherStatement(), {
+              'operator':
+                  'AND',
+              'operand': [
+                  {
+                      'operator': 'STRING_EQUAL',
+                      'operand': ['key1', 'value1']
+                  },
+                  {
+                      'operator': 'STRING_EQUAL',
+                      'operand': ['key2', 'value2']
+                  },
+              ]
+          })
+      self.assertEqual(logs, [])
+
+  def testJoinFieldConvertersSingleField(self):
+    with builder.BuilderErrorLogger('') as logs:
+      res = common.JoinFieldConverters([
+          (
+              runtime_probe_matchers.StringEqualMatcher('key1', 'value1'),
+              common.NopSuggester(),
+          ),
+      ])
+
+      assert res is not None
+      self.assertEqual(res[0].GenerateProbeConfigMatcherStatement(), {
+          'operator': 'STRING_EQUAL',
+          'operand': ['key1', 'value1']
+      })
+      self.assertEqual(logs, [])
+
+  def testJoinFieldConvertersNone(self):
+    with builder.BuilderErrorLogger('') as logs:
+      res = common.JoinFieldConverters([
+          (
+              runtime_probe_matchers.StringEqualMatcher('key1', 'value1'),
+              common.NopSuggester(),
+          ),
+          None,
+      ])
+
+      self.assertIsNone(res)
+      self.assertEqual(logs, [])
+
 
 if __name__ == '__main__':
   unittest.main()

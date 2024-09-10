@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from typing import Mapping, Optional, Type
+from typing import Iterable, Mapping, Optional, Type
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl import matcher
@@ -57,7 +57,24 @@ def GetFieldConverter(
   assert len(matchers) == len(values)
   if len(matchers) == 1:
     return (matchers[0], NopSuggester())
-  return (
-      runtime_probe_matchers.OrMatcher(matchers),
-      NopSuggester(),
-  )
+  return (runtime_probe_matchers.OrMatcher(matchers), NopSuggester())
+
+
+def JoinFieldConverters(
+    converters: Iterable[builder.IProbeInfoConverterBuildResult]
+) -> builder.IProbeInfoConverterBuildResult:
+  """Join multiple field converters to a single converter.
+
+  Matchers are joined by AndMatcher. Returns None if any of them is None.
+  """
+  matchers = []
+  suggesters = []
+  for c in converters:
+    if c is None:
+      return None
+    matchers.append(c[0])
+    suggesters.append(c[1])
+  assert len(matchers) >= 1
+  if len(matchers) == 1:
+    return (matchers[0], NopSuggester())
+  return (runtime_probe_matchers.AndMatcher(matchers), NopSuggester())
