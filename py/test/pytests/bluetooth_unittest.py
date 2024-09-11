@@ -193,7 +193,10 @@ class BluetoothUnitTest(unittest.TestCase):
 
     self.mock_create_tmp_file.assert_called_once()
     self.mock_is_file.assert_called_once_with('fake_id_file')
-    self.mock_read_file.assert_called_once_with('fake_id_file')
+    self.mock_read_file.assert_has_calls([
+        mock.call(bluetooth.CURRENT_BT_DAEMON_FILE),
+        mock.call('fake_id_file')
+    ])
     self.mock_join.assert_called_once_with('fake_log_path',
                                            'fake_serial_num.fake_test_host_id')
 
