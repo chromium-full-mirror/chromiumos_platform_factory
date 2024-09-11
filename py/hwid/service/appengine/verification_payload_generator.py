@@ -1067,14 +1067,10 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
 
   logging.basicConfig(level=logging.INFO)
 
-  # yapf: disable
-  waived_categories = collections.defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-  for waived_category in waived_categories:
-    model_name, unused_sep, category_name = waived_category.partition('.')
-    # yapf: disable
-    waived_categories[model_name.lower()].append(category_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  waived_category = collections.defaultdict(list)
+  for category in waived_categories:
+    model_name, unused_sep, category_name = category.partition('.')
+    waived_category[model_name.lower()].append(category_name)
 
   ignore_error = collections.defaultdict(list)
   for category in ignore_errors:
@@ -1093,10 +1089,8 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
     model = db.project.lower()
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
         ignore_error=ignore_error[model],
-        # yapf: disable
-        waived_comp_categories=waived_categories[model], encrypted=model  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        in encrypted_models)
+        waived_comp_categories=waived_category[model],
+        encrypted=model in encrypted_models)
     logging.info('Waived component category: %r',
                  vpg_config.waived_comp_categories)
     logging.info('Ignore exception component category: %r',
