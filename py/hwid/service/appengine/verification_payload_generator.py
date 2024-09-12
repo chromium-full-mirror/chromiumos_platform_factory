@@ -874,7 +874,7 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
 
   def _CheckShouldSkipBattery(
       battery_lhs: Mapping[str, Union[str, hwid_rule.Value]],
-      battery_rhs: Mapping[str, Union[str, hwid_rule.Value]]):
+      battery_rhs: Mapping[str, Union[str, hwid_rule.Value]]) -> bool:
     """Check if we should skip generating probe statements for either
     `battery_lhs` or `battery_rhs`.
 
@@ -896,6 +896,21 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
         rhs_technology in COMMON_HWID_TECHNOLOGY)
 
+  def _CheckShouldSkipCamera(
+      camera: Optional[Mapping[str, Union[str, hwid_rule.Value]]]) -> bool:
+    """Check if we should skip generating probe statements for `camera`.
+
+    Return True if the camera is an IPU node that is unexpectedly probed by the
+    legacy probe function.
+    """
+    assert camera is not None
+
+    name = camera.get('name')
+    if not isinstance(name, str) or not name:
+      return False
+
+    return 'IPU' in name
+
   def _CollectSkipCompNames(db: database.Database) -> Set[str]:
     """Collect a set of component names for which we should skip generating
     probe statements.
@@ -907,6 +922,10 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     skip_comp_names = set()
 
     batteries = db.GetComponents('battery', include_default=False)
+    cameras = {
+        **db.GetComponents('camera', include_default=False),
+        **db.GetComponents('video', include_default=False),
+    }
 
     def BatteryKeyFunc(comp_name: str) -> Tuple[int, str]:
       """Key function for deciding which battery to skip.
@@ -934,6 +953,9 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
       if _CheckShouldSkipBattery(comp_1, comp_2):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
         skip_comp_names.add(max(comp_name_1, comp_name_2, key=BatteryKeyFunc))
+
+    skip_comp_names.update(comp_name for comp_name, camera in cameras.items()
+                           if _CheckShouldSkipCamera(camera.values))
 
     return skip_comp_names
 

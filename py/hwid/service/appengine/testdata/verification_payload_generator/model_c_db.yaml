@@ -42,5 +42,9 @@ components:
           module_id: AA1234
           sensor_id: BB5678
           type: webcam
+      video_comp_3:
+        # A legacy component that should be ignored.
+        values:
+          name: Intel IPU6 TPG 0
 
 rules: []
