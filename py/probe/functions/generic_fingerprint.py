@@ -10,6 +10,9 @@ from cros.factory.test.utils import fpmcu_utils
 from cros.factory.utils import sys_interface
 
 
+_FPC_VENDOR_ID = '20435046'
+
+
 class FingerprintFunction(cached_probe_function.CachedProbeFunction):
   """Probe the fingerprint information."""
 
@@ -25,16 +28,19 @@ class FingerprintFunction(cached_probe_function.CachedProbeFunction):
 
     sensor_vendor, sensor_model_unmasked = _fpmcu.GetFpSensorInfo()
     fpmcu_name = _fpmcu.GetName()
-    try:
-      # The last four bits are associated with the wafer ID, which does not
-      # contribute to identification, and therefore they can be masked.
-      int_sensor_model_masked = int(sensor_model_unmasked, 16) & ~0xf
-    except ValueError:
-      logging.error('Probed sensor model is not a hex string: %s',
-                    sensor_model_unmasked)
-      sensor_model = sensor_model_unmasked
+    if sensor_vendor == _FPC_VENDOR_ID:
+      try:
+        # The last four bits are associated with the wafer ID, which does not
+        # contribute to identification, and therefore they can be masked.
+        int_sensor_model_masked = int(sensor_model_unmasked, 16) & ~0xf
+      except ValueError:
+        logging.error('Probed sensor model is not a hex string: %s',
+                      sensor_model_unmasked)
+        sensor_model = sensor_model_unmasked
+      else:
+        sensor_model = f'{int_sensor_model_masked:x}'
     else:
-      sensor_model = f'{int_sensor_model_masked:x}'
+      sensor_model = sensor_model_unmasked
 
     results = [{
         'sensor_vendor': sensor_vendor,
