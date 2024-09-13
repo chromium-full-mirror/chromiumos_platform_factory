@@ -179,6 +179,39 @@ class GetDUTLabelShardTest(unittest.TestCase):
                 'feature_enablement_status',
             ]), msg)
 
+  def testGetDUTLabels_BatchGetBOMAndConfiglessFailed(self):
+    self._module_collection.AddAVLNameMapping(10, 'AVL_CELLULAR')
+    self._sku_helper.GetSKUFromBOM.return_value = sku_helper_module.SKU(
+        sku_str='TestSku', project='', cpu=None, memory_str='', total_bytes=0,
+        warnings=[])
+    self._SetupFakeHWIDActionForTestProject()
+    self._bc_helper.BatchGetBOMAndConfigless.return_value = {}
+
+    req = hwid_api_messages_pb2.DutLabelsRequest(hwid=TEST_HWID)
+    msg = self.service.GetDutLabels(req)
+
+    self.assertCountEqual(msg.labels, [])
+    self.assertEqual(msg.error, 'Internal error')
+    self.assertEqual(msg.status, hwid_api_messages_pb2.Status.SERVER_ERROR)
+
+  def testGetDUTLabels_BatchGetBOMAndConfiglessError(self):
+    self._module_collection.AddAVLNameMapping(10, 'AVL_CELLULAR')
+    self._sku_helper.GetSKUFromBOM.return_value = sku_helper_module.SKU(
+        sku_str='TestSku', project='', cpu=None, memory_str='', total_bytes=0,
+        warnings=[])
+    error = KeyError('test error')
+    self._SetupFakeHWIDActionForTestProject()
+    self._bc_helper.BatchGetBOMAndConfigless.return_value = {
+        TEST_HWID: _BOMAndConfigless(None, None, error),
+    }
+
+    req = hwid_api_messages_pb2.DutLabelsRequest(hwid=TEST_HWID)
+    msg = self.service.GetDutLabels(req)
+
+    self.assertCountEqual(msg.labels, [])
+    self.assertEqual(msg.error, "'test error'")
+    self.assertEqual(msg.status, hwid_api_messages_pb2.Status.NOT_FOUND)
+
   def testGetPossibleDUTLabels(self):
     req = hwid_api_messages_pb2.DutLabelsRequest(hwid='')
     msg = self.service.GetDutLabels(req)

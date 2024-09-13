@@ -154,7 +154,7 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):
     bc_dict = self._bc_helper.BatchGetBOMAndConfigless(
         hwid_action_getter, [request.hwid], verbose=True)
     bom_configless = bc_dict.get(request.hwid)
-    if bom_configless is None or bom_configless.bom is None:
+    if bom_configless is None:
       return hwid_api_messages_pb2.SkuResponse(
           error='Internal error',
           status=hwid_api_messages_pb2.Status.SERVER_ERROR)
@@ -164,6 +164,7 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):
       return hwid_api_messages_pb2.SkuResponse(error=error, status=status)
     bom = bom_configless.bom
     configless = bom_configless.configless
+    assert bom is not None
 
     sku = self._sku_helper.GetSKUFromBOM(bom, configless)
     feature_enablement_status = hwid_action_getter.GetHWIDAction(
@@ -230,7 +231,7 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
     bc_dict = self._bc_helper.BatchGetBOMAndConfigless(
         hwid_action_getter, [hwid], verbose=True, require_vp_info=True)
     bom_configless = bc_dict.get(hwid)
-    if bom_configless is None or bom_configless.bom is None:
+    if bom_configless is None:
       return hwid_api_messages_pb2.DutLabelsResponse(
           error='Internal error',
           status=hwid_api_messages_pb2.Status.SERVER_ERROR,
@@ -243,6 +244,8 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
     if status != hwid_api_messages_pb2.Status.SUCCESS:
       return hwid_api_messages_pb2.DutLabelsResponse(
           status=status, error=error, possible_labels=possible_labels)
+
+    assert bom is not None
 
     sku = self._sku_helper.GetSKUFromBOM(bom, configless)
     response = hwid_api_messages_pb2.DutLabelsResponse(
