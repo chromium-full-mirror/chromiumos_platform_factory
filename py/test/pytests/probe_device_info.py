@@ -81,6 +81,8 @@ class ProbeDeviceInfo(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
+    if bluetooth_utils.IsFlossBluetoothStack():
+      bluetooth_utils.SwitchToBluez(self.dut)
     self.wifi_mac_address = None
     self.bt_mac_address = None
 

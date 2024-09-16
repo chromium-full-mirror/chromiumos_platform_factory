@@ -14,12 +14,44 @@ This module is mostly inspired by rel_tester.py written by mylesgw@chromium.org
 import argparse
 import binascii
 import datetime
+import enum
 import logging
 import re
+import time
 
+from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 
 from cros.factory.external.py_lib import pexpect
+
+
+CURRENT_BT_DAEMON_FILE = '/var/lib/bluetooth/bluetooth-daemon.current'
+
+
+class BluetoothStack(str, enum.Enum):
+  bluez = 'bluez'
+  floss = 'floss'
+
+  def __str__(self):
+    return self.name
+
+
+def IsFlossBluetoothStack():
+  return file_utils.ReadFile(CURRENT_BT_DAEMON_FILE) == BluetoothStack.floss
+
+
+def SwitchToBluez(dut):
+  """Switches the Bluetooth stack from Floss to Bluez.
+
+  This is a workaround for b/361718065, as Floss is not currently
+  supported in Bluetooth tests.
+
+  Args:
+    dut: The device under test.
+  """
+  dut.CheckCall(['btclient', '-c', 'floss disable'], log=True)
+  logging.info('Switching bluetooth stack from floss to bluez.')
+  time.sleep(1.0)  # Give some time for the switch to complete
 
 
 class BluetoothUtilsError(Exception):

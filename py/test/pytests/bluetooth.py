@@ -61,7 +61,6 @@ To pair, connect with, and disconnect with the bluetooth device:
 """
 
 import contextlib
-import enum
 import glob
 import logging
 import os
@@ -97,18 +96,6 @@ READ_BATTERY_STEP_1 = 'read_battery_1'
 READ_BATTERY_STEP_2 = 'read_battery_2'
 
 CURRENT_BT_DAEMON_FILE = '/var/lib/bluetooth/bluetooth-daemon.current'
-
-
-class BluetoothStack(str, enum.Enum):
-  bluez = 'bluez'
-  floss = 'floss'
-
-  def __str__(self):
-    return self.name
-
-
-def IsFlossBluetoothStack():
-  return file_utils.ReadFile(CURRENT_BT_DAEMON_FILE) == BluetoothStack.floss
 
 
 def GetCurrentTime():
@@ -266,12 +253,8 @@ class BluetoothTest(test_case.TestCase):
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    if IsFlossBluetoothStack():
-      # Disable floss since currently we only support bluez in bluetooth test.
-      # This is a workaround for b/361718065.
-      self.dut.CheckCall(['btclient', '-c', 'floss disable'], log=True)
-      logging.info('Switching bluetooth stack from floss to bluez.')
-      self.Sleep(1.0)
+    if bluetooth_utils.IsFlossBluetoothStack():
+      bluetooth_utils.SwitchToBluez(self.dut)
     self.bt_manager = cast(bluetooth.AbstractBluetoothManager,
                            self.dut.bluetooth)
     bluetooth_utils.VerifyAltSetting()
