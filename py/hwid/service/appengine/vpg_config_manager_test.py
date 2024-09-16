@@ -10,10 +10,13 @@ from unittest import mock
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine import git_util
+from cros.factory.hwid.service.appengine import hwid_action
+from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_manager_module
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.service.appengine import vpg_config_manager
+from cros.factory.hwid.v3 import database as v3_database
 from cros.factory.utils import file_utils
 
 
@@ -37,12 +40,29 @@ class VPGConfigManagerTest(unittest.TestCase):
     self._ndb_connector = self._modules.ndb_connector
     self._mock_cl_upload_manager = mock.create_autospec(
         cl_upload_config.VPGTargetsCLUploadManager, instance=True)
+    self._mock_hwid_action_manager = mock.create_autospec(
+        hwid_action_manager_module.HWIDActionManager, instance=True)
     self._vpg_config_manager = vpg_config_manager.VPGConfigManager(
-        self._modules.fake_dlm_product_manager, self._mock_cl_upload_manager)
+        self._modules.fake_dlm_product_manager, self._mock_cl_upload_manager,
+        self._mock_hwid_action_manager)
 
     fake_repo = git_util.MemoryRepo('')
     self._fake_live_hwid_repo = hwid_repo.HWIDRepo(fake_repo, 'test_repo',
                                                    'test_branch', None)
+
+    non_empty_db = mock.create_autospec(v3_database.Database, instance=True)
+    empty_db = mock.create_autospec(v3_database.Database, instance=True)
+    non_empty_db.GetComponents.return_value = {
+        'foo': 'bar'
+    }
+    empty_db.GetComponents.return_value = {}
+    self._mock_non_empty_db_hwid_action = mock.create_autospec(
+        hwid_action.HWIDAction, instance=True)
+    self._mock_empty_db_hwid_action = mock.create_autospec(
+        hwid_action.HWIDAction, instance=True)
+    self._mock_non_empty_db_hwid_action.GetDBV3.side_effect = (
+        lambda: non_empty_db)
+    self._mock_empty_db_hwid_action.GetDBV3.side_effect = lambda: empty_db
 
     self.addCleanup(mock.patch.stopall)
     self._mock_get_gerrit_auth_cookie = mock.patch.object(
@@ -86,8 +106,19 @@ class VPGConfigManagerTest(unittest.TestCase):
         'MODEL11': hwid_repo.HWIDDBMetadata('MODEL11', 'BOARD3', 3, 'MODEL11'),
         'MODEL12': hwid_repo.HWIDDBMetadata('MODEL12', 'BOARD1', 3, 'MODEL12'),
         'MODEL13': hwid_repo.HWIDDBMetadata('MODEL13', 'BOARD1', 3, 'MODEL13'),
+        'MODEL14': hwid_repo.HWIDDBMetadata('MODEL14', 'BOARD1', 3, 'MODEL14'),
     }
     mock_hwid_db_metadata_of_name.return_value = hwid_db_metadata_of_name
+
+    def _MockGetHWIDAction(model, *args, **kwargs) -> mock.Mock:
+      del args, kwargs  # Unused.
+
+      if model == 'MODEL14':
+        return self._mock_empty_db_hwid_action
+      return self._mock_non_empty_db_hwid_action
+
+    self._mock_hwid_action_manager.GetHWIDAction.side_effect = (
+        _MockGetHWIDAction)
 
     # None of MODEL3 products are shipped. Generate encrypted payload.
     self._CreateDLMProduct(id=1, board='BOARD1', model='MODEL3',
@@ -142,6 +173,10 @@ class VPGConfigManagerTest(unittest.TestCase):
     # Status is on-hold. No payload is generated.
     self._CreateDLMProduct(id=14, board='BOARD1', model='MODEL13',
                            product_status=_DlmProduct.ON_HOLD, device_id=12,
+                           device_type=_DeviceType.DEVICE)
+    # The HWID DB is empty. No payload is generated.
+    self._CreateDLMProduct(id=14, board='BOARD1', model='MODEL14',
+                           product_status=_DlmProduct.DEVELOPMENT, device_id=13,
                            device_type=_DeviceType.DEVICE)
 
     self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)

@@ -7,14 +7,16 @@ import collections
 import hashlib
 import logging
 import os
-from typing import Any, Mapping, NamedTuple, Sequence, Set
+from typing import Any, DefaultDict, Mapping, NamedTuple, Sequence, Set
 
 from cros.factory.hwid.service.appengine.data import cl_upload_config
 from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine import git_util
+from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_manager_module
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.service.appengine import verification_payload_generator as vpg_module
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
 
 
@@ -113,11 +115,14 @@ class VPGConfigManager:
       _DlmProduct.ON_HOLD,
   }
 
-  def __init__(self, dlm_product_manager: dlm_product_data.DLMProductManager,
-               cl_upload_manager: cl_upload_config.VPGTargetsCLUploadManager):
+  def __init__(
+      self, dlm_product_manager: dlm_product_data.DLMProductManager,
+      cl_upload_manager: cl_upload_config.VPGTargetsCLUploadManager,
+      hwid_action_manager: hwid_action_manager_module.HWIDActionManager):
     self._logger = logging.getLogger(self.__class__.__name__)
     self._dlm_product_manager = dlm_product_manager
     self._cl_upload_manager = cl_upload_manager
+    self._hwid_action_manager = hwid_action_manager
 
     self._cl_setting = config_data_module.CreateVPGTargetsSettings()
     self._gerrit_credentials = None
@@ -162,10 +167,9 @@ class VPGConfigManager:
     """
     dlm_products = self._dlm_product_manager.GetDLMProductsByBoards(
         vpg_config.target_boards)
-    # yapf: disable
-    product_status_mapping = collections.defaultdict(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        lambda: collections.defaultdict(set))
+    product_status_mapping: DefaultDict[str, DefaultDict[str, Set[int]]] = (
+        collections.defaultdict(lambda: collections.defaultdict(set)))
+    all_categories = vpg_module.GetAllProbeStatementGenerators().keys()
     for product in dlm_products:
       if (
           product.model not in live_hwid_repo.hwid_db_metadata_of_name or
@@ -174,8 +178,21 @@ class VPGConfigManager:
       ):
         continue
 
-      product_status_mapping[product.board][product.model].add(
-          product.product_status)
+      try:
+        hwid_action = self._hwid_action_manager.GetHWIDAction(product.model)
+        db = hwid_action.GetDBV3()
+      except (KeyError, ValueError, RuntimeError) as ex:
+        self._logger.error('Cannot get model data: %r', ex)
+        continue
+
+      if any(
+          db.GetComponents(category, include_default=False)
+          for category in all_categories):
+        # Only collect models with a non-empty DB.
+        product_status_mapping[product.board][product.model].add(
+            product.product_status)
+      else:
+        self._logger.info('Skip model with an empty HWID DB: %s', product.model)
 
     return product_status_mapping
 
