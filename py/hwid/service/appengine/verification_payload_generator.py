@@ -640,7 +640,8 @@ def GetAllComponentVerificationPayloadPieces(
     db: An instance of HWID database.
     vpg_config: Config for the generator.
     skip_comp_names: A set of component names to skip generating probe
-        statements for.
+        statements for. The value might be updated by this function. See
+        `_UpdateSkipCompNames()` for the details.
 
   Returns:
     A dictionary that maps the HWID component to the corresponding material.
@@ -732,7 +733,44 @@ def GetAllComponentVerificationPayloadPieces(
 
     return preprocessed
 
+  def _CheckShouldSkipCamera(
+      camera: Optional[Mapping[str, Union[str, hwid_rule.Value]]]) -> bool:
+    """Check if we should skip generating probe statements for `camera`.
+
+    Return True if the camera is an IPU node that is unexpectedly probed by the
+    legacy probe function.
+    """
+    assert camera is not None
+
+    name = camera.get('name')
+    if not isinstance(name, str) or not name:
+      return False
+
+    return 'IPU' in name
+
+  def _UpdateSkipCompNames() -> None:
+    """Update `skip_comp_names` with the component names for which we should
+    skip generating probe statements.
+
+    This function checks all components in `db` and updates `skip_comp_names`
+    with those components for which we should skip generating probe statements.
+    The collected components are HWID components that are unexpectedly probed,
+    and should be omitted during the payload generation and NOT be marked as
+    is_vp_related during the decoding of the HWID string (for example, when a
+    component is wrongly probed by the probe function in the factory branch).
+    """
+    assert skip_comp_names is not None
+
+    cameras = {
+        **db.GetComponents('camera', include_default=False),
+        **db.GetComponents('video', include_default=False),
+    }
+
+    skip_comp_names.update(comp_name for comp_name, camera in cameras.items()
+                           if _CheckShouldSkipCamera(camera.values))
+
   skip_comp_names = skip_comp_names or set()
+  _UpdateSkipCompNames()
   ret = {}
 
   model_prefix = db.project.lower()
@@ -896,36 +934,20 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
         rhs_technology in COMMON_HWID_TECHNOLOGY)
 
-  def _CheckShouldSkipCamera(
-      camera: Optional[Mapping[str, Union[str, hwid_rule.Value]]]) -> bool:
-    """Check if we should skip generating probe statements for `camera`.
-
-    Return True if the camera is an IPU node that is unexpectedly probed by the
-    legacy probe function.
-    """
-    assert camera is not None
-
-    name = camera.get('name')
-    if not isinstance(name, str) or not name:
-      return False
-
-    return 'IPU' in name
-
   def _CollectSkipCompNames(db: database.Database) -> Set[str]:
     """Collect a set of component names for which we should skip generating
     probe statements.
 
-    This function checks all components in `db` and collect those for which we
-    should skip generating probe statements. Currently it only checks battery
-    components.
+    This function checks all components in `db` and collects those for which we
+    should skip generating probe statements. The collected components are HWID
+    components that are expectedly probed, and should be omitted during the
+    payload generation while still being marked as is_vp_related during the
+    decoding of the HWID string (for example, when a component's probe statement
+    is a subset of another component's).
     """
     skip_comp_names = set()
 
     batteries = db.GetComponents('battery', include_default=False)
-    cameras = {
-        **db.GetComponents('camera', include_default=False),
-        **db.GetComponents('video', include_default=False),
-    }
 
     def BatteryKeyFunc(comp_name: str) -> Tuple[int, str]:
       """Key function for deciding which battery to skip.
@@ -954,9 +976,6 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
         # yapf: enable
         skip_comp_names.add(max(comp_name_1, comp_name_2, key=BatteryKeyFunc))
 
-    skip_comp_names.update(comp_name for comp_name, camera in cameras.items()
-                           if _CheckShouldSkipCamera(camera.values))
-
     return skip_comp_names
 
   def _Encrypt(data: str, key: str, salt: Optional[bytes]) -> str:
@@ -976,12 +995,12 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     generic_probe_config = probe_config_types.ProbeConfigPayload()
 
     skip_comp_names = _CollectSkipCompNames(db)
+    all_pieces = GetAllComponentVerificationPayloadPieces(
+        db, vpg_config, skip_comp_names)
     if skip_comp_names:
       logging.info('Skip generating payload for components: %s',
                    skip_comp_names)
 
-    all_pieces = GetAllComponentVerificationPayloadPieces(
-        db, vpg_config, skip_comp_names)
     grouped_comp_vp_piece = collections.defaultdict(list)
     grouped_primary_comp_name = {}
     grouped_merge_vp_piece = collections.defaultdict(list)
