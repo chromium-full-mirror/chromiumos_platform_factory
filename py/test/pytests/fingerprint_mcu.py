@@ -202,9 +202,6 @@ class FingerprintTest(test_case.TestCase):
 
     args: _Args
 
-  # MKBP index for Fingerprint sensor event
-  EC_MKBP_EVENT_FINGERPRINT = '5'
-
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
@@ -226,29 +223,6 @@ class FingerprintTest(test_case.TestCase):
 
   def tearDown(self):
     self._fpmcu.FpmcuCommand('fpmode', 'reset')
-
-  def FpmcuTryWaitEvent(self, *args, **kwargs):
-    """Waits for a cros_fp event to complete.
-
-    The function waits until `ectool --name=cros_fp fpmode capture ${mode}`
-    finishes or waits until the given timeout seconds. However, ectool API has
-    some problems such that the fpmode capture command might ends before
-    the waitevent is triggered. To avoid triggering the unintended timeout
-    error, one can choose to set `ignore_waitevent_timeout_error` to True.
-    """
-    try:
-      self._fpmcu.FpmcuCommand('waitevent', *args, **kwargs)
-    except Exception as e:
-      wait_event_fail_msg = f'Wait event fail: {e}'
-      # yapf: disable
-      if ('Timeout waiting for MKBP event' in e.stderr and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          self.args.ignore_waitevent_timeout_error):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        logging.error(wait_event_fail_msg)
-      else:
-        raise type_utils.TestFailure(wait_event_fail_msg)
 
   def IsDetectZone(self, x, y):
     for x1, y1, x2, y2 in self.args.detect_zones:
@@ -293,10 +267,9 @@ class FingerprintTest(test_case.TestCase):
     full_name = 'Inv. checkerboard' if inverted else 'Checkerboard'
     short_name = 'icb' if inverted else 'cb'
     # trigger the checkerboard test pattern and capture it
-    self._fpmcu.FpmcuCommand('fpmode', 'capture',
-                             'pattern1' if inverted else 'pattern0')
-    # wait for the end of capture (or timeout after 500 ms)
-    self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT, '500')
+    self._fpmcu.CaptureFpmodeAndWaitEvent(
+      'pattern1' if inverted else 'pattern0', 500
+    )
     # retrieve the resulting image as a PNM
     pnm = self._fpmcu.GetFpframe(
       raw=False,
@@ -401,9 +374,7 @@ class FingerprintTest(test_case.TestCase):
   def ResetPixelTest(self):
     # reset the sensor and leave it in reset state then capture the single
     # frame.
-    self._fpmcu.FpmcuCommand('fpmode', 'capture', 'test_reset')
-    # wait for the end of capture (or timeout after 500 ms)
-    self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT, '500')
+    self._fpmcu.CaptureFpmodeAndWaitEvent('test_reset', 500)
     # retrieve the resulting image as a PNM
     pnm = self._fpmcu.GetFpframe(
       raw=False,
@@ -475,12 +446,8 @@ class FingerprintTest(test_case.TestCase):
     # yapf: enable
     self._dut.CheckCall(['mkdir', '-p', self._image_dir], log=True)
     for iteration in range(iterations):
-      self._fpmcu.FpmcuCommand('fpmode', 'capture', 'vendor')
-      # wait for the end of capture (or timeout)
-      self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
-                             # yapf: disable
-                             str(self.args.timeout_secs * 1000))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self._fpmcu.CaptureFpmodeAndWaitEvent('vendor',
+                                            self.args.timeout_secs * 1000)
       img = self._fpmcu.GetFpframe(
           raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       self._ShowFingerprint(img, f'capture{int(iteration + 1)}')
@@ -539,10 +506,8 @@ class FingerprintTest(test_case.TestCase):
       self.ui.SetInstruction(_('Touch fingerprint sensor'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
       # Test sensor image quality
-      self._fpmcu.FpmcuCommand('fpmode', 'capture', 'qual')
-      # wait for the end of capture (or timeout)
-      self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
-                             str(self.args.timeout_secs * 1000))
+      self._fpmcu.CaptureFpmodeAndWaitEvent('qual',
+                                            self.args.timeout_secs * 1000)
       img = self._fpmcu.GetFpframe(
           raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       # record the raw image file for quality evaluation
