@@ -87,7 +87,6 @@ from cros.factory.test.utils import fpmcu_utils
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import schema
-from cros.factory.utils import sync_utils
 from cros.factory.utils import type_utils
 
 from cros.factory.external.py_lib import numpy
@@ -251,23 +250,6 @@ class FingerprintTest(test_case.TestCase):
       else:
         raise type_utils.TestFailure(wait_event_fail_msg)
 
-  def FpmcuGetFpframe(self, *args, **kwargs):
-    # try fpframe command for at most (fpframe_retry_count + 1) times.
-
-    def _LoggingCallback(num_retries, max_retry_count):  # pylint: disable=unused-argument
-      logging.exception('Retrying fpframe %d times', num_retries + 1)
-
-    @sync_utils.RetryDecorator(
-        # yapf: disable
-        max_attempt_count=self.args.fpframe_retry_count + 1,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        retry_callback=_LoggingCallback,
-        interval_sec=0)
-    def _GetFpFrame():
-      return self._fpmcu.FpmcuCommand('fpframe', *args, **kwargs)
-
-    return _GetFpFrame()
-
   def IsDetectZone(self, x, y):
     for x1, y1, x2, y2 in self.args.detect_zones:
       if (x in range(x1, x2 + 1) and y in range(y1, y2 + 1)):
@@ -316,7 +298,10 @@ class FingerprintTest(test_case.TestCase):
     # wait for the end of capture (or timeout after 500 ms)
     self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT, '500')
     # retrieve the resulting image as a PNM
-    pnm = self.FpmcuGetFpframe()
+    pnm = self._fpmcu.GetFpframe(
+      raw=False,
+      max_attempt_count=self.args.fpframe_retry_count+1
+    )
 
     pixel_lines = self.CheckPnmAndExtractPixels(pnm)
     # Build arrays of black and white pixels (aka Type-1 / Type-2)
@@ -420,7 +405,10 @@ class FingerprintTest(test_case.TestCase):
     # wait for the end of capture (or timeout after 500 ms)
     self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT, '500')
     # retrieve the resulting image as a PNM
-    pnm = self.FpmcuGetFpframe()
+    pnm = self._fpmcu.GetFpframe(
+      raw=False,
+      max_attempt_count=self.args.fpframe_retry_count+1
+    )
 
     pixel_lines = self.CheckPnmAndExtractPixels(pnm)
     # Compute median value and the deviation of every pixels per column.
@@ -452,7 +440,7 @@ class FingerprintTest(test_case.TestCase):
   def _ShowFingerprint(self, frame: bytes, filename_prefix: str):
     """Show the capture image on the UI.
 
-    frame: The output of self.FpmcuGetFpframe('raw', encoding=None).
+    frame: The output of self._fpmcu.GetFpframe(raw=True).
     filename_prefix: The prefix of the filename.
     """
     rc, imgs = libfputils.get_image_buffers(frame)
@@ -493,7 +481,8 @@ class FingerprintTest(test_case.TestCase):
                              # yapf: disable
                              str(self.args.timeout_secs * 1000))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      img = self.FpmcuGetFpframe('raw', encoding=None)
+      img = self._fpmcu.GetFpframe(
+          raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       self._ShowFingerprint(img, f'capture{int(iteration + 1)}')
 
     def _FailTask(unused_event):
@@ -554,7 +543,8 @@ class FingerprintTest(test_case.TestCase):
       # wait for the end of capture (or timeout)
       self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
                              str(self.args.timeout_secs * 1000))
-      img = self.FpmcuGetFpframe('raw', encoding=None)
+      img = self._fpmcu.GetFpframe(
+          raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       # record the raw image file for quality evaluation
       testlog.AttachContent(
           content=str(img),
