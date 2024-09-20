@@ -145,6 +145,11 @@ _RE_SYSINFO_IMAGE_NAME = r'^Flags:[^\S\r\n]*(\S+)'
 _RE_VERSION_FW_COPY_NAME = r'^Firmware copy:[^\S\r\n]*(\S+)$'
 
 
+# The waitevent type of fingerprint. Follow the design from EC:
+# go/cros-src/platform/ec/include/ec_commands.h;l=4110;drc=85d241f0
+_EC_MKBP_EVENT_FINGERPRINT = 'FINGERPRINT'
+
+
 class FpmcuDevice:
 
   def __init__(self, dut: SystemInterface):
@@ -467,3 +472,45 @@ class FpmcuDevice:
       return self.FpmcuCommand('fpframe', encoding='utf-8')
 
     return _GetFpframe()
+
+  def CaptureFpmodeAndWaitEvent(self, capture_mode: str,
+                                wait_event_timeout_ms: int) -> None:
+    """Captures fpmode and waits for an event.
+
+    Args:
+      capture_mode: The mode to capture.
+      wait_event_timeout_ms: The timeout in ms.
+
+    Raises:
+      FpmcuError: When failing to capture fpmode or timeout exceeds.
+    """
+    wait_process = self._dut.Popen([
+        'ectool', _CROS_FP_ARG, 'waitevent', _EC_MKBP_EVENT_FINGERPRINT,
+        str(wait_event_timeout_ms)
+    ])
+    capture_process = self._dut.Popen(
+        ['ectool', _CROS_FP_ARG, 'fpmode', 'capture', capture_mode])
+
+    try:
+      try:
+        capture_exit_code = capture_process.wait(timeout=wait_event_timeout_ms /
+                                                 1000)
+      except subprocess.TimeoutExpired:
+        raise FpmcuError('Timeout waiting fpmode capture.') from None
+
+      if capture_exit_code != 0:
+        raise FpmcuError(
+            f'Capture process exists with non-zero code: {capture_exit_code}')
+
+      try:
+        wait_exit_code = wait_process.wait(timeout=wait_event_timeout_ms / 1000)
+      except subprocess.TimeoutExpired:
+        raise FpmcuError('Timeout waiting waitevent.') from None
+
+      if wait_exit_code != 0:
+        raise FpmcuError(
+            f'Waitevent process exits with non-zero code: {wait_exit_code}')
+
+    finally:
+      capture_process.terminate()
+      wait_process.terminate()
