@@ -9,8 +9,9 @@ import logging
 import re
 import subprocess
 import time
-from typing import Dict, List, Optional, Tuple, Union, overload
+from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
+from cros.factory.utils import sync_utils
 from cros.factory.utils.sys_interface import SystemInterface
 
 
@@ -435,14 +436,34 @@ class FpmcuDevice:
       # if ectool changes its implementation.
       raise FpmcuError(f'Unexpected FPMCU image slot: {image_slot}') from e
 
-  def GetFpframe(self) -> bytes:
-    """Reads the fpframe.
+  @overload
+  def GetFpframe(self, raw: Literal[True] = ...,
+                 max_attempt_count: int = ...) -> bytes:
+    ...
 
-    Returns: The fpframe in bytes.
+  @overload
+  def GetFpframe(self, raw: Literal[False],
+                 max_attempt_count: int = ...) -> str:
+    ...
 
-    Raises:
-      FpmcuCommandError:
-        When underlying FPMCU command fails to read the fpframe.
-    """
+  @overload
+  def GetFpframe(self, raw: bool,
+                 max_attempt_count: int = ...) -> Union[str, bytes]:
+    ...
 
-    return self.FpmcuCommand('fpframe', 'raw', encoding=None)
+  def GetFpframe(self, raw=True, max_attempt_count=3) -> Union[str, bytes]:
+
+    def _GetFpframeRetryCallback(num_retries: int, max_attempt_count: int):
+      logging.exception('Retrying fpframe (%d/%d) ...', num_retries + 1,
+                        max_attempt_count)
+
+    @sync_utils.RetryDecorator(max_attempt_count=max_attempt_count,
+                               retry_callback=_GetFpframeRetryCallback,
+                               interval_sec=0)
+    def _GetFpframe() -> Union[str, bytes]:
+      if raw:
+        return self.FpmcuCommand('fpframe', 'raw', encoding=None)
+
+      return self.FpmcuCommand('fpframe', encoding='utf-8')
+
+    return _GetFpframe()
