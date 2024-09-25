@@ -53,12 +53,14 @@ To test USBPD 45W plugged on usbpd port 0::
 """
 
 import numbers
+from typing import List, Optional
 
 from cros.factory.device import device_utils
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.i18n import _
 from cros.factory.test import session
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 
@@ -69,6 +71,17 @@ _AC_POWER_ID = 'ac_power'
 _AC_TYPE_USB_PD = 'USB_PD'
 
 
+class ACPowerTestArgs:
+  power_type: Optional[str]
+  usbpd_power_range: Optional[List[int]]
+  online: bool
+  bft_fixture_class_name: Optional[str]
+  bft_fixture_params: Optional[dict]
+  retries: Optional[int]
+  polling_period_secs: numbers.Real
+  silent_warning: int
+
+
 class ACPowerTest(test_case.TestCase):
   """A test to instruct the operator to plug/unplug AC power.
 
@@ -77,8 +90,10 @@ class ACPowerTest(test_case.TestCase):
     usbpd_power_range: The required usbpd power range (min, max). None to skip
         power range check.
     online: True if expecting AC power. Otherwise, False.
-    bft_fixture: If assigned, it commands the BFT fixture to
-        plug/unplug an AC adapter.
+    bft_fixture_class_name: Fully-qualified class name of the BFTFixture
+        implementation to use.
+    bft_fixture_params: A dictionary of parameters for the BFTFixture class's
+        `__init__` method.
     retries: Maximum number of retries allowed to pass the test.
     polling_period_secs: Polling period in seconds.
     silent_warning: Skips first N charger type mismatch before giving a
@@ -86,62 +101,55 @@ class ACPowerTest(test_case.TestCase):
   """
   related_components = tuple()
 
-
   ARGS = [
       Arg('power_type', str, 'Type of the power source', default=None),
       Arg('usbpd_power_range', list,
           'The required power usbpd power range [usbpd_port, min, max]',
           default=None),
       Arg('online', bool, 'True if expecting AC power', default=True),
-      Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP, default=None),
-      Arg('retries', int,
-          'Maximum number of retries allowed to pass the test. '
+      Arg(
+          'bft_fixture_class_name', str,
+          'Fully-qualified class name of the BFTFixture implementation to use.',
+          default=None),
+      Arg(
+          'bft_fixture_params', dict,
+          'A dictionary of parameters for the BFTFixture class `Init()` '
+          'method.', default=None),
+      Arg(
+          'retries', int, 'Maximum number of retries allowed to pass the test. '
           '0 means only probe once. Default None means probe forever.',
           default=None),
-      Arg('polling_period_secs', numbers.Real,
-          'Polling period in seconds.', default=1),
-      Arg('silent_warning', int,
+      Arg('polling_period_secs', numbers.Real, 'Polling period in seconds.',
+          default=1),
+      Arg(
+          'silent_warning', int,
           'Skips first N charger type mismatch before giving a warning. '
           'Because EC needs about 1.6 seconds to identify charger type after '
-          'it is plugged in, it skips first N mismatched probe.',
-          default=2),
+          'it is plugged in, it skips first N mismatched probe.', default=2),
   ]
+
+  args: ACPowerTestArgs
+  ui: test_ui.StandardUI
 
   def setUp(self):
     self._power = device_utils.CreateDUTInterface().power
-
-    # yapf: disable
-    if not self.args.online:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not self.args.online:
       instruction = _('Unplug the charger.')
-    # yapf: disable
-    elif self.args.power_type:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      instruction = _('Plug in the charger ({type})', type=self.args.power_type)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    elif self.args.power_type:
+      instruction = _('Plug in the charger ({type})', type=self.args.power_type)
     else:
       instruction = _('Plug in the charger')
 
-    # yapf: disable
-    self.ui.SetInstruction(instruction)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
-    # yapf: disable
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetInstruction(instruction)
+    self.ui.SetState(
         f'<div id="{_PROBE_TIMES_ID}"></div><div '
         f'id="{_AC_STATUS_ID}"></div><div id="{_AC_POWER_ID}"></div>')
 
     self._power_state = {}
     self._last_type = None
     self._last_ac_present = None
-    # yapf: disable
-    self._skip_warning_remains = self.args.silent_warning  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if self.args.usbpd_power_range is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self._skip_warning_remains = self.args.silent_warning
+    if self.args.usbpd_power_range is not None:
       testlog.UpdateParam(
           name='usbpd_power',
           description='Detected usbpd power.',
@@ -149,38 +157,24 @@ class ACPowerTest(test_case.TestCase):
 
     # Prepare fixture auto test if needed.
     self.fixture = None
-    # yapf: disable
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.bft_fixture_class_name:
+      self.fixture = bft_fixture.CreateBFTFixture(
+          self.args.bft_fixture_class_name, self.args.bft_fixture_params)
 
   def UpdateACPower(self, watt, min_watt, max_watt):
-    # yapf: disable
-    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        _('Detected power {watt} W, '
-          'required power range ({min_watt} W, {max_watt} W)',
-          watt=watt,
-          min_watt=min_watt,
-          max_watt=max_watt),
-        id=_AC_POWER_ID)
+    self.ui.SetHTML(
+        _(
+            'Detected power {watt} W, '
+            'required power range ({min_watt} W, {max_watt} W)', watt=watt,
+            min_watt=min_watt, max_watt=max_watt), id=_AC_POWER_ID)
 
   def UpdateACStatus(self, status):
-    # yapf: disable
-    self.ui.SetHTML(status, id=_AC_STATUS_ID)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetHTML(status, id=_AC_STATUS_ID)
 
   def UpdateProbeTimes(self, num_probes):
-    # yapf: disable
-    self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetHTML(
         _('Probed {times} / {total}', times=num_probes,
-          # yapf: disable
-          total=self.args.retries),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-        id=_PROBE_TIMES_ID)
+          total=self.args.retries), id=_PROBE_TIMES_ID)
 
   def CheckCondition(self):
     ac_present = self._power.CheckACPresent()
@@ -191,40 +185,28 @@ class ACPowerTest(test_case.TestCase):
     # mismatched charger attached.
     if self._last_ac_present != ac_present:
       self._last_ac_present = ac_present
-      # yapf: disable
-      self._skip_warning_remains = self.args.silent_warning  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self._skip_warning_remains = self.args.silent_warning
       self._last_type = None
 
-    # yapf: disable
-    if ac_present != self.args.online:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if ac_present != self.args.online:
       if not ac_present:
         self.UpdateACStatus(_('No AC adapter'))
       return False
 
-    # yapf: disable
-    if self.args.power_type and self.args.power_type != current_type:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.power_type and self.args.power_type != current_type:
       if self._skip_warning_remains > 0:
         self.UpdateACStatus(_('Identifying AC adapter...'))
         self._skip_warning_remains -= 1
       elif self._last_type != current_type:
         self.UpdateACStatus(_('AC adapter type: {type}', type=current_type))
-        session.console.warning(
-            # yapf: disable
-            'Expecting %s but see %s', self.args.power_type, current_type)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        session.console.warning('Expecting %s but see %s', self.args.power_type,
+                                current_type)
         self._last_type = current_type
       return False
 
-    # yapf: disable
-    if self.args.usbpd_power_range and self.args.power_type == _AC_TYPE_USB_PD:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.usbpd_power_range and self.args.power_type == _AC_TYPE_USB_PD:
       usbpd_power_infos = self._power.GetUSBPDPowerInfo()
-      # yapf: disable
-      port, power_min, power_max = self.args.usbpd_power_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      port, power_min, power_max = self.args.usbpd_power_range
       # USBPortInfo: (id, state, voltage (mV), current (mA))
       for info in usbpd_power_infos:
         if info.id != port:
@@ -244,24 +226,16 @@ class ACPowerTest(test_case.TestCase):
   def runTest(self):
     if self.fixture:
       self.fixture.SetDeviceEngaged(bft_fixture.BFTFixture.Device.AC_ADAPTER,
-                                    # yapf: disable
-                                    self.args.online)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                                    self.args.online)
     num_probes = 0
 
     while True:
-      # yapf: disable
-      if self.args.retries is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.retries is not None:
         self.UpdateProbeTimes(num_probes)
       if self.CheckCondition():
         break
       num_probes += 1
-      # yapf: disable
-      if self.args.retries is not None and num_probes > self.args.retries:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.retries is not None and num_probes > self.args.retries:
         self.FailTask(f'Failed after probing {int(num_probes)} times')
       # Prevent busy polling.
-      # yapf: disable
-      self.Sleep(self.args.polling_period_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.Sleep(self.args.polling_period_secs)
