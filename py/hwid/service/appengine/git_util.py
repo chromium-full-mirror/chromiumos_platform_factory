@@ -40,8 +40,6 @@ from cros.factory.utils import sync_utils
 
 # yapf: enable
 
-
-
 # Constants.
 HEAD = b'HEAD'
 DEFAULT_REMOTE_NAME = b'origin'
@@ -129,15 +127,14 @@ def _CreatePoolManager(cookie: str = '', content_type: str = '',
   Returns:
     A pool manager instance with proper configured header fields.
   """
-  pool_manager = urllib3.PoolManager(ca_certs=certifi.where())
-  for header_field, header_value in (
-      ('Cookie', cookie),
-      ('Content-Type', content_type),
-      ('Connection', 'keep-alive' if keep_alive else 'close'),
-  ):
-    if header_value:
-      pool_manager.headers[header_field] = header_value
-  return pool_manager
+  headers = {
+      'Connection': 'keep-alive' if keep_alive else 'close'
+  }
+  if cookie:
+    headers['Cookie'] = cookie
+  if content_type:
+    headers['Content-Type'] = content_type
+  return urllib3.PoolManager(ca_certs=certifi.where(), headers=headers)
 
 
 def _InvokeGerritAPI(
@@ -534,6 +531,7 @@ class MemoryRepo(dw_repo.MemoryRepo):
     except (KeyError, dw_errors.NotTreeError):
       return False
     return True
+
 
 def _GetChangeId(tree_id, parent_commit, author, committer, commit_msg):
   """Gets change id from information of commit.

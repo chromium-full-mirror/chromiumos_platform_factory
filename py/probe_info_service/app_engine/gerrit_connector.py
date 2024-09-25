@@ -22,7 +22,6 @@ from cros.factory.utils import json_utils
 # yapf: enable
 
 
-
 class GerritConnectorError(Exception):
   pass
 
@@ -165,10 +164,12 @@ class GerritConnectorHelper:
     Raises:
       GerritConnectorError if the HTTP response isn't ok.
     """
-    pool_manager = urllib3.PoolManager(ca_certs=certifi.where())
-    pool_manager.headers['Content-Type'] = 'application/json'
-    pool_manager.headers['Connection'] = 'close'
-    pool_manager.headers['Cookie'] = self.GetGerritAuthCookie()
+    pool_manager = urllib3.PoolManager(
+        ca_certs=certifi.where(), headers={
+            'Content-Type': 'application/json',
+            'Connection': 'close',
+            'Cookie': self.GetGerritAuthCookie(),
+        })
     try:
       response = pool_manager.urlopen(method, url)
     except urllib3.exceptions.HTTPError:
