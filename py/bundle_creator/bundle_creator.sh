@@ -177,7 +177,7 @@ build_docker_image() {
 upload_docker_image() {
   load_config_by_deployment_type "$1"
 
-  info "Push the docker image to Container Registry."
+  info "Push the docker image to Artifact Registry."
   gcloud --project="${GCLOUD_PROJECT}" docker -- push "${DOCKER_IMAGENAME}"
   gcloud --project="${GCLOUD_PROJECT}" compute project-info \
     add-metadata --metadata bundle-creator-docker="${DOCKER_IMAGENAME}"
