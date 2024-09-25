@@ -40,10 +40,15 @@ list:
 
 import logging
 import unittest
+from typing import List
 
 from cros.factory.device import device_utils
 from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
+
+
+class BatteryCommunicationArgs:
+  design_capacity_range: List[int]
 
 
 class BatteryCommunicationTest(unittest.TestCase):
@@ -51,22 +56,20 @@ class BatteryCommunicationTest(unittest.TestCase):
   related_components = (test_tags.TestCategory.BATTERY, )
   ARGS = [
       Arg('design_capacity_range', list,
-          'Expected battery design capacity range in mAh.',
+          'Expected battery design capacity range in mAh.  Ex: [1000, 10000]',
           default=[1000, 10000]),
   ]
+
+  args: BatteryCommunicationArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    # yapf: disable
-    lower, upper = self.args.design_capacity_range  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    lower, upper = self.args.design_capacity_range
     capacity = self.dut.power.GetBatteryDesignCapacity()
     logging.info('Get battery design capacity: %d', capacity)
     self.assertTrue(
         lower <= capacity <= upper,
-        # yapf: disable
-        f'Battery design capacity {int(capacity)} out of range: '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        f'Battery design capacity {int(capacity)} out of range: '
         f'{str(self.args.design_capacity_range)}')
