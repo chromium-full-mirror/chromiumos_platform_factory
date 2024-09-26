@@ -8,7 +8,6 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 . "${SCRIPT_DIR}/venv_common.sh" || exit 1
 
 : "${BASE_TOOLING_VENV:="${SCRIPT_DIR}/base-tooling.venv"}"
-: "${BASE_TOOLING_REQUIREMENTS:="${SCRIPT_DIR}/base-tooling.requirements.txt"}"
 
 main(){
   local requirements_in=$1

@@ -1,6 +1,8 @@
 # Virtual environments
 py/instalog/virtual_env/%
+devtools/mk/base-tooling.venv/%
 devtools/mk/coverage.venv/%
+devtools/mk/grpc_tool.venv/%
 devtools/mk/mypy.venv/%
 devtools/mk/pylint.venv/%
 devtools/mk/sphinx.venv/%

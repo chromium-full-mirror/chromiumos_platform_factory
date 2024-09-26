@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+: "${BASE_TOOLING_REQUIREMENTS:="${SCRIPT_DIR}/base-tooling.requirements.txt"}"
+
 remove_inconsist_venv() {
   local venv_path="$1"
   if [[ -d "${venv_path}" ]]; then
@@ -27,6 +29,16 @@ remove_inconsist_venv() {
   fi
 }
 
+hash_changed() {
+  local hash_path="$1"
+  local requirements="$2"
+  if ! [ -e "${hash_path}" ] || \
+     ! diff <(md5sum "${requirements}") "${hash_path}" ; then
+    return 0
+  fi
+  return 1
+}
+
 load_venv() {
   local venv_path="$1"
   local venv_requirements="$2"
@@ -38,14 +50,23 @@ load_venv() {
     # system-site-package: Include system site packages for packages like
     # "yaml", "mox".
     # copies: Copy the python so we can run python installed out of chroot.
-    python -m venv --system-site-package --copies "${venv_path}"
+    python -m venv --system-site-package --copies "${venv_path}" || return 1
   fi
 
   source "${venv_path}/bin/activate"
-
-  if ! [ -e "${venv_path}"/hash ] || \
-     ! diff <(md5sum "${venv_requirements}") "${venv_path}"/hash ; then
-    pip install --require-hashes --no-deps -r "${venv_requirements}" --quiet
+  if hash_changed "${venv_path}"/base_tooling_hash \
+     "${BASE_TOOLING_REQUIREMENTS}" ; then
+    pip install --require-hashes --no-deps -r \
+      "${BASE_TOOLING_REQUIREMENTS}" --quiet || return 1
+    md5sum "${BASE_TOOLING_REQUIREMENTS}" > "${venv_path}"/base_tooling_hash
+    pip install --require-hashes --no-deps -r \
+      "${venv_requirements}" --quiet || return 1
     md5sum "${venv_requirements}" > "${venv_path}"/hash
+  else
+    if hash_changed "${venv_path}"/hash "${venv_requirements}" ; then
+      pip install --require-hashes --no-deps -r \
+        "${venv_requirements}" --quiet || return 1
+      md5sum "${venv_requirements}" > "${venv_path}"/hash
+    fi
   fi
 }
