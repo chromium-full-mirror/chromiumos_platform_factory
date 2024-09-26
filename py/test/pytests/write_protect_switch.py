@@ -6,19 +6,26 @@
 
 import logging
 import re
+from typing import Tuple
 import unittest
 
 from cros.factory.device import device_utils
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 
+class WriteProtectSwitchArgs:
+  has_ectool: bool
+
+
 class WriteProtectSwitchTest(unittest.TestCase):
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+  """Tests that write-protect switch is on."""
+  related_components: Tuple[test_tags.TestCategory, ...] = ()
   ARGS = [
-      Arg('has_ectool', bool, 'Has ectool utility or not.', default=True)
+      Arg('has_ectool', bool, 'Has ectool utility or not.', default=True),
   ]
+
+  args: WriteProtectSwitchArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
@@ -28,18 +35,18 @@ class WriteProtectSwitchTest(unittest.TestCase):
         'If this device uses H1-controlled hardware write protection rather '
         'than write protect screw, then this pytest is not needed and is '
         'expected to fail.')
-    self.assertEqual(1, int(self.dut.CheckOutput(['crossystem', 'wpsw_cur'],
-                                                 log=True).strip()))
+    self.assertEqual(
+        1,
+        int(self.dut.CheckOutput(['crossystem', 'wpsw_cur'], log=True).strip()))
 
-    # yapf: disable
-    if self.args.has_ectool:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      ectool_flashprotect = self.dut.CheckOutput(
-          ['ectool', 'flashprotect'], log=True)
+    if self.args.has_ectool:
+      ectool_flashprotect = self.dut.CheckOutput(['ectool', 'flashprotect'],
+                                                 log=True)
 
       logging.info('ectool flashprotect:\n%s', ectool_flashprotect)
       # Multiline is important: we need to see wp_gpio_asserted on
       # the same line.
-      self.assertTrue(re.search('^Flash protect flags:.+wp_gpio_asserted',
-                                ectool_flashprotect, re.MULTILINE),
-                      'ectool flashprotect is missing wp_gpio_asserted')
+      self.assertTrue(
+          re.search('^Flash protect flags:.+wp_gpio_asserted',
+                    ectool_flashprotect, re.MULTILINE),
+          'ectool flashprotect is missing wp_gpio_asserted')
