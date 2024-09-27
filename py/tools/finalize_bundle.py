@@ -1771,6 +1771,27 @@ class FinalizeBundle:
         # yapf: disable
         output = self.gsutil.LS(url)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
+
+        # TODO(b/369830607): This is a temporary solution, remove the filter
+        #                    function after the issue is fixed.
+        def _RemoveUnexpectedUrls(urls: List[str]) -> List[str]:
+          unexpected_extensions = [
+              '.zip.zip',
+              '.tar.bz2.tar.bz2',
+              '.tar.xz.tar.xz',
+          ]
+          filtered_urls = []
+          for url in urls:
+            acceptable = True
+            for unexpected_extension in unexpected_extensions:
+              if url.endswith(unexpected_extension):
+                acceptable = False
+                break
+            if acceptable:
+              filtered_urls.append(url)
+          return filtered_urls
+
+        output = _RemoveUnexpectedUrls(output)
       except gsutil.NoSuchKey:
         continue
 
