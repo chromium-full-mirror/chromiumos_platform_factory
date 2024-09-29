@@ -38,23 +38,25 @@ import time
 import unittest
 
 from cros.factory.test import test_tags
-from cros.factory.utils import arg_utils
+from cros.factory.utils.arg_utils import Arg
+
+
+class UrandomTestArgs:
+  duration_secs: int
 
 
 class UrandomTest(unittest.TestCase):
   related_components = (test_tags.TestCategory.CPU, )
   ARGS = [
-      arg_utils.Arg('duration_secs', int, help='How long this test will take?'),
+      Arg('duration_secs', int, help='How long this test will take?'),
   ]
+  args: UrandomTestArgs
 
   def runTest(self):
-    # yapf: disable
-    duration_secs = self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    logging.info('Getting /dev/urandom for %d seconds', duration_secs)
+    logging.info('Getting /dev/urandom for %d seconds', self.args.duration_secs)
 
     with open('/dev/urandom', 'rb') as f:
-      end_time = time.time() + duration_secs
+      end_time = time.time() + self.args.duration_secs
       while time.time() <= end_time:
         data = f.read(1024 * 1024)
         self.assertTrue(data, '/dev/urandom returns nothing!')
