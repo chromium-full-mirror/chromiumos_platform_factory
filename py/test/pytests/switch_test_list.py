@@ -33,16 +33,19 @@ from cros.factory.test import test_case
 from cros.factory.utils.arg_utils import Arg
 
 
-class SwtichTestListTest(test_case.TestCase):
+class SwitchTestListArgs:
+  test_list_id: str
+
+
+class SwitchTestListTest(test_case.TestCase):
   related_components = tuple()
   ARGS = [
       Arg('test_list_id', str, 'An id of a test list needed to be switched.'),
   ]
+  args: SwitchTestListArgs
 
   def setUp(self):
     self.goofy = state.GetInstance()
 
   def runTest(self):
-    # yapf: disable
-    self.goofy.SwitchTestList(self.args.test_list_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.goofy.SwitchTestList(self.args.test_list_id)
