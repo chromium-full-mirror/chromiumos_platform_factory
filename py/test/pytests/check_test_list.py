@@ -33,11 +33,16 @@ from cros.factory.test import test_case
 from cros.factory.utils.arg_utils import Arg
 
 
+class CheckTestListArgs:
+  test_list_id: str
+
+
 class CheckTestListTest(test_case.TestCase):
   related_components = tuple()
   ARGS = [
       Arg('test_list_id', str, 'An id of a test list needed to be checked.'),
   ]
+  args: CheckTestListArgs
 
   def setUp(self):
     self.goofy = state.GetInstance()
@@ -45,7 +50,4 @@ class CheckTestListTest(test_case.TestCase):
   def runTest(self):
     test_list_ids = {list["id"]
                      for list in self.goofy.GetTestLists()}
-
-    # yapf: disable
-    self.assertIn(self.args.test_list_id, test_list_ids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertIn(self.args.test_list_id, test_list_ids)
