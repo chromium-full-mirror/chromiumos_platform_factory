@@ -31,22 +31,22 @@ To wait for 5 seconds, add this in test list::
 """
 
 import time
+from typing import Tuple, Union
 import unittest
 
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 
+class NopTestArgs:
+  wait_secs: Union[int, float]
+
+
 class NopTest(unittest.TestCase):
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-  ARGS = [
-      Arg('wait_secs', (int, float), 'Wait for N seconds.', default=0)]
+  related_components: Tuple[test_tags.TestCategory, ...] = ()
+  ARGS = [Arg('wait_secs', (int, float), 'Wait for N seconds.', default=0)]
+  args: NopTestArgs
 
   def runTest(self):
-    # yapf: disable
-    if self.args.wait_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      time.sleep(self.args.wait_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.wait_secs:
+      time.sleep(self.args.wait_secs)
