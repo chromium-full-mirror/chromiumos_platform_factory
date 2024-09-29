@@ -36,21 +36,21 @@ An example::
 from cros.factory.test.i18n import _
 from cros.factory.test.rf import cellular
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
+
+
+class CellularFirmwareSwitchingArgs:
+  target: str
 
 
 class CellularFirmwareSwitching(test_case.TestCase):
   related_components = (test_case.TestCategory.WWAN, )
-  ARGS = [
-      Arg('target', str, 'The firmware name to switch.')]
+  ARGS = [Arg('target', str, 'The firmware name to switch.')]
+  args: CellularFirmwareSwitchingArgs
+  ui: test_ui.StandardUI
 
   def runTest(self):
-    # yapf: disable
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        _('Switching firmware to {target!r}', target=self.args.target))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    cellular.SwitchModemFirmware(self.args.target)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(
+        _('Switching firmware to {target!r}', target=self.args.target))
+    cellular.SwitchModemFirmware(self.args.target)
