@@ -18,17 +18,15 @@ _SUBTESTS = (
 
 class KeyboardBacklightTest(test_case.TestCase):
   related_components = (test_case.TestCategory.KEYBOARD, )
+  ui: test_ui.StandardUI
+
   def setUp(self):
     for instruction, level in _SUBTESTS:
       self.AddTask(self.RunTask, instruction, level)
 
   def RunTask(self, instruction, level):
-    # yapf: disable
-    self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.ui.SetState([instruction, test_ui.FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.BindStandardKeys()
+    self.ui.SetState([instruction, test_ui.FAIL_KEY_LABEL])
     process_utils.Spawn(
         ['ectool', 'pwmsetkblight', level],
         ignore_stdout=True, log_stderr_on_error=True, check_call=True)
