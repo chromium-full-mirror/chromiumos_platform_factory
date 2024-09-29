@@ -42,6 +42,10 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 
 
+class ClearTPMOwnerRequestArgs:
+  only_check_clear_done: bool
+
+
 class ClearTPMOwnerRequest(unittest.TestCase):
   related_components = (
       test_tags.TestCategory.SECURE_ELEMENT,
@@ -50,11 +54,10 @@ class ClearTPMOwnerRequest(unittest.TestCase):
   ARGS = [
       Arg('only_check_clear_done', bool, 'Only check crossystem '
           'clear_tpm_owner_done=1', default=False)]
+  args: ClearTPMOwnerRequestArgs
 
   def runTest(self):
-    # yapf: disable
-    if self.args.only_check_clear_done:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.only_check_clear_done:
       self.assertEqual(
           process_utils.CheckOutput(['crossystem', 'clear_tpm_owner_done']),
           '1')
