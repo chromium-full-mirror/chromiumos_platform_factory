@@ -23,8 +23,11 @@ Examples
 NA.
 """
 
+from typing import Any, Dict
+
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import sync_utils
 
@@ -32,16 +35,24 @@ from cros.factory.utils import sync_utils
 _CHECK_INTERVAL_SECS = 0.2
 
 
+class WaitBFTReadyArgs:
+  class_name: str
+  params: Dict[str, Any]
+
+
 class WaitBFTReady(test_case.TestCase):
   related_components = tuple()
   ARGS = [
-      Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP),
+      Arg('class_name', str,
+          'Class name of the BFTFixture implementation to use.'),
+      Arg('params', dict,
+          'A dictionary of parameters for the BFTFixture class.'),
   ]
+  args: WaitBFTReadyArgs
+  ui: test_ui.StandardUI
 
   def runTest(self):
-    # yapf: disable
-    self.ui.SetState('Wait Fixture Ready...')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState('Wait Fixture Ready...')
 
     @sync_utils.RetryDecorator(
         interval_sec=_CHECK_INTERVAL_SECS,
@@ -49,8 +60,7 @@ class WaitBFTReady(test_case.TestCase):
     def _CreateBFTFixture():
       # The following line will setup the connect to BFT fixture, so if it can
       # be done without exception, the fixture should be ready.
-      # yapf: disable
-      bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      bft_fixture.CreateBFTFixture(class_name=self.args.class_name,
+                                   params=self.args.params)
 
     _CreateBFTFixture()
