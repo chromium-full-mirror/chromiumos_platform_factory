@@ -38,26 +38,30 @@ A test that always pass::
 """
 
 import logging
+from typing import Tuple
 import unittest
 
+from cros.factory.goofy.invocation import PytestInfo
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
+
+
+class ExecPythonTestArgs:
+  script: str
 
 
 class ExecPythonTest(unittest.TestCase):
   """A simple test that just executes a Python script."""
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-
+  related_components: Tuple[test_tags.TestCategory, ...] = tuple()
   ARGS = [
       Arg('script', str, 'Python code to execute'),
   ]
+  args: ExecPythonTestArgs
+  test_info: PytestInfo
 
   def runTest(self):
-    # yapf: disable
-    logging.info("Executing Python script: '''%s'''", self.args.script)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    exec(self.args.script, {'test_info': self.test_info}, {})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    logging.info("Executing Python script: '''%s'''", self.args.script)
+    exec(self.args.script, {
+        'test_info': self.test_info
+    }, {})
     logging.info('Script succeeded')
