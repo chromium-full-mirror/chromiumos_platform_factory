@@ -4,11 +4,21 @@
 
 """This is a factory test to check the brightness of LCD backlight or LEDs."""
 
+from typing import List, Union
+
 from cros.factory.device import device_utils
 from cros.factory.test.i18n import arg_utils as i18n_arg_utils
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
+
+
+class BrightnessTestArgs:
+  msg: str
+  timeout_secs: int
+  levels: List[Union[int, float]]
+  interval_secs: float
+
 
 
 class BrightnessTest(test_case.TestCase):
@@ -22,32 +32,23 @@ class BrightnessTest(test_case.TestCase):
           'Time for each brightness level in seconds.')
   ]
 
+  args: BrightnessTestArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.ui.BindStandardKeys()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.ui.SetState([self.args.msg, test_ui.PASS_FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.ToggleTemplateClass('font-large', True)
+    self.ui.BindStandardKeys()
+    self.ui.SetState([self.args.msg, test_ui.PASS_FAIL_KEY_LABEL])
 
   def runTest(self):
     """Starts an infinite loop to change brightness."""
-    # yapf: disable
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
 
     while True:
-      # yapf: disable
-      for level in self.args.levels:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      for level in self.args.levels:
         self._SetBrightnessLevel(level)
-        # yapf: disable
-        self.Sleep(self.args.interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.Sleep(self.args.interval_secs)
 
   def _SetBrightnessLevel(self, level):
     raise NotImplementedError

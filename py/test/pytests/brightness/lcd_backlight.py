@@ -32,12 +32,19 @@ An example:
 
 """
 
+from typing import List, Union
+
 from cros.factory.test.i18n import _
 from cros.factory.test.i18n import arg_utils as i18n_arg_utils
 from cros.factory.test.pytests.brightness import brightness
 from cros.factory.test import test_tags
 from cros.factory.utils import arg_utils
 from cros.factory.utils.arg_utils import Arg
+
+
+class LCDBacklightTestArgs(brightness.BrightnessTestArgs):
+  levels: List[Union[int, float]]
+  interval_secs: float
 
 
 class LCDBacklightTest(brightness.BrightnessTest):
@@ -55,13 +62,11 @@ class LCDBacklightTest(brightness.BrightnessTest):
               'Time for each brightness level in seconds.', default=0.5)
       ])
 
+  args: LCDBacklightTestArgs
+
   def setUp(self):
-    # yapf: disable
-    if self.args.levels is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.args.levels = [0.2, 0.4, 0.6, 0.8, 1.0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.levels is None:
+      self.args.levels = [0.2, 0.4, 0.6, 0.8, 1.0]
     super().setUp()
 
   def tearDown(self):

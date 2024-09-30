@@ -44,6 +44,12 @@ from cros.factory.utils.arg_utils import Arg
 LEDColor = led_module.LED.Color
 
 
+class LEDBrightnessTestArgs(brightness.BrightnessTestArgs):
+  led_name: str
+  color: str
+
+
+
 class LEDBrightnessTest(brightness.BrightnessTest):
   related_components = (test_tags.TestCategory.LED, )
 
@@ -51,16 +57,11 @@ class LEDBrightnessTest(brightness.BrightnessTest):
       Arg('led_name', str, 'The name of the LED to test.', default='battery'),
       Arg('color', str, 'The color to test.', default=LEDColor.WHITE)])
 
+  args: LEDBrightnessTestArgs
+
   def tearDown(self):
-    # yapf: disable
-    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.dut.led.SetColor(LEDColor.AUTO, led_name=self.args.led_name)
 
   def _SetBrightnessLevel(self, level):
-    # yapf: disable
-    self.dut.led.SetColor(self.args.color,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                          # yapf: enable
-                          # yapf: disable
-                          led_name=self.args.led_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                          # yapf: enable
+    self.dut.led.SetColor(self.args.color, led_name=self.args.led_name,
                           brightness=level)
