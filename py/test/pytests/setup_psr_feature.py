@@ -58,17 +58,20 @@ class EnumAction(str, enum.Enum):
     return self.name
 
 
+class PSRToolTestArgs:
+  action: EnumAction
+
+
 class PSRToolTest(test_case.TestCase):
   related_components = (test_case.TestCategory.PSR, )
   ARGS = [Arg('action', EnumAction, 'Which action to do.')]
+  args: PSRToolTestArgs
 
   def setUp(self):
     self._intel_psr_tool = intel_psrtool.IntelPSRTool()
 
   def runTest(self):
-    # yapf: disable
-    action = self.args.action  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    action = self.args.action
     if action == EnumAction.set:
       self._intel_psr_tool.CloseManufacturing()
       device_data.UpdateDeviceData({KEY_PSR_UPDATE_NEED_REBOOT: True})
