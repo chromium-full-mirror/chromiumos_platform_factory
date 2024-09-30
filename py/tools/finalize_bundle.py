@@ -1777,7 +1777,6 @@ class FinalizeBundle:
         def _RemoveUnexpectedUrls(urls: List[str]) -> List[str]:
           unexpected_extensions = [
               '.zip.zip',
-              '.tar.bz2.tar.bz2',
               '.tar.xz.tar.xz',
           ]
           filtered_urls = []
