@@ -69,6 +69,7 @@ KNOWN_RO_DATA_RE = {
     r'dsm_calib_r0_[0-9]+': r'[0-9]*',
     r'dsm_calib_temp_[0-9]+': r'[0-9]*',
     r'dsm_calib_value_[0-9]+': r'[0-9a-f]*',
+    r'dsm_calib_register_array': r'[0-9a-f]*',
     r'hdcp_key\w*': ANY,
 }
 
