@@ -65,6 +65,7 @@ import logging
 import os
 import re
 import sys
+from typing import TYPE_CHECKING, Literal, Mapping, Sequence, Tuple, cast
 
 from cros.factory.device import device_utils
 from cros.factory.test.env import paths
@@ -122,6 +123,9 @@ _IMAGE_DIR = 'images'
 _IMAGE_SIZE_RE = re.compile(r'Image: size (\d+)x(\d+).*', re.MULTILINE)
 
 
+_PixelMedianAttribute = Literal["cb_type1", "cb_type2", "icb_type", "icb_type2"]
+
+
 class FingerprintTest(test_case.TestCase):
   """Tests the fingerprint sensor."""
   related_components = (test_case.TestCategory.FINGERPRINT_SENSOR, )
@@ -167,6 +171,25 @@ class FingerprintTest(test_case.TestCase):
           'Set to True to ignore cros_fp waitevent timeout error. More details '
           'are described in FpmcuTryWaitEvent function.', default=False),
   ]
+
+  if TYPE_CHECKING:
+
+    class _Args:
+      max_dead_pixels: int
+      max_dead_detect_pixels: int
+      max_pixel_dev: int
+      pixel_median: Mapping[_PixelMedianAttribute, Tuple[int, int]]
+      detect_zones: Sequence[Tuple[int, int, int, int]]
+      min_snr: float
+      rubber_finger_present: bool
+      max_reset_pixel_dev: int
+      max_error_reset_pixels: int
+      fpframe_retry_count: int
+      number_of_manual_captures: int
+      timeout_secs: int
+      ignore_waitevent_timeout_error: bool
+
+    args: _Args
 
   # MKBP index for Fingerprint sensor event
   EC_MKBP_EVENT_FINGERPRINT = '5'
@@ -226,8 +249,7 @@ class FingerprintTest(test_case.TestCase):
 
   def IsDetectZone(self, x, y):
     for x1, y1, x2, y2 in self.args.detect_zones:
-      if (x in range(x1, x2 + 1) and
-          y in range(y1, y2 + 1)):
+      if (x in range(x1, x2 + 1) and y in range(y1, y2 + 1)):
         return True
     return False
 
@@ -310,26 +332,18 @@ class FingerprintTest(test_case.TestCase):
                                      max=self.args.max_dead_detect_pixels):
       raise type_utils.TestFailure('Too many dead pixels in detect zone')
     # Check specified pixel range constraints
-    t1 = f"{short_name}_type1"
-    testlog.UpdateParam(
-        name=t1,
-        description='Median Type-1 pixel value',
-        value_unit='8-bit grayscale')
+    t1 = cast(_PixelMedianAttribute, f"{short_name}_type1")
+    testlog.UpdateParam(name=t1, description='Median Type-1 pixel value',
+                        value_unit='8-bit grayscale')
     if t1 in self.args.pixel_median and not testlog.CheckNumericParam(
-        name=t1,
-        value=median1,
-        min=self.args.pixel_median[t1][0],
+        name=t1, value=median1, min=self.args.pixel_median[t1][0],
         max=self.args.pixel_median[t1][1]):
       raise type_utils.TestFailure('Out of range Type-1 pixels')
-    t2 = f"{short_name}_type2"
-    testlog.UpdateParam(
-        name=t2,
-        description='Median Type-2 pixel value',
-        value_unit='8-bit grayscale')
+    t2 = cast(_PixelMedianAttribute, f"{short_name}_type2")
+    testlog.UpdateParam(name=t2, description='Median Type-2 pixel value',
+                        value_unit='8-bit grayscale')
     if t2 in self.args.pixel_median and not testlog.CheckNumericParam(
-        name=t2,
-        value=median2,
-        min=self.args.pixel_median[t2][0],
+        name=t2, value=median2, min=self.args.pixel_median[t2][0],
         max=self.args.pixel_median[t2][1]):
       raise type_utils.TestFailure('Out of range Type-2 pixels')
 
@@ -393,10 +407,9 @@ class FingerprintTest(test_case.TestCase):
         name='error_reset_pixel',
         description='Number of error reset pixels',
         value_unit='pixels')
-    if not testlog.CheckNumericParam(
-        name='error_reset_pixel',
-        value=error_count,
-        max=self.args.max_error_reset_pixels):
+    if not testlog.CheckNumericParam(name='error_reset_pixel',
+                                     value=error_count,
+                                     max=self.args.max_error_reset_pixels):
       raise type_utils.TestFailure('Too many error reset pixels')
 
   def _ShowFingerprint(self, frame: bytes, filename_prefix: str):
@@ -496,8 +509,8 @@ class FingerprintTest(test_case.TestCase):
           raise type_utils.TestFailure(f'MQT failed with error {int(rc)}')
         testlog.UpdateParam(
             name='mqt_snr', description='Image signal-to-noise ratio')
-        if not testlog.CheckNumericParam(
-            name='mqt_snr', value=snr, min=self.args.min_snr):
+        if not testlog.CheckNumericParam(name='mqt_snr', value=snr,
+                                         min=self.args.min_snr):
           raise type_utils.TestFailure('Bad quality image')
       elif self.args.min_snr > 0.0:
         raise type_utils.TestFailure('No image quality library available')
