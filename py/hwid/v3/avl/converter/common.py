@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from typing import Iterable, Mapping, Optional, Type
+from typing import Iterable, List, Mapping, Optional, Sequence, Type
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl import matcher
@@ -16,14 +16,99 @@ class NopSuggester(matcher.ISuggester):
   TODO(chungsheng): Implement some real suggesters when we need them.
   """
 
-  def BuildSuggestion(self, suggestion):
+  def BuildSuggestion(
+      self, suggestion: runtime_probe_matchers.ProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
     return []
+
+
+class AVLAttributeSuggesterBase(matcher.ISuggester):
+
+  def __init__(self, key: str, runtime_probe_key: str):
+    self._key = key
+    self._runtime_probe_key = runtime_probe_key
+
+  def _HandleOrSuggestion(
+      self, suggestion: runtime_probe_matchers.OrProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
+    raise NotImplementedError
+
+  def BuildSuggestion(
+      self, suggestion: runtime_probe_matchers.ProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
+    suggestions = []
+    if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
+      if suggestion.field_name == self._runtime_probe_key:
+        suggestions.append(
+            matcher.ProbeInfoSuggestion(
+                self._key, str(suggestion.got),
+                f'Expected AVL attribute {self._key!r}='
+                f'{str(suggestion.expected)!r}, but got '
+                f'{str(suggestion.got)!r}.'))
+    elif isinstance(suggestion, runtime_probe_matchers.AndProbeInfoSuggestion):
+      for s in suggestion.suggestions:
+        suggestions.extend(self.BuildSuggestion(s))
+    elif isinstance(suggestion, runtime_probe_matchers.OrProbeInfoSuggestion):
+      suggestions.extend(self._HandleOrSuggestion(suggestion))
+    return suggestions
+
+
+class SingleValueAVLAttributeSuggester(AVLAttributeSuggesterBase):
+  """Suggester for single value AVL attributes"""
+
+  def _HandleOrSuggestion(
+      self, suggestion: runtime_probe_matchers.OrProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
+    return self.BuildSuggestion(suggestion.suggestions[0])
+
+
+class MultiValueAVLAttributeSuggester(AVLAttributeSuggesterBase):
+  """Suggester for multi value AVL attributes"""
+
+  def _HandleOrSuggestion(
+      self, suggestion: runtime_probe_matchers.OrProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
+    filtered_suggestions: Sequence[
+        runtime_probe_matchers.FieldProbeInfoSuggestion] = [
+            s for s in suggestion.suggestions
+            if (isinstance(s, runtime_probe_matchers.FieldProbeInfoSuggestion)
+                and s.field_name == self._runtime_probe_key)
+        ]
+
+    expected = sorted({str(s.expected)
+                       for s in filtered_suggestions})
+    probe_values = {s.got
+                    for s in filtered_suggestions}
+
+    assert len(probe_values) == 1
+    probe_value = str(next(iter(probe_values)))
+
+    return [
+        matcher.ProbeInfoSuggestion(
+            self._key, probe_value,
+            f'Expected AVL attribute {self._key!r} equal to one of '
+            f'{expected!r}, but got {probe_value!r}.')
+    ]
+
+
+class JoinedAVLAttributeSuggester(matcher.ISuggester):
+
+  def __init__(self, suggesters: Sequence[matcher.ISuggester]):
+    self._suggesters = suggesters
+
+  def BuildSuggestion(self, suggestion):
+    suggestions: List[matcher.ProbeInfoSuggestion] = []
+    for suggester in self._suggesters:
+      suggestions.extend(suggester.BuildSuggestion(suggestion))
+    return suggestions
 
 
 def GetFieldConverter(
     probe_info: v3_rule.AVLProbeInfo, key: str,
     matcher_type: Type[runtime_probe_matchers.FieldMatcher],
-    runtime_probe_key_mapping: Optional[Mapping[str, str]] = None
+    runtime_probe_key_mapping: Optional[Mapping[str, str]] = None,
+    suggester_type: Type[
+        AVLAttributeSuggesterBase] = SingleValueAVLAttributeSuggester
 ) -> builder.IProbeInfoConverterBuildResult:
   """A general field converter.
 
@@ -35,6 +120,7 @@ def GetFieldConverter(
     matcher_type: A runtime probe FieldMatcher.
     runtime_probe_key_mapping: If contains `key`, it will be used as the runtime
                                probe matcher field name.
+    suggester_type: Type of the suggester
   """
   values = probe_info.params.get(key)
   if not values:
@@ -55,9 +141,10 @@ def GetFieldConverter(
         runtime_probe_matchers.StringEqualMatcher(runtime_probe_key, v))
 
   assert len(matchers) == len(values)
+  suggester = suggester_type(key, runtime_probe_key)
   if len(matchers) == 1:
-    return (matchers[0], NopSuggester())
-  return (runtime_probe_matchers.OrMatcher(matchers), NopSuggester())
+    return (matchers[0], suggester)
+  return (runtime_probe_matchers.OrMatcher(matchers), suggester)
 
 
 def JoinFieldConverters(
@@ -75,6 +162,7 @@ def JoinFieldConverters(
     matchers.append(c[0])
     suggesters.append(c[1])
   assert len(matchers) >= 1
+  suggester = JoinedAVLAttributeSuggester(suggesters)
   if len(matchers) == 1:
-    return (matchers[0], NopSuggester())
-  return (runtime_probe_matchers.AndMatcher(matchers), NopSuggester())
+    return (matchers[0], suggester)
+  return (runtime_probe_matchers.AndMatcher(matchers), suggester)

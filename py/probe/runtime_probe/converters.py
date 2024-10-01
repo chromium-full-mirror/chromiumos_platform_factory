@@ -68,6 +68,9 @@ class ConvertedHex:
   """A helper type to distinguish with normal str."""
   value: str
 
+  def __str__(self):
+    return self.value
+
 
 class HexConverter(IConverter[ConvertedHex]):
   """Converts hex strings to consistent format.
@@ -92,6 +95,9 @@ class HexConverter(IConverter[ConvertedHex]):
 class ConvertedRE:
   """A helper type to distinguish with normal str."""
   value: str
+
+  def __str__(self):
+    return self.value
 
 
 class REConverter(IConverter[ConvertedRE]):

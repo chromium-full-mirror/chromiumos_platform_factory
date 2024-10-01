@@ -8,6 +8,7 @@ import unittest
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl.converter import common
+from cros.factory.hwid.v3.avl import matcher
 from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
 
@@ -18,6 +19,53 @@ def _CreateProbeInfo(params):
 
 
 class CommonTest(unittest.TestCase):
+
+  def testSingleValueAVLAttributeSuggester(self):
+    suggester = common.SingleValueAVLAttributeSuggester('attr1', 'key1')
+    suggestions = suggester.BuildSuggestion(
+        runtime_probe_matchers.FieldProbeInfoSuggestion[str]('key1', 'value1',
+                                                             'value2'))
+    self.assertCountEqual(suggestions, [
+        matcher.ProbeInfoSuggestion(
+            'attr1', 'value2',
+            "Expected AVL attribute 'attr1'='value1', but got 'value2'.")
+    ])
+
+  def testMultiValueAVLAttributeSuggester(self):
+    suggester = common.MultiValueAVLAttributeSuggester('attr1', 'key1')
+    suggestions = suggester.BuildSuggestion(
+        runtime_probe_matchers.OrProbeInfoSuggestion([
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key1', 'value1', 'value3'),
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key1', 'value2', 'value3')
+        ]))
+    self.assertCountEqual(suggestions, [
+        matcher.ProbeInfoSuggestion(
+            'attr1', 'value3', "Expected AVL attribute 'attr1' equal to one of "
+            "['value1', 'value2'], but got 'value3'.")
+    ])
+
+  def testJoinedAVLAttributeSuggester(self):
+    suggester = common.JoinedAVLAttributeSuggester([
+        common.SingleValueAVLAttributeSuggester('attr1', 'key1'),
+        common.SingleValueAVLAttributeSuggester('attr2', 'key2')
+    ])
+    suggestions = suggester.BuildSuggestion(
+        runtime_probe_matchers.AndProbeInfoSuggestion([
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key1', 'value1', 'value3'),
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key2', 'value2', 'value3')
+        ]))
+    self.assertCountEqual(suggestions, [
+        matcher.ProbeInfoSuggestion(
+            'attr1', 'value3',
+            "Expected AVL attribute 'attr1'='value1', but got 'value3'."),
+        matcher.ProbeInfoSuggestion(
+            'attr2', 'value3',
+            "Expected AVL attribute 'attr2'='value2', but got 'value3'.")
+    ])
 
   def testGetFieldConverter(self):
     with builder.BuilderErrorLogger('') as logs:

@@ -14,8 +14,9 @@ class AuidoCodecFullLengthMatch(builder.IProbeInfoConverter):
   def Build(
       self, probe_info: v3_rule.AVLProbeInfo
   ) -> builder.IProbeInfoConverterBuildResult:
-    return common.GetFieldConverter(probe_info, 'name',
-                                    runtime_probe_matchers.StringEqualMatcher)
+    return common.GetFieldConverter(
+        probe_info, 'name', runtime_probe_matchers.StringEqualMatcher,
+        suggester_type=common.MultiValueAVLAttributeSuggester)
 
 
 def GetConverterSet() -> builder.ConverterSet:
