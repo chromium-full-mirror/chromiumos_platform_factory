@@ -74,6 +74,7 @@ import logging
 import os
 import re
 import sys
+from typing import TYPE_CHECKING, Literal, Mapping, Sequence, Tuple, cast
 
 from cros.factory.device import device_utils
 from cros.factory.test.env import paths
@@ -134,6 +135,9 @@ _IMAGE_DIR = 'images'
 _IMAGE_SIZE_RE = re.compile(r'Image: size (\d+)x(\d+).*', re.MULTILINE)
 
 
+_PixelMedianAttribute = Literal["cb_type1", "cb_type2", "icb_type", "icb_type2"]
+
+
 class FingerprintTest(test_case.TestCase):
   """Tests the fingerprint sensor."""
   related_components = (test_case.TestCategory.FINGERPRINT_SENSOR, )
@@ -179,6 +183,25 @@ class FingerprintTest(test_case.TestCase):
           'Set to True to ignore cros_fp waitevent timeout error. More details '
           'are described in FpmcuTryWaitEvent function.', default=False),
   ]
+
+  if TYPE_CHECKING:
+
+    class _Args:
+      max_dead_pixels: int
+      max_dead_detect_pixels: int
+      max_pixel_dev: int
+      pixel_median: Mapping[_PixelMedianAttribute, Tuple[int, int]]
+      detect_zones: Sequence[Tuple[int, int, int, int]]
+      min_snr: float
+      rubber_finger_present: bool
+      max_reset_pixel_dev: int
+      max_error_reset_pixels: int
+      fpframe_retry_count: int
+      number_of_manual_captures: int
+      timeout_secs: int
+      ignore_waitevent_timeout_error: bool
+
+    args: _Args
 
   # MKBP index for Fingerprint sensor event
   EC_MKBP_EVENT_FINGERPRINT = '5'
@@ -246,11 +269,8 @@ class FingerprintTest(test_case.TestCase):
     return _GetFpFrame()
 
   def IsDetectZone(self, x, y):
-    # yapf: disable
-    for x1, y1, x2, y2 in self.args.detect_zones:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      if (x in range(x1, x2 + 1) and
-          y in range(y1, y2 + 1)):
+    for x1, y1, x2, y2 in self.args.detect_zones:
+      if (x in range(x1, x2 + 1) and y in range(y1, y2 + 1)):
         return True
     return False
 
@@ -312,9 +332,7 @@ class FingerprintTest(test_case.TestCase):
     dead_count = 0
     dead_detect_count = 0
     for d, x, y in all_dev:
-      # yapf: disable
-      if d > self.args.max_pixel_dev:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if d > self.args.max_pixel_dev:
         dead_count += 1
         if self.IsDetectZone(x, y):
           dead_detect_count += 1
@@ -331,49 +349,29 @@ class FingerprintTest(test_case.TestCase):
                         value_unit='pixels')
     if not testlog.CheckNumericParam(name=f'dead_pixels_{short_name}',
                                      value=dead_count,
-                                     # yapf: disable
-                                     max=self.args.max_dead_pixels):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                                     max=self.args.max_dead_pixels):
       raise type_utils.TestFailure('Too many dead pixels')
     testlog.UpdateParam(name=f'dead_detect_pixels_{short_name}',
                         description='Dead pixels in detect zone',
                         value_unit='pixels')
     if not testlog.CheckNumericParam(name=f'dead_detect_pixels_{short_name}',
                                      value=dead_detect_count,
-                                     # yapf: disable
-                                     max=self.args.max_dead_detect_pixels):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                                     max=self.args.max_dead_detect_pixels):
       raise type_utils.TestFailure('Too many dead pixels in detect zone')
     # Check specified pixel range constraints
-    t1 = f"{short_name}_type1"
+    t1 = cast(_PixelMedianAttribute, f"{short_name}_type1")
     testlog.UpdateParam(name=t1, description='Median Type-1 pixel value',
                         value_unit='8-bit grayscale')
-    # yapf: disable
-    if t1 in self.args.pixel_median and not testlog.CheckNumericParam(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        name=t1,
-        value=median1,
-        # yapf: disable
-        min=self.args.pixel_median[t1][0],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        max=self.args.pixel_median[t1][1]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if t1 in self.args.pixel_median and not testlog.CheckNumericParam(
+        name=t1, value=median1, min=self.args.pixel_median[t1][0],
+        max=self.args.pixel_median[t1][1]):
       raise type_utils.TestFailure('Out of range Type-1 pixels')
-    t2 = f"{short_name}_type2"
+    t2 = cast(_PixelMedianAttribute, f"{short_name}_type2")
     testlog.UpdateParam(name=t2, description='Median Type-2 pixel value',
                         value_unit='8-bit grayscale')
-    # yapf: disable
-    if t2 in self.args.pixel_median and not testlog.CheckNumericParam(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        name=t2,
-        value=median2,
-        # yapf: disable
-        min=self.args.pixel_median[t2][0],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        max=self.args.pixel_median[t2][1]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if t2 in self.args.pixel_median and not testlog.CheckNumericParam(
+        name=t2, value=median2, min=self.args.pixel_median[t2][0],
+        max=self.args.pixel_median[t2][1]):
       raise type_utils.TestFailure('Out of range Type-2 pixels')
 
   def CalculateMedianAndDevPerColumns(self, matrix):
@@ -434,9 +432,7 @@ class FingerprintTest(test_case.TestCase):
     # yapf: enable
     for col in devs:
       for d, _, _ in col:
-        # yapf: disable
-        if d > self.args.max_reset_pixel_dev:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if d > self.args.max_reset_pixel_dev:
           error_count += 1
 
     # Log everything first for debugging
@@ -448,12 +444,9 @@ class FingerprintTest(test_case.TestCase):
         name='error_reset_pixel',
         description='Number of error reset pixels',
         value_unit='pixels')
-    if not testlog.CheckNumericParam(
-        name='error_reset_pixel',
-        value=error_count,
-        # yapf: disable
-        max=self.args.max_error_reset_pixels):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not testlog.CheckNumericParam(name='error_reset_pixel',
+                                     value=error_count,
+                                     max=self.args.max_error_reset_pixels):
       raise type_utils.TestFailure('Too many error reset pixels')
 
   def _ShowFingerprint(self, frame: bytes, filename_prefix: str):
@@ -543,19 +536,13 @@ class FingerprintTest(test_case.TestCase):
     self.CheckerboardTest(inverted=True)
     self.ResetPixelTest()
 
-    # yapf: disable
-    if self.args.number_of_manual_captures:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.number_of_manual_captures:
       if libfputils:
-        # yapf: disable
-        self._ManualTest(self.args.number_of_manual_captures)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self._ManualTest(self.args.number_of_manual_captures)
       else:
         raise type_utils.TestFailure('libfputils is not available')
 
-    # yapf: disable
-    if self.args.rubber_finger_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.rubber_finger_present:
       # yapf: disable
       self.ui.SetTitle(_('Fingerprint MQT Test'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
@@ -566,9 +553,7 @@ class FingerprintTest(test_case.TestCase):
       self._fpmcu.FpmcuCommand('fpmode', 'capture', 'qual')
       # wait for the end of capture (or timeout)
       self.FpmcuTryWaitEvent(self.EC_MKBP_EVENT_FINGERPRINT,
-                             # yapf: disable
-                             str(self.args.timeout_secs * 1000))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                             str(self.args.timeout_secs * 1000))
       img = self.FpmcuGetFpframe('raw', encoding=None)
       # record the raw image file for quality evaluation
       testlog.AttachContent(
@@ -583,12 +568,8 @@ class FingerprintTest(test_case.TestCase):
           raise type_utils.TestFailure(f'MQT failed with error {int(rc)}')
         testlog.UpdateParam(
             name='mqt_snr', description='Image signal-to-noise ratio')
-        if not testlog.CheckNumericParam(
-            # yapf: disable
-            name='mqt_snr', value=snr, min=self.args.min_snr):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if not testlog.CheckNumericParam(name='mqt_snr', value=snr,
+                                         min=self.args.min_snr):
           raise type_utils.TestFailure('Bad quality image')
-      # yapf: disable
-      elif self.args.min_snr > 0.0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      elif self.args.min_snr > 0.0:
         raise type_utils.TestFailure('No image quality library available')
