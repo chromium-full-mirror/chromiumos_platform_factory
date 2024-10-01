@@ -86,7 +86,6 @@ from cros.factory.test import ui_templates
 from cros.factory.test.utils import fpmcu_utils
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
-from cros.factory.utils import schema
 from cros.factory.utils import type_utils
 
 from cros.factory.external.py_lib import numpy
@@ -103,33 +102,7 @@ try:
 except ImportError:
   libfputils = None
 
-_ARG_SENSOR_HWID_SCHEMA = schema.JSONSchemaDict(
-    'sensor hwid schema object',
-    {
-        'anyOf': [
-            {
-                'type': ['integer', 'null']
-            },
-            {
-                'type': 'array',
-                'items': {
-                    'anyOf': [
-                        {
-                            'type': 'integer'
-                        },
-                        {
-                            'type': 'array',
-                            'items': {
-                                'type': 'integer'
-                            },
-                            'minItems': 2,
-                            'maxItems': 2
-                        }
-                    ]
-                }
-            }
-        ]
-    })
+
 _IMAGE_DIR = 'images'
 _IMAGE_SIZE_RE = re.compile(r'Image: size (\d+)x(\d+).*', re.MULTILINE)
 
@@ -181,10 +154,6 @@ class FingerprintTest(test_case.TestCase):
            'then the operator must manually judge pass or fail.'), default=0),
       Arg('manual_test_timeout_secs', float,
           'The timeout of captures in seconds.', default=5.0),
-      Arg(
-          'ignore_waitevent_timeout_error', bool,
-          'Set to True to ignore cros_fp waitevent timeout error. More details '
-          'are described in FpmcuTryWaitEvent function.', default=False),
   ]
 
   if TYPE_CHECKING:
@@ -202,7 +171,6 @@ class FingerprintTest(test_case.TestCase):
       fpframe_retry_count: int
       number_of_manual_captures: int
       manual_test_timeout_secs: float
-      ignore_waitevent_timeout_error: bool
 
     args: _Args
 
