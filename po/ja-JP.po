@@ -263,6 +263,10 @@ msgid "Fingerprint Mcu"
 msgstr "指紋MCU"
 
 #: ../build/pytests_label_generated.json
+msgid "Fingerprint Sensor Elan"
+msgstr "指紋センサーテスト"
+
+#: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
 msgstr "ネットブートのフラッシュ"
 
@@ -2205,6 +2209,32 @@ msgstr "指紋センサーに触れてください"
 #: ../py/test/pytests/fingerprint_mcu.py
 msgid "Fingerprint MQT Test"
 msgstr "Fingerprint MQTテスト"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Please don't touch the fingerprint sensor."
+msgstr "指紋センサーに触れないでください。"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running base test. Please don't touch the sensor."
+msgstr "ベーステストを実行しています。センサーに触れないでください。"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running sensor test. Please don't touch the sensor."
+msgstr "センサーテストを実行しています。センサーに触れないでください。"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running reset test. Please don't touch the sensor."
+msgstr "リセットテストを実行しています。センサーに触れないでください。"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Touch the fingerprint sensor, then lift your finger."
+msgstr "指紋センサーに触れてから、指を離します。"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Detected touch. Now running WOE test. Don't touch the sensor."
+msgstr ""
+"タッチを検出しました。現在 WOE テストを実行しています。センサーに触れないでく"
+"ださい。"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""
