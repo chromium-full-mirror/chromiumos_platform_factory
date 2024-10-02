@@ -507,6 +507,21 @@ class HexEncodedStrValueFormatter(converter_types.IStrFormatter):
           'Unable to decode the byte string.') from ex
 
 
+class HexDecodedStrValueFormatter(converter_types.IStrFormatter):
+
+  def __init__(self, target_has_prefix: bool, encoding: str):
+    super().__init__()
+    self._target_prefix = '0x' if target_has_prefix else ''
+    self._encoding = encoding
+
+  def __call__(self, value: str) -> str:
+    try:
+      return self._target_prefix + value.encode(encoding=self._encoding).hex()
+    except UnicodeEncodeError as ex:
+      raise converter_types.StrFormatterError(
+          'Unable to encode the string.') from ex
+
+
 def MakeFixedWidthHexValueFactory(
     width: int, source_has_prefix: bool = False, target_has_prefix: bool = True
 ) -> Callable[..., converter_types.FormattedStrType]:
@@ -534,3 +549,10 @@ def MakeHexEncodedStrValueFactory(
   return converter_types.FormattedStrType.CreateInstanceFactory(
       formatter_self=HexEncodedStrValueFormatter(source_has_prefix, encoding,
                                                  fixed_num_bytes))
+
+
+def MakeHexDecodedStrValueFactory(
+    source_has_prefix: bool = False,
+    encoding: str = 'ascii') -> Callable[..., converter_types.FormattedStrType]:
+  return converter_types.FormattedStrType.CreateInstanceFactory(
+      formatter_self=HexDecodedStrValueFormatter(source_has_prefix, encoding))

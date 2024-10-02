@@ -690,6 +690,22 @@ class HexEncodedStrValueFormatterTest(unittest.TestCase):
     self.assertEqual(value_factory('610063'), 'a\0c')
 
 
+class HexDecodedStrValueFormatterTest(unittest.TestCase):
+
+  def testWithPrefix(self):
+    value_factory = converter.MakeHexDecodedStrValueFactory(
+        source_has_prefix=True)
+
+    self.assertEqual(value_factory('abc'), '0x616263')
+    self.assertEqual(value_factory('a\0c'), '0x610063')
+
+  def testWithoutPrefix(self):
+    value_factory = converter.MakeHexDecodedStrValueFactory()
+
+    self.assertEqual(value_factory('abc'), '616263')
+    self.assertEqual(value_factory('a\0c'), '610063')
+
+
 class ConverterManagerTest(unittest.TestCase):
 
   def testLinkAVL_TryAllComponents(self):
