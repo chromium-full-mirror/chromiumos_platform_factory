@@ -504,6 +504,13 @@
     "LidSwitch": {
       "pytest_name": "lid_switch"
     },
+    "LoadECButtonDriver": {
+      "pytest_name": "exec_shell",
+      "label": "Load EC Button Driver",
+      "args": {
+        "commands": "sleep 3 && echo GOOG0007:00 > /sys/bus/platform/drivers/cros-ec-keyb/bind || true"
+      }
+    },
     "Message": {
       "pytest_name": "message",
       "allow_reboot": true
@@ -573,13 +580,7 @@
     "RecoveryButtonGroup": {
       "label": "Recovery Button Group",
       "subtests": [
-        {
-          "pytest_name": "exec_shell",
-          "label": "Unload Driver",
-          "args": {
-            "commands": "echo GOOG0007:00 > /sys/bus/platform/drivers/cros-ec-keyb/unbind || true"
-          }
-        },
+        "UnloadECButtonDriver",
         {
           "inherit": "Button",
           "label": "Recovery Button",
@@ -588,13 +589,7 @@
             "button_name": "i18n! Recovery Button"
           }
         },
-        {
-          "pytest_name": "exec_shell",
-          "label": "Load Driver",
-          "args": {
-            "commands": "sleep 3 && echo GOOG0007:00 > /sys/bus/platform/drivers/cros-ec-keyb/bind || true"
-          }
-        }
+        "LoadECButtonDriver"
       ]
     },
     "RemovableStorage": {
@@ -911,6 +906,13 @@
     },
     "USBTypeCTest": {
       "inherit": "USBTypeCManualTest"
+    },
+    "UnloadECButtonDriver": {
+      "pytest_name": "exec_shell",
+      "label": "Unload EC Button Driver",
+      "args": {
+        "commands": "echo GOOG0007:00 > /sys/bus/platform/drivers/cros-ec-keyb/unbind || true"
+      }
     },
     "UpdateCBI": {
       "pytest_name": "update_cbi",

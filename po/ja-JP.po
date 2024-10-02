@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-09-24 01:29+UTC\n"
+"PO-Revision-Date: 2024-10-02 11:11+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3798,6 +3798,10 @@ msgid "Idle"
 msgstr "アイドル"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Load EC Button Driver"
+msgstr ""
+
+#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
 msgstr "モデルと SKU"
 
@@ -3818,16 +3822,8 @@ msgid "Probe Hardware"
 msgstr "ハードウェアのプローブ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Unload Driver"
-msgstr "ドライバーのアンロード"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button"
 msgstr "リカバリボタン"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Load Driver"
-msgstr "ドライバーのロード"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button Group"
@@ -3920,6 +3916,10 @@ msgstr "右USB TypeC"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Right USB TypeC"
 msgstr "右USB TypeC手動テスト"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Unload EC Button Driver"
+msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-09-24 01:29+UTC\n"
+"PO-Revision-Date: 2024-10-02 11:11+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -3732,6 +3732,10 @@ msgid "Idle"
 msgstr "ไม่ได้ใช้งาน"
 
 #: ../py/test/test_lists/generic_common.test_list.json
+msgid "Load EC Button Driver"
+msgstr ""
+
+#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Model and SKU"
 msgstr "รุ่นและ SKU"
 
@@ -3752,16 +3756,8 @@ msgid "Probe Hardware"
 msgstr "ฮาร์ดแวร์โพรบ"
 
 #: ../py/test/test_lists/generic_common.test_list.json
-msgid "Unload Driver"
-msgstr "ยกเลิกการขับขี่"
-
-#: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button"
 msgstr "ปุ่มกู้คืน"
-
-#: ../py/test/test_lists/generic_common.test_list.json
-msgid "Load Driver"
-msgstr "โหลดไดรเวอร์"
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Recovery Button Group"
@@ -3854,6 +3850,10 @@ msgstr "USB TypeC ด้านขวา"
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Manual Test Right USB TypeC"
 msgstr "ทดสอบแบบมือ USB TypeC ด้านขวาแบบแมนนวล"
+
+#: ../py/test/test_lists/generic_common.test_list.json
+msgid "Unload EC Button Driver"
+msgstr ""
 
 #: ../py/test/test_lists/generic_common.test_list.json
 msgid "Update CBI"
