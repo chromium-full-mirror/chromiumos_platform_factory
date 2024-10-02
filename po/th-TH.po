@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 15:19+UTC\n"
+"PO-Revision-Date: 2024-11-07 15:38+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -252,6 +252,10 @@ msgstr "เสร็จสิ้น"
 #: ../build/pytests_label_generated.json
 msgid "Fingerprint Mcu"
 msgstr "ไมโครคอนโทรลเลอร์ลายนิ้วมือ"
+
+#: ../build/pytests_label_generated.json
+msgid "Fingerprint Sensor Elan"
+msgstr "การทดสอบเซ็นเซอร์ลายนิ้วมือ"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -2163,6 +2167,30 @@ msgstr "เซ็นเซอร์ลายนิ้วมือแบบสั
 #: ../py/test/pytests/fingerprint_mcu.py
 msgid "Fingerprint MQT Test"
 msgstr "การทดสอบ MQT ลายนิ้วมือ"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Please don't touch the fingerprint sensor."
+msgstr "โปรดอย่าสัมผัสเซ็นเซอร์ลายนิ้วมือ"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running base test. Please don't touch the sensor."
+msgstr ""
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running sensor test. Please don't touch the sensor."
+msgstr ""
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Running reset test. Please don't touch the sensor."
+msgstr ""
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Touch the fingerprint sensor, then lift your finger."
+msgstr "เซ็นเซอร์ลายนิ้วมือแบบสัมผัส"
+
+#: ../py/test/pytests/fingerprint_sensor_elan.py
+msgid "Detected touch. Now running WOE test. Don't touch the sensor."
+msgstr "ตรวจพบการสัมผัส กำลังทดสอบ WOE อย่าสัมผัสเซ็นเซอร์"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""
