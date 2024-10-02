@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 import typing
-from typing import Optional, Sequence
+from typing import Sequence
 import unittest
 
 from google.protobuf import text_format
@@ -26,13 +26,12 @@ def _CreateIntProbeParam(name: str,
   return probe_info_analytics.ProbeParameter(name=name, int_value=value)
 
 
-def _GetConverter(
-    name: str) -> Optional[analyzers.IBidirectionalProbeInfoConverter]:
+def _GetConverter(name: str) -> analyzers.IBidirectionalProbeInfoConverter:
   for converter in ps_converters.GetAllConverters():
     if name == converter.GetName():
       return converter
 
-  return None
+  raise KeyError(f'Converter {name} not found.')
 
 
 RUNTIME_PROBE_SUPPORTED_CATEGORIES = frozenset([
@@ -58,12 +57,9 @@ class AudioCodecConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('audio_codec.audio_codec')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -81,9 +77,7 @@ class AudioCodecConverterTest(ConverterTestCase):
         _CreateStrProbeParam('name', 'abcd1234'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -98,9 +92,8 @@ class AudioCodecConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
@@ -108,9 +101,7 @@ class AudioCodecConverterTest(ConverterTestCase):
         _CreateStrProbeParam('name', 'ABCD1234'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -125,9 +116,8 @@ class AudioCodecConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -136,9 +126,7 @@ class AudioCodecConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter('audio_codec',
                                        _CreateStrProbeParam('name', 'abcd1234'))
@@ -151,9 +139,7 @@ class AudioCodecConverterTest(ConverterTestCase):
         _CreateStrProbeParam('name', 'EFGH5678'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('name', 'abcd1234'),
         _CreateStrProbeParam('name', 'EFGH5678'),
@@ -165,12 +151,9 @@ class BatteryConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('battery.generic_battery')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -194,9 +177,7 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'efgh5678'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -212,9 +193,8 @@ class BatteryConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -222,9 +202,7 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'EFGH5678'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -240,9 +218,8 @@ class BatteryConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_WithRegexParams_CanGenerateProbeStatement(self):
@@ -251,9 +228,7 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'efgh[0-9]'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -269,9 +244,8 @@ class BatteryConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -281,9 +255,7 @@ class BatteryConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'battery', _CreateStrProbeParam('manufacturer', 'abcd')),
@@ -300,9 +272,7 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'DEF456'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('manufacturer', 'abc123'),
         _CreateStrProbeParam('model_name', 'def456'),
@@ -320,9 +290,7 @@ class BatteryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('model_name', 'DEF[0-9]'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('manufacturer', 'abc[0-9]'),
         _CreateStrProbeParam('model_name', 'def[0-9]'),
@@ -337,12 +305,9 @@ class MipiCameraConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('camera.mipi_camera')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -379,9 +344,7 @@ class MipiCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('sensor_pid', '0x000b'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -397,9 +360,8 @@ class MipiCameraConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -409,9 +371,7 @@ class MipiCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('sensor_pid', '0x000B'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -427,9 +387,8 @@ class MipiCameraConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -440,9 +399,7 @@ class MipiCameraConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter('camera',
                                        _CreateStrProbeParam('module_vid',
@@ -469,9 +426,7 @@ class MipiCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('sensor_pid', '0xDD44'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('module_vid', 'AB'),
         _CreateStrProbeParam('module_pid', '0xaa11'),
@@ -489,12 +444,9 @@ class UsbCameraConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('camera.usb_camera')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -525,9 +477,7 @@ class UsbCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('usb_bcd_device', '000c'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -544,9 +494,8 @@ class UsbCameraConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -555,9 +504,7 @@ class UsbCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('usb_bcd_device', '000C'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -574,9 +521,8 @@ class UsbCameraConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -588,9 +534,7 @@ class UsbCameraConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'camera', _CreateStrProbeParam('usb_vendor_id', '0001')),
@@ -611,9 +555,7 @@ class UsbCameraConverterTest(ConverterTestCase):
         _CreateStrProbeParam('usb_bcd_device', '55FF'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('usb_vendor_id', '00AA'),
         _CreateStrProbeParam('usb_vendor_id', '11BB'),
@@ -629,12 +571,9 @@ class DisplayPanelConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('display_panel.edid')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -671,9 +610,7 @@ class DisplayPanelConverterTest(ConverterTestCase):
         _CreateIntProbeParam('height', 200),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -689,9 +626,8 @@ class DisplayPanelConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -701,9 +637,7 @@ class DisplayPanelConverterTest(ConverterTestCase):
         _CreateIntProbeParam('height', 200),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -719,9 +653,8 @@ class DisplayPanelConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -732,9 +665,7 @@ class DisplayPanelConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'display_panel', _CreateStrProbeParam('product_id', '000A')),
@@ -752,9 +683,7 @@ class DisplayPanelConverterTest(ConverterTestCase):
         _CreateIntProbeParam('height', 200),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('product_id', '000A'),
         _CreateStrProbeParam('product_id', '000B'),
@@ -769,12 +698,9 @@ class MemoryConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('dram.memory')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -796,9 +722,7 @@ class MemoryConverterTest(ConverterTestCase):
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('part', 'abcd1234')]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -813,16 +737,13 @@ class MemoryConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('part', 'ABCD1234')]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -837,9 +758,8 @@ class MemoryConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_MergeExtraPartNumbers(self):
@@ -848,9 +768,7 @@ class MemoryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('extra_part', 'extra-abcd1234'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -867,9 +785,8 @@ class MemoryConverterTest(ConverterTestCase):
                 }]
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -878,9 +795,7 @@ class MemoryConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter('dram',
                                        _CreateStrProbeParam('part',
@@ -896,9 +811,7 @@ class MemoryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('part', 'def456')
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('part', 'ABC123'),
         _CreateStrProbeParam('part', 'def456')
@@ -913,9 +826,7 @@ class MemoryConverterTest(ConverterTestCase):
         _CreateStrProbeParam('extra_part', 'extra-def456'),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('part', 'ABC123'),
         _CreateStrProbeParam('part', 'def456'),
@@ -936,14 +847,9 @@ class MemoryConverterTest(ConverterTestCase):
             'part': 'def456'
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                                              parsed_probe_result)
+    actual = self._converter.MatchProbeResult(probe_params, parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult({})
     self.assertEqual(actual, expected_match_result)
@@ -960,14 +866,9 @@ class MemoryConverterTest(ConverterTestCase):
             'part': 'extra-ABC123'
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                                              parsed_probe_result)
+    actual = self._converter.MatchProbeResult(probe_params, parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult({})
     self.assertEqual(actual, expected_match_result)
@@ -984,14 +885,9 @@ class MemoryConverterTest(ConverterTestCase):
             'part': 'XYZ789-1'
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                                              parsed_probe_result)
+    actual = self._converter.MatchProbeResult(probe_params, parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult(
         {'part': 'dram', 'extra_part': 'dram'})
@@ -1002,12 +898,9 @@ class MmcStorageConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('storage.mmc_storage')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -1044,9 +937,7 @@ class MmcStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1063,9 +954,8 @@ class MmcStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1075,9 +965,7 @@ class MmcStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1094,9 +982,8 @@ class MmcStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -1108,9 +995,7 @@ class MmcStorageConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'storage', _CreateStrProbeParam('mmc_manfid', '0x12')),
@@ -1131,9 +1016,7 @@ class MmcStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64)
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('mmc_manfid', '0x1a'),
         _CreateStrProbeParam('mmc_manfid', '0x2b'),
@@ -1149,12 +1032,9 @@ class NvmeStorageConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('storage.nvme_storage')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -1197,9 +1077,7 @@ class NvmeStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1217,9 +1095,8 @@ class NvmeStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1230,9 +1107,7 @@ class NvmeStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1250,9 +1125,8 @@ class NvmeStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -1265,9 +1139,7 @@ class NvmeStorageConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'storage', _CreateStrProbeParam('pci_vendor', '0x0001')),
@@ -1293,9 +1165,7 @@ class NvmeStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('pci_vendor', '0x000a'),
         _CreateStrProbeParam('pci_vendor', '0x000b'),
@@ -1314,12 +1184,9 @@ class UfsStorageConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('storage.ufs_storage')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -1350,9 +1217,7 @@ class UfsStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1368,9 +1233,8 @@ class UfsStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
@@ -1380,9 +1244,7 @@ class UfsStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1398,9 +1260,8 @@ class UfsStorageConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -1410,9 +1271,7 @@ class UfsStorageConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'storage', _CreateStrProbeParam('ufs_vendor', 'abcd')),
@@ -1430,9 +1289,7 @@ class UfsStorageConverterTest(ConverterTestCase):
         _CreateIntProbeParam('size_in_gb', 64),
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('ufs_vendor', 'abc'),
         _CreateStrProbeParam('ufs_vendor', 'DEF'),
@@ -1447,12 +1304,9 @@ class CpuConverterTest(ConverterTestCase):
 
   def setUp(self):
     self._converter = _GetConverter('cpu.generic_cpu')
-    self.assertIsNotNone(self._converter)
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -1469,9 +1323,7 @@ class CpuConverterTest(ConverterTestCase):
   def testParseProbeParam_WithLowerCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('identifier', 'abcd1234')]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1486,16 +1338,13 @@ class CpuConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [_CreateStrProbeParam('identifier', 'ABCD1234')]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -1510,9 +1359,8 @@ class CpuConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -1522,9 +1370,7 @@ class CpuConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'cpu', _CreateStrProbeParam('identifier', 'ABCD1234'))
@@ -1537,9 +1383,7 @@ class CpuConverterTest(ConverterTestCase):
         _CreateStrProbeParam('identifier', 'DEF456')
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('identifier', 'abc123'),
         _CreateStrProbeParam('identifier', 'DEF456')
@@ -1690,9 +1534,8 @@ class TouchscreenModuleConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -1730,9 +1573,8 @@ class TouchscreenModuleConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
@@ -1873,9 +1715,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateMMCAndMMCHostPS(self):
@@ -1916,9 +1757,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithNANVMeModel_CanGenerateMMCAndMMCHostPS(self):
     probe_params = [
@@ -1958,9 +1798,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeParam_WithLowerCaseParams_CanGenerateNVMePS(self):
@@ -1991,9 +1830,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateNVMePS(self):
     probe_params = [
@@ -2023,9 +1861,8 @@ class MMCWithBridgeProbeStatementConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
     self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
 
   def testParseProbeResult_CanGenerateMMCAndMMCHostProbeParameter(self):
@@ -2119,9 +1956,7 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
     self._converter = _GetConverter('emmc_pcie_storage_bridge.mmc_host')
 
   def testGenerateDefinition(self):
-    # yapf: disable
-    actual = self._converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -2153,9 +1988,7 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
         _CreateStrProbeParam('pci_class', '0x010809'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -2174,9 +2007,8 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithUpperCaseParams_CanGenerateProbeStatement(self):
     probe_params = [
@@ -2185,9 +2017,7 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
         _CreateStrProbeParam('pci_class', '0x010809'),
     ]
 
-    # yapf: disable
-    actual = self._converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -2206,9 +2036,8 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter(self):
     probe_result = {
@@ -2219,9 +2048,7 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.ParseProbeResult(probe_result)
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
             'mmc_host', _CreateStrProbeParam('pci_vendor_id', '0xab12')),
@@ -2241,9 +2068,7 @@ class PCIeeMMCStorageBridgeProbeStatementConverterTest(unittest.TestCase):
         _CreateStrProbeParam('pci_class', '0x010809')
     ]
 
-    # yapf: disable
-    actual = self._converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
     expected_probe_params = [
         _CreateStrProbeParam('pci_vendor_id', '0xaa11'),
         _CreateStrProbeParam('pci_vendor_id', '0xbb22'),
@@ -2260,13 +2085,9 @@ class WirelessConverterTest(ConverterTestCase):
   def setUp(self):
     self._pci_converter = _GetConverter('wireless.pci_wireless_network')
     self._sdio_converter = _GetConverter('wireless.sdio_wireless_network')
-    self.assertIsNotNone(self._pci_converter)
-    self.assertIsNotNone(self._sdio_converter)
 
   def testGenerateDefinition_PCI(self):
-    # yapf: disable
-    actual = self._pci_converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -2282,9 +2103,7 @@ class WirelessConverterTest(ConverterTestCase):
     self.assertEqual(actual, expect)
 
   def testGenerateDefinition_SDIO(self):
-    # yapf: disable
-    actual = self._sdio_converter.GenerateDefinition()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.GenerateDefinition()
 
     expect = text_format.Parse(
         '''
@@ -2304,9 +2123,7 @@ class WirelessConverterTest(ConverterTestCase):
         _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678, 0x90ab'),
     ]
 
-    # yapf: disable
-    actual = self._pci_converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -2323,18 +2140,15 @@ class WirelessConverterTest(ConverterTestCase):
                 }
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithoutSubsystem_PCI(self):
     probe_params = [
         _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678'),
     ]
 
-    # yapf: disable
-    actual = self._pci_converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -2350,18 +2164,15 @@ class WirelessConverterTest(ConverterTestCase):
                 },
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeParam_WithoutSubsystem_SDIO(self):
     probe_params = [
         _CreateStrProbeParam('wifi_probe_attributes', '0x1234, 0x5678'),
     ]
 
-    # yapf: disable
-    actual = self._sdio_converter.ParseProbeParams(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.ParseProbeParams(
         probe_params, allow_missing_params=False,
         comp_name_for_probe_statement='comp_name')
 
@@ -2377,9 +2188,8 @@ class WirelessConverterTest(ConverterTestCase):
                 },
             })
     ]
-    # yapf: disable
-    self.assertCountEqual(actual.output, expected_probe_statements)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
 
   def testParseProbeResult_CanGenerateProbeParameter_PCI(self):
     probe_result = {
@@ -2390,9 +2200,7 @@ class WirelessConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._pci_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.ParseProbeResult(probe_result)
 
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
@@ -2410,9 +2218,7 @@ class WirelessConverterTest(ConverterTestCase):
         }]
     }
 
-    # yapf: disable
-    actual = self._sdio_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.ParseProbeResult(probe_result)
 
     expected_probe_parameters = [
         analyzers.ParsedProbeParameter(
@@ -2427,9 +2233,7 @@ class WirelessConverterTest(ConverterTestCase):
         _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
     ]
 
-    # yapf: disable
-    actual = self._pci_converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.GetNormalizedProbeParams(probe_params)
 
     expected_probe_params = [
         _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
@@ -2443,9 +2247,7 @@ class WirelessConverterTest(ConverterTestCase):
         _CreateStrProbeParam('wifi_probe_attributes', '0x44dd, 0x55ee'),
     ]
 
-    # yapf: disable
-    actual = self._sdio_converter.GetNormalizedProbeParams(probe_params)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.GetNormalizedProbeParams(probe_params)
 
     expected_probe_params = [
         _CreateStrProbeParam('wifi_probe_attributes', '0x11aa, 0x22bb, 0x33cc'),
@@ -2465,13 +2267,9 @@ class WirelessConverterTest(ConverterTestCase):
             'pci_subsystem': '0x33cc',
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._pci_converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.MatchProbeResult(probe_params,
                                                   parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult({})
@@ -2489,13 +2287,9 @@ class WirelessConverterTest(ConverterTestCase):
             'pci_subsystem': '0x33cd',
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._pci_converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._pci_converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._pci_converter.MatchProbeResult(probe_params,
                                                   parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult(
@@ -2513,13 +2307,9 @@ class WirelessConverterTest(ConverterTestCase):
             'sdio_device_id': '0x55ee',
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._sdio_converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.MatchProbeResult(probe_params,
                                                    parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult({})
@@ -2536,13 +2326,9 @@ class WirelessConverterTest(ConverterTestCase):
             'sdio_device_id': '0x66ff',
         }],
     }
-    # yapf: disable
-    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    parsed_probe_result = self._sdio_converter.ParseProbeResult(probe_result)
 
-    # yapf: disable
-    actual = self._sdio_converter.MatchProbeResult(probe_params,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    actual = self._sdio_converter.MatchProbeResult(probe_params,
                                                    parsed_probe_result)
 
     expected_match_result = analyzers.ProbeResultMatchResult(
@@ -2557,7 +2343,6 @@ class ECComponentStandaloneComponentConverterTest(ConverterTestCase):
   def _GetConverter(
       self, component_type: str) -> analyzers.IBidirectionalProbeInfoConverter:
     converter = _GetConverter(f'ec_component.ec_component_{component_type}')
-    assert converter is not None
     return converter
 
   def testGenerateDefinition(self):
@@ -2657,9 +2442,7 @@ class ECComponentStandaloneComponentConverterTest(ConverterTestCase):
 class ECComponentUSBCConverterTest(ConverterTestCase):
   def setUp(self):
     super().setUp()
-    converter = _GetConverter('usb_c.ec_components')
-    assert converter is not None
-    self._converter = converter
+    self._converter = _GetConverter('usb_c.ec_components')
 
   def testParseProbeParam_CanGenerateProbeStatement(self):
     probe_params = [
@@ -2770,7 +2553,6 @@ class TouchComponentConverterTest(ConverterTestCase):
   def _GetConverter(
       self, component_type: str) -> analyzers.IBidirectionalProbeInfoConverter:
     converter = _GetConverter(f'{component_type}.input_device')
-    assert converter is not None
     return converter
 
   def testGenerateDefinition(self):
@@ -2877,6 +2659,101 @@ class TouchComponentConverterTest(ConverterTestCase):
             _CreateStrProbeParam('product', '23CD'),
         ]
         self.assertCountEqual(actual, expected_probe_params)
+
+
+class TPMConverterTest(ConverterTestCase):
+
+  def setUp(self):
+    self._converter = _GetConverter('tpm.tpm')
+
+  def testGenerateDefinition(self):
+    actual = self._converter.GenerateDefinition()
+
+    expect = text_format.Parse(
+        '''
+        name: "tpm.tpm"
+        description: "Probe TPM info."
+        parameter_definitions {
+          name: "manufacturer"
+          description: "The manufacturer of TPM."
+          value_type: STRING
+        }
+        parameter_definitions {
+          name: "vendor_specific"
+          description: "The vendor specific string of TPM."
+          value_type: STRING
+        }
+        parameter_definitions {
+          name: "spec_level"
+          description: "The spec level of TPM."
+          value_type: INT
+        }''', probe_info_analytics.ProbeFunctionDefinition())
+    self.assertEqual(actual, expect)
+
+  def testParseProbeParam_CanGenerateProbeStatement(self):
+    probe_params = [
+        _CreateIntProbeParam('spec_level', 162),
+        _CreateStrProbeParam('manufacturer', 'CROS'),
+        _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+    ]
+
+    actual = self._converter.ParseProbeParams(
+        probe_params, allow_missing_params=False,
+        comp_name_for_probe_statement='comp_name')
+
+    expected_probe_statements = [
+        probe_config_types.ComponentProbeStatement(
+            'tpm', 'comp_name', {
+                'eval': {
+                    'tpm': {}
+                },
+                'expect': {
+                    'spec_level': [True, 'int', '!eq 162'],
+                    'vendor_specific': [True, 'str', '!eq xCG fTPM'],
+                    'manufacturer': [True, 'str', '!eq 0x43524f53']
+                }
+            })
+    ]
+    assert actual.output is not None
+    self.assertCountEqual(actual.output, expected_probe_statements)
+    self.assertCanGenerateGenericProbeStatements(expected_probe_statements)
+
+  def testParseProbeResult_CanGenerateProbeParameter(self):
+    probe_result = {
+        'tpm': [{
+            'manufacturer': '0x43524f53',
+            'spec_level': '162',
+            'vendor_specific': 'xCG fTPM'
+        }]
+    }
+
+    actual = self._converter.ParseProbeResult(probe_result)
+    expected_probe_parameters = [
+        analyzers.ParsedProbeParameter('tpm',
+                                       _CreateIntProbeParam('spec_level', 162)),
+        analyzers.ParsedProbeParameter(
+            'tpm', _CreateStrProbeParam('manufacturer', 'CROS')),
+        analyzers.ParsedProbeParameter(
+            'tpm', _CreateStrProbeParam('vendor_specific', 'xCG fTPM'))
+    ]
+    self.assertCountEqual(actual, expected_probe_parameters)
+
+  def testGetNormalizedProbeParams_CanGetParamsWithCorrectFormat(self):
+    probe_params = [
+        _CreateIntProbeParam('spec_level', 162),
+        _CreateStrProbeParam('manufacturer', 'CROS'),
+        _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+    ]
+
+    actual = self._converter.GetNormalizedProbeParams(probe_params)
+
+    expected_probe_params = [
+        _CreateIntProbeParam('spec_level', 162),
+        _CreateStrProbeParam('manufacturer', 'CROS'),
+        _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+    ]
+
+    self.assertCountEqual(actual, expected_probe_params)
 
 
 if __name__ == '__main__':

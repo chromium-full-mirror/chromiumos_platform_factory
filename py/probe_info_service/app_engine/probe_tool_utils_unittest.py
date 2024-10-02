@@ -79,6 +79,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         'touchpad.input_device',
         'touchscreen_module.generic_input_device_and_edid',
         'touchscreen.input_device',
+        'tpm.tpm',
         'usb_c.ec_components',
         'wireless.pci_wireless_network',
         'wireless.sdio_wireless_network',

@@ -235,6 +235,15 @@ def _GetAllProbeStatementDefinitions():
       'component_name', 'Name identifier of the component in the manifest.')
   probe_statement_definitions['ec_component'] = builder.Build()
 
+  # Create TPM builder
+  builder = probe_config_types.ProbeStatementDefinitionBuilder('tpm')
+  builder.AddProbeFunction('tpm', 'Probe TPM info.')
+  builder.AddIntOutputField('spec_level', 'The spec level of TPM.')
+  builder.AddStrOutputField('vendor_specific',
+                            'The vendor specific string of TPM.')
+  builder.AddStrOutputField('manufacturer', 'The manufacturer of TPM.')
+  probe_statement_definitions['tpm'] = builder.Build()
+
   return probe_statement_definitions
 
 

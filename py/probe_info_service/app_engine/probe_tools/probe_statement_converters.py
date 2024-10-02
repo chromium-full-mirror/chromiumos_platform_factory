@@ -1179,6 +1179,14 @@ def _RemoveHexPrefixIfExistAndCapitalize(value: str) -> str:
   return capitalized_val
 
 
+def _ConvertStringToHex(value: str) -> str:
+  return '0x' + binascii.hexlify(value.encode('ascii')).decode('ascii').lower()
+
+
+def _ConvertHexToString(value: str) -> str:
+  return bytes.fromhex(value[2:]).decode('ascii')
+
+
 def _ResizeHexStr(length: int, lowerize=False, capitalize=False,
                   prefix=True) -> Callable:
   """Creates a function to resize the input hex string.
@@ -1356,9 +1364,7 @@ _MMC_BASIC_PARAMS = (
             _ResizeHexStr(2, lowerize=True))),
     _ProbeFunctionParam(
         'mmc_name', value_converter=_ParamValueConverter(
-            'string', lambda hex_with_prefix: bytes.fromhex(hex_with_prefix[2:])
-            .decode('ascii'), lambda str_val: '0x' + binascii.hexlify(
-                str_val.encode('ascii')).decode('ascii').lower())),
+            'string', _ConvertHexToString, _ConvertStringToHex)),
 )
 
 
@@ -2010,4 +2016,13 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
           probe_function_argument={
               'device_type': 'stylus'
           }),
+      _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
+          'tpm', 'tpm', probe_params=[
+              _ProbeFunctionParam('spec_level',
+                                  value_converter=_ParamValueConverter('int')),
+              _ProbeFunctionParam('vendor_specific'),
+              _ProbeFunctionParam(
+                  'manufacturer', value_converter=_ParamValueConverter(
+                      'string', _ConvertStringToHex, _ConvertHexToString)),
+          ]),
   ]

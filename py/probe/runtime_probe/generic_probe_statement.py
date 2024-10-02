@@ -159,4 +159,6 @@ def GetAllRuntimeProbeSupportedGenericProbeStatements():
               'component_name',
           ],
       ),
+      GenericProbeStatementInfoRecord(
+          'tpm', 'tpm', ['spec_level', 'vendor_specific', 'manufacturer']),
   ]
