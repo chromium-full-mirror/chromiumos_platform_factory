@@ -202,8 +202,9 @@ class GerritConnectorHelperTest(unittest.TestCase):
 
     self._helper.URLOpen('GET', self._URL)
 
-    mock_pool_manager.headers.__setitem__.assert_called_with(
-        'Cookie', self._COOKIE)
+    self.assertEqual(
+        mock_pool_manager_class.call_args.kwargs['headers']['Cookie'],
+        self._COOKIE)
 
   @mock.patch('cros.factory.probe_info_service.app_engine'
               '.gerrit_connector.GerritConnectorHelper.GetGerritAuthCookie')
