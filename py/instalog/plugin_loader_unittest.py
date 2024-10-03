@@ -159,7 +159,10 @@ class TestPluginLoader(unittest.TestCase):
         ''')
     pl = plugin_loader.PluginLoader(pname, pname, _plugin_prefix='')
     with self.assertRaisesRegex(
-        plugin_base.LoadPluginError, r'TypeError: __init__\(\) takes'):
+        plugin_base.LoadPluginError,
+        r'TypeError: InputTest.__init__\(\) takes'
+        if sys.version_info >= (3,11) else
+        r'TypeError: __init__\(\) takes'):
       pl.Create()
 
   def testRuntimeInitMethodError(self):
