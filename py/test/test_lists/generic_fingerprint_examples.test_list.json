@@ -8,6 +8,70 @@
     "auto_run_on_start": false
   },
   "definitions": {
+    "ElanFPSBaseTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS Base Test",
+      "args": {
+        "test_case": 1
+      }
+    },
+    "ElanFPSCompleteTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS Complete Test",
+      "args": {
+        "test_case": 15
+      }
+    },
+    "ElanFPSNonInteractiveTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS Non-interactive Test",
+      "args": {
+        "test_case": 7
+      }
+    },
+    "ElanFPSResetTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS Reset Test",
+      "args": {
+        "test_case": 4
+      }
+    },
+    "ElanFPSSensorTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS Sensor Test",
+      "args": {
+        "test_case": 2
+      }
+    },
+    "ElanFPSTest": {
+      "pytest_name": "fingerprint_sensor_elan",
+      "run_if": "device.component.has_fingerprint"
+    },
+    "ElanFPSTestGroup": {
+      "inherit": "TestGroup",
+      "label": "Elan FPS Test Group",
+      "subtests": [
+        "SetHasFingerprint",
+        "UnsetHasFingerprint",
+        "ProbeFingerprintSensor",
+        "UpdateFPFirmware",
+        "CheckFPFirmware",
+        "UpdateFPFirmwareWithLocalBuildFirmware",
+        "ElanFPSBaseTest",
+        "ElanFPSSensorTest",
+        "ElanFPSResetTest",
+        "ElanFPSWOETest",
+        "ElanFPSNonInteractiveTest",
+        "ElanFPSCompleteTest"
+      ]
+    },
+    "ElanFPSWOETest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan FPS WOE Test",
+      "args": {
+        "test_case": 8
+      }
+    },
     "FPSTestPlusManualTest": {
       "inherit": "FPSTest",
       "label": "Fingerprint Sensor test plus manual test",
@@ -260,6 +324,7 @@
     }
   },
   "tests": [
-    "FingerprintTests"
+    "FingerprintTests",
+    "ElanFPSTestGroup"
   ]
 }

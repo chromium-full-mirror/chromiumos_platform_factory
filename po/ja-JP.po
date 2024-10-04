@@ -4245,6 +4245,34 @@ msgid "Update Fingerprint Firmware"
 msgstr "指紋ファームウェアの更新"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Base Test"
+msgstr "Elan 指紋センサーのベーステスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Complete Test"
+msgstr "Elan 指紋センサーの完全テスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Non-interactive Test"
+msgstr "Elan 指紋センサーの非対話型テスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Reset Test"
+msgstr "Elan 指紋センサーのリセットテスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Sensor Test"
+msgstr "Elan 指紋センサーセンサーテスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Test Group"
+msgstr "Elan 指紋センサーテストグループ"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS WOE Test"
+msgstr "Elan 指紋センサー WOE テスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Fingerprint Sensor test plus manual test"
 msgstr "指紋センサーテストと手動テスト"
 
