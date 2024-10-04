@@ -1,6 +1,7 @@
 # Copyright 2024 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 """A factory test for the Elan fingerprint sensor.
 
 Description
@@ -24,6 +25,27 @@ The WOE test requires user interaction. Please take the following steps.
    detect your finger. It may be malfunctioning.
 4. The pytest collects required data and analyzes the sensor's functionality
    automatically.
+
+Examples
+--------
+Run only base test:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSBaseTest
+
+Run only non-interactive sub-tests:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSNonInteractiveTest
+
+Run all sub-tests:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSCompleteTest
+
 """
 
 import base64
@@ -43,6 +65,7 @@ if TYPE_CHECKING:
   _Image = numpy.ndarray[Tuple[int, int], numpy.dtype[numpy.uint16]]
 else:
   from cros.factory.external.py_lib import numpy
+
 
 # Follow the spec of Elan fingerprint sensor, the sensor is a square consisting
 # of 80x80 pixels, and its ID is 0x4F4F.
