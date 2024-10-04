@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 15:38+UTC\n"
+"PO-Revision-Date: 2024-11-07 16:08+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -4058,6 +4058,70 @@ msgstr "准备程序"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (最终功能测试)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Base Test"
+msgstr "Elan 指纹感应器基准测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Complete Test"
+msgstr "Elan 指纹感应器非完整测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Non-interactive Test"
+msgstr "Elan 指纹感应器非互动测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Reset Test"
+msgstr "Elan 指纹感应器重置测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Sensor Test"
+msgstr "Elan 指纹感应器感应测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Test Group"
+msgstr "Elan 指纹感应器测试群组"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS WOE Test"
+msgstr "Elan 指纹感应器 WOE 测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus manual test"
+msgstr "指纹感应器测试并手动测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
+msgstr "指纹感应器测试并像素中值测试 (Bloonchipper)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgstr "指纹感应器测试并像素中值测试 (Dartmonkey)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus rubber stamper test"
+msgstr "指纹感应器测试并橡皮印章测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Probe Fingerprint Sensor"
+msgstr "侦测指纹感应器硬件"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint"
+msgstr "设置 Has Fingerprint"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Unset Has Fingerprint"
+msgstr "移除 Has Fingerprint"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Update Fingerprint Firmware with local build firmware"
+msgstr "使用特定韧体更新指纹韧体"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Generic Fingerprint Sensor Factory tests"
+msgstr "一般指纹感应器测试"
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json

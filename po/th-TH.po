@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 15:38+UTC\n"
+"PO-Revision-Date: 2024-11-07 16:08+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -4077,6 +4077,70 @@ msgstr "เตรียม"
 #: ../py/test/test_lists/generic_fft.test_list.json
 msgid "FFT (Final Functional Test)"
 msgstr "FFT (การทดสอบหน้าที่การทํางานสุดท้าย)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Base Test"
+msgstr "การทดสอบฐานเซนเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Complete Test"
+msgstr "ทดสอบเซ็นเซอร์ลายนิ้วมือ Elan เสร็จสมบูรณ์"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Non-interactive Test"
+msgstr "การทดสอบแบบไม่โต้ตอบของเซ็นเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Reset Test"
+msgstr "การทดสอบรีเซ็ตเซ็นเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Sensor Test"
+msgstr "การทดสอบเซนเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS Test Group"
+msgstr "กลุ่มทดสอบเซนเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Elan FPS WOE Test"
+msgstr "การทดสอบ WOE ของเซ็นเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus manual test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor test plus rubber stamper test"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Probe Fingerprint Sensor"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Unset Has Fingerprint"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Update Fingerprint Firmware with local build firmware"
+msgstr ""
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Generic Fingerprint Sensor Factory tests"
+msgstr ""
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json
