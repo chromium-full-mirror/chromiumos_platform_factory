@@ -25,6 +25,27 @@ The WOE test requires user interaction. Please take the following steps.
    detect your finger. It may be malfunctioning.
 4. The pytest collects required data and analyzes the sensor's functionality
    automatically.
+
+Examples
+--------
+Run only base test:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSBaseTest
+
+Run only non-interactive sub-tests:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSNonInteractiveTest
+
+Run all sub-tests:
+
+.. test_list::
+
+  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSCompleteTest
+
 """
 
 import base64
