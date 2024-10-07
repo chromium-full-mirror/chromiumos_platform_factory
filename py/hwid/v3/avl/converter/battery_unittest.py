@@ -77,11 +77,11 @@ class BatteryTest(unittest.TestCase):
     self.assertCountEqual(suggestion, [
         matcher.ProbeInfoSuggestion(
             'manufacturer', '123',
-            "Expected AVL attribute 'manufacturer'='abcde[0-9][0-9]',"
+            "Expected AVL attribute 'manufacturer'='abcde[0-9][0-9]12345',"
             " but got '123'."),
         matcher.ProbeInfoSuggestion(
             'model_name', 'abc',
-            "Expected AVL attribute 'model_name'='abcde[0-9][0-9]', "
+            "Expected AVL attribute 'model_name'='abcde[0-9][0-9]12345', "
             "but got 'abc'.")
     ])
 

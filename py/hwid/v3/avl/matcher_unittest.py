@@ -108,7 +108,7 @@ class MatcherTest(unittest.TestCase):
     assert suggestion
     self.assertEqual(
         "FieldProbeInfoSuggestion("
-        "field_name='field_b', expected='value_b', got=None)",
+        "field_name='field_a', expected='value_a', got='value_b')",
         suggestion[0].suggestion)
 
 

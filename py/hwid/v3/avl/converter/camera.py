@@ -3,10 +3,11 @@
 # found in the LICENSE file.
 """Holds field name mappings from AVL to HWID."""
 
-from typing import ClassVar, Iterable, Mapping
+from typing import ClassVar, Iterable, Mapping, Optional, Sequence, Tuple
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl.converter import common
+from cros.factory.hwid.v3.avl import matcher
 from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.probe.runtime_probe import converters as runtime_probe_converters
 from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
@@ -55,6 +56,47 @@ _MIPI_PID_HEX_CONVERTER = runtime_probe_converters.HexConverter(
     prefix=False, padding_size=4)
 
 
+def _ParseMIPICameraField(value) -> Tuple[Optional[str], Optional[str]]:
+  if not isinstance(value, str):
+    return None, None
+  return value[:-4], '0x' + value[-4:]
+
+
+class MIPICameraSuggestor(matcher.ISuggester):
+
+  def __init__(self, vid_key: str, pid_key: str, runtime_probe_key: str):
+    self._vid_key = vid_key
+    self._pid_key = pid_key
+    self._runtime_probe_key = runtime_probe_key
+
+  def BuildSuggestion(
+      self, suggestion: runtime_probe_matchers.ProbeInfoSuggestion
+  ) -> Sequence[matcher.ProbeInfoSuggestion]:
+    suggestions = []
+    if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
+      if suggestion.field_name == self._runtime_probe_key:
+        vid_got, pid_got = _ParseMIPICameraField(suggestion.got)
+        vid_expected, pid_expected = _ParseMIPICameraField(suggestion.expected)
+        if vid_got != vid_expected:
+          suggestions.append(
+              matcher.ProbeInfoSuggestion(
+                  self._vid_key, str(vid_got),
+                  f'Expected AVL attribute {self._vid_key!r}='
+                  f'{vid_expected!r}, but got {vid_got!r}.'))
+        if pid_got != pid_expected:
+          suggestions.append(
+              matcher.ProbeInfoSuggestion(
+                  self._pid_key, str(pid_got),
+                  f'Expected AVL attribute {self._pid_key!r}='
+                  f'{pid_expected!r}, but got {pid_got!r}.'))
+    elif isinstance(suggestion, runtime_probe_matchers.AndProbeInfoSuggestion):
+      for s in suggestion.suggestions:
+        suggestions.extend(self.BuildSuggestion(s))
+    elif isinstance(suggestion, runtime_probe_matchers.OrProbeInfoSuggestion):
+      suggestions.extend(self.BuildSuggestion(suggestion.suggestions[0]))
+    return suggestions
+
+
 def _GetMIPIFieldConverter(
     probe_info: v3_rule.AVLProbeInfo, vid_key: str, pid_key: str,
     runtime_probe_key: str) -> builder.IProbeInfoConverterBuildResult:
@@ -72,11 +114,8 @@ def _GetMIPIFieldConverter(
     builder.LogBuilderError(f'MIPI camera pid {pid_values[0]!r} parse failed')
     return None
   value = vid_values[0] + _MIPI_PID_HEX_CONVERTER.Format(pid)
-  return (
-      runtime_probe_matchers.StringEqualMatcher(runtime_probe_key, value),
-      # TODO(wyuang): implement MIPI camera suggester
-      common.NopSuggester(),
-  )
+  return (runtime_probe_matchers.StringEqualMatcher(runtime_probe_key, value),
+          MIPICameraSuggestor(vid_key, pid_key, runtime_probe_key))
 
 
 class MIPICameraWithMIPIPrefix(builder.IProbeInfoConverter):

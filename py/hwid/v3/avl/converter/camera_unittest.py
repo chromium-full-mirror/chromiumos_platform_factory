@@ -277,6 +277,33 @@ class CameraTest(unittest.TestCase):
             'operator': 'OR',
         })
 
+  def testMIPICamera_GetProbeInfoSuggestion(self):
+    m = _GetMIPIMatcher('factory-board-1.B')
+
+    suggestion = m.GetProbeInfoSuggestion({
+        'mipi_module_id': 'CD3c4d',
+        'mipi_sensor_id': 'AB1a2b',
+    })
+    assert suggestion is not None
+    self.assertCountEqual(suggestion, [
+        matcher.ProbeInfoSuggestion(
+            'module_vid', 'CD',
+            "Expected AVL attribute 'module_vid'='AB', but got "
+            "'CD'."),
+        matcher.ProbeInfoSuggestion(
+            'module_pid', '0x3c4d',
+            "Expected AVL attribute 'module_pid'='0x1a2b', but got "
+            "'0x3c4d'."),
+        matcher.ProbeInfoSuggestion(
+            'sensor_vid', 'AB',
+            "Expected AVL attribute 'sensor_vid'='CD', but got "
+            "'AB'."),
+        matcher.ProbeInfoSuggestion(
+            'sensor_pid', '0x1a2b',
+            "Expected AVL attribute 'sensor_pid'='0x3c4d', but got "
+            "'0x1a2b'."),
+    ])
+
   def testMipiCameraToT(self):
     m = _GetMIPIMatcher(None)
 

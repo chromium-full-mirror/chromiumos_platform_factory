@@ -56,6 +56,12 @@ def _ProbedValueTypeToStrMapping(
   }
 
 
+def _KeyMatch(suggestion: runtime_probe_matchers.ProbeInfoSuggestion) -> bool:
+  if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
+    return suggestion.got is not None
+  return all(_KeyMatch(s) for s in suggestion.suggestions)
+
+
 class Matcher:
   """Wraps runtime probe matchers to match AVL components."""
 
@@ -101,17 +107,19 @@ class Matcher:
   ) -> Optional[Sequence[ProbeInfoSuggestion]]:
     """Generates suggestion for editing ProbeInfo.
 
-    Note: Will try to use the last converter to generate suggestion.
+    Note: Will try to use the converter which match all keys, others will use
+    the last converter to generate suggestion.
 
     Returns: None if component matches. Otherwise returns the suggestion.
     """
+
     component_str = _ProbedValueTypeToStrMapping(component)
     if self._Match(component_str).matched:
       return None
-    runtime_probe_matcher = self._converters[-1].matcher
-    suggester = self._converters[-1].suggester
-    runtime_probe_suggestion = runtime_probe_matcher.GetProbeInfoSuggestion(
-        component_str)
-    # We had check self.Match fails. Thus, the suggestion shouldn't be None.
-    assert runtime_probe_suggestion is not None
-    return suggester.BuildSuggestion(runtime_probe_suggestion)
+    for c in self._converters:
+      runtime_probe_suggestion = c.matcher.GetProbeInfoSuggestion(component_str)
+      assert runtime_probe_suggestion is not None
+      if _KeyMatch(runtime_probe_suggestion):
+        return c.suggester.BuildSuggestion(runtime_probe_suggestion)
+    # We had checked self.Match fails. Thus, the suggestion shouldn't be None.
+    raise AssertionError('suggestion should not be None')
