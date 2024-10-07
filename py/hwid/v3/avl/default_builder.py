@@ -7,6 +7,7 @@ from cros.factory.hwid.v3.avl.converter import audio_codec
 from cros.factory.hwid.v3.avl.converter import battery
 from cros.factory.hwid.v3.avl.converter import camera
 from cros.factory.hwid.v3.avl.converter import cpu
+from cros.factory.hwid.v3.avl.converter import display_panel
 
 
 def GetDefaultBuilder() -> builder.Builder:
@@ -14,6 +15,7 @@ def GetDefaultBuilder() -> builder.Builder:
   b.AddConverterSet(audio_codec.GetConverterSet())
   b.AddConverterSet(battery.GetConverterSet())
   b.AddConverterSet(cpu.GetConverterSet())
+  b.AddConverterSet(display_panel.GetConverterSet())
   for s in camera.GetConverterSets():
     b.AddConverterSet(s)
   return b
