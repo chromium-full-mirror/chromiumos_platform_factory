@@ -174,36 +174,34 @@ class BatteryCurrentTest(test_case.TestCase):
     else:
       logging.info('Discharging current = %d mA', -current)
 
-  def _CheckUSBPD(self):
+  def _CheckUSBPD(self) -> bool:
     for unused_i in range(10):
-      status = self._dut.usb_c.GetPDPowerStatus()
-      # yapf: disable
-      voltage_field = ('max_millivolt' if self.args.use_max_voltage else  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-                       'millivolt')
-      if voltage_field not in status[self._usbpd_port]:
-        # yapf: disable
-        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      try:
+        status = self._dut.usb_c.GetPDPowerStatus()
+        voltage_field = ('max_millivolt' if self.args.use_max_voltage else 'millivolt')
+        if voltage_field not in status[self._usbpd_port]:
+          self.ui.SetState(
+              _('Insert power to {prompt}({voltage}mV)',
+                prompt=self._usbpd_prompt,
+                voltage=0))
+          logging.info('No millivolt detected in port %d', self._usbpd_port)
+          return False
+        millivolt = status[self._usbpd_port][voltage_field]
+        logging.info('millivolt %d, acceptable range (%d, %d)', millivolt,
+                     self._usbpd_min_millivolt, self._usbpd_max_millivolt)
+        self.ui.SetState(
             _('Insert power to {prompt}({voltage}mV)',
               prompt=self._usbpd_prompt,
-              voltage=0))
-        logging.info('No millivolt detected in port %d', self._usbpd_port)
-        return False
-      millivolt = status[self._usbpd_port][voltage_field]
-      logging.info('millivolt %d, acceptable range (%d, %d)', millivolt,
-                   self._usbpd_min_millivolt, self._usbpd_max_millivolt)
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-          _('Insert power to {prompt}({voltage}mV)',
-            prompt=self._usbpd_prompt,
-            voltage=millivolt))
-      if not (self._usbpd_min_millivolt <= millivolt <=
-              self._usbpd_max_millivolt):
+              voltage=millivolt))
+        if not (self._usbpd_min_millivolt <= millivolt <=
+                self._usbpd_max_millivolt):
+          return False
+      except Exception as e:
+        logging.exception(f"Error checking USB-PD status: {e}")
         return False
       self.Sleep(0.1)
     return True
+
 
   def _CheckCharge(self):
     current = self._power.GetBatteryCurrent()
