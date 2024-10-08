@@ -117,6 +117,10 @@ _IMAGE_DIR = 'images'
 _IMAGE_SIZE_RE = re.compile(r'Image: size (\d+)x(\d+).*', re.MULTILINE)
 
 
+# The default timeout for non-interactive test, in milliseconds.
+_NON_INTERACTIVE_TEST_TIMEOUT_MS = 500
+
+
 _PixelMedianAttribute = Literal["cb_type1", "cb_type2", "icb_type", "icb_type2"]
 
 
@@ -245,7 +249,7 @@ class FingerprintTest(test_case.TestCase):
     short_name = 'icb' if inverted else 'cb'
     # trigger the checkerboard test pattern and capture it
     self._fpmcu.CaptureFpmodeAndWaitEvent(
-      'pattern1' if inverted else 'pattern0', 500
+      'pattern1' if inverted else 'pattern0', _NON_INTERACTIVE_TEST_TIMEOUT_MS
     )
     # retrieve the resulting image as a PNM
     pnm = self._fpmcu.GetFpframe(
@@ -341,7 +345,8 @@ class FingerprintTest(test_case.TestCase):
   def ResetPixelTest(self):
     # reset the sensor and leave it in reset state then capture the single
     # frame.
-    self._fpmcu.CaptureFpmodeAndWaitEvent('test_reset', 500)
+    self._fpmcu.CaptureFpmodeAndWaitEvent(
+      'test_reset', _NON_INTERACTIVE_TEST_TIMEOUT_MS)
     # retrieve the resulting image as a PNM
     pnm = self._fpmcu.GetFpframe(
       raw=False,
