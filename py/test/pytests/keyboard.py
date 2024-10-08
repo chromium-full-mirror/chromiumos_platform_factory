@@ -142,6 +142,23 @@ _POWER_KEY_CODE = 116
 _LAST_FN_KEYCODES = [115, 116, 142, 183]
 
 
+def IsStraussKeyboard():
+  """Checks if the device under test (DUT) uses a Strauss keyboard.
+
+  This function executes the `ectool inventory` command on the DUT and
+  parses the output to determine if the keyboard is a Strauss model.
+
+  Returns:
+    True if the DUT has a Strauss keyboard, False otherwise.
+  """
+  output = process_utils.CheckOutput(['ectool', 'inventory'])
+  for line in output.splitlines():
+    # This is defined in ec_feature_names in ectool.cc
+    if 'Strauss support' in line:
+      return True
+  return False
+
+
 class KeyboardTest(test_case.TestCase):
   """Tests if all the keys on a keyboard are functioning. The test checks for
   keydown and keyup events for each key, following certain order if required,
@@ -408,8 +425,9 @@ class KeyboardTest(test_case.TestCase):
       return self.args.layout + board
 
     # Use the primary keyboard_layout for testing.
+    strauss = 'STRAUSS_' if IsStraussKeyboard() else ''
     region = process_utils.CheckOutput(['vpd', '-g', 'region']).strip()
-    return regions.REGIONS[region].keyboard_mechanical_layout + board
+    return strauss + regions.REGIONS[region].keyboard_mechanical_layout + board
 
   def GetLayoutKeycodes(self, layout) -> List[List[int]]:
     """Return a 2-D array for rendering the keyboard of different layout.
