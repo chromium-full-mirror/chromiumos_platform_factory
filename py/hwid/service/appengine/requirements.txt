@@ -41,7 +41,7 @@ protobuf==4.21.9
 pycryptodome==3.7.3
 
 # License: MIT
-PyYaml==3.13
+PyYaml==6.0.1
 
 # License: MIT
 redis==3.3.11

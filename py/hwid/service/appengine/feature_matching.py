@@ -38,6 +38,8 @@ class _FeatureManagementFlagField(str, enum.Enum):
   IS_CHASSIS_BRANDED = 'is_chassis_branded'
   HW_COMPLIANCE_VERSION = 'hw_compliance_version'
 
+  def __format__(self, format_spec: str) -> str:
+    return self.value.__format__(format_spec)
 
 class _FeatureManagementFlagHWIDSpec(features.HWIDSpec):
   """Leverages `features.HWIDSpec` to match feature management flags."""

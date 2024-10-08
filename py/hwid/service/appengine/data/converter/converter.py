@@ -40,6 +40,9 @@ class ConverterConflictException(Exception):
 class AVLAttrs(str, enum.Enum):
   """Holds the attr names in AVL probe info."""
 
+  def __format__(self, format_spec: str) -> str:
+    return self.value.__format__(format_spec)
+
 
 class AbstractConverter(abc.ABC):
 
