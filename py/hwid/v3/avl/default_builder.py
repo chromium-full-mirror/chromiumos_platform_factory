@@ -9,6 +9,7 @@ from cros.factory.hwid.v3.avl.converter import camera
 from cros.factory.hwid.v3.avl.converter import cpu
 from cros.factory.hwid.v3.avl.converter import display_panel
 from cros.factory.hwid.v3.avl.converter import dram
+from cros.factory.hwid.v3.avl.converter import storage
 
 
 def GetDefaultBuilder() -> builder.Builder:
@@ -18,6 +19,6 @@ def GetDefaultBuilder() -> builder.Builder:
   b.AddConverterSet(cpu.GetConverterSet())
   b.AddConverterSet(display_panel.GetConverterSet())
   b.AddConverterSet(dram.GetConverterSet())
-  for s in camera.GetConverterSets():
-    b.AddConverterSet(s)
+  b.AddConverterSets(*camera.GetConverterSets())
+  b.AddConverterSets(*storage.GetConverterSets())
   return b
