@@ -162,8 +162,8 @@ class FingerprintTest(test_case.TestCase):
       Arg('number_of_manual_captures', int,
           ('The number of manual captures operators take. If it is not zero '
            'then the operator must manually judge pass or fail.'), default=0),
-      Arg('timeout_secs', int, 'The timeout of captures in seconds.',
-          default=5),
+      Arg('manual_test_timeout_secs', float,
+          'The timeout of captures in seconds.', default=5.0),
       Arg(
           'ignore_waitevent_timeout_error', bool,
           'Set to True to ignore cros_fp waitevent timeout error. More details '
@@ -184,7 +184,7 @@ class FingerprintTest(test_case.TestCase):
       max_error_reset_pixels: int
       fpframe_retry_count: int
       number_of_manual_captures: int
-      timeout_secs: int
+      manual_test_timeout_secs: float
       ignore_waitevent_timeout_error: bool
 
     args: _Args
@@ -410,8 +410,8 @@ class FingerprintTest(test_case.TestCase):
     self.ui.SetInstruction(_('Touch fingerprint sensor'))
     self._dut.CheckCall(['mkdir', '-p', self._image_dir], log=True)
     for iteration in range(iterations):
-      self._fpmcu.CaptureFpmodeAndWaitEvent('vendor',
-                                            self.args.timeout_secs * 1000)
+      self._fpmcu.CaptureFpmodeAndWaitEvent(
+          'vendor', int(self.args.manual_test_timeout_secs * 1000))
       img = self._fpmcu.GetFpframe(
           raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       self._ShowFingerprint(img, f'capture{int(iteration + 1)}')
@@ -460,8 +460,8 @@ class FingerprintTest(test_case.TestCase):
       self.ui.SetInstruction(_('Touch fingerprint sensor'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
       # Test sensor image quality
-      self._fpmcu.CaptureFpmodeAndWaitEvent('qual',
-                                            self.args.timeout_secs * 1000)
+      self._fpmcu.CaptureFpmodeAndWaitEvent(
+          'qual', int(self.args.manual_test_timeout_secs * 1000))
       img = self._fpmcu.GetFpframe(
           raw=True, max_attempt_count=self.args.fpframe_retry_count + 1)
       # record the raw image file for quality evaluation
