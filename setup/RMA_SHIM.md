@@ -202,19 +202,15 @@ tool adds a flag `RMA_AUTORUN=1` in `lsb-factory` file, which sets the default
 action of the menu depending on the cr50 version and hardware write protection
 status, such that:
 
-1. If cr50 version is older than the cr50 image in the shim, set the default
-   action to **(U) Update cr50**. After cr50 is updated, the device will reboot.
-   The user should enter recovery mode and boot to shim again.
-1. If cr50 version is up-to-date, and hardware write protection is enabled, set
-   the default action to **(E) Reset Cr50**, also known as RSU (RMA Server
-   Unlock) to disable hardware write protection and enter factory mode. After
-   RMA reset, the device will reboot. The user should enter recovery mode and
-   boot to shim again.
-1. If cr50 version is up-to-date, and hardware write protection is disabled, set
-   the default action to **(I) install** to install payloads from USB. If
-   hardware write protection is disabled by disconnecting the battery instead of
-   doing RSU, the install script will also enable factory mode at the end of
-   installation.
+1. If hardware write protection is enabled, set the default action to
+   **(E) Reset Cr50**, also known as RSU (RMA Server Unlock) to disable
+   hardware write protection and enter factory mode. After RMA reset, the
+   device will reboot. The user should enter recovery mode and boot to shim
+   again.
+1. If hardware write protection is disabled, set the default action to
+   **(I) install** to install payloads from USB. If hardware write protection
+   is disabled by disconnecting the battery instead of doing RSU, the install
+   script will also enable factory mode at the end of installation.
 
 You can stop the default action and return to shim menu by pressing any key
 within 3 seconds when the console prompts "press any key to show menu instead".
@@ -434,7 +430,7 @@ or
 |FACTORY_INSTALL_DEFAULT_ACTION|The factory shim will execute the default action automatically if not interrupted by user.|(3)|-|
 |FACTORY_INSTALL_ACTION_COUNTDOWN|Countdown before doing default action, the countdown is 3 seconds|(4)|12387|
 |FACTORY_INSTALL_COMPLETE_PROMPT|Wait for ENTER after action **(I) Install** is completed.|(5)|11766|
-|RMA_AUTORUN|The factory shim will set the default action to **(I) Install** or **(E) Perform RSU** or **(U) Update TPM firmware**, depending on HWWP status and TPM version. |(6)|11394|
+|RMA_AUTORUN|The factory shim will set the default action to **(I) Install** or **(E) Perform RSU**, depending on HWWP status. |(6)|11394|
 |CUTOFF_METHOD, CUTOFF_AC_STATE, CUTOFF_BATTERY_MIN_PERCENTAGE, CUTOFF_BATTERY_MAX_PERCENTAGE, CUTOFF_BATTERY_MIN_VOLTAGE, CUTOFF_BATTERY_MAX_VOLTAGE, SHOPFLOOR_URL|[Deprecated](#deprecate_cutoff).|(7)|-|
 |DISPLAY_QRCODE|Display the information of the DUT as a qrcode, to increase the flexibility of customized process of factory reset.|(8)|15448|
 |DISPLAY_INFO|Support fields are: `hwid`, `serial_number`, `mlb_serial_number`, `wifi_mac0`, `service_tag`. For example: `hwid serial_number, wifi_mac0` will display hwid and serial_number in the first qrcode, and display wifi_mac0 in the second qrcode. |(8)|15448|
