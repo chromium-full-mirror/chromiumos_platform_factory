@@ -38,7 +38,9 @@ class CommonTest(unittest.TestCase):
             runtime_probe_matchers.FieldProbeInfoSuggestion[str](
                 'key1', 'value1', 'value3'),
             runtime_probe_matchers.FieldProbeInfoSuggestion[str](
-                'key1', 'value2', 'value3')
+                'key1', 'value2', 'value3'),
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key1', 'value3', 'value3')
         ]))
     self.assertCountEqual(suggestions, [
         matcher.ProbeInfoSuggestion(
@@ -56,7 +58,9 @@ class CommonTest(unittest.TestCase):
             runtime_probe_matchers.FieldProbeInfoSuggestion[str](
                 'key1', 'value1', 'value3'),
             runtime_probe_matchers.FieldProbeInfoSuggestion[str](
-                'key2', 'value2', 'value3')
+                'key2', 'value2', 'value3'),
+            runtime_probe_matchers.FieldProbeInfoSuggestion[str](
+                'key2', 'value2', 'value2')
         ]))
     self.assertCountEqual(suggestions, [
         matcher.ProbeInfoSuggestion(

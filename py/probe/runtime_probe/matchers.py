@@ -88,10 +88,10 @@ class IMatcher(abc.ABC):
 
   @abc.abstractmethod
   def GetProbeInfoSuggestion(
-      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> ProbeInfoSuggestion:
     """Generates suggestion for editing ProbeInfo.
 
-    Returns: None if component matches. Otherwise returns the suggestion.
+    Returns: a ProbeInfoSuggestion.
     """
 
 
@@ -109,7 +109,10 @@ class FieldMatcher(IMatcher, Generic[_T]):
 
   def Match(self, component: Mapping[str, str]) -> bool:
     """See IMatcher."""
-    return self.GetProbeInfoSuggestion(component) is None
+    got_raw = component.get(self._field_name)
+    got = self.CONVERTER.Parse(got_raw) if got_raw is not None else None
+    return got is not None and self._MatchExpectedValue(got)
+
 
   def GenerateProbeConfigMatcherStatement(self) -> Mapping[str, Any]:
     """See IMatcher."""
@@ -126,13 +129,10 @@ class FieldMatcher(IMatcher, Generic[_T]):
     return got == self._expected_value
 
   def GetProbeInfoSuggestion(
-      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> ProbeInfoSuggestion:
     """See IMatcher."""
     got_raw = component.get(self._field_name)
     got = self.CONVERTER.Parse(got_raw) if got_raw is not None else None
-    if got is not None and self._MatchExpectedValue(got):
-      return None
-
     return FieldProbeInfoSuggestion(field_name=self._field_name,
                                     expected=self._expected_value, got=got)
 
@@ -209,13 +209,9 @@ class AndMatcher(IMatcher):
     }
 
   def GetProbeInfoSuggestion(
-      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> ProbeInfoSuggestion:
     """See IMatcher."""
-    suggestions: Sequence[ProbeInfoSuggestion] = list(
-        filter(None,
-               [m.GetProbeInfoSuggestion(component) for m in self._matchers]))
-    if not suggestions:
-      return None
+    suggestions = [m.GetProbeInfoSuggestion(component) for m in self._matchers]
     if len(suggestions) == 1:
       return next(iter(suggestions))
     return AndProbeInfoSuggestion(suggestions=suggestions)
@@ -242,13 +238,9 @@ class OrMatcher(IMatcher):
     }
 
   def GetProbeInfoSuggestion(
-      self, component: Mapping[str, str]) -> Optional[ProbeInfoSuggestion]:
+      self, component: Mapping[str, str]) -> ProbeInfoSuggestion:
     """See IMatcher."""
-    suggestions: Sequence[ProbeInfoSuggestion] = list(
-        filter(None,
-               [m.GetProbeInfoSuggestion(component) for m in self._matchers]))
-    if len(suggestions) != len(self._matchers):
-      return None
+    suggestions = [m.GetProbeInfoSuggestion(component) for m in self._matchers]
     if len(suggestions) == 1:
       return next(iter(suggestions))
     return OrProbeInfoSuggestion(suggestions=suggestions)

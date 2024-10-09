@@ -149,7 +149,6 @@ class MatchersTest(unittest.TestCase):
               'field_a': field_value
           }
           self.assertTrue(matcher.Match(component))
-          self.assertIsNone(matcher.GetProbeInfoSuggestion(component))
 
   def testFieldNotMatch(self):
     tests: Sequence[Tuple[Type[matchers.FieldMatcher], Any, Sequence]] = [
@@ -253,7 +252,6 @@ class MatchersTest(unittest.TestCase):
       for test_name, component in fields:
         with self.subTest(test_name=test_name, matcher=matcher):
           self.assertTrue(matcher.Match(component))
-          self.assertIsNone(matcher.GetProbeInfoSuggestion(component))
 
   def testMultipleNotMatch(self):
     tests: Sequence[Tuple[matchers.IMatcher,
@@ -272,9 +270,14 @@ class MatchersTest(unittest.TestCase):
                         'field_a': 'value_a',
                         'field_b': 'not_value_b',
                     },
-                    matchers.FieldProbeInfoSuggestion(field_name='field_b',
-                                                      expected='value_b',
-                                                      got='not_value_b'),
+                    matchers.AndProbeInfoSuggestion([
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_a', expected='value_a',
+                            got='value_a'),
+                        matchers.FieldProbeInfoSuggestion(
+                            field_name='field_b', expected='value_b',
+                            got='not_value_b'),
+                    ]),
                 ),
                 (
                     'all_field_not_match',

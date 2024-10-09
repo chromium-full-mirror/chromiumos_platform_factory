@@ -38,7 +38,8 @@ class AVLAttributeSuggesterBase(matcher.ISuggester):
   ) -> Sequence[matcher.ProbeInfoSuggestion]:
     suggestions = []
     if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
-      if suggestion.field_name == self._runtime_probe_key:
+      if (suggestion.field_name == self._runtime_probe_key and
+          suggestion.got != suggestion.expected):
         suggestions.append(
             matcher.ProbeInfoSuggestion(
                 self._key, str(suggestion.got),
@@ -70,9 +71,9 @@ class MultiValueAVLAttributeSuggester(AVLAttributeSuggesterBase):
   ) -> Sequence[matcher.ProbeInfoSuggestion]:
     filtered_suggestions: Sequence[
         runtime_probe_matchers.FieldProbeInfoSuggestion] = [
-            s for s in suggestion.suggestions
-            if (isinstance(s, runtime_probe_matchers.FieldProbeInfoSuggestion)
-                and s.field_name == self._runtime_probe_key)
+            s for s in suggestion.suggestions if
+            (isinstance(s, runtime_probe_matchers.FieldProbeInfoSuggestion) and
+             s.field_name == self._runtime_probe_key and s.got != s.expected)
         ]
 
     expected = sorted({str(s.expected)

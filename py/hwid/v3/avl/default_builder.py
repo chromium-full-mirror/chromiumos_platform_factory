@@ -10,6 +10,7 @@ from cros.factory.hwid.v3.avl.converter import cpu
 from cros.factory.hwid.v3.avl.converter import display_panel
 from cros.factory.hwid.v3.avl.converter import dram
 from cros.factory.hwid.v3.avl.converter import storage
+from cros.factory.hwid.v3.avl.converter import wifi
 
 
 def GetDefaultBuilder() -> builder.Builder:
@@ -21,4 +22,5 @@ def GetDefaultBuilder() -> builder.Builder:
   b.AddConverterSet(dram.GetConverterSet())
   b.AddConverterSets(*camera.GetConverterSets())
   b.AddConverterSets(*storage.GetConverterSets())
+  b.AddConverterSets(*wifi.GetConverterSets())
   return b
