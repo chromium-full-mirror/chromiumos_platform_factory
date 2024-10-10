@@ -35,15 +35,19 @@ The feature is decided to be deprecated, no need to add this test item.
 from cros.factory.test import session
 from cros.factory.test import test_case
 from cros.factory.test.utils import gsc_utils
-from cros.factory.test.utils.gsc_utils import GSCUtils
 from cros.factory.utils.arg_utils import Arg
 
 from cros.factory.external.chromeos_cli import gsctool
 
 
+class Cr50APROHashTestArgs:
+  action: str
+
+
 class Cr50APROHashTest(test_case.TestCase):
   related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   ARGS = [Arg('action', str, "The action for AP RO hash ('set', 'clear').")]
+  args: Cr50APROHashTestArgs
 
   def setUp(self):
     self.gsctool = gsctool.GSCTool()
@@ -51,7 +55,7 @@ class Cr50APROHashTest(test_case.TestCase):
 
   def runTest(self):
     # skip the test if the firmware is Ti50
-    if GSCUtils().IsTi50():
+    if gsc_utils.GSCUtils().IsTi50():
       session.console.info('Skip Cr50 AP RO hash test '
                            'since the firmware is Ti50.')
       return
@@ -59,9 +63,7 @@ class Cr50APROHashTest(test_case.TestCase):
       session.console.warn('Unable to modify RO hash, test skipped.')
       return
 
-    # yapf: disable
-    action = self.args.action  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    action = self.args.action
     if action == 'set':
       self.gsc_utils.Cr50SetROHash()
     elif action == 'clear':
