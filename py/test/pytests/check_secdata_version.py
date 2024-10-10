@@ -44,6 +44,11 @@ from cros.factory.test import test_case
 from cros.factory.utils.arg_utils import Arg
 
 
+class SecdataVersionArgs:
+  major_version: int
+  minor_version: int
+
+
 class SecdataVersionTest(test_case.TestCase):
   """Checks the secdata version."""
   related_components = (
@@ -54,13 +59,12 @@ class SecdataVersionTest(test_case.TestCase):
       Arg('major_version', int, 'Major version of secdata.', default=1),
       Arg('minor_version', int, 'Minor version of secdata.', default=0)
   ]
+  args: SecdataVersionArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
     out = int(self.dut.CallOutput(['tpmc', 'read', '0x1008', '1']), 16)
-    # yapf: disable
-    expect = self.args.major_version << 4 | self.args.minor_version << 0  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    expect = (self.args.major_version << 4 | self.args.minor_version << 0)
     self.assertEqual(out, expect, 'Secdata version is incorrect')
