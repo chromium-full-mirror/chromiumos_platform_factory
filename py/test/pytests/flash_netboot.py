@@ -55,6 +55,10 @@ from cros.factory.tools import flash_netboot
 from cros.factory.utils.arg_utils import Arg
 
 
+class FlashNetbootTestArgs:
+  image: str
+
+
 class FlashNetbootTest(test_case.TestCase):
   related_components = tuple()
   ARGS = [
@@ -62,19 +66,15 @@ class FlashNetbootTest(test_case.TestCase):
           'image', str, f'Path of netboot firmware image. Default to use '
           f'{flash_netboot.DEFAULT_NETBOOT_FIRMWARE_PATH}', default=None),
   ]
-
-  ui_class = test_ui.ScrollableLogUI
+  args: FlashNetbootTestArgs
+  ui: test_ui.ScrollableLogUI
 
   def ShowResult(self, message):
     logging.info(message.strip())
-    # yapf: disable
-    self.ui.AppendLog(message)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.AppendLog(message)
 
   def runTest(self):
-    # yapf: disable
-    netboot_flasher = flash_netboot.FlashNetboot(self.args.image,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    netboot_flasher = flash_netboot.FlashNetboot(self.args.image,
                                                  on_output=self.ShowResult)
     self.ShowResult(netboot_flasher.WarningMessage())
     netboot_flasher.Run()
