@@ -44,24 +44,28 @@ To sync with tolerance time set to 3 seconds::
 """
 
 import datetime
+from typing import Tuple
 import unittest
 
 from cros.factory.device import device_utils
 from cros.factory.test import session
+from cros.factory.test import test_tags
 from cros.factory.test.utils import time_utils as test_time_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import time_utils
 
 
-class SyncTime(unittest.TestCase):
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+class SyncTimeArgs:
+  tolerance: float
 
+
+class SyncTime(unittest.TestCase):
+  related_components: Tuple[test_tags.TestCategory, ...] = ()
   ARGS = [
       Arg('tolerance', float,
           'Max absolute time difference between DUT and station after sync.',
           default=5.0)]
+  args: SyncTimeArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
@@ -76,6 +80,4 @@ class SyncTime(unittest.TestCase):
     goofy_now = (datetime.datetime.utcnow() -
                  time_utils.EPOCH_ZERO).total_seconds()
 
-    # yapf: disable
-    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertAlmostEqual(goofy_now, dut_now, delta=self.args.tolerance)
