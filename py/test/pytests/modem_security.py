@@ -48,7 +48,6 @@ RESPONSE_RE = re.compile('^response: \'(.*)\'$', re.DOTALL)
 
 
 class ModemSecurity(test_case.TestCase):
-
   related_components = (test_case.TestCategory.WWAN, )
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
@@ -59,10 +58,8 @@ class ModemSecurity(test_case.TestCase):
     match = RESPONSE_RE.search(response)
     if not match:
       self.FailTask(f'Bad response: {response}')
-
-    # yapf: disable
-    return match.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+      return ''
+    return match.group(1)
 
   def runTest(self):
     response = self._dut.CheckOutput(['mmcli', '-L'], log=True)
@@ -71,16 +68,13 @@ class ModemSecurity(test_case.TestCase):
       self.WaiveTest('Modem is not L850 waived.')
     # Check whether access authority is closed already first.
     response = self.RunATCommand('AT@sec:status_info()')
-    # yapf: disable
-    if ACCESS_LEVEL_RE.search(response).group(0) == 'access_level = 0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    match = ACCESS_LEVEL_RE.search(response)
+    if match and match.group(0) == 'access_level = 0':
       return
-
     # If access authority is still open then try to close it.
     self.RunATCommand('AT@sec:code_clear(0)')
     response = self.RunATCommand('AT@sec:status_info()')
-    # yapf: disable
-    if ACCESS_LEVEL_RE.search(response).group(0) != 'access_level = 0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    match = ACCESS_LEVEL_RE.search(response)
+    if not match or match.group(0) != 'access_level = 0':
       # If we can't close the access authority then raise this failure.
       self.FailTask('Failed to set the access_level')
