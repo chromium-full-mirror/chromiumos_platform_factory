@@ -41,9 +41,14 @@ from cros.factory.utils.arg_utils import Arg
 
 
 class TestMode(str, enum.Enum):
-  create = 'create'
-  verify_update = 'verify_update'
-  verify_no_update = 'verify_no_update'
+  CREATE = 'create'
+  VERIFY_UPDATE = 'verify_update'
+  VERIFY_NO_UPDATE = 'verify_no_update'
+
+
+class MrcCacheTestArgs:
+  mode: str
+
 
 class MrcCacheTest(unittest.TestCase):
   related_components = (test_tags.TestCategory.DRAM, )
@@ -56,30 +61,29 @@ class MrcCacheTest(unittest.TestCase):
           ' memory retraining on next boot.\n'
           '- "verify_no_update": verify the MRC cache is not updated.\n')
   ]
+  args: MrcCacheTestArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    # yapf: disable
-    mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    valid_mode = [m.value for m in TestMode]
-    if mode not in valid_mode:
-      raise KeyError(f'Mode {mode} is not valid. '
-                     f'Valid modes: {valid_mode}')
+    valid_modes = {mode.value
+                   for mode in TestMode}
+    if self.args.mode not in valid_modes:
+      raise KeyError(
+          f"Invalid mode '{self.args.mode}'.  Valid modes are: {valid_modes}")
 
-    mode = TestMode(mode)
-    if mode == TestMode.create:
+    mode = TestMode(self.args.mode)
+    if mode == TestMode.CREATE:
       mrc_cache.EraseTrainingData(self.dut)
       mrc_cache.SetRecoveryRequest(self.dut)
       mrc_cache.CacheEventLog(self.dut)
-    elif mode == TestMode.verify_update:
+    elif mode == TestMode.VERIFY_UPDATE:
       mrc_cache.VerifyTrainingData(self.dut, mrc_cache.Result.Success)
-      # Though `verify_update` requests memory retraining, coreboot won't
+      # Though `VERIFY_UPDATE` requests memory retraining, coreboot won't
       # retrain the memory if the cache is valid.
       mrc_cache.SetRecoveryRequest(self.dut)
       mrc_cache.CacheEventLog(self.dut)
-    elif mode == TestMode.verify_no_update:
+    elif mode == TestMode.VERIFY_NO_UPDATE:
       mrc_cache.VerifyTrainingData(self.dut, mrc_cache.Result.NoUpdate)
       mrc_cache.ClearEventlogCache()
