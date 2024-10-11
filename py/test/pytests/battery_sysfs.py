@@ -37,6 +37,11 @@ from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 
 
+class SysfsBatteryTestArgs:
+  maximum_cycle_count: int
+  percent_battery_wear_allowed: int
+
+
 class SysfsBatteryTest(unittest.TestCase):
   """Checks battery status."""
   related_components = (test_tags.TestCategory.BATTERY, )
@@ -46,6 +51,7 @@ class SysfsBatteryTest(unittest.TestCase):
       Arg('percent_battery_wear_allowed', int,
           'Maximum percent battery wear allowed to pass test', default=5),
   ]
+  args: SysfsBatteryTestArgs
 
   def setUp(self):
     self._power = device_utils.CreateDUTInterface().power
@@ -53,10 +59,8 @@ class SysfsBatteryTest(unittest.TestCase):
   def runTest(self):
     success = False
     msg = ''
-    # yapf: disable
-    wearAllowedPct = self.args.percent_battery_wear_allowed  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    wearPct = None
+    wear_allowed_pct = self.args.percent_battery_wear_allowed
+    wear_pct = None
     power = self._power
 
     battery_present = power.CheckBatteryPresent()
@@ -64,26 +68,22 @@ class SysfsBatteryTest(unittest.TestCase):
       msg = 'Cannot find battery path'
     elif power.GetChargePct() is None:
       msg = 'Cannot get charge percentage'
-    elif 0 <= wearAllowedPct < 100:
-      wearPct = power.GetWearPct()
-      if wearPct is None:
+    elif 0 <= wear_allowed_pct < 100:
+      wear_pct = power.GetWearPct()
+      if wear_pct is None:
         msg = 'Cannot get wear percentage'
-      elif wearPct > wearAllowedPct:
-        msg = f'Battery is over-worn: {int(wearPct)}%'
+      elif wear_pct > wear_allowed_pct:
+        msg = f'Battery is over-worn: {int(wear_pct)}%'
       else:
         success = True
     else:
       success = True
 
     if battery_present:
-      cycleCount = power.GetBatteryCycleCount()
-      # yapf: disable
-      if success and self.args.maximum_cycle_count >= 0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        if cycleCount > self.args.maximum_cycle_count:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          msg = f'Battery cycle count is too high: {int(cycleCount)}'
+      cycle_count = power.GetBatteryCycleCount()
+      if success and self.args.maximum_cycle_count >= 0:
+        if cycle_count > self.args.maximum_cycle_count:
+          msg = f'Battery cycle count is too high: {int(cycle_count)}'
           success = False
 
       testlog.LogParam('battery_sysfs_info', power.GetInfoDict())
