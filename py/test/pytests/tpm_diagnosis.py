@@ -32,10 +32,17 @@ An example::
 
 import os
 import threading
+from typing import List
 
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
+
+
+class TpmDiagnosisTestArgs:
+  tpm_selftest: str
+  tpm_args: List[str]
+  success_pattern: str
 
 
 class TpmDiagnosisTest(test_case.TestCase):
@@ -51,17 +58,13 @@ class TpmDiagnosisTest(test_case.TestCase):
       Arg('success_pattern', str, 'Pattern of success.',
           default='tpm_selftest succeeded')
   ]
-
-  ui_class = test_ui.ScrollableLogUI
+  args: TpmDiagnosisTestArgs
+  ui: test_ui.ScrollableLogUI
 
   def setUp(self):
     self.assertTrue(
-        # yapf: disable
-        os.path.isfile(self.args.tpm_selftest),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        msg=f'{self.args.tpm_selftest} is missing.')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        os.path.isfile(self.args.tpm_selftest),
+        msg=f'{self.args.tpm_selftest} is missing.')
 
   def runTest(self):
     """Runs tpm_selftest.
@@ -69,23 +72,16 @@ class TpmDiagnosisTest(test_case.TestCase):
     It shows diagnosis result on factory UI.
     """
     success = threading.Event()
+
     def _Callback(line):
-      # yapf: disable
-      if self.args.success_pattern in line:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.success_pattern in line:
         success.set()
 
-    # yapf: disable
-    returncode = self.ui.PipeProcessOutputToUI(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        [self.args.tpm_selftest] + self.args.tpm_args, callback=_Callback)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    returncode = self.ui.PipeProcessOutputToUI(
+        [self.args.tpm_selftest] + self.args.tpm_args, callback=_Callback)
 
     self.assertTrue(
         success.is_set(),
-        # yapf: disable
-        f'TPM self-diagnose failed: Cannot find a success pattern: '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        f'TPM self-diagnose failed: Cannot find a success pattern: '
         f'"{self.args.success_pattern}". tpm_selftest returncode: '
         f'{int(returncode)}.')
