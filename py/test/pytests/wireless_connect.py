@@ -32,7 +32,7 @@ To disconnect to all WiFi services.:
 """
 
 import re
-from typing import List
+from typing import List, Optional
 
 from cros.factory.device import device_utils
 from cros.factory.goofy.plugins import plugin_controller
@@ -46,10 +46,16 @@ from cros.factory.utils import type_utils
 SSID_RE = re.compile('SSID: (.*)$', re.MULTILINE)
 
 
+class WirelessConnectTestArgs:
+  device_name: Optional[str]
+  service_name: List[dict]
+  retries: int
+  sleep_interval: int
+
+
 class WirelessConnectTest(test_case.TestCase):
   """Basic wireless test class."""
   related_components = tuple()
-
   ARGS = [
       Arg('device_name', str, 'The wifi interface', default=None),
       Arg('service_name', list,
@@ -58,6 +64,7 @@ class WirelessConnectTest(test_case.TestCase):
       Arg('retries', int, 'Times to retry.', default=10),
       Arg('sleep_interval', int, 'Time to sleep.', default=3)
   ]
+  args: WirelessConnectTestArgs
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
@@ -74,31 +81,21 @@ class WirelessConnectTest(test_case.TestCase):
     return False
 
   def _CheckNotConnected(self):
-    # yapf: disable
-    result: str = self._dut.CheckOutput(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        ['iw', 'dev', self._device_name, 'link'], log=True)
+    result = self._dut.CheckOutput(['iw', 'dev', self._device_name, 'link'],
+                                   log=True)
     return result.startswith('Not connected.')
 
   def runTest(self):
-    # yapf: disable
-    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._device_name = self._dut.wifi.SelectInterface(self.args.device_name)
     session.console.info('Selected device_name is %s.', self._device_name)
-    # yapf: disable
-    services = self.args.service_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    services = self.args.service_name
     session.console.info('service = %r', services)
     self._connection_manager.Reconnect(services)
     ssid_list = [service.get('ssid') for service in services]
 
     retry_wrapper = sync_utils.RetryDecorator(
-        # yapf: disable
-        max_attempt_count=self.args.retries,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        interval_sec=self.args.sleep_interval, target_condition=bool)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        max_attempt_count=self.args.retries,
+        interval_sec=self.args.sleep_interval, target_condition=bool)
 
     try:
       if ssid_list:
