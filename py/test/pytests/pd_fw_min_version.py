@@ -45,35 +45,33 @@ To verify multiple PD chips (ex: port 0 and 1), add this in test list::
 
 import logging
 import re
+from typing import List, Tuple, Union
 import unittest
 
 from cros.factory.device import device_utils
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 
 
-class PdFwMinVersion(unittest.TestCase):
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+class PdFwMinVersionArgs:
+  ports: Union[int, List[int]]
 
+
+class PdFwMinVersion(unittest.TestCase):
+  related_components: Tuple[test_tags.TestCategory, ...] = ()
   ARGS = [
       Arg('ports', (int, list), 'Specify which PD ports are checked.',
           default=0)]
+  args: PdFwMinVersionArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    # yapf: disable
-    if isinstance(self.args.ports, int):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.args.ports = [self.args.ports]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if isinstance(self.args.ports, int):
+      self.args.ports = [self.args.ports]
 
-    # yapf: disable
-    for port in self.args.ports:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for port in self.args.ports:
       info = self.dut.CheckOutput(['ectool', 'pdchipinfo', f'{port}'], log=True)
       logging.info('pdchipinfo of port %d:\n%s.', port, info)
       res = re.search(r'^min_req_fw_version: (0x\w+)$', info, re.MULTILINE)
