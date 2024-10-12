@@ -44,6 +44,10 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import string_utils
 
 
+class TPMVerifyEKArgs:
+  is_cros_core: bool
+
+
 class TPMVerifyEK(unittest.TestCase):
   related_components = (
       test_tags.TestCategory.SECURE_ELEMENT,
@@ -51,9 +55,10 @@ class TPMVerifyEK(unittest.TestCase):
   )
   ARGS = [
       # Chromebooks and Chromeboxes should set this to False.
-      Arg('is_cros_core', bool, 'Verify with ChromeOS Core endoresement',
+      Arg('is_cros_core', bool, 'Verify with ChromeOS Core endorsement',
           default=False)
   ]
+  args: TPMVerifyEKArgs
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
@@ -63,9 +68,7 @@ class TPMVerifyEK(unittest.TestCase):
 
     status_txt = self.dut.CheckOutput(
         ['attestation_client', 'verify_attestation', '--ek-only'] +
-        # yapf: disable
-        (['--cros_core'] if self.args.is_cros_core else []), log=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        (['--cros_core'] if self.args.is_cros_core else []), log=True)
 
     # The status_txt would look like this:
     #
