@@ -300,7 +300,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
-                marked_untracked_changed=False),
+                marked_untracked_changed=False, probe_info_changed=False),
             link_avl=False,
             probe_value_alignment_status=(_PVAlignmentStatus.NO_PROBE_INFO),
             skip_avl_check=True,

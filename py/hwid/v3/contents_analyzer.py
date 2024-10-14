@@ -85,6 +85,7 @@ class DiffStatus(NamedTuple):
   prev_probe_value_alignment_status: ProbeValueAlignmentStatus
   converter_changed: bool
   marked_untracked_changed: bool
+  probe_info_changed: bool
 
 
 ComponentNameInfo = name_pattern_adapter.NameInfo
@@ -261,6 +262,11 @@ def _ExtractHWIDComponents(
           values_changed = True
         else:
           values_changed = dict(prev_comp_info.values) != dict(comp_info.values)
+        probe_info_changed = False
+        if (isinstance(prev_comp_info.values, rule.AVLProbeValue) and
+            isinstance(comp_info.values, rule.AVLProbeValue)):
+          probe_info_changed = (
+              prev_comp_info.values.probe_info != comp_info.values.probe_info)
 
         prev_alignment_status = (
             ProbeValueAlignmentStatus.FromProbeValues(prev_comp_info.values))
@@ -274,12 +280,9 @@ def _ExtractHWIDComponents(
         marked_untracked_changed = marked_untracked != prev_marked_untracked
 
         unchanged = not any([
-            name_changed,
-            support_status_changed,
-            values_changed,
-            probe_value_alignment_status_changed,
-            converter_changed,
-            marked_untracked_changed,
+            name_changed, support_status_changed, values_changed,
+            probe_value_alignment_status_changed, converter_changed,
+            marked_untracked_changed, probe_info_changed
         ])
         diffstatus = DiffStatus(
             unchanged,
@@ -292,6 +295,7 @@ def _ExtractHWIDComponents(
             prev_alignment_status,
             converter_changed,
             marked_untracked_changed,
+            probe_info_changed,
         )
         from_factory_bundle = bool(prev_comp_info.bundle_uuids)
         is_newly_added = False

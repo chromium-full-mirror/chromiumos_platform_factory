@@ -590,7 +590,8 @@
         "probe_value_alignment_status_changed": false,
         "prev_probe_value_alignment_status": "NO_PROBE_INFO",
         "converter_changed": false,
-        "marked_untracked_changed": false
+        "marked_untracked_changed": false,
+        "probe_info_changed": false
       },
       "link_avl": false,
       "probe_value_alignment_status": "NO_PROBE_INFO",
@@ -622,7 +623,8 @@
         "probe_value_alignment_status_changed": false,
         "prev_probe_value_alignment_status": "NOT_ALIGNED",
         "converter_changed": false,
-        "marked_untracked_changed": false
+        "marked_untracked_changed": false,
+        "probe_info_changed": false
       },
       "link_avl": false,
       "probe_value_alignment_status": "NOT_ALIGNED",
@@ -654,7 +656,8 @@
         "probe_value_alignment_status_changed": true,
         "prev_probe_value_alignment_status": "NOT_ALIGNED",
         "converter_changed": false,
-        "marked_untracked_changed": false
+        "marked_untracked_changed": false,
+        "probe_info_changed": false
       },
       "link_avl": false,
       "probe_value_alignment_status": "NO_PROBE_INFO",
@@ -686,7 +689,8 @@
         "probe_value_alignment_status_changed": true,
         "prev_probe_value_alignment_status": "NO_PROBE_INFO",
         "converter_changed": false,
-        "marked_untracked_changed": false
+        "marked_untracked_changed": false,
+        "probe_info_changed": false
       },
       "link_avl": false,
       "probe_value_alignment_status": "NOT_ALIGNED",

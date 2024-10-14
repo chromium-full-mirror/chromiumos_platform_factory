@@ -767,7 +767,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatus.NO_PROBE_INFO),
                             converter_changed=False,
-                            marked_untracked_changed=False), link_avl=False,
+                            marked_untracked_changed=False,
+                            probe_info_changed=False), link_avl=False,
                         probe_value_alignment_status=(
                             _PVAlignmentStatus.NO_PROBE_INFO),
                         skip_avl_check=False, marked_untracked=False),
@@ -788,7 +789,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatus.NO_PROBE_INFO),
                             converter_changed=False,
-                            marked_untracked_changed=False), link_avl=False,
+                            marked_untracked_changed=False,
+                            probe_info_changed=False), link_avl=False,
                         probe_value_alignment_status=(
                             _PVAlignmentStatus.ALIGNED), skip_avl_check=False,
                         marked_untracked=False),
@@ -1322,7 +1324,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatus.NO_PROBE_INFO),
                             converter_changed=False,
-                            marked_untracked_changed=True), link_avl=False,
+                            marked_untracked_changed=True,
+                            probe_info_changed=False), link_avl=False,
                         probe_value_alignment_status=(
                             _PVAlignmentStatus.NO_PROBE_INFO),
                         skip_avl_check=False, marked_untracked=False),
@@ -1410,7 +1413,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             probe_value_alignment_status_changed=False,
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatusMsg.NO_PROBE_INFO),
-                            marked_untracked_changed=True),
+                            marked_untracked_changed=True,
+                            probe_info_changed=False),
                         probe_value_alignment_status=(
                             _PVAlignmentStatusMsg.NO_PROBE_INFO),
                         skip_avl_check=False,
@@ -1585,7 +1589,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatus.NO_PROBE_INFO),
                             converter_changed=False,
-                            marked_untracked_changed=False), link_avl=False,
+                            marked_untracked_changed=False,
+                            probe_info_changed=False), link_avl=False,
                         probe_value_alignment_status=(
                             _PVAlignmentStatus.NO_PROBE_INFO),
                         skip_avl_check=False, marked_untracked=False),
@@ -1606,7 +1611,8 @@ class SelfServiceShardTest(unittest.TestCase):
                             prev_probe_value_alignment_status=(
                                 _PVAlignmentStatus.NO_PROBE_INFO),
                             converter_changed=False,
-                            marked_untracked_changed=False), link_avl=False,
+                            marked_untracked_changed=False,
+                            probe_info_changed=False), link_avl=False,
                         probe_value_alignment_status=(
                             _PVAlignmentStatus.ALIGNED), skip_avl_check=False,
                         marked_untracked=False),
@@ -2567,11 +2573,16 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum:
-        +checksum: 1af3ce3098209e2de7b03db964067adcc8de1cf3
+        +checksum: 8482fa342814bf5471d0edc4b24f77b31fe35121
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
-        @@ -133,15 +133,37 @@
+        @@ -132,16 +132,42 @@
+                     value: '2'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
                    probe_value_matched: true
                comp_cls1_3:
                  status: supported
@@ -2621,8 +2632,8 @@ class SelfServiceShardTest(unittest.TestCase):
          # 若修改将使设备配置變為无效，并且不得销售此设备。
          #
          #####
-        -checksum: 1af3ce3098209e2de7b03db964067adcc8de1cf3
-        +checksum: c4b0ec30d8b720f84ebf76ced7f80299bd520b42
+        -checksum: 8482fa342814bf5471d0edc4b24f77b31fe35121
+        +checksum: 6a5c41fd58544f20fe43e2d461837e5cb587ea16
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2652,7 +2663,12 @@ class SelfServiceShardTest(unittest.TestCase):
 
          components:
            mainboard:
-        @@ -179,14 +184,36 @@
+        @@ -182,15 +187,41 @@
+                     value: '2'
+        +          probe_info:
+        +            identifier: ''
+        +            params: {}
+        +          probe_info_matched: true
                    probe_value_matched: true
                comp_cls2_8:
                  status: supported

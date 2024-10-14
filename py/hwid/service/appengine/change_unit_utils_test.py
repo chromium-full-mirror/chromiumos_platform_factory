@@ -70,7 +70,7 @@ def _BuildHWIDComponentAnalysisResultWithDefaults(
     probe_value_alignment_status: _PVAlignmentStatus = (
         _PVAlignmentStatus.NO_PROBE_INFO), converter_changed: bool = False,
     diff_prev: Optional[_DiffStatus] = None, skip_avl_check: bool = False,
-    marked_untracked_changed: bool = False):
+    marked_untracked_changed: bool = False, probe_info_changed: bool = False):
 
   null_values = comp_info.values is None
   support_status = comp_info.status
@@ -94,7 +94,8 @@ def _BuildHWIDComponentAnalysisResultWithDefaults(
           probe_value_alignment_status_changed=False,
           prev_probe_value_alignment_status=probe_value_alignment_status,
           converter_changed=converter_changed,
-          marked_untracked_changed=marked_untracked_changed)
+          marked_untracked_changed=marked_untracked_changed,
+          probe_info_changed=probe_info_changed)
   return _HWIDComponentAnalysisResult(
       comp_cls=comp_cls, comp_name=comp_name, seq_no=seq_no,
       support_status=support_status, is_newly_added=is_newly_added,
@@ -392,7 +393,8 @@ class CompChangeTest(ChangeUnitTestBase):
                     _PVAlignmentStatus.NO_PROBE_INFO),
                 converter_changed=False,
                 # yapf: disable
-                marked_untracked_changed=False)),
+                marked_untracked_changed=False,
+                probe_info_changed=False)),
         comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
         comp_info.information,
@@ -426,7 +428,8 @@ class CompChangeTest(ChangeUnitTestBase):
                     _PVAlignmentStatus.NO_PROBE_INFO),
                 converter_changed=False,
                 # yapf: disable
-                marked_untracked_changed=False)),
+                marked_untracked_changed=False,
+                probe_info_changed=False)),
         comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
         comp_info.information,
@@ -456,7 +459,8 @@ class CompChangeTest(ChangeUnitTestBase):
                     _PVAlignmentStatus.NO_PROBE_INFO),
                 converter_changed=False,
                 # yapf: disable
-                marked_untracked_changed=False)),
+                marked_untracked_changed=False,
+                probe_info_changed=False)),
         comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
         comp_info.information,
@@ -1028,7 +1032,8 @@ class MixedChangeUnitTest(ChangeUnitTestBase):
             prev_support_status='supported',
             probe_value_alignment_status_changed=False,
             prev_probe_value_alignment_status=_PVAlignmentStatus.NO_PROBE_INFO,
-            converter_changed=False, marked_untracked_changed=False))
+            converter_changed=False, marked_untracked_changed=False,
+            probe_info_changed=False))
     comp_change_cus = [
         _CompChange(  # Add component.
             # yapf: disable

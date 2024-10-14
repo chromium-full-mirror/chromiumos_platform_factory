@@ -263,7 +263,7 @@ message DiffStatus {
   // True if the component is unchanged.  This value should be equals to
   // not (name_changed or support_status_changed or values_changed or
   // probe_value_alignment_status_changed or converter_changed or
-  // marked_untracked_changed).
+  // marked_untracked_changed or probe_info_changed).
   bool unchanged = 1;
   // True if the name is changed.
   bool name_changed = 2;
@@ -286,6 +286,8 @@ message DiffStatus {
   bool converter_changed = 10;
   // True if the marked_untracked changes.
   bool marked_untracked_changed = 11;
+  // True if the probe_info changes.
+  bool probe_info_changed = 12;
 }
 
 message NameChangedComponent {

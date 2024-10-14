@@ -41,6 +41,10 @@ DB_ADD_COMP_WITH_NAME_INFO = os.path.join(
     _TEST_DATA_PATH, 'test_database_db_add_comp_with_name_info.yaml')
 DB_INTERNAL_COMP_WITH_NULL_VALUE = os.path.join(
     _TEST_DATA_PATH, 'test_database_db_internal_comp_with_null_value.yaml')
+DB_INTERNAL_BEFORE = os.path.join(_TEST_DATA_PATH,
+                                  'test_database_db_internal.yaml')
+DB_INTERNAL_PROBE_INFO = os.path.join(
+    _TEST_DATA_PATH, 'test_database_db_internal_probe_info_changed.yaml')
 
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
 _HWIDCompAnalysisResult = contents_analyzer.HWIDComponentAnalysisResult
@@ -277,7 +281,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NOT_ALIGNED), converter_changed=True,
-                marked_untracked_changed=False), link_avl=True,
+                marked_untracked_changed=False,
+                probe_info_changed=False), link_avl=True,
             probe_value_alignment_status=_PVAlignmentStatus.NOT_ALIGNED,
             skip_avl_check=False, marked_untracked=False),
         analysis.hwid_components.values())
@@ -295,7 +300,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
                     _PVAlignmentStatus.NOT_ALIGNED), converter_changed=False,
-                marked_untracked_changed=False), link_avl=True,
+                marked_untracked_changed=False,
+                probe_info_changed=False), link_avl=True,
             probe_value_alignment_status=_PVAlignmentStatus.NOT_ALIGNED,
             skip_avl_check=False, marked_untracked=False),
         analysis.hwid_components.values())
@@ -330,6 +336,7 @@ class ContentsAnalyzerTest(unittest.TestCase):
                     _PVAlignmentStatus.NO_PROBE_INFO),
                 converter_changed=False,
                 marked_untracked_changed=True,
+                probe_info_changed=False,
             ),
             link_avl=False,
             probe_value_alignment_status=_PVAlignmentStatus.NO_PROBE_INFO,
@@ -360,6 +367,19 @@ class ContentsAnalyzerTest(unittest.TestCase):
     inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
                                               prev_db_contents)
     inst.AnalyzeChange(None, False)
+
+  def test_AnalyzeChange_ProbeInfoChanged(self):
+    prev_db_contents = file_utils.ReadFile(DB_INTERNAL_BEFORE)
+    curr_db_contents = file_utils.ReadFile(DB_INTERNAL_PROBE_INFO)
+
+    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
+                                              prev_db_contents)
+    analysis = inst.AnalyzeChange(None, False)
+
+    diff = analysis.hwid_components['x@@@@component-cls4-comp6@@y@'].diff_prev
+    assert diff is not None
+    self.assertFalse(diff.unchanged)
+    self.assertTrue(diff.probe_info_changed)
 
   def test_ProbeValueAlignmentStatus_FromProbeValues(self):
     self.assertEqual(
