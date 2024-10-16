@@ -14,14 +14,25 @@
     "generic_touchpad_examples.test_list",
     "generic_touchscreen_examples.test_list",
     "generic_tpm_examples.test_list",
-    "generic_wireless_examples.test_list"
+    "generic_wireless_examples.test_list",
+    "generic_common.test_list"
   ],
   "label": "Main Readiness Factory tests",
   "constants": {},
   "options": {
     "auto_run_on_start": false
   },
-  "definitions": {},
+  "definitions": {
+    "MiscellaneousHWTests": {
+      "inherit": "TestGroup",
+      "subtests": [
+        "Keyboard",
+        "HWButton",
+        "Fan",
+        "ThermalSensors"
+      ]
+    }
+  },
   "tests": [
     "AccelerometerIMUTests",
     "AmbientLightSensorTests",
@@ -37,6 +48,7 @@
     "TouchscreenTests",
     "TouchpadTests",
     "TPMTests",
-    "WirelessTests"
+    "WirelessTests",
+    "MiscellaneousHWTests"
   ]
 }
