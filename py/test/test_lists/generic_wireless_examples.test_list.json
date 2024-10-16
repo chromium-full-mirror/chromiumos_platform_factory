@@ -223,6 +223,7 @@
     "WirelessTests": {
       "inherit": "TestGroup",
       "subtests": [
+        "ProbeDeviceInfo",
         "ProbeWireless",
         "ExampleWifiSSIDList",
         "WirelessAntenna",

@@ -22,6 +22,9 @@
         "scan_devices": true
       }
     },
+    "ProbeDeviceInfo": {
+      "pytest_name": "probe_device_info"
+    },
     "ProbeWireless": {
       "pytest_name": "probe.probe",
       "label": "Probe Wireless",

@@ -65,7 +65,7 @@ from cros.factory.utils.arg_utils import Arg
 
 class ProbeDeviceInfo(test_case.TestCase):
   """Probe device information and update to device data."""
-  related_components = tuple()
+  related_components = (test_case.TestCategory.WIFI, )
 
   ARGS = [
       Arg('filter_colon', bool,
