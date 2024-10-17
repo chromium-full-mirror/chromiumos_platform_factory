@@ -1,30 +1,45 @@
-// Copyright 2021 The ChromiumOS Authors
+// Copyright 2024 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-const hwidExtractorOrigin = 'http://localhost:8000';
+const HWID_EXTRACTOR_ORIGIN = 'http://localhost:8080';
 
-/**
- * callback for MutationObserver
- */
-const callback = async () => {
-  const jsAuthCodeDiv = document.getElementsByClassName('auth-code-wrapper')[0];
-  if (!jsAuthCodeDiv) return;
-  const child = jsAuthCodeDiv.children[0];
-  if (!child) return;
-  const codeText = child.innerText;
-  const label = 'Unlock Code: ';
-  if (codeText.indexOf(label) != 0) return;
-  const code = codeText.slice(label.length);
+function callback() {
+  try {
+    const authCodeDiv = document.getElementsByClassName('auth-code')[0];
+    if (!authCodeDiv) {
+      return;
+    }
 
-  window.opener.postMessage(code, hwidExtractorOrigin);
-  window.close();
-};
+    const codeText = authCodeDiv.textContent.trim();
+    const label = 'Unlock Code: ';
+    if (!codeText.startsWith(label)) {
+      return;
+    }
 
-const observer = new MutationObserver(callback);
+    const code = codeText.slice(label.length);
+    window.opener.postMessage(code, HWID_EXTRACTOR_ORIGIN);
+    window.close();
+  } catch (e) {
+    // Alert the error message for debugging.
+    alert(e);
+  }
+}
 
-window.addEventListener('load', () => {
-  if (!window.opener) return;
-  const node = document.getElementById('content-area');
-  observer.observe(node, {subtree: true, childList: true});
-});
+function main() {
+  try {
+    const contentArea = document.getElementById('content-area');
+    if (!contentArea) {
+      throw new Error('Expect #content-area to exist, but not found.');
+    }
+    const observer = new MutationObserver(callback);
+    observer.observe(contentArea, {subtree: true, childList: true});
+  } catch (e) {
+    // Alert the error message for debugging.
+    alert(e);
+  }
+}
+
+if (window.opener) {
+  main();
+}
