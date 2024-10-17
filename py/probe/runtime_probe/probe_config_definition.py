@@ -114,9 +114,8 @@ def _GetAllProbeStatementDefinitions():
   for network_type in ['cellular', 'ethernet', 'wireless']:
     builder = probe_config_types.ProbeStatementDefinitionBuilder(network_type)
     builder.AddProbeFunction(
-        f'{network_type}_network',
-        (f'A method that tries various of way to detect the {network_type} '
-         'component.'))
+        'network',
+        'A method that tries various of way to detect the network component.')
     builder.AddStrOutputField(
         'bus_type', 'HW interface type of the component.',
         value_pattern=re.compile('(pci|usb|sdio)'),

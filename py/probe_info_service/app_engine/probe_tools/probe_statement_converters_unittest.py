@@ -2093,7 +2093,7 @@ class WirelessConverterTest(ConverterTestCase):
         '''
         name: "wireless.pci_wireless_network"
         description:
-          "A method that tries various of way to detect the wireless component."
+          "A method that tries various of way to detect the network component."
         parameter_definitions {
           name: "wifi_probe_attributes"
           description: "Joined probe attributes."
@@ -2109,7 +2109,7 @@ class WirelessConverterTest(ConverterTestCase):
         '''
         name: "wireless.sdio_wireless_network"
         description:
-          "A method that tries various of way to detect the wireless component."
+          "A method that tries various of way to detect the network component."
         parameter_definitions {
           name: "wifi_probe_attributes"
           description: "Joined probe attributes."
@@ -2131,7 +2131,9 @@ class WirelessConverterTest(ConverterTestCase):
         probe_config_types.ComponentProbeStatement(
             'wireless', 'comp_name', {
                 'eval': {
-                    'wireless_network': {}
+                    'network': {
+                        'device_type': 'wifi'
+                    }
                 },
                 'expect': {
                     'pci_vendor_id': [True, 'hex', '!eq 0x1234'],
@@ -2156,7 +2158,9 @@ class WirelessConverterTest(ConverterTestCase):
         probe_config_types.ComponentProbeStatement(
             'wireless', 'comp_name', {
                 'eval': {
-                    'wireless_network': {}
+                    'network': {
+                        'device_type': 'wifi'
+                    }
                 },
                 'expect': {
                     'pci_vendor_id': [True, 'hex', '!eq 0x1234'],
@@ -2180,7 +2184,9 @@ class WirelessConverterTest(ConverterTestCase):
         probe_config_types.ComponentProbeStatement(
             'wireless', 'comp_name', {
                 'eval': {
-                    'wireless_network': {}
+                    'network': {
+                        'device_type': 'wifi'
+                    }
                 },
                 'expect': {
                     'sdio_vendor_id': [True, 'hex', '!eq 0x1234'],

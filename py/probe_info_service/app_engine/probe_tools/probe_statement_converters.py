@@ -1587,7 +1587,8 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
   """A converter for the wireless probe function."""
 
   _RUNTIME_PROBE_CATEGORY = 'wireless'
-  _PROBE_FUNCTION_NAME = 'wireless_network'
+  _DEVICE_TYPE = 'wifi'
+  _PROBE_FUNCTION_NAME = 'network'
   _JOINED_ATTR_NAME = 'wifi_probe_attributes'
   _PCI_INTERFACE = 'pci'
   _SDIO_INTERFACE = 'sdio'
@@ -1608,6 +1609,7 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
         probe_function_name=self._PROBE_FUNCTION_NAME,
         converter_name=(f'{self._RUNTIME_PROBE_CATEGORY}.'
                         f'{self._hardware_interface}_'
+                        f'{self._RUNTIME_PROBE_CATEGORY}_'
                         f'{self._PROBE_FUNCTION_NAME}'),
         probe_params=[
             _ProbeFunctionParam(
@@ -1617,6 +1619,9 @@ class WirelessProbeInfoConverter(_SingleProbeFuncConverter):
                     _AddHexPrefixIfNotExistAndLowerize))
             for attribute_name in attribute_names
         ],
+        probe_function_argument={
+            'device_type': self._DEVICE_TYPE
+        },
     )
 
   @functools.cached_property
