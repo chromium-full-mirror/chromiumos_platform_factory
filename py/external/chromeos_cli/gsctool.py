@@ -118,7 +118,8 @@ class GSCTool:
     """Update the Cr50 firmware.
 
     Args:
-      image_file: Path to the image file that contains the cr50 firmware image.
+      image_file: Path(s) to the image file that contains the cr50 firmware
+          image.
       upstart_mode: Use upstart mode.
       force_ro_mode: Force to update the inactive RO.
 
@@ -133,7 +134,10 @@ class GSCTool:
       cmd += ['-q']
     if upstart_mode:
       cmd += ['-u']
-    cmd += [image_file]
+    if isinstance(image_file, list):
+      cmd += image_file
+    else:
+      cmd += [image_file]
 
     # 0: noop. 1: all_updated, 2: rw_updated, 3: update_error
     # See platform/ec/extra/usb_updater/gsctool.h for more detail.
@@ -518,6 +522,15 @@ class GSCTool:
       return match.group('status')
     raise GSCToolError(
         f'Failed to get expanded_aprov_status from {result.stdout}')
+
+  def GetDeviceType(self):
+    """Gets device type of the GSC."""
+    result = self._InvokeCommand([GSCTOOL_PATH, '-a', '-f'],
+                                 'Fail to get GSC device type.')
+    match = re.search(r'device: (?P<device_type>\w+)', result.stdout)
+    if match:
+      return match.group('device_type')
+    raise GSCToolError(f'Failed to get device from {result.stdout}')
 
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):
     cmd_result_checker = cmd_result_checker or (lambda result: result.success)

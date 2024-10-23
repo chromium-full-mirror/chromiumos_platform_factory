@@ -328,5 +328,18 @@ class GSCToolTest(unittest.TestCase):
     self.assertEqual(status, '20094FC')
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-W'])
 
+  def testGetDeviceType(self):
+    fwver = textwrap.dedent("""
+      device: NT
+      keyids: RO 0xd15221fd, RW 0xd50dafd7
+      offsets: backup RO at 0x80000, backup RW at 0x90000
+      Current versions:
+      RO 4.0.4
+      RW 0.36.3""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+    device = self.gsctool.GetDeviceType()
+    self.assertEqual(device, 'NT')
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-f'])
+
 if __name__ == '__main__':
   unittest.main()
