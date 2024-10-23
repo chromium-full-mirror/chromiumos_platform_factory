@@ -343,7 +343,12 @@ const handleScan = async (isTriggeredByUser) => {
     message = 'Cannot generate rma challenge!!! Try again.';
   } else if (isTriggeredByUser && scanData.isRestricted) {
     // Open RSU page automatically if the scanning is triggered by user.
-    window.open(`${challengeURL}?challenge=${scanData.challenge}`, 'challenge');
+    const openerLocation = encodeURIComponent(window.location.href);
+    window.open(
+      `${challengeURL}?challenge=${scanData.challenge}` +
+        `&openerLocation=${openerLocation}`,
+      'challenge'
+    );
   }
   setStateAndRender({
     scanData,

@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-const HWID_EXTRACTOR_ORIGIN = 'http://localhost:8080';
+const HWID_EXTRACTOR_ORIGIN = new URLSearchParams(window.location.search).get(
+  'openerLocation'
+);
 
 function callback() {
   try {
@@ -40,6 +42,6 @@ function main() {
   }
 }
 
-if (window.opener) {
+if (window.opener && HWID_EXTRACTOR_ORIGIN) {
   main();
 }
