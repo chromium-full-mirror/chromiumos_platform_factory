@@ -563,7 +563,7 @@ class SystemInfo(device_types.DeviceComponent):
     """Returns the Google Security Chip (GSC) info of the device."""
 
     return {
-        'gsc_type': gsc_utils.GSCUtils().name,
+        'gsc_type': gsc_utils.GSCUtils().device_type,
         'board_id': self.board_id,
         'fw_version': self.gsc_version,
         'sn_bits': self.gsc_sn_bits,

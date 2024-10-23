@@ -4,6 +4,7 @@
 
 from distutils.version import LooseVersion
 import enum
+import functools
 import logging
 import re
 
@@ -28,7 +29,6 @@ from cros.factory.external.chromeos_cli import vpd
 
 
 class GSCScriptPath(str, enum.Enum):
-  GSC_CONSTANTS = '/usr/share/cros/gsc-constants.sh'
   BOARD_ID = '/usr/sbin/gsc_set_board_id'
   SN_BITS = '/usr/sbin/gsc_set_sn_bits'
   FACTORY_CONFIG = '/usr/sbin/gsc_set_factory_config'
@@ -44,52 +44,28 @@ class GSCUtilsError(type_utils.Error):
 class GSCUtils:
   """GSC related logic and implementation."""
 
-  def __init__(self, gsc_constants_path=GSCScriptPath.GSC_CONSTANTS, dut=None,
-               gsc_tool=None):
-    self.gsc_constants_path = gsc_constants_path
+  def __init__(self, dut=None, gsc_tool=None):
     self._dut = dut if dut else sys_interface.SystemInterface()
     self._shell = shell.Shell(dut=self._dut)
     self._gsctool = gsc_tool if gsc_tool else gsctool.GSCTool(dut=self._dut)
     self._futility = futility.Futility(dut=self._dut)
     self._vpd = vpd.VPDTool(dut=self._dut)
 
-  def _GetConstant(self, constant_name):
-    file_utils.CheckPath(self.gsc_constants_path)
-    res = self._shell(f'. "{self.gsc_constants_path}"; "{constant_name}"')
-    if res.success:
-      return res.stdout.strip()
-    raise GSCUtilsError(f'Fail to load constant: {constant_name}')
+  @functools.cached_property
+  def image_paths(self):
+    return self._shell('/usr/sbin/gsc_get_name').stdout.strip().split()
 
-  @type_utils.LazyProperty
-  def name(self):
-    return self._GetConstant('gsc_name')
+  @functools.cached_property
+  def device_type(self):
+    return self._gsctool.GetDeviceType()
 
-  @type_utils.LazyProperty
-  def image_base_name(self):
-    return self._GetConstant('gsc_image_base_name')
-
-  @type_utils.LazyProperty
-  def metrics_prefix(self):
-    return self._GetConstant('gsc_metrics_prefix')
-
-  # TODO(phoebewang): Remove the workaround once there's way to distinguish the
-  # GSC.
   def IsTi50(self):
-    """Checks if the device is using DT.
-    Currently, there's no way to distinguish between H1 and DT.
-    As a workaround, we read the file `gsc-constants.sh` to get the information
-    of GSC. This file is generated in build time according to the USE flag.
-    If both cr50_onboard and ti50_onboard are presented, then we assume the
-    board is using DT.
-    """
-    return self.name == 'ti50'
+    """Checks if the device is using Ti50."""
+    return self.device_type != 'H1'
 
-  # TODO(jasonchuang): Check with gsc team if we really need to add -D.
   def GetGSCToolCmd(self):
     GSCTOOL_PATH = '/usr/sbin/gsctool'
     gsctool_cmd = [GSCTOOL_PATH]
-    if self.IsTi50():
-      gsctool_cmd.append('-D')
     return gsctool_cmd
 
   def IsGSCFieldLocked(self) -> bool:
