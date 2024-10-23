@@ -20,7 +20,7 @@ This test provides two functionalities, toggled by the test argument ``method``.
    firmware is the same as version on the chip. It also prevents the immediate
    reboot after the update.
 2. In `check mode`, this test calls `gsctool` on DUT to check if the cr50
-   firmware version is greater than or equal to the given firmware image.
+   firmware version is up-to-date.
 
 The Cr50 firmware image to update or compare is either from a given path in
 station or DUT, or from the release partition on DUT.
@@ -122,31 +122,22 @@ later) with prepvt firmware. See b/236793753 for more detail:
 """
 # pylint: enable=line-too-long
 
-from distutils import version
 import enum
-import logging
 import os
 
 from cros.factory.device import device_utils
 from cros.factory.test import device_data
-from cros.factory.test.rules import phase
 from cros.factory.test import session
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.test.utils import gsc_utils
-from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import sys_utils
 from cros.factory.utils import type_utils
 
 from cros.factory.external.chromeos_cli import gsctool
 
-PROD_FW_SUFFIX = ".prod"
-PREPVT_FLAG_MASK = 0x7F
-KEY_ATTEMPT_CR50_UPDATE_RO_VERSION = device_data.JoinKeys(
-    device_data.KEY_FACTORY, 'attempt_cr50_update_ro_version')
-KEY_ATTEMPT_CR50_UPDATE_RW_VERSION = device_data.JoinKeys(
-    device_data.KEY_FACTORY, 'attempt_cr50_update_rw_version')
+
 KEY_CR50_UPDATE_NEED_REBOOT = device_data.JoinKeys(device_data.KEY_FACTORY,
                                                    'cr50_update_need_reboot')
 
@@ -182,12 +173,8 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
           default=True),
       Arg(
           'skip_prepvt_flag_check', bool,
-          'Skip prepvt flag check. For non-dogfood devcies, '
-          'we should always use prod firmware, rather than prepvt one. '
-          'A dogfood device can use prod firmware, as long as the board id'
-          'setting is correct. The dogfood device will update to the prepvt '
-          'firmware when first time boot to recovery image. '
-          'http://crbug.com/802235', default=False),
+          '(deprecated) This flag is deprecated and the firmware will only be '
+          'check in finalize.', default=False),
       Arg(
           'method', _MethodType,
           'Specify whether to update the Cr50 firmware or to check the '
@@ -224,12 +211,6 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
     self.gsctool = gsctool.GSCTool(dut=self.dut)
     self.fw_ver = self.gsctool.GetGSCFirmwareVersion()
     self.board_id = self.gsctool.GetBoardID()
-    self.image_info: gsctool.ImageInfo
-
-  def tearDown(self):
-    # Clear the device data for the previous attempt.
-    device_data.DeleteDeviceData(KEY_ATTEMPT_CR50_UPDATE_RO_VERSION, True)
-    device_data.DeleteDeviceData(KEY_ATTEMPT_CR50_UPDATE_RW_VERSION, True)
 
   def runTest(self):
     """Update Cr50 firmware."""
@@ -237,100 +218,73 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
       self.assertTrue(
           self.args.from_release,
           'Must set "from_release" to True if not specifiying firmware_file')
-      self.args.firmware_file = self.gsc_utils.image_base_name + PROD_FW_SUFFIX
-
-    self.assertEqual(self.args.firmware_file[0], '/',
-                     'firmware_file should be a full path')
-
-    if phase.GetPhase() >= phase.PVT_DOGFOOD:
-      self.assertFalse(
-          self.args.skip_prepvt_flag_check,
-          'Skipping prePVT flag check is not allowed in PVT or MP builds.')
+    else:
+      self.assertEqual(self.args.firmware_file[0], '/',
+                       'firmware_file should be a full path')
 
     self._LogCr50Info()
 
     if self.args.from_release:
-      with sys_utils.MountPartition(
-          self.dut.partitions.RELEASE_ROOTFS.path, dut=self.dut) as root:
-        self.CacheImageInfoAndCallMethod(
-            os.path.join(root, self.args.firmware_file[1:]))
+      with sys_utils.MountPartition(self.dut.partitions.RELEASE_ROOTFS.path,
+                                    dut=self.dut) as root:
+        firmware_files = [
+            os.path.join(root, firmware_file)
+            for firmware_file in self.gsc_utils.image_paths
+        ]
+        self._CallMethod(firmware_files)
     else:
       if self.dut.link.IsLocal():
-        self.CacheImageInfoAndCallMethod(self.args.firmware_file)
+        self._CallMethod([self.args.firmware_file])
       else:
         with self.dut.temp.TempFile() as dut_temp_file:
           self.dut.SendFile(self.args.firmware_file, dut_temp_file)
-          self.CacheImageInfoAndCallMethod(dut_temp_file)
+          self._CallMethod([dut_temp_file])
 
-  def CacheImageInfoAndCallMethod(self, firmware_file):
-    session.console.info('Firmware path: %s', firmware_file)
-    self.image_info = self.gsctool.GetImageInfo(firmware_file)
+  def _CallMethod(self, firmware_files):
+    session.console.info('Firmware path: %s', firmware_files)
+    image_infos = [self.gsctool.GetImageInfo(f) for f in firmware_files]
+    msg = f'Image info: {image_infos!r}'
+    self.ui.SetState(msg)
+    session.console.info(msg)
     if self.args.method == _MethodType.UPDATE:
-      self._UpdateCr50Firmware(firmware_file)
+      self._UpdateCr50Firmware(firmware_files)
     else:
-      self._CheckCr50FirmwareVersion()
+      self._CheckCr50FirmwareVersion(firmware_files)
 
   def _LogCr50Info(self):
     session.console.info('The DUT is using security chip: %s',
-                         self.gsc_utils.name)
+                         self.gsc_utils.device_type)
     session.console.info('Firmware version: %r', self.fw_ver)
     session.console.info('Board ID: %r', self.board_id)
 
-  def _IsPrePVTFirmware(self):
-    logging.info('Cr50 firmware board ID flags: %s',
-                 hex(self.image_info.board_id_flags))
-    testlog.UpdateParam('board_id_flags',
-                        description='Board ID of the firmware image.')
-    testlog.LogParam('board_id_flags', self.image_info.board_id_flags)
-    return self.image_info.board_id_flags & PREPVT_FLAG_MASK
+  def _UpdateCr50Firmware(self, firmware_files):
+    # If device data exists, it means the FW is updated in the last round and
+    # the DUT has rebooted.
+    if device_data.GetDeviceData(KEY_CR50_UPDATE_NEED_REBOOT):
+      self.PassTask()
 
-  def _CompareFirmwareFileVersion(self, strictly_greater=False):
-    """Compare if current cr50 version is newer or equal to the FW file.
+    if self.args.set_recovery_request_train_and_reboot:
+      self.dut.CheckCall('crossystem recovery_request=0xC4')
 
-    Args:
-      strictly_greater: If set to true, then the current cr50 version should
-        be strictly greater than the given FW file.
-    """
+    update_result = self.gsctool.UpdateCr50Firmware(
+        firmware_files, self.args.upstart_mode, self.args.force_ro_mode)
+    session.console.info('Cr50 firmware update complete: %s.', update_result)
 
-    testlog.UpdateParam('expected_ro_fw_version',
-                        description='The expected RO FW version.')
-    testlog.UpdateParam('expected_rw_fw_version',
-                        description='The expected RW FW version.')
-    testlog.UpdateParam('ro_fw_version', description='The RO FW version.')
-    testlog.UpdateParam('rw_fw_version', description='The RW FW version.')
-    testlog.LogParam('expected_ro_fw_version', self.image_info.ro_fw_version)
-    testlog.LogParam('expected_rw_fw_version', self.image_info.rw_fw_version)
-    testlog.LogParam('ro_fw_version', self.fw_ver.ro_version)
-    testlog.LogParam('rw_fw_version', self.fw_ver.rw_version)
+    if update_result == gsctool.UpdateResult.NOOP:
+      self.PassTask()
 
-    for name in ('ro', 'rw'):
-      actual = getattr(self.fw_ver, name + '_version')
-      expect = getattr(self.image_info, name + '_fw_version')
-      if version.StrictVersion(actual) < version.StrictVersion(expect):
-        session.console.info('%s FW version is old (actual=%r, expect=%r)',
-                             name.upper(), actual, expect)
-        return False
-      if (strictly_greater and
-          version.StrictVersion(actual) == version.StrictVersion(expect)):
-        session.console.info(
-            'The FW versions of the given FW and the chip are the same: %r',
-            expect)
-        return False
+    device_data.UpdateDeviceData({KEY_CR50_UPDATE_NEED_REBOOT: True})
 
-    return True
+    # Wait for the chip to reboot itself.
+    if not self.args.upstart_mode:
+      self.WaitTaskEnd()
 
-
-  def _CheckVersionRetry(self, check_version_func, *check_version_args):
-    """Check if current Cr50 version is new enough, with a retry timeout.
-
-    Args:
-      check_version_func: A function that returns True when Cr50 version is new
-                          enough.
-      check_version_args: Argument passed to `check_version_func`.
-    """
+  def _CheckCr50FirmwareVersion(self, firmware_files):
 
     def _Check():
-      if not check_version_func(*check_version_args):
+      update_result = self.gsctool.UpdateCr50Firmware(firmware_files,
+                                                      upstart_mode=True)
+      if update_result != gsctool.UpdateResult.NOOP:
         raise type_utils.TestFailure('Cr50 firmware is old.')
 
     try:
@@ -344,92 +298,6 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
       self.Sleep(self.args.check_version_retry_timeout)
       _Check()
 
-  def _ValidateTi50FirmwareVersion(self):
-    """Validate if we are allowed to update with the given FW file.
-
-    The ti50 FW cannot be upgraded directly from RW version 0.0.15 (or less) to
-    0.0.16+ since the FW size is different. We need to perform two stages
-    upgrade for ti50: (1) upgrade to 0.0.15 then (2) upgrade to 0.0.16+.
-    We need to run (1) and (2) twice respectively (4 times in total) since we
-    have two slots of RO and RW FW. (RO_A, RO_B and RW_A, RW_B). Moreover, we
-    need to update the ti50 FW with `gsctool -q` option (force_ro_mode) so that
-    the inactive RO will be updated even if the version of the given file is
-    the same as the version on the chip.
-    """
-    actual = getattr(self.fw_ver, 'rw' + '_version')
-    expect = getattr(self.image_info, 'rw' + '_fw_version')
-
-    if (version.StrictVersion(actual) < version.StrictVersion('0.0.15') and
-        version.StrictVersion(expect) >= version.StrictVersion('0.0.16')):
-      # RW FW version on DUT is < 0.0.15 and the user try to upgrade to
-      # 0.0.16+. This is not allowed and we should upgrade to 0.0.15 first.
-      self.FailTask(
-          f'Please upgrade to RW 0.0.15 first before upgrading to 0.0.16+. '
-          f'Current: {self.fw_ver!r}')
-
-    if version.StrictVersion(actual) <= version.StrictVersion('0.0.15'):
-      if not self.args.force_ro_mode or self.args.upstart_mode:
-        self.FailTask('Please turn on the `force_ro_mode` flag and turn off '
-                      'the `upstart_mode` flag to update the ti50 firmware '
-                      'from 0.0.15 (or less) to 0.0.16+.')
-
-  def _UpdateCr50Firmware(self, firmware_file):
-    if self._IsPrePVTFirmware():
-      if phase.GetPhase() >= phase.PVT_DOGFOOD:
-        self.FailTask('PrePVT Cr50 firmware should never be used in PVT.')
-      if not self.args.skip_prepvt_flag_check:
-        self.FailTask('Cr50 firmware board ID flag is PrePVT.')
-
-    # If device data exists, it means the FW is updated in the last round and
-    # the DUT has rebooted.
-    has_rebooted = (
-        device_data.GetDeviceData(KEY_ATTEMPT_CR50_UPDATE_RO_VERSION)
-        is not None and
-        device_data.GetDeviceData(KEY_ATTEMPT_CR50_UPDATE_RW_VERSION)
-        is not None)
-
-    # `force_ro_mode` will update the RO even if the current RO version is
-    # the same as the given firmware, so we require the current version
-    # to be strictly greater than the given firmware.
-    # After updating, the DUT will reboot and check the version again.
-    force_update = self.args.force_ro_mode and not has_rebooted
-    if self._CompareFirmwareFileVersion(strictly_greater=force_update):
-      session.console.info('Cr50 firmware is up-to-date.')
-      device_data.UpdateDeviceData({KEY_CR50_UPDATE_NEED_REBOOT: False})
-      return
-
-    # If the DUT has rebooted but the chip version and the given FW version
-    # does not match, this means the update failed.
-    if has_rebooted:
-      self.FailTask(f'Cr50 firmware is not updated in the previous attempt '
-                    f'(actual={self.fw_ver!r}, expect={self.image_info!r}).')
-
-    if self.gsc_utils.IsTi50():
-      self._ValidateTi50FirmwareVersion()
-
-    msg = (f'Update the Cr50 firmware from version {self.fw_ver!r} to '
-           f'{self.image_info!r}.')
-    self.ui.SetState(msg)
-    session.console.info(msg)
-    device_data.UpdateDeviceData({
-        KEY_ATTEMPT_CR50_UPDATE_RO_VERSION: self.image_info.ro_fw_version,
-        KEY_ATTEMPT_CR50_UPDATE_RW_VERSION: self.image_info.rw_fw_version,
-        KEY_CR50_UPDATE_NEED_REBOOT: True
-    })
-    if self.args.set_recovery_request_train_and_reboot:
-      self.dut.CheckCall('crossystem recovery_request=0xC4')
-
-    update_result = self.gsctool.UpdateCr50Firmware(
-        firmware_file, self.args.upstart_mode, self.args.force_ro_mode)
-    session.console.info('Cr50 firmware update complete: %s.', update_result)
-
-    # Wait for the chip to reboot itself. Otherwise, the test will trigger
-    # tearDown and delete the device data.
-    if not self.args.upstart_mode:
-      self.WaitTaskEnd()
-
-  def _CheckCr50FirmwareVersion(self):
-    self._CheckVersionRetry(self._CompareFirmwareFileVersion)
     session.console.info('Cr50 firmware is up-to-date.')
     if device_data.GetDeviceData(KEY_CR50_UPDATE_NEED_REBOOT) is not None:
       device_data.DeleteDeviceData(KEY_CR50_UPDATE_NEED_REBOOT, True)

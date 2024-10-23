@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import os
+import textwrap
 import unittest
 from unittest import mock
 
@@ -13,7 +13,6 @@ from cros.factory.test.env import paths
 from cros.factory.test.rules import phase
 from cros.factory.test.utils import gsc_utils
 from cros.factory.test.utils.gsc_utils import GSCScriptPath
-from cros.factory.utils import file_utils
 from cros.factory.utils import fmap
 from cros.factory.utils import interval
 
@@ -28,27 +27,11 @@ class FakeFirmwareImage(fmap.FirmwareImage):
     self._areas = areas
 
 class GSCUtilsTest(unittest.TestCase):
-  _GSC_CONSTANTS = """
-    #!/bin/sh
-    gsc_name() {
-      printf "ti50"
-    }
-
-    gsc_image_base_name() {
-      printf "/opt/google/ti50/firmware/ti50.bin"
-    }
-
-    gsc_metrics_prefix() {
-      printf "Platform.Ti50"
-    }
-  """
 
   def setUp(self):
-    self.mock_gsc_constants_path = file_utils.CreateTemporaryFile()
     self.gsctool = mock.create_autospec(gsc_utils.gsctool.GSCTool,
                                         instance=True)
-    self.gsc = gsc_utils.GSCUtils(self.mock_gsc_constants_path,
-                                  gsc_tool=self.gsctool)
+    self.gsc = gsc_utils.GSCUtils(gsc_tool=self.gsctool)
 
     self.check_path_patcher = mock.patch.object(gsc_utils.file_utils,
                                                 'CheckPath', autospec=True)
@@ -69,29 +52,29 @@ class GSCUtilsTest(unittest.TestCase):
     self.addCleanup(mock.patch.stopall)
     self.shell = mock.Mock(spec=shell.Shell)
 
-  def tearDown(self):
-    if os.path.exists(self.mock_gsc_constants_path):
-      os.remove(self.mock_gsc_constants_path)
+  def testImagePaths_Cr50(self):
+    self._SetShellResult(stdout='/opt/google/ti50/firmware/cr50.bin.prod')
+    self.assertEqual(self.gsc.image_paths,
+                     ['/opt/google/ti50/firmware/cr50.bin.prod'])
 
-  def testLoadConstantsFail(self):
-    # Function not exists.
-    file_utils.WriteFile(self.mock_gsc_constants_path, '#!/bin/sh')
-    gsc = gsc_utils.GSCUtils(self.mock_gsc_constants_path)
-    with self.assertRaisesRegex(gsc_utils.GSCUtilsError,
-                                'Fail to load constant'):
-      # gsc.name is a lazy property which triggers the execution of a command
-      # on the first call.
-      # pylint: disable=pointless-statement
-      gsc.name
+  def testImagePaths_Ti50(self):
+    self._SetShellResult(
+        stdout=textwrap.dedent("""/opt/google/ti50/firmware/ti50-dt.bin.prod
+        /opt/google/ti50/firmware/ti50-nt.bin.prod"""))
+    self.assertEqual(self.gsc.image_paths, [
+        "/opt/google/ti50/firmware/ti50-dt.bin.prod",
+        "/opt/google/ti50/firmware/ti50-nt.bin.prod"
+    ])
 
-  def testLoadConstantsSuccess(self):
-    file_utils.WriteFile(self.mock_gsc_constants_path, self._GSC_CONSTANTS)
-    self.assertEqual(self.gsc.name, 'ti50')
-    self.assertEqual(self.gsc.image_base_name,
-                     '/opt/google/ti50/firmware/ti50.bin')
-    self.assertEqual(self.gsc.metrics_prefix, 'Platform.Ti50')
+  def testDeviceType_Ti50(self):
+    self.gsctool.GetDeviceType.return_value = 'NT'
+    self.assertEqual(self.gsc.device_type, 'NT')
     self.assertTrue(self.gsc.IsTi50())
-    self.assertListEqual(self.gsc.GetGSCToolCmd(), ['/usr/sbin/gsctool', '-D'])
+
+  def testDeviceType_Cr50(self):
+    self.gsctool.GetDeviceType.return_value = 'H1'
+    self.assertEqual(self.gsc.device_type, 'H1')
+    self.assertFalse(self.gsc.IsTi50())
 
   @mock.patch.object(gsc_utils.GSCUtils, 'IsTi50', autospec=True)
   def testIsGSCFieldLockedTi50CheckInitialFactoryMode(self, mock_is_ti50):
