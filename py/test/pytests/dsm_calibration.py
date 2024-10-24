@@ -46,6 +46,7 @@ See `audio_loop.py <./audio_loop.html>`_ for more details about how to set
 import logging
 import re
 import time
+from typing import List
 import unittest
 
 from cros.factory.device import device_utils
@@ -58,6 +59,11 @@ from cros.factory.utils import process_utils
 _VPD_KEY = 'dsm_calib'
 
 
+class DSMCalibrationArgs:
+  output_dev: List[str]
+  num_output_channels: int
+
+
 class DSMCalibrationTest(unittest.TestCase):
   related_components = (test_tags.TestCategory.SMART_SPEAKER_AMPLIFIER,
                         test_tags.TestCategory.VPD)
@@ -68,15 +74,12 @@ class DSMCalibrationTest(unittest.TestCase):
       Arg('num_output_channels', int,
           'Number of output channels.', default=2),
   ]
+  args: DSMCalibrationArgs
 
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self._out_card = self.args.output_dev[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self._out_device = self.args.output_dev[1]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._out_card = self.args.output_dev[0]
+    self._out_device = self.args.output_dev[1]
     self._sox_process = None
 
   def runTest(self):
