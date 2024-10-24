@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 import collections
+import dataclasses
 import enum
 import re
 
@@ -22,11 +23,11 @@ class FirmwareVersion(type_utils.Obj):
     super().__init__(ro_version=ro_version, rw_version=rw_version)
 
 
-class ImageInfo(type_utils.Obj):
-
-  def __init__(self, ro_fw_version, rw_fw_version, board_id_flags):
-    super().__init__(ro_fw_version=ro_fw_version, rw_fw_version=rw_fw_version,
-                     board_id_flags=board_id_flags)
+@dataclasses.dataclass
+class ImageInfo:
+  ro_fw_version: str
+  rw_fw_version: str
+  board_id_flags: int
 
 
 class BoardID(type_utils.Obj):
