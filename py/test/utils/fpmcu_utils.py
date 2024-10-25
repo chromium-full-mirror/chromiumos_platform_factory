@@ -7,12 +7,14 @@
 import enum
 import logging
 import re
+import shlex
 import subprocess
 import time
 from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 from cros.factory.utils import sync_utils
 from cros.factory.utils.sys_interface import SystemInterface
+from cros.factory.utils import type_utils
 
 
 class FpmcuError(Exception):
@@ -473,44 +475,88 @@ class FpmcuDevice:
 
     return _GetFpframe()
 
+  def RunFpmodeAndWaitEvent(self, *args: str, wait_event_timeout_ms,
+                            max_attempt_count=3) -> None:
+    """Runs `ectool --name=cros_fp fpmode` and waits for an event.
+
+    Args:
+      args: The arguments after `ectool --name=cros_fp fpmode`.
+      wait_event_timeout_ms: The timeout in ms.
+
+    Raises:
+      FpmcuError: When fpmode command fails or waitevent timeout exceeds.
+    """
+
+    # TODO (b/377619900) - Consider follow the implementation of
+    # https://source.chromium.org/chromiumos/chromiumos/codesearch/+/main:src/platform2/biod/study/study_serve.py;l=255;drc=e92a295cf9a26dd8984c6aded2712d7496356b2b,
+    # as suggested in b/331670562#comment36.
+
+    def _Callback(num_retries: int, max_attempt_count: int):
+      logging.exception('Retrying fpmode %s (%d/%d) ...', ' '.join(
+          map(shlex.quote, args)), num_retries + 1, max_attempt_count)
+
+    # There is a race condition between waitevent and fpmode, and it's solvable
+    # by the other method as suggested in the bug. So far we retry for some
+    # times.
+    @sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit!
+        max_attempt_count=max_attempt_count, retry_callback=_Callback,
+        interval_sec=0, target_condition=lambda ret: ret is True,
+        exceptions_to_catch=[], reraise=True)
+    def _RunFpmodeAndWaitEvent() -> bool:
+      wait_process = self._dut.Popen([
+          'ectool', _CROS_FP_ARG, 'waitevent', _EC_MKBP_EVENT_FINGERPRINT,
+          str(wait_event_timeout_ms)
+      ])
+      capture_process = self._dut.Popen(['ectool', _CROS_FP_ARG, 'fpmode'] +
+                                        list(args))
+
+      try:
+        try:
+          capture_exit_code = capture_process.wait(
+              timeout=wait_event_timeout_ms / 1000)
+        except subprocess.TimeoutExpired:
+          raise FpmcuError('Timeout waiting fpmode.') from None
+
+        if capture_exit_code != 0:
+          raise FpmcuError(
+              f'Capture process exists with non-zero code: {capture_exit_code}')
+
+        try:
+          wait_exit_code = wait_process.wait(timeout=wait_event_timeout_ms /
+                                             1000)
+        except subprocess.TimeoutExpired:
+          raise FpmcuError('Timeout waiting waitevent.') from None
+
+        # Exit code 0 indicates the waitevent process succeeds; 1 timeout
+        # exceeds.
+        if wait_exit_code not in (0, 1):
+          raise FpmcuError(
+              f'Waitevent process exits with non-zero code: {wait_exit_code}')
+
+        return wait_exit_code == 0
+
+      finally:
+        capture_process.terminate()
+        wait_process.terminate()
+
+    try:
+      _RunFpmodeAndWaitEvent()
+    except type_utils.MaxRetryError:
+      raise FpmcuError('Waitevent timeout exceeds.') from None
+
   def CaptureFpmodeAndWaitEvent(self, capture_mode: str,
-                                wait_event_timeout_ms: int) -> None:
-    """Captures fpmode and waits for an event.
+                                wait_event_timeout_ms: int,
+                                max_attempt_count=3) -> None:
+    """Runs `ectool --name=cros_fp fpmode capture` and waits for an event.
 
     Args:
       capture_mode: The mode to capture.
       wait_event_timeout_ms: The timeout in ms.
 
     Raises:
-      FpmcuError: When failing to capture fpmode or timeout exceeds.
+      FpmcuError: When fpmode command fails or waitevent timeout exceeds.
     """
-    wait_process = self._dut.Popen([
-        'ectool', _CROS_FP_ARG, 'waitevent', _EC_MKBP_EVENT_FINGERPRINT,
-        str(wait_event_timeout_ms)
-    ])
-    capture_process = self._dut.Popen(
-        ['ectool', _CROS_FP_ARG, 'fpmode', 'capture', capture_mode])
 
-    try:
-      try:
-        capture_exit_code = capture_process.wait(timeout=wait_event_timeout_ms /
-                                                 1000)
-      except subprocess.TimeoutExpired:
-        raise FpmcuError('Timeout waiting fpmode capture.') from None
-
-      if capture_exit_code != 0:
-        raise FpmcuError(
-            f'Capture process exists with non-zero code: {capture_exit_code}')
-
-      try:
-        wait_exit_code = wait_process.wait(timeout=wait_event_timeout_ms / 1000)
-      except subprocess.TimeoutExpired:
-        raise FpmcuError('Timeout waiting waitevent.') from None
-
-      if wait_exit_code != 0:
-        raise FpmcuError(
-            f'Waitevent process exits with non-zero code: {wait_exit_code}')
-
-    finally:
-      capture_process.terminate()
-      wait_process.terminate()
+    self.RunFpmodeAndWaitEvent('capture', capture_mode,
+                               wait_event_timeout_ms=wait_event_timeout_ms,
+                               max_attempt_count=max_attempt_count)
