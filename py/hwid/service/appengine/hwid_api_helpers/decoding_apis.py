@@ -2,12 +2,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import enum
 import logging
 import operator
 import re
 
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine.data import decoder_data
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import hwid_action_manager as hwid_action_mngr_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
@@ -32,6 +34,17 @@ def _GetFeatureEnablementStatusOrDefaultFromBOMEntry(
 def _GetFeatureEnablementStatusLabel(
     source: feature_matching.FeatureEnablementStatus) -> str:
   return f'{source.enablement_type.name}:{source.hw_compliance_version}'
+
+
+class RACCEnabledStatus(str, enum.Enum):
+  """The RACC enabled status of a model."""
+
+  NOT_ENABLED = 'NOT_ENABLED'
+  TOT_ENABLED = 'TOT_ENABLED'
+  TOT_ENABLED_PRIVATELY = 'TOT_ENABLED_PRIVATELY'
+
+  def __str__(self):
+    return self.value
 
 
 _FeatureEnablementType = feature_matching.FeatureEnablementType
@@ -184,16 +197,19 @@ class GetSKUShard(common_helper.HWIDServiceShardBase):
 
 class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
 
-  def __init__(self, decoder_data_manager: decoder_data.DecoderDataManager,
-               goldeneye_memcache_adapter: memcache_adapter.IMemcacheAdapter,
-               bc_helper: bc_helper_module.BOMAndConfiglessHelper,
-               sku_hepler: sku_helper_module.SKUHelper,
-               hwid_action_manager: hwid_action_mngr_module.HWIDActionManager):
+  def __init__(
+      self, decoder_data_manager: decoder_data.DecoderDataManager,
+      goldeneye_memcache_adapter: memcache_adapter.IMemcacheAdapter,
+      bc_helper: bc_helper_module.BOMAndConfiglessHelper,
+      sku_hepler: sku_helper_module.SKUHelper,
+      hwid_action_manager: hwid_action_mngr_module.HWIDActionManager,
+      vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager):
     self._decoder_data_manager = decoder_data_manager
     self._goldeneye_memcache_adapter = goldeneye_memcache_adapter
     self._bc_helper = bc_helper
     self._sku_helper = sku_hepler
     self._hwid_action_manager_inst = hwid_action_manager
+    self._vpg_targets_data_manager = vpg_targets_data_manager
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -214,6 +230,7 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
         'wireless',
         'cellular',
         'feature_enablement_status',
+        'racc_enabled_status',
     ]
 
     if not hwid:  # Return possible labels.
@@ -311,6 +328,15 @@ class GetDUTLabelShard(common_helper.HWIDServiceShardBase):
         name='feature_enablement_status',
         value=_GetFeatureEnablementStatusLabel(
             action.GetFeatureEnablementStatus(hwid)))
+
+    vpg_targets = self._vpg_targets_data_manager.GetVpgTargets()
+    if bom.project in vpg_targets:
+      racc_enabled_status = (
+          RACCEnabledStatus.TOT_ENABLED_PRIVATELY if
+          vpg_targets[bom.project].encrypted else RACCEnabledStatus.TOT_ENABLED)
+    else:
+      racc_enabled_status = RACCEnabledStatus.NOT_ENABLED
+    response.labels.add(name='racc_enabled_status', value=racc_enabled_status)
 
     unexpected_labels = set(
         label.name for label in response.labels) - set(possible_labels)

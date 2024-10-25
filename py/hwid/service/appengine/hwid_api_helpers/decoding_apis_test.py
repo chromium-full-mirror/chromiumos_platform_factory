@@ -7,6 +7,7 @@ from typing import Optional
 import unittest
 from unittest import mock
 
+from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
 from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.service.appengine.hwid_api_helpers import bom_and_configless_helper as bc_helper_module
@@ -14,6 +15,7 @@ from cros.factory.hwid.service.appengine.hwid_api_helpers import decoding_apis
 from cros.factory.hwid.service.appengine.hwid_api_helpers import sku_helper as sku_helper_module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
+from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import database
 
 
@@ -41,7 +43,6 @@ class GetDUTLabelShardTest(unittest.TestCase):
   def setUp(self):
     super().setUp()
     self._module_collection = test_utils.FakeModuleCollection()
-    self._vpg_targets = {}
     self._bc_helper = mock.Mock(
         spec=bc_helper_module.BOMAndConfiglessHelper,
         wraps=bc_helper_module.BOMAndConfiglessHelper(
@@ -52,10 +53,14 @@ class GetDUTLabelShardTest(unittest.TestCase):
     self._sku_helper = mock.Mock(
         spec=sku_helper_module.SKUHelper, wraps=sku_helper_module.SKUHelper(
             self._module_collection.fake_decoder_data_manager))
+    self._mock_vpg_targets_data_manager = mock.create_autospec(
+        vpg_targets_data.VPGTargetsDataManager, instance=True)
+    self._mock_vpg_targets_data_manager.GetVpgTargets.return_value = {}
     self.service = decoding_apis.GetDUTLabelShard(
         self._module_collection.fake_decoder_data_manager,
         self._module_collection.fake_goldeneye_memcache, self._bc_helper,
-        self._sku_helper, self._module_collection.fake_hwid_action_manager)
+        self._sku_helper, self._module_collection.fake_hwid_action_manager,
+        self._mock_vpg_targets_data_manager)
 
     self._module_collection.fake_goldeneye_memcache.Put('regexp_to_device', [
         ('r1.*', 'b1', []),
@@ -119,6 +124,8 @@ class GetDUTLabelShardTest(unittest.TestCase):
             # Fallback due to no AVL name existed.
             hwid_api_messages_pb2.DutLabel(name='wireless',
                                            value='wireless_11_21'),
+            hwid_api_messages_pb2.DutLabel(name='racc_enabled_status',
+                                           value='NOT_ENABLED'),
         ])
 
   def testGetDUTLabels_WithWarnings(self):
@@ -177,6 +184,7 @@ class GetDUTLabelShardTest(unittest.TestCase):
                 'wireless',
                 'cellular',
                 'feature_enablement_status',
+                'racc_enabled_status',
             ]), msg)
 
   def testGetDUTLabels_BatchGetBOMAndConfiglessFailed(self):
@@ -229,6 +237,7 @@ class GetDUTLabelShardTest(unittest.TestCase):
                 'wireless',
                 'cellular',
                 'feature_enablement_status',
+                'racc_enabled_status',
             ]), msg)
 
   def testGetDUTLabels_WithConfigless(self):
@@ -290,6 +299,8 @@ class GetDUTLabelShardTest(unittest.TestCase):
                 hwid_api_messages_pb2.DutLabel(name='hwid_component',
                                                value='camera/camera_0'),
                 hwid_api_messages_pb2.DutLabel(name='phase', value='bar'),
+                hwid_api_messages_pb2.DutLabel(name='racc_enabled_status',
+                                               value='NOT_ENABLED'),
                 hwid_api_messages_pb2.DutLabel(name='sku',
                                                value='foo_cpu_0_cpu_1_0B'),
                 hwid_api_messages_pb2.DutLabel(name='variant',
@@ -306,8 +317,48 @@ class GetDUTLabelShardTest(unittest.TestCase):
                 'wireless',
                 'cellular',
                 'feature_enablement_status',
+                'racc_enabled_status',
             ]),
         msg)
+
+  def testGetDUTLabels_RACCEnabled(self):
+    bom = hwid_action.BOM()
+    bom.project = TEST_PROJECT
+    self._SetupFakeHWIDActionForTestProject()
+    self._bc_helper.BatchGetBOMAndConfigless.return_value = {
+        TEST_HWID: _BOMAndConfigless(bom, None, None),
+    }
+    self._mock_vpg_targets_data_manager.GetVpgTargets.return_value = {
+        TEST_PROJECT:
+            vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+                encrypted=False)
+    }
+
+    req = hwid_api_messages_pb2.DutLabelsRequest(hwid=TEST_HWID)
+    msg = self.service.GetDutLabels(req)
+
+    self.assertTrue(
+        self.CheckForLabelValue(msg, 'racc_enabled_status', 'TOT_ENABLED'))
+
+  def testGetDUTLabels_RACCEnabledPrivately(self):
+    bom = hwid_action.BOM()
+    bom.project = TEST_PROJECT
+    self._SetupFakeHWIDActionForTestProject()
+    self._bc_helper.BatchGetBOMAndConfigless.return_value = {
+        TEST_HWID: _BOMAndConfigless(bom, None, None),
+    }
+    self._mock_vpg_targets_data_manager.GetVpgTargets.return_value = {
+        TEST_PROJECT:
+            vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+                encrypted=True)
+    }
+
+    req = hwid_api_messages_pb2.DutLabelsRequest(hwid=TEST_HWID)
+    msg = self.service.GetDutLabels(req)
+
+    self.assertTrue(
+        self.CheckForLabelValue(msg, 'racc_enabled_status',
+                                'TOT_ENABLED_PRIVATELY'))
 
   def CheckForLabelValue(self, response, label_to_check_for,
                          value_to_check_for=None):

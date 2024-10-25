@@ -43,8 +43,8 @@ def GetAllHWIDServiceShards(
   get_sku_shard = decoding_apis.GetSKUShard(
       config.hwid_action_manager, bc_helper, sku_helper)
   get_dut_label_shard = decoding_apis.GetDUTLabelShard(
-      config.decoder_data_manager, goldeneye_memcache_adapter,
-      bc_helper, sku_helper, config.hwid_action_manager)
+      config.decoder_data_manager, goldeneye_memcache_adapter, bc_helper,
+      sku_helper, config.hwid_action_manager, config.vpg_targets_data_manager)
 
   session_cache_adapter = memcache_adapter.MemcacheAdapter(
       namespace=_SESSION_CACHE_NAMESPACE)
