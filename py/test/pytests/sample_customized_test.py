@@ -6,7 +6,7 @@
 
 Description
 -----------
-This is a sample test code to demostrate how to write a board-specific test.
+This is a sample test code to demonstrate how to write a board-specific test.
 
 A board specific test should be put in the board overlay. For example, assuming
 the overlay is located at
@@ -38,14 +38,23 @@ To run this sample code with default arguments, add this in test list::
   }
 """
 
-
 import logging
+from typing import Tuple
 import unittest
 
 from cros.factory.device import device_utils
+from cros.factory.test import test_tags
 from cros.factory.testlog import testlog
-from cros.factory.utils import arg_utils
+from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import type_utils
+
+
+class SampleCustomizedTestArgs:
+  # pylint: disable=disallowed-name
+  foo: int
+  bar: str
+  baz: str
+  # pylint: enable=disallowed-name
 
 
 class SampleCustomizedTest(unittest.TestCase):
@@ -57,20 +66,11 @@ class SampleCustomizedTest(unittest.TestCase):
   `tearDown` functions to make sure something is done before / after the test,
   no matter what.
   """
-  # yapf: disable
-  related_components = tuple()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-
-
+  related_components: Tuple[test_tags.TestCategory, ...] = tuple()
   ARGS = [
-      arg_utils.Arg(
-          'foo', int, help='foo can only be int, not optional'),
-      arg_utils.Arg(
-          'bar', str, help='bar is optional, default to None',
-          default=None),
-      arg_utils.Arg(
-          'baz', str, help='baz is optional, default to "BAZ"',
-          default="BAZ"),
+      Arg('foo', int, help='foo can only be int, not optional'),
+      Arg('bar', str, help='bar is optional, default to None', default=None),
+      Arg('baz', str, help='baz is optional, default to "BAZ"', default="BAZ"),
   ]
   """Arguments of this pytest.
 
@@ -89,6 +89,7 @@ class SampleCustomizedTest(unittest.TestCase):
   The value for argument "baz" is not set in the above example, so it will use
   default value "BAZ".
   """
+  args: SampleCustomizedTestArgs
 
   def setUp(self):
     """Setup function."""
