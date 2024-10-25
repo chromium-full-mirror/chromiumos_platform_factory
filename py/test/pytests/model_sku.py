@@ -66,6 +66,7 @@ To ask OP to confirm sku information, add this in test list::
 
 import logging
 import os
+from typing import Optional
 
 from cros.factory.device import device_utils
 from cros.factory.test import device_data
@@ -83,6 +84,12 @@ from cros.factory.external.chromeos_cli import cros_config as cros_config_module
 _KEY_COMPONENT_SKU = device_data.JoinKeys(device_data.KEY_COMPONENT, 'sku')
 
 _PLATFORM_DATA = ['model', 'sku', 'brand']
+
+
+class PlatformSKUModelArgs:
+  config_name: Optional[str]
+  schema_name: Optional[str]
+  product_name: Optional[str]
 
 
 class PlatformSKUModelTest(test_case.TestCase):
@@ -106,28 +113,23 @@ class PlatformSKUModelTest(test_case.TestCase):
           default=None),
   ]
 
+  args: PlatformSKUModelArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
     self._platform = {}
     self._goofy_rpc = state.GetInstance()
 
   def ApplyConfig(self):
-    # yapf: disable
-    if self.args.config_name is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.config_name is None:
       config_name = os.path.splitext(os.path.basename(__file__))[0]
     else:
-      # yapf: disable
-      config_name = self.args.config_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      config_name = self.args.config_name
     model_config = model_sku_utils.GetDesignConfig(
         self._dut, default_config_dirs=os.path.dirname(__file__),
-        # yapf: disable
-        product_name=self.args.product_name, sku_id=self._platform['sku'],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        config_name=config_name, schema_name=self.args.schema_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        product_name=self.args.product_name, sku_id=self._platform['sku'],
+        config_name=config_name, schema_name=self.args.schema_name)
     if model_config:
       logging.info('Apply model/SKU config: %r', model_config)
       device_data.UpdateDeviceData(model_config)
@@ -136,9 +138,7 @@ class PlatformSKUModelTest(test_case.TestCase):
       self._goofy_rpc.ReloadTestList()
 
   def CheckByOperator(self):
-    # yapf: disable
-    self.ui.SetInstruction(_('Please confirm following values'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetInstruction(_('Please confirm following values'))
 
     table = ui_templates.Table(
         rows=len(_PLATFORM_DATA) + 1, cols=2, element_id='mosys_table')
@@ -150,21 +150,15 @@ class PlatformSKUModelTest(test_case.TestCase):
           i, 1,
           self._platform[arg] if self._platform[arg] is not None else 'N/A')
 
-    # yapf: disable
-    self.ui.SetState([table.GenerateHTML(), test_ui.PASS_FAIL_KEY_LABEL])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState([table.GenerateHTML(), test_ui.PASS_FAIL_KEY_LABEL])
 
-    # yapf: disable
-    key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    key = self.ui.WaitKeysOnce([test_ui.ENTER_KEY, test_ui.ESCAPE_KEY])
     if key == test_ui.ESCAPE_KEY:
       self.FailTask('Failed by operator')
 
   def CheckByDeviceData(self):
     try:
-      # yapf: disable
-      value = device_data.GetDeviceData(_KEY_COMPONENT_SKU, data_type=int,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      value = device_data.GetDeviceData(_KEY_COMPONENT_SKU, data_type=int,
                                         throw_if_none=True)
     except KeyError:
       return False

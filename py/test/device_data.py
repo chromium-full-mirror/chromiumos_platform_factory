@@ -123,7 +123,7 @@ API Spec
 import collections.abc
 import logging
 import os
-from typing import Dict, Union
+from typing import Any, Dict, Optional, Type, Union, overload
 
 # pylint: disable=wildcard-import,unused-wildcard-import
 from cros.factory.test.device_data_constants import *
@@ -177,9 +177,41 @@ def CheckValidDeviceDataKey(key, key_prefix=None):
   return True
 
 
-def GetDeviceData(key: str, default=None, data_type: Union[int, str,
-                                                           None] = None,
+@overload
+def GetDeviceData(key: str, *, data_type: Type[int],
+                  throw_if_none: bool = False) -> Optional[int]:
+  ...
+
+
+@overload
+def GetDeviceData(key: str, *, data_type: Type[str],
+                  throw_if_none: bool = False) -> Optional[str]:
+  ...
+
+
+@overload
+def GetDeviceData(key: str, *, throw_if_none: bool = False,
+                  default: Any = None) -> Any:
+  ...
+
+
+@overload
+def GetDeviceData(key: str, default: Any = None, *,
+                  throw_if_none: bool = False) -> Any:
+  ...
+
+
+@overload
+def GetDeviceData(key: str, default: Any = None,
+                  data_type: Union[Type[int], Type[str], None] = None, *,
+                  throw_if_none: bool = False) -> Any:
+  ...
+
+
+def GetDeviceData(key: str, default=None,
+                  data_type: Optional[Union[Type[int], Type[str]]] = None,
                   throw_if_none: bool = False):
+
   """Returns the device data associated by key.
 
   Args:
@@ -482,7 +514,7 @@ class InconsistentFeatureData(Exception):
 
 def GetFeatureDeviceData() -> Dict[str, Union[int, bool]]:
   """Returns Feature Management"""
-  return GetDeviceData(KEY_FM, {})  # type: ignore
+  return GetDeviceData(KEY_FM, {})
 
 
 def VerifyFeatureData(data: dict) -> bool:
