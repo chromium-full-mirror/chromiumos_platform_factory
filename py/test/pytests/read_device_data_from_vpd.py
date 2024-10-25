@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
 """Setup device data from VPD (Vital Product Data).
 
 Description
@@ -88,7 +87,13 @@ from cros.factory.device import device_utils
 from cros.factory.test import device_data
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
+
+
+class ReadDeviceDataFromVPDArgs:
+  ro_key_map: dict
+  rw_key_map: dict
 
 
 class ReadDeviceDataFromVPD(test_case.TestCase):
@@ -101,21 +106,16 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
           'Mapping of (VPD_NAME, DEVICE_DATA_KEY) to read from RW VPD.',
           default=None),
   ]
+  args: ReadDeviceDataFromVPDArgs
+  ui: test_ui.StandardUI
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
     sections = {
-        # yapf: disable
-        'ro':
-            self.args.ro_key_map,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        'rw':
-            self.args.  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            rw_key_map  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        'ro': self.args.ro_key_map,
+        'rw': self.args.rw_key_map
     }
 
     if sections['ro'] is None and sections['rw'] is None:
@@ -123,12 +123,10 @@ class ReadDeviceDataFromVPD(test_case.TestCase):
       sections['rw'] = device_data.DEFAULT_RW_VPD_KEY_MAP
 
     for name, key_map in sections.items():
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-          _('Reading device data from {vpd_section} VPD...',
-            vpd_section=name.upper()))
       if not key_map:
         continue
+      self.ui.SetState(
+          _('Reading device data from {vpd_section} VPD...',
+            vpd_section=name.upper()))
       vpd = getattr(self.dut.vpd, name)
       device_data.UpdateDeviceDataFromVPD({name: key_map}, {name: vpd.GetAll()})
