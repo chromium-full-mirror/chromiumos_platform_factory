@@ -52,16 +52,23 @@ by::
 
 import logging
 import os
+from typing import Tuple, Union
 
 from cros.factory.device import device_utils
 from cros.factory.test import test_case
+from cros.factory.test import test_tags
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import file_utils
 from cros.factory.utils import pygpt
 
 
+class PartitionTableTestArgs:
+  min_usage_pct: Union[int, float]
+  expand_stateful: bool
+
+
 class PartitionTableTest(test_case.TestCase):
-  related_components = tuple()
+  related_components: Tuple[test_tags.TestCategory, ...] = ()
   ARGS = [
       Arg('min_usage_pct', (int, float),
           'Percentage of the storage device that must be before the end of the '
@@ -74,8 +81,9 @@ class PartitionTableTest(test_case.TestCase):
           'to all available free space',
           default=True)
   ]
+  args: PartitionTableTestArgs
 
-  def _ShowGPTTable(self, path):
+  def _ShowGPTTable(self, path: str):
     show_cmd = pygpt.GPTCommands.Show()
     show_cmd.ExecuteCommandLine(path)
 
@@ -125,12 +133,8 @@ class PartitionTableTest(test_case.TestCase):
     if has_minios_b:
       logging.info('DUT is using disk_layout_v3.json.')
 
-    # yapf: disable
-    if pct_used < self.args.min_usage_pct:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if not self.args.expand_stateful:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if pct_used < self.args.min_usage_pct:
+      if not self.args.expand_stateful:
         self.FailTask('Stateful partition does not cover enough of storage '
                       'device')
 
