@@ -8,8 +8,8 @@ Description
 The test is an end-to-end test that verify the functionality and firmware
 with AP RO verification on Ti50.
 It helps to carefully verify AP RO verification on Ti50 in the factory flow,
-and make sure the verification can pass with any google signed FW,
-which prevent from ti50 bricking the shipped device.
+and make sure the verification can pass with any Google signed FW,
+which prevent from Ti50 bricking the shipped device.
 Before leaving the factory mode, the WPSR can be written for multiple times,
 and the WPSR written in this test will be overwritten in finalize.
 
@@ -18,7 +18,7 @@ Test Procedure
 1. Enable software write protect (PVT/MP only).
 2. Set board ID.
 3. Set addressing mode and WPSR.
-4. reboot GSC by 'gsctool -a --reboot'.
+4. Reboot GSC by 'gsctool -a --reboot'.
 5. 'gsctool -a -B' should return 'apro result (36)'. Otherwise fail the test.
 6. Disable software write protect.
 
@@ -52,7 +52,12 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.external.chromeos_cli import gsctool as gsctool_module
 
 
-class Ti50APROVerficationTest(test_case.TestCase):
+class Ti50APROVerificationArgs:
+  enable_swwp: bool
+  two_stages: bool
+
+
+class Ti50APROVerificationTest(test_case.TestCase):
   """A test to ensure the AP RO verification works on Ti50."""
   related_components = (test_case.TestCategory.SECURE_ELEMENT, )
   ARGS = [
@@ -61,6 +66,7 @@ class Ti50APROVerficationTest(test_case.TestCase):
       Arg('two_stages', bool,
           'Whether the factory_process is "TWOSTAGES" or not.', default=False),
   ]
+  args: Ti50APROVerificationArgs
 
   def setUp(self):
     self.gsctool = gsctool_module.GSCTool()
@@ -83,17 +89,13 @@ class Ti50APROVerficationTest(test_case.TestCase):
 
   def ProvisionSPIData(self):
     # Enable software write protect.
-    # yapf: disable
-    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.enable_swwp:
       session.console.info('Enable SWWP.')
       self.ap_wp_target.SetProtectionStatus(enable=True, skip_enable_check=True)
 
     # Set board ID.
     session.console.info('Set board ID.')
-    # yapf: disable
-    self.gsc_utils.GSCSetBoardId(two_stages=self.args.two_stages)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.gsc_utils.GSCSetBoardId(two_stages=self.args.two_stages)
 
     # Set Addressing mode and WPSR.
     # Skip provisioning SPI data only if not in initial factory mode
@@ -102,9 +104,7 @@ class Ti50APROVerficationTest(test_case.TestCase):
         not self.gsctool.IsWpsrProvisioned()):
       session.console.info('Set Addressing mode and WPSR.')
       self.gsc_utils.Ti50ProvisionSPIData(
-          # yapf: disable
-          no_write_protect=(not self.args.enable_swwp))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          no_write_protect=(not self.args.enable_swwp))
 
   def VerifyAPRO(self):
     # Reboot GSC.
@@ -146,8 +146,6 @@ class Ti50APROVerficationTest(test_case.TestCase):
     session.console.info('Ti50 AP RO Verification passed.')
 
   def tearDown(self):
-    # yapf: disable
-    if self.args.enable_swwp:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.enable_swwp:
       session.console.info('Disable SWWP.')
       self.ap_wp_target.SetProtectionStatus(enable=False)
