@@ -72,13 +72,20 @@ To compare and check the memory size from ``mosys``, kernel, and device data
 """
 
 import re
+from typing import Optional
 
 from cros.factory.test import device_data
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
+
+
+class MemorySizeArgs:
+  device_data_key: Optional[str]
+  max_diff_ratio: float
 
 
 class MemorySize(test_case.TestCase):
@@ -90,42 +97,33 @@ class MemorySize(test_case.TestCase):
           ('Maximum tolerance difference between memory size detected by '
            'kernel and mosys within a ratio.'), default=0.2),
   ]
+  args: MemorySizeArgs
+  ui: test_ui.StandardUI
 
   def runTest(self):
-    # yapf: disable
-    self.ui.SetState(_('Checking memory info...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
+    self.ui.SetState(_('Checking memory info...'))
     # Get memory info using mosys.
     ret = process_utils.CheckOutput(
         ['mosys', '-k', 'memory', 'spd', 'print', 'geometry'])
     mosys_mem_mb = sum([int(x) for x in re.findall('size_mb="([^"]*)"', ret)])
 
     # Get kernel meminfo.
-    kernel_mem_mb = int(
-        # yapf: disable
-        re.search(
-            r'^MemTotal:\s*([0-9]+)\s*kB',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            file_utils.ReadFile('/proc/meminfo')).group(1)) // 1024
+    match = re.search(r'^MemTotal:\s*([0-9]+)\s*kB',
+                      file_utils.ReadFile('/proc/meminfo'))
+    kernel_mem_mb = int(match.group(1)) // 1024 if match else 0
 
-    # yapf: disable
-    if abs(1.0 - kernel_mem_mb / mosys_mem_mb) > self.args.max_diff_ratio:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if abs(1.0 - kernel_mem_mb / mosys_mem_mb) > self.args.max_diff_ratio:
       self.fail(f'Kernel and mosys report different memory sizes: '
                 f'mosys={int(mosys_mem_mb)}mb, kernel={int(kernel_mem_mb)}mb.')
       return
 
-    # yapf: disable
-    if not self.args.device_data_key:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not self.args.device_data_key:
       return
 
     mosys_mem_gb = round(mosys_mem_mb / 1024.0, 1)
-    sf_mem_gb = round(float(device_data.GetDeviceData(
-        # yapf: disable
-        self.args.device_data_key)), 1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    sf_mem_gb = round(
+        float(device_data.GetDeviceData(self.args.device_data_key)), 1)
+
 
     # The memory size info in mosys should be the same as that in device data.
     if abs(mosys_mem_gb - sf_mem_gb) > 10e-6:
