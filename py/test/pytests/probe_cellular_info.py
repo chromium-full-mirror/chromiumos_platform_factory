@@ -60,6 +60,7 @@ Example output::
 """
 
 import logging
+from typing import Dict
 import unittest
 
 from cros.factory.test import device_data
@@ -69,6 +70,14 @@ from cros.factory.test import test_tags
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
+
+
+class ProbeCellularInfoArgs:
+  probe_imei: bool
+  probe_meid: bool
+  probe_lte_imei: bool
+  probe_lte_iccid: bool
+  fields: Dict[str, str]
 
 
 class ProbeCellularInfoTest(unittest.TestCase):
@@ -83,6 +92,7 @@ class ProbeCellularInfoTest(unittest.TestCase):
           ('Specify the fields to probe. A {NAME: FIELD} pair will record the'
            'value of FIELD to KEY_COMPONENT.cellular.NAME'), {})
   ]
+  args: ProbeCellularInfoArgs
 
   def runTest(self):
     output = process_utils.CheckOutput(['modem', 'status'], log=True)
@@ -90,25 +100,15 @@ class ProbeCellularInfoTest(unittest.TestCase):
 
     names = []
     fields = []
-    for name, field, enabled in (
-        # yapf: disable
-        ('imei', 'imei', self.args.probe_imei),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        ('meid', 'meid', self.args.probe_meid),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        ('lte_imei', 'Imei', self.args.probe_lte_imei),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        ('lte_iccid', 'SimIdentifier', self.args.probe_lte_iccid)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for name, field, enabled in (('imei', 'imei', self.args.probe_imei),
+                                 ('meid', 'meid', self.args.probe_meid),
+                                 ('lte_imei', 'Imei', self.args.probe_lte_imei),
+                                 ('lte_iccid', 'SimIdentifier',
+                                  self.args.probe_lte_iccid)):
       if not enabled:
         continue
 
-      # yapf: disable
-      field = self.args.fields[name] if name in self.args.fields else field  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      field = self.args.fields.get(name, field)
       names.append(name)
       fields.append(field)
 
