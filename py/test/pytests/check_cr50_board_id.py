@@ -45,6 +45,8 @@ To check if the board ID flags is set to normal prePVT, you can set the argument
 
 """
 
+from typing import Optional, Union
+
 from cros.factory.device import device_utils
 from cros.factory.test import session
 from cros.factory.test import test_case
@@ -55,6 +57,12 @@ from cros.factory.external.chromeos_cli import gsctool
 
 
 _non_inclusive_label = bytes.fromhex('57484954454c4142454c').decode('utf-8')
+
+
+class CheckCr50FirmwareBoardIDArgs:
+  board_id_type: Optional[Union[int, str]]
+  board_id_flags: Optional[Union[int, str]]
+
 
 class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
   related_components = (test_case.TestCategory.SECURE_ELEMENT, )
@@ -68,7 +76,6 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
       'PHASE_CUSTOM_LABEL_PREPVT': 0x00003f7f,
       'PHASE_CUSTOM_LABEL': 0x00003f80,
   }
-
   ARGS = [
       Arg(
           'board_id_type', (int, str), 'The expected board ID type, can be '
@@ -80,31 +87,18 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
           ', '.join(f'{k} for {v:08x}' for k, v in _PREDEFINED_PHASES.items()),
           default=None),
   ]
+  args: CheckCr50FirmwareBoardIDArgs
 
   def setUp(self):
     # Preprocesses the arguments.
-    # yapf: disable
-    if isinstance(self.args.board_id_type, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.args.board_id_type = int(self.args.board_id_type, 16)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    if isinstance(self.args.board_id_flags, str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if self.args.board_id_flags.startswith('PHASE_'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        self.args.board_id_flags = self._PREDEFINED_PHASES[  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            self.args.board_id_flags]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if isinstance(self.args.board_id_type, str):
+      self.args.board_id_type = int(self.args.board_id_type, 16)
+    if isinstance(self.args.board_id_flags, str):
+      if self.args.board_id_flags.startswith('PHASE_'):
+        self.args.board_id_flags = self._PREDEFINED_PHASES[
+            self.args.board_id_flags]
       else:
-        # yapf: disable
-        self.args.board_id_flags = int(self.args.board_id_flags, 16)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.args.board_id_flags = int(self.args.board_id_flags, 16)
 
     # Setups the DUT environments.
     self.dut = device_utils.CreateDUTInterface()
@@ -126,20 +120,12 @@ class CheckCr50FirmwareBoardIDTest(test_case.TestCase):
     testlog.LogParam('board_id_flags', board_id_flags_str)
 
     succ = True
-    # yapf: disable
-    if self.args.board_id_type is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if board_id.type != self.args.board_id_type:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if self.args.board_id_type is not None:
+      if board_id.type != self.args.board_id_type:
         testlog.AddFailure('BoardIDTypeMismatch', '')
         succ = False
-    # yapf: disable
-    if self.args.board_id_flags is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if board_id.flags != self.args.board_id_flags:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if self.args.board_id_flags is not None:
+      if board_id.flags != self.args.board_id_flags:
         testlog.AddFailure('BoardIDFlagsMismatch', '')
         succ = False
     if not succ:
