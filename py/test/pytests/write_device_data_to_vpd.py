@@ -64,11 +64,19 @@ To write a calibration data value to RO VPD::
   }
 """
 
+from typing import Dict, Optional
+
 from cros.factory.device import device_utils
 from cros.factory.test import device_data
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
+
+
+class WriteDeviceDataToVPDArgs:
+  ro_key_map: Optional[Dict[str, str]]
+  rw_key_map: Optional[Dict[str, str]]
 
 
 class WriteDeviceDataToVPD(test_case.TestCase):
@@ -81,21 +89,19 @@ class WriteDeviceDataToVPD(test_case.TestCase):
           'Mapping of (VPD_NAME, DEVICE_DATA_KEY) to write into RW VPD.',
           default=None),
   ]
+  args: WriteDeviceDataToVPDArgs
+  ui: test_ui.StandardUI
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
   def runTest(self):
-    # yapf: disable
-    data = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    data: Dict[str, Dict[str, Optional[str]]] = {
         'ro': {},
         'rw': {},
     }
 
-    # yapf: disable
-    if self.args.ro_key_map is None and self.args.rw_key_map is None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.ro_key_map is None and self.args.rw_key_map is None:
       data['ro'] = device_data.GetDeviceData(device_data.KEY_VPD_RO, {})
       data['rw'] = device_data.GetDeviceData(device_data.KEY_VPD_RW, {})
       # Device serial number and OEM name (an optional field) are usually not
@@ -112,15 +118,11 @@ class WriteDeviceDataToVPD(test_case.TestCase):
     else:
       data['ro'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          # yapf: disable
-          for vpd_name, data_key in (self.args.ro_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          for vpd_name, data_key in (self.args.ro_key_map or {}).items()
       }
       data['rw'] = {
           vpd_name: device_data.GetDeviceData(data_key)
-          # yapf: disable
-          for vpd_name, data_key in (self.args.rw_key_map or {}).items()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          for vpd_name, data_key in (self.args.rw_key_map or {}).items()
       }
 
     missing_keys = [
@@ -130,9 +132,7 @@ class WriteDeviceDataToVPD(test_case.TestCase):
       self.FailTask(f'Missing device data keys: {sorted(missing_keys)!r}')
 
     for section, entries in data.items():
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(
           _('Writing device data to {vpd_section} VPD...',
             vpd_section=section.upper()))
       if not entries:
