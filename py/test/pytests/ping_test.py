@@ -64,12 +64,24 @@ checks the successful pings are >= 70% overall::
 """
 
 import logging
+from typing import Optional
 
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 from cros.factory.utils import time_utils
+
+
+class PingTestArgs:
+  host: str
+  interface: Optional[str]
+  interval_secs: int
+  duration_secs: int
+  ping_success_percent: int
+  moving_window_size: Optional[int]
+  verbose: bool
+  packet_size: Optional[int]
 
 
 class PingTest(test_case.TestCase):
@@ -97,20 +109,17 @@ class PingTest(test_case.TestCase):
       Arg('packet_size', int, 'Specifies the number of data bytes to be sent.',
           default=None),
   ]
+  args: PingTestArgs
+  ui: test_ui.ScrollableLogUI
 
-  ui_class = test_ui.ScrollableLogUI
-
-  def _CheckSuccessPercentage(self, success_count, total_count, title=''):
+  def _CheckSuccessPercentage(self, success_count: int, total_count: int,
+                              title: str = ''):
     """Checks the percentage of successful pings is within the range."""
     success_percentage = (success_count / total_count) * 100
-    # yapf: disable
-    if success_percentage < self.args.ping_success_percent:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if success_percentage < self.args.ping_success_percent:
       self.FailTask(
-          # yapf: disable
-          f'Failed to meet ping success percentage: {success_percentage:.2f}% '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          f'(expected: {int(self.args.ping_success_percent)}%).')
+          f'Failed to meet ping success percentage: {success_percentage:.2f}% '
+          f'(expected: {self.args.ping_success_percent}%).')
     logging.info('%s%.2f%% packets received.', title, success_percentage)
 
   def runTest(self):
@@ -120,47 +129,27 @@ class PingTest(test_case.TestCase):
     the test.  If moving_window_size is set, it will also check the successful
     percentage within the moving window during the ping tests.
     """
-    # yapf: disable
-    window_size = self.args.moving_window_size  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    window_size = self.args.moving_window_size
     moving_queue = []
     moving_success_count = 0
     total_success_count = 0
     total_count = 0
 
-    # yapf: disable
-    ping_command = f'ping {self.args.host} -c 1'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if self.args.interface:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      ping_command += f' -I {self.args.interface}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    if self.args.packet_size:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      ping_command += f' -s {int(self.args.packet_size)}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    ping_command = f'ping {self.args.host} -c 1'
+    if self.args.interface:
+      ping_command += f' -I {self.args.interface}'
+    if self.args.packet_size:
+      ping_command += f' -s {self.args.packet_size}'
 
-    # yapf: disable
-    end_time = time_utils.MonotonicTime() + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    end_time = time_utils.MonotonicTime() + self.args.duration_secs
     while time_utils.MonotonicTime() < end_time:
-      # yapf: disable
-      if self.args.verbose:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.verbose:
         p = process_utils.Spawn(ping_command,
                                 shell=True, log=True, read_stdout=True)
         logging.info(p.stdout_data)
         if total_count % 10 == 0:
-          # yapf: disable
-          self.ui.ClearLog()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-        # yapf: disable
-        self.ui.AppendLog(p.stdout_data + '\n')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+          self.ui.ClearLog()
+        self.ui.AppendLog(f"{p.stdout_data or ''}\n")
       else:
         p = process_utils.Spawn(ping_command, shell=True, call=True,
                                 ignore_stdout=True, ignore_stderr=True)
@@ -177,8 +166,6 @@ class PingTest(test_case.TestCase):
 
       total_success_count += result
       total_count += 1
-      # yapf: disable
-      self.Sleep(self.args.interval_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.Sleep(self.args.interval_secs)
 
     self._CheckSuccessPercentage(total_success_count, total_count, 'Overall: ')
