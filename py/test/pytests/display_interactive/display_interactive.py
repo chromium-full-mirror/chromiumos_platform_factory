@@ -90,9 +90,9 @@ class DisplayInteractiveTest(test_case.TestCase):
   ]
 
   args: _DisplayInteractiveArgs
+  ui: test_ui.UI
 
   def setUp(self):
-    self.ui: test_ui.UI  # TODO(huanhuanl): Fix this after b/338318729 is closed. # pylint: disable=line-too-long
     self._dut = device_utils.CreateDUTInterface()
     self._static_dir = self.ui.GetStaticDirectoryPath()
     self._frontend_proxy = self.ui.InitJSTestObject('DisplayInteractiveTest')
