@@ -14,7 +14,7 @@ import os
 import re
 import shutil
 import tempfile
-from typing import Generator, Tuple, Union
+from typing import Any, Dict, Generator, Optional, Tuple, Union
 import urllib.parse
 
 from cros.factory.umpire import common
@@ -92,7 +92,7 @@ class UmpireEnv:
     self.dome_dir = os.path.join(root_dir, DEFAULT_DOME_DIR)
     self.server_toolkit_dir = os.path.join(root_dir, DEFAULT_SERVER_DIR)
     self.config_path = None
-    self.config = None
+    self.config: Optional[Dict[str, Any]] = None
 
 
   @property
@@ -228,9 +228,7 @@ class UmpireEnv:
 
   @property
   def umpire_host_port(self):
-    # yapf: disable
-    return int(os.environ.get(PROJECT_PORT_ENV_KEY))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return int(os.environ[PROJECT_PORT_ENV_KEY])
 
   @type_utils.LazyProperty
   def factory_drives(self):
@@ -416,11 +414,12 @@ class UmpireEnv:
 
     Remove resource files that are not used by any bundles in active config.
     """
+    if not self.config:
+      raise common.UmpireError('UmpireConfig not loaded yet.')
+
     active_files = set()
 
-    # yapf: disable
-    for bundle in self.config['bundles']:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for bundle in self.config['bundles']:
       for unused_type, unused_part, res_name in self.GetPayloadFiles(
           bundle['payloads']):
         active_files.add(res_name)
