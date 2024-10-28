@@ -184,9 +184,7 @@ class HTTPService(umpire_service.UmpireService):
     httpd_port = int(env.umpire_base_port)
 
     # Umpire common RPCs
-    # yapf: disable
-    umpire_proxy_handlers = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    umpire_proxy_handlers: list = []
     # python xmlrpclib calls http://host/RPC2 for ServerProxy('http://host')
     _append_to_handlers(ROOT_RPC_PREFIX, env.umpire_rpc_port)
     _append_to_handlers(UMPIRE_RPC_PREFIX, env.umpire_rpc_port)
