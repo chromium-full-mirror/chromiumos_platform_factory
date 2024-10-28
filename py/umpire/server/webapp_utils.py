@@ -5,6 +5,7 @@
 """A collective of webapp-related functions."""
 
 import http.cookies
+from http.cookies import SimpleCookie
 
 from cros.factory.umpire import common
 
@@ -35,9 +36,7 @@ def ParseDUTHeader(header):
       return True
     return False
 
-  # yapf: disable
-  dut_info = http.cookies.SimpleCookie()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+  dut_info: SimpleCookie = http.cookies.SimpleCookie()
   dut_info.load(header)
   invalid_keys = [key for key in dut_info if not ValidKey(key)]
   if invalid_keys:
