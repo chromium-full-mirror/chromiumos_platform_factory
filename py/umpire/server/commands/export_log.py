@@ -10,6 +10,7 @@ See LogExporter comments for usage.
 from collections import defaultdict
 import datetime
 import os
+from typing import Dict, List
 
 from cros.factory.umpire import common
 from cros.factory.utils import process_utils
@@ -52,19 +53,13 @@ class LogExporter:
 
   def CompressFilesLimitedMaxSize(self, start_date, end_date, root_dir, dst_dir,
                                   max_archive_size):
-    # yapf: disable
-    file_list = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    file_list: List[str] = []
     current_archive_size = 0
-    # yapf: disable
-    tar_files = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    tar_files: List[str] = []
     start_date_str = start_date.strftime('%Y%m%d')
     end_date_str = end_date.strftime('%Y%m%d')
     date_str = start_date_str + '-' + end_date_str
-    # yapf: disable
-    src_dir_with_files = defaultdict(list)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    src_dir_with_files: Dict[str, List[str]] = defaultdict(list)
     for date in self.DateRange(start_date, end_date):
       sub_str = date.strftime('%Y%m%d')
       src_dir = os.path.join(root_dir, sub_str)
@@ -125,9 +120,7 @@ class LogExporter:
         'log': 'aux_log'
     }[log_type]
     split_bytes = self.GetBytes(split_size['size'], split_size['unit'])
-    # yapf: disable
-    messages = []  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    messages: List[str] = []
 
     try:
       if log_type == 'csv':
