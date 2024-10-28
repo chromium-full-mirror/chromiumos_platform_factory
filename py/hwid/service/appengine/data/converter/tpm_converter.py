@@ -15,6 +15,7 @@ class TPMAVLAttrs(converter.AVLAttrs):
   SPEC_LEVEL = 'spec_level'
   VENDOR_SPECIFIC = 'vendor_specific'
   MANUFACTURER = 'manufacturer'
+  GSC_DEVICE = 'gsc_device'
 
 
 _TPM_CONVERTERS: Sequence[converter.FieldNameConverter] = [
@@ -29,6 +30,8 @@ _TPM_CONVERTERS: Sequence[converter.FieldNameConverter] = [
                     'manufacturer',
                     converter.MakeHexDecodedStrValueFactory(
                         source_has_prefix=True)),
+            TPMAVLAttrs.GSC_DEVICE:
+                _ConvertedValueSpec('gsc_device'),
         }),
 ]
 

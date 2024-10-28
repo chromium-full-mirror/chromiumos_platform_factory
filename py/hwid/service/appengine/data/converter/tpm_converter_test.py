@@ -24,12 +24,14 @@ class TPMConverterCollectionTest(unittest.TestCase):
     comp_values = {
         'manufacturer': '0x43524f53',
         'spec_level': '162',
-        'vendor_specific': 'xCG fTPM'
+        'vendor_specific': 'xCG fTPM',
+        'gsc_device': 'DT'
     }
     probe_info = converter_test_utils.ProbeInfoFromMapping({
         'manufacturer': 'CROS',
         'spec_level': 162,
         'vendor_specific': 'xCG fTPM',
+        'gsc_device': 'DT'
     })
 
     actual = self._converter_collection.Match(comp_values, probe_info)
@@ -42,12 +44,14 @@ class TPMConverterCollectionTest(unittest.TestCase):
     comp_values = {
         'manufacturer': '0x43524f53',
         'spec_level': '116',
-        'vendor_specific': 'xCG fTPM'
+        'vendor_specific': 'xCG fTPM',
+        'gsc_device': 'DT'
     }
     probe_info = converter_test_utils.ProbeInfoFromMapping({
         'manufacturer': 'CROS',
         'spec_level': 162,
         'vendor_specific': 'xCG fTPM',
+        'gsc_device': 'DT'
     })
 
     actual = self._converter_collection.Match(comp_values, probe_info)
