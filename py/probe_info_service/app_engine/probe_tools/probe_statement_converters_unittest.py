@@ -2680,6 +2680,11 @@ class TPMConverterTest(ConverterTestCase):
         name: "tpm.tpm"
         description: "Probe TPM info."
         parameter_definitions {
+          name: "gsc_device"
+          description: "GSC device type of TPM."
+          value_type: STRING
+        }
+        parameter_definitions {
           name: "manufacturer"
           description: "The manufacturer of TPM."
           value_type: STRING
@@ -2701,6 +2706,7 @@ class TPMConverterTest(ConverterTestCase):
         _CreateIntProbeParam('spec_level', 162),
         _CreateStrProbeParam('manufacturer', 'CROS'),
         _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+        _CreateStrProbeParam('gsc_device', 'DT'),
     ]
 
     actual = self._converter.ParseProbeParams(
@@ -2716,7 +2722,8 @@ class TPMConverterTest(ConverterTestCase):
                 'expect': {
                     'spec_level': [True, 'int', '!eq 162'],
                     'vendor_specific': [True, 'str', '!eq xCG fTPM'],
-                    'manufacturer': [True, 'str', '!eq 0x43524f53']
+                    'manufacturer': [True, 'str', '!eq 0x43524f53'],
+                    'gsc_device': [True, 'str', '!eq DT']
                 }
             })
     ]
@@ -2729,7 +2736,8 @@ class TPMConverterTest(ConverterTestCase):
         'tpm': [{
             'manufacturer': '0x43524f53',
             'spec_level': '162',
-            'vendor_specific': 'xCG fTPM'
+            'vendor_specific': 'xCG fTPM',
+            'gsc_device': 'DT'
         }]
     }
 
@@ -2740,7 +2748,9 @@ class TPMConverterTest(ConverterTestCase):
         analyzers.ParsedProbeParameter(
             'tpm', _CreateStrProbeParam('manufacturer', 'CROS')),
         analyzers.ParsedProbeParameter(
-            'tpm', _CreateStrProbeParam('vendor_specific', 'xCG fTPM'))
+            'tpm', _CreateStrProbeParam('vendor_specific', 'xCG fTPM')),
+        analyzers.ParsedProbeParameter('tpm',
+                                       _CreateStrProbeParam('gsc_device', 'DT'))
     ]
     self.assertCountEqual(actual, expected_probe_parameters)
 
@@ -2749,6 +2759,7 @@ class TPMConverterTest(ConverterTestCase):
         _CreateIntProbeParam('spec_level', 162),
         _CreateStrProbeParam('manufacturer', 'CROS'),
         _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+        _CreateStrProbeParam('gsc_device', 'DT'),
     ]
 
     actual = self._converter.GetNormalizedProbeParams(probe_params)
@@ -2757,6 +2768,7 @@ class TPMConverterTest(ConverterTestCase):
         _CreateIntProbeParam('spec_level', 162),
         _CreateStrProbeParam('manufacturer', 'CROS'),
         _CreateStrProbeParam('vendor_specific', 'xCG fTPM'),
+        _CreateStrProbeParam('gsc_device', 'DT'),
     ]
 
     self.assertCountEqual(actual, expected_probe_params)

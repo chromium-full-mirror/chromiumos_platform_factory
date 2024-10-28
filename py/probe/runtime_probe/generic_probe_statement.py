@@ -147,9 +147,7 @@ def GetAllRuntimeProbeSupportedGenericProbeStatements():
               'pci_device_id',
               'pci_class',
           ],
-          probe_function_argument={
-              'is_emmc_attached': True
-          },
+          probe_function_argument={'is_emmc_attached': True},
       ),
       GenericProbeStatementInfoRecord(
           'ec_component',
@@ -160,5 +158,6 @@ def GetAllRuntimeProbeSupportedGenericProbeStatements():
           ],
       ),
       GenericProbeStatementInfoRecord(
-          'tpm', 'tpm', ['spec_level', 'vendor_specific', 'manufacturer']),
+          'tpm', 'tpm',
+          ['spec_level', 'vendor_specific', 'manufacturer', 'gsc_device']),
   ]

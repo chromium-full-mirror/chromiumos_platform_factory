@@ -241,6 +241,7 @@ def _GetAllProbeStatementDefinitions():
   builder.AddStrOutputField('vendor_specific',
                             'The vendor specific string of TPM.')
   builder.AddStrOutputField('manufacturer', 'The manufacturer of TPM.')
+  builder.AddStrOutputField('gsc_device', 'GSC device type of TPM.')
   probe_statement_definitions['tpm'] = builder.Build()
 
   return probe_statement_definitions

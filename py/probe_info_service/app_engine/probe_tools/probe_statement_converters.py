@@ -1951,9 +1951,7 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
                   'pci_class', value_converter=_ParamValueConverter(
                       'string', _RemoveHexPrefixAndCapitalize,
                       _AddHexPrefixIfNotExistAndLowerize)),
-          ], probe_function_argument={
-              'is_emmc_attached': True
-          }),
+          ], probe_function_argument={'is_emmc_attached': True}),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'storage', 'mmc_storage', probe_params=[
               *_MMC_BASIC_PARAMS,
@@ -2008,19 +2006,15 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
       _BuildUSBCICConverter(),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'touchpad', 'input_device',
-          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
-              'device_type': 'touchpad'
-          }),
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
+          probe_function_argument={'device_type': 'touchpad'}),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'touchscreen', 'input_device',
-          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
-              'device_type': 'touchscreen'
-          }),
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
+          probe_function_argument={'device_type': 'touchscreen'}),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'stylus', 'input_device', probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
-          probe_function_argument={
-              'device_type': 'stylus'
-          }),
+          probe_function_argument={'device_type': 'stylus'}),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'tpm', 'tpm', probe_params=[
               _ProbeFunctionParam('spec_level',
@@ -2029,5 +2023,6 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
               _ProbeFunctionParam(
                   'manufacturer', value_converter=_ParamValueConverter(
                       'string', _ConvertStringToHex, _ConvertHexToString)),
+              _ProbeFunctionParam('gsc_device'),
           ]),
   ]
