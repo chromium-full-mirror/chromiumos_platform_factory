@@ -408,7 +408,7 @@
             "cbi_eeprom_wp_status": {
               "enum": ["Absent", "Locked", "Unlocked"],
               "description": "Set this to 'Absent' for board without CBI EEPROM. Set this to 'Unlocked' for MLB layouts which requires CBI WP being disabled in pre-PVT and enabled in PVT.",
-              "default": "Locked"
+              "default": "Absent"
             },
             "collect_zero_touch_ids": {
               "type": "boolean",

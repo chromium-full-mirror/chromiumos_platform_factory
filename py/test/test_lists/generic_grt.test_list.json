@@ -8,7 +8,7 @@
     "grt": {
       "__comment": "See https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/py/test/test_lists/test_list.schema.json for the description of each attributes",
       "force_write_protect": false,
-      "cbi_eeprom_wp_status": "Unlocked",
+      "cbi_eeprom_wp_status": "Absent",
       "collect_zero_touch_ids": false,
       "ec_pubkey_path": null,
       "ec_pubkey_hash": null,
@@ -63,7 +63,7 @@
         "secure_wipe": "eval! constants.grt.secure_wipe",
         "upload_method": "eval! 'factory_server' if constants.enable_factory_server else 'none'",
         "write_protection": "eval! constants.grt.force_write_protect or options.phase == 'PVT'",
-        "cbi_eeprom_wp_status": "eval! 'Locked' if constants.grt.cbi_eeprom_wp_status != 'Absent' and options.phase == 'PVT' else constants.grt.cbi_eeprom_wp_status",
+        "cbi_eeprom_wp_status": "eval! constants.grt.cbi_eeprom_wp_status",
         "is_reference_board": "eval! constants.grt.is_reference_board",
         "project": "eval! constants.grt.project",
         "mode": "ASSEMBLED",

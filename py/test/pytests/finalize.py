@@ -198,10 +198,10 @@ class Finalize(test_case.TestCase):
       Arg('enable_zero_touch', bool, 'Set SN bits to enable zero-touch.',
           default=False),
       Arg('cbi_eeprom_wp_status', cbi_utils.CbiEepromWpStatus,
-          ('If set to "Locked", checks that CBI EEPROM write protection is '
-           'enabled. If set to "Unlocked", checks that CBI EEPROM write '
-           'protection is disabled. If set to "Absent", checks that CBI EEPROM '
-           'is absent.'), default=cbi_utils.CbiEepromWpStatus.Locked),
+          ('Specifies the expected CBI EEPROM write protection status: '
+           '"Locked", "Unlocked", or "Absent". Defaults to "Absent" because CBI'
+           ' in EC is enabled, and future projects will not have an EEPROM.'),
+          default=cbi_utils.CbiEepromWpStatus.Absent),
       Arg('is_reference_board', bool, 'Is reference board or not. If yes, skip '
           'the check for rlz code', default=False),
       Arg('project', str, 'Project name of the HWID.', default=None),
