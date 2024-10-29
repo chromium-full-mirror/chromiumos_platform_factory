@@ -29,6 +29,7 @@ To check that audio can be recorded and played, add this into test list:
 """
 
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.test.utils import audio_utils
 
 
@@ -45,12 +46,13 @@ class AudioDiagnosticTest(test_case.TestCase):
       test_case.TestCategory.SPEAKERAMPLIFIER,
   )
 
+  ui: test_ui.UI
+  event_loop: test_ui.EventLoop
+
   def setUp(self):
     """Setup CRAS and bind events to corresponding tasks at backend."""
-    # yapf: disable
-    self.event_loop.AddEventHandler('select_cras_node', self.SelectCrasNode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
 
+    self.event_loop.AddEventHandler('select_cras_node', self.SelectCrasNode)
     self._cras = audio_utils.CRAS()
     self._cras.UpdateIONodes()
 
@@ -64,17 +66,11 @@ class AudioDiagnosticTest(test_case.TestCase):
 
   def UpdateCrasNodes(self):
     self._cras.UpdateIONodes()
-    # yapf: disable
-    self.ui.CallJSFunction('showCrasNodes', 'output',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.CallJSFunction('showCrasNodes', 'output',
                            [node.__dict__ for node in self._cras.output_nodes])
-    # yapf: disable
-    self.ui.CallJSFunction('showCrasNodes', 'input',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.CallJSFunction('showCrasNodes', 'input',
                            [node.__dict__ for node in self._cras.input_nodes])
 
   def runTest(self):
-    # yapf: disable
-    self.ui.CallJSFunction('init')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.CallJSFunction('init')
     self.WaitTaskEnd()
