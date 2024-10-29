@@ -14,8 +14,9 @@ from cros.factory.hwid_extractor import servod
 
 
 # SuzyQ usb device ids.
-CR50_USB = '18d1:5014'
-TI50_USB = '18d1:504a'
+H1_USB = '18d1:5014'
+DT_USB = '18d1:504a'
+NT_USB = '18d1:5066'
 GSC_LSUSB_CMD = ['lsusb', '-vd']
 GSC_LSUSB_SERIAL_RE = r'iSerial +\d+ (\S+)\s'
 
@@ -30,7 +31,7 @@ def _ScanCCDDevices():
   """
   logging.info('Scan serial names of CCD devices')
   output = ''
-  for usb_device_id in [CR50_USB, TI50_USB]:
+  for usb_device_id in [H1_USB, DT_USB, NT_USB]:
     try:
       output += subprocess.check_output(GSC_LSUSB_CMD + [usb_device_id],
                                         encoding='utf-8')
