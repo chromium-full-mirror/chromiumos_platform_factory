@@ -67,12 +67,13 @@ before retries::
 """
 
 import os
+from typing import Optional
 
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.test.utils import connection_manager
-from cros.factory.utils import arg_utils
+from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import sync_utils
 
 
@@ -99,34 +100,33 @@ def _ErrorCodeToMessage(error_code, interface):
   return _('Unknown Error on {interface}', interface=interface)
 
 
+class NetworkConnectionSetupArgs:
+  config_name: str
+  timeout_secs: Optional[float]
+
+
 class NetworkConnectionSetup(test_case.TestCase):
   related_components = tuple()
   ARGS = [
-      arg_utils.Arg('config_name', str, 'name of the config file.'),
-      arg_utils.Arg('timeout_secs', float,
-                    'timeout seconds for each interface, default is no timeout',
-                    default=None),
+      Arg('config_name', str, 'name of the config file.'),
+      Arg('timeout_secs', float,
+          'timeout seconds for each interface, default is no timeout',
+          default=None),
   ]
+  args: NetworkConnectionSetupArgs
+  ui: test_ui.StandardUI
 
   def runTest(self):
-    # yapf: disable
-    self.ui.SetState(_STATE_HTML)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_STATE_HTML)
 
-    # make config_name absolute path, however, this might not work in PAR
-    config_path = os.path.join(os.path.dirname(__file__),
-                               # yapf: disable
-                               self.args.config_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    config_path = os.path.join(os.path.dirname(__file__), self.args.config_name)
     settings = connection_manager.LoadNetworkConfig(config_path)
 
     proxy = connection_manager.GetConnectionManagerProxy()
 
     for interface in settings:
       interface_name = settings[interface].pop('interface_name', interface)
-      # yapf: disable
-      self.ui.SetHTML(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetHTML(
           _('Setting up interface {interface}',
             interface=f'<b>{interface}</b>'), id=_ID_SUBTITLE_DIV)
 
@@ -142,10 +142,8 @@ class NetworkConnectionSetup(test_case.TestCase):
         if error_code is None:
           return True
         # Hint operators what might go wrong.
-        # yapf: disable
-        self.ui.SetHTML(_ErrorCodeToMessage(error_code, interface_name),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-                        id=_ID_MESSAGE_DIV)
+        self.ui.SetHTML(
+            _ErrorCodeToMessage(error_code, interface_name), id=_ID_MESSAGE_DIV)
         return False
 
       # Try once first, if we success, we don't need to ask operators to do
@@ -158,16 +156,10 @@ class NetworkConnectionSetup(test_case.TestCase):
       if not success:
         # Failed, wait operators to press space when they think cables are
         # connected correctly.
-        # yapf: disable
-        self.ui.SetHTML(_('Press space to continue'), id=_ID_INSTRUCTION_DIV)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.ui.SetHTML(_('Press space to continue'), id=_ID_INSTRUCTION_DIV)
+        self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
 
         # Polling until success or timeout (operators don't need to press
         # space anymore).
         sync_utils.PollForCondition(_TryOnce,
-                                    # yapf: disable
-                                    timeout_secs=self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+                                    timeout_secs=self.args.timeout_secs)
