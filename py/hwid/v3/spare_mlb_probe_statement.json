@@ -149,7 +149,8 @@
       "keys": [
         "manufacturer",
         "spec_level",
-        "vendor_specific"
+        "vendor_specific",
+        "gsc_device"
       ]
     }
   },
