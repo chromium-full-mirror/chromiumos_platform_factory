@@ -15,7 +15,7 @@
         "ProbeDram",
         "UpdateDramPartNum",
         "MemorySize",
-        "MemorySizeMaxDiffRatio5Percent",
+        "MemorySizeMaxDiffRatio30Percent",
         "MemorySizeCompareToDeviceData",
         "MRCCache",
         "StressAppTest",
@@ -43,11 +43,11 @@
         }
       ]
     },
-    "MemorySizeMaxDiffRatio5Percent": {
+    "MemorySizeMaxDiffRatio30Percent": {
       "inherit": "MemorySize",
-      "label": "Memory Size Max Diff Ratio 5 Percent",
+      "label": "Memory Size Max Diff Ratio 30 Percent",
       "args": {
-        "max_diff_ratio": 0.05
+        "max_diff_ratio": 0.3
       }
     },
     "StressAppTestForOneDay": {

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-10-02 11:11+CST\n"
+"PO-Revision-Date: 2024-10-31 03:32+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -4007,7 +4007,7 @@ msgid "Memory Size Compare To Device Data"
 msgstr ""
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
-msgid "Memory Size Max Diff Ratio 5 Percent"
+msgid "Memory Size Max Diff Ratio 30 Percent"
 msgstr ""
 
 #: ../py/test/test_lists/generic_dram_examples.test_list.json
