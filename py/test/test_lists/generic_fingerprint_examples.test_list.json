@@ -239,6 +239,9 @@
     "SetHasFingerprint": {
       "pytest_name": "exec_shell",
       "label": "Set Has Fingerprint",
+      "related_components": [
+        "test_tags.TestCategory.FINGERPRINT_SENSOR"
+      ],
       "args": {
         "commands": "factory device-data component.has_fingerprint=1"
       }
@@ -246,6 +249,9 @@
     "UnsetHasFingerprint": {
       "pytest_name": "exec_shell",
       "label": "Unset Has Fingerprint",
+      "related_components": [
+        "test_tags.TestCategory.FINGERPRINT_SENSOR"
+      ],
       "args": {
         "commands": "factory device-data component.has_fingerprint=0"
       }
