@@ -111,6 +111,9 @@
     "SetHasBaseAccelerometer": {
       "pytest_name": "exec_shell",
       "label": "Set Has Base Accelerometer",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_base_accelerometer=1"
       }
@@ -118,6 +121,9 @@
     "SetHasBaseGyroscope": {
       "pytest_name": "exec_shell",
       "label": "Set Has Base Gyroscope",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_base_gyroscope=1"
       }
@@ -125,6 +131,9 @@
     "SetHasLidAccelerometer": {
       "pytest_name": "exec_shell",
       "label": "Set Has Lid Accelerometer",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_lid_accelerometer=1"
       }
@@ -132,6 +141,9 @@
     "SetHasTabletmode": {
       "pytest_name": "exec_shell",
       "label": "Set Has Tabletmode",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_tabletmode=1"
       }
@@ -139,6 +151,9 @@
     "UnsetHasBaseAccelerometer": {
       "pytest_name": "exec_shell",
       "label": "Unset Has Base Accelerometer",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_base_accelerometer=0"
       }
@@ -146,6 +161,9 @@
     "UnsetHasBaseGyroscope": {
       "pytest_name": "exec_shell",
       "label": "Unset Has Base Gyroscope",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_base_gyroscope=0"
       }
@@ -153,6 +171,9 @@
     "UnsetHasLidAccelerometer": {
       "pytest_name": "exec_shell",
       "label": "Unset Has Lid Accelerometer",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_lid_accelerometer=0"
       }
@@ -160,6 +181,9 @@
     "UnsetHasTabletmode": {
       "pytest_name": "exec_shell",
       "label": "Unset Has Tabletmode",
+      "related_components": [
+        "test_tags.TestCategory.ACCELEROMETER"
+      ],
       "args": {
         "commands": "factory device-data component.has_tabletmode=0"
       }
