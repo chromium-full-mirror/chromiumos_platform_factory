@@ -67,8 +67,8 @@ class BatteryTest(unittest.TestCase):
         self.assertEqual(m.Match(fields), expected_result)
 
   def testGetProbeInfoSuggestion(self):
-    m = _GetMatcher(['abcde[0-9][0-9]12345'], ['abcde[0-9][0-9]12345'],
-                    'factory-board-1.B')
+    m = _GetMatcher(['abcde99', 'abcde[0-9][0-9]12345'],
+                    ['abcde[0-9][0-9]12345'], 'factory-board-1.B')
     suggestion = m.GetProbeInfoSuggestion({
         'manufacturer': '123',
         'model_name': 'abc'
@@ -77,8 +77,8 @@ class BatteryTest(unittest.TestCase):
     self.assertCountEqual(suggestion, [
         matcher.ProbeInfoSuggestion(
             'manufacturer', '123',
-            "Expected AVL attribute 'manufacturer'='abcde[0-9][0-9]12345',"
-            " but got '123'."),
+            "Expected AVL attribute 'manufacturer' equal to one of ['abcde99', "
+            "'abcde[0-9][0-9]12345'], but got '123'."),
         matcher.ProbeInfoSuggestion(
             'model_name', 'abc',
             "Expected AVL attribute 'model_name'='abcde[0-9][0-9]12345', "

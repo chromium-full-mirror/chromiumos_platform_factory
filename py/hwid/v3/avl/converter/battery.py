@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 """Holds field name mappings from AVL to HWID."""
 
-from typing import ClassVar, Iterator, MutableSequence, Optional, Sequence
+from typing import ClassVar, Iterator, MutableSequence, Optional, Sequence, Type
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl.converter import common
@@ -108,8 +108,10 @@ class _BatteryConverter(builder.IProbeInfoConverter):
   TRIM: ClassVar[bool] = False
 
   def _GetBatteryFieldConverter(
-      self, probe_info: v3_rule.AVLProbeInfo,
-      key: str) -> builder.IProbeInfoConverterBuildResult:
+      self, probe_info: v3_rule.AVLProbeInfo, key: str,
+      suggester_type: Type[common.AVLAttributeSuggesterBase] = common
+      .SingleValueAVLAttributeSuggester
+  ) -> builder.IProbeInfoConverterBuildResult:
     values = probe_info.params.get(key)
     if values is None:
       return None
@@ -126,14 +128,15 @@ class _BatteryConverter(builder.IProbeInfoConverter):
 
     return (
         runtime_probe_matchers.OrMatcher(matchers),
-        common.SingleValueAVLAttributeSuggester(key, key),
+        suggester_type(key, key),
     )
 
   def Build(
       self, probe_info: v3_rule.AVLProbeInfo
   ) -> builder.IProbeInfoConverterBuildResult:
     return common.JoinFieldConverters((
-        self._GetBatteryFieldConverter(probe_info, 'manufacturer'),
+        self._GetBatteryFieldConverter(probe_info, 'manufacturer',
+                                       common.MultiValueAVLAttributeSuggester),
         self._GetBatteryFieldConverter(probe_info, 'model_name'),
     ))
 
@@ -165,8 +168,10 @@ class BatteryPrefixMatchLength11Expand(BatteryPrefixMatchLength11):
   IDENTIFIER = 'BatteryPrefixMatchLength11Expand'
 
   def _GetBatteryFieldConverter(
-      self, probe_info: v3_rule.AVLProbeInfo,
-      key: str) -> builder.IProbeInfoConverterBuildResult:
+      self, probe_info: v3_rule.AVLProbeInfo, key: str,
+      suggester_type: Type[common.AVLAttributeSuggesterBase] = common
+      .SingleValueAVLAttributeSuggester
+  ) -> builder.IProbeInfoConverterBuildResult:
     values = probe_info.params.get(key)
     if values is None:
       return None
@@ -188,7 +193,7 @@ class BatteryPrefixMatchLength11Expand(BatteryPrefixMatchLength11):
               ]))
     return (
         runtime_probe_matchers.OrMatcher(matchers),
-        common.SingleValueAVLAttributeSuggester(key, key),
+        suggester_type(key, key),
     )
 
 
