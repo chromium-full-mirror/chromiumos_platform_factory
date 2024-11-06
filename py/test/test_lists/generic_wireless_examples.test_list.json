@@ -83,6 +83,9 @@
     "ExampleWirelessConnect2G": {
       "inherit": "TestGroup",
       "label": "Example Wireless Connect 2G",
+      "related_components": [
+        "test_tags.TestCategory.TestCategory.WIFI"
+      ],
       "subtests": [
         {
           "inherit": "Scan",
@@ -110,6 +113,9 @@
     "ExampleWirelessConnect5G": {
       "inherit": "TestGroup",
       "label": "Example Wireless Connect 5G",
+      "related_components": [
+        "test_tags.TestCategory.TestCategory.WIFI"
+      ],
       "subtests": [
         {
           "inherit": "Scan",
