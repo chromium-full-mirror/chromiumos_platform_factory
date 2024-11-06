@@ -5,17 +5,11 @@
 import abc
 import enum
 import logging
-import os
-import tempfile
 
 from cros.factory.gooftool import common
 from cros.factory.test.utils import fpmcu_utils
-from cros.factory.utils import file_utils
 from cros.factory.utils import sys_interface
 from cros.factory.utils.type_utils import Error
-
-
-_WP_SECTION = 'WP_RO'
 
 
 class UnsupportedOperationError(Error):
@@ -180,10 +174,6 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
       else:
         raise WriteProtectError(f'Check {assert_message!r}: FAILED')
 
-    # Before the enablement, we create a temp dir for saving fpframe and, if
-    # failed, error messages.
-    temp_dir = tempfile.mkdtemp(prefix='write_protect_fpmcu-', )
-
     # Reboot the FPMCU. We need to make sure the FPMCU state matches the initial
     # state.
     try:
@@ -194,10 +184,6 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
     # Do prerequisite checking.
     _Assert(self._fpmcu.IsHWWPEnabled(), 'FPMCU HWWP is enabled')
     _Assert(not self._fpmcu.IsSWWPEnabled(), 'FPMCU SWWP is disabled')
-
-    # Log fpframe. This provides useful information for debugging if fail to
-    # enable the write protection in the further steps.
-    self._SaveFpframe(temp_dir)
 
     # Request to enable SWWP and reboot FPMCU so that SWWP makes effect. But
     # before rebooting, check if flags are updated to the expected state.
@@ -215,24 +201,3 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
     _Assert(self._fpmcu.GetImageSlot() == fpmcu_utils.ImageSlot.RW,
             'FPMCU RW image is active')
     _Assert(self._fpmcu.IsSystemLocked(), 'FPMCU system is locked')
-
-  def _SaveFpframe(self, dest: str) -> None:
-    """Saves fpframe under given destination directory, or logs error messages
-    if failing to get fpframe.
-
-    Args:
-      dest: path to the directory where fpframe or error messages should be
-          saved.
-    """
-
-    try:
-      fpframe = self._fpmcu.GetFpframe()
-      path_fpframe = os.path.join(dest, self.FILE_FPFRAME)
-      file_utils.WriteFile(path_fpframe, fpframe, encoding=None)
-      logging.info('Saved fpframe log: %s', path_fpframe)
-    except fpmcu_utils.FpmcuCommandError as e:
-      err_msg = e.stderr
-      path_fpframe_err_msg = os.path.join(dest, self.FILE_FPFRAME_ERR_MSG)
-      file_utils.WriteFile(path_fpframe_err_msg, err_msg)
-      logging.info('Saved fpframe err: %s', path_fpframe_err_msg)
-      raise WriteProtectError(f'Failed to save fpframe: {err_msg}') from e
