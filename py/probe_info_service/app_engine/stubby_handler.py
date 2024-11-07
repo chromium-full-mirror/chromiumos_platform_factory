@@ -4,7 +4,7 @@
 
 import copy
 import functools
-from typing import Callable, NamedTuple, Optional, Tuple
+from typing import Any, Callable, NamedTuple, Optional, Tuple
 
 from cros.factory.probe_info_service.app_engine import models
 from cros.factory.probe_info_service.app_engine import probe_info_analytics
@@ -39,8 +39,8 @@ def GetNormalizedProbeInfo(probe_info):
 class _ProbeDataSourceLookupResult(NamedTuple):
   # `source_type` captures the enum item of
   # `stubby_pb2.ProbeMetadata.ProbeStatementType`.  However that type is not
-  # a valid annotation, so here it uses `int` instead.
-  source_type: int
+  # a valid annotation, so here it uses `Any` instead.
+  source_type: Any
   probe_data_source: probe_info_analytics.IProbeDataSource
   is_tested: bool
   preview_generator: Callable[[], str]
@@ -192,6 +192,56 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
     response.probe_info_test_result.CopyFrom(result)
     return response
 
+  def _GenerateProbeMetadata(
+      self, lookup_result: _ProbeDataSourceLookupResult,
+      avl_probe_entry: models.AVLProbeEntry,
+      include_probe_statement_preview: bool) -> stubby_pb2.ProbeMetadata:
+    if lookup_result.source_type != stubby_pb2.ProbeMetadata.AUTO_GENERATED:
+      probe_metadata = stubby_pb2.ProbeMetadata(
+          probe_statement_type=lookup_result.source_type,
+          is_tested=lookup_result.is_tested)
+    else:
+      probe_metadata = stubby_pb2.ProbeMetadata(
+          probe_statement_type=stubby_pb2.ProbeMetadata.AUTO_GENERATED,
+          is_tested=avl_probe_entry.is_tested, is_proved_ready_for_overridden=(
+              avl_probe_entry.is_justified_for_overridden))
+
+    if include_probe_statement_preview:
+      probe_metadata.probe_statement_preview = (
+          lookup_result.preview_generator())
+    return probe_metadata
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  def MarkQualProbeInfoTested(
+      self, request: stubby_pb2.MarkQualProbeInfoTestedRequest):
+    response = stubby_pb2.MarkQualProbeInfoTestedResponse()
+
+    avl_entry, parsed_result = self._UpdateCompProbeInfo(
+        request.qual_probe_info)
+    if parsed_result.result_type != parsed_result.PASSED:
+      raise protorpc_utils.ProtoRPCException(
+          protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
+          'Can only mark tested when probe info is valid.')
+
+    lookup_result = self._LookupProbeDataSource(
+        request.qual_probe_info.component_identity,
+        request.qual_probe_info.probe_info)
+    if lookup_result.source_type != stubby_pb2.ProbeMetadata.AUTO_GENERATED:
+      raise protorpc_utils.ProtoRPCException(
+          protorpc_utils.RPCCanonicalErrorCode.UNIMPLEMENTED,
+          'Marking overridden probe statement as tested is not supported.')
+
+    if not avl_entry.is_tested:
+      avl_entry.is_tested = True
+      self._avl_probe_entry_mngr.SaveAVLProbeEntry(avl_entry)
+
+    response.probe_info_parsed_result.CopyFrom(parsed_result)
+    response.updated_metadata.CopyFrom(
+        self._GenerateProbeMetadata(lookup_result, avl_entry,
+                                    request.include_probe_statement_preview))
+
+    return response
+
   def _ConvertProbeInfoParsedResult(
       self, lookup_result: _ProbeDataSourceLookupResult,
       parsed_result: stubby_pb2.ProbeInfoParsedResult
@@ -328,19 +378,9 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
       entry, unused_parsed_result = self._UpdateCompProbeInfo(comp_probe_info)
       lookup_result = self._LookupProbeDataSource(
           comp_probe_info.component_identity, comp_probe_info.probe_info)
-      if lookup_result.source_type != stubby_pb2.ProbeMetadata.AUTO_GENERATED:
-        probe_metadata = response.probe_metadatas.add(
-            probe_statement_type=lookup_result.source_type,
-            is_tested=lookup_result.is_tested)
-      else:
-        probe_metadata = response.probe_metadatas.add(
-            probe_statement_type=stubby_pb2.ProbeMetadata.AUTO_GENERATED,
-            is_tested=entry.is_tested,
-            is_proved_ready_for_overridden=entry.is_justified_for_overridden)
-
-      if request.include_probe_statement_preview:
-        probe_metadata.probe_statement_preview = (
-            lookup_result.preview_generator())
+      response.probe_metadatas.append(
+          self._GenerateProbeMetadata(lookup_result, entry,
+                                      request.include_probe_statement_preview))
 
     return response
 

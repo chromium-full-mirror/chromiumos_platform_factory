@@ -170,6 +170,16 @@ message UploadQualProbeTestResultResponse {
   ProbeInfoTestResult probe_info_test_result = 3;
 }
 
+message MarkQualProbeInfoTestedRequest {
+  ComponentProbeInfo qual_probe_info = 1;  // Required.
+  bool include_probe_statement_preview = 2;
+}
+
+message MarkQualProbeInfoTestedResponse {
+  ProbeInfoParsedResult probe_info_parsed_result = 1;
+  ProbeMetadata updated_metadata = 2;
+}
+
 message CreateOverriddenProbeStatementRequest {
   ComponentProbeInfo component_probe_info = 1;  // Required.
 }
@@ -270,6 +280,9 @@ service ProbeInfoService {
 
   rpc UploadQualProbeTestResult(UploadQualProbeTestResultRequest)
       returns (UploadQualProbeTestResultResponse) {}
+
+  rpc MarkQualProbeInfoTested(MarkQualProbeInfoTestedRequest)
+      returns (MarkQualProbeInfoTestedResponse) {}
 
   rpc GetDeviceProbeConfig(GetDeviceProbeConfigRequest)
       returns (GetDeviceProbeConfigResponse) {}

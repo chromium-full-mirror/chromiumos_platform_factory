@@ -7,6 +7,7 @@ from unittest import mock
 
 from cros.factory.probe_info_service.app_engine import models
 from cros.factory.probe_info_service.app_engine import probe_tool_utils
+from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.probe_info_service.app_engine import ps_storages
 from cros.factory.probe_info_service.app_engine import stubby_handler
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
@@ -87,6 +88,27 @@ class StubbyHandlerTest(unittest.TestCase):
                      # yapf: disable
                      stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
+
+  def testMarkQualProbeInfoTested_Success(self):
+    req = stubby_pb2.MarkQualProbeInfoTestedRequest(
+        qual_probe_info=unittest_utils.LoadComponentProbeInfo('1-valid'))
+
+    resp = self._stubby_handler.MarkQualProbeInfoTested(req)
+
+    self.assertEqual(resp.probe_info_parsed_result.result_type,
+                     stubby_pb2.ProbeInfoParsedResult.ResultType.PASSED)
+    self.assertTrue(resp.updated_metadata.is_tested)
+
+  def testMarkQualProbeInfoTested_RejectIfGivenProbeInfoInvalid(self):
+    req = stubby_pb2.MarkQualProbeInfoTestedRequest(
+        qual_probe_info=unittest_utils.LoadComponentProbeInfo(
+            '1-param_value_error'))
+
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as assert_context:
+      self._stubby_handler.MarkQualProbeInfoTested(req)
+
+    self.assertEqual(assert_context.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
 
   def testUpdateComponentProbeInfo_VerifyComponentProbeInfoIsStored(self):
     comp_probe_info = unittest_utils.LoadComponentProbeInfo('1-valid')
