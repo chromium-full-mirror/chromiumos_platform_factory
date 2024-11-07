@@ -11,7 +11,19 @@ from cros.factory.utils import sys_interface
 
 
 _FPC_VENDOR_ID = '20435046'
+# TODO(b/377616175): Remove the following vars from the main factory branch,
+# once https://crrev.com/c/6000978 has landed in production buccaneer FW.
+_ELAN_VENDOR_ID = '4e414c45'
+"""The correct FOURCC version-id for ELAN.
 
+It spells out "ELAN" in reverse order (little-endian int).
+"""
+_ELAN_VENDOR_ID_BAD = '4f3'
+"""This is the incorrect vendor-id shipped with the initial MP buccaneer FW.
+
+This version lives in the RW part of firmware and will be updated, post launch
+of these devices.
+"""
 
 class FingerprintFunction(cached_probe_function.CachedProbeFunction):
   """Probe the fingerprint information."""
@@ -41,6 +53,11 @@ class FingerprintFunction(cached_probe_function.CachedProbeFunction):
         sensor_model = f'{int_sensor_model_masked:x}'
     else:
       sensor_model = sensor_model_unmasked
+
+    # TODO(b/377616175): Remove this workaround from the main factory branch,
+    # once https://crrev.com/c/6000978 has landed in production buccaneer FW.
+    if sensor_vendor == _ELAN_VENDOR_ID_BAD:
+      sensor_vendor = _ELAN_VENDOR_ID
 
     results = [{
         'sensor_vendor': sensor_vendor,
