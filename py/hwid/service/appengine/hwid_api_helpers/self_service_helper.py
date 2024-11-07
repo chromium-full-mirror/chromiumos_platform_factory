@@ -1406,16 +1406,14 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
 
     response = hwid_api_messages_pb2.SplitHwidDbChangeResponse()
+    old_hwid_db_editable_section = action.GetDBEditableSection(internal=True)
     old_db = database.Database.LoadData(
-        action.PatchHeader(action.GetDBEditableSection(internal=True)))
-    if session_cache.new_hwid_db_editable_section is None:
-      new_db = old_db
-    else:
-      new_hwid_db_contents_internal = action.ConvertToInternalHWIDDBContent(
-          self._avl_converter_manager,
-          action.PatchHeader(session_cache.new_hwid_db_editable_section),
-          avl_resource)
-      new_db = database.Database.LoadData(new_hwid_db_contents_internal)
+        action.PatchHeader(old_hwid_db_editable_section))
+    new_hwid_db_contents_internal = action.ConvertToInternalHWIDDBContent(
+        self._avl_converter_manager,
+        action.PatchHeader(session_cache.new_hwid_db_editable_section or
+                           old_hwid_db_editable_section), avl_resource)
+    new_db = database.Database.LoadData(new_hwid_db_contents_internal)
     apply_functions: Sequence[Tuple[_ApplyFunction, _DataSource]] = [
         (lambda x: x, _DataSource.HWID_CONFIG),
         (functools.partial(

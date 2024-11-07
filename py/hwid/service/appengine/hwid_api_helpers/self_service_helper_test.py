@@ -569,7 +569,8 @@ class SelfServiceShardTest(unittest.TestCase):
         self._modules, self._mock_hwid_repo_manager,
         feature_matcher_builder_class=self._mock_feature_matcher_builder_class,
         battery_config_fetcher=self._mock_battery_config_fetcher,
-        vpg_targets_data_manager=self._mock_vpg_targets_data_manager)
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
+        avl_converter_manager=converter_utils.ConverterManager.FromDefault())
 
   def tearDown(self):
     self._modules.ClearAll()
@@ -2079,6 +2080,37 @@ class SelfServiceShardTest(unittest.TestCase):
         _ChangeUnitMsg(data_source=_DataSource.COMPONENT_LIST,
                        comp_change=comp_list_change),
     ], list(split_resp.change_units.values()))
+
+  def testSplitHwidDbChange_ResyncAvlResource(self):
+    # Arrange.
+    project = 'CHROMEBOOK'
+    old_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_BEFORE)
+    # Config repo and action.
+    self._ConfigLiveHWIDRepo(project, 3, old_db_data)
+    action = self._CreateFakeHWIDBAction(project, old_db_data)
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
+    # Call AnalyzeHwidDbEditableSection without new_db_data to start a HWID DB
+    # change workflow.
+    analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project, '')
+    session_token = analyze_resp.validation_token
+
+    # Act.
+    db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
+        component_probe_infos=[
+            stubby_pb2.ComponentProbeInfo(
+                component_identity=stubby_pb2.ComponentIdentity(
+                    component_id=1), probe_info=stubby_pb2.ProbeInfo(
+                        probe_function_name='func'))
+        ])
+    split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
+        session_token=session_token, db_external_resource=db_external_resource)
+
+    split_resp = self.service.SplitHwidDbChange(split_req)
+
+    self.assertEqual(1, len(split_resp.change_units))
+    change_unit = next(iter(split_resp.change_units.values()))
+    self.assertFalse(change_unit.comp_change.diff_prev.unchanged)
+    self.assertEqual(change_unit.data_source, _DataSource.HWID_CONFIG)
 
   def testSplitHwidDbChange_PatchFirmwareQuals(self):
     project = 'CHROMEBOOK'
