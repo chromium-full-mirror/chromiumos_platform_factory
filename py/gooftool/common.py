@@ -53,7 +53,8 @@ def Shell(cmd, stdin=None, log=True, sys_interface=None):
     cmd = ' '.join(shlex.quote(param) for param in cmd)
   if sys_interface is None:
     process = Popen(  # pylint: disable=consider-using-with
-        cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True, encoding='utf-8')
+        cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True,
+        encoding='utf-8', errors='backslashreplace')
   else:
     process = sys_interface.Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   stdout, stderr = process.communicate(input=stdin)
