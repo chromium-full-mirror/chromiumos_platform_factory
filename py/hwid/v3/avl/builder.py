@@ -220,17 +220,13 @@ class Builder:
   def __init__(self):
     self._converter_sets: MutableMapping[str, ConverterSet] = {}
 
-  def AddConverterSet(self, converter_set: ConverterSet):
-    """Adds a converter set to this builder."""
-    if converter_set.probe_info_identifier in self._converter_sets:
-      raise ValueError('Duplicate probe_info_identifier '
-                       f'{converter_set.probe_info_identifier!r}')
-    self._converter_sets[converter_set.probe_info_identifier] = converter_set
-
   def AddConverterSets(self, *converter_sets: ConverterSet):
     """Adds converter sets to this builder."""
     for converter_set in converter_sets:
-      self.AddConverterSet(converter_set)
+      if converter_set.probe_info_identifier in self._converter_sets:
+        raise ValueError('Duplicate probe_info_identifier '
+                         f'{converter_set.probe_info_identifier!r}')
+      self._converter_sets[converter_set.probe_info_identifier] = converter_set
 
   def Build(self, probe_info: v3_rule.AVLProbeInfo, model: str,
             factory_branch: Optional[str], cid: int, qid: int,

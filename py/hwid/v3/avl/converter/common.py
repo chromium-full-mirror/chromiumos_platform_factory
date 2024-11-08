@@ -28,6 +28,14 @@ class AVLAttributeSuggesterBase(matcher.ISuggester):
     self._key = key
     self._runtime_probe_key = runtime_probe_key
 
+  def _FormatSuggestion(
+      self, suggestion: runtime_probe_matchers.FieldProbeInfoSuggestion
+  ) -> Optional[matcher.ProbeInfoSuggestion]:
+    return matcher.ProbeInfoSuggestion(
+        self._key, str(suggestion.got), f'Expected AVL attribute {self._key!r}='
+        f'{str(suggestion.expected)!r}, but got '
+        f'{str(suggestion.got)!r}.')
+
   def _HandleOrSuggestion(
       self, suggestion: runtime_probe_matchers.OrProbeInfoSuggestion
   ) -> Sequence[matcher.ProbeInfoSuggestion]:
@@ -40,12 +48,9 @@ class AVLAttributeSuggesterBase(matcher.ISuggester):
     if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
       if (suggestion.field_name == self._runtime_probe_key and
           suggestion.got != suggestion.expected):
-        suggestions.append(
-            matcher.ProbeInfoSuggestion(
-                self._key, str(suggestion.got),
-                f'Expected AVL attribute {self._key!r}='
-                f'{str(suggestion.expected)!r}, but got '
-                f'{str(suggestion.got)!r}.'))
+        formated_suggestion = self._FormatSuggestion(suggestion)
+        if formated_suggestion is not None:
+          suggestions.append(formated_suggestion)
     elif isinstance(suggestion, runtime_probe_matchers.AndProbeInfoSuggestion):
       for s in suggestion.suggestions:
         suggestions.extend(self.BuildSuggestion(s))

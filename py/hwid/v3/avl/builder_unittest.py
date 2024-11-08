@@ -72,7 +72,7 @@ class BuilderTest(unittest.TestCase):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self._builder = builder.Builder()
-    self._builder.AddConverterSet(
+    self._builder.AddConverterSets(
         builder.ConverterSet(
             'probe_function_a',
             [FakeConverter1(), FakeConverter2()]))
@@ -149,7 +149,7 @@ class BuilderTest(unittest.TestCase):
 
   def testBuilderAddDuplicateSetRaiseException(self):
     with self.assertRaises(ValueError):
-      self._builder.AddConverterSet(
+      self._builder.AddConverterSets(
           builder.ConverterSet('probe_function_a', []))
 
   def testOSVersions(self):
