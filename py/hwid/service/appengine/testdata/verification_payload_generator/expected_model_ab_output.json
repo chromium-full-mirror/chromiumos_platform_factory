@@ -967,7 +967,8 @@
             "str",
             "!re L.*"
           ]
-        }
+        },
+        "position": 3
       },
       "model_a_battery_medium_unqualified": {
         "eval": {
@@ -988,7 +989,8 @@
             "str",
             "!re M.*"
           ]
-        }
+        },
+        "position": 2
       },
       "model_a_battery_small_supported": {
         "eval": {
@@ -1009,7 +1011,8 @@
             "str",
             "!re S.*"
           ]
-        }
+        },
+        "position": 1
       }
     },
     "camera": {
@@ -1297,7 +1300,8 @@
             "int",
             "!eq 1000000"
           ]
-        }
+        },
+        "position": 1
       },
       "model_a_storage_4_supported": {
         "eval": {
@@ -1335,7 +1339,8 @@
             "int",
             "!eq 1000000"
           ]
-        }
+        },
+        "position": 5
       }
     },
     "stylus": {
@@ -1445,7 +1450,8 @@
             false,
             "hex"
           ]
-        }
+        },
+        "position": 1
       },
       "model_a_touchpad_1": {
         "eval": {
@@ -1477,7 +1483,8 @@
             false,
             "hex"
           ]
-        }
+        },
+        "position": 2
       }
     },
     "touchscreen": {
@@ -1548,7 +1555,8 @@
             false,
             "hex"
           ]
-        }
+        },
+        "position": 1
       },
       "model_a_touchscreen_1": {
         "eval": {
@@ -1580,7 +1588,8 @@
             false,
             "hex"
           ]
-        }
+        },
+        "position": 2
       },
       "model_a_touchscreen_2": {
         "eval": {
@@ -1607,7 +1616,8 @@
             false,
             "hex"
           ]
-        }
+        },
+        "position": 3
       }
     },
     "wireless": {
@@ -1706,7 +1716,8 @@
             "str",
             "!eq abcdefg"
           ]
-        }
+        },
+        "position": 1
       },
       "model_b_battery_0_0#2": {
         "eval": {
@@ -1727,7 +1738,8 @@
             "str",
             "!re abcdefgz.*"
           ]
-        }
+        },
+        "position": 2
       },
       "model_b_battery_1_1": {
         "eval": {
@@ -1748,7 +1760,8 @@
             "str",
             "!eq abcdefghijk"
           ]
-        }
+        },
+        "position": 3
       },
       "model_b_battery_1_1#4": {
         "eval": {
@@ -1769,7 +1782,8 @@
             "str",
             "!re abcdefghijkl.*"
           ]
-        }
+        },
+        "position": 4
       },
       "model_b_battery_2_2": {
         "eval": {
@@ -1790,7 +1804,8 @@
             "str",
             "!eq def"
           ]
-        }
+        },
+        "position": 5
       },
       "model_b_battery_2_2#6": {
         "eval": {
@@ -1811,7 +1826,8 @@
             "str",
             "!re def123.*"
           ]
-        }
+        },
+        "position": 6
       },
       "model_b_battery_3_3": {
         "eval": {
@@ -1832,7 +1848,8 @@
             "str",
             "!eq ghi"
           ]
-        }
+        },
+        "position": 7
       },
       "model_b_battery_3_3#8": {
         "eval": {
@@ -1853,7 +1870,8 @@
             "str",
             "!eq ghi"
           ]
-        }
+        },
+        "position": 8
       },
       "model_b_battery_3_3#9": {
         "eval": {
@@ -1874,7 +1892,8 @@
             "str",
             "!re ghi.*"
           ]
-        }
+        },
+        "position": 9
       },
       "model_b_battery_4_4": {
         "eval": {
@@ -1895,7 +1914,8 @@
             "str",
             "!re jkl.*"
           ]
-        }
+        },
+        "position": 10
       },
       "model_b_battery_4_4#11": {
         "eval": {
@@ -1916,7 +1936,8 @@
             "str",
             "!eq jkl"
           ]
-        }
+        },
+        "position": 11
       }
     },
     "camera": {
@@ -2428,7 +2449,8 @@
             "hex",
             "!eq 0xCCDD"
           ]
-        }
+        },
+        "position": 1
       },
       "model_c_video_comp_1": {
         "eval": {
@@ -2445,7 +2467,8 @@
             "hex",
             "!eq 0x1234"
           ]
-        }
+        },
+        "position": 2
       },
       "model_c_video_comp_2": {
         "eval": {
@@ -2462,7 +2485,8 @@
             "str",
             "!eq BB5678"
           ]
-        }
+        },
+        "position": 3
       }
     },
     "cellular": {
@@ -2929,7 +2953,8 @@
             "hex",
             "!eq 0xCCDD"
           ]
-        }
+        },
+        "position": 1
       },
       "model_d_camera_comp_1": {
         "eval": {
@@ -2946,7 +2971,8 @@
             "hex",
             "!eq 0x1234"
           ]
-        }
+        },
+        "position": 2
       },
       "model_d_camera_comp_2": {
         "eval": {
@@ -2963,7 +2989,8 @@
             "str",
             "!eq BB5678"
           ]
-        }
+        },
+        "position": 3
       }
     },
     "cellular": {
@@ -3518,7 +3545,8 @@
             false,
             "int"
           ]
-        }
+        },
+        "position": 3
       }
     },
     "ethernet": {
@@ -3672,7 +3700,8 @@
             "int",
             "!eq 104857600"
           ]
-        }
+        },
+        "position": 2
       },
       "model_e_storage3": {
         "eval": {
@@ -3710,7 +3739,8 @@
             "int",
             "!eq 104857600"
           ]
-        }
+        },
+        "position": 4
       }
     },
     "stylus": {
@@ -3926,7 +3956,8 @@
             "str",
             "!re S.*"
           ]
-        }
+        },
+        "position": 2
       },
       "model_f_battery_1_0_special_chemistry": {
         "eval": {
@@ -3948,7 +3979,8 @@
             "str",
             "!re L.*"
           ]
-        }
+        },
+        "position": 4
       },
       "model_f_battery_1_1_special_chemistry": {
         "eval": {
@@ -3970,7 +4002,8 @@
             "str",
             "!re L.*"
           ]
-        }
+        },
+        "position": 5
       },
       "model_f_battery_2_1_special_chemistry": {
         "eval": {
@@ -3992,7 +4025,8 @@
             "str",
             "!re M.*"
           ]
-        }
+        },
+        "position": 7
       }
     },
     "camera": {
@@ -4883,7 +4917,8 @@
             "hex",
             "!eq 0x5678"
           ]
-        }
+        },
+        "position": 1
       },
       "model_g_wireless_comp_0_1_supported": {
         "eval": {
@@ -4925,7 +4960,8 @@
               "!eq 0x5678"
             ]
           }
-        ]
+        ],
+        "position": 2
       },
       "model_g_wireless_comp_0_2_deprecated": {
         "eval": {
@@ -4953,7 +4989,8 @@
             "hex",
             "!eq 0x5678"
           ]
-        }
+        },
+        "position": 3
       },
       "model_g_wireless_comp_1_0_supported": {
         "eval": {
@@ -4995,7 +5032,8 @@
               "!eq 0x2222"
             ]
           }
-        ]
+        ],
+        "position": 4
       },
       "model_g_wireless_comp_1_1_supported": {
         "eval": {
@@ -5023,7 +5061,8 @@
             "hex",
             "!eq 0x2222"
           ]
-        }
+        },
+        "position": 5
       }
     }
   }

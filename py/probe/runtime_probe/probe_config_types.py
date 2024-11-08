@@ -21,7 +21,12 @@ class ValueType(str, enum.Enum):
 
 
 def CalculateStatementHash(category_name, statement):
-  return hash(json_utils.DumpStr((category_name, statement), sort_keys=True))
+  st = copy.deepcopy(statement)
+  # Component positions should not be used for statement comparison.
+  # Exclude component positions while calculating statement hash.
+  st.pop('position', None)
+
+  return hash(json_utils.DumpStr((category_name, st), sort_keys=True))
 
 
 class OutputFieldDefinition:
@@ -172,7 +177,7 @@ class ProbeStatementDefinition:
 
   def GenerateProbeStatement(self, component_name, probe_function_name,
                              expected_fields, probe_function_argument=None,
-                             information=None):
+                             information=None, component_position=None):
     """Generate the probe statement from the given inputs.
 
     The term "probe config" represents to a huge payload that contains a bunch
@@ -188,6 +193,7 @@ class ProbeStatementDefinition:
           expected values.
       probe_function_argument: A dictionary which will be passed to the probe
           function.
+      component_position: The position of the component in HWID DB.
 
     Returns:
       A ComponentProbeStatement instance represents the generated probe
@@ -213,6 +219,8 @@ class ProbeStatementDefinition:
     }
     if information is not None:
       statement['information'] = information
+    if component_position is not None:
+      statement['position'] = component_position
     return ComponentProbeStatement(self.category_name, component_name,
                                    statement)
 

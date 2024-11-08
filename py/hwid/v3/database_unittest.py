@@ -613,6 +613,68 @@ class ComponentsTest(unittest.TestCase):
     }, 'supported')
     self.assertFalse(c.can_encode)
 
+  def testAddComponent_ShouldHandlePosition(self):
+    expr = {
+        'cls1': {
+            'items': {
+                'comp1': {
+                    'values': {
+                        'p1': 'v1',
+                        'p2': 'v2'
+                    }
+                },
+                'comp2': {
+                    'values': {
+                        'p1': 'v3',
+                        'p2': 'v4'
+                    }
+                }
+            }
+        },
+        'cls2': {
+            'items': {
+                'comp4': {
+                    'values': {
+                        'p1': 'v1',
+                        'p2': 'v2'
+                    }
+                },
+                'comp3': {
+                    'values': {
+                        'p1': 'v3',
+                        'p2': 'v4'
+                    }
+                }
+            }
+        }
+    }
+    c = database.Components(expr)
+    self.assertEqual(c.GetComponents('cls1')['comp1'].position, 1)
+    self.assertEqual(c.GetComponents('cls1')['comp2'].position, 2)
+    self.assertEqual(c.GetComponents('cls2')['comp4'].position, 1)
+    self.assertEqual(c.GetComponents('cls2')['comp3'].position, 2)
+
+    c.AddComponent('cls1', 'comp5', {
+        'p1': 'v5',
+        'p2': 'v6'
+    }, 'supported')
+    c.AddComponent('cls2', 'comp7', {
+        'p1': 'v5',
+        'p2': 'v6'
+    }, 'supported')
+    c.AddComponent('cls2', 'comp6', {
+        'p1': 'v7',
+        'p2': 'v8'
+    }, 'supported')
+
+    self.assertEqual(c.GetComponents('cls1')['comp1'].position, 1)
+    self.assertEqual(c.GetComponents('cls1')['comp2'].position, 2)
+    self.assertEqual(c.GetComponents('cls1')['comp5'].position, 3)
+    self.assertEqual(c.GetComponents('cls2')['comp4'].position, 1)
+    self.assertEqual(c.GetComponents('cls2')['comp3'].position, 2)
+    self.assertEqual(c.GetComponents('cls2')['comp7'].position, 3)
+    self.assertEqual(c.GetComponents('cls2')['comp6'].position, 4)
+
   def testSetComponentStatus(self):
     c = database.Components(
         {'cls1': {
@@ -690,10 +752,14 @@ class ComponentsTest(unittest.TestCase):
     self.assertEqual(sorted(c.GetComponents('cls1').keys()), ['comp1', 'comp2'])
     self.assertEqual(c.GetComponents('cls1')['comp1'].values, {'a': 'b'})
     self.assertEqual(c.GetComponents('cls1')['comp1'].status, 'unqualified')
+    self.assertEqual(c.GetComponents('cls1')['comp1'].position, 1)
     self.assertEqual(c.GetComponents('cls1')['comp2'].values, {'a': 'c'})
     self.assertEqual(c.GetComponents('cls1')['comp2'].status, 'supported')
+    self.assertEqual(c.GetComponents('cls1')['comp2'].position, 2)
 
     self.assertEqual(len(c.GetComponents('cls2')), 2)
+    self.assertEqual(c.GetComponents('cls2')['comp3'].position, 1)
+    self.assertEqual(c.GetComponents('cls2')['comp4'].position, 2)
     cls2_comp4_inforation = c.GetComponents('cls2')['comp4'].information
     assert cls2_comp4_inforation is not None
     self.assertDictEqual(cls2_comp4_inforation, {

@@ -51,7 +51,8 @@ class ConcreteProbeStatementDefinitionTestBase(unittest.TestCase):
 
 class ProbeStatementDefinitionTest(ConcreteProbeStatementDefinitionTestBase):
   def _GenerateExpectResult(self, comp_name, func_name, expect_field,
-                            func_arg=None, information=None):
+                            func_arg=None, information=None,
+                            component_position=None):
     statement = {
         'eval': {
             func_name: func_arg or {}
@@ -60,6 +61,8 @@ class ProbeStatementDefinitionTest(ConcreteProbeStatementDefinitionTestBase):
     }
     if information is not None:
       statement['information'] = information
+    if component_position is not None:
+      statement['position'] = component_position
     return probe_config_types.ComponentProbeStatement('category_x', comp_name,
                                                       statement)
 
@@ -197,6 +200,22 @@ class ProbeStatementDefinitionTest(ConcreteProbeStatementDefinitionTestBase):
     self.assertEqual(result,
                      self._GenerateExpectResult('comp_1', 'func_1', {},
                                                 func_arg={'arg_1': 'aaa'}))
+
+  def testGenerateProbeStatementWithPosition(self):
+    result = self.probe_statement_definition.GenerateProbeStatement(
+        'comp_1', 'func_1', {
+            'str_field': 'sss',
+            'int_field': 3,
+            'hex_field': '0BAD'
+        }, component_position=1)
+    self.assertEqual(
+        result,
+        self._GenerateExpectResult(
+            'comp_1', 'func_1', {
+                'str_field': [True, 'str', '!eq sss'],
+                'int_field': [True, 'int', '!eq 3'],
+                'hex_field': [True, 'hex', '!eq 0x0BAD']
+            }, component_position=1))
 
 
 class ProbeConfigPayloadTest(ConcreteProbeStatementDefinitionTestBase):

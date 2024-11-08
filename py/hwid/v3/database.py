@@ -97,11 +97,13 @@ class ComponentInfo:
   def __init__(self, values: Optional[ProbedValueType],
                status: Union[str, common.ComponentStatus],
                information: Optional[Mapping[str, Any]] = None,
-               bundle_uuids: Optional[Sequence[str]] = None):
+               bundle_uuids: Optional[Sequence[str]] = None,
+               position: Optional[int] = None):
     self._values = values
     # Casts status to str type for avoiding yaml dump error.
     self._status = str(status)
     self._information = information
+    self._position = position
     self._bundle_uuids = bundle_uuids or []
     self._comp_hash = hashlib.sha1(
         yaml.safe_dump(
@@ -147,7 +149,8 @@ class ComponentInfo:
     return ComponentInfo(
         kwargs.get('values', self.values), kwargs.get('status', self.status),
         kwargs.get('information', self.information),
-        kwargs.get('bundle_uuids', self.bundle_uuids))
+        kwargs.get('bundle_uuids', self.bundle_uuids),
+        kwargs.get('position', self.position))
 
   @property
   def values(self) -> Optional[ProbedValueType]:
@@ -168,6 +171,10 @@ class ComponentInfo:
   @property
   def bundle_uuids(self) -> Sequence[str]:
     return self._bundle_uuids
+
+  @property
+  def position(self) -> Optional[int]:
+    return self._position
 
 
 class Database(abc.ABC):
@@ -1743,8 +1750,8 @@ class Components:
           'mark can_encode=False.', comp_cls)
       self._can_encode = False
 
-    for existed_comp_name, existed_comp_info in self.GetComponents(
-        comp_cls).items():
+    existed_comp = self.GetComponents(comp_cls)
+    for existed_comp_name, existed_comp_info in existed_comp.items():
       existed_comp_values = existed_comp_info.values
       # At here, we only complain if two components are exactly the same.  There
       # is another case that is not caught here: at least one of the component
@@ -1763,7 +1770,7 @@ class Components:
 
     self._components.setdefault(comp_cls, ComponentsStore(comp_cls))
     self._components[comp_cls][comp_name] = ComponentInfo(
-        values, status, information)
+        values, status, information, position=len(existed_comp) + 1)
 
   def SetLinkAVLProbeValue(self, comp_cls: str, comp_name: str,
                            avl_probe_value: v3_rule.AVLProbeValue):

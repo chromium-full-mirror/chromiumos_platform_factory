@@ -252,7 +252,9 @@ class _ProbeStatementGenerator:
       self.has_multiple_converters = True
     self._probe_function_argument = probe_function_argument
 
-  def TryGenerate(self, comp_name, comp_values, information=None):
+  def TryGenerate(self, comp_name: str, comp_values: database.ProbedValueType,
+                  information=None,
+                  comp_pos=None) -> probe_config_types.ComponentProbeStatement:
 
     expected_fields_list = []
     err = None
@@ -280,7 +282,7 @@ class _ProbeStatementGenerator:
       return self._probe_statement_generator.GenerateProbeStatement(
           comp_name, self._probe_function_name, expected_fields_list,
           probe_function_argument=self._probe_function_argument,
-          information=information)
+          information=information, component_position=comp_pos)
     except Exception as e:
       raise ProbeStatementConversionError(
           f'Unable to convert to the probe statement : {e!r}.') from None
@@ -565,7 +567,7 @@ class ComponentVerificationPayloadPiece(NamedTuple):
   support_status: str
 
 
-_STATUS_MAP = {
+_STATUS_MAP: Mapping[str, hardware_verifier_pb2.QualificationStatus] = {
     hwid_common.ComponentStatus.supported: hardware_verifier_pb2.QUALIFIED,
     hwid_common.ComponentStatus.unqualified: hardware_verifier_pb2.UNQUALIFIED,
     hwid_common.ComponentStatus.deprecated: hardware_verifier_pb2.QUALIFIED,
@@ -582,15 +584,19 @@ _SUPPORT_STATUS_PREFERENCE = {
 _ProbeRequestSupportCategory = runtime_probe_pb2.ProbeRequest.SupportCategory
 
 
-def GenerateProbeStatement(ps_gens, comp_name, comp_info):
+def GenerateProbeStatement(
+    ps_gens: Sequence[_ProbeStatementGenerator], comp_name: str,
+    comp_info: database.ComponentInfo
+) -> Optional[ComponentVerificationPayloadPiece]:
   err = None
   error_msg = None
   all_suitable_generator_and_ps = []
 
   for ps_gen in ps_gens:
     try:
+      assert comp_info.values is not None
       ps = ps_gen.TryGenerate(comp_name, comp_info.values,
-                              comp_info.information)
+                              comp_info.information, comp_info.position)
     except MissingComponentValueError:
       continue
     except Exception as e:

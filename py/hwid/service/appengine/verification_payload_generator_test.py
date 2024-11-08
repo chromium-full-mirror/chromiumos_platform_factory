@@ -771,14 +771,19 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
         expected_outputs['hw_verification_spec_encrypted.prototxt'])
 
 
-class GenerateProbeStatementWithInformation(unittest.TestCase):
+class GenerateProbeStatementTest(unittest.TestCase):
 
-  def testWithComponent(self):
+  def testWithInformation(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['storage'][1]
     ps = ps_gen.TryGenerate(
-        'name1',
-        {'sectors': '112233', 'class': '0x123456', 'device': '0x1234',
-         'vendor': '0x5678'}, {'comp_group': 'name2'})
+        'name1', {
+            'sectors': '112233',
+            'class': '0x123456',
+            'device': '0x1234',
+            'vendor': '0x5678'
+        }, information={
+            'comp_group': 'name2'
+        })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -796,6 +801,32 @@ class GenerateProbeStatementWithInformation(unittest.TestCase):
                 'information': {
                     'comp_group': 'name2'
                 },
+            }))
+
+  def testWithComponentPosition(self):
+    ps_gen = _vp_generator.GetAllProbeStatementGenerators()['storage'][1]
+    ps = ps_gen.TryGenerate(
+        'name1', {
+            'sectors': '112233',
+            'class': '0x123456',
+            'device': '0x1234',
+            'vendor': '0x5678'
+        }, comp_pos=1)
+    self.assertEqual(
+        ps,
+        probe_config_types.ComponentProbeStatement(
+            'storage', 'name1', {
+                'eval': {
+                    'generic_storage': {}
+                },
+                'expect': {
+                    'sectors': [True, 'int', '!eq 112233'],
+                    'pci_class': [True, 'hex', '!eq 0x123456'],
+                    'pci_vendor': [True, 'hex', '!eq 0x5678'],
+                    'pci_device': [True, 'hex', '!eq 0x1234'],
+                    'nvme_model': [False, 'str']
+                },
+                'position': 1
             }))
 
 
