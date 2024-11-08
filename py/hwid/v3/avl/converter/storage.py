@@ -4,7 +4,7 @@
 """Holds field name mappings from AVL to HWID."""
 
 import math
-from typing import ClassVar, Iterable, List, Mapping, Sequence
+from typing import ClassVar, Iterable, List, Mapping, Optional, Sequence
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl.converter import common
@@ -124,6 +124,22 @@ class NvmeStorageNoPciPrefix(NvmeStorageNoSize):
   }
 
 
+def _EncodeEmmcName(value):
+  return '0x' + str(value).encode('ascii').hex().lower()
+
+
+class _EmmcNameSuggester(common.AVLAttributeSuggesterBase):
+
+  def _FormatSuggestion(
+      self, suggestion: runtime_probe_matchers.FieldProbeInfoSuggestion
+  ) -> Optional[matcher.ProbeInfoSuggestion]:
+    return matcher.ProbeInfoSuggestion(
+        self._key, _EncodeEmmcName(suggestion.got),
+        f'Expected AVL attribute {self._key!r}='
+        f'{_EncodeEmmcName(suggestion.expected)!r}({suggestion.expected}),'
+        f' but got {_EncodeEmmcName(suggestion.got)!r}({suggestion.got}).')
+
+
 def _GetEmmcNameConverter(
     probe_info: v3_rule.AVLProbeInfo, runtime_probe_key_mapping: Mapping[str,
                                                                          str]
@@ -144,9 +160,8 @@ def _GetEmmcNameConverter(
     return None
 
   runtime_probe_key = runtime_probe_key_mapping.get(key, key)
-  return (runtime_probe_matchers.StringEqualMatcher(runtime_probe_key,
-                                                    mmc_name_decoded),
-          common.SingleValueAVLAttributeSuggester(key, key))
+  return (runtime_probe_matchers.StringEqualMatcher(
+      runtime_probe_key, mmc_name_decoded), _EmmcNameSuggester(key, key))
 
 
 class EmmcStorage(_Storage):

@@ -344,9 +344,9 @@ class EmmcStorageTest(unittest.TestCase):
                 suggestion="Expected AVL attribute 'mmc_prv'='0x2', but got "
                 "'0x4'."),
             matcher.ProbeInfoSuggestion(
-                key='mmc_name', value='AAACCC',
-                suggestion="Expected AVL attribute 'mmc_name'='AAABBB', "
-                "but got 'AAACCC'."),
+                key='mmc_name', value='0x414141434343',
+                suggestion="Expected AVL attribute 'mmc_name'="
+                "'0x414141424242'(AAABBB), but got '0x414141434343'(AAACCC)."),
             matcher.ProbeInfoSuggestion(
                 key='size_in_gb', value='8',
                 suggestion="Expected AVL attribute 'size_in_gb'=4GB, but got "
@@ -547,9 +547,9 @@ class EmmcStorageUnqualifiedTest(unittest.TestCase):
                 suggestion="Expected AVL attribute 'mmc_manfid'='0x1', but got "
                 "'0x3'."),
             matcher.ProbeInfoSuggestion(
-                key='mmc_name', value='AAACCC',
-                suggestion="Expected AVL attribute 'mmc_name'='AAABBB', "
-                "but got 'AAACCC'."),
+                key='mmc_name', value='0x414141434343',
+                suggestion="Expected AVL attribute 'mmc_name'="
+                "'0x414141424242'(AAABBB), but got '0x414141434343'(AAACCC)."),
             matcher.ProbeInfoSuggestion(
                 key='size_in_gb', value='8',
                 suggestion="Expected AVL attribute 'size_in_gb'=4GB, but got "
@@ -790,9 +790,9 @@ class PcieEmmcStorageBridgeAssemblyTest(unittest.TestCase):
             suggestion="Expected AVL attribute 'mmc_manfid'='0x3', but got "
             "'0x7'."),
         matcher.ProbeInfoSuggestion(
-            key='mmc_name', value='AAACCC',
-            suggestion="Expected AVL attribute 'mmc_name'='AAABBB', but got "
-            "'AAACCC'."),
+            key='mmc_name', value='0x414141434343',
+            suggestion="Expected AVL attribute 'mmc_name'="
+            "'0x414141424242'(AAABBB), but got '0x414141434343'(AAACCC)."),
         matcher.ProbeInfoSuggestion(
             key='bridge_pcie_class', value='0x8',
             suggestion="Expected AVL attribute 'bridge_pcie_class'='0x4', "
