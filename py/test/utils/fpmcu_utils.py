@@ -13,7 +13,7 @@ import time
 from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 from cros.factory.utils import sync_utils
-from cros.factory.utils.sys_interface import SystemInterface
+from cros.factory.utils import sys_interface
 from cros.factory.utils import type_utils
 
 
@@ -157,7 +157,7 @@ _EC_MKBP_EVENT_FINGERPRINT = 'FINGERPRINT'
 
 class FpmcuDevice:
 
-  def __init__(self, dut: SystemInterface):
+  def __init__(self, dut: sys_interface.SystemInterface):
     self._dut = dut
     self._cached_flash_protect_flags: Optional[int] = None
 
