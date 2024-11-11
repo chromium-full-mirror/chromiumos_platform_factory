@@ -168,6 +168,9 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
         when fail to enable write protection.
     """
 
+    # Follow go/fingerprint-factory-requirements#enable-software-write-protect
+    # to enable fingerprint write protection. Also see b/375982132#comment24.
+
     def _Assert(expected: bool, assert_message: str):
       if expected:
         logging.info('Check %r: OK', assert_message)
@@ -184,6 +187,10 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
     # Do prerequisite checking.
     _Assert(self._fpmcu.IsHWWPEnabled(), 'FPMCU HWWP is enabled')
     _Assert(not self._fpmcu.IsSWWPEnabled(), 'FPMCU SWWP is disabled')
+    # When SWWP is disabled, the fpframe command's exit code should be 0 and a
+    # large text block will be printed, starting with the letters "P2".
+    fpframe_output = self._fpmcu.GetFpframe(raw=False).strip()
+    _Assert(fpframe_output.startswith('P2'), 'Fpframe output starts with "P2"')
 
     # Request to enable SWWP and reboot FPMCU so that SWWP makes effect. But
     # before rebooting, check if flags are updated to the expected state.
@@ -197,6 +204,24 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
 
     # Validate the final FPMCU state.
     _Assert(self._fpmcu.IsSWWPEnabled(), 'FPMCU SWWP is enabled')
+    # When SWWP is enabled, the fpframe command's exit code should be 1 and the
+    # output will mention ACCESS_DENIED.
+    try:
+      self._fpmcu.GetFpframe(raw=False, retry_callback=None)
+      raise WriteProtectError(
+          'Fpframe command should fail with exit code 1, but succeeded.')
+    except fpmcu_utils.FpmcuCommandError as e:
+      assert isinstance(e.stderr, str)
+      if e.returncode != 1:
+        logging.error('Fpframe command failed: %s', e.stderr)
+        raise WriteProtectError('Fpframe command\'s exit code should be 1, '
+                                f'but got {e.returncode}.') from None
+      if 'ACCESS_DENIED' not in e.stderr:
+        logging.error('Fpframe command failed: %s', e.stderr)
+        raise WriteProtectError('Expect "ACCESS_DENIED" in fpframe command\'s '
+                                f'stderr message.') from None
+
+
     _Assert(self._fpmcu.IsHWWPEnabled(), 'FPMCU HWWP is enabled')
     _Assert(self._fpmcu.GetImageSlot() == fpmcu_utils.ImageSlot.RW,
             'FPMCU RW image is active')
