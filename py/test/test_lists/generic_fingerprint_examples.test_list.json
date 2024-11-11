@@ -161,7 +161,6 @@
     },
     "FPSTestPlusPixelMedianTestForDartmonkey": {
       "inherit": "FPSTest",
-      "pytest_name": "fingerprint_mcu",
       "label": "Fingerprint Sensor test plus pixel median test for Dartmonkey",
       "args": {
         "max_dead_pixels": 10,
