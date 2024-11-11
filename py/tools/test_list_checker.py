@@ -128,18 +128,41 @@ def CheckTestList(manager_: manager.Manager,
 
   factory_test_list = test_list.ToFactoryTestList()
 
-  # Check the type of line break.
+  # Check the type of line break and leading tabs.
   # Read the 'test_list' file in binary mode to prevent Python from
   # automatically converting line endings.
   with open(factory_test_list.source_path, 'rb') as f:
-    lines_with_crlf = []
+    lines_start_with_tab = []
+    lines_end_with_crlf = []
+
     for idx, line in enumerate(f.readlines()):
+      if line.startswith(b'\t'):
+        lines_start_with_tab.append(idx + 1)
       if line.endswith(b'\r\n'):
-        lines_with_crlf.append(idx + 1)
-    if lines_with_crlf:
+        lines_end_with_crlf.append(idx + 1)
+
+    if lines_start_with_tab:
+      logging.error(
+          'The following lines contain TAB, '
+          'which should be replaced by Space: %s', lines_start_with_tab)
+      return False
+    if lines_end_with_crlf:
       logging.error(
           'The following lines contain CRLF, '
-          'which should be replaced by LF: %s', lines_with_crlf)
+          'which should be replaced by LF: %s', lines_end_with_crlf)
+      return False
+
+  # Check the test list file mode.
+  file_mode = os.stat(factory_test_list.source_path).st_mode
+  # In chroot, both 0o644 and 0o640 are acceptable.
+  expected_modes = (0o644,) if not sys_utils.InChroot() else (0o644, 0o640)
+
+  if (file_mode & 0o777) not in expected_modes:
+      logging.error(
+          'Test list file "%s" has incorrect permissions: %o '
+          'Expected: 0o644 (-rw-r--r--) or 0o640 (-rw-r-----) (inside chroot), '
+          '0o644 (-rw-r--r--) (outside chroot).',
+          factory_test_list.source_path, file_mode & 0o777)
       return False
 
   if dump:
