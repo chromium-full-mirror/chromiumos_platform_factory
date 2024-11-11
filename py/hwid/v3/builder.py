@@ -1100,6 +1100,6 @@ class DatabaseBuilder:
                                    support_status, information, bundle_uuids)
 
   @_EnsureInBuilderContext
-  def ReplaceRules(self, rule_expr_list: Mapping[str, Any]):
+  def ReplaceRules(self, rule_expr_list: Sequence[Mapping[str, Any]]):
     """See database.WritableDatabase.ReplaceRules."""
     self._database.ReplaceRules(rule_expr_list)

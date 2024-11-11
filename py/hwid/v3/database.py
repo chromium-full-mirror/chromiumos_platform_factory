@@ -347,6 +347,31 @@ class Database(abc.ABC):
     return self._image_id.rma_image_id
 
   @property
+  def raw_encoding_patterns(self):
+    return self._encoding_patterns
+
+  @property
+  def raw_image_id(self):
+    return self._image_id
+
+  @property
+  def raw_pattern(self):
+    return self._pattern
+
+  @property
+  def raw_encoded_fields(self):
+    return self._encoded_fields
+
+  @property
+  def raw_components(self):
+    return self._components
+
+  @property
+  def raw_rules(self):
+    return self._rules
+
+
+  @property
   def is_initial(self) -> bool:
     return not self.GetPattern(pattern_idx=0).fields
 
@@ -784,7 +809,7 @@ class WritableDatabase(Database):
   def AddDeviceInfoRule(self, name_suffix, evaluate, **kwargs):
     self._rules.AddDeviceInfoRule(name_suffix, evaluate, **kwargs)
 
-  def ReplaceRules(self, rule_expr_list: Mapping[str, Any]):
+  def ReplaceRules(self, rule_expr_list: Sequence[Mapping[str, Any]]):
     """Replaces the entries in rules section.
 
     Args:
@@ -810,30 +835,6 @@ class WritableDatabase(Database):
     renamed = dict(self._image_id)
     renamed.update(image_name_mapping)
     self._image_id = ImageId(renamed)
-
-  @property
-  def raw_encoding_patterns(self):
-    return self._encoding_patterns
-
-  @property
-  def raw_image_id(self):
-    return self._image_id
-
-  @property
-  def raw_pattern(self):
-    return self._pattern
-
-  @property
-  def raw_encoded_fields(self):
-    return self._encoded_fields
-
-  @property
-  def raw_components(self):
-    return self._components
-
-  @property
-  def raw_rules(self):
-    return self._rules
 
   @property
   def framework_version(self) -> int:

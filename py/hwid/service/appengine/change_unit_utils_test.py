@@ -129,27 +129,17 @@ def _RelaxedDBEqual(db1: database.Database, db2: database.Database) -> bool:
 
   if db1.project != db2.project:
     return False
-  # yapf: disable
-  if db1.raw_encoding_patterns != db2.raw_encoding_patterns:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if db1.raw_encoding_patterns != db2.raw_encoding_patterns:
     return False
-  # yapf: disable
-  if db1.raw_image_id != db2.raw_image_id:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if db1.raw_image_id != db2.raw_image_id:
     return False
-  # yapf: disable
-  if db1.raw_pattern != db2.raw_pattern:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if db1.raw_pattern != db2.raw_pattern:
     return False
   if sorted(db1.encoded_fields) != sorted(db2.encoded_fields):
     return False
   for field_name in db1.encoded_fields:
-    # yapf: disable
-    comb_list1 = db1.raw_encoded_fields.GetField(field_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    comb_list2 = db2.raw_encoded_fields.GetField(field_name)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    comb_list1 = db1.raw_encoded_fields.GetField(field_name)
+    comb_list2 = db2.raw_encoded_fields.GetField(field_name)
     comb_hash1 = _CollectHashMappingOfCombinations(db1, comb_list1)
     comb_hash2 = _CollectHashMappingOfCombinations(db2, comb_list2)
     if comb_hash1[0] != comb_hash2[0]:
@@ -167,9 +157,7 @@ def _RelaxedDBEqual(db1: database.Database, db2: database.Database) -> bool:
         comp.comp_hash for comp in db2.GetComponents(comp_cls).values())
     if comp_hashes1 != comp_hashes2:
       return False
-  # yapf: disable
-  if db1.raw_rules != db2.raw_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if db1.raw_rules != db2.raw_rules:
     return False
   if db1.framework_version != db2.framework_version:
     return False
@@ -331,12 +319,8 @@ class CompChangeTest(ChangeUnitTestBase):
         'field2': 'value2'
     }, 'supported', {'info1': 'val1'})
     new_comp = _CompChange(
-        # yapf: disable
-        _GenerateNewComponentAnalysis(3),
-        comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        comp_info.information,
-        comp_info.comp_hash)
+        _GenerateNewComponentAnalysis(3), comp_info.values,
+        comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
         self._LoadDBContentWithDiffPatched(self._DIFF_ADD_COMPONENT),
@@ -359,12 +343,8 @@ class CompChangeTest(ChangeUnitTestBase):
             'info1': 'val1'
         })
     new_comp = _CompChange(
-        # yapf: disable
-        _GenerateNewComponentAnalysis(3),
-        comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        comp_info.information,
-        comp_info.comp_hash)
+        _GenerateNewComponentAnalysis(3), comp_info.values,
+        comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
         self._LoadDBContentWithDiffPatched(self._DIFF_ADD_COMPONENT_INTERNAL),
@@ -377,28 +357,16 @@ class CompChangeTest(ChangeUnitTestBase):
     }, 'deprecated', {'info1': 'val1'})
     update_comp = _CompChange(
         _BuildHWIDComponentAnalysisResultWithDefaults(
-            comp_cls='comp_cls_1',
-            comp_name='updated_comp',
-            seq_no=2,
-            comp_info=comp_info,
-            diff_prev=_DiffStatus(
-                unchanged=False,
-                name_changed=True,
-                support_status_changed=True,
-                values_changed=True,
-                prev_comp_name='comp_1_1',
+            comp_cls='comp_cls_1', comp_name='updated_comp', seq_no=2,
+            comp_info=comp_info, diff_prev=_DiffStatus(
+                unchanged=False, name_changed=True, support_status_changed=True,
+                values_changed=True, prev_comp_name='comp_1_1',
                 prev_support_status='supported',
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
-                    _PVAlignmentStatus.NO_PROBE_INFO),
-                converter_changed=False,
-                # yapf: disable
-                marked_untracked_changed=False,
-                probe_info_changed=False)),
-        comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        comp_info.information,
-        comp_info.comp_hash)
+                    _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
+                marked_untracked_changed=False, probe_info_changed=False)),
+        comp_info.values, comp_info.information, comp_info.comp_hash)
 
     self._AssertApplyingPatchesEqualsData(
         self._LoadDBContentWithDiffPatched(self._DIFF_UPDATE_COMPONENT),
@@ -412,28 +380,16 @@ class CompChangeTest(ChangeUnitTestBase):
     }, 'deprecated', {'info1': 'val1'})
     update_comp = _CompChange(
         _BuildHWIDComponentAnalysisResultWithDefaults(
-            comp_cls='comp_cls_1',
-            comp_name='updated_comp',
-            seq_no=2,
-            comp_info=comp_info,
-            diff_prev=_DiffStatus(
-                unchanged=False,
-                name_changed=True,
-                support_status_changed=True,
-                values_changed=True,
-                prev_comp_name='no-such-comp-name',
+            comp_cls='comp_cls_1', comp_name='updated_comp', seq_no=2,
+            comp_info=comp_info, diff_prev=_DiffStatus(
+                unchanged=False, name_changed=True, support_status_changed=True,
+                values_changed=True, prev_comp_name='no-such-comp-name',
                 prev_support_status='supported',
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
-                    _PVAlignmentStatus.NO_PROBE_INFO),
-                converter_changed=False,
-                # yapf: disable
-                marked_untracked_changed=False,
-                probe_info_changed=False)),
-        comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        comp_info.information,
-        comp_info.comp_hash)
+                    _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
+                marked_untracked_changed=False, probe_info_changed=False)),
+        comp_info.values, comp_info.information, comp_info.comp_hash)
 
     with self._builder:
       self.assertRaises(_ApplyChangeUnitException, update_comp.Patch,
@@ -443,28 +399,16 @@ class CompChangeTest(ChangeUnitTestBase):
     comp_info = database.ComponentInfo({'key': 'value'}, 'supported')
     update_comp = _CompChange(
         _BuildHWIDComponentAnalysisResultWithDefaults(
-            comp_cls='region',
-            comp_name='us',
-            seq_no=2,
-            comp_info=comp_info,
+            comp_cls='region', comp_name='us', seq_no=2, comp_info=comp_info,
             diff_prev=_DiffStatus(
-                unchanged=False,
-                name_changed=False,
-                support_status_changed=False,
-                values_changed=True,
-                prev_comp_name='us',
-                prev_support_status='supported',
+                unchanged=False, name_changed=False,
+                support_status_changed=False, values_changed=True,
+                prev_comp_name='us', prev_support_status='supported',
                 probe_value_alignment_status_changed=False,
                 prev_probe_value_alignment_status=(
-                    _PVAlignmentStatus.NO_PROBE_INFO),
-                converter_changed=False,
-                # yapf: disable
-                marked_untracked_changed=False,
-                probe_info_changed=False)),
-        comp_info.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        comp_info.information,
-        comp_info.comp_hash)
+                    _PVAlignmentStatus.NO_PROBE_INFO), converter_changed=False,
+                marked_untracked_changed=False, probe_info_changed=False)),
+        comp_info.values, comp_info.information, comp_info.comp_hash)
 
     with self._builder:
       self.assertRaises(_ApplyChangeUnitException, update_comp.Patch,
@@ -871,9 +815,7 @@ class ReplaceRulesTest(ChangeUnitTestBase):
   ]
 
   def testPatchReplaceRules_Success(self):
-    # yapf: disable
-    replace_rules = _ReplaceRules([{  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    replace_rules = _ReplaceRules([{
         'name': 'device_info.image_id',
         'evaluate': "SetImageId('PVT')"
     }, {
@@ -1036,15 +978,11 @@ class MixedChangeUnitTest(ChangeUnitTestBase):
             probe_info_changed=False))
     comp_change_cus = [
         _CompChange(  # Add component.
-            # yapf: disable
-            analysis_result=comp_1_2_analysis, probe_values=comp_info_1.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+            analysis_result=comp_1_2_analysis, probe_values=comp_info_1.values,
             information=comp_info_1.information,
             comp_hash=comp_info_1.comp_hash),
         _CompChange(  # Rename component.
-            # yapf: disable
-            analysis_result=comp_1_3_analysis, probe_values=comp_info_2.values,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+            analysis_result=comp_1_3_analysis, probe_values=comp_info_2.values,
             information=comp_info_2.information,
             comp_hash=comp_info_2.comp_hash),
     ]
@@ -1401,12 +1339,8 @@ class ChangeUnitManagerTest(unittest.TestCase):
         'AddEncodingCombination:new_field(first)-comp_cls_1:new_comp')
 
     class _TestDataset(NamedTuple):
-      # yapf: disable
-      change_status: Mapping[str, _ApprovalStatus]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      expected_result: _ChangeSplitResult  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      change_status: Mapping[str, _ApprovalStatus]
+      expected_result: _ChangeSplitResult
 
     # As the identities are generated by uuid.uuid4(), the identities of
     # expected split result are filled with the repr's and updated later.
@@ -1734,9 +1668,8 @@ class ChangeUnitManagerTest(unittest.TestCase):
         skip_avl_check_checker=Checker)
 
     comp_change = next(iter(manager.GetChangeUnits().values()))
-    # yapf: disable
-    comp_analysis = comp_change.comp_analysis  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    assert isinstance(comp_change, change_unit_utils.CompChange)
+    comp_analysis = comp_change.comp_analysis
     self.assertTrue(comp_analysis.skip_avl_check)
 
   def testChangeUnitManagerIsPickleable(self):

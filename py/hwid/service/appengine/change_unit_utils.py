@@ -62,9 +62,8 @@ def _GetExactlyOneComponentClassFromEncodedField(db: database.Database,
 def _IsNewlyCreatedOrRenamedComp(
     analysis_result: _HWIDComponentAnalysisResult) -> bool:
   return (analysis_result.is_newly_added or
-          # yapf: disable
-          analysis_result.diff_prev.name_changed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+          (analysis_result.diff_prev is not None and
+           analysis_result.diff_prev.name_changed))
 
 
 class ChangeUnitDepSpec:
@@ -75,10 +74,8 @@ class ChangeUnitDepSpec:
     * a list of dependency spec that filters the depended change units
   """
 
-  def __init__(self, cu_cls: Type['ChangeUnit'],
-               # yapf: disable
-               *spec_tuple: Union[type(None), str, int, bool]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  def __init__(self, cu_cls: Type['ChangeUnit'], *spec_tuple: Union[str, int,
+                                                                    bool]):
     self._spec_tuple = (cu_cls, *spec_tuple)
 
   def __eq__(self, rhs: Any) -> bool:
@@ -133,9 +130,7 @@ class ChangeUnit(abc.ABC):
 
 
 # A special instance to filter all other change units.
-# yapf: disable
-_ALL_OTHER_CHANGE_UNIT_DEP_SPEC = ChangeUnitDepSpec(ChangeUnit)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
+_ALL_OTHER_CHANGE_UNIT_DEP_SPEC = ChangeUnitDepSpec(ChangeUnit)  # type: ignore
 
 
 class CompChange(ChangeUnit):
@@ -193,23 +188,16 @@ class CompChange(ChangeUnit):
                               self._analysis_result.support_status,
                               self._information)
     else:  # Update component in-place.
+      assert self._analysis_result.diff_prev is not None
       if (comp_name in comps and
-          # yapf: disable
-          comp_name != self._analysis_result.diff_prev.prev_comp_name):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+          comp_name != self._analysis_result.diff_prev.prev_comp_name):
         # Name collision while renaming component to an existing name.
         comp_name = name_pattern_adapter.AddSequenceSuffix(
             comp_name, self._analysis_result.seq_no)
       db_builder.UpdateComponent(
-          # yapf: disable
-          comp_cls,
-          self._analysis_result.diff_prev.prev_comp_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          comp_name,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          self._probe_values,
-          self._analysis_result.support_status,
-          self._information,
-          self._bundle_uuids)
+          comp_cls, self._analysis_result.diff_prev.prev_comp_name, comp_name,
+          self._probe_values, self._analysis_result.support_status,
+          self._information, self._bundle_uuids)
 
   def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
     # Adding/Updating components does not depend on other change units.
@@ -466,7 +454,7 @@ class AssignBitMappingToEncodingPattern(ChangeUnit):
 class ReplaceRules(ChangeUnit):
   """A change unit to replace rules section."""
 
-  def __init__(self, rule_expr_list: Mapping[str, Any]):
+  def __init__(self, rule_expr_list: Sequence[Mapping[str, Any]]):
     super().__init__(self.CreateDepSpec())
     self._rule_expr_list = rule_expr_list
 
@@ -529,13 +517,11 @@ def _ExtractCompChanges(analysis_mapping: MutableMapping[Tuple[
     str, str], _HWIDComponentAnalysisResult],
                         new_db: database.Database) -> Iterable[CompChange]:
   for (comp_cls, comp_name), comp_analysis in analysis_mapping.items():
-    # yapf: disable
-    if comp_analysis.is_newly_added or not comp_analysis.diff_prev.unchanged:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if comp_analysis.is_newly_added or not (comp_analysis.diff_prev is not None
+                                            and
+                                            comp_analysis.diff_prev.unchanged):
       comp_info = new_db.GetComponents(comp_cls)[comp_name]
-      # yapf: disable
-      yield CompChange(comp_analysis, comp_info.values, comp_info.information,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      yield CompChange(comp_analysis, comp_info.values, comp_info.information,
                        comp_info.comp_hash, comp_info.bundle_uuids)
 
 
@@ -682,9 +668,7 @@ def _ExtractEncodingRelatedChanges(
 
 def _ExtractRenameImages(old_db: database.Database,
                          new_db: database.Database) -> Iterable[ChangeUnit]:
-  # yapf: disable
-  if old_db.raw_image_id.items() <= new_db.raw_image_id.items():  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if old_db.raw_image_id.items() <= new_db.raw_image_id.items():
     return
   removed_image_ids = set(old_db.image_ids) - set(new_db.image_ids)
   if removed_image_ids:
@@ -736,12 +720,8 @@ def _ExtractNewImageIds(old_db: database.Database,
 def _ExtractReplaceRules(old_db: database.Database,
                          new_db: database.Database) -> Iterable[ReplaceRules]:
 
-  # yapf: disable
-  if old_db.raw_rules != new_db.raw_rules:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    yield ReplaceRules(new_db.raw_rules.Export())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+  if old_db.raw_rules != new_db.raw_rules:
+    yield ReplaceRules(new_db.raw_rules.Export())
 
 
 def _ExtractChangeUnits(
