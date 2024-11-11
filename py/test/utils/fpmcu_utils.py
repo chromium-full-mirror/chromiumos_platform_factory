@@ -20,6 +20,9 @@ from cros.factory.utils import type_utils
 class FpmcuError(Exception):
   """Fpmcu device exception class."""
 
+  def __init__(self, message: str):
+    self.message = message
+
 
 class FpmcuCommandError(FpmcuError):
   """Fpmcu command exception class."""

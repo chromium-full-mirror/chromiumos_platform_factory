@@ -189,9 +189,7 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
     try:
       self._fpmcu.Reboot()
     except fpmcu_utils.FpmcuError as e:
-      # yapf: disable
-      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e
 
     # Do prerequisite checking.
     _Assert(self._fpmcu.IsHWWPEnabled(), 'FPMCU HWWP is enabled')
@@ -209,9 +207,7 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
               'FPMCU SWWP is enabled on boot')
       self._fpmcu.Reboot()
     except fpmcu_utils.FpmcuError as e:
-      # yapf: disable
-      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e
 
     # Validate the final FPMCU state.
     _Assert(self._fpmcu.IsSWWPEnabled(), 'FPMCU SWWP is enabled')
