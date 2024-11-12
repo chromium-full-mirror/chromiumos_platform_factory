@@ -14,7 +14,6 @@ from google.protobuf import text_format
 
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
-from cros.factory.hwid.service.appengine.data.converter import converter
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import features
@@ -24,11 +23,15 @@ from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3.avl import builder as avl_builder
+from cros.factory.hwid.v3.avl.converter import common as avl_common
 from cros.factory.hwid.v3 import battery_config_bundle
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import feature_compliance
 from cros.factory.hwid.v3 import name_pattern_adapter
+from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
+from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import sys_interface
@@ -41,13 +44,48 @@ _HWIDCompAnalysisResult = hwid_action.DBHWIDComponentAnalysisResult
 _DiffStatus = hwid_action.DBHWIDComponentDiffStatus
 
 
-class _TestAVLAttrs(converter.AVLAttrs):
-  MODEL = 'pi_model'
-  VENDOR = 'pi_vendor'
-  SECTORS = 'pi_sectors'
-  NAME = 'pi_name'
-  MANFID = 'pi_manfid'
+class TestConverter1(avl_builder.IProbeInfoConverter):
+  IDENTIFIER = 'test-converter1'
+  RUNTIME_PROBE_KEY_MAPPING = {
+      'pi_model': 'model',
+      'pi_vendor': 'vendor',
+      'pi_sectors': 'sectors'
+  }
 
+  def Build(
+      self, probe_info: v3_rule.AVLProbeInfo
+  ) -> avl_builder.IProbeInfoConverterBuildResult:
+    return avl_common.JoinFieldConverters((
+        avl_common.GetFieldConverter(probe_info, 'pi_model',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+        avl_common.GetFieldConverter(probe_info, 'pi_vendor',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+        avl_common.GetFieldConverter(probe_info, 'pi_sectors',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+    ))
+
+
+class TestConverter2(avl_builder.IProbeInfoConverter):
+  IDENTIFIER = 'test-converter2'
+  RUNTIME_PROBE_KEY_MAPPING = {
+      'pi_name': 'mmc_name',
+      'pi_manfid': 'mmc_manfid',
+  }
+
+  def Build(
+      self, probe_info: v3_rule.AVLProbeInfo
+  ) -> avl_builder.IProbeInfoConverterBuildResult:
+    return avl_common.JoinFieldConverters((
+        avl_common.GetFieldConverter(probe_info, 'pi_name',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+        avl_common.GetFieldConverter(probe_info, 'pi_manfid',
+                                     runtime_probe_matchers.HexEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+    ))
 
 class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
 
@@ -197,26 +235,12 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
   def testAnalyzeDBEditableSection_AVLProbeInfo(self):
     helper_inst = self._LoadSSHelper('v3-golden-no-avl-tags.yaml')
     editable_section = helper_inst.GetDBEditableSection()
-    collection = converter.ConverterCollection('storage')
-    collection.AddConverter(
-        converter.FieldNameConverter.FromFieldMap(
-            'test-converter1', {
-                _TestAVLAttrs.MODEL: converter.ConvertedValueSpec('model'),
-                _TestAVLAttrs.VENDOR: converter.ConvertedValueSpec('vendor'),
-                _TestAVLAttrs.SECTORS: converter.ConvertedValueSpec('sectors'),
-            }))
-    collection.AddConverter(
-        converter.FieldNameConverter.FromFieldMap(
-            'test-converter2', {
-                _TestAVLAttrs.NAME:
-                    converter.ConvertedValueSpec('mmc_name'),
-                _TestAVLAttrs.MANFID:
-                    converter.ConvertedValueSpec(
-                        'mmc_manfid',
-                        converter.MakeFixedWidthHexValueFactory(width=6)),
-            }))
-    avl_converter_manager = converter_utils.ConverterManager(
-        {'storage': collection})
+    builder = avl_builder.Builder()
+    builder.AddConverterSets(
+        avl_builder.ConverterSet(
+            'storage_func',
+            [TestConverter1(), TestConverter2()]))
+    avl_converter_manager = converter_utils.ConverterManager(builder)
     avl_resource = self._LoadAVLResource('v3-golden-internal.prototxt')
     report = helper_inst.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
@@ -247,7 +271,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
   def testAnalyzeDBEditableSection_NoSupressSupportStatus(self):
     helper_inst_before = self._LoadSSHelper('v3-golden-before.yaml')
     editable_section = helper_inst_before.GetDBEditableSection()
-    converter_manager = converter_utils.ConverterManager({})
+    converter_manager = converter_utils.ConverterManager.FromDefault()
     resource_msg = hwid_api_messages_pb2.HwidDbExternalResource()
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(

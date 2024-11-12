@@ -14,8 +14,8 @@ import yaml
 from cros.factory.hwid.service.appengine import change_unit_utils
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data import config_data
-from cros.factory.hwid.service.appengine.data.converter import converter as converter_module
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
+from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import feature_matching
@@ -33,9 +33,13 @@ from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: dis
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.service.appengine.test_utils import ApplyUnifiedDiff as _ApplyUnifiedDiff
+from cros.factory.hwid.v3.avl import builder as avl_builder
+from cros.factory.hwid.v3.avl.converter import common as avl_common
 from cros.factory.hwid.v3 import builder as v3_builder
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import name_pattern_adapter
+from cros.factory.hwid.v3 import rule as v3_rule
+from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
 from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 from cros.factory.utils import file_utils
@@ -118,6 +122,7 @@ def _CreateFakeSelfServiceShard(
     battery_config_fetcher: Optional[hwid_action.IBatteryConfigFetcher] = None,
     vpg_targets_data_manager: Optional[
         vpg_targets_data.VPGTargetsDataManager] = None,
+    dlm_product_manager: Optional[dlm_product_data.DLMProductManager] = None,
     cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
 ) -> ss_helper_module.SelfServiceShard:
   avl_metadata_manager = (
@@ -137,6 +142,7 @@ def _CreateFakeSelfServiceShard(
       (feature_matcher_builder_class or
        ss_helper_module.FeatureMatcherBuilderImpl), battery_config_fetcher,
       vpg_targets_data_manager or modules.fake_vpg_targets_data_manager,
+      dlm_product_manager or modules.fake_dlm_product_manager,
       cq_count_over_limit_cl_reviewers)
 
 
@@ -2469,19 +2475,6 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertEqual(review_required_call['change_id'], '123')
 
   def testCreateOrRefreshSplittedHwidDbCls_AVLAlignmentChanges(self):
-
-    def CreateMockAVLConverterManager(
-        match_result_mapping: Mapping[
-            str, Sequence[converter_module.CollectionMatchResult]]
-    ) -> converter_utils.ConverterManager:
-      converter_collections = {}
-      for comp_cls, match_results in match_result_mapping.items():
-        converter_collection = mock.create_autospec(
-            converter_module.ConverterCollection, instance=True)
-        converter_collection.Match.side_effect = match_results
-        converter_collections[comp_cls] = converter_collection
-      return converter_utils.ConverterManager(converter_collections)
-
     # Arrange.
     project = 'CHROMEBOOK'
     old_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_INTERNAL_BEFORE)
@@ -2496,52 +2489,30 @@ class SelfServiceShardTest(unittest.TestCase):
     action = self._CreateFakeHWIDBAction(project, old_db_data)
     self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
 
-    mock_avl_converter_manager = CreateMockAVLConverterManager({
-        'comp_cls1': [
-            # comp_cls1_2: both converter and alignment status are unchanged.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-            # comp_cls1_3: change to aligned with converter1 from non-AVL one.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-            # comp_cls1_4: change to aligned with converter changed.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter2',
-            ),
-            # comp_cls1_5: new component with converter and alignment status.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-        ],
-        'comp_cls2': [
-            # comp_cls2_2: both converter and alignment status are unchanged.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-            # comp_cls2_3: change to aligned with converter1 from non-AVL one.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-            # comp_cls2_4: change to aligned with converter changed.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter2',
-            ),
-            # comp_cls2_5: new component with converter and alignment status.
-            converter_module.CollectionMatchResult(
-                _PVAlignmentStatus.ALIGNED,
-                'converter1',
-            ),
-        ],
-    })
+    class TestMatcher(runtime_probe_matchers.IMatcher):
+
+      def Match(self, component: Mapping[str, str]) -> bool:
+        return True
+
+      def GenerateProbeConfigMatcherStatement(self):
+        raise NotImplementedError
+
+      def GetProbeInfoSuggestion(self, component: Mapping[str, str]):
+        raise NotImplementedError
+
+    class TestConverter1(avl_builder.IProbeInfoConverter):
+      IDENTIFIER = 'converter1'
+
+      def Build(
+          self, probe_info: v3_rule.AVLProbeInfo
+      ) -> avl_builder.IProbeInfoConverterBuildResult:
+        return (TestMatcher(), avl_common.NopSuggester())
+
+    builder = avl_builder.Builder()
+    builder.AddConverterSets(avl_builder.ConverterSet('', [TestConverter1()]))
+    mock_avl_converter_manager = converter_utils.ConverterManager(
+        builder, ['comp_cls1', 'comp_cls2'])
+
     # Mock ConverterManager instance in SelfServiceShard.
     shard = _CreateFakeSelfServiceShard(
         self._modules,
@@ -2605,7 +2576,7 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum:
-        +checksum: 8482fa342814bf5471d0edc4b24f77b31fe35121
+        +checksum: bdf3b928cbe79c40330767f672565650ad966b64
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2632,7 +2603,7 @@ class SelfServiceShardTest(unittest.TestCase):
                comp_cls1_4:
                  status: supported
                  values: !link_avl
-        +          converter: converter2
+        +          converter: converter1
         +          original_values:
         +            value2: '4'
         +          probe_info:
@@ -2665,7 +2636,7 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum: 8482fa342814bf5471d0edc4b24f77b31fe35121
-        +checksum: 6a5c41fd58544f20fe43e2d461837e5cb587ea16
+        +checksum: 4236c66437ab2abaf53d5c3f528477ee7820ec30
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2718,7 +2689,7 @@ class SelfServiceShardTest(unittest.TestCase):
                comp_cls2_9:
                  status: supported
                  values: !link_avl
-        +          converter: converter2
+        +          converter: converter1
         +          original_values:
         +            value2: '4'
         +          probe_info:

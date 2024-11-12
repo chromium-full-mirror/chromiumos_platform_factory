@@ -307,11 +307,11 @@ class HWIDV3SelfServiceActionHelper:
   def ConvertToInternalHWIDDBContent(
       self, avl_converter_manager: converter_utils.ConverterManager,
       hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource
-  ) -> hwid_db_data.HWIDDBData:
+      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
+      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
 
     hwid_db_editable_contents_with_avl = avl_converter_manager.LinkAVL(
-        hwid_db_contents, avl_resource)
+        hwid_db_contents, avl_resource, factory_branch)
     new_hwid_db_contents_internal_without_bundle = self.PatchHeader(
         hwid_db_editable_contents_with_avl)
     return self.PatchFirmwareBundleUUIDs(

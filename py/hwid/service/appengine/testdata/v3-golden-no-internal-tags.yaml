@@ -11,7 +11,7 @@
 # 若修改将使设备配置變為无效，并且不得销售此设备。
 #
 #####
-checksum: 932676c2f582e00cbbbf9ab7da0f8df57b56f0fd
+checksum: bf58e8081dc52b08cdb09f99beee213cd1c70945
 
 ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -142,13 +142,13 @@ encoded_fields:
       keyboard: keyboard_gb
   storage:
     0:
-      storage: storage_0
+      storage: storage_10
     1:
-      storage: storage_1
+      storage: storage_11
     2:
-      storage: storage_2
+      storage: storage_12
     3:
-      storage: storage_3
+      storage: storage_13
   firmware:
     0:
       hash_gbb: hash_gbb_0
@@ -310,31 +310,31 @@ components:
         values: null
   storage:
     items:
-      storage_0:
+      storage_10:
         values:
           model: model0
           sectors: '0'
           serial: !re '#123\d+$'
           vendor: vendor0
-      storage_1:
+      storage_11:
         values:
           model: model1
           sectors: '100'
           vendor: vendor1
           serial: !re '#123\d+$'
-      storage_2:
+      storage_12:
         values:
           model: model2
           sectors: '200'
           vendor: vendor2
         information:
-          comp_group: storage_0
-      storage_3:
+          comp_group: storage_10
+      storage_13:
         values:
           model: model3
           sectors: '300'
           vendor: vendor3
-      storage_4:
+      storage_14:
         values:
           mmc_name: name4
           mmc_manfid: '0x0000ab'

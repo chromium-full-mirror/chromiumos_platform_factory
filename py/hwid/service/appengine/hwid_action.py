@@ -475,8 +475,8 @@ class HWIDAction:
   def ConvertToInternalHWIDDBContent(
       self, avl_converter_manager: converter_utils.ConverterManager,
       hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource
-  ) -> hwid_db_data.HWIDDBData:
+      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
+      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
     """Converts an external HWID DB to internal HWID DB.
 
     Args:
@@ -485,6 +485,7 @@ class HWIDAction:
       hwid_db_contents: The external HWID DB content.
       avl_resource: AVL resource for checking if HWID probe values align with
           AVL probe values.
+      factory_branch: which factory branch is used.
     Returns:
       An internal HWID DB with internal tags.
     """

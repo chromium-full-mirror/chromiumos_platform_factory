@@ -128,7 +128,8 @@ class FakeModuleCollection:
         [self.fake_bom_data_cacher],
         instance_factory=self._fake_hwid_instance_factory,
     )
-    self.fake_avl_converter_manager = converter_utils.ConverterManager({})
+    self.fake_avl_converter_manager = (
+        converter_utils.ConverterManager.FromDefault())
     self.fake_session_cache_adapter = FakeMemcacheAdapter()
     self.fake_avl_metadata_manager = avl_metadata_util.AVLMetadataManager(
         self._ndb_connector,

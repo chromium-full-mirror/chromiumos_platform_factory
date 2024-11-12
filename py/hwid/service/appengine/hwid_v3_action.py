@@ -110,10 +110,10 @@ class HWIDV3Action(hwid_action.HWIDAction):
   def ConvertToInternalHWIDDBContent(
       self, avl_converter_manager: converter_utils.ConverterManager,
       hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource
-  ) -> hwid_db_data.HWIDDBData:
+      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
+      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
     return self._ss_helper.ConvertToInternalHWIDDBContent(
-        avl_converter_manager, hwid_db_contents, avl_resource)
+        avl_converter_manager, hwid_db_contents, avl_resource, factory_branch)
 
   def GetFeatureEnablementStatus(
       self, hwid_string: str) -> feature_matching.FeatureEnablementStatus:

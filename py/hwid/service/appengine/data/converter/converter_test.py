@@ -11,10 +11,13 @@ from cros.factory.hwid.service.appengine.data.converter import converter_test_ut
 from cros.factory.hwid.service.appengine.data.converter import converter_types
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3.avl import builder as avl_builder
+from cros.factory.hwid.v3.avl.converter import common as avl_common
 from cros.factory.hwid.v3 import builder as v3_builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import rule as v3_rule
+from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 
 
@@ -706,32 +709,46 @@ class HexDecodedStrValueFormatterTest(unittest.TestCase):
     self.assertEqual(value_factory('a\0c'), '610063')
 
 
+class TestConverter(avl_builder.IProbeInfoConverter):
+  IDENTIFIER = 'converter1'
+  RUNTIME_PROBE_KEY_MAPPING = {
+      'avl_attr_name1': 'converted_key1',
+      'avl_attr_name2': 'converted_key2'
+  }
+
+  def Build(
+      self, probe_info: v3_rule.AVLProbeInfo
+  ) -> avl_builder.IProbeInfoConverterBuildResult:
+    return avl_common.JoinFieldConverters((
+        avl_common.GetFieldConverter(probe_info, 'avl_attr_name1',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+        avl_common.GetFieldConverter(probe_info, 'avl_attr_name2',
+                                     runtime_probe_matchers.StringEqualMatcher,
+                                     self.RUNTIME_PROBE_KEY_MAPPING),
+    ))
+
+
 class ConverterManagerTest(unittest.TestCase):
+
+  def setUp(self):
+    builder = avl_builder.Builder()
+    builder.AddConverterSets(avl_builder.ConverterSet('', [TestConverter()]))
+    self.converter_manager = converter_utils.ConverterManager(
+        builder, ['comp_cls'])
 
   def testLinkAVL_TryAllComponents(self):
     # Arrange.
-    comp_cls = 'comp_cls1'
     cid = 123
-    comp_name1 = f'comp_cls1_{cid}#1'
-    comp_name2 = f'comp_cls1_{cid}#2'
-    test_converter = converter.FieldNameConverter.FromFieldMap(
-        'converter1', {
-            TestAVLAttrs.AVL_ATTR1:
-                converter.ConvertedValueSpec('converted_key1'),
-            TestAVLAttrs.AVL_ATTR2:
-                converter.ConvertedValueSpec('converted_key2'),
-        })
-    converter_collection = converter.ConverterCollection(comp_cls)
-    converter_collection.AddConverter(test_converter)
-    converter_manager = converter_utils.ConverterManager(
-        {comp_cls: converter_collection})
+    comp_name1 = f'comp_cls_{cid}#1'
+    comp_name2 = f'comp_cls_{cid}#2'
 
     with v3_builder.DatabaseBuilder.FromEmpty('CHROMEBOOK', 'PROTO') as builder:
-      builder.AddComponent(comp_cls, comp_name1, {
+      builder.AddComponent('comp_cls', comp_name1, {
           'converted_key1': 'value1',
           'converted_key2': 'value2',
       }, 'supported')
-      builder.AddComponent(comp_cls, comp_name2, {
+      builder.AddComponent('comp_cls', comp_name2, {
           'converted_key1': 'value1',
           'converted_key2': 'value-not-2',
       }, 'unsupported')
@@ -745,8 +762,8 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = converter_manager.LinkAVL(db_with_components_only,
-                                                      avl_resource)
+    avl_linked_db_content = self.converter_manager.LinkAVL(
+        db_with_components_only, avl_resource)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
@@ -768,7 +785,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value2'),
             ]),
         ),
-        avl_linked_db.GetComponents(comp_cls)[comp_name1].values)
+        avl_linked_db.GetComponents('comp_cls')[comp_name1].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -787,22 +804,10 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value-not-2'),
             ]),
         ),
-        avl_linked_db.GetComponents(comp_cls)[comp_name2].values)
+        avl_linked_db.GetComponents('comp_cls')[comp_name2].values)
 
   def testLinkAVL_LookupProbeInfoByCIDQID(self):
     # Arrange.
-    test_converter = converter.FieldNameConverter.FromFieldMap(
-        'converter1', {
-            TestAVLAttrs.AVL_ATTR1:
-                converter.ConvertedValueSpec('converted_key1'),
-            TestAVLAttrs.AVL_ATTR2:
-                converter.ConvertedValueSpec('converted_key2'),
-        })
-    converter_collection = converter.ConverterCollection('comp_cls')
-    converter_collection.AddConverter(test_converter)
-    converter_manager = converter_utils.ConverterManager(
-        {'comp_cls': converter_collection})
-
     with v3_builder.DatabaseBuilder.FromEmpty('CHROMEBOOK', 'PROTO') as builder:
       builder.AddComponent('comp_cls', 'comp_cls_123_1', {
           'converted_key1': 'value1',
@@ -827,8 +832,8 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = converter_manager.LinkAVL(db_with_components_only,
-                                                      avl_resource)
+    avl_linked_db_content = self.converter_manager.LinkAVL(
+        db_with_components_only, avl_resource)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
@@ -873,18 +878,6 @@ class ConverterManagerTest(unittest.TestCase):
 
   def testLinkAVL_ProbeInfoOverridePreserved(self):
     # Arrange.
-    test_converter = converter.FieldNameConverter.FromFieldMap(
-        'converter1', {
-            TestAVLAttrs.AVL_ATTR1:
-                converter.ConvertedValueSpec('converted_key1'),
-            TestAVLAttrs.AVL_ATTR2:
-                converter.ConvertedValueSpec('converted_key2'),
-        })
-    converter_collection = converter.ConverterCollection('comp_cls')
-    converter_collection.AddConverter(test_converter)
-    converter_manager = converter_utils.ConverterManager({
-        'comp_cls': converter_collection
-    })
     with v3_builder.DatabaseBuilder.FromEmpty('CHROMEBOOK', 'PROTO') as builder:
       value = v3_rule.AVLProbeValue(
           identifier='converter1',
@@ -915,8 +908,8 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = converter_manager.LinkAVL(db_with_components_only,
-                                                      avl_resource)
+    avl_linked_db_content = self.converter_manager.LinkAVL(
+        db_with_components_only, avl_resource)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)

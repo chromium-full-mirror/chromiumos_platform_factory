@@ -1,5 +1,6 @@
 component_probe_infos {
   component_identity {
+    component_id: 10
   }
   probe_info {
     probe_function_name: "storage_func"
@@ -19,7 +20,7 @@ component_probe_infos {
 }
 component_probe_infos {
   component_identity {
-    component_id: 2
+    component_id: 12
   }
   probe_info {
     probe_function_name: "storage_func"
@@ -39,7 +40,7 @@ component_probe_infos {
 }
 component_probe_infos {
   component_identity {
-    component_id: 3
+    component_id: 13
   }
   probe_info {
     probe_function_name: "storage_func"
@@ -55,7 +56,7 @@ component_probe_infos {
 }
 component_probe_infos {
   component_identity {
-    component_id: 4
+    component_id: 14
   }
   probe_info {
     probe_function_name: "storage_func"

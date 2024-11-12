@@ -23,6 +23,7 @@ from cros.factory.hwid.service.appengine import change_unit_utils
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
 from cros.factory.hwid.service.appengine.data import dlm_component_list
+from cros.factory.hwid.service.appengine.data import dlm_product_data
 from cros.factory.hwid.service.appengine.data import firmware_qual
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
@@ -749,6 +750,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       feature_matcher_builder_class: Type[FeatureMatcherBuilder],
       battery_config_fetcher: hwid_action.IBatteryConfigFetcher,
       vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
+      dlm_product_manager: dlm_product_data.DLMProductManager,
       cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
   ):
     self._hwid_action_manager = hwid_action_manager_inst
@@ -760,6 +762,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     self._feature_matcher_builder_class = feature_matcher_builder_class
     self._battery_config_fetcher = battery_config_fetcher
     self._vpg_targets_data_manager = vpg_targets_data_manager
+    self._dlm_product_manager = dlm_product_manager
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
 
@@ -1409,10 +1412,17 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     old_hwid_db_editable_section = action.GetDBEditableSection(internal=True)
     old_db = database.Database.LoadData(
         action.PatchHeader(old_hwid_db_editable_section))
+
+    factory_branch = None
+    dlm_device = self._dlm_product_manager.GetDLMDeviceByModel(project)
+    if dlm_device is not None:
+      factory_branch = dlm_device.factory_branch or None
+
     new_hwid_db_contents_internal = action.ConvertToInternalHWIDDBContent(
         self._avl_converter_manager,
         action.PatchHeader(session_cache.new_hwid_db_editable_section or
-                           old_hwid_db_editable_section), avl_resource)
+                           old_hwid_db_editable_section), avl_resource,
+        factory_branch)
     new_db = database.Database.LoadData(new_hwid_db_contents_internal)
     apply_functions: Sequence[Tuple[_ApplyFunction, _DataSource]] = [
         (lambda x: x, _DataSource.HWID_CONFIG),

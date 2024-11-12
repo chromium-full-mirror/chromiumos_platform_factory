@@ -11,7 +11,7 @@
 # 若修改将使设备配置變為无效，并且不得销售此设备。
 #
 #####
-checksum: 50fd54593c11bdbbdc015eb863e4640facf74b84
+checksum: 228a673aa678dfeb53d736d1d084d79f0d98a9e2
 
 ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -142,13 +142,13 @@ encoded_fields:
       keyboard: keyboard_gb
   storage:
     0:
-      storage: storage_0
+      storage: storage_10
     1:
-      storage: storage_1
+      storage: storage_11
     2:
-      storage: storage_2
+      storage: storage_12
     3:
-      storage: storage_3
+      storage: storage_13
   firmware:
     0:
       hash_gbb: hash_gbb_0
@@ -339,7 +339,7 @@ components:
         values: null
   storage:
     items:
-      storage_0:
+      storage_10:
         status: supported
         values: !link_avl
           converter: test-converter1
@@ -359,14 +359,14 @@ components:
               - '0'
           probe_info_matched: true
           probe_value_matched: true
-      storage_1:
+      storage_11:
         status: supported
         values:
           model: model1
           sectors: '100'
           vendor: vendor1
           serial: !re '#123\d+$'
-      storage_2:
+      storage_12:
         status: supported
         values: !link_avl
           converter: test-converter1
@@ -385,11 +385,11 @@ components:
               - '201'
           probe_value_matched: false
         information:
-          comp_group: storage_0
-      storage_3:
+          comp_group: storage_10
+      storage_13:
         status: supported
         values: !link_avl
-          converter: null
+          converter: WARNING!!!NO CONVERTER
           original_values:
             model: model3
             sectors: '300'
@@ -402,7 +402,7 @@ components:
               pi_sectors:
               - '300'
           probe_value_matched: false
-      storage_4:
+      storage_14:
         status: supported
         values: !link_avl
           converter: test-converter2

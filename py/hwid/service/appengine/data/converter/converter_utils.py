@@ -3,23 +3,12 @@
 # found in the LICENSE file.
 
 import collections
-from typing import DefaultDict, List, Mapping, NamedTuple, Optional
+from typing import DefaultDict, Iterable, List, NamedTuple, Optional
 
-from cros.factory.hwid.service.appengine.data.converter import audio_codec_converter
-from cros.factory.hwid.service.appengine.data.converter import battery_converter
-from cros.factory.hwid.service.appengine.data.converter import camera_converter
-from cros.factory.hwid.service.appengine.data.converter import converter
-from cros.factory.hwid.service.appengine.data.converter import cpu_converter
-from cros.factory.hwid.service.appengine.data.converter import display_panel_converter
-from cros.factory.hwid.service.appengine.data.converter import dram_converter
-from cros.factory.hwid.service.appengine.data.converter import pcie_emmc_storage_assembly_converter
-from cros.factory.hwid.service.appengine.data.converter import pcie_emmc_storage_bridge_converter
-from cros.factory.hwid.service.appengine.data.converter import storage_bridge_converter
-from cros.factory.hwid.service.appengine.data.converter import storage_converter
-from cros.factory.hwid.service.appengine.data.converter import tpm_converter
-from cros.factory.hwid.service.appengine.data.converter import wireless_converter
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.v3.avl import builder as avl_builder
+from cros.factory.hwid.v3.avl import default_builder
 from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import name_pattern_adapter
@@ -27,36 +16,21 @@ from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 
 
-# A map to collect converter collections.
-_DEFAULT_CONVERTER_COLLECTION_MAP = {
-    'audio_codec':
-        audio_codec_converter.GetConverterCollection(),
-    'battery':
-        battery_converter.GetConverterCollection(),
-    'camera':
-        camera_converter.GetConverterCollection(category='camera'),
-    'cpu':
-        cpu_converter.GetConverterCollection(),
-    'display_panel':
-        display_panel_converter.GetConverterCollection(),
-    'dram':
-        dram_converter.GetConverterCollection(),
-    'storage':
-        storage_converter.GetConverterCollection(),
-    'storage_bridge':
-        storage_bridge_converter.GetConverterCollection(),
-    'video':
-        camera_converter.GetConverterCollection(category='video'),
-    'pcie_emmc_storage_assembly':
-        pcie_emmc_storage_assembly_converter.GetConverterCollection(),
-    'pcie_emmc_storage_bridge':
-        pcie_emmc_storage_bridge_converter.GetConverterCollection(),
-    'tpm':
-        tpm_converter.GetConverterCollection(),
-    'wireless':
-        wireless_converter.GetConverterCollection(),
-}
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
+
+_SUPPORT_COMPONENT_CLASS = {
+    'audio_codec',
+    'battery',
+    'camera',
+    'cpu',
+    'display_panel',
+    'dram',
+    'storage',
+    'storage_bridge',
+    'tpm',
+    'video',
+    'wireless',
+}
 
 
 class _AVLKey(NamedTuple):
@@ -103,23 +77,20 @@ def _StubbyProbeInfoToDBProbeInfo(
 
 class ConverterManager:
 
-  def __init__(self, collection_map: Mapping[str,
-                                             converter.ConverterCollection]):
-    self._collection_map = collection_map
+  def __init__(self, avl_matcher_builder: avl_builder.Builder,
+               suppported_classes: Optional[Iterable[str]] = None):
     self._get_avl_key_acceptor = _GetAVLKeyAcceptor()
+    self._avl_builder = avl_matcher_builder
+    self._supported_classes = set(suppported_classes or
+                                  _SUPPORT_COMPONENT_CLASS)
 
   @classmethod
   def FromDefault(cls):
-    return cls(_DEFAULT_CONVERTER_COLLECTION_MAP)
+    return cls(default_builder.GetDefaultBuilder())
 
-  def GetConverterCollection(
-      self, category: str) -> Optional[converter.ConverterCollection]:
-    return self._collection_map.get(category)
-
-  def LinkAVL(
-      self, hwid_db_content: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource
-  ) -> hwid_db_data.HWIDDBData:
+  def LinkAVL(self, hwid_db_content: hwid_db_data.HWIDDBData,
+              avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
+              factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
     adapter = name_pattern_adapter.NamePatternAdapter()
 
     probe_info_map = {}
@@ -128,16 +99,20 @@ class ConverterManager:
       avl_key = _AVLKey(comp_identity.component_id, comp_identity.qual_id)
       probe_info_map[avl_key] = comp_probe_info.probe_info
 
-    with builder.DatabaseBuilder.FromDBData(hwid_db_content) as db_builder:
+    adapter = name_pattern_adapter.NamePatternAdapter()
+
+    builder_context = builder.DatabaseBuilder.FromDBData(hwid_db_content)
+    project = builder_context.Build().project
+    with builder_context as db_builder:
       for comp_cls in db_builder.GetComponentClasses():
-        converter_collection = self.GetConverterCollection(comp_cls)
-        if not converter_collection:
+        if comp_cls not in self._supported_classes:
           continue
         name_pattern = adapter.GetNamePattern(comp_cls)
         for comp_name, comp_info in db_builder.GetComponents(comp_cls).items():
           comp_values = comp_info.values
           if comp_values is None:
             continue
+
           name_info = name_pattern.Matches(comp_name)
           avl_key = name_info.Provide(self._get_avl_key_acceptor)
           if avl_key is None:
@@ -145,24 +120,39 @@ class ConverterManager:
           probe_info = probe_info_map.get(avl_key)
           if probe_info is None:
             continue
-          match_result = converter_collection.Match(comp_values, probe_info,
-                                                    bool(avl_key.qid))
+
+          converter_identifier = 'WARNING!!!NO CONVERTER'
+          probe_info_matched = False
+
+          db_probe_info = _StubbyProbeInfoToDBProbeInfo(probe_info)
+          avl_matcher = self._avl_builder.Build(
+              db_probe_info, project, factory_branch, avl_key.cid, avl_key.qid,
+              is_probe_info_override=False)
+          if avl_matcher is not None:
+            match_result = avl_matcher.Match(comp_values)
+            probe_info_matched = match_result.matched
+            converter_identifier = match_result.identifier
+
           probe_info_override = None
+          probe_info_override_matched = False
           if isinstance(comp_values, v3_rule.AVLProbeValue):
             probe_info_override = comp_values.probe_info_override
+          if probe_info_override is not None:
+            override_matcher = self._avl_builder.Build(
+                probe_info_override, project, factory_branch, avl_key.cid,
+                avl_key.qid, is_probe_info_override=True)
+            if override_matcher is not None:
+              override_match_result = override_matcher.Match(comp_values)
+              probe_info_override_matched = override_match_result.matched
+              converter_identifier = override_match_result.identifier
 
-          probe_info_matched = (
-              match_result.alignment_status == _PVAlignmentStatus.ALIGNED)
-          #TODO(chungsheng): Implement probe info override.
-          probe_info_override_matched = False
           probe_value_matched = (
               probe_info_matched or probe_info_override_matched)
 
           avl_probe_value = v3_rule.AVLProbeValue(
-              match_result.converter_identifier, probe_value_matched,
-              _StubbyProbeInfoToDBProbeInfo(probe_info), probe_info_matched,
-              probe_info_override, probe_info_override_matched,
-              collections.OrderedDict(comp_values))
+              converter_identifier, probe_value_matched, db_probe_info,
+              probe_info_matched, probe_info_override,
+              probe_info_override_matched, collections.OrderedDict(comp_values))
           db_builder.SetLinkAVLProbeValue(comp_cls, comp_name, avl_probe_value)
     db = db_builder.Build()
     return db.DumpDataWithoutChecksum(suppress_support_status=False,
