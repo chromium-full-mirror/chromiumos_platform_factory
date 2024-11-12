@@ -31,6 +31,9 @@ ADD build/docker/docker.tgz /
 #  py-lxml: Used by zeep (SOAP), indirectly imported by Umpire
 #  (buzybox tar doesn't support -I, which is used in file_utils.ExtractFile)
 #  gnupg, python-gnupg: Used by umpire/server/service/dkps and archiver
+#
+#  gcompat: Used by adb, because adb uses glibc and alpine does not.
+#
 #  rsync: Used by umpire/server/service/rsync
 #  curl, jq: Used by cros_payload.
 #
@@ -51,6 +54,7 @@ RUN apk upgrade --no-cache && apk add --no-cache \
     curl \
     dnsmasq \
     file \
+    gcompat \
     gnupg \
     jq \
     nginx \
@@ -75,6 +79,27 @@ RUN apk add --no-cache \
     build-base \
     python3-dev \
     libffi-dev
+
+# Install java
+RUN apk add openjdk17
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH="$PATH:$JAVA_HOME/bin"
+
+# Download Android SDK and set PATH
+# Reference: https://stackoverflow.com/questions/65262340
+ENV ANDROID_HOME="/android-sdk"
+ARG ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools"
+RUN wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
+    mkdir -p "$ANDROID_TOOLS" && \
+    unzip *.zip -d "$ANDROID_TOOLS" && \
+    mv "$ANDROID_TOOLS/cmdline-tools" "$ANDROID_TOOLS/latest" && \
+    rm *.zip
+ENV PATH="$PATH:$ANDROID_TOOLS/latest/bin"
+
+# Install platform-tools
+RUN yes | sdkmanager "platform-tools"
+ENV PATH="$PATH:$ANDROID_HOME/platform-tools"
+RUN adb version
 
 # pixz and lbzip2 are not available in alpine.
 ADD build/docker/pixz.tbz2 /usr/bin
