@@ -461,12 +461,14 @@ class FpmcuDevice:
   def GetFpframe(self, raw=True, max_attempt_count=3) -> Union[str, bytes]:
 
     def _GetFpframeRetryCallback(num_retries: int, max_attempt_count: int):
-      logging.exception('Retrying fpframe (%d/%d) ...', num_retries + 1,
-                        max_attempt_count)
+      logging.error('Retrying fpframe (%d/%d) ...', num_retries + 1,
+                    max_attempt_count)
 
-    @sync_utils.RetryDecorator(max_attempt_count=max_attempt_count,
-                               retry_callback=_GetFpframeRetryCallback,
-                               interval_sec=0, reraise=True)
+    @sync_utils.RetryDecorator(
+        max_attempt_count=max_attempt_count,
+        retry_callback=_GetFpframeRetryCallback, exceptions_to_catch=[
+            FpmcuCommandError
+        ], enable_logging=False, interval_sec=0, reraise=True)
     def _GetFpframe() -> Union[str, bytes]:
       if raw:
         return self.FpmcuCommand('fpframe', 'raw', encoding=None)
@@ -492,7 +494,7 @@ class FpmcuDevice:
     # as suggested in b/331670562#comment36.
 
     def _Callback(num_retries: int, max_attempt_count: int):
-      logging.exception('Retrying fpmode %s (%d/%d) ...', ' '.join(
+      logging.error('Retrying fpmode %s (%d/%d) ...', ' '.join(
           map(shlex.quote, args)), num_retries + 1, max_attempt_count)
 
     # There is a race condition between waitevent and fpmode, and it's solvable
@@ -501,7 +503,7 @@ class FpmcuDevice:
     @sync_utils.RetryDecorator(  # type: ignore #TODO(b/338318729) Fixit!
         max_attempt_count=max_attempt_count, retry_callback=_Callback,
         interval_sec=0, target_condition=lambda ret: ret is True,
-        exceptions_to_catch=[], reraise=True)
+        enable_logging=False, exceptions_to_catch=[], reraise=True)
     def _RunFpmodeAndWaitEvent() -> bool:
       wait_process = self._dut.Popen([
           'ectool', _CROS_FP_ARG, 'waitevent', _EC_MKBP_EVENT_FINGERPRINT,
