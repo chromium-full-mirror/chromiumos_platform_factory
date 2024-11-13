@@ -10,7 +10,7 @@ import re
 import shlex
 import subprocess
 import time
-from typing import Dict, List, Literal, Optional, Tuple, Union, overload
+from typing import Callable, Dict, List, Literal, Optional, Tuple, Union, overload
 
 from cros.factory.utils import sync_utils
 from cros.factory.utils import sys_interface
@@ -444,31 +444,58 @@ class FpmcuDevice:
       raise FpmcuError(f'Unexpected FPMCU image slot: {image_slot}') from e
 
   @overload
-  def GetFpframe(self, raw: Literal[True] = ...,
-                 max_attempt_count: int = ...) -> bytes:
+  def GetFpframe(
+      self, raw: Literal[True] = ..., max_attempt_count: int = ...,
+      retry_callback: Union[None, Literal[True], Callable[[int, int],
+                                                          None]] = ...
+  ) -> bytes:
     ...
 
   @overload
-  def GetFpframe(self, raw: Literal[False],
-                 max_attempt_count: int = ...) -> str:
+  def GetFpframe(
+      self, raw: Literal[False], max_attempt_count: int = ...,
+      retry_callback: Union[None, Literal[True], Callable[[int, int],
+                                                          None]] = ...
+  ) -> str:
     ...
 
   @overload
-  def GetFpframe(self, raw: bool,
-                 max_attempt_count: int = ...) -> Union[str, bytes]:
+  def GetFpframe(
+      self, raw: bool, max_attempt_count: int = ...,
+      retry_callback: Union[None, Literal[True], Callable[[int, int],
+                                                          None]] = ...
+  ) -> Union[str, bytes]:
     ...
 
-  def GetFpframe(self, raw=True, max_attempt_count=3) -> Union[str, bytes]:
+  def GetFpframe(
+      self, raw=True, max_attempt_count=3,
+      retry_callback: Union[None, Literal[True], Callable[[int, int],
+                                                          None]] = True
+  ) -> Union[str, bytes]:
+    """Runs `ectool --name=cros_fp fpframe [raw]` to get fpframe.
 
-    def _GetFpframeRetryCallback(num_retries: int, max_attempt_count: int):
+    Args:
+      raw: Whether to get raw data.
+      max_attempt_count: The max attempt count.
+      retry_callback: The callback between retries (usually a logging callback);
+          if set to ``True``, a default callback is used.
+
+    Returns:
+      The queries fpframe data.
+    """
+
+    def _DefaultGetFpframeRetryCallback(num_retries: int,
+                                        max_attempt_count: int):
       logging.error('Retrying fpframe (%d/%d) ...', num_retries + 1,
                     max_attempt_count)
 
+    if retry_callback is True:
+      retry_callback = _DefaultGetFpframeRetryCallback
+
     @sync_utils.RetryDecorator(
-        max_attempt_count=max_attempt_count,
-        retry_callback=_GetFpframeRetryCallback, exceptions_to_catch=[
-            FpmcuCommandError
-        ], enable_logging=False, interval_sec=0, reraise=True)
+        max_attempt_count=max_attempt_count, retry_callback=retry_callback,
+        exceptions_to_catch=[FpmcuCommandError], enable_logging=False,
+        interval_sec=0, reraise=True)
     def _GetFpframe() -> Union[str, bytes]:
       if raw:
         return self.FpmcuCommand('fpframe', 'raw', encoding=None)
