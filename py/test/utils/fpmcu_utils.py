@@ -469,7 +469,7 @@ class FpmcuDevice:
 
     @sync_utils.RetryDecorator(max_attempt_count=max_attempt_count,
                                retry_callback=_GetFpframeRetryCallback,
-                               interval_sec=0)
+                               interval_sec=0, reraise=True)
     def _GetFpframe() -> Union[str, bytes]:
       if raw:
         return self.FpmcuCommand('fpframe', 'raw', encoding=None)
