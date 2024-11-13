@@ -189,7 +189,7 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
     try:
       self._fpmcu.Reboot()
     except fpmcu_utils.FpmcuError as e:
-      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e
+      raise WriteProtectError(f'Failed to reboot FPMCU: {str(e)}') from e
 
     # Do prerequisite checking.
     _Assert(self._fpmcu.IsHWWPEnabled(), 'FPMCU HWWP is enabled')
@@ -207,7 +207,7 @@ class _FPMCUWriteProtectTarget(IWriteProtectTarget):
               'FPMCU SWWP is enabled on boot')
       self._fpmcu.Reboot()
     except fpmcu_utils.FpmcuError as e:
-      raise WriteProtectError(f'Failed to reboot FPMCU: {e.message}') from e
+      raise WriteProtectError(f'Failed to reboot FPMCU: {str(e)}') from e
 
     # Validate the final FPMCU state.
     _Assert(self._fpmcu.IsSWWPEnabled(), 'FPMCU SWWP is enabled')
