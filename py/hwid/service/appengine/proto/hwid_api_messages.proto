@@ -920,6 +920,14 @@ message ChangeUnit {
   }
   // Data source where the change comes from.
   DataSource data_source = 7;
+
+  // AVL related suggestion edit.
+  message AVLSuggestion {
+    repeated cros.factory.probe_info_service.app_engine.stubby_pb2.ProbeParameterSuggestion probe_info_suggestions = 1;
+    repeated AvlInfo avl_key_suggestions = 2;
+  }
+
+  AVLSuggestion avl_suggestion = 8;
 }
 
 // The response of splitted HWID DB change units.

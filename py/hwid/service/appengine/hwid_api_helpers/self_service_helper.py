@@ -272,9 +272,11 @@ def _CheckIfHWIDDBCLShouldBeAbandoned(
   return False, None
 
 
-def _ConvertChangeUnitToMsg(change_unit: change_unit_utils.ChangeUnit,
-                            data_source: _DataSource) -> _ChangeUnitMsg:
-  msg = _ChangeUnitMsg(data_source=data_source)
+def _ConvertChangeUnitToMsg(
+    change_unit: change_unit_utils.ChangeUnit, data_source: _DataSource,
+    avl_suggestion: Optional[_ChangeUnitMsg.AVLSuggestion] = None
+) -> _ChangeUnitMsg:
+  msg = _ChangeUnitMsg(data_source=data_source, avl_suggestion=avl_suggestion)
   if isinstance(change_unit, change_unit_utils.CompChange):
     msg.comp_change.CopyFrom(_ConvertCompInfoToMsg(change_unit.comp_analysis))
   elif isinstance(change_unit, change_unit_utils.AddEncodingCombination):
@@ -825,12 +827,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)
 
       action = self._hwid_action_manager.GetHWIDAction(project)
+      avl_converter = self._avl_converter_manager.GetAVLConverter(
+          request.db_external_resource, project)
       analysis = action.AnalyzeDBEditableSection(
           cache.new_hwid_db_editable_section, derive_fingerprint_only=False,
           require_hwid_db_lines=False,
           vpg_targets_data_manager=self._vpg_targets_data_manager,
-          internal=True, avl_converter_manager=self._avl_converter_manager,
-          avl_resource=request.db_external_resource,
+          internal=True, avl_converter=avl_converter,
           avl_metadata_manager=self._avl_metadata_manager)
       if analysis.new_hwid_db_contents_internal is None:
         raise ValueError('Faile to load internal database.')
@@ -1418,11 +1421,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     if dlm_device is not None:
       factory_branch = dlm_device.factory_branch or None
 
+    avl_converter = self._avl_converter_manager.GetAVLConverter(
+        avl_resource, project, factory_branch)
+
     new_hwid_db_contents_internal = action.ConvertToInternalHWIDDBContent(
-        self._avl_converter_manager,
+        avl_converter,
         action.PatchHeader(session_cache.new_hwid_db_editable_section or
-                           old_hwid_db_editable_section), avl_resource,
-        factory_branch)
+                           old_hwid_db_editable_section))
     new_db = database.Database.LoadData(new_hwid_db_contents_internal)
     apply_functions: Sequence[Tuple[_ApplyFunction, _DataSource]] = [
         (lambda x: x, _DataSource.HWID_CONFIG),
@@ -1445,8 +1450,15 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       except _SplitChangeUnitException as ex:
         raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
       for identity, change_unit in change_units.items():
-        response.change_units[identity].MergeFrom(_ConvertChangeUnitToMsg(
-            change_unit, data_source))
+        avl_suggestion = None
+        if (isinstance(change_unit, change_unit_utils.CompChange) and
+            change_unit.comp_analysis.probe_value_alignment_status !=
+            hwid_action.DBHWIDPVAlignmentStatus.ALIGNED):
+          avl_suggestion = avl_converter.GetAVLSuggestion(
+              change_unit.comp_analysis.comp_cls,
+              change_unit.comp_analysis.comp_name, change_unit.probe_values)
+        response.change_units[identity].MergeFrom(
+            _ConvertChangeUnitToMsg(change_unit, data_source, avl_suggestion))
 
     self._session_cache_adapter.Put(
         request.session_token,

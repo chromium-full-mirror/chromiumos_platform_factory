@@ -162,8 +162,12 @@ class CompChange(ChangeUnit):
     return f'{super().__repr__()}:{comp_cls}:{comp_name}{new}'
 
   @property
-  def comp_analysis(self):
+  def comp_analysis(self) -> _HWIDComponentAnalysisResult:
     return self._analysis_result
+
+  @property
+  def probe_values(self) -> Optional[database.ProbedValueType]:
+    return self._probe_values
 
   @classmethod
   def CreateDepSpec(cls, comp_cls: str, comp_hash: str,

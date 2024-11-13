@@ -242,12 +242,13 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
             [TestConverter1(), TestConverter2()]))
     avl_converter_manager = converter_utils.ConverterManager(builder)
     avl_resource = self._LoadAVLResource('v3-golden-internal.prototxt')
+    avl_converter = avl_converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
     report = helper_inst.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
         vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
-        internal=True, avl_converter_manager=avl_converter_manager,
-        avl_resource=avl_resource)
+        internal=True, avl_converter=avl_converter)
     converted_db = database.Database.LoadData(
         report.new_hwid_db_contents_internal)
 
@@ -273,13 +274,14 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     editable_section = helper_inst_before.GetDBEditableSection()
     converter_manager = converter_utils.ConverterManager.FromDefault()
     resource_msg = hwid_api_messages_pb2.HwidDbExternalResource()
+    avl_converter = converter_manager.GetAVLConverter(resource_msg,
+                                                      'CHROMEBOOK')
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
         vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
-        internal=True, avl_converter_manager=converter_manager,
-        avl_resource=resource_msg)
+        internal=True, avl_converter=avl_converter)
 
     self.assertIn('status: supported',
                   analysis_report.new_hwid_db_contents_external)

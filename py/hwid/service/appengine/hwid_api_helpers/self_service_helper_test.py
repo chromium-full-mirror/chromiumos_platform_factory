@@ -2028,6 +2028,15 @@ class SelfServiceShardTest(unittest.TestCase):
     session_token = analyze_resp.validation_token
 
     db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
+        component_probe_infos=[
+            stubby_pb2.ComponentProbeInfo(
+                component_identity=stubby_pb2.ComponentIdentity(
+                    component_id=1, qual_id=1), probe_info=stubby_pb2.ProbeInfo(
+                        probe_function_name='func', probe_parameters=[
+                            stubby_pb2.ProbeParameter(name='value',
+                                                      string_value='2')
+                        ])),
+        ],
         dlm_components=[
             _DlmComponentMsg(
                 avl_info=_AvlInfoMsg(cid=1, qid=1),
@@ -2035,35 +2044,59 @@ class SelfServiceShardTest(unittest.TestCase):
                 has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=False)
         ],
     )
-    split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
-        session_token=session_token, db_external_resource=db_external_resource)
 
-    split_resp = self.service.SplitHwidDbChange(split_req)
+    class _TestConverter(avl_builder.IProbeInfoConverter):
+      IDENTIFIER = 'converter1'
+
+      def Build(
+          self, probe_info: v3_rule.AVLProbeInfo
+      ) -> avl_builder.IProbeInfoConverterBuildResult:
+        return avl_common.GetFieldConverter(
+            probe_info, 'value', runtime_probe_matchers.StringEqualMatcher)
+
+    builder = avl_builder.Builder()
+    builder.AddConverterSets(
+        avl_builder.ConverterSet('func', [_TestConverter()]))
+    mock_avl_converter_manager = converter_utils.ConverterManager(
+        builder, ['comp_cls_1'])
+
+    shard = _CreateFakeSelfServiceShard(
+        self._modules,
+        self._mock_hwid_repo_manager,
+        avl_converter_manager=mock_avl_converter_manager,
+        vpg_targets_data_manager=self._mock_vpg_targets_data_manager,
+    )
+    split_resp = _SplitHwidDbChange(shard, session_token, db_external_resource)
 
     new_comp_msg = _ComponentInfoMsg(
         component_class='comp_cls_1', original_name='comp_cls_1_1_1',
         original_status='supported',
         support_status_case=_SupportStatusCase.SUPPORTED, is_newly_added=True,
         avl_info=_AvlInfoMsg(cid=1, qid=1), has_avl=True, seq_no=3,
-        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)
+        probe_value_alignment_status=_PVAlignmentStatusMsg.NOT_ALIGNED)
     comp_list_change = _ComponentInfoMsg(
         component_class='comp_cls_1', original_name='comp_cls_1_1_1',
         original_status='deprecated',
         support_status_case=_SupportStatusCase.DEPRECATED, avl_info=_AvlInfoMsg(
-            cid=1, qid=1), has_avl=True, seq_no=3, diff_prev=_DiffStatusMsg(
-                support_status_changed=True, prev_comp_name='comp_cls_1_1_1',
-                prev_support_status='supported',
-                prev_probe_value_alignment_status=_PVAlignmentStatusMsg
-                .NO_PROBE_INFO,
-                prev_support_status_case=_SupportStatusCase.SUPPORTED),
-        probe_value_alignment_status=_PVAlignmentStatusMsg.NO_PROBE_INFO)
+            cid=1, qid=1), has_avl=True, seq_no=3,
+        diff_prev=_DiffStatusMsg(
+            support_status_changed=True, prev_comp_name='comp_cls_1_1_1',
+            prev_support_status='supported',
+            prev_probe_value_alignment_status=_PVAlignmentStatusMsg.NOT_ALIGNED,
+            prev_support_status_case=_SupportStatusCase.SUPPORTED),
+        probe_value_alignment_status=_PVAlignmentStatusMsg.NOT_ALIGNED)
+    avl_suggestion = _ChangeUnitMsg.AVLSuggestion(probe_info_suggestions=[
+        stubby_pb2.ProbeParameterSuggestion(
+            hint="Expected AVL attribute 'value'='2', but got '3'.",
+            key='value', value='3')
+    ])
     self.assertCountEqual([
         _ChangeUnitMsg(
             data_source=_DataSource.HWID_CONFIG,
             add_encoding_combination=_AddEncodingCombinationMsg(
                 comp_cls='comp_cls_1', comp_info=[new_comp_msg])),
         _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
-                       comp_change=new_comp_msg),
+                       comp_change=new_comp_msg, avl_suggestion=avl_suggestion),
         _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
                        new_image_id=_NewImageIdMsg(
                            image_names=['NEW_PHASE'],
@@ -2084,7 +2117,8 @@ class SelfServiceShardTest(unittest.TestCase):
         _ChangeUnitMsg(data_source=_DataSource.HWID_CONFIG,
                        pad_encoding_bits=_PadEncodingBitsMsg()),
         _ChangeUnitMsg(data_source=_DataSource.COMPONENT_LIST,
-                       comp_change=comp_list_change),
+                       comp_change=comp_list_change,
+                       avl_suggestion=avl_suggestion),
     ], list(split_resp.change_units.values()))
 
   def testSplitHwidDbChange_ResyncAvlResource(self):

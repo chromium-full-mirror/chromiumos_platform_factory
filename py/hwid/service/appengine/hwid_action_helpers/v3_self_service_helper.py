@@ -119,9 +119,7 @@ class HWIDV3SelfServiceActionHelper:
       require_hwid_db_lines: bool,
       vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
-      avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
-      avl_resource: Optional[
-          hwid_api_messages_pb2.HwidDbExternalResource] = None,
+      avl_converter: Optional[converter_utils.AVLConverter] = None,
       hwid_bundle_checksum: Optional[str] = None,
       avl_metadata_manager: Optional[
           avl_metadata_util.AVLMetadataManager] = None,
@@ -159,14 +157,10 @@ class HWIDV3SelfServiceActionHelper:
       pass
 
     if internal:
+      assert avl_converter is not None
       new_hwid_db_contents = new_hwid_db_contents_internal = (
-          # yapf: disable
-          self.ConvertToInternalHWIDDBContent(avl_converter_manager,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                              # yapf: enable
-                                              new_hwid_db_contents_external,
-                                              # yapf: disable
-                                              avl_resource))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          self.ConvertToInternalHWIDDBContent(avl_converter,
+                                              new_hwid_db_contents_external))
       curr_hwid_db_contents = curr_hwid_db_contents_internal
     else:
       new_hwid_db_contents = new_hwid_db_contents_external
@@ -305,13 +299,10 @@ class HWIDV3SelfServiceActionHelper:
     return _NormalizeAndJoinHWIDDBEditableSectionLines(lines)
 
   def ConvertToInternalHWIDDBContent(
-      self, avl_converter_manager: converter_utils.ConverterManager,
-      hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
-      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
+      self, avl_converter: converter_utils.AVLConverter,
+      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
 
-    hwid_db_editable_contents_with_avl = avl_converter_manager.LinkAVL(
-        hwid_db_contents, avl_resource, factory_branch)
+    hwid_db_editable_contents_with_avl = avl_converter.LinkAVL(hwid_db_contents)
     new_hwid_db_contents_internal_without_bundle = self.PatchHeader(
         hwid_db_editable_contents_with_avl)
     return self.PatchFirmwareBundleUUIDs(

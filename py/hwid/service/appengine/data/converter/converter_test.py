@@ -762,8 +762,9 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = self.converter_manager.LinkAVL(
-        db_with_components_only, avl_resource)
+    avl_converter = self.converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
+    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
@@ -832,8 +833,9 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = self.converter_manager.LinkAVL(
-        db_with_components_only, avl_resource)
+    avl_converter = self.converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
+    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
@@ -908,8 +910,9 @@ class ConverterManagerTest(unittest.TestCase):
     })
 
     # Act.
-    avl_linked_db_content = self.converter_manager.LinkAVL(
-        db_with_components_only, avl_resource)
+    avl_converter = self.converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
+    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
     avl_linked_db = database.Database.LoadData(avl_linked_db_content)
@@ -937,6 +940,63 @@ class ConverterManagerTest(unittest.TestCase):
             ]),
         ),
         avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
+
+  def testGetAVLSuggestion(self):
+    # Arrange.
+    avl_resource = _HWIDDBExternalResourceFromProbeInfos({
+        (1, 0):
+            _ProbeInfoFromMapping({
+                'avl_attr_name1': 'value1',
+                'avl_attr_name2': 'value2',
+            }),
+        (2, 0):
+            _ProbeInfoFromMapping({
+                'avl_attr_name1': 'value3',
+                'avl_attr_name2': 'value4',
+            })
+    })
+
+    # Act.
+    avl_converter = self.converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
+    suggestion = avl_converter.GetAVLSuggestion('comp_cls', 'comp_cls_1', {
+        'converted_key1': 'value3',
+        'converted_key2': 'value4',
+    })
+
+    # Assert.
+    self.assertEqual(
+        suggestion,
+        hwid_api_messages_pb2.ChangeUnit.AVLSuggestion(
+            probe_info_suggestions=[
+                stubby_pb2.ProbeParameterSuggestion(
+                    hint="Expected AVL attribute 'avl_attr_name1'='value1', "
+                    "but got 'value3'.", key='avl_attr_name1', value='value3'),
+                stubby_pb2.ProbeParameterSuggestion(
+                    hint="Expected AVL attribute 'avl_attr_name2'='value2', "
+                    "but got 'value4'.", key='avl_attr_name2', value='value4'),
+            ], avl_key_suggestions=[hwid_api_messages_pb2.AvlInfo(cid=2)]))
+
+  def testGetAVLSuggestion_NoSuggestion(self):
+    # Arrange.
+    avl_resource = _HWIDDBExternalResourceFromProbeInfos({
+        (1, 0):
+            _ProbeInfoFromMapping({
+                'avl_attr_name1': 'value1',
+                'avl_attr_name2': 'value2',
+            }),
+    })
+
+    # Act.
+    avl_converter = self.converter_manager.GetAVLConverter(
+        avl_resource, 'CHROMEBOOK')
+    suggestion = avl_converter.GetAVLSuggestion('comp_cls', 'not_comp_cls', {
+        'converted_key1': 'value3',
+        'converted_key2': 'value4',
+    })
+
+    # Assert.
+    self.assertIsNone(suggestion)
 
 
 if __name__ == '__main__':

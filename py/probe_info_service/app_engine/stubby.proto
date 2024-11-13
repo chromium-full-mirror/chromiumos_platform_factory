@@ -42,6 +42,8 @@ message ProbeInfo {
 message ProbeParameterSuggestion {
   int32 index = 1;
   string hint = 2;
+  string key = 3;
+  string value = 4;
 }
 
 message ProbeInfoParsedResult {

@@ -67,9 +67,7 @@ class HWIDV3Action(hwid_action.HWIDAction):
       require_hwid_db_lines: bool,
       vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
-      avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
-      avl_resource: Optional[
-          hwid_api_messages_pb2.HwidDbExternalResource] = None,
+      avl_converter: Optional[converter_utils.AVLConverter] = None,
       hwid_bundle_checksum: Optional[str] = None,
       avl_metadata_manager: Optional[
           avl_metadata_util.AVLMetadataManager] = None,
@@ -78,8 +76,8 @@ class HWIDV3Action(hwid_action.HWIDAction):
     return self._ss_helper.AnalyzeDBEditableSection(
         draft_db_editable_section, derive_fingerprint_only,
         require_hwid_db_lines, vpg_targets_data_manager, internal,
-        avl_converter_manager, avl_resource, hwid_bundle_checksum,
-        avl_metadata_manager, device_metadata)
+        avl_converter, hwid_bundle_checksum, avl_metadata_manager,
+        device_metadata)
 
   def GetHWIDBundleResourceInfo(self, fingerprint_only=False):
     return self._ss_helper.GetHWIDBundleResourceInfo(fingerprint_only)
@@ -108,12 +106,10 @@ class HWIDV3Action(hwid_action.HWIDAction):
     return comps
 
   def ConvertToInternalHWIDDBContent(
-      self, avl_converter_manager: converter_utils.ConverterManager,
-      hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
-      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
+      self, avl_converter: converter_utils.AVLConverter,
+      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
     return self._ss_helper.ConvertToInternalHWIDDBContent(
-        avl_converter_manager, hwid_db_contents, avl_resource, factory_branch)
+        avl_converter, hwid_db_contents)
 
   def GetFeatureEnablementStatus(
       self, hwid_string: str) -> feature_matching.FeatureEnablementStatus:

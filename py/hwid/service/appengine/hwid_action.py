@@ -377,9 +377,7 @@ class HWIDAction:
       require_hwid_db_lines: bool,
       vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       internal: bool = False,
-      avl_converter_manager: Optional[converter_utils.ConverterManager] = None,
-      avl_resource: Optional[
-          hwid_api_messages_pb2.HwidDbExternalResource] = None,
+      avl_converter: Optional[converter_utils.AVLConverter] = None,
       hwid_bundle_checksum: Optional[str] = None,
       avl_metadata_manager: Optional[
           avl_metadata_util.AVLMetadataManager] = None,
@@ -398,10 +396,8 @@ class HWIDAction:
       vpg_targets_data_manager: A manager responsible for reading/writing VPG
           targets in memcache.
       internal: Whether this report returns an internal format of HWID DB.
-      avl_converter_manager: A manager responsible for converting AVL probe
+      avl_converter: A converter responsible for converting AVL probe
           values to HWID probe values for comparison.
-      avl_resource: AVL resource for checking if HWID probe values align with
-          AVL probe values.
 
     Returns:
       An analysis report including information like line modification status
@@ -473,19 +469,14 @@ class HWIDAction:
         f'`PatchHeader` is not supported in HWID v{self.HWID_VERSION}')
 
   def ConvertToInternalHWIDDBContent(
-      self, avl_converter_manager: converter_utils.ConverterManager,
-      hwid_db_contents: hwid_db_data.HWIDDBData,
-      avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
-      factory_branch: Optional[str] = None) -> hwid_db_data.HWIDDBData:
+      self, avl_converter: converter_utils.AVLConverter,
+      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
     """Converts an external HWID DB to internal HWID DB.
 
     Args:
-      avl_converter_manager: A manager responsible for converting AVL probe
+      avl_converter: A converter responsible for converting AVL probe
           values to HWID probe values for comparison.
       hwid_db_contents: The external HWID DB content.
-      avl_resource: AVL resource for checking if HWID probe values align with
-          AVL probe values.
-      factory_branch: which factory branch is used.
     Returns:
       An internal HWID DB with internal tags.
     """
