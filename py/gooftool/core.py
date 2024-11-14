@@ -95,6 +95,9 @@ class FactoryProcessEnum(str, enum.Enum):
   TWOSTAGES = 'TWOSTAGES'
   RMA = 'RMA'
 
+  def __str__(self) -> str:
+    return self.value
+
 
 class IdentitySourceEnum(str, enum.Enum):
   cros_config = 'Cros Config Database'

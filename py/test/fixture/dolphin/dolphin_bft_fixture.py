@@ -74,6 +74,9 @@ class DolphinBFTFixture(bft_fixture.BFTFixture):
     ADB_HOST = 'ADB_HOST'
     DEFAULT = 'DEFAULT'
 
+    def __str__(self):
+      return self.name
+
   # dev means charge-to-device.
   DEVICE_COMMAND = {
       Device.CHARGE_5V  : ['5v'],

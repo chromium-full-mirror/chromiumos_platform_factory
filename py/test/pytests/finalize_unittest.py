@@ -3,7 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import sys
 import unittest
 from unittest import mock
 
@@ -235,10 +234,7 @@ class FinalizeUnittest(unittest.TestCase):
 
     self.assertTrue('--cbi_eeprom_wp_status status' in actual)
     self.assertTrue('--phase "phase"' in actual)
-    self.assertTrue(
-      ('--factory_process FactoryProcessEnum.TWOSTAGES'
-       if sys.version_info >= (3,11) else
-       '--factory_process TWOSTAGES') in actual)
+    self.assertTrue('--factory_process TWOSTAGES' in actual)
 
   def testAssembledArgsAppended(self):
     # yapf: disable
