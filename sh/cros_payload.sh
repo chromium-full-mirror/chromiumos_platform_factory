@@ -790,7 +790,9 @@ get_file_component_version() {
   # TODO(hungte) Process compressed file.
   case "${component}" in
     toolkit)
-      sh "${file}" --lsm
+      local temp
+      temp="$(md5sum "${file}")"
+      sh "${file}" --lsm  || echo "${temp%% *}"
       ;;
     firmware)
       # The feature manifest is landed in 11163.0.0 .

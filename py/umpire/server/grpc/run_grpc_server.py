@@ -23,7 +23,9 @@ import grpc
 import grpc._server
 
 from cros.factory.umpire.server.grpc import shop_floor_servicer
+from cros.factory.umpire.server.grpc import umpire_dut_commands_servicer
 from cros.factory.umpire.server.proto import shop_floor_pb2_grpc
+from cros.factory.umpire.server.proto import umpire_dut_commands_pb2_grpc
 
 
 DEFAULT_SERVER_ADDRESS = '0.0.0.0:8289'
@@ -37,6 +39,7 @@ class RunGrpcArgs:
   root_certfile: Optional[str] = None
   log_file: Optional[str] = None
   shopfloor_service_url: str = ''
+  umpire_cli_url: str = ''
 
 
 def SetupConnection(grpc_server: grpc._server._Server, args: RunGrpcArgs):
@@ -68,6 +71,9 @@ def StartGrpcServer(args: RunGrpcArgs):
   shop_floor_pb2_grpc.add_ShopFloorServicer_to_server(
       shop_floor_servicer.ShopFloorServicer(args.shopfloor_service_url),
       grpc_server)
+  umpire_dut_commands_pb2_grpc.add_UmpireDUTCommandsServicer_to_server(
+      umpire_dut_commands_servicer.UmpireDUTCommandsServicer(
+          args.umpire_cli_url), grpc_server)
 
   SetupConnection(grpc_server, args)
 
@@ -91,6 +97,8 @@ def main():
                       help='File to store the log.')
   parser.add_argument('--shopfloor-service-url', type=str, default='',
                       help='The shopfloor service url.')
+  parser.add_argument('--umpire-cli-url', type=str, default='',
+                      help='The umpire cli url.')
   args = parser.parse_args()
   StartGrpcServer(typing.cast(RunGrpcArgs, args))
 
