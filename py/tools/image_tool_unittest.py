@@ -70,9 +70,11 @@ class ImageToolTest(unittest.TestCase):
   def ImageTool(self, *args):
     command = args[0]
     self.assertIn(command, self.cmd_map, f'Unknown command: {command}')
-    cmd = self.cmd_map[command](*self.cmd_parsers)
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+    cmd = self.cmd_map[command](parser, subparsers)
     cmd.Init()
-    cmd_args = self.cmd_parsers[0].parse_args(args)
+    cmd_args = parser.parse_args(args)
     cmd_args.verbose = 0
     cmd_args.subcommand.args = cmd_args
     cmd_args.subcommand.Run()
@@ -155,9 +157,6 @@ class ImageToolTest(unittest.TestCase):
       self.temp_dir = '/tmp/t'
     else:
       self.temp_dir = tempfile.mkdtemp(prefix='image_tool_ut_')
-    parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers()
-    self.cmd_parsers = (parser, subparser)
     self.cmd_map = dict(
         (v.name, v)
         for v in image_tool.__dict__.values()
