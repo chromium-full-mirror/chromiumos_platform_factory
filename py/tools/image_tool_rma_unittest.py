@@ -214,15 +214,19 @@ class ImageToolRMATest(unittest.TestCase):
 
   def ImageTool(self, *args):
     command = args[0]
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
     if command == image_tool.CMD_NAMESPACE_RMA:
       command = args[1]
       self.assertIn(command, self.rma_map, f'Unknown command: {command}')
-      cmd = self.rma_map[command](*self.rma_parsers)
+      rma_parser = subparsers.add_parser(image_tool.CMD_NAMESPACE_RMA)
+      rma_subparsers = rma_parser.add_subparsers()
+      cmd = self.rma_map[command](rma_parser, rma_subparsers)
     else:
       self.assertIn(command, self.cmd_map, f'Unknown command: {command}')
-      cmd = self.cmd_map[command](*self.cmd_parsers)
+      cmd = self.cmd_map[command](parser, subparsers)
     cmd.Init()
-    cmd_args = self.cmd_parsers[0].parse_args(args)
+    cmd_args = parser.parse_args(args)
     cmd_args.verbose = 0
     cmd_args.subcommand.args = cmd_args
     cmd_args.subcommand.Run()
@@ -232,17 +236,11 @@ class ImageToolRMATest(unittest.TestCase):
       self.temp_dir = '/tmp/t'
     else:
       self.temp_dir = tempfile.mkdtemp(prefix='image_tool_rma_ut_')
-    parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers()
-    self.cmd_parsers = (parser, subparser)
     self.cmd_map = dict(
         (v.name, v)
         for v in image_tool.__dict__.values()
         if inspect.isclass(v) and
         issubclass(v, image_tool.AbstractSubCommand) and v.namespace is None)
-    rma_parser = subparser.add_parser(image_tool.CMD_NAMESPACE_RMA)
-    rma_subparser = rma_parser.add_subparsers()
-    self.rma_parsers = (rma_parser, rma_subparser)
     self.rma_map = dict(
         (v.name, v)
         for v in image_tool.__dict__.values()
