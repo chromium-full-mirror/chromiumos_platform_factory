@@ -76,12 +76,11 @@ main() {
     lddtree --root="${bin_root}" \
       --bindir=/ --libdir=/ \
       --generate-wrappers --copy-to-tree="${bundle_dir}/setup/libx64" \
-      /usr/bin/cgpt /usr/bin/futility /usr/bin/dlc_metadata_util
-    ln -s -t "${bundle_dir}/setup" "libx64/cgpt" "libx64/futility" \
-      "libx64/dlc_metadata_util"
+      /usr/bin/cgpt /usr/bin/futility
+    ln -s -t "${bundle_dir}/setup" "libx64/cgpt" "libx64/futility"
   else
     cp -f "${bin_root}"/usr/bin/cgpt "${bin_root}"/usr/bin/futility \
-      "${bin_root}"/usr/bin/dlc_metadata_util "${bundle_dir}/setup"
+      "${bundle_dir}/setup"
   fi
 
   # Last chance to make sure all bundle files are world readable.
