@@ -46,6 +46,34 @@ class TpmTest(unittest.TestCase):
       with self.subTest(test_name=test_name):
         self.assertEqual(self.matcher.Match(fields), expected_result)
 
+  def testMatch_Legacy(self):
+    probe_info = v3_rule.AVLProbeInfo(
+        'tpm.tpm',
+        collections.OrderedDict([
+            ('spec_level', ['162']),
+            ('manufacturer', ['CROS']),
+            ('vendor_specific', ['xCG fTPM']),
+            ('gsc_device', ['DT']),
+        ]))
+    m = default_builder.GetDefaultBuilder().Build(
+        probe_info, 'fake_model', factory_branch='factory-board-1.B', cid=1,
+        qid=1, is_probe_info_override=False)
+    assert m is not None
+
+    for test_name, fields, expected_result in (
+        ('match_legacy', {
+            'manufacturer_info': '43524f53',
+            'version': '2.0.0.0'
+        }, matcher.MatchResult(True, 'TpmLegacy')),
+        ('match_without_gsc_device', {
+            'manufacturer': '0x43524f53',
+            'spec_level': '162',
+            'vendor_specific': 'xCG fTPM',
+        }, matcher.MatchResult(True, 'TpmLegacyWithoutGSCDevice')),
+    ):
+      with self.subTest(test_name=test_name):
+        self.assertEqual(m.Match(fields), expected_result)
+
   def testGenerateProbeConfigMatcherStatement(self):
     self.assertEqual(
         self.matcher.GenerateProbeConfigMatcherStatement(), {

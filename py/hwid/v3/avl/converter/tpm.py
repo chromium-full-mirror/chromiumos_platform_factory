@@ -4,7 +4,7 @@
 """Holds field name mappings from AVL to HWID."""
 
 import binascii
-from typing import Optional
+from typing import Optional, Sequence
 
 from cros.factory.hwid.v3.avl import builder
 from cros.factory.hwid.v3.avl.converter import common
@@ -37,8 +37,8 @@ class _ManufacturerSuggester(common.AVLAttributeSuggesterBase):
 
 
 def _GetManufacturerFieldConverter(
-    probe_info: v3_rule.AVLProbeInfo,
-    key: str,
+    probe_info: v3_rule.AVLProbeInfo, key: str,
+    runtime_probe_key: Optional[str] = None
 ) -> builder.IProbeInfoConverterBuildResult:
   values = probe_info.params.get(key, [])
   if len(values) != 1:
@@ -51,8 +51,21 @@ def _GetManufacturerFieldConverter(
   except Exception as e:
     builder.LogBuilderError(f'manufacturer encode error {e!r}')
     return None
-  return (runtime_probe_matchers.HexEqualMatcher(
-      key, _ConvertedHex(encoded_value)), _ManufacturerSuggester(key, key))
+  runtime_probe_key = runtime_probe_key or key
+  return (runtime_probe_matchers.HexEqualMatcher(runtime_probe_key,
+                                                 _ConvertedHex(encoded_value)),
+          _ManufacturerSuggester(key, runtime_probe_key))
+
+
+def _GetTpmConverters(
+    probe_info) -> Sequence[builder.IProbeInfoConverterBuildResult]:
+  return [
+      _GetManufacturerFieldConverter(probe_info, 'manufacturer'),
+      common.GetFieldConverter(probe_info, 'spec_level',
+                               runtime_probe_matchers.IntegerEqualMatcher),
+      common.GetFieldConverter(probe_info, 'vendor_specific',
+                               runtime_probe_matchers.StringEqualMatcher)
+  ]
 
 
 class Tpm(builder.IProbeInfoConverter):
@@ -62,17 +75,44 @@ class Tpm(builder.IProbeInfoConverter):
       self, probe_info: v3_rule.AVLProbeInfo
   ) -> builder.IProbeInfoConverterBuildResult:
     return common.JoinFieldConverters((
-        _GetManufacturerFieldConverter(probe_info, 'manufacturer'),
-        common.GetFieldConverter(probe_info, 'spec_level',
-                                 runtime_probe_matchers.IntegerEqualMatcher),
-        common.GetFieldConverter(probe_info, 'vendor_specific',
-                                 runtime_probe_matchers.StringEqualMatcher),
+        *_GetTpmConverters(probe_info),
         common.GetFieldConverter(probe_info, 'gsc_device',
                                  runtime_probe_matchers.StringEqualMatcher),
     ))
 
 
+class TpmLegacyWithoutGSCDevice(builder.IProbeInfoConverter):
+  IDENTIFIER = 'TpmLegacyWithoutGSCDevice'
+
+  # Supported until https://crrev.com/c/5966762
+  LAST_SUPPORT_VERSIONS = builder.BranchesOSVersions([builder.OSVersion(16078)])
+
+  def Build(
+      self, probe_info: v3_rule.AVLProbeInfo
+  ) -> builder.IProbeInfoConverterBuildResult:
+    gsc_device = probe_info.params.get('gsc_device', [])
+    if len(gsc_device) > 0 and gsc_device[0] not in ('H1', 'DT'):
+      return None
+    return common.JoinFieldConverters(_GetTpmConverters(probe_info))
+
+
+class TpmLegacy(builder.IProbeInfoConverter):
+  IDENTIFIER = 'TpmLegacy'
+
+  # Supported until https://crrev.com/c/5326678
+  LAST_SUPPORT_VERSIONS = builder.BranchesOSVersions([builder.OSVersion(15803)])
+
+  def Build(
+      self, probe_info: v3_rule.AVLProbeInfo
+  ) -> builder.IProbeInfoConverterBuildResult:
+    gsc_device = probe_info.params.get('gsc_device', [])
+    if len(gsc_device) > 0 and gsc_device[0] not in ('H1', 'DT'):
+      return None
+    return _GetManufacturerFieldConverter(probe_info, 'manufacturer',
+                                          'manufacturer_info')
+
+
 def GetConverterSet() -> builder.ConverterSet:
-  return builder.ConverterSet('tpm.tpm', [
-      Tpm(),
-  ])
+  return builder.ConverterSet(
+      'tpm.tpm', [Tpm(), TpmLegacyWithoutGSCDevice(),
+                  TpmLegacy()])
