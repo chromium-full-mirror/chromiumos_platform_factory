@@ -103,7 +103,7 @@ class ConverterManagerTest(unittest.TestCase):
 
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
@@ -174,7 +174,7 @@ class ConverterManagerTest(unittest.TestCase):
 
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
@@ -251,7 +251,7 @@ class ConverterManagerTest(unittest.TestCase):
 
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
 
     # Assert.
@@ -298,7 +298,7 @@ class ConverterManagerTest(unittest.TestCase):
 
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     suggestion = avl_converter.GetAVLSuggestion('comp_cls', 'comp_cls_1', {
         'converted_key1': 'value3',
         'converted_key2': 'value4',
@@ -329,7 +329,7 @@ class ConverterManagerTest(unittest.TestCase):
 
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     suggestion = avl_converter.GetAVLSuggestion('comp_cls', 'not_comp_cls', {
         'converted_key1': 'value3',
         'converted_key2': 'value4',

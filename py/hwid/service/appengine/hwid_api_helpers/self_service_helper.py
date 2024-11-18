@@ -823,12 +823,18 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       raise protorpc_utils.ProtoRPCException(
           protorpc_utils.RPCCanonicalErrorCode.ABORTED,
           detail='The validation token is expired.')
+
+    factory_branch = None
+    dlm_device = self._dlm_product_manager.GetDLMDeviceByModel(project)
+    if dlm_device is not None:
+      factory_branch = dlm_device.factory_branch or None
+
     try:
       self._UpdateHWIDDBDataIfNeed(live_hwid_repo, project)
 
       action = self._hwid_action_manager.GetHWIDAction(project)
       avl_converter = self._avl_converter_manager.GetAVLConverter(
-          request.db_external_resource, project)
+          request.db_external_resource, project, factory_branch)
       analysis = action.AnalyzeDBEditableSection(
           cache.new_hwid_db_editable_section, derive_fingerprint_only=False,
           require_hwid_db_lines=False,

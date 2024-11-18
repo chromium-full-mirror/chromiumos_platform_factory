@@ -199,7 +199,7 @@ class ConverterManager:
 
   def GetAVLConverter(
       self, avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
-      project: str, factory_branch: Optional[str] = None) -> AVLConverter:
+      project: str, factory_branch: Optional[str]) -> AVLConverter:
 
     probe_info_map, avl_matcher_map = {}, {}
 

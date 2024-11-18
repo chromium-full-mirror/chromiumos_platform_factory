@@ -243,7 +243,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     avl_converter_manager = converter_utils.ConverterManager(builder)
     avl_resource = self._LoadAVLResource('v3-golden-internal.prototxt')
     avl_converter = avl_converter_manager.GetAVLConverter(
-        avl_resource, 'CHROMEBOOK')
+        avl_resource, 'CHROMEBOOK', None)
     report = helper_inst.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
         derive_fingerprint_only=False, require_hwid_db_lines=False,
@@ -275,7 +275,7 @@ class HWIDV3SelfServiceActionHelperTest(unittest.TestCase):
     converter_manager = converter_utils.ConverterManager.FromDefault()
     resource_msg = hwid_api_messages_pb2.HwidDbExternalResource()
     avl_converter = converter_manager.GetAVLConverter(resource_msg,
-                                                      'CHROMEBOOK')
+                                                      'CHROMEBOOK', None)
 
     analysis_report = helper_inst_before.AnalyzeDBEditableSection(
         draft_db_editable_section=editable_section,
