@@ -86,9 +86,9 @@ class MultiValueAVLAttributeSuggester(AVLAttributeSuggesterBase):
     probe_values = {s.got
                     for s in filtered_suggestions}
 
-    assert len(probe_values) == 1
+    if not probe_values:
+      return []
     probe_value = str(next(iter(probe_values)))
-
     return [
         matcher.ProbeInfoSuggestion(
             self._key, probe_value,
