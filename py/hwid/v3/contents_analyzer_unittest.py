@@ -45,6 +45,8 @@ DB_INTERNAL_BEFORE = os.path.join(_TEST_DATA_PATH,
                                   'test_database_db_internal.yaml')
 DB_INTERNAL_PROBE_INFO = os.path.join(
     _TEST_DATA_PATH, 'test_database_db_internal_probe_info_changed.yaml')
+DB_COMP_ADD_SAME_VALUE_PATH = os.path.join(
+    _TEST_DATA_PATH, 'test_database_db_comp_same_value.yaml')
 
 _PVAlignmentStatus = contents_analyzer.ProbeValueAlignmentStatus
 _HWIDCompAnalysisResult = contents_analyzer.HWIDComponentAnalysisResult
@@ -136,6 +138,20 @@ class ContentsAnalyzerTest(unittest.TestCase):
     report = inst.ValidateChange()
 
     self.assertEqual(report.errors, [])
+
+  def test_ValidateChange_AddCompWithSameValues(self):
+    prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
+    curr_db_contents = file_utils.ReadFile(DB_COMP_ADD_SAME_VALUE_PATH)
+
+    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
+                                              prev_db_contents)
+    report = inst.ValidateChange()
+
+    expect_error = contents_analyzer.Error(
+        contents_analyzer.ErrorCode.COMPATIBLE_ERROR,
+        'Adding component with the same probe value is invalid. '
+        "Please rename 'display_panel_0' to 'display_panel_0_1' instead.")
+    self.assertIn(expect_error, report.errors)
 
   def test_ValidateFirmwareComponents_ModifyFromFactoryBundle(self):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)

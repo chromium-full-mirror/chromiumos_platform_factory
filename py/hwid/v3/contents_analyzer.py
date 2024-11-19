@@ -454,7 +454,7 @@ def _ValidateChangeOfComponents(curr_db: database.Database,
                                 prev_db: Optional[database.Database],
                                 report: ValidationReport):
   """Check if modified (created) components are valid."""
-  for comps in _ExtractHWIDComponents(curr_db, prev_db).values():
+  for comp_cls, comps in _ExtractHWIDComponents(curr_db, prev_db).items():
     for comp in comps:
       if comp.extracted_seq_no is not None:
         expected_comp_name = ''.join([
@@ -469,21 +469,28 @@ def _ValidateChangeOfComponents(curr_db: database.Database,
                   f'modify it from {comp.name!r} to {expected_comp_name!r}'
                   '.'))
           continue
-      # yapf: disable
-      if (not comp.is_newly_added and comp.diff_prev.name_changed and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          comp.diff_prev.values_changed):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        report.errors.append(
-            Error(
-                ErrorCode.COMPATIBLE_ERROR,
-                # yapf: disable
-                'Modifying both the component name '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
-                f'({comp.diff_prev.prev_comp_name!r} -> {comp.name!r}) '
-                'and values often causes compatibility issues. Is this '
-                'change proposal mistakenly based on a legacy HWID bundle?'))
+      if not comp.is_newly_added:
+        assert comp.diff_prev is not None
+        if comp.diff_prev.name_changed and comp.diff_prev.values_changed:
+          report.errors.append(
+              Error(
+                  ErrorCode.COMPATIBLE_ERROR, 'Modifying both the component '
+                  f'name ({comp.diff_prev.prev_comp_name!r} -> {comp.name!r}) '
+                  'and values often causes compatibility issues. Is this '
+                  'change proposal mistakenly based on a legacy HWID bundle?'))
+      if comp.is_newly_added and prev_db is not None:
+        comp_info = curr_db.GetComponents(comp_cls)[comp.name]
+        try:
+          duplicate_name = prev_db.GetComponentNameByHash(
+              comp_cls, comp_info.comp_hash)
+          report.errors.append(
+              Error(
+                  ErrorCode.COMPATIBLE_ERROR,
+                  'Adding component with the same probe value is invalid. '
+                  f'Please rename {duplicate_name!r} to {comp.name!r} '
+                  'instead.'))
+        except KeyError:
+          pass
 
 
 def _AnalyzeDBLines(curr_db: database.Database,
