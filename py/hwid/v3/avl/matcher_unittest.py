@@ -44,14 +44,21 @@ class MatcherTest(unittest.TestCase):
     self.assertIsNone(m.GetProbeInfoSuggestion({
         'field_a': 'value_a'
     }))
-    suggestion = m.GetProbeInfoSuggestion({
-        'field_a': 'value_b'
-    })
-    assert suggestion
-    self.assertEqual(
-        "FieldProbeInfoSuggestion("
-        "field_name='field_a', expected='value_a', got='value_b')",
-        suggestion[0].suggestion)
+    with self.subTest('GetProbeInfoSuggestion_KeyMatch'):
+      suggestion = m.GetProbeInfoSuggestion({'field_a': 'value_b'})
+      assert suggestion
+      self.assertEqual(
+          "FieldProbeInfoSuggestion("
+          "field_name='field_a', expected='value_a', got='value_b')",
+          suggestion[0].suggestion)
+
+    with self.subTest('GetProbeInfoSuggestion_KeyNotMatch'):
+      suggestion = m.GetProbeInfoSuggestion({'field_c': 'value_c'})
+      assert suggestion
+      self.assertEqual(
+          "FieldProbeInfoSuggestion("
+          "field_name='field_a', expected='value_a', got=None)",
+          suggestion[0].suggestion)
 
   def testMultipleConverter(self):
     m = matcher.Matcher([

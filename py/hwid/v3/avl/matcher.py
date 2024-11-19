@@ -120,5 +120,5 @@ class Matcher:
       runtime_probe_suggestion = c.matcher.GetProbeInfoSuggestion(component_str)
       if _KeyMatch(runtime_probe_suggestion):
         return c.suggester.BuildSuggestion(runtime_probe_suggestion)
-    # We had checked self.Match fails. Thus, the suggestion shouldn't be None.
-    raise AssertionError('suggestion should not be None')
+    return self._converters[-1].suggester.BuildSuggestion(
+        runtime_probe_suggestion)
