@@ -113,7 +113,7 @@ class _BatteryConverter(builder.IProbeInfoConverter):
       .SingleValueAVLAttributeSuggester
   ) -> builder.IProbeInfoConverterBuildResult:
     values = probe_info.params.get(key)
-    if values is None:
+    if not values:
       return None
     matchers: MutableSequence[runtime_probe_matchers.IMatcher] = []
     for v in values:
@@ -135,9 +135,9 @@ class _BatteryConverter(builder.IProbeInfoConverter):
       self, probe_info: v3_rule.AVLProbeInfo
   ) -> builder.IProbeInfoConverterBuildResult:
     return common.JoinFieldConverters((
-        self._GetBatteryFieldConverter(probe_info, 'manufacturer',
+        self._GetBatteryFieldConverter(probe_info, 'manufacturer'),
+        self._GetBatteryFieldConverter(probe_info, 'model_name',
                                        common.MultiValueAVLAttributeSuggester),
-        self._GetBatteryFieldConverter(probe_info, 'model_name'),
     ))
 
 
@@ -173,7 +173,7 @@ class BatteryPrefixMatchLength11Expand(BatteryPrefixMatchLength11):
       .SingleValueAVLAttributeSuggester
   ) -> builder.IProbeInfoConverterBuildResult:
     values = probe_info.params.get(key)
-    if values is None:
+    if not values:
       return None
     matchers: MutableSequence[runtime_probe_matchers.IMatcher] = []
     converted_values = [
