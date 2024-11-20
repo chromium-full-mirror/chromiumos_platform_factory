@@ -30,7 +30,7 @@ class WifiProbeAttributesSuggester(matcher.ISuggester):
 
   def _BuildWifiProbeAttributesFromSuggestion(
       self, suggestion: runtime_probe_matchers.ProbeInfoSuggestion
-  ) -> Tuple[Set[str], Set[str]]:
+  ) -> Tuple[Set[Tuple[str, ...]], Set[Tuple[str, ...]]]:
     if isinstance(suggestion, runtime_probe_matchers.FieldProbeInfoSuggestion):
       return set(), set()
 
@@ -48,17 +48,22 @@ class WifiProbeAttributesSuggester(matcher.ISuggester):
         if isinstance(s, runtime_probe_matchers.FieldProbeInfoSuggestion) and
         s.field_name in self._expected_keys
     }
-    if set(self._expected_keys) != set(filtered_suggestions):
+
+    if not filtered_suggestions:
       return set(), set()
 
-    got = (f'{filtered_suggestions[self._vendor_key].got}, '
-           f'{filtered_suggestions[self._device_key].got}')
-    expected = (f'{filtered_suggestions[self._vendor_key].expected}, '
-                f'{filtered_suggestions[self._device_key].expected}')
-    if self._subsystem_key is not None:
-      got += f', {filtered_suggestions[self._subsystem_key].got}'
-      expected += f', {filtered_suggestions[self._subsystem_key].expected}'
-    return {got}, {expected}
+    got = [
+        str(filtered_suggestions[self._vendor_key].got),
+        str(filtered_suggestions[self._device_key].got)
+    ]
+    expected = [
+        str(filtered_suggestions[self._vendor_key].expected),
+        str(filtered_suggestions[self._device_key].expected)
+    ]
+    if self._subsystem_key in filtered_suggestions:
+      got.append(str(filtered_suggestions[self._subsystem_key].got))
+      expected.append(str(filtered_suggestions[self._subsystem_key].expected))
+    return {tuple(got)}, {tuple(expected)}
 
   def BuildSuggestion(
       self, suggestion: runtime_probe_matchers.ProbeInfoSuggestion
@@ -67,14 +72,15 @@ class WifiProbeAttributesSuggester(matcher.ISuggester):
       return []
     all_got, all_expected = self._BuildWifiProbeAttributesFromSuggestion(
         suggestion)
-    assert len(all_got) == 1
-    got = next(iter(all_got))
+    assert all_got
+    # Select the longest match
+    got = max(all_got, key=len)
     return [
         matcher.ProbeInfoSuggestion(
-            self._key, got,
+            self._key, ', '.join(got),
             f'Expected AVL attribute {self._key!r} equals to one of '
-            f'{sorted(all_expected)!r}, but got '
-            f"{got!r}({', '.join(self._expected_keys)}).")
+            f"{sorted(', '.join(e) for e in all_expected)!r}, but got "
+            f"{', '.join(got)!r}({', '.join(self._expected_keys[:len(got)])}).")
     ]
 
 

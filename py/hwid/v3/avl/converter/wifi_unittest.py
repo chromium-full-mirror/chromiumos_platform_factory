@@ -215,8 +215,25 @@ class WifiTest(unittest.TestCase):
         matcher.ProbeInfoSuggestion(
             key='wifi_probe_attributes', value='0x7, 0x8, 0x9',
             suggestion="Expected AVL attribute 'wifi_probe_attributes' equals "
-            "to one of ['0x1, 0x2, 0x3'], but got "
+            "to one of ['0x1, 0x2, 0x3', '0x4, 0x5'], but got "
             "'0x7, 0x8, 0x9'(pci_vendor_id, pci_device_id, pci_subsystem).")
+    ])
+
+  def testGetProbeInfoSuggestion_Pci_SubsystemNotMatch(self):
+    m = _GetMatcher('wireless.pci_wireless_network', None, ['0x0001, 0x0002'])
+    suggestion = m.GetProbeInfoSuggestion({
+        'pci_vendor_id': '0x0007',
+        'pci_device_id': '0x0008',
+        'pci_subsystem': '0x0009',
+    })
+
+    assert suggestion is not None
+    self.assertCountEqual(suggestion, [
+        matcher.ProbeInfoSuggestion(
+            key='wifi_probe_attributes', value='0x7, 0x8',
+            suggestion="Expected AVL attribute 'wifi_probe_attributes' equals "
+            "to one of ['0x1, 0x2'], but got "
+            "'0x7, 0x8'(pci_vendor_id, pci_device_id).")
     ])
 
   def testGetProbeInfoSuggestion_Sdio(self):
