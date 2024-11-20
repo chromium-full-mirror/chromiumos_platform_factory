@@ -201,6 +201,10 @@ class ConverterManager:
       self, avl_resource: hwid_api_messages_pb2.HwidDbExternalResource,
       project: str, factory_branch: Optional[str]) -> AVLConverter:
 
+    # TODO(b/379997333): some device factory branch is missing. Add a old
+    # version to enable all converts by default as a workaround.
+    factory_branch = factory_branch or 'factory-board-1.B'
+
     probe_info_map, avl_matcher_map = {}, {}
 
     for comp_probe_info in avl_resource.component_probe_infos:
