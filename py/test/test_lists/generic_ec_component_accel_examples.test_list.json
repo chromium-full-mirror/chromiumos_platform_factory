@@ -15,13 +15,9 @@
       "inherit": "TestGroup",
       "subtests": [
         "SetHasBaseAccelerometer",
-        "UnsetHasBaseAccelerometer",
         "SetHasLidAccelerometer",
-        "UnsetHasLidAccelerometer",
         "SetHasBaseGyroscope",
-        "UnsetHasBaseGyroscope",
         "SetHasTabletmode",
-        "UnsetHasTabletmode",
         "BaseAccelerometersCalibration",
         "BaseAccelerometersCalibrationByEC",
         "BaseAccelerometers",
@@ -37,12 +33,17 @@
         "GoToTabletModeAndGoBack",
         "GoToTabletModeAndGoBackSetLid",
         "ScreenRotation",
-        "TabletRotation"
+        "TabletRotation",
+        "UnsetHasBaseAccelerometer",
+        "UnsetHasLidAccelerometer",
+        "UnsetHasBaseGyroscope",
+        "UnsetHasTabletmode"
       ]
     },
     "BaseAccelerometersCalibrationByEC": {
       "pytest_name": "spatial_sensor_calibration",
       "label": "Base Accelerometers Calibration By EC",
+      "run_if": "not constants.has_device_data or device.component.has_base_accelerometer",
       "args": {
         "device_name": "cros-ec-accel",
         "device_location": "base",
@@ -89,6 +90,7 @@
     "GyroscopeCalibrationByEC": {
       "pytest_name": "spatial_sensor_calibration",
       "label": "Gyroscope Calibration By EC",
+      "run_if": "not constants.has_device_data or device.component.has_base_gyroscope",
       "args": {
         "device_name": "cros-ec-gyro",
         "device_location": "base",
@@ -100,6 +102,7 @@
     "LidAccelerometersCalibrationByEC": {
       "pytest_name": "spatial_sensor_calibration",
       "label": "Lid Accelerometers Calibration By EC",
+      "run_if": "not constants.has_device_data or device.component.has_lid_accelerometer",
       "args": {
         "device_name": "cros-ec-accel",
         "device_location": "lid",
@@ -107,6 +110,9 @@
         "calibbias_entry_template": "in_accel_%s_calibbias",
         "vpd_entry_template": "in_accel_%s_lid_calibbias"
       }
+    },
+    "ScreenRotation": {
+      "child_action_on_failure": "NEXT"
     },
     "SetHasBaseAccelerometer": {
       "pytest_name": "exec_shell",
@@ -147,6 +153,12 @@
       "args": {
         "commands": "factory device-data component.has_tabletmode=1"
       }
+    },
+    "TabletRotationBase": {
+      "run_if": "constants.has_device_data and device.component.has_base_accelerometer"
+    },
+    "TabletRotationLid": {
+      "run_if": "constants.has_device_data and device.component.has_lid_accelerometer"
     },
     "UnsetHasBaseAccelerometer": {
       "pytest_name": "exec_shell",
