@@ -1,4 +1,4 @@
-Sphinx==4.3.0
+Sphinx==5.0.2
 recommonmark==0.7.1
 sphinx-markdown-tables==0.0.17
 sphinx-copybutton==0.5.2
