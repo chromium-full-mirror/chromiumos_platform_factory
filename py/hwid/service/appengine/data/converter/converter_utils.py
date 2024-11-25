@@ -13,7 +13,7 @@ from cros.factory.hwid.v3.avl import matcher
 from cros.factory.hwid.v3 import builder
 from cros.factory.hwid.v3 import contents_analyzer
 from cros.factory.hwid.v3 import database
-from cros.factory.hwid.v3 import name_pattern_adapter
+from cros.factory.hwid.v3 import name_pattern_adapter as npa
 from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
 
@@ -41,8 +41,7 @@ class _AVLKey(NamedTuple):
   qid: int
 
 
-class _GetAVLKeyAcceptor(
-    name_pattern_adapter.NameInfoAcceptor[Optional[_AVLKey]]):
+class _GetAVLKeyAcceptor(npa.NameInfoAcceptor[Optional[_AVLKey]]):
   """An acceptor to provide CID info."""
 
   def AcceptRegularComp(self, cid: int,
@@ -92,7 +91,7 @@ class AVLConverter:
     self._factory_branch = factory_branch
     self._supported_classes = set(suppported_classes or
                                   _SUPPORT_COMPONENT_CLASS)
-    self._adapter = name_pattern_adapter.NamePatternAdapter()
+    self._adapter = npa.NamePatternAdapter()
     self._get_avl_key_acceptor = _GetAVLKeyAcceptor()
 
   def LinkAVL(
@@ -174,11 +173,19 @@ class AVLConverter:
                                                 value=s.value)
             for s in suggestions
         ]
-
+    is_subcomp = isinstance(name_info, npa.LinkAVLNameSubcompInfo)
     for avl_key, avl_matcher in self._matcher_map.items():
       if avl_matcher.Match(component).matched:
+        if is_subcomp:
+          avl_name = name_pattern.GenerateAVLName(
+              npa.LinkAVLNameSubcompInfo(avl_key.cid))
+        else:
+          avl_name = name_pattern.GenerateAVLName(
+              npa.LinkAVLNameRegularInfo(avl_key.cid, avl_key.qid or None))
         avl_key_suggestions.append(
-            hwid_api_messages_pb2.AvlInfo(cid=avl_key.cid, qid=avl_key.qid))
+            hwid_api_messages_pb2.AvlInfo(cid=avl_key.cid, qid=avl_key.qid,
+                                          avl_name=avl_name,
+                                          is_subcomp=is_subcomp))
 
     return hwid_api_messages_pb2.ChangeUnit.AVLSuggestion(
         avl_key_suggestions=avl_key_suggestions,

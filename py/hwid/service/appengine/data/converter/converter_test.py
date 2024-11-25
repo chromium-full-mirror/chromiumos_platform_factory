@@ -299,23 +299,33 @@ class ConverterManagerTest(unittest.TestCase):
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
         avl_resource, 'CHROMEBOOK', None)
-    suggestion = avl_converter.GetAVLSuggestion('comp_cls', 'comp_cls_1', {
-        'converted_key1': 'value3',
-        'converted_key2': 'value4',
-    })
+    for comp_name, suggested_comp_name, is_subcomp in [
+        ('comp_cls_1', 'comp_cls_2', False),
+        ('comp_cls_subcomp_1', 'comp_cls_subcomp_2', True),
+    ]:
+      with self.subTest():
+        suggestion = avl_converter.GetAVLSuggestion('comp_cls', comp_name, {
+            'converted_key1': 'value3',
+            'converted_key2': 'value4',
+        })
 
-    # Assert.
-    self.assertEqual(
-        suggestion,
-        hwid_api_messages_pb2.ChangeUnit.AVLSuggestion(
-            probe_info_suggestions=[
-                stubby_pb2.ProbeParameterSuggestion(
-                    hint="Expected AVL attribute 'avl_attr_name1'='value1', "
-                    "but got 'value3'.", key='avl_attr_name1', value='value3'),
-                stubby_pb2.ProbeParameterSuggestion(
-                    hint="Expected AVL attribute 'avl_attr_name2'='value2', "
-                    "but got 'value4'.", key='avl_attr_name2', value='value4'),
-            ], avl_key_suggestions=[hwid_api_messages_pb2.AvlInfo(cid=2)]))
+        # Assert.
+        self.assertEqual(
+            suggestion,
+            hwid_api_messages_pb2.ChangeUnit.AVLSuggestion(
+                probe_info_suggestions=[
+                    stubby_pb2.ProbeParameterSuggestion(
+                        hint="Expected AVL attribute 'avl_attr_name1'='value1'"
+                        ", but got 'value3'.", key='avl_attr_name1',
+                        value='value3'),
+                    stubby_pb2.ProbeParameterSuggestion(
+                        hint="Expected AVL attribute 'avl_attr_name2'='value2'"
+                        ", but got 'value4'.", key='avl_attr_name2',
+                        value='value4'),
+                ], avl_key_suggestions=[
+                    hwid_api_messages_pb2.AvlInfo(cid=2, is_subcomp=is_subcomp,
+                                                  avl_name=suggested_comp_name)
+                ]))
 
   def testGetAVLSuggestion_NoSuggestion(self):
     # Arrange.
