@@ -129,6 +129,7 @@ class PayloadManager(abc.ABC):
     Args:
       setting: The repository settings.
       repo: The repository.
+      board: The board name.
       payloads: The generated payloads.
 
     Returns:
@@ -289,15 +290,8 @@ class PayloadManager(abc.ABC):
         self._logger.error('Cannot abandon CL for %r: %r', change_id, str(ex))
 
 
-class HWIDSelectionPayloadManager(PayloadManager):
-  """A class managing payloads for HWID selection generated from HWID DB."""
-
-  def __init__(
-      self,
-      cl_upload_manager: cl_upload_config.HWIDSelectionPayloadCLUploadManager,
-      hwid_action_manager: hwid_action_manager_module.HWIDActionManager,
-      config_data: config_data_module.Config):
-    super().__init__(cl_upload_manager, hwid_action_manager, config_data)
+class _BaseFeatureEnablementPayloadManager(PayloadManager):
+  """Collects common logic shared across feature-enablement payload mngrs."""
 
   def _GetSupportedModels(
       self, limit_models: Collection[str],
@@ -307,6 +301,49 @@ class HWIDSelectionPayloadManager(PayloadManager):
         limit_models
         if limit_models else set(live_hwid_repo.hwid_db_metadata_of_name))
     return self._GetBoardModelsMapping(models, live_hwid_repo)
+
+  @abc.abstractmethod
+  def _GetCLMessageSubject(self) -> str:
+    """Gets the subject of the CL message."""
+
+  def _GetCLMessage(self, board: str, models: Collection[str],
+                    payload: _Payload, hwid_commit: str,
+                    hwid_prev_commit: Optional[str]) -> str:
+    """See base class."""
+
+    generated_models = (
+        payload.metadata['models'] if 'models' in payload.metadata else models)
+    feature_matcher_paths = [
+        f'v3/{model.upper()}.feature_matcher.textproto'
+        for model in sorted(generated_models)
+    ]
+    if hwid_prev_commit is None:
+      feature_matcher_file_objects = [
+          f'{hwid_commit[:7]}:{path}' for path in feature_matcher_paths
+      ]
+      verification_command = (
+          'git show \\\n' +
+          textwrap.indent(' \\\n'.join(feature_matcher_file_objects), '  '))
+    else:
+      verification_command = (
+          f'git diff {hwid_prev_commit[:7]}..{hwid_commit[:7]} -- \\\n' +
+          textwrap.indent(' \\\n'.join(feature_matcher_paths), '  '))
+    return textwrap.dedent(f"""\
+        {self._GetCLMessageSubject()}
+
+        From chromeos/chromeos-hwid: {hwid_commit}
+
+        This CL is driven by the following HWID repository update:
+    """) + textwrap.indent(verification_command, '  ')
+
+  def _PostUpdate(self, board: str, models: Collection[str], change_id: str,
+                  payload: _Payload):
+    self._cl_upload_manager.SetLatestPayloadHash(payload.hash_value,
+                                                 board=board)
+
+
+class HWIDSelectionPayloadManager(_BaseFeatureEnablementPayloadManager):
+  """A class managing payloads for HWID selection generated from HWID DB."""
 
   def _GeneratePayloads(self, board: str, models: Collection[str],
                         skip_model_check: bool = False) -> Optional[_Payload]:
@@ -351,40 +388,70 @@ class HWIDSelectionPayloadManager(PayloadManager):
     """See base class."""
     return config_data_module.CreateHWIDSelectionPayloadSettings(board)
 
-  def _GetCLMessage(self, board: str, models: Collection[str],
-                    payload: _Payload, hwid_commit: str,
-                    hwid_prev_commit: Optional[str]) -> str:
+  def _GetCLMessageSubject(self) -> str:
     """See base class."""
+    return 'feature-management-bsp: update payload from hwid'
 
-    generated_models = (
-        payload.metadata['models'] if 'models' in payload.metadata else models)
-    feature_matcher_paths = [
-        f'v3/{model.upper()}.feature_matcher.textproto'
-        for model in sorted(generated_models)
-    ]
-    if hwid_prev_commit is None:
-      feature_matcher_file_objects = [
-          f'{hwid_commit[:7]}:{path}' for path in feature_matcher_paths
-      ]
-      verification_command = (
-          'git show \\\n' +
-          textwrap.indent(' \\\n'.join(feature_matcher_file_objects), '  '))
-    else:
-      verification_command = (
-          f'git diff {hwid_prev_commit[:7]}..{hwid_commit[:7]} -- \\\n' +
-          textwrap.indent(' \\\n'.join(feature_matcher_paths), '  '))
-    return textwrap.dedent(f"""\
-        feature-management-bsp: update payload from hwid
 
-        From chromeos/chromeos-hwid: {hwid_commit}
+class RMADFeatureEnabledDevicesPayloadManager(
+    _BaseFeatureEnablementPayloadManager):
+  """A helper class that generates feature_enabled_devices proto for RMAD."""
 
-        This CL is driven by the following HWID repository update:
-    """) + textwrap.indent(verification_command, '  ')
+  _PAYLOAD_FILE_NAME = 'devices.textproto'
 
-  def _PostUpdate(self, board: str, models: Collection[str], change_id: str,
-                  payload: _Payload):
-    self._cl_upload_manager.SetLatestPayloadHash(payload.hash_value,
-                                                 board=board)
+  def _GeneratePayloads(self, board: str, models: Collection[str],
+                        skip_model_check: bool = False) -> Optional[_Payload]:
+    """See base class."""
+    payloads = {}
+    generated_models = []
+    for model in models:
+      try:
+        hwid_action = self._hwid_action_manager.GetHWIDAction(model)
+        feature_matcher = hwid_action.GetFeatureMatcher()
+        file_contents = (
+            feature_matcher.GenerateRMADFeatureEnabledDevicesPayload())
+        if file_contents is None:
+          continue
+        generated_models.append(model)
+        payloads[f'{model.lower()}/{self._PAYLOAD_FILE_NAME}'] = file_contents
+      except (KeyError, ValueError, RuntimeError) as ex:
+        self._logger.error('Cannot get model data: %r', ex)
+        continue
+    if not payloads:
+      return None
+    return _Payload(payloads, _JSONHash(payloads), {
+        'models': generated_models
+    })
+
+  def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
+                       repo: git_util.MemoryRepo,
+                       payloads: _Payload) -> Sequence[str]:
+    """See base class."""
+    if not repo.check_path_existence(setting.prefix):
+      return []
+
+    # Search the repository for existing files, if any is not in the `payloads`,
+    # remove them.
+    delete_files = []
+    for dir_name, unused_mode, unused_data in repo.list_files(setting.prefix):
+      payload_path_after_prefix = f'{dir_name}/{self._PAYLOAD_FILE_NAME}'
+      payload_path = f'{setting.prefix}/{payload_path_after_prefix}'
+      if not repo.check_path_existence(payload_path):
+        continue
+
+      if payload_path_after_prefix not in payloads.contents:
+        delete_files.append(payload_path)
+
+    return delete_files
+
+  def _GetCLSetting(self, board: str) -> config_data_module.CLSetting:
+    """See base class."""
+    return config_data_module.CreateRMADFeatureEnabledDevicesPayloadSettings(
+        board)
+
+  def _GetCLMessageSubject(self) -> str:
+    """See base class."""
+    return 'rmad: Update feature allowlist from HWID.'
 
 
 class VerificationPayloadManager(PayloadManager):

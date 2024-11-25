@@ -139,6 +139,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
         self.decoder_data_manager, self.vpg_targets_data_manager)
     self.hsp_manager = payload_management.HWIDSelectionPayloadManager(
         config.hsp_cl_upload_manager, self.hwid_action_manager, config_data)
+    self.rmad_payload_manager = (
+        payload_management.RMADFeatureEnabledDevicesPayloadManager(
+            config.rmad_payload_cl_upload_manager, self.hwid_action_manager,
+            config_data))
     self.vpg_config_manager = vpg_config_manager.VPGConfigManager(
         config.dlm_product_manager, config.vpg_config_cl_upload_manager,
         self.hwid_action_manager)
@@ -241,10 +245,15 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
                                             limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
                                             # yapf: enable
                                             live_hwid_repo, skip_model_check)
+    rmad_payload_hash = self._UpdatePayloads(
+        self.rmad_payload_manager, dryrun_upload, limit_models, force_update,
+        live_hwid_repo, skip_model_check)
     if force_update:
       # Reply payload hash (e2e test only).
       response.payload_hash.update(vp_payload_hash)
       response.hwid_selection_payload_hash.update(hsp_payload_hash)
+      response.rmad_feature_enabled_devices_payload_hash.update(
+          rmad_payload_hash)
     logging.info('Ingestion complete.')
     return response
 

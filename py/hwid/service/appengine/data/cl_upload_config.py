@@ -21,6 +21,7 @@ class CLType(str, enum.Enum):
   VERIFICATION_PAYLOAD = 'verification_payload'
   HWID_SELECTION_PAYLOAD = 'hwid_selection_payload'
   VPG_TARGETS = 'vpg_targets'
+  RMAD_FEATURE_ENABLED_DEVICES_PAYLOAD = 'rmad_feature_enabled_devices_payload'
 
   def __str__(self):
     return self.value
@@ -360,7 +361,9 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
 
   def __init__(self, ndb_connector: ndbc_module.NDBConnector):
     if self._cl_type not in [
-        CLType.HWID_SELECTION_PAYLOAD, CLType.VERIFICATION_PAYLOAD
+        CLType.HWID_SELECTION_PAYLOAD,
+        CLType.VERIFICATION_PAYLOAD,
+        CLType.RMAD_FEATURE_ENABLED_DEVICES_PAYLOAD,
     ]:
       raise ValueError(
           f'Invalid CL type for PayloadCLUploadManager, got: {self._cl_type}')
@@ -463,3 +466,8 @@ class VerificationPayloadCLUploadManager(PayloadCLUploadManager):
 class HWIDSelectionPayloadCLUploadManager(PayloadCLUploadManager):
   """CL upload manager for HWID selection payloads."""
   _cl_type = CLType.HWID_SELECTION_PAYLOAD
+
+
+class RMADFeatureEnabledDevicesPayloadCLUploadManager(PayloadCLUploadManager):
+  """CL upload manager for HWID selection payloads."""
+  _cl_type = CLType.RMAD_FEATURE_ENABLED_DEVICES_PAYLOAD

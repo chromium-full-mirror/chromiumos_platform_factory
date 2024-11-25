@@ -12,6 +12,7 @@ message IngestHwidDbResponse {
   string msg = 1;
   map<string, string> payload_hash = 2;
   map<string, string> hwid_selection_payload_hash = 3;
+  map<string, string> rmad_feature_enabled_devices_payload_hash = 4;
 }
 
 message IngestDevicesVariantsRequest {

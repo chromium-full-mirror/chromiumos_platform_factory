@@ -11,6 +11,7 @@ APPENGINE_DIR="${PY_PKG_DIR}/cros/factory/hwid/service/appengine"
 HW_VERIFIER_DIR="${FACTORY_DIR}/../../platform2/hardware_verifier/proto"
 RT_PROBE_DIR="${FACTORY_DIR}/../../platform2/system_api/dbus/runtime_probe"
 FEATURE_MANAGEMENT_DIR="${FACTORY_DIR}/../feature-management/proto"
+RMAD_FEATURE_ENABLED_DEVICES_DIR="${FACTORY_DIR}/../../platform2/rmad/proto"
 TEST_DIR="${APPENGINE_DIR}/test"
 PLATFORM_DIR="$(dirname ${FACTORY_DIR})"
 REGIONS_DIR="$(readlink -f "${FACTORY_DIR}/../../platform2/regions")"
@@ -140,13 +141,15 @@ prepare_protobuf() {
     -I="${HW_VERIFIER_DIR}" \
     -I="${FACTORY_PROTO_DIR}" \
     -I="${FEATURE_MANAGEMENT_DIR}" \
+    -I="${RMAD_FEATURE_ENABLED_DEVICES_DIR}" \
     --python_out="${protobuf_out}" \
     "${HW_VERIFIER_DIR}/hardware_verifier.proto" \
     "${RT_PROBE_DIR}/runtime_probe.proto" \
     "${FACTORY_PROTO_DIR}/factory_hwid_feature_requirement.proto" \
     "${FEATURE_MANAGEMENT_DIR}/device_selection.proto" \
     "${FEATURE_MANAGEMENT_DIR}/feature_management.proto" \
-    "${FEATURE_MANAGEMENT_DIR}/hwid_feature_requirement.proto"
+    "${FEATURE_MANAGEMENT_DIR}/hwid_feature_requirement.proto" \
+    "${RMAD_FEATURE_ENABLED_DEVICES_DIR}/feature_enabled_devices.proto"
 
   "${protoc}" \
     -I="${TEMP_DIR}" \

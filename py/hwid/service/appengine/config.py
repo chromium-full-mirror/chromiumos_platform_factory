@@ -41,6 +41,9 @@ class _Config:
         CloudStorage.
     hsp_cl_upload_manager: A HWIDSelectionPayloadCLUploadManager instance
         responsible for reading/writing HWID selection payload related metadata.
+    rmad_payload_cl_upload_manager: A
+        RMADFeatureEnabledDevicesPayloadCLUploadManager instance responsible for
+        reading/writing RMAD's feature enabled devices payload related metadata.
     vp_cl_upload_manager: A VerificationPayloadCLUploadManager instance
         responsible for reading/writing verification payload related metadata.
     vpg_config_cl_upload_manager: A VPGTargetsCLUploadManager instance
@@ -85,6 +88,9 @@ class _Config:
     self.dlm_product_manager = dlm_product_data.DLMProductManager(ndb_connector)
     self.hsp_cl_upload_manager = (
         cl_upload_config.HWIDSelectionPayloadCLUploadManager(ndb_connector))
+    self.rmad_payload_cl_upload_manager = (
+        cl_upload_config.RMADFeatureEnabledDevicesPayloadCLUploadManager(
+            ndb_connector))
     self.vp_cl_upload_manager = (
         cl_upload_config.VerificationPayloadCLUploadManager(ndb_connector))
     self.vpg_config_cl_upload_manager = (

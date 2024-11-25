@@ -574,6 +574,24 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
             }
             """))
 
+  def testConvertedHWIDFeatureMatcher_GenerateRMADPayload_Success(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    brand_allowed_feature_enablement_types = {
+        'ABCD': [_FeatureEnablementType.HARD_BRANDED],
+    }
+    hwid_requirement_candidates = []
+
+    source = self._builder.GenerateFeatureMatcherRawSource(
+        feature_version, brand_allowed_feature_enablement_types,
+        hwid_requirement_candidates)
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
+
+    actual = matcher.GenerateRMADFeatureEnabledDevicesPayload()
+    self.assertIsNotNone(actual)
+    self.assertEqual(actual, 'devices: "ABCD"\n')
+
   def testConvertedHWIDFeatureMatcher_GenerateLegacyPayload_NoLegacyBrands(
       self):
     feature_version = 1

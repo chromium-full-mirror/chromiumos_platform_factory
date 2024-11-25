@@ -112,6 +112,26 @@ def CreateHWIDSelectionPayloadSettings(board: str) -> CLSetting:
                    hashtags=[f'hwid-selection-payload-{board.lower()}'])
 
 
+def CreateRMADFeatureEnabledDevicesPayloadSettings(board: str) -> CLSetting:
+  """Create a repo setting of rmad's feature enabled devices payload.
+
+  Args:
+    board: The board name
+
+  Returns:
+    A CLSetting instance with corresponding settings.
+  """
+  board = board.lower()
+  cl_topic = 'rmad-feature-enabled-devices-automated-sync'
+  return CLSetting(review_host=hwid_repo.INTERNAL_REPO_REVIEW_URL,
+                   repo_host=hwid_repo.INTERNAL_REPO_URL,
+                   project=f'chromeos/overlays/overlay-{board}-private',
+                   prefix=f'chromeos-base/rmad-config-{board}/files/rmad',
+                   branch=None, topic=cl_topic, hashtags=[
+                       f'rmad-feature-enabled-devices-{board}'
+                   ])
+
+
 def CreateVPGTargetsSettings() -> CLSetting:
   """Create a repo setting of verification payload generator configuration file.
 

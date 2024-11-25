@@ -30,6 +30,9 @@ def _CreateMockConfig(fake_modules: test_utils.FakeModuleCollection):
       cl_upload_config.VerificationPayloadCLUploadManager, instance=True)
   mock_config.hsp_cl_upload_manager = mock.create_autospec(
       cl_upload_config.HWIDSelectionPayloadCLUploadManager, instance=True)
+  mock_config.rmad_payload_cl_upload_manager = mock.create_autospec(
+      cl_upload_config.RMADFeatureEnabledDevicesPayloadCLUploadManager,
+      instance=True)
   mock_config.hwid_db_data_manager = mock.create_autospec(
       hwid_db_data.HWIDDBDataManager, instance=True)
   mock_config.decoder_data_manager = fake_modules.fake_decoder_data_manager

@@ -12,6 +12,7 @@ from typing import Collection, Iterable, Mapping, MutableMapping, NamedTuple, Op
 
 import device_selection_pb2  # pylint: disable=import-error
 import factory_hwid_feature_requirement_pb2  # pylint: disable=import-error
+import feature_enabled_devices_pb2  # pylint: disable=import-error
 import feature_management_pb2  # pylint: disable=import-error
 from google.protobuf import text_format
 import hwid_feature_requirement_pb2  # pylint: disable=import-error
@@ -46,6 +47,7 @@ class _FeatureManagementFlagHWIDSpec(features.HWIDSpec):
 
   def __init__(self, target_flag_field: _FeatureManagementFlagField,
                target_value: str):
+    super().__init__()
     self._target_flag_field = target_flag_field
     self._target_value = target_value
 
@@ -132,6 +134,10 @@ class HWIDFeatureMatcher(abc.ABC):
   def GenerateLegacyTestData(
       self) -> Sequence[device_selection_pb2.DeviceSelectionSample]:
     """Generates the feature requirement test data for feature management."""
+
+  @abc.abstractmethod
+  def GenerateRMADFeatureEnabledDevicesPayload(self) -> Optional[str]:
+    """Generates the RMA feature enabled devices payload, or `None` if empty."""
 
   @abc.abstractmethod
   def Match(self, hwid_string: str) -> FeatureEnablementStatus:
@@ -260,6 +266,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
       db: The HWID DB instance.
       spec: A `feature_match_pb2.DeviceFeatureSpec` message.
     """
+    super().__init__()
     self._db = db
     self._spec = spec
     # TODO(yhong): Stop migrating from the old data format once the migration
@@ -473,6 +480,18 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     payload_msg.sample_hwids.sort()
     return [payload_msg] if payload_msg.sample_hwids else []
 
+  def GenerateRMADFeatureEnabledDevicesPayload(self) -> Optional[str]:
+    """See base class."""
+    brand_codes = [
+        brand_code
+        for brand_code, p in self._spec.brand_code_permissions.items()
+        if p.allow_hard_branded_units
+    ]
+    if not brand_codes:
+      return None
+    msg = feature_enabled_devices_pb2.FeatureEnabledDevices(
+        devices=sorted(brand_codes))
+    return text_format.MessageToString(msg)
 
   def _BuildFeatureManagementFlagChecker(
       self, target_field: _FeatureManagementFlagField
