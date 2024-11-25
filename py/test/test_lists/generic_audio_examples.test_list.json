@@ -31,9 +31,6 @@
       "subtests": [
         "ProbeAudioCodec",
         "ScanAudioCardName",
-        "AudioJackConformance",
-        "AudioJack",
-        "DSMCalibration",
         "SpeakerDMicConformance",
         "SpeakerDMic",
         "SpeakerDMic2",
@@ -41,11 +38,14 @@
         "SpeakerChannel0DMic",
         "SpeakerDMicNoiseTest",
         "SpeakerDMicSineWaveTest",
-        "AudioDiagnostic",
-        "SpeakerDMicManual",
         "SpeakerManual",
+        "SpeakerDMicManual",
         "HeadphoneManual",
-        "AudioQuality"
+        "AudioQuality",
+        "AudioJackConformance",
+        "AudioJack",
+        "AudioDiagnostic",
+        "DSMCalibration"
       ]
     },
     "DSMCalibration": {
@@ -70,11 +70,12 @@
       }
     },
     "ScanAudioCardName": {
-      "pytest_name": "scan",
+      "pytest_name": "exec_shell",
       "label": "Scan Audio Card Name",
       "args": {
-        "device_data_key": "component.audio_card_name",
-        "label": "Audio Card Name"
+        "commands": [
+          "audio_card_name=$(aplay -l | awk -F'[][]' '/card/ && /device 0/{print $2; exit}') && factory device-data component.audio_card_name=$audio_card_name"
+        ]
       }
     },
     "SpeakerChannel0DMic": {

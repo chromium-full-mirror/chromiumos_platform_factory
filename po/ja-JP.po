@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-26 08:01+UTC\n"
+"PO-Revision-Date: 2024-11-28 03:38+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3495,10 +3495,6 @@ msgstr "スピーカー/マイク適合性"
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Headphone Manual Test"
 msgstr "ヘッドホン手動テスト"
-
-#: ../py/test/test_lists/generic_audio_examples.test_list.json
-msgid "Audio Card Name"
-msgstr "オーディオカード名"
 
 #: ../py/test/test_lists/generic_audio_examples.test_list.json
 msgid "Scan Audio Card Name"
