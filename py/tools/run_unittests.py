@@ -245,7 +245,7 @@ class RunTests:
 
     def AbortHandler(sig, frame):
       del sig, frame  # Unused.
-      if not self._abort_event.isSet():
+      if not self._abort_event.is_set():
         print('\033[1;33mGot ctrl-c, gracefully shutdown.\033[22;0m')
       else:
         print('\033[1;33mTerminating runner and all subprocess...\033[22;0m')
@@ -414,7 +414,7 @@ class RunTests:
     """
     self._ShowRunningTest()
     while len(self._running_proc) >= threshold:
-      if self._abort_event.isSet():
+      if self._abort_event.is_set():
         # Ctrl-c got, cleanup and exit.
         self._TerminateAndCleanupAll()
 
