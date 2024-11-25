@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 11:53+CST\n"
+"PO-Revision-Date: 2024-11-25 12:36+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -3536,7 +3536,7 @@ msgid "Battery Capacity"
 msgstr ""
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
-msgid "Battery Capacity Between 4000 And 5000"
+msgid "Battery Capacity Between 4000 And 8000"
 msgstr ""
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
@@ -3564,7 +3564,7 @@ msgid "USB TypeC"
 msgstr ""
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
-msgid "Charger 15V In Port 0"
+msgid "Charger 20V In Port 0"
 msgstr ""
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json

@@ -69,12 +69,12 @@ between charge and discharge:
 
   generic_battery_examples:BatteryTests.ChargeDischargeCurrentDifference
 
-To check that a 15V USB type C power adapter is connected to port 0, add this
+To check that a 20V USB type C power adapter is connected to port 0, add this
 in test list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryTests.Charger15VInPort0
+  generic_battery_examples:BatteryTests.Charger20VInPort0
 
 """
 

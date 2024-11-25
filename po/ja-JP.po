@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-07 11:53+CST\n"
+"PO-Revision-Date: 2024-11-25 12:36+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3561,8 +3561,8 @@ msgid "Battery Capacity"
 msgstr "バッテリー容量"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
-msgid "Battery Capacity Between 4000 And 5000"
-msgstr "バッテリー容量 4000 から 5000 の間"
+msgid "Battery Capacity Between 4000 And 8000"
+msgstr "バッテリー容量 4000 から 8000 の間"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Blocking Charge 10 Percent More In 5 Minutes"
@@ -3589,8 +3589,8 @@ msgid "USB TypeC"
 msgstr "USB Type-C"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
-msgid "Charger 15V In Port 0"
-msgstr "ポート0の充電器15V"
+msgid "Charger 20V In Port 0"
+msgstr "ポート0の充電器20V"
 
 #: ../py/test/test_lists/generic_battery_examples.test_list.json
 msgid "Generic Battery Factory tests"

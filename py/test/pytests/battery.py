@@ -29,18 +29,18 @@ add this in test list:
 
   generic_battery_examples:BatteryTests.BatteryCapacity
 
-To check if the battery design capacity lies in [4000, 5000], add this in test
+To check if the battery design capacity lies in [4000, 8000], add this in test
 list:
 
 .. test_list::
 
-  generic_battery_examples:BatteryTests.BatteryCapacityBetween4000And5000
+  generic_battery_examples:BatteryTests.BatteryCapacityBetween4000And8000
 
 """
 
 import logging
-import unittest
 from typing import List
+import unittest
 
 from cros.factory.device import device_utils
 from cros.factory.test import test_tags

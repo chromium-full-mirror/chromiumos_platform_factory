@@ -27,13 +27,13 @@
       "inherit": "Battery",
       "label": "Battery Capacity"
     },
-    "BatteryCapacityBetween4000And5000": {
+    "BatteryCapacityBetween4000And8000": {
       "inherit": "Battery",
-      "label": "Battery Capacity Between 4000 And 5000",
+      "label": "Battery Capacity Between 4000 And 8000",
       "args": {
         "design_capacity_range": [
           4000,
-          5000
+          8000
         ]
       }
     },
@@ -47,22 +47,23 @@
       "inherit": "TestGroup",
       "subtests": [
         "ProbeBattery",
-        "BatteryBasic",
-        "BatteryBasicCycleCountAtMost5",
         "BatteryCapacity",
-        "BatteryCapacityBetween4000And5000",
-        "BatteryCycle",
+        "BatteryCapacityBetween4000And8000",
         "BatterySysfs",
-        "BlockingCharge",
-        "BlockingChargeToCutOffSetting",
-        "BlockingChargeTo75",
-        "BlockingCharge10PercentMoreIn5Minutes",
-        "BCICGroup",
         "ChargeDischargeCurrent",
         "ChargeDischargeCurrentExpectNoChargeWhenCharging",
         "ChargeDischargeCurrentDifference",
-        "Charger15VInPort0",
-        "Charger"
+        "Charger20VInPort0",
+        "BatteryBasic",
+        "BatteryBasicCycleCountAtMost5",
+        "ChargerTypeDetection",
+        "BlockingChargeToCutOffSetting",
+        "BlockingCharge10PercentMoreIn5Minutes",
+        "BlockingChargeTo75",
+        "Charger",
+        "BlockingCharge",
+        "BatteryCycle",
+        "BCICGroup"
       ]
     },
     "BlockingCharge10PercentMoreIn5Minutes": {
@@ -117,14 +118,14 @@
         "spec_list": []
       }
     },
-    "Charger15VInPort0": {
+    "Charger20VInPort0": {
       "pytest_name": "battery_current",
-      "label": "Charger 15V In Port 0",
+      "label": "Charger 20V In Port 0",
       "args": {
         "usbpd_info": [
           0,
-          14500,
-          15500
+          19000,
+          21000
         ],
         "usbpd_prompt": "i18n! USB TypeC"
       }
