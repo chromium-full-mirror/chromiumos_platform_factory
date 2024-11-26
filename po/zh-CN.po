@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-25 12:36+UTC\n"
+"PO-Revision-Date: 2024-11-26 08:01+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -3608,8 +3608,36 @@ msgid "Front Camera Stress"
 msgstr "前相机压力"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Probe One Camera"
+msgstr "侦测一个相机"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Probe Two Cameras"
+msgstr "侦测两个相机"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Rear Camera Manual OpenCV"
 msgstr "手动后相机测试 OpenCV"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Rear Camera Stress"
+msgstr "前相机压力"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Set Has Front Camera"
+msgstr "设置前相机存在"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Set Has Rear Camera"
+msgstr "设置后相机存在"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Unset Has Front Camera"
+msgstr "取消设置前相机存在"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Unset Has Rear Camera"
+msgstr "取消设置后相机存在"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Generic Camera Factory tests"

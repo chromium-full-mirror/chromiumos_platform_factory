@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-25 12:36+UTC\n"
+"PO-Revision-Date: 2024-11-26 08:01+UTC\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -3693,8 +3693,36 @@ msgid "Front Camera Stress"
 msgstr "フロントカメラストレステスト"
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Probe One Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Probe Two Cameras"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Rear Camera Manual OpenCV"
 msgstr "リアカメラ手動OpenCV"
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Rear Camera Stress"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Set Has Front Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Set Has Rear Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Unset Has Front Camera"
+msgstr ""
+
+#: ../py/test/test_lists/generic_camera_examples.test_list.json
+msgid "Unset Has Rear Camera"
+msgstr ""
 
 #: ../py/test/test_lists/generic_camera_examples.test_list.json
 msgid "Generic Camera Factory tests"

@@ -11,27 +11,33 @@
     "CameraTests": {
       "inherit": "TestGroup",
       "subtests": [
-        "ProbeCamera",
-        "FrontCameraAssemble",
-        "FrontCameraAssembleQR",
+        "SetHasFrontCamera",
+        "SetHasRearCamera",
+        "ProbeOneCamera",
         "FrontCameraFace",
         "FrontCameraLED",
         "FrontCameraManual",
         "FrontCameraManualOpenCV",
         "FrontCameraQRScan",
-        "RearCameraAssemble",
-        "RearCameraAssembleQR",
+        "FrontCameraQRScan1920x1080",
+        "FrontCameraStress",
+        "FrontCameraFrames",
+        "FrontCameraAssemble",
+        "FrontCameraAssembleQR",
+        "FrontCameraAssemble07",
+        "FrontCameraBrightness",
+        "CameraNoCharacteristics",
+        "ProbeTwoCameras",
         "RearCameraFace",
         "RearCameraLED",
         "RearCameraManual",
         "RearCameraManualOpenCV",
         "RearCameraQRScan",
-        "CameraNoCharacteristics",
-        "FrontCameraAssemble07",
-        "FrontCameraQRScan1920x1080",
-        "FrontCameraStress",
-        "FrontCameraFrames",
-        "FrontCameraBrightness"
+        "RearCameraAssemble",
+        "RearCameraAssembleQR",
+        "RearCameraStress",
+        "UnsetHasFrontCamera",
+        "UnsetHasRearCamera"
       ]
     },
     "FrontCameraAssemble07": {
@@ -71,6 +77,12 @@
         "e2e_mode": false
       }
     },
+    "FrontCameraQRScan": {
+      "inherit": "FrontCamera",
+      "args": {
+        "QR_string": "Hello ChromeOS!"
+      }
+    },
     "FrontCameraQRScan1920x1080": {
       "inherit": "FrontCameraQRScan",
       "label": "Front Camera QR Scan 1920x1080",
@@ -92,11 +104,92 @@
         "show_image": false
       }
     },
+    "ProbeOneCamera": {
+      "inherit": "ProbeCamera",
+      "label": "Probe One Camera",
+      "args": {
+        "overridden_rules": [
+          [
+            "camera",
+            "==",
+            1
+          ]
+        ]
+      }
+    },
+    "ProbeTwoCameras": {
+      "inherit": "ProbeCamera",
+      "label": "Probe Two Cameras",
+      "args": {
+        "overridden_rules": [
+          [
+            "camera",
+            "==",
+            2
+          ]
+        ]
+      }
+    },
     "RearCameraManualOpenCV": {
       "inherit": "RearCameraManual",
       "label": "Rear Camera Manual OpenCV",
       "args": {
         "e2e_mode": false
+      }
+    },
+    "RearCameraQRScan": {
+      "inherit": "RearCamera",
+      "args": {
+        "QR_string": "Hello ChromeOS!"
+      }
+    },
+    "RearCameraStress": {
+      "inherit": "RearCamera",
+      "label": "Rear Camera Stress",
+      "args": {
+        "mode": "timeout",
+        "timeout_secs": 1000,
+        "show_image": false
+      }
+    },
+    "SetHasFrontCamera": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Front Camera",
+      "related_components": [
+        "test_tags.TestCategory.Camera"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_front_camera=1"
+      }
+    },
+    "SetHasRearCamera": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Rear Camera",
+      "related_components": [
+        "test_tags.TestCategory.Camera"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_rear_camera=1"
+      }
+    },
+    "UnsetHasFrontCamera": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Front Camera",
+      "related_components": [
+        "test_tags.TestCategory.Camera"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_front_camera=0"
+      }
+    },
+    "UnsetHasRearCamera": {
+      "pytest_name": "exec_shell",
+      "label": "Unset Has Rear Camera",
+      "related_components": [
+        "test_tags.TestCategory.Camera"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_rear_camera=0"
       }
     }
   },
