@@ -46,14 +46,14 @@
         "BacklightSmallerAdjustLevel",
         "BrightnessLCDBacklight",
         "Display",
-        "DisplayGrayForAnHour",
-        "EnterFrontOfScreenTestInteractiveMode",
-        "FrontOfScreenTestSymptom",
-        "FrontOfScreenTestMoreImages",
-        "FrontOfScreenTestStation",
         "DisplayPoint",
         "EDPPanelTiming",
-        "PrivacyScreen"
+        "PrivacyScreen",
+        "FrontOfScreenTestSymptom",
+        "FrontOfScreenTestMoreImages",
+        "DisplayGrayForAnHour",
+        "EnterFrontOfScreenTestInteractiveMode",
+        "FrontOfScreenTestStation"
       ]
     },
     "EnterFrontOfScreenTestInteractiveMode": {
