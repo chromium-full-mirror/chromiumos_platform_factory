@@ -4,6 +4,10 @@
 # found in the LICENSE file.
 """A script for installing an apk as a priv-app.
 
+In this script, we have two users, 0 (system user) and 10 (owner). To learn more
+about the difference, check
+https://source.android.com/docs/automotive/users_accounts/multi_user
+
 Dependencies:
 1. adb
 2. aapt
@@ -67,11 +71,17 @@ def Run(
 class InstallAsPrivAppArgs:
   apk_path: pathlib.Path
   dir_app_name: str
+  dpc_enabled: bool
+  dpc_receiver_name: str
   skip_factory_settings: bool
   target: Optional[str] = None
   package_name: str = ''
   permission_path: pathlib.Path = pathlib.Path()
   uninstall_previous: bool = False
+
+  @property
+  def dpc_admin(self):
+    return f'{self.package_name}/{self.dpc_receiver_name}'
 
   @property
   def adb(self):
@@ -92,6 +102,11 @@ def MakeParser():
                       help='The apk name on the device.')
   parser.add_argument('--uninstall_previous', action='store_true',
                       help='Uninstall the app before deployment.')
+  parser.add_argument('--dpc_enabled', action='store_true',
+                      help='If set, makes the install app the device owner.')
+  parser.add_argument('--dpc_receiver_name', type=str,
+                      default='.FactoryDeviceAdminReceiver',
+                      help='The receiver of the device owner app.')
   parser.add_argument(
       '--skip_factory_settings', action='store_true',
       help=('If set, skip factory settings. Factory settings include stay on '
@@ -129,22 +144,40 @@ def UnInstallPreviousForUser(args: InstallAsPrivAppArgs, userId: int):
     Run(args.adb + ['uninstall', '--user', str(userId), args.package_name])
 
 
-def GetCanSwitchToHeadlessSystemUser(args: InstallAsPrivAppArgs):
-  result = Run(
-      args.adb + ['shell', 'cmd', 'user', 'can-switch-to-headless-system-user'],
-      stdout=subprocess.PIPE)
-  return 'true' in result.stdout
+def SwitchUser(args: InstallAsPrivAppArgs, user: int):
+  """Switch user to expected state.
+
+  After reboot/first boot, the running foreground user is usually user 0 and the
+  system UI will wait for a user to login.
+
+  We want to automatically login and let the app run by user 10.
+  """
+  Run(args.adb + ['shell', 'am', 'switch-user', str(user)])
+
+
+def DeprovisionDPC(args: InstallAsPrivAppArgs):
+  """Deprovision DPC before installation.
+
+  With dpc enabled, we cannot uninstall/re-install the device owner app without
+  deprovision first.
+
+  Do this even if args.dpc_enabled is False since the app might be provisioned
+  by a previous command with args.dpc_enabled==True.
+  """
+  if not args.dpc_receiver_name:
+    return
+  for user in (10, 0):
+    result = Run(
+        args.adb + [
+            'shell', 'dpm', 'remove-active-admin', '--user',
+            str(user), args.dpc_admin
+        ], check=False)
+    if result.returncode == 0:
+      time.sleep(3.0)
 
 
 def UnInstallPrevious(args: InstallAsPrivAppArgs):
-  """Uninstall previous package.
-
-  We have two users, 0 (system user) and 10 (owner). Reference:
-  https://source.android.com/docs/automotive/users_accounts/multi_user
-
-  May need to modify the code to uninstall for all users or a specific user
-  later.
-  """
+  """Uninstall previous package."""
   if not args.uninstall_previous:
     return
   for user in (10, 0):
@@ -233,7 +266,11 @@ def SetFactorySettings(args: InstallAsPrivAppArgs):
 
 
 def LaunchApp(args: InstallAsPrivAppArgs):
-  Run(args.adb + ['shell', 'am', 'start', args.package_name])
+  if args.dpc_enabled:
+    Run(args.adb +
+        ['shell', 'dpm', 'set-device-owner', '--user', '0', args.dpc_admin])
+  else:
+    Run(args.adb + ['shell', 'am', 'start', args.package_name])
 
 
 def DoMain(argv: List[str]):
@@ -250,9 +287,13 @@ def DoMain(argv: List[str]):
   GeneratePermissionFile(args, apk_info)
   if args.target is not None:
     Run(['adb', 'connect', args.target])
+  SwitchUser(args, 10)
+  DeprovisionDPC(args)
   UnInstallPrevious(args)
   Install(args)
   SetFactorySettings(args)
+  # Reboot may switch us back to user 0.
+  SwitchUser(args, 10)
   LaunchApp(args)
 
 
