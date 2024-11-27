@@ -138,11 +138,6 @@
       }
     }
   },
-  "tcpc": {
-    "generic": {
-      "eval": "tcpc"
-    }
-  },
   "touchpad": {
     "generic": {
       "eval": {
