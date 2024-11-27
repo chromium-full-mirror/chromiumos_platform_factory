@@ -58,12 +58,11 @@ class UmpireDUTCommandsServicer(
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
         self.CLI_command.ExportPayload(
             bundle_id, resource.PayloadTypes.toolkit.name, f.name)
-        process_utils.CheckCall(['adb', 'connect', target], log=True,
-                                log_stderr_on_error=True)
-        process_utils.CheckCall(['adb', '-s', target, 'root'], log=True,
-                                log_stderr_on_error=True)
-        process_utils.CheckCall(['adb', '-s', target, 'install', '-t', f.name],
-                                log=True, log_stderr_on_error=True)
+        cmd = [
+            '/usr/local/factory/py/tools/install_as_priv_app.py', f.name,
+            '--target', target
+        ]
+        process_utils.CheckCall(cmd, log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
           success=False, messages=str(err))
