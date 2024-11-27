@@ -101,6 +101,11 @@ RUN yes | sdkmanager "platform-tools"
 ENV PATH="$PATH:$ANDROID_HOME/platform-tools"
 RUN adb version
 
+# Install build-tools
+RUN yes | sdkmanager "build-tools;35.0.0"
+ENV PATH="$PATH:$ANDROID_HOME/build-tools/35.0.0"
+RUN aapt version
+
 # pixz and lbzip2 are not available in alpine.
 ADD build/docker/pixz.tbz2 /usr/bin
 ADD build/docker/lbzip2.tbz2 /usr/bin
