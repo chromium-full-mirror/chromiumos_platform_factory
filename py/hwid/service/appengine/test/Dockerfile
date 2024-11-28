@@ -19,7 +19,7 @@ RUN cd "${workdir}" && \
 
 ADD requirements.txt "${workdir}/requirements.txt"
 
-RUN pip install \
+RUN pip install --require-hashes \
       --target "${workdir}"/lib \
       --requirement "${workdir}"/requirements.txt
 
