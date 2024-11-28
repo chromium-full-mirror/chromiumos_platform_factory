@@ -23,7 +23,6 @@ from cros.factory.probe_info_service.app_engine import protorpc_utils
 
 GOLDENEYE_MEMCACHE_NAMESPACE = 'SourceGoldenEye'
 
-
 _HWIDIngestionProtoRPCShardBase = protorpc_utils.CreateProtoRPCServiceShardBase(
     'HwidIngestionProtoRPCShardBase',
     ingestion_pb2.DESCRIPTOR.services_by_name['HwidIngestion'])
@@ -99,9 +98,7 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
     logging.info('Got %d AVL names from HWID API.', len(avl_name_mapping))
     touched_cids = self.decoder_data_manager.SyncAVLNameMapping(
         avl_name_mapping)
-    # yapf: disable
-    affected_projs = set()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    affected_projs: set[str] = set()
     for touched_cid in touched_cids:
       affected_projs.update(cid_proj_mapping[touched_cid])
 
@@ -148,12 +145,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
         self.hwid_action_manager)
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
-                      dryrun: bool, limit_models: bool, force_update: bool,
-                      live_hwid_repo: hwid_repo.HWIDRepo,
+                      dryrun: bool, limit_models: Collection[str],
+                      force_update: bool, live_hwid_repo: hwid_repo.HWIDRepo,
                       skip_model_check: bool = False) -> Mapping[str, str]:
-    # yapf: disable
-    board_result = payload_manager.Update(dryrun, limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    board_result = payload_manager.Update(dryrun, limit_models, force_update,
                                           live_hwid_repo, skip_model_check)
     change_ids = {
         board: result.change_id
@@ -236,14 +231,10 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     response = ingestion_pb2.IngestHwidDbResponse()
     force_update = do_limit
     vp_payload_hash = self._UpdatePayloads(self.vp_manager, dryrun_upload,
-                                           # yapf: disable
-                                           limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                           # yapf: enable
+                                           limit_models, force_update,
                                            live_hwid_repo, skip_model_check)
     hsp_payload_hash = self._UpdatePayloads(self.hsp_manager, dryrun_upload,
-                                            # yapf: disable
-                                            limit_models, force_update,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                            # yapf: enable
+                                            limit_models, force_update,
                                             live_hwid_repo, skip_model_check)
     rmad_payload_hash = self._UpdatePayloads(
         self.rmad_payload_manager, dryrun_upload, limit_models, force_update,
