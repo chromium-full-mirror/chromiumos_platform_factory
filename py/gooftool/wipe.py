@@ -722,7 +722,13 @@ def _InformShopfloor(factory_server_url: str):
 
 def _Cutoff():
   logging.debug('cutoff')
-  process_utils.Spawn(['factory_installer', 'battery-cutoff'], check_call=True)
+  # TODO(huanhuanl) b/380194413, ODMs can temporarily use the legacy cutoff
+  # script to meet their requirements until the factory_installer supports
+  # customization. This temporary change will be removed once the
+  # factory_installer is ready.
+  logging.debug('Using the legacy cutoff script.')
+  cutoff_script = os.path.join(CUTOFF_SCRIPT_DIR, 'cutoff.sh')
+  process_utils.Spawn([cutoff_script], check_call=True)
 
 
 def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
