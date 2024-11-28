@@ -17,6 +17,19 @@ RUN cd "${workdir}" && \
     --quiet && \
   rm "${gcloud_archive_name}"
 
+# When preparing resources to build this docker image, `cros_hwid_service.sh`
+# leverages hard-link to boost the process.  However, using hard-link has a
+# side-effect that docker occasionally fails to detect file changes and uses
+# its cached file contents when `ADD`-ing resources
+# (ref: https://github.com/moby/moby/issues/42718).  To force docker
+# invalidate the cache when the resources have changed, `cros_hwid_service.sh`
+# feeds the checksum of all the resource folder to the build-arg `src_version`,
+# which makes the following instruction looks differently whenever there are
+# changes, and hence instructions afterward cannot leverage caches.
+# (ref: https://docs.docker.com/build/cache/).
+ARG src_version
+RUN echo "${src_version}"
+
 ADD requirements.txt "${workdir}/requirements.txt"
 
 RUN pip install --require-hashes \

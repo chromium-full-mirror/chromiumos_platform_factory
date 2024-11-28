@@ -329,9 +329,14 @@ do_build() {
 
   do_make_build_folder
 
+  local src_version
+  src_version="$(
+      tar c --sort=name --mtime="1970-01-01" "${TEMP_DIR}" | sha1sum)"
+
   ${DOCKER} build \
     --file "${dockerfile}" \
     --tag "${DOCKER_TAG}" \
+    --build-arg "src_version=${src_version}" \
     "${TEMP_DIR}"
 }
 
