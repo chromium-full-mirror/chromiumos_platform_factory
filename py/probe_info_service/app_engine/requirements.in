@@ -11,13 +11,13 @@ google-cloud-datastore==2.7.1
 google-cloud-logging==3.1.2
 
 # License: MIT
-gunicorn==20.0.4
+gunicorn==21.1.0
 
 # 3-Clause BSD License
 protobuf==3.19.0
 
 # License: MIT
-PyYAML==5.3.1
+PyYAML==6.0.1
 
 # License: MIT
 urllib3==1.26.9
