@@ -1940,18 +1940,19 @@ class ChromeOSFactoryBundle:
       total_size = 0
       part = Partition(dev, PART_CROS_ROOTFS_A)
       with part.MountAsCrOSRootfs() as rootfs:
-        manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
+        manifests_dir = os.path.join('opt', 'google', 'dlc')
         if os.path.exists(os.path.join(rootfs, manifests_dir)):
-          dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
           dlc_ids_str = Sudo([
-              dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
-              '--list', '--factory_install'
+              'chroot', rootfs, 'dlc_metadata_util',
+              f'--metadata_dir={os.path.join(os.sep, manifests_dir)}', '--list',
+              '--factory_install'
           ], output=True)
           logging.info('Image contains factory installed DLCs %s', dlc_ids_str)
           dlc_ids = json.loads(dlc_ids_str)
           for dlc_id in dlc_ids:
             metadata = Sudo([
-                dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
+                'chroot', rootfs, 'dlc_metadata_util',
+                f'--metadata_dir={os.path.join(os.sep, manifests_dir)}',
                 '--get', f'--id={dlc_id}'
             ], output=True)
             # We need to preserve `2 * preallocated size`.
