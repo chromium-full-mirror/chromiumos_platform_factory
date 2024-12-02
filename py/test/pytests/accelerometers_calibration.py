@@ -55,6 +55,7 @@ To run horizontal calibration on lid accelerometer:
 """
 
 import enum
+from typing import Dict, List, Union
 
 from cros.factory.device import accelerometer
 from cros.factory.device import device_utils
@@ -64,13 +65,40 @@ from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 
 
+class CalibrationMethod(str, enum.Enum):
+  horizontal = 'horizontal'
+
+  def __str__(self):
+    return self.value
+
+
+class SensorLocation(str, enum.Enum):
+  base = 'base'
+  lid = 'lid'
+
+  def __str__(self):
+    return self.value
+
+
+class AccelerometersCalibrationArgs:
+  calibration_method: CalibrationMethod
+  orientation: Dict[str, Union[int, List[int]]]
+  sample_rate_hz: int
+  capture_count: int
+  setup_time_secs: int
+  spec_offset: List[float]
+  autostart: bool
+  location: SensorLocation
+  variance_threshold: float
+
+
 class AccelerometersCalibration(test_case.TestCase):
 
   related_components = (test_case.TestCategory.ACCELEROMETER, )
   ARGS = [
       # TODO(bowgotsai): add six-sided calibration.
       Arg(
-          'calibration_method', enum.Enum('CalibrationMethod', ['horizontal']),
+          'calibration_method', CalibrationMethod,
           'Currently there is only one calibration method available: '
           'horizontal calibration.', default='horizontal'),
       Arg(
@@ -109,91 +137,63 @@ class AccelerometersCalibration(test_case.TestCase):
           'the digital output of sensors under 0 and 1G.'),
       Arg('autostart', bool, 'Starts the test automatically without prompting.',
           default=False),
-      Arg('location', enum.Enum('location', ['base', 'lid']),
-          'The location for the accelerometer', default='base'),
+      Arg('location', SensorLocation, 'The location for the accelerometer',
+          default='base'),
       Arg(
           'variance_threshold', float, 'The variance of capture data can not be'
           'larger than the threshold.', default=5.0),
   ]
+  args: AccelerometersCalibrationArgs
+  ui: test_ui.StandardUI
 
   def setUp(self):
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
+    self.ui.ToggleTemplateClass('font-large', True)
     self.dut = device_utils.CreateDUTInterface()
     # Checks arguments.
-    # yapf: disable
-    self.assertEqual(2, len(self.args.spec_offset))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
+    self.assertEqual(2, len(self.args.spec_offset))
     self.accelerometer_controller = (
-        # yapf: disable
-        self.dut.accelerometer.GetController(self.args.location))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        self.dut.accelerometer.GetController(self.args.location))
 
   def runTest(self):
-    # yapf: disable
-    if self.args.calibration_method == 'horizontal':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.calibration_method == 'horizontal':
       self.HorizontalCalibration()
     else:
       raise NotImplementedError
 
   def HorizontalCalibration(self):
     """Prompt for space, waits a period of time and then starts calibration."""
-    # yapf: disable
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not self.args.autostart:
+      self.ui.SetState(
           _('Please put device on a horizontal plane then press space to '
             'start calibration.'))
-      # yapf: disable
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
     else:
-      # yapf: disable
-      self.ui.SetState(_('Please put device on a horizontal plane.'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Please put device on a horizontal plane.'))
       self.Sleep(1)
 
     # Waits for a few seconds to let machine become stable.
-    # yapf: disable
-    for i in range(self.args.setup_time_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-          _('Calibration will be started within {time} seconds.'
-            'Please do not move device.',
-            # yapf: disable
-            time=self.args.setup_time_secs - i))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for i in range(self.args.setup_time_secs):
+      self.ui.SetState(
+          _(
+              'Calibration will be started within {time} seconds.'
+              'Please do not move device.', time=self.args.setup_time_secs - i))
       self.Sleep(1)
 
     # Cleanup offsets before calibration
     self.accelerometer_controller.CleanUpCalibrationValues()
 
     # Starts calibration.
-    # yapf: disable
-    self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(
         _('Calibration is in progress, please do not move device.'))
     try:
-      # yapf: disable
-      raw_data = self.accelerometer_controller.GetData(self.args.capture_count,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      raw_data = self.accelerometer_controller.GetData(self.args.capture_count,
                                                        average=False)
     except accelerometer.AccelerometerException:
       self.FailTask('Read raw data failed.')
 
     # Check the variance of raw_data
     if self.accelerometer_controller.IsVarianceOutOfRange(
-        # yapf: disable
-        raw_data, self.args.variance_threshold):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+        raw_data, self.args.variance_threshold):
       self.FailTask('Variance out of range, the accelerometers may be damaged.')
 
     # Calculate average value of raw_data
@@ -202,13 +202,9 @@ class AccelerometersCalibration(test_case.TestCase):
 
     # Checks accelerometer is normal or not before calibration.
     if not self.accelerometer_controller.IsWithinOffsetRange(
-        # yapf: disable
-        raw_data, self.args.orientation, self.args.spec_offset):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+        raw_data, self.args.orientation, self.args.spec_offset):
       self.FailTask('Raw data out of range, the accelerometers may be damaged.')
 
     calib_bias = self.accelerometer_controller.CalculateCalibrationBias(
-        # yapf: disable
-        raw_data, self.args.orientation)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        raw_data, self.args.orientation)
     self.accelerometer_controller.UpdateCalibrationBias(calib_bias)

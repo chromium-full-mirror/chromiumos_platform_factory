@@ -34,6 +34,7 @@ Usage examples:
 import logging
 import math
 import threading
+from typing import TYPE_CHECKING, List
 
 from cros.factory.device import accelerometer
 from cros.factory.device import device_utils
@@ -42,7 +43,19 @@ from cros.factory.test import test_case
 from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 
-from cros.factory.external.py_lib import numpy as np
+if not TYPE_CHECKING:
+  from cros.factory.external.py_lib import numpy as np
+else:
+  import numpy as np
+
+
+class AccelerometersLidAngleArgs:
+  angle: int
+  tolerance: int
+  capture_count: int
+  spec_offset: List[float]
+  autostart: bool
+  sample_rate_hz: int
 
 
 class AccelerometersLidAngleTest(test_case.TestCase):
@@ -64,12 +77,12 @@ class AccelerometersLidAngleTest(test_case.TestCase):
           'accelerometers.', default=200),
   ]
 
+  args: AccelerometersLidAngleArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
+    self.ui.ToggleTemplateClass('font-large', True)
     # Initializes an accelerometer utility class.
     self.accelerometers = {}
     for location in ['base', 'lid']:
@@ -95,9 +108,7 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     for location, accelerometer_controller in self.accelerometers.items():
       try:
         cal_data[location] = accelerometer_controller.GetData(
-            # yapf: disable
-            self.args.capture_count, self.args.sample_rate_hz)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+            self.args.capture_count, self.args.sample_rate_hz)
       except accelerometer.AccelerometerException as err:
         logging.info(
             'Read %s calibrated data failed: %r.', location, err.args[0])
@@ -105,17 +116,12 @@ class AccelerometersLidAngleTest(test_case.TestCase):
 
     # +X axis is aligned with the hinge.
     hinge_vec = [9.8, 0.0, 0.0]
-    # The calulation requires hinge in a horizontal position.
-    # yapf: disable
-    min_value = -self.args.spec_offset[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    max_value = self.args.spec_offset[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    # The calculation requires hinge in a horizontal position.
+    min_value = -self.args.spec_offset[0]
+    max_value = self.args.spec_offset[0]
     for data in cal_data.values():
       if not min_value <= data['in_accel_x'] <= max_value:
         self.FailTask('The hinge is not in a horizontal plane.')
-
     base_vec_flattened = [
         0.0,
         cal_data['base']['in_accel_y'],
@@ -128,16 +134,11 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     # http://en.wikipedia.org/wiki/Dot_product#Geometric_definition
     # We use dot product and inverse Cosine to get the angle between
     # base_vec_flattened and lid_vec_flattened in degrees.
-    angle_between_vectors = math.degrees(math.acos(
-        # yapf: disable
-        np.dot(base_vec_flattened, lid_vec_flattened) /  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        np.linalg.norm(base_vec_flattened) /  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        np.linalg.norm(lid_vec_flattened)))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    angle_between_vectors = math.degrees(
+        math.acos(
+            np.dot(base_vec_flattened, lid_vec_flattened) /
+            np.linalg.norm(base_vec_flattened) /
+            np.linalg.norm(lid_vec_flattened)))
 
     # Based on the standard orientation described above, the sum of the
     # lid angle (between keyboard and screen) and angle_between_vectors
@@ -153,82 +154,52 @@ class AccelerometersLidAngleTest(test_case.TestCase):
     # reversed. That means the current lid angle is >= 180 degrees and the
     # value should be (360.0 - lid_angle), where lid_angle is always the
     # smaller angle between the keyboard and the screen.
-    # yapf: disable
-    lid_base_cross_vec = np.cross(base_vec_flattened, lid_vec_flattened)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if np.dot(lid_base_cross_vec, hinge_vec) > 0.0:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    lid_base_cross_vec = np.cross(base_vec_flattened, lid_vec_flattened)
+    if np.dot(lid_base_cross_vec, hinge_vec) > 0.0:
       return 360.0 - lid_angle
     return lid_angle
 
   def runTest(self):
     self.SetImage('chromebook_lid.png', 'chromebook_base.png')
-    # yapf: disable
-    if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not self.args.autostart:
       key_pressed = threading.Event()
       thread = threading.Thread(group=None, target=self.WaitForStartKey,
                                 args=(key_pressed, ))
       thread.start()
-      # yapf: disable
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
       key_pressed.set()
       thread.join()
     else:
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          _('Please open the lid to {angle} degrees.', angle=self.args.angle))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(
+          _('Please open the lid to {angle} degrees.', angle=self.args.angle))
       self.Sleep(1)
-
-    # yapf: disable
-    self.ui.SetState(_('Checking angle...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Checking angle...'))
     angle = self._CalculateLidAngle()
     if angle is None:
       self.FailTask('There is no calibration value for accelerometer in VPD.')
-
     logging.info('angle = %f', angle)
-    # yapf: disable
-    if not (self.args.angle - self.args.tolerance <= angle <=  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            self.args.angle + self.args.tolerance):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if not (self.args.angle - self.args.tolerance <= angle <=
+            self.args.angle + self.args.tolerance):
       self.FailTask(f'The lid angle is out of range: {angle:f}')
 
   def SetImage(self, lid_url, base_url):
     """Sets the image src."""
-    # yapf: disable
-    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.RunJS('document.getElementById("chromebook_lid").src = args.url;',
                   url=lid_url)
-    # yapf: disable
-    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.RunJS('document.getElementById("chromebook_base").src = args.url;',
                   url=base_url)
 
   def RotateImage(self, degree):
     """Rotates the lid image according to the calculated lid degree."""
-    # yapf: disable
-    self.ui.RunJS(f'document.getElementById("chromebook_lid").style.transform '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.RunJS(f'document.getElementById("chromebook_lid").style.transform '
                   f'="rotateX({-degree+90}deg)";')
 
   def WaitForStartKey(self, key_pressed):
     while not key_pressed.is_set():
       lid_angle = self._CalculateLidAngle()
-      # yapf: disable
-      self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetInstruction(
           _(
               'Please open the lid to {angle} degrees and press SPACE.',
-              # yapf: disable
-              angle=self.args.angle,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
+              angle=self.args.angle,
           ))
       self.RotateImage(lid_angle)
