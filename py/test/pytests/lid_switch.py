@@ -33,6 +33,7 @@ with default arguments.
 import datetime
 import os
 import time
+from typing import TYPE_CHECKING, Optional, Union
 
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 # The right BFTFixture module is dynamically imported based on args.bft_fixture.
@@ -40,6 +41,7 @@ from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.fixture import bft_fixture
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.test.utils import audio_utils
 from cros.factory.test.utils import evdev_utils
 from cros.factory.testlog import testlog
@@ -47,7 +49,10 @@ from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import file_utils
 from cros.factory.utils import sync_utils
 
-from cros.factory.external.py_lib import evdev
+if not TYPE_CHECKING:
+  from cros.factory.external.py_lib import evdev
+else:
+  import evdev  # type: ignore[import]
 
 
 _DEFAULT_TIMEOUT = 30
@@ -58,6 +63,22 @@ _TIMESTAMP_BL_ON = _BACKLIGHT_OFF_TIMEOUT - _TEST_TOLERANCE
 _TIMESTAMP_BL_OFF = _BACKLIGHT_OFF_TIMEOUT + _TEST_TOLERANCE
 
 
+class LidSwitchArgs:
+  timeout_secs: int
+  ok_audio_path: str
+  audio_volume: int
+  device_filter: Union[int, str]
+  bft_fixture_class_name: Optional[str]
+  bft_fixture_params: Optional[dict]
+  bft_retries: int
+  bft_pause_secs: Union[int, float]
+  brightness_path: Optional[str]
+  brightness_when_closed: Optional[int]
+  check_delayed_backlight: bool
+  bft_control_name: str
+
+
+
 class LidSwitchTest(test_case.TestCase):
   """Lid switch factory test."""
   related_components = tuple()
@@ -65,34 +86,41 @@ class LidSwitchTest(test_case.TestCase):
   ARGS = [
       Arg('timeout_secs', int, 'Timeout value for the test.',
           default=_DEFAULT_TIMEOUT),
-      Arg('ok_audio_path', str,
+      Arg(
+          'ok_audio_path', str,
           'Path to the OK audio file which is played after detecting lid close'
-          'signal. Defaults to play ok_*.ogg in /sounds.',
-          default=None),
+          'signal. Defaults to play ok_*.ogg in /sounds.', default=None),
       Arg('audio_volume', int,
           'Percentage of audio volume to use when playing OK audio file.',
           default=100),
       Arg('device_filter', (int, str),
-          'Event ID or name for evdev. None for auto probe.',
+          'Event ID or name for evdev. None for auto probe.', default=None),
+      Arg(
+          'bft_fixture_class_name', str,
+          'Fully-qualified class name of the BFTFixture implementation to use.',
           default=None),
-      Arg('bft_fixture', dict, bft_fixture.TEST_ARG_HELP,
-          default=None),
-      Arg('bft_retries', int,
-          'Number of retries for BFT lid open / close.',
+      Arg(
+          'bft_fixture_params', dict,
+          'A dictionary of parameters for the BFTFixture class `Init()` '
+          'method.', default=None),
+      Arg('bft_retries', int, 'Number of retries for BFT lid open / close.',
           default=3),
       Arg('bft_pause_secs', (int, float),
-          'Pause time before issuing BFT command.',
-          default=0.5),
+          'Pause time before issuing BFT command.', default=0.5),
       Arg('brightness_path', str, 'Path to control brightness level.',
           default=None),
       Arg('brightness_when_closed', int,
-          'Value to brightness when lid switch closed.',
-          default=None),
+          'Value to brightness when lid switch closed.', default=None),
       Arg('check_delayed_backlight', bool, 'True to check delayed backlight.',
           default=False),
       Arg('bft_control_name', str, 'Controller name on BFT fixture to trigger '
           'Lid switch', default=bft_fixture.BFTFixture.Device.LID_MAGNET)
   ]
+
+  args: LidSwitchArgs
+  ui: test_ui.StandardUI
+  event_loop: test_ui.EventLoop
+
 
   def AdjustBrightness(self, value):
     """Adjusts the intensity by writing targeting value to sysfs.
@@ -101,9 +129,7 @@ class LidSwitchTest(test_case.TestCase):
       value: The targeted brightness value.
     """
     try:
-      # yapf: disable
-      file_utils.WriteFile(self.args.brightness_path, f'{int(value)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      file_utils.WriteFile(self.args.brightness_path, f'{int(value)}')
     except IOError:
       self.FailTask(
           f'Can not write {value!r} into brightness. Maybe the limit is wrong')
@@ -111,34 +137,23 @@ class LidSwitchTest(test_case.TestCase):
   def GetBrightness(self):  # pylint: disable=inconsistent-return-statements
     """Gets the brightness value from sysfs."""
     try:
-      # yapf: disable
-      return int(file_utils.ReadFile(self.args.brightness_path))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      return int(file_utils.ReadFile(self.args.brightness_path))
     except IOError:
       self.FailTask('Can not read brightness.')
 
   def setUp(self):
-    # yapf: disable
-    self.event_dev = evdev_utils.FindDevice(self.args.device_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.event_dev = evdev_utils.FindDevice(self.args.device_filter,
                                             evdev_utils.IsLidEventDevice)
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.ToggleTemplateClass('font-large', True)
 
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        # yapf: disable
-        self.event_dev, self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        self.event_dev, self.event_loop.CatchException(self.HandleEvent))
 
     # Prepare fixture auto test if needed.
     self.fixture = None
-    # yapf: disable
-    if self.args.bft_fixture:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.fixture = bft_fixture.CreateBFTFixture(**self.args.bft_fixture)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.bft_fixture_class_name:
+      self.fixture = bft_fixture.CreateBFTFixture(
+          self.args.bft_fixture_class_name, self.args.bft_fixture_params)
       self.fixture_lid_closed = False
 
     # Variables to track the time it takes to open and close the lid
@@ -166,9 +181,7 @@ class LidSwitchTest(test_case.TestCase):
     testlog.LogParam('use_fixture', bool(self.fixture))
 
     # Restore brightness
-    # yapf: disable
-    if self.args.brightness_path is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.brightness_path is not None:
       if self._restore_brightness is not None:
         self.AdjustBrightness(self._restore_brightness)
 
@@ -199,52 +212,40 @@ class LidSwitchTest(test_case.TestCase):
       BFTFixtureException on fixture communication error.
     """
     start_time = time.time()
-    timeout_time = (start_time + _TIMESTAMP_BL_OFF)
+    timeout_time = start_time + _TIMESTAMP_BL_OFF
     # Ignore leading bouncing signals
     self.Sleep(_TEST_TOLERANCE)
 
     # Check backlight power falling edge
     while time.time() < timeout_time:
       test_time = time.time() - start_time
-
-      # yapf: disable
-      backlight = self.fixture.GetSystemStatus(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-          bft_fixture.BFTFixture.SystemStatus.BACKLIGHT)
-      if backlight == bft_fixture.BFTFixture.Status.OFF:
-        if test_time < _TIMESTAMP_BL_ON:
-          self.FailTask('Backlight turned off too early.')
-        return
-      self.Sleep(0.5)
+      if self.fixture:
+        backlight = self.fixture.GetSystemStatus(
+            bft_fixture.BFTFixture.SystemStatus.BACKLIGHT)
+        if backlight == bft_fixture.BFTFixture.Status.OFF:
+          if test_time < _TIMESTAMP_BL_ON:
+            self.FailTask('Backlight turned off too early.')
+          return
+        self.Sleep(0.5)
 
     self.FailTask('Backlight does not turn off.')
 
   def HandleEvent(self, event):
-    # yapf: disable
-    if event.type == evdev.ecodes.EV_SW and event.code == evdev.ecodes.SW_LID:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if event.type == evdev.ecodes.EV_SW and event.code == evdev.ecodes.SW_LID:
       if event.value == 1:  # LID_CLOSED
         self._closed_sec = self.getCurrentEpochSec()
         if self.fixture:
-          # yapf: disable
-          if self.args.check_delayed_backlight:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+          if self.args.check_delayed_backlight:
             self.CheckDelayedBacklight()
         self.AskForOpenLid()
-        # yapf: disable
-        if self.args.brightness_path is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if self.args.brightness_path is not None:
           self._restore_brightness = self.GetBrightness()
           # Close backlight
-          # yapf: disable
-          self.AdjustBrightness(self.args.brightness_when_closed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          self.AdjustBrightness(self.args.brightness_when_closed)
       elif event.value == 0:  # LID_OPEN
         self._opened_sec = self.getCurrentEpochSec()
         # Restore brightness
-        # yapf: disable
-        if self.args.brightness_path is not None:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if self.args.brightness_path is not None:
           self.AdjustBrightness(self._restore_brightness)
         self.PassTask()
 
@@ -263,73 +264,46 @@ class LidSwitchTest(test_case.TestCase):
     # immediately.
     sleep = time.sleep if in_tear_down else self.Sleep
 
-    # yapf: disable
-    @sync_utils.RetryDecorator(max_attempt_count=self.args.bft_retries,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                               # yapf: enable
-                               # yapf: disable
-                               interval_sec=self.args.bft_pause_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                               # yapf: enable
+    @sync_utils.RetryDecorator(max_attempt_count=self.args.bft_retries,
+                               interval_sec=self.args.bft_pause_secs,
                                sleep=sleep, reraise=True)
     def _SetDeviceEngaged():
-      # yapf: disable
-      self.fixture.SetDeviceEngaged(self.args.bft_control_name, close)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      self.fixture_lid_closed = close
+      if self.fixture:
+        self.fixture.SetDeviceEngaged(self.args.bft_control_name, close)
+        self.fixture_lid_closed = close
 
     try:
       _SetDeviceEngaged()
     except bft_fixture.BFTFixtureException as e:
       if not in_tear_down:
-        # yapf: disable
-        self.FailTask(f"Failed to {'close' if close else 'open'} the lid with "  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.FailTask(f"Failed to {'close' if close else 'open'} the lid with "
                       f"{int(self.args.bft_retries)} retries. Reason: {e}")
 
   def AskForOpenLid(self):
     if self.fixture:
-      # yapf: disable
-      self.ui.SetState(_('Demagnetizing lid sensor'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Demagnetizing lid sensor'))
       self.BFTLid(close=False)
     else:
-      # yapf: disable
-      self.ui.SetState(_('Open the lid'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Open the lid'))
       self.PlayOkAudio()
 
   def PlayOkAudio(self):
-    # yapf: disable
-    if self.args.ok_audio_path:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.ui.PlayAudioFile(self.args.ok_audio_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.ok_audio_path:
+      self.ui.PlayAudioFile(self.args.ok_audio_path)
     else:
-      # yapf: disable
-      self.ui.PlayAudioFile(os.path.join(self.ui.GetUILocale(), 'ok.ogg'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.PlayAudioFile(os.path.join(self.ui.GetUILocale(), 'ok.ogg'))
 
   def runTest(self):
     audio_utils.CRAS().EnableOutput()
-    # yapf: disable
-    audio_utils.CRAS().SetActiveOutputNodeVolume(self.args.audio_volume)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    audio_utils.CRAS().SetActiveOutputNodeVolume(self.args.audio_volume)
     if self.fixture:
-      # yapf: disable
-      self.ui.SetState(_('Magnetizing lid sensor'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Magnetizing lid sensor'))
     else:
-      # yapf: disable
-      self.ui.SetState(_('Close then open the lid'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Close then open the lid'))
 
     self.dispatcher.StartDaemon()
-    # yapf: disable
-    self.ui.StartFailingCountdownTimer(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        _DEFAULT_TIMEOUT if self.fixture else self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.StartFailingCountdownTimer(
+        _DEFAULT_TIMEOUT if self.fixture else self.args.timeout_secs)
 
     if self.fixture:
       self.BFTLid(close=True)
