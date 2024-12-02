@@ -21,20 +21,23 @@ RUN cd "${workdir}" && \
 # leverages hard-link to boost the process.  However, using hard-link has a
 # side-effect that docker occasionally fails to detect file changes and uses
 # its cached file contents when `ADD`-ing resources
-# (ref: https://github.com/moby/moby/issues/42718).  To force docker
+# (ref: https://github.com/moby/moby/issues/42718).  To force docker to
 # invalidate the cache when the resources have changed, `cros_hwid_service.sh`
-# feeds the checksum of all the resource folder to the build-arg `src_version`,
-# which makes the following instruction looks differently whenever there are
-# changes, and hence instructions afterward cannot leverage caches.
-# (ref: https://docs.docker.com/build/cache/).
-ARG src_version
-RUN echo "${src_version}"
+# feeds the checksum of corresponding resources to the build-arg `src_version`
+# and `requirements_version`, which make the following instruction looks
+# differently whenever there are changes, and hence instructions afterward
+# cannot leverage caches. (ref: https://docs.docker.com/build/cache/).
 
+ARG requirements_version
+RUN echo "${requirements_version}"
 ADD requirements.txt "${workdir}/requirements.txt"
 
 RUN pip install --require-hashes \
       --target "${workdir}"/lib \
       --requirement "${workdir}"/requirements.txt
+
+ARG src_version
+RUN echo "${src_version}"
 
 ADD start_server.sh "${workdir}/start_server.sh"
 ADD check_datastore_status.sh "${workdir}/check_datastore_status.sh"

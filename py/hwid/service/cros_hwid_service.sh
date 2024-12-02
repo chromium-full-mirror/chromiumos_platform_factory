@@ -332,11 +332,14 @@ do_build() {
   local src_version
   src_version="$(
       tar c --sort=name --mtime="1970-01-01" "${TEMP_DIR}" | sha1sum)"
+  local requirements_version
+  requirements_version="$(sha1sum "${TEMP_DIR}/requirements.txt")"
 
   ${DOCKER} build \
     --file "${dockerfile}" \
     --tag "${DOCKER_TAG}" \
     --build-arg "src_version=${src_version}" \
+    --build-arg "requirements_version=${requirements_version}" \
     "${TEMP_DIR}"
 }
 
