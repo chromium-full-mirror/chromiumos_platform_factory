@@ -6,7 +6,7 @@ grpcio-tools==1.65.4
 jsonschema==2.6.0
 jsonrpclib-pelix==0.4.1
 python-gnupg==0.4.3
-PyYAML==5.3.1
+PyYAML==6.0.1
 zeep==2.3.0
 txJSON-RPC==0.5
 pyOpenSSL===23.3.0
