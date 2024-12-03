@@ -39,6 +39,7 @@ To use the test::
 
 import logging
 import time
+from typing import Optional, Union
 import unittest
 
 from cros.factory.device import device_utils
@@ -47,6 +48,16 @@ from cros.factory.test import test_tags
 from cros.factory.test.utils import stress_manager
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
+
+
+class ThermalLoadTestArgs:
+  load: Optional[int]
+  heat_up_timeout_secs: int
+  duration_secs: int
+  lower_threshold: Union[int, list]
+  temperature_limit: Union[int, list]
+  sensors: Union[str, list]
+  temperatures_difference: Optional[int]
 
 
 class ThermalLoadTest(unittest.TestCase):
@@ -74,6 +85,8 @@ class ThermalLoadTest(unittest.TestCase):
           'should be under a specified limit.', default=None),
   ]
 
+  args: ThermalLoadTestArgs
+
   def GetTemperatures(self):
     """Gets the temperature reading from specified sensors."""
     if len(self.sensors) == 1:
@@ -92,126 +105,76 @@ class ThermalLoadTest(unittest.TestCase):
       elapsed: elapsed time since heat up.
     """
     for index, temperature_value in enumerate(temperatures):
+      lower_t = (
+          self.args.lower_threshold[index] if isinstance(
+              self.args.lower_threshold, list) else self.args.lower_threshold)
+      t_limit = (
+          self.args.temperature_limit[index] if isinstance(
+              self.args.temperature_limit, list) else
+          self.args.temperature_limit)
+
       with self.group_checker:
         testlog.LogParam('elapsed', elapsed)
         testlog.LogParam('sensor', self.sensors[index])
-        testlog.CheckNumericParam('temperature',
-                                  temperature_value,
-                                  # yapf: disable
-                                  min=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                  # yapf: enable
-                                  # yapf: disable
-                                  max=self.args.temperature_limit[index])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        testlog.CheckNumericParam('temperature', temperature_value, min=lower_t,
+                                  max=t_limit)
 
       self.max_temperature[index] = max(
           self.max_temperature[index], temperature_value)
 
-      if not self.heated_up[index] and (
-          # yapf: disable
-          temperature_value >= self.args.lower_threshold[index]):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if not self.heated_up[index] and (temperature_value >= lower_t):
         self.heated_up[index] = True
-        event_log.Log(
-            'heated',
-            temperature_value=temperature_value,
-            # yapf: disable
-            lower_threshold=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            sensor=self.sensors[index],
-            elapsed_sec=elapsed)
+        event_log.Log('heated', temperature_value=temperature_value,
+                      lower_threshold=lower_t, sensor=self.sensors[index],
+                      elapsed_sec=elapsed)
         logging.info('Sensor %s heated up to %d C in %d seconds.',
-                     self.sensors[index],
-                     # yapf: disable
-                     self.args.lower_threshold[index], elapsed)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+                     self.sensors[index], lower_t, elapsed)
 
-      # yapf: disable
-      if temperature_value > self.args.temperature_limit[index]:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        event_log.Log(
-            'over_heated',
-            temperature_value=temperature_value,
-            # yapf: disable
-            temperature_limit=self.args.temperature_limit[index],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            sensor=self.sensors[index],
-            elapsed_sec=elapsed)
-        # yapf: disable
-        self.fail(f'Sensor {self.sensors[index]} temperature got over '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-                  f'{int(self.args.temperature_limit[index])}.')
+      if temperature_value > t_limit:
+        event_log.Log('over_heated', temperature_value=temperature_value,
+                      temperature_limit=t_limit, sensor=self.sensors[index],
+                      elapsed_sec=elapsed)
+        self.fail(f'Sensor {self.sensors[index]} temperature got over '
+                  f'{int(t_limit)}.')
 
-      # yapf: disable
-      if elapsed >= self.args.heat_up_timeout_secs and (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      if elapsed >= self.args.heat_up_timeout_secs and (
           not self.heated_up[index]):
         event_log.Log('slow_temp_slope', temperature_value=temperature_value,
-                      # yapf: disable
-                      lower_threshold=self.args.lower_threshold[index],  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                      # yapf: enable
-                      sensor=self.sensors[index],
-                      # yapf: disable
-                      timeout=self.args.heat_up_timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+                      lower_threshold=lower_t, sensor=self.sensors[index],
+                      timeout=self.args.heat_up_timeout_secs)
         logging.info('temperature track: %r', self.temperatures_track)
-        # yapf: disable
-        self.fail(f"Temperature {self.sensors[index]} didn't go over "  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-                  f"{int(self.args.lower_threshold[index])} in "
+        self.fail(f"Temperature {self.sensors[index]} didn't go over "
+                  f"{int(lower_t)} in "
                   f"{self.args.heat_up_timeout_secs} seconds.")
 
-    # yapf: disable
-    if self.args.temperatures_difference:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.temperatures_difference:
       difference = max(temperatures) - min(temperatures)
-      # yapf: disable
-      if difference > self.args.temperatures_difference:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if difference > self.args.temperatures_difference:
         logging.info('temperature track: %r', self.temperatures_track)
         self.fail(
-            # yapf: disable
-            f'The difference of temperatures {int(difference)} exceeds the '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+            f'The difference of temperatures {int(difference)} exceeds the '
             f'limit {int(self.args.temperatures_difference)}.')
 
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.load = self.args.load or self.dut.info.cpu_count  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-
-    # yapf: disable
-    self.assertTrue(self.args.heat_up_timeout_secs <= self.args.duration_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                    'heat_up_timeout_secs must not be greater than '
-                    'duration_secs.')
-
-    # yapf: disable
-    sensors = self.args.sensors or [self.dut.thermal.GetMainSensorName()]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    self.sensors = sensors
-
-    # yapf: disable
-    if isinstance(self.args.lower_threshold, int):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.args.lower_threshold = [self.args.lower_threshold]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    if isinstance(self.args.temperature_limit, int):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.args.temperature_limit = [self.args.temperature_limit]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self.load = self.args.load or self.dut.info.cpu_count
 
     self.assertTrue(
-        # yapf: disable
-        len(sensors) == len(self.args.lower_threshold) and (  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            len(sensors) == len(self.args.temperature_limit)),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.args.heat_up_timeout_secs <= self.args.duration_secs,
+        'heat_up_timeout_secs must not be greater than '
+        'duration_secs.')
+
+    sensors = self.args.sensors or [self.dut.thermal.GetMainSensorName()]
+    self.sensors = sensors
+
+    if isinstance(self.args.lower_threshold, int):
+      self.args.lower_threshold = [self.args.lower_threshold]
+    if isinstance(self.args.temperature_limit, int):
+      self.args.temperature_limit = [self.args.temperature_limit]
+
+    self.assertTrue(
+        len(sensors) == len(self.args.lower_threshold) and
+        (len(sensors) == len(self.args.temperature_limit)),
         'The number of sensors, lower_threshold, and temperature_limit '
         'should be the same.')
 
@@ -236,9 +199,7 @@ class ThermalLoadTest(unittest.TestCase):
 
     with stress_manager.StressManager(self.dut).Run(num_threads=self.load):
       start_time = time.time()
-      # yapf: disable
-      while time.time() - start_time < self.args.duration_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      while time.time() - start_time < self.args.duration_secs:
         time.sleep(1)
         temperatures = self.GetTemperatures()
         self.temperatures_track.append(temperatures)

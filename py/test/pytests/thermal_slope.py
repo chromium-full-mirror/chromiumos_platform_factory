@@ -99,6 +99,7 @@ To fail the device with slope out of range::
 
 import logging
 import time
+from typing import Optional, Union
 import unittest
 
 from cros.factory.device import device_utils
@@ -111,6 +112,21 @@ from cros.factory.utils.arg_utils import Arg
 
 
 POWER_SAMPLES = 3
+
+
+class ThermalSlopeTestArgs:
+  cool_down_fan_rpm: Union[int, float, str]
+  cool_down_min_duration_secs: Union[int, float]
+  cool_down_max_duration_secs: Union[int, float]
+  cool_down_temperature_c: Union[int, float]
+  cool_down_max_temperature_c: Optional[Union[int, float]]
+  target_fan_rpm: Union[int, float, str]
+  fan_spin_down_secs: Union[int, float]
+  duration_secs: Union[int, float]
+  min_slope: Optional[Union[int, float]]
+  max_slope: Optional[Union[int, float]]
+  console_log: bool
+  sensor_id: Optional[str]
 
 
 class ThermalSlopeTest(unittest.TestCase):
@@ -150,11 +166,10 @@ class ThermalSlopeTest(unittest.TestCase):
           default=None)
   ]
 
+  args: ThermalSlopeTestArgs
+
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.log = session.console if self.args.console_log else logging  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
 
     # Process to terminate in tear-down.
     self.process = None
@@ -162,7 +177,7 @@ class ThermalSlopeTest(unittest.TestCase):
     self.snapshot = None
     # Stage we are currently in and when it starts.
     self.stage = None
-    self.stage_start_time = None
+    self.stage_start_time = time.time()
     # Last time we slept.
     self.last_sleep = None
     # Group checker and units info for testlog.
@@ -186,21 +201,18 @@ class ThermalSlopeTest(unittest.TestCase):
     is False).
     """
     self.snapshot = self.dut.thermal.GetPowerUsage(
-        last=self.snapshot,
-        # yapf: disable
-        sensor_id=self.args.sensor_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        last=self.snapshot, sensor_id=self.args.sensor_id)
     fan_rpm = self.dut.fan.GetFanRPM()
-    # yapf: disable
-    elapsed_time = time.time() - self.stage_start_time  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    elapsed_time = time.time() - self.stage_start_time
     temperatures = self.dut.thermal.GetAllTemperatures()
-    # yapf: disable
-    self.log.info('%s (%.1f s): fan_rpm=%s, temp=%d°C, power=%.3f W',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                  self.stage, elapsed_time, fan_rpm, self._MainTemperature(),
-                  (float('nan') if self.snapshot['power'] is None else
-                   self.snapshot['power']))
+    message = ('%s (%.1f s): fan_rpm=%s, temp=%d°C, power=%.3f W', self.stage,
+               elapsed_time, fan_rpm, self._MainTemperature(),
+               (float('nan')
+                if self.snapshot['power'] is None else self.snapshot['power']))
+    if self.args.console_log:
+      session.console.info(*message)
+    else:
+      logging.info(*message)
     event_log.Log('sample',
                   stage=self.stage,
                   fan_rpm=fan_rpm,
@@ -235,44 +247,28 @@ class ThermalSlopeTest(unittest.TestCase):
     than a second and/or there was any processing time in between
     sleeps.
     """
-    # yapf: disable
-    time.sleep(max(0, self.last_sleep + 1 - time.time()))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.last_sleep += 1  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    if self.last_sleep is None:
+      self.last_sleep = time.time()
+    time.sleep(max(0, self.last_sleep + 1 - time.time()))
+    self.last_sleep += 1
 
   def runTest(self):
     self._StartStage('cool_down')
-    # yapf: disable
-    self.dut.fan.SetFanRPM(self.args.cool_down_fan_rpm)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    for i in range(self.args.cool_down_max_duration_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self.dut.fan.SetFanRPM(self.args.cool_down_fan_rpm)
+    for i in range(int(self.args.cool_down_max_duration_secs)):
       self._Log()
-      # yapf: disable
-      if (i >= self.args.cool_down_min_duration_secs and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          self._MainTemperature() <= self.args.cool_down_temperature_c):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if (i >= self.args.cool_down_min_duration_secs and
+          self._MainTemperature() <= self.args.cool_down_temperature_c):
         break
       self._Sleep()
     else:
-      # yapf: disable
-      max_temperature_c = (self.args.cool_down_max_temperature_c or  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                           # yapf: enable
-                           # yapf: disable
-                           self.args.cool_down_temperature_c)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      max_temperature_c = (
+          self.args.cool_down_max_temperature_c or
+          self.args.cool_down_temperature_c)
       if self._MainTemperature() > max_temperature_c:
         self.fail(f'Temperature never got down to {max_temperature_c}°C')
 
-    # yapf: disable
-    self.dut.fan.SetFanRPM(self.args.target_fan_rpm)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-
-    # yapf: enable
+    self.dut.fan.SetFanRPM(self.args.target_fan_rpm)
 
     def RunStage(stage, duration_secs):
       """Runs a stage.
@@ -296,17 +292,18 @@ class ThermalSlopeTest(unittest.TestCase):
       power_w = []
       for i in range(duration_secs + 1):
         self._Log()
-        # yapf: disable
-        power_w.append(self.snapshot['power'])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        if self.snapshot is not None and 'power' in self.snapshot:
+          power_w.append(self.snapshot['power'])
         if i != duration_secs:
           self._Sleep()
 
       temp = self._MainTemperature()
       power_w = sum(power_w[-POWER_SAMPLES:]) / POWER_SAMPLES
-      # yapf: disable
-      self.log.info('%s: temp=%d°C, power: %.3f W', stage, temp, power_w)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      message = ('%s: temp=%d°C, power: %.3f W', stage, temp, power_w)
+      if self.args.console_log:
+        session.console.info(*message)
+      else:
+        logging.info(*message)
       event_log.Log('stage_result',
                     stage=self.stage, temp=temp, power_w=power_w)
       with self.result_group_checker:
@@ -315,16 +312,12 @@ class ThermalSlopeTest(unittest.TestCase):
         testlog.LogParam('result_power', power_w)
       return temp, power_w, duration_secs
 
-    base_temp, base_power_w, _ = RunStage(
-        # yapf: disable
-        'spin_down', self.args.fan_spin_down_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    base_temp, base_power_w, _ = RunStage('spin_down',
+                                          self.args.fan_spin_down_secs)
 
     with stress_manager.StressManager(self.dut).Run():
       one_core_temp, one_core_power_w, one_core_duration_secs = RunStage(
-          # yapf: disable
-          'one_core', self.args.duration_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          'one_core', self.args.duration_secs)
 
     slope = ((one_core_temp - base_temp) /
              (one_core_power_w - base_power_w) /
@@ -339,19 +332,11 @@ class ThermalSlopeTest(unittest.TestCase):
     testlog.LogParam('result_slope', slope)
 
     errors = []
-    # yapf: disable
-    if self.args.min_slope is not None and slope < self.args.min_slope:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(f'Slope {slope:.5f} is less than minimum slope '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.min_slope is not None and slope < self.args.min_slope:
+      errors.append(f'Slope {slope:.5f} is less than minimum slope '
                     f'{self.args.min_slope:.5f}')
-    # yapf: disable
-    if self.args.max_slope is not None and slope > self.args.max_slope:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(f'Slope {slope:.5f} is greater than maximum slope '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.max_slope is not None and slope > self.args.max_slope:
+      errors.append(f'Slope {slope:.5f} is greater than maximum slope '
                     f'{self.args.max_slope:.5f}')
     if errors:
       self.fail(', '.join(errors))
