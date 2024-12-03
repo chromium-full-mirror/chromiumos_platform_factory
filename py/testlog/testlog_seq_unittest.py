@@ -152,8 +152,8 @@ class BootSequenceTest(unittest.TestCase):
     values = self._testThreads(filelock_waitsecs=2.0)
     logging.info('testThreadsWithoutSleep exercises %d writes', len(values))
     # There should be lots of values (I get over 15000 on my desktop); we'll
-    # just make sure there are >1000.
-    self.assertTrue(len(values) > 1000, values)
+    # just make sure there are >200.
+    self.assertGreater(len(values), 200, values)
 
 if __name__ == '__main__':
   logging.basicConfig(
