@@ -53,9 +53,7 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    # yapf: disable
-    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.test.args = Args(*self.test.ARGS).Parse({})
     self.test.runTest()
 
     check_output_mock.assert_called_once_with(['modem', 'status'], log=True)
@@ -87,13 +85,12 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    # yapf: disable
-    self.test.args = Args(*self.test.ARGS).Parse(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-        {'probe_imei': False,
-         'probe_meid': False,
-         'probe_lte_imei': True,
-         'probe_lte_iccid': True})
+    self.test.args = Args(*self.test.ARGS).Parse({
+        'probe_imei': False,
+        'probe_meid': False,
+        'probe_lte_imei': True,
+        'probe_lte_iccid': True
+    })
     self.test.runTest()
 
     check_output_mock.assert_called_once_with(['modem', 'status'], log=True)
@@ -122,9 +119,7 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    # yapf: disable
-    self.test.args = Args(*self.test.ARGS).Parse({})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.test.args = Args(*self.test.ARGS).Parse({})
     self.assertRaisesRegex(AssertionError, r"Missing elements.+: \['imei'\]",
                            self.test.runTest)
 
@@ -154,9 +149,7 @@ class ProbeCellularInfoTestTest(unittest.TestCase):
 
     check_output_mock.return_value = stdout
 
-    # yapf: disable
-    self.test.args = Args(*self.test.ARGS).Parse({  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.test.args = Args(*self.test.ARGS).Parse({
         'probe_meid': False,
         'fields': {
             'imei': 'EquipmentIdentifier'

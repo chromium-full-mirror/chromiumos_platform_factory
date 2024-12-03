@@ -38,12 +38,13 @@ An example:
 """
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
 from cros.factory.test.rf import cellular
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
@@ -68,6 +69,15 @@ def CheckSimAbsence() -> bool:
   return True
 
 
+class ProbeSIMCardArgs:
+  only_check_simcard_not_present: bool
+  only_check_simcard_present: bool
+  poll_modem_status: bool
+  modem_reset_commands: List[List[str]]
+  enable_modem_reset: bool
+
+
+
 class ProbeSIMCardTest(test_case.TestCase):
   related_components = (test_case.TestCategory.WWAN, )
   ARGS = [
@@ -82,45 +92,34 @@ class ProbeSIMCardTest(test_case.TestCase):
       Arg('enable_modem_reset', bool,
           'If true, reset modem before check status.', default=True)]
 
+  args: ProbeSIMCardArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
-    # yapf: disable
-    self.reset_commands = self.args.modem_reset_commands  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.reset_commands = self.args.modem_reset_commands
 
   def runTest(self):
-    # yapf: disable
-    if self.args.only_check_simcard_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.only_check_simcard_present:
       self.CheckSIMCardState(CheckSimPresence,
                              'Fail to make sure sim card is present')
-    # yapf: disable
-    elif self.args.only_check_simcard_not_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    elif self.args.only_check_simcard_not_present:
       self.CheckSIMCardState(CheckSimAbsence,
                              'Fail to make sure sim card is not present')
     else:
       self.ResetModem()
-      # yapf: disable
-      self.ui.SetState(_('Please insert the SIM card'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Please insert the SIM card'))
       iccid = self.WaitForSIMCard(CheckSimPresence)
       logging.info('ICCID: %s', iccid)
       event_log.Log('SIM_CARD_DETECTION', ICCID=iccid)
       testlog.LogParam('ICCID', iccid)
 
-      # yapf: disable
-      self.ui.SetState(_('Detected! Please remove the SIM card'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_('Detected! Please remove the SIM card'))
       self.WaitForSIMCard(CheckSimAbsence)
 
   def ResetModem(self):
     """Resets modem."""
-    # yapf: disable
-    if self.args.enable_modem_reset:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      for command in self.args.modem_reset_commands:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if self.args.enable_modem_reset:
+      for command in self.args.modem_reset_commands:
         process_utils.Spawn(command, call=True, log=True)
       self.Sleep(_INSERT_CHECK_PERIOD_SECS)
 
@@ -132,16 +131,12 @@ class ProbeSIMCardTest(test_case.TestCase):
     return status
 
   def CheckSIMCardState(self, predicator, fail_string: str) -> None:
-    # yapf: disable
-    self.ui.SetState(_('Checking SIM card is present or not...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Checking SIM card is present or not...'))
 
     self.ResetModem()
 
     output = predicator()
-    # yapf: disable
-    if self.args.poll_modem_status:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.poll_modem_status:
       total_delay = 0
       while not output:
         self.Sleep(_INSERT_CHECK_PERIOD_SECS)

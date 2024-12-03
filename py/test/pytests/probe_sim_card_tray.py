@@ -76,6 +76,7 @@ import os
 from cros.factory.test.i18n import _
 from cros.factory.test import session
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import file_utils
 
@@ -97,6 +98,17 @@ class ProbeTrayException(Exception):
   pass
 
 
+class ProbeSimCardTrayArgs:
+  timeout_secs: int
+  tray_already_present: bool
+  tray_detection_gpio: int
+  insert: bool
+  remove: bool
+  only_check_presence: bool
+  gpio_active_high: bool
+
+
+
 class ProbeSimCardTrayTest(test_case.TestCase):
   """Test to probe sim card tray."""
   related_components = (test_case.TestCategory.WWAN, )
@@ -115,46 +127,36 @@ class ProbeSimCardTrayTest(test_case.TestCase):
       Arg('gpio_active_high', bool, 'Whether GPIO is active high.',
           default=True)]
 
+  args: ProbeSimCardTrayArgs
+  ui: test_ui.StandardUI
+
+
   def setUp(self):
     self._detection_gpio_path = os.path.join(
-        # yapf: disable
-        _GPIO_PATH, f'gpio{int(self.args.tray_detection_gpio)}')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        _GPIO_PATH, f'gpio{int(self.args.tray_detection_gpio)}')
 
   def runTest(self):
     self.ExportGPIO()
     self.CheckPresence()
 
-    # yapf: disable
-    if self.args.only_check_presence:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.only_check_presence:
       return
 
-    # yapf: disable
-    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.StartFailingCountdownTimer(self.args.timeout_secs)
 
-    # yapf: disable
-    if self.args.tray_already_present:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.assertTrue(self.args.remove, 'Must set remove to Ture '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-                      'since tray_already_present is True')
+    if self.args.tray_already_present:
+      self.assertTrue(
+          self.args.remove, 'Must set remove to Ture '
+          'since tray_already_present is True')
       self.WaitTrayRemoved()
-      # yapf: disable
-      if self.args.insert:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.insert:
         self.WaitTrayInserted()
     else:
-      # yapf: disable
-      self.assertTrue(self.args.insert, 'Must set insert to Ture '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-                      'since tray_already_present is False')
+      self.assertTrue(
+          self.args.insert, 'Must set insert to Ture '
+          'since tray_already_present is False')
       self.WaitTrayInserted()
-      # yapf: disable
-      if self.args.remove:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self.args.remove:
         self.WaitTrayRemoved()
 
   def ExportGPIO(self):
@@ -169,19 +171,13 @@ class ProbeSimCardTrayTest(test_case.TestCase):
 
     export_path = os.path.join(_GPIO_PATH, 'export')
     try:
-      # yapf: disable
-      file_utils.WriteFile(export_path, str(self.args.tray_detection_gpio),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      file_utils.WriteFile(export_path, str(self.args.tray_detection_gpio),
                            log=True)
     except IOError:
       logging.exception('Can not write %s into %s',
-                        # yapf: disable
-                        self.args.tray_detection_gpio, export_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+                        self.args.tray_detection_gpio, export_path)
       raise ProbeTrayException(
-          # yapf: disable
-          f'Can not export detection gpio {self.args.tray_detection_gpio}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          f'Can not export detection gpio {self.args.tray_detection_gpio}'
       ) from None
 
     direction_path = os.path.join(self._detection_gpio_path, 'direction')
@@ -204,36 +200,25 @@ class ProbeSimCardTrayTest(test_case.TestCase):
     if ret not in ['0', '1']:
       raise ProbeTrayException(f'Get invalid detection {ret} from {value_path}')
 
-    # yapf: disable
-    if self.args.gpio_active_high:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.gpio_active_high:
       return _TrayState.INSERTED if ret == '1' else _TrayState.REMOVED
     return _TrayState.INSERTED if ret == '0' else _TrayState.REMOVED
 
   def CheckPresence(self):
     self.assertEqual(
-        # yapf: disable
-        self.args.tray_already_present,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.args.tray_already_present,
         self.GetDetection() == _TrayState.INSERTED,
-        # yapf: disable
-        (
-            f'Unexpected tray '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            f'{"absence" if self.args.tray_already_present else "presence"}. '
-            f'Please {"insert" if self.args.tray_already_present else "remove"} '
-            f'SIM card tray and retest.'))
+        (f'Unexpected tray '
+         f'{"absence" if self.args.tray_already_present else "presence"}. '
+         f'Please {"insert" if self.args.tray_already_present else "remove"} '
+         f'SIM card tray and retest.'))
 
   def WaitTrayInserted(self):
-    # yapf: disable
-    self.ui.SetState(_('Please insert the SIM card tray'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Please insert the SIM card tray'))
     self.WaitTrayState(_TrayState.INSERTED)
 
   def WaitTrayRemoved(self):
-    # yapf: disable
-    self.ui.SetState(_('Detected! Please remove the SIM card tray'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Detected! Please remove the SIM card tray'))
     self.WaitTrayState(_TrayState.REMOVED)
 
   def WaitTrayState(self, state):
