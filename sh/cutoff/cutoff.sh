@@ -276,7 +276,7 @@ process_end() {
     echo "display string=${display_string}"
     qrencode -s 5 -o "${qrcode_path}/qrcode.png" \
                       "$(IFS=, ; echo "${display_string}")"
-    printf "\033]image:file=/qrcode.png\033\\" > /run/frecon/current
+    printf "\033]image:file=/qrcode.png\033\\" > /run/frecon/vt0
     if [[ ${i} -lt $(((${#needed_info[@]})-1)) ]]; then
       read -r -N 1 -p "Press any key to continue... "
     fi
