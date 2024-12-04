@@ -72,6 +72,12 @@ def GetPortStateFromChargeState(charge_state):
   return PortState.Unknown
 
 
+class WirelessChargeArgs:
+  port: int
+  occupy_instruction: str
+  release_instruction: str
+  timeout: int
+
 class WirelessChargeTest(test_case.TestCase):
   related_components = tuple()
   ARGS = [
@@ -87,25 +93,20 @@ class WirelessChargeTest(test_case.TestCase):
       Arg('timeout', int, 'Timeout of the test.', default=200)
   ]
 
+  args: WirelessChargeArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.ui.SetState(_('Wireless Charge Port testing...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Wireless Charge Port testing...'))
 
   def runTest(self):
-    # yapf: disable
-    self.ui.StartFailingCountdownTimer(self.args.timeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.StartFailingCountdownTimer(self.args.timeout)
     # test port charge ability
-    # yapf: disable
-    self.InstructAndWaitStateFulfilled(self.args.occupy_instruction,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.InstructAndWaitStateFulfilled(self.args.occupy_instruction,
                                        PortState.Occupied)
     # test idling port
-    # yapf: disable
-    self.InstructAndWaitStateFulfilled(self.args.release_instruction,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.InstructAndWaitStateFulfilled(self.args.release_instruction,
                                        PortState.Available)
 
   def InstructAndWaitStateFulfilled(self, instruction, desired_state):
@@ -115,29 +116,21 @@ class WirelessChargeTest(test_case.TestCase):
       instruction: test instruction displayed to operator
       desired_state: the desired PortState
     """
-    # yapf: disable
-    self.ui.SetInstruction(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetInstruction(
         _('{instruction} then hit SPACE', instruction=instruction))
     while True:
-      # yapf: disable
-      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.WaitKeysOnce(test_ui.SPACE_KEY)
       charge_state = self.GetPortChargingState()
 
       charge_state_info = f'Current port state: {charge_state.name}'
-      # yapf: disable
-      self.ui.SetState(charge_state_info)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(charge_state_info)
       session.console.info(charge_state_info)
 
       if GetPortStateFromChargeState(charge_state) == desired_state:
         break
 
   def GetPortChargingState(self):  # pylint: disable=inconsistent-return-statements
-    # yapf: disable
-    cmd = f'ectool pchg {self.args.port}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    cmd = f'ectool pchg {self.args.port}'
     output = self._dut.CheckOutput(cmd, log=True)
     parsed_dict = ParseDict(output.split('\n'))
     self.assertIn('State', parsed_dict, msg=f'State not in output: {output}')
@@ -151,6 +144,4 @@ class WirelessChargeTest(test_case.TestCase):
       return ChargeState[state]
     except KeyError:
       self.FailTask(
-          # yapf: disable
-          f'The state of port {self.args.port}: {state} is unsupported!')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          f'The state of port {self.args.port}: {state} is unsupported!')
