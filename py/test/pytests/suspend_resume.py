@@ -43,12 +43,14 @@ import os
 import random
 import re
 import threading
+from typing import Optional
 
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
 from cros.factory.test import session
 from cros.factory.test import state
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import debug_utils
@@ -64,6 +66,24 @@ _MESSAGES = '/var/log/messages'
 _WAKEUP_PATH = '/sys/class/wakeup'
 _KERNEL_DEBUG_SUSPEND_STATS = '/sys/kernel/debug/suspend_stats'
 _MAX_EARLY_RESUME_RETRY_COUNT = 3
+
+
+class SuspendResumeArgs:
+  cycles: int
+  suspend_delay_max_secs: int
+  suspend_delay_min_secs: int
+  resume_delay_max_secs: int
+  resume_delay_min_secs: int
+  suspend_time_margin_min_secs: int
+  suspend_time_margin_max_secs: int
+  suspend_worst_case_secs: int
+  wakealarm_path: str
+  time_path: str
+  wakeup_count_path: str
+  suspend_type: Optional[str]
+  ignore_wakeup_source: Optional[str]
+  early_resume_retry_wait_secs: int
+  ensure_wakealarm_cleared: bool
 
 
 class SuspendResumeTest(test_case.TestCase):
@@ -108,6 +128,9 @@ class SuspendResumeTest(test_case.TestCase):
           'Raise exception if wakealarm is not cleared after resume',
           default=True)]
 
+  args: SuspendResumeArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self.assertTrue(os.path.exists(_WAKEUP_PATH),
                     'wakeup_sources file not found.')
@@ -115,45 +138,26 @@ class SuspendResumeTest(test_case.TestCase):
         os.path.exists(_KERNEL_DEBUG_SUSPEND_STATS),
         'suspend_stats file not found.')
     self.assertTrue(
-        # yapf: disable
-        os.path.exists(self.args.wakealarm_path),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        f'wakealarm_path {self.args.wakealarm_path} is not found, bad path?')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        os.path.exists(self.args.wakealarm_path),
+        f'wakealarm_path {self.args.wakealarm_path} is not found, bad path?')
     self.assertTrue(
-        # yapf: disable
-        os.path.exists(self.args.time_path),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        f'time_path {self.args.time_path} is not found, bad path?')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.assertGreaterEqual(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                            _MIN_SUSPEND_MARGIN_SECS, 'The '
-                            'suspend_delay_min_secs is too low, bad '
-                            'test_list?')
-    # yapf: disable
-    self.assertGreaterEqual(self.args.suspend_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            # yapf: disable
-                            self.args.suspend_delay_min_secs, 'Invalid suspend '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            'timings provided in test_list (max < min).')
-    # yapf: disable
-    self.assertGreaterEqual(self.args.resume_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            # yapf: disable
-                            self.args.resume_delay_min_secs, 'Invalid resume '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            'timings provided in test_list (max < min).')
+        os.path.exists(self.args.time_path),
+        f'time_path {self.args.time_path} is not found, bad path?')
+    self.assertGreaterEqual(
+        self.args.suspend_delay_min_secs, _MIN_SUSPEND_MARGIN_SECS, 'The '
+        'suspend_delay_min_secs is too low, bad '
+        'test_list?')
+    self.assertGreaterEqual(
+        self.args.suspend_delay_max_secs, self.args.suspend_delay_min_secs,
+        'Invalid suspend '
+        'timings provided in test_list (max < min).')
+    self.assertGreaterEqual(
+        self.args.resume_delay_max_secs, self.args.resume_delay_min_secs,
+        'Invalid resume '
+        'timings provided in test_list (max < min).')
 
     self.goofy = state.GetInstance()
-
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.ToggleTemplateClass('font-large', True)
 
     self.done = False
     self.suspend_type = None
@@ -253,7 +257,7 @@ class SuspendResumeTest(test_case.TestCase):
         wake_sources.update({wakeup_source: name})
     return wake_sources
 
-  def _MonitorWakealarm(self):
+  def _MonitorWakealarm(self, run_num: int):
     """Start and extend the wakealarm as needed for the main thread."""
     self._SetWakealarm(str(self.resume_at))
     self.alarm_started.set()
@@ -262,9 +266,7 @@ class SuspendResumeTest(test_case.TestCase):
     # suspend in _MIN_SUSPEND_MARGIN_SECS seconds.
     while not self.done:
       self.Sleep(0.5)  # Wait for suspend_stats to get updated after resume.
-      # yapf: disable
-      if self._ReadSuspendCount() >= self.initial_suspend_count + self.run:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if self._ReadSuspendCount() >= self.initial_suspend_count + run_num:
         break
       # A normal suspend-resume should not get here.
       cur_time = self._ReadCurrentTime()
@@ -284,13 +286,8 @@ class SuspendResumeTest(test_case.TestCase):
         logging.info('Attempted extending the wake timer %d s, resume is now '
                      'at %d.', _MIN_SUSPEND_MARGIN_SECS, self.resume_at)
       self.assertGreaterEqual(
-          # yapf: disable
-          self.start_time + self.args.suspend_worst_case_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          cur_time,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
-          f'Suspend timeout, device did not suspend within '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          self.start_time + self.args.suspend_worst_case_secs, cur_time,
+          f'Suspend timeout, device did not suspend within '
           f'{int(self.args.suspend_worst_case_secs)} sec.')
     self.alarm_started.clear()
 
@@ -313,9 +310,7 @@ class SuspendResumeTest(test_case.TestCase):
       # wakeup_count, and we should not write to /sys/power/state if this
       # happens.
       logging.info('Writing "%s" to wakeup_count.', self.wakeup_count)
-      # yapf: disable
-      file_utils.WriteFile(self.args.wakeup_count_path, self.wakeup_count)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      file_utils.WriteFile(self.args.wakeup_count_path, self.wakeup_count)
     except IOError as err:
       if err.errno == errno.EINVAL:
         wake_sources = self._GetPossibleWakeupSources()
@@ -335,24 +330,16 @@ class SuspendResumeTest(test_case.TestCase):
       if err.errno == errno.EBUSY:
         logging.info('Early wake event when attempting suspend.')
         wake_sources = self._GetPossibleWakeupSources()
-        # yapf: disable
-        if self.args.ignore_wakeup_source in wake_sources:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+        if self.args.ignore_wakeup_source in wake_sources:
           if retry_count == _MAX_EARLY_RESUME_RETRY_COUNT:
             raise RuntimeError(
-                # yapf: disable
-                f'Maximum re-suspend retry exceeded for ignored wakeup source '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                # yapf: enable
+                f'Maximum re-suspend retry exceeded for ignored wakeup source '
                 f'{self.args.ignore_wakeup_source}') from None
 
           logging.info('Wakeup source ignored, re-suspending...')
-          # yapf: disable
-          self.Sleep(self.args.early_resume_retry_wait_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          self.Sleep(self.args.early_resume_retry_wait_secs)
           self.wakeup_count = file_utils.ReadFile(
-              # yapf: disable
-              self.args.wakeup_count_path).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+              self.args.wakeup_count_path).strip()
           self._Suspend(retry_count + 1)
           return
         raise IOError(
@@ -375,9 +362,12 @@ class SuspendResumeTest(test_case.TestCase):
       Int, the number of suspends the system has executed since last reboot.
     """
     line_content = file_utils.ReadFile(_KERNEL_DEBUG_SUSPEND_STATS).strip()
-    # yapf: disable
-    return int(re.search(r'[0-9]+', line_content).group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    match = re.search(r'[0-9]+', line_content)
+    if match:
+      return int(match.group(0))
+    logging.warning('Could not parse suspend count from suspend_stats. '
+                    'Assuming 0.')
+    return 0
 
   def _ReadCurrentTime(self):
     """Read the current time in seconds since_epoch.
@@ -388,9 +378,7 @@ class SuspendResumeTest(test_case.TestCase):
     Returns:
       Int, the time since_epoch in seconds.
     """
-    # yapf: disable
-    return int(file_utils.ReadFile(self.args.time_path).strip())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return int(file_utils.ReadFile(self.args.time_path).strip())
 
   def _VerifySuspended(self, wake_time, wake_source, count, resume_at):
     """Verify that a reasonable suspend has taken place.
@@ -405,20 +393,12 @@ class SuspendResumeTest(test_case.TestCase):
       Boolean, True if suspend was valid, False if not.
     """
     self.assertGreaterEqual(
-        # yapf: disable
-        wake_time,
-        resume_at + self.args.suspend_time_margin_min_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        wake_time, resume_at + self.args.suspend_time_margin_min_secs,
         f"Premature wake detected ({int(resume_at - wake_time)} s early, "
         f"source={wake_source or 'unknown'}), spurious event? (got touched?)")
     self.assertLessEqual(
-        # yapf: disable
-        wake_time,
-        resume_at + self.args.suspend_time_margin_max_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        f"Late wake detected ({int(wake_time - resume_at)}s > "  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        wake_time, resume_at + self.args.suspend_time_margin_max_secs,
+        f"Late wake detected ({int(wake_time - resume_at)}s > "
         f"{int(self.args.suspend_time_margin_max_secs)}s delay, "
         f"source={wake_source or 'unknown'}), timer failure?")
 
@@ -453,12 +433,8 @@ class SuspendResumeTest(test_case.TestCase):
       IOError: when raise_exception is True and writing to wakealarm file fails.
     """
     try:
-      # yapf: disable
-      logging.info('Writing "%s" to %s.', content, self.args.wakealarm_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      file_utils.WriteFile(self.args.wakealarm_path, content)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      logging.info('Writing "%s" to %s.', content, self.args.wakealarm_path)
+      file_utils.WriteFile(self.args.wakealarm_path, content)
     except IOError:
       error_msg = 'Failed to write to wakealarm.'
       if raise_exception:
@@ -480,9 +456,7 @@ class SuspendResumeTest(test_case.TestCase):
     Raises:
       RuntimeError: If raise_exception is True and wakealarm is not cleared.
     """
-    # yapf: disable
-    content = file_utils.ReadFile(self.args.wakealarm_path).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    content = file_utils.ReadFile(self.args.wakealarm_path).strip()
     if content:
       error_msg = f'Wakealarm is not cleared after resume, value: {content}.'
       if raise_exception:
@@ -543,12 +517,8 @@ class SuspendResumeTest(test_case.TestCase):
     return wake_source
 
   def _ResolveSuspendType(self):
-    # yapf: disable
-    if self.args.suspend_type:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.suspend_type = self.args.suspend_type  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.suspend_type:
+      self.suspend_type = self.args.suspend_type
     else:
       logging.info(
           'Suspend type is not specified, auto-detect the supported one.')
@@ -565,43 +535,25 @@ class SuspendResumeTest(test_case.TestCase):
 
     random.seed(0)  # Make test deterministic
 
-    # yapf: disable
-    for self.run in range(1, self.args.cycles + 1):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for run_num in range(1, self.args.cycles + 1):
       self.attempted_wake_extensions = 0
       self.actual_wake_extensions = 0
       alarm_suspend_delays = 0
-      self.alarm_thread = threading.Thread(target=self._MonitorWakealarm)
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-          _('Suspend/Resume: {run} of {cycle}',
-            run=self.run,
-            # yapf: disable
-            cycle=self.args.cycles))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.alarm_thread = threading.Thread(target=self._MonitorWakealarm,
+                                           args=(run_num, ))
+      self.ui.SetState(
+          _('Suspend/Resume: {run} of {cycle}', run=run_num,
+            cycle=self.args.cycles))
       self.start_time = self._ReadCurrentTime()
-      # yapf: disable
-      suspend_time = random.randint(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                    # yapf: enable
-                                    # yapf: disable
-                                    self.args.suspend_delay_max_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      resume_time = random.randint(self.args.resume_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                   # yapf: enable
-                                   # yapf: disable
-                                   self.args.resume_delay_max_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      suspend_time = random.randint(self.args.suspend_delay_min_secs,
+                                    self.args.suspend_delay_max_secs)
+      resume_time = random.randint(self.args.resume_delay_min_secs,
+                                   self.args.resume_delay_max_secs)
       self.resume_at = suspend_time + self.start_time
-      logging.info('Suspend %d of %d for %d seconds, starting at %d.',
-                   # yapf: disable
-                   self.run, self.args.cycles, suspend_time, self.start_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      logging.info('Suspend %d of %d for %d seconds, starting at %d.', run_num,
+                   self.args.cycles, suspend_time, self.start_time)
       self.wakeup_count = file_utils.ReadFile(
-          # yapf: disable
-          self.args.wakeup_count_path).strip()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          self.args.wakeup_count_path).strip()
       self.alarm_thread.start()
       self.assertTrue(self.alarm_started.wait(_MIN_SUSPEND_MARGIN_SECS),
                       'Alarm thread timed out.')
@@ -609,21 +561,13 @@ class SuspendResumeTest(test_case.TestCase):
       self._Suspend()
       wake_time = self._ReadCurrentTime()
       wake_source = self._HandleMessages(messages_start)
-      self._VerifySuspended(
-          wake_time,
-          wake_source,
-          # yapf: disable
-          self.initial_suspend_count + self.run,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          self.resume_at)
+      self._VerifySuspended(wake_time, wake_source,
+                            self.initial_suspend_count + run_num,
+                            self.resume_at)
       self._VerifyWakealarmCleared(
-          # yapf: disable
-          raise_exception=self.args.ensure_wakealarm_cleared)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      logging.info('Resumed %d of %d for %d seconds.', self.run,
-                   # yapf: disable
-                   self.args.cycles, resume_time)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          raise_exception=self.args.ensure_wakealarm_cleared)
+      logging.info('Resumed %d of %d for %d seconds.', run_num,
+                   self.args.cycles, resume_time)
       self.Sleep(resume_time)
 
       while self.alarm_thread.is_alive():
@@ -631,27 +575,21 @@ class SuspendResumeTest(test_case.TestCase):
         logging.warning('alarm thread is taking a while to return, waiting 1s.')
         self.Sleep(1)
         self.assertGreaterEqual(
-            # yapf: disable
-            self.start_time + self.args.suspend_worst_case_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            self._ReadCurrentTime(),
-            f'alarm thread did not return within '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+            self.start_time + self.args.suspend_worst_case_secs,
+            self._ReadCurrentTime(), f'alarm thread did not return within '
             f'{int(self.args.suspend_worst_case_secs)} sec.')
       suspend_count = self._ReadSuspendCount()
-      event_log.Log('suspend_resume_cycle',
-                    run=self.run, start_time=self.start_time,
-                    suspend_time=suspend_time, resume_time=resume_time,
-                    resume_at=self.resume_at, wakeup_count=self.wakeup_count,
-                    suspend_count=suspend_count,
+      event_log.Log('suspend_resume_cycle', run=run_num,
+                    start_time=self.start_time, suspend_time=suspend_time,
+                    resume_time=resume_time, resume_at=self.resume_at,
+                    wakeup_count=self.wakeup_count, suspend_count=suspend_count,
                     initial_suspend_count=self.initial_suspend_count,
                     attempted_wake_extensions=self.attempted_wake_extensions,
                     actual_wake_extensions=self.actual_wake_extensions,
                     alarm_suspend_delays=alarm_suspend_delays,
                     wake_source=wake_source)
       with self.group_checker:
-        testlog.LogParam('run', self.run)
+        testlog.LogParam('run', run_num)
         testlog.LogParam('start_time', self.start_time)
         testlog.LogParam('suspend_time', suspend_time)
         testlog.LogParam('resume_time', resume_time)

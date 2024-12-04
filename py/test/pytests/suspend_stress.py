@@ -37,7 +37,7 @@ import os
 import re
 import threading
 import time
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from cros.factory.device import device_types
 from cros.factory.device import device_utils
@@ -90,6 +90,7 @@ def GetElog(dut: device_types.DeviceBoard,
 
 
 def GetElogLastLine(dut: device_types.DeviceBoard) -> Optional[str]:
+  """Return the last line of the elog."""
   stdout_lines = GetElog(dut)
   return stdout_lines[-1] if stdout_lines else None
 
@@ -115,11 +116,28 @@ def GetWakeSource(elog: List[str]) -> Optional[str]:
   return wake_source
 
 
+class SuspendStressTestArgs:
+  cycles: int
+  suspend_delay_max_secs: int
+  suspend_delay_min_secs: int
+  resume_delay_max_secs: int
+  resume_delay_min_secs: int
+  suspend_time_margin_min_secs: int
+  suspend_time_margin_max_secs: int
+  ignore_wakeup_source: Optional[str]
+  backup_rtc: bool
+  memory_check: bool
+  memory_check_size: int
+  fw_errors_fatal: bool
+  premature_wake_fatal: bool
+  late_wake_fatal: bool
+  pre_suspend_command: str
+  post_resume_command: str
+
+
 class SuspendStressTest(test_case.TestCase):
   """Run suspend_stress_test to test the suspending is fine."""
   related_components = tuple()
-
-
   ARGS = [
       Arg('cycles', int, 'Number of cycles to suspend/resume', default=1),
       Arg('suspend_delay_max_secs', int,
@@ -155,150 +173,130 @@ class SuspendStressTest(test_case.TestCase):
           default=''),
   ]
 
+  args: SuspendStressTestArgs
+  ui: test_ui.ScrollableLogUI
   ui_class = test_ui.ScrollableLogUI
 
+  def _ValidateArgs(self):
+    """Validate the arguments."""
+    self.assertGreaterEqual(self.args.memory_check_size, 0)
+    self.assertTrue(
+        self.args.memory_check or not self.args.memory_check_size,
+        'Do not specify memory_check_size if memory_check is '
+        'False.')
+    self.assertGreaterEqual(
+        self.args.suspend_delay_min_secs, _MIN_SUSPEND_MARGIN_SECS, 'The '
+        'suspend_delay_min_secs is too low, bad '
+        'test_list?')
+    self.assertGreaterEqual(
+        self.args.suspend_delay_max_secs, self.args.suspend_delay_min_secs,
+        'Invalid suspend '
+        'timings provided in test_list (max < min).')
+    self.assertGreaterEqual(
+        self.args.resume_delay_max_secs, self.args.resume_delay_min_secs,
+        'Invalid resume '
+        'timings provided in test_list (max < min).')
+
   def setUp(self):
-    # yapf: disable
-    self.assertGreaterEqual(self.args.memory_check_size, 0)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.assertTrue(self.args.memory_check or not self.args.memory_check_size,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                    'Do not specify memory_check_size if memory_check is '
-                    'False.')
-    # yapf: disable
-    self.assertGreaterEqual(self.args.suspend_delay_min_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-                            _MIN_SUSPEND_MARGIN_SECS, 'The '
-                            'suspend_delay_min_secs is too low, bad '
-                            'test_list?')
-    # yapf: disable
-    self.assertGreaterEqual(self.args.suspend_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            # yapf: disable
-                            self.args.suspend_delay_min_secs, 'Invalid suspend '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            'timings provided in test_list (max < min).')
-    # yapf: disable
-    self.assertGreaterEqual(self.args.resume_delay_max_secs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            # yapf: disable
-                            self.args.resume_delay_min_secs, 'Invalid resume '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                            # yapf: enable
-                            'timings provided in test_list (max < min).')
     self.dut = device_utils.CreateDUTInterface()
     self.goofy = state.GetInstance()
+    self._ValidateArgs()
     self._suspend_stress_test_stop = threading.Event()
+
+    # Get the last line of elog before running suspend_stress_test.
+    self.elog_cut_line = GetElogLastLine(self.dut)
 
   def UpdateOutput(self, handle, interval_sec=0.1):
     """Updates output from file handle to given HTML node."""
     while not self._suspend_stress_test_stop.is_set():
       c = handle.read()
       if c:
-        # yapf: disable
-        self.ui.AppendLog(c)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.ui.AppendLog(c)
       time.sleep(interval_sec)
 
-  def runTest(self):
+  def GetLogPath(self, suffix: str) -> str:
+    """Get the path to the log file."""
+    path = 'suspend_stress_test.' + suffix
+    return os.path.join(paths.DATA_TESTS_DIR, session.GetCurrentTestPath(),
+                        path)
 
-    def GetLogPath(suffix):
-      path = 'suspend_stress_test.' + suffix
-      return os.path.join(paths.DATA_TESTS_DIR, session.GetCurrentTestPath(),
-                          path)
-
+  def BuildCommand(self) -> List[str]:
+    """Build the command to run suspend_stress_test."""
     command = [
         'suspend_stress_test',
         '--count',
-        # yapf: disable
-        str(self.args.cycles),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.cycles),
         '--suspend_max',
-        # yapf: disable
-        str(self.args.suspend_delay_max_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.suspend_delay_max_secs),
         '--suspend_min',
-        # yapf: disable
-        str(self.args.suspend_delay_min_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.suspend_delay_min_secs),
         '--wake_max',
-        # yapf: disable
-        str(self.args.resume_delay_max_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.resume_delay_max_secs),
         '--wake_min',
-        # yapf: disable
-        str(self.args.resume_delay_min_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.resume_delay_min_secs),
         '--suspend_time_margin_min',
-        # yapf: disable
-        str(self.args.suspend_time_margin_min_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.suspend_time_margin_min_secs),
         '--suspend_time_margin_max',
-        # yapf: disable
-        str(self.args.suspend_time_margin_max_secs),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        f"--{'' if self.args.fw_errors_fatal else 'no'}fw_errors_fatal",  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        f"--{'' if self.args.premature_wake_fatal else 'no'}"  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        str(self.args.suspend_time_margin_max_secs),
+        f"--{'' if self.args.fw_errors_fatal else 'no'}fw_errors_fatal",
+        f"--{'' if self.args.premature_wake_fatal else 'no'}"
         f"premature_wake_fatal",
-        # yapf: disable
-        f"--{'' if self.args.late_wake_fatal else 'no'}late_wake_fatal",  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        f"--{'' if self.args.late_wake_fatal else 'no'}late_wake_fatal",
         '--record_dmesg_dir',
-        os.path.dirname(GetLogPath('')),
+        os.path.dirname(self.GetLogPath('')),
         '--pre_suspend_command',
-        # yapf: disable
-        self.args.pre_suspend_command,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.args.pre_suspend_command,
         '--post_resume_command',
-        # yapf: disable
-        self.args.post_resume_command,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        self.args.post_resume_command,
     ]
-    # yapf: disable
-    if self.args.ignore_wakeup_source:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      command += ['--ignore_wakeup_source', self.args.ignore_wakeup_source]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    if self.args.backup_rtc:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.ignore_wakeup_source:
+      command += ['--ignore_wakeup_source', self.args.ignore_wakeup_source]
+    if self.args.backup_rtc:
       command += ['--backup_rtc']
-    # yapf: disable
-    if self.args.memory_check:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.memory_check:
       command += [
-          '--memory_check',
-          # yapf: disable
-          '--memory_check_size', str(self.args.memory_check_size)]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          '--memory_check', '--memory_check_size',
+          str(self.args.memory_check_size)
+      ]
 
     logging.info('command: %r', command)
+    return command
+
+  def SuspendStressTest(self) -> Tuple[str, str, int]:
+    """Run suspend_stress_test and return the output."""
+    command = self.BuildCommand()
+    logging.info('Running command: %r', command)
     testlog.LogParam('command', command)
 
-    elog_cut_line = GetElogLastLine(self.dut)
+    logging.info('Log path is %s', self.GetLogPath('*'))
+    result_path = self.GetLogPath('result')
+    logging.info('result_path is %s', result_path)
+    stdout_path = self.GetLogPath('stdout')
+    stderr_path = self.GetLogPath('stderr')
 
-    logging.info('Log path is %s', GetLogPath('*'))
-    result_path = GetLogPath('result')
-    stdout_path = GetLogPath('stdout')
-    stderr_path = GetLogPath('stderr')
-    with open(stdout_path, 'w+', 1, encoding='utf8') as out, open(
-        stderr_path, 'w', 1, encoding='utf8') as err:
-      process = self.dut.Popen(command, stdout=out, stderr=err)
-      thread = process_utils.StartDaemonThread(
-          target=self.UpdateOutput, args=(out, ))
-      process.wait()
-      self._suspend_stress_test_stop.set()
-      thread.join()
-    self.goofy.WaitForWebSocketUp()
+    try:
+      with open(stdout_path, 'w+', 1, encoding='utf8') as out, open(
+          stderr_path, 'w', 1, encoding='utf8') as err:
+        process = self.dut.Popen(command, stdout=out, stderr=err)
+        thread = process_utils.StartDaemonThread(target=self.UpdateOutput,
+                                                 args=(out, ))
+        process.wait()
+        self._suspend_stress_test_stop.set()
+        thread.join()
 
-    stdout = file_utils.ReadFile(stdout_path)
-    stderr = file_utils.ReadFile(stderr_path)
-    returncode = process.returncode
+      self.goofy.WaitForWebSocketUp()
+      returncode = process.returncode
+      with open(stdout_path, 'r', encoding='utf8') as stdout_file, \
+            open(stderr_path, 'r', encoding='utf8') as stderr_file:
+        stdout = stdout_file.read()
+        stderr = stderr_file.read()
+
+    except (IOError, OSError) as e:
+      logging.exception('Failed to run suspend_stress_test: %s', e)
+      raise
+    except Exception as e:
+      logging.exception('An unexpected exception occurred: %s', e)
+      raise
 
     try:
       file_utils.WriteFile(result_path, str(returncode))
@@ -310,86 +308,84 @@ class SuspendStressTest(test_case.TestCase):
     testlog.LogParam('returncode', returncode)
     # TODO(chuntsen): Attach EC logs and other system logs on failure.
 
-    elog = GetElog(self.dut, elog_cut_line)
+    return stdout, stderr, returncode
+
+  def AnalyzeResults(self, stdout: str, unused_stderr: str,
+                     returncode: int) -> List[str]:
+    """Analyze the test results and any errors found.
+
+    Args:
+      stdout: Output from suspend_stress_test.
+      unused_stderr: Error output (currently not used).
+      returncode: Process return code.
+
+    Returns:
+      List of errors found, empty if no errors found.
+    """
+    elog = GetElog(self.dut, self.elog_cut_line)
     testlog_elog = False
     errors = []
+
+    # Check returncode if suspend_stress_test failed.
     if returncode != 0:
       errors.append(f'Suspend stress test failed: returncode:{int(returncode)}')
-    match = re.findall(r'Premature wake detected', stdout)
-    if match:
+
+    # Check if there are any premature wake detected.
+    premature_wakes = re.findall(r'Premature wake detected', stdout)
+    if premature_wakes:
       testlog_elog = True
       wake_source = GetWakeSource(elog)
-      # yapf: disable
-      if self.args.premature_wake_fatal:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        errors.append(f'Premature wake detected:{len(match)}')
+      if self.args.premature_wake_fatal:
+        errors.append(f'Premature wake detected:{len(premature_wakes)}')
         errors.append(f'Last elog Wake Source event: {wake_source!r}')
       else:
-        logging.warning('Premature wake detected:%d', len(match))
+        logging.warning('Premature wake detected:%d', len(premature_wakes))
         logging.warning('Last elog Wake Source event: %r', wake_source)
-    match = re.findall(r'Late wake detected', stdout)
-    if match:
-      # yapf: disable
-      if self.args.late_wake_fatal:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        errors.append(f'Late wake detected:{len(match)}')
+
+    # Check if there are any late wake detected.
+    late_wakes = re.findall(r'Late wake detected', stdout)
+    if late_wakes:
+      if self.args.late_wake_fatal:
+        errors.append(f'Late wake detected:{len(late_wakes)}')
       else:
-        logging.warning('Late wake detected:%d', len(match))
-    # yapf: disable
-    match = re.search(r'Finished (\d+) iterations', stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if match and match.group(1) != str(self.args.cycles):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(f'Only finished {match.group(1)!r} cycles instead of '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+        logging.warning('Late wake detected:%d', len(late_wakes))
+
+    # Check if the number of iterations is correct.
+    match = re.search(r'Finished (\d+) iterations', stdout)
+    if match and match.group(1) != str(self.args.cycles):
+      errors.append(f'Only finished {match.group(1)!r} cycles instead of '
                     f'{int(self.args.cycles)} cycles')
-    # yapf: disable
-    match = re.search(r'Suspend failures: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    match = re.search(r'Wakealarm errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-    # yapf: disable
-    match = re.search(r'Firmware log errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      if self.args.fw_errors_fatal:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+
+    # Check if there are any suspend failures.
+    error_patterns = [
+        r'Suspend failures: (\d+)', r'Wakealarm errors: (\d+)',
+        r's0ix errors: (\d+)'
+    ]
+    for pattern in error_patterns:
+      match = re.search(pattern, stdout)
+      if match and match.group(1) != '0':
+        errors.append(match.group(0))
+
+    # Check if there are any firmware log errors.
+    match = re.search(r'Firmware log errors: (\d+)', stdout)
+    if match and match.group(1) != '0':
+      if self.args.fw_errors_fatal:
+        errors.append(match.group(0))
       else:
-        # yapf: disable
-        logging.warning(match.group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-    # yapf: disable
-    match = re.search(r's0ix errors: (\d+)', stdout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    if match and match.group(1) != '0':  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      errors.append(match.group(0))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+        logging.warning(match.group(0))
+
+    # Log the elog if there are any errors.
     if testlog_elog or errors:
       # This is the elog produced during the test.
       testlog.LogParam('elog', elog)
+
+    return errors
+
+  def runTest(self):
+    # Run suspend_stress_test.
+    stdout, stderr, returncode = self.SuspendStressTest()
+
+    # Analyze the results.
+    errors = self.AnalyzeResults(stdout, stderr, returncode)
     if errors:
-      self.FailTask(f'{errors!r}')
+      self.FailTask(f'Suspend stress test failed: {errors!r}')
