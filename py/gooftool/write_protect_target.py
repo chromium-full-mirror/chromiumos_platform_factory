@@ -131,9 +131,6 @@ class _ECWriteProtectTarget(IWriteProtectTarget):
 
 class _FPMCUWriteProtectTarget(IWriteProtectTarget):
 
-  FILE_FPFRAME = 'fp.raw'
-  FILE_FPFRAME_ERR_MSG = 'error_msg.txt'
-
   def __init__(self):
     self._fpmcu = fpmcu_utils.FpmcuDevice(sys_interface.SystemInterface())
 
