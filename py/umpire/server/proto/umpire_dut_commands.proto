@@ -11,8 +11,30 @@ message UpdateFactoryAppResponse {
   string messages = 2;
 }
 
+enum Component {
+  COMPONENT_NONE = 0;
+  COMPONENT_TOOLKIT = 1;
+}
+
+message GetUpdateVersionRequest {
+  Component component = 1;
+}
+
+message GetUpdateVersionResponse {
+  string version = 1;
+}
+
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
       returns (UpdateFactoryAppResponse) {}
+
+  /* Return the version of a component.
+   *
+   * In xmlrpc, DUT gets the cros_payload JSON file by GetCROSPayloadURL and
+   * parse the bundle information from it. Check Updater.GetUpdateInfo. In grpc,
+   * this API returns the version directly.
+   */
+  rpc GetUpdateVersion(GetUpdateVersionRequest)
+    returns (GetUpdateVersionResponse) {}
 }

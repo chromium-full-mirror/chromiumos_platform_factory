@@ -68,3 +68,19 @@ class UmpireDUTCommandsServicer(
           success=False, messages=str(err))
     return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
         success=True, messages='')
+
+  def GetUpdateVersion(
+      self,
+      request: umpire_dut_commands_pb2.GetUpdateVersionRequest,
+      context: grpc.ServicerContext,
+  ):
+    logging.info('GetUpdateVersion: peer: %s', context.peer())
+    payloads = self.CLI_command.GetActivePayload()
+    if not payloads:
+      return umpire_dut_commands_pb2.GetUpdateVersionResponse()
+    # May add more components later.
+    field_name = {
+        umpire_dut_commands_pb2.COMPONENT_TOOLKIT: 'toolkit'
+    }.get(request.component)
+    return umpire_dut_commands_pb2.GetUpdateVersionResponse(
+        version=payloads.get(field_name, {}).get('version', ''))
