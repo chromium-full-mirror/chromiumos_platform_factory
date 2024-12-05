@@ -51,6 +51,7 @@ from types import MappingProxyType
 
 from cros.factory.test import session
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.utils.arg_utils import Arg
 
 
@@ -72,6 +73,19 @@ _TAST_METRICS = (
     'avg_render_time',
     'std_interframe_time',
 )
+
+
+class WebGLAquariumTestArgs:
+  duration_secs: int
+  num_fish: int
+  hide_options: bool
+  full_screen: bool
+  min_fps: int
+  fps_sample_interval: float
+  fps_log_interval: int
+  fps_check_interval: int
+  fps_window_size: int
+
 
 class WebGLAquariumTest(test_case.TestCase):
   related_components = tuple()
@@ -103,36 +117,26 @@ class WebGLAquariumTest(test_case.TestCase):
           default=10)
   ]
 
+  args: WebGLAquariumTestArgs
+  ui: test_ui.StandardUI
+  event_loop: test_ui.EventLoop
+
   def setUp(self):
     self.start_time = time.time()
-    # yapf: disable
-    self.end_time = self.start_time + self.args.duration_secs  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.end_time = self.start_time + self.args.duration_secs
     self.metrics = dict.fromkeys(_FACTORY_METRICS + _TAST_METRICS, float("nan"))
     self.window_sum_fps = 0
-    # yapf: disable
-    self.window_fps = collections.deque()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    num_fish: int = self.args.num_fish  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.window_fps: collections.deque = collections.deque()
+    num_fish: int = self.args.num_fish
 
     self.assertIn(num_fish, _FISH_SETTINGS)
-    # yapf: disable
-    self.ui.CallJSFunction('setSettings', _FISH_SETTINGS[num_fish])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.CallJSFunction('setSettings', _FISH_SETTINGS[num_fish])
 
-    # yapf: disable
-    if self.args.full_screen:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.ui.CallJSFunction('toggleFullScreen')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.full_screen:
+      self.ui.CallJSFunction('toggleFullScreen')
 
     # bind function 'self.AddFPSToWindow' with 'AddFPSToWindow' event.
-    # yapf: disable
-    self.event_loop.AddEventHandler('AddFPSToWindow', self.AddFPSToWindow)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.event_loop.AddEventHandler('AddFPSToWindow', self.AddFPSToWindow)
 
   def FormatSeconds(self, secs):
     hours = int(secs / 3600)
@@ -144,12 +148,8 @@ class WebGLAquariumTest(test_case.TestCase):
     time_left = self.end_time - time.time()
     if time_left <= 0:
       self.PassTask()
-    # yapf: disable
-    self.ui.CallJSFunction('updateUI', self.FormatSeconds(time_left),  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                           # yapf: enable
-                           # yapf: disable
-                           self.args.hide_options)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.CallJSFunction('updateUI', self.FormatSeconds(time_left),
+                           self.args.hide_options)
 
   def AddFPSToWindow(self, event):
     """Adds the fps value received from frontend into window (FIFO queue)."""
@@ -165,18 +165,12 @@ class WebGLAquariumTest(test_case.TestCase):
 
     self.window_sum_fps += fps
     self.window_fps.append(fps)
-    # yapf: disable
-    if len(self.window_fps) == self.args.fps_window_size + 1:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if len(self.window_fps) == self.args.fps_window_size + 1:
       popped_fps = self.window_fps.popleft()
       self.window_sum_fps -= popped_fps
-    # yapf: disable
-    if len(self.window_fps) == self.args.fps_window_size:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if len(self.window_fps) == self.args.fps_window_size:
       self.metrics['moving_avg_fps'] = (
-          # yapf: disable
-          self.window_sum_fps / self.args.fps_window_size)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          self.window_sum_fps / self.args.fps_window_size)
 
   def PeriodicSampleFPS(self):
     """Periodicly samples FPS value from WebGL Aquarium test.
@@ -187,9 +181,7 @@ class WebGLAquariumTest(test_case.TestCase):
     """
     time_pass = time.time() - self.start_time
     if time_pass >= 5:
-      # yapf: disable
-      self.ui.CallJSFunction('sendFpsToPytest')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.CallJSFunction('sendFpsToPytest')
 
   def PeriodicLogFPS(self):
     """Periodically logs the metrics in console."""
@@ -206,34 +198,16 @@ class WebGLAquariumTest(test_case.TestCase):
     every seconds, if not, the test failed.
     """
     moving_avg_fps = self.metrics['moving_avg_fps']
-    # yapf: disable
-    if moving_avg_fps < self.args.min_fps:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.FailTask(f'Moving Average FPS ({moving_avg_fps:.2f}) is lower than '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if moving_avg_fps < self.args.min_fps:
+      self.FailTask(f'Moving Average FPS ({moving_avg_fps:.2f}) is lower than '
                     f'the limit of minimum FPS ({self.args.min_fps}).')
 
   def runTest(self):
-    # yapf: disable
-    self.event_loop.AddTimedHandler(self.PeriodicCheck, 1, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.event_loop.AddTimedHandler(self.PeriodicSampleFPS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                    # yapf: enable
-                                    # yapf: disable
-                                    self.args.fps_sample_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.event_loop.AddTimedHandler(self.PeriodicLogFPS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                    # yapf: enable
-                                    # yapf: disable
-                                    self.args.fps_log_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.event_loop.AddTimedHandler(self.PeriodicCheckFPS,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-                                    # yapf: enable
-                                    # yapf: disable
-                                    self.args.fps_check_interval, repeat=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.event_loop.AddTimedHandler(self.PeriodicCheck, 1, repeat=True)
+    self.event_loop.AddTimedHandler(self.PeriodicSampleFPS,
+                                    self.args.fps_sample_interval, repeat=True)
+    self.event_loop.AddTimedHandler(self.PeriodicLogFPS,
+                                    self.args.fps_log_interval, repeat=True)
+    self.event_loop.AddTimedHandler(self.PeriodicCheckFPS,
+                                    self.args.fps_check_interval, repeat=True)
     self.WaitTaskEnd()
