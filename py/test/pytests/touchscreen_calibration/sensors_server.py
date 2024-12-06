@@ -19,11 +19,10 @@ import os
 import re
 import sys
 import time
+from typing import NoReturn
 import xmlrpc.server
 
-# yapf: disable
-from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-# yapf: enable
+from cros.factory.test.pytests.touchscreen_calibration import touchscreen_calibration_utils as utils  # type: ignore[attr-defined]  # pylint: disable=line-too-long,no-name-in-module
 from cros.factory.utils import file_utils
 
 
@@ -123,8 +122,9 @@ class AbstractSensorService(abc.ABC):
     failed_sensors = []
     min_value = float('inf')
     max_value = float('-inf')
-    mean = (sum([sum(row_data) for row_data in data]) /
-            sum([len(row_data) for row_data in data]))
+    mean = (
+        sum(sum(row_data) for row_data in data) /
+        sum(len(row_data) for row_data in data))
     max_row_number = len(data) - 1
     max_col_number = len(data[0]) - 1
     for row, row_data in enumerate(data):
@@ -497,9 +497,9 @@ class SensorServiceRyu(AbstractSensorService):
     Returns:
       True if the sensor data are legitimate.
     """
-    # yapf: disable
-    touched_cols = list(range(self.num_cols))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    if self.num_cols is None:
+      raise Error('The number of columns is not set.')
+    touched_cols = list(range(self.num_cols))
     return super()._VerifyDeltasTouched(data, touched_cols)
 
   def ReadTRx(self, category):
@@ -659,18 +659,14 @@ def RunXMLRPCSysfsServer(addr, board, log=logging):
 def _ParseAddr(addr_str):
   """Parse the address string into (ip, port) pair."""
   result = re.search(r'(.+):(\d+)', addr_str)
-  if not result:
+  if result is None:
     _Usage()
-  # yapf: disable
-  ip = result.group(1)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-  # yapf: disable
-  port = int(result.group(2))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
+  ip = result.group(1)
+  port = int(result.group(2))
   return (ip, port)
 
 
-def _Usage():
+def _Usage() -> NoReturn:
   """Print the usage."""
   prog = sys.argv[0]
   print(f'Usage: ./{prog} ip:port board')

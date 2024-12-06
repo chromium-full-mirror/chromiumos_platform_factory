@@ -65,17 +65,31 @@ If calibration is required:
 
 import contextlib
 import time
+from typing import TYPE_CHECKING, Optional, Union
 
 from cros.factory.device import device_utils
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.test.utils import evdev_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import sync_utils
 from cros.factory.utils import type_utils
 
-from cros.factory.external.py_lib import evdev
 
+if not TYPE_CHECKING:
+  from cros.factory.external.py_lib import evdev
+else:
+  import evdev
+
+
+class TouchpadHoverTestArgs:
+  touchpad_filter: Optional[Union[int, str]]
+  calibration_trigger: Optional[str]
+  calibration_sleep_secs: int
+  repeat_times: int
+  timeout_secs: int
+  false_positive_check_duration: int
 
 class TouchpadHoverTest(test_case.TestCase):
   """Touchpad Hover Test."""
@@ -96,19 +110,18 @@ class TouchpadHoverTest(test_case.TestCase):
           'Duration of false positive check in seconds.', default=5)
   ]
 
+  args: TouchpadHoverTestArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self._dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self._touchpad = evdev_utils.FindDevice(self.args.touchpad_filter,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self._touchpad = evdev_utils.FindDevice(self.args.touchpad_filter,
                                             evdev_utils.IsTouchpadDevice)
     self._hover_type = evdev_utils.GetHoverType(self._touchpad)
 
   @contextlib.contextmanager
   def WithTimer(self, timeout_secs):
-    # yapf: disable
-    timer_disabler = self.ui.StartCountdownTimer(timeout_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    timer_disabler = self.ui.StartCountdownTimer(timeout_secs)
     yield
     timer_disabler.set()
 
@@ -122,13 +135,8 @@ class TouchpadHoverTest(test_case.TestCase):
         if event is None:
           return False
         if (event.timestamp() >= start_time and
-            # yapf: disable
-            event.type == evdev.ecodes.EV_ABS and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            # yapf: disable
-            event.code == evdev.ecodes.ABS_DISTANCE and  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
-            event.value == value):
+            event.type == evdev.ecodes.EV_ABS and
+            event.code == evdev.ecodes.ABS_DISTANCE and event.value == value):
           return True
     start_time = time.time()
     try:
@@ -138,16 +146,10 @@ class TouchpadHoverTest(test_case.TestCase):
     return True
 
   def _TestForValue(self, msg, val):
-    # yapf: disable
-    self.ui.SetState(msg)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    with self.WithTimer(self.args.timeout_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self.ui.SetState(msg)
+    with self.WithTimer(self.args.timeout_secs):
       self.assertTrue(
-          # yapf: disable
-          self._WaitForValue(val, self.args.timeout_secs), 'Timeout')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+          self._WaitForValue(val, self.args.timeout_secs), 'Timeout')
 
   def runTest(self):
     if self._hover_type == evdev_utils.HoverType.NotSupported:
@@ -157,41 +159,21 @@ class TouchpadHoverTest(test_case.TestCase):
       self.WaiveTest(f'Touchpad {self._touchpad.name} is multi-touch. '
                      'This test only supports single-touch.')
 
-    # yapf: disable
-    if self.args.calibration_trigger:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      self.ui.SetState(_('Calibrating touchpad...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      with self.WithTimer(self.args.calibration_sleep_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        self._dut.WriteFile(self.args.calibration_trigger, '1')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        self.Sleep(self.args.calibration_sleep_secs)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+    if self.args.calibration_trigger:
+      self.ui.SetState(_('Calibrating touchpad...'))
+      with self.WithTimer(self.args.calibration_sleep_secs):
+        self._dut.WriteFile(self.args.calibration_trigger, '1')
+        self.Sleep(self.args.calibration_sleep_secs)
 
-    # yapf: disable
-    for round_index in range(self.args.repeat_times):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      progress = f'({int(round_index)}/{int(self.args.repeat_times)}) '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    for round_index in range(self.args.repeat_times):
+      progress = f'({int(round_index)}/{int(self.args.repeat_times)}) '
       self._TestForValue(
           [progress, _('Please put the hover-tool into the holder.')], 1)
       self._TestForValue(
           [progress,
            _('Please pull out the hover-tool from the holder.')], 0)
 
-    # yapf: disable
-    self.ui.SetState(_('Checking for false positive...'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    with self.WithTimer(self.args.false_positive_check_duration):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-      # yapf: disable
-      fp = self._WaitForValue(1, self.args.false_positive_check_duration)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    self.ui.SetState(_('Checking for false positive...'))
+    with self.WithTimer(self.args.false_positive_check_duration):
+      fp = self._WaitForValue(1, self.args.false_positive_check_duration)
       self.assertFalse(fp, 'False Positive Detected.')

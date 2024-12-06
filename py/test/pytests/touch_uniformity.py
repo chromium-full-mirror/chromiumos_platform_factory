@@ -38,16 +38,21 @@ Sample test_list entry:
 
 import collections
 import logging
+from typing import TYPE_CHECKING, List
 
 from cros.factory.device import device_utils
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.testlog import testlog
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import file_utils
 
-from cros.factory.external.py_lib import numpy
+if not TYPE_CHECKING:
+  from cros.factory.external.py_lib import numpy
+else:
+  import numpy
 
 
 # Private Constants.
@@ -58,6 +63,11 @@ _MESSAGE_DELAY_SECS = 1
 CheckItem = collections.namedtuple(
     'CheckItem', ['frame_idx', 'label', 'min_val', 'max_val', 'rows', 'cols'])
 
+
+class TouchUniformityArgs:
+  device_index: int
+  check_list: List[CheckItem]
+  keep_raw_logs: bool
 
 class TouchUniformity(test_case.TestCase):
   related_components = (test_case.TestCategory.TRACKPAD, )
@@ -75,17 +85,14 @@ class TouchUniformity(test_case.TestCase):
       Arg('keep_raw_logs', bool, 'Whether to attach the log by Testlog',
           default=True)]
 
+  args: TouchUniformityArgs
+  ui: test_ui.StandardUI
+
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
-    # yapf: disable
-    self.controller = self.dut.touch.GetController(self.args.device_index)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.check_list = [CheckItem(*item) for item in self.args.check_list]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.ui.ToggleTemplateClass('font-large', True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.controller = self.dut.touch.GetController(self.args.device_index)
+    self.check_list = [CheckItem(*item) for item in self.args.check_list]
+    self.ui.ToggleTemplateClass('font-large', True)
     # Group checker for Testlog.
     self.group_checker = testlog.GroupParam(
         'data', ['frame_idx', 'min_value', 'max_value', 'standard_deviation'])
@@ -97,9 +104,7 @@ class TouchUniformity(test_case.TestCase):
 
   def CheckInterface(self):
     if not self.controller.CheckInterface():
-      # yapf: disable
-      self.ui.SetState([  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState([
           '<span class="test-status-failed">',
           _('ERROR: Touch device not found'), '</span>'
       ])
@@ -107,13 +112,9 @@ class TouchUniformity(test_case.TestCase):
       self.FailTask('Touch controller not found.')
 
   def Calibrate(self):
-    # yapf: disable
-    self.ui.SetState(_('Calibrating Touch device'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState(_('Calibrating Touch device'))
     if not self.controller.Calibrate():
-      # yapf: disable
-      self.ui.SetState(_LABEL_FAIL, append=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(_LABEL_FAIL, append=True)
       self.Sleep(_MESSAGE_DELAY_SECS)
       self.FailTask('Touch device calibration failed.')
 
@@ -134,14 +135,10 @@ class TouchUniformity(test_case.TestCase):
               'Raw data out of range: [%d, %d] = %s', row_index, col_index, val)
           check_passed = False
 
-    # yapf: disable
-    merged_data = sum(data, [])  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    merged_data: List[float] = sum(data, [])
     actual_min_val = min(merged_data)
     actual_max_val = max(merged_data)
-    # yapf: disable
-    standard_deviation = float(numpy.std(merged_data))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    standard_deviation = float(numpy.std(merged_data))
     logging.info('Lowest value: %s', actual_min_val)
     logging.info('Highest value: %s', actual_max_val)
     logging.info('Standard deviation %f', standard_deviation)
@@ -166,9 +163,7 @@ class TouchUniformity(test_case.TestCase):
         [item.frame_idx for item in self.check_list])
     fails = []
     to_log = []
-    # yapf: disable
-    self.ui.SetState('')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.SetState('')
     for item, matrix in zip(self.check_list, matrices):
       status = None
       if self._CheckSingleRawData(item, matrix):
@@ -178,17 +173,13 @@ class TouchUniformity(test_case.TestCase):
         status = _LABEL_FAIL
         fails.append(item.frame_idx)
         to_log.append([dict(item._asdict()), 'FAIL', matrix])
-      # yapf: disable
-      self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.ui.SetState(
           ['<div>',
            _('Testing {item}...', item=item.label), status, '</div>'],
           append=True)
     self.Sleep(_MESSAGE_DELAY_SECS)
 
-    # yapf: disable
-    if self.args.keep_raw_logs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if self.args.keep_raw_logs:
       with file_utils.UnopenedTemporaryFile() as temp_path:
         with open(temp_path, 'w', encoding='utf8') as f:
           for obj in to_log:

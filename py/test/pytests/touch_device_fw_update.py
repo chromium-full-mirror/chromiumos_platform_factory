@@ -53,6 +53,11 @@ FIRMWARE_UPDATER = '/opt/google/touch/scripts/chromeos-touch-firmware-update.sh'
 CONFIG_UPDATER = '/opt/google/touch/scripts/chromeos-touch-config-update.sh'
 
 
+class UpdateTouchDeviceFWTestArgs:
+  device_name: str
+  fw_name: str
+  fw_version: str
+
 class UpdateTouchDeviceFWTest(unittest.TestCase):
   related_components = (
       test_tags.TestCategory.EMR_IC,
@@ -67,15 +72,15 @@ class UpdateTouchDeviceFWTest(unittest.TestCase):
       Arg('fw_version', str, 'Expected firmware version'),
   ]
 
+  args: UpdateTouchDeviceFWTestArgs
+
   def run_updater_command(self, command):
     session.console.info('Running: %s', command)
     updater = process_utils.Spawn(command,
                                   log=True, read_stdout=True, shell=True)
     updater.wait()
     if updater.returncode != 0:
-      # yapf: disable
-      error_message = f'Touch device {self.args.device_name} update failed.'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      error_message = f'Touch device {self.args.device_name} update failed.'
       logging.error(error_message)
       logging.error('  stdout: %s', updater.stdout_data)
       logging.error('  stderr: %s', updater.stderr_data)
@@ -85,32 +90,24 @@ class UpdateTouchDeviceFWTest(unittest.TestCase):
     # Find the appropriate device sysfs file.
     devices = [
         x for x in glob.glob('/sys/bus/i2c/devices/*/name')
-        # yapf: disable
-        if file_utils.ReadFile(x).strip() == self.args.device_name  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        if file_utils.ReadFile(x).strip() == self.args.device_name
     ]
     self.assertEqual(1, len(devices),
                      f'Expected to find one device but found {devices}')
     device_path = os.path.dirname(devices[0])
 
-    # yapf: disable
-    expected_ver = getattr(self.args, 'fw_version')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    expected_ver = getattr(self.args, 'fw_version')
     actual_ver = file_utils.ReadFile(os.path.join(device_path,
                                                   'fw_version')).strip()
     if expected_ver != actual_ver:
       logging.info('Updating firmware from version %s to version %s',
                    actual_ver, expected_ver)
       firmware_updater_cmd = (
-          # yapf: disable
-          f'{FIRMWARE_UPDATER} -f -d {self.args.device_name} -n '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+          f'{FIRMWARE_UPDATER} -f -d {self.args.device_name} -n '
           f'{self.args.fw_name}')
       self.run_updater_command(firmware_updater_cmd)
 
     # Always force-update the device configuration
     logging.info('Updating device configuration.')
-    # yapf: disable
-    config_updater_cmd = f'{CONFIG_UPDATER} -f -d {self.args.device_name}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    config_updater_cmd = f'{CONFIG_UPDATER} -f -d {self.args.device_name}'
     self.run_updater_command(config_updater_cmd)
