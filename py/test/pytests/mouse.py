@@ -42,13 +42,26 @@ If you want to change the time limit to 100 seconds::
 
 import logging
 import time
+from typing import TYPE_CHECKING, Union
 
 from cros.factory.test import test_case
+from cros.factory.test import test_ui
 from cros.factory.test.utils import evdev_utils
 from cros.factory.utils.arg_utils import Arg
 from cros.factory.utils import process_utils
 
-from cros.factory.external.py_lib import evdev
+if not TYPE_CHECKING:
+  from cros.factory.external.py_lib import evdev
+else:
+  import evdev  # type: ignore[import]
+
+
+class MouseTestArgs:
+  device_filter: Union[int, str]
+  timeout_secs: int
+  button_updown_secs: float
+  move_threshold: int
+
 
 
 class MouseTest(test_case.TestCase):
@@ -66,18 +79,20 @@ class MouseTest(test_case.TestCase):
           default=3)
   ]
 
+  args: MouseTestArgs
+  ui: test_ui.StandardUI
+  event_loop: test_ui.EventLoop
+
+
   def setUp(self):
-    # yapf: disable
-    self.assertGreater(self.args.move_threshold, 0,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.assertGreater(self.args.move_threshold, 0,
                        'move_threshold must be greater than 0.')
-    self.mouse_device = evdev_utils.FindDevice(
-        # yapf: disable
-        self.args.device_filter, evdev_utils.IsMouseDevice)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.mouse_device = evdev_utils.FindDevice(self.args.device_filter,
+                                               evdev_utils.IsMouseDevice)
     self.mouse_device_name = self.mouse_device.name
 
-    self.frontend_proxy = None
+    self.frontend_proxy = self.ui.InitJSTestObject('MouseTest')
+
     self.dispatcher = None
     self.down_keycode_time = {}
 
@@ -95,81 +110,54 @@ class MouseTest(test_case.TestCase):
     process_utils.CheckOutput(['ectool', 'forcelidopen', '1'])
 
   def tearDown(self):
-    # yapf: disable
-    self.dispatcher.Close()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    if self.dispatcher:
+      self.dispatcher.Close()
     self.mouse_device.ungrab()
     # Enable lid function.
     process_utils.CheckOutput(['ectool', 'forcelidopen', '0'])
 
   def HandleEvent(self, event):
     """Handler for evdev events."""
-    # yapf: disable
-    if event.type == evdev.ecodes.EV_KEY:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if event.type == evdev.ecodes.EV_KEY:
       self.OnClickButton(event.code, event.value)
-    # yapf: disable
-    elif event.type == evdev.ecodes.EV_REL:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    elif event.type == evdev.ecodes.EV_REL:
       self.OnMoveDirection(event.code, event.value)
 
   def OnClickButton(self, keycode, value):
     button_map = {
-        # yapf: disable
-        evdev.ecodes.BTN_LEFT: 'left',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        evdev.ecodes.BTN_MIDDLE: 'middle',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        evdev.ecodes.BTN_RIGHT: 'right'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        evdev.ecodes.BTN_LEFT: 'left',
+        evdev.ecodes.BTN_MIDDLE: 'middle',
+        evdev.ecodes.BTN_RIGHT: 'right'
     }
     button = button_map[keycode]
     if value == 1:
       if self.down_keycode_time:
         self.FailTask('More than one button clicked')
       self.down_keycode_time[keycode] = time.time()
-      # yapf: disable
-      self.frontend_proxy.MarkClickButtonDown(button)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.frontend_proxy.MarkClickButtonDown(button)
     else:
       duration = time.time() - self.down_keycode_time[keycode]
-      # yapf: disable
-      if duration > self.args.button_updown_secs:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if duration > self.args.button_updown_secs:
         self.FailTask(
-            # yapf: disable
-            f'The time between button up and down is {duration:f} second(s), '  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-            # yapf: enable
+            f'The time between button up and down is {duration:f} second(s), '
             f'longer than {self.args.button_updown_secs:f} second(s).')
       del self.down_keycode_time[keycode]
-      # yapf: disable
-      self.frontend_proxy.MarkClickButtonTested(button)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      self.frontend_proxy.MarkClickButtonTested(button)
       self.click_tested[button] = True
       self.CheckTestPassed()
 
   def OnMoveDirection(self, keycode, value):
-    # yapf: disable
-    if abs(value) < self.args.move_threshold:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if abs(value) < self.args.move_threshold:
       return
-    # yapf: disable
-    if keycode == evdev.ecodes.REL_X:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    if keycode == evdev.ecodes.REL_X:
       direction = 'right' if value > 0 else 'left'
-    # yapf: disable
-    elif keycode == evdev.ecodes.REL_Y:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+    elif keycode == evdev.ecodes.REL_Y:
       direction = 'down' if value > 0 else 'up'
     else:
       logging.warning('Unknown keycode: %d', keycode)
       return
 
-    # yapf: disable
-    self.frontend_proxy.MarkMoveDirectionTested(direction)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.frontend_proxy.MarkMoveDirectionTested(direction)
     self.move_tested[direction] = True
     self.CheckTestPassed()
 
@@ -193,18 +181,10 @@ class MouseTest(test_case.TestCase):
   def runTest(self):
     self.mouse_device.grab()
 
-    # yapf: disable
-    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    # yapf: disable
-    self.frontend_proxy = self.ui.InitJSTestObject('MouseTest')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.ui.StartCountdownTimer(self.args.timeout_secs, self.FailTestTimeout)
 
     self.dispatcher = evdev_utils.InputDeviceDispatcher(
-        self.mouse_device,
-        # yapf: disable
-        self.event_loop.CatchException(self.HandleEvent))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+        self.mouse_device, self.event_loop.CatchException(self.HandleEvent))
     logging.info('start monitor daemon thread')
     self.dispatcher.StartDaemon()
 
