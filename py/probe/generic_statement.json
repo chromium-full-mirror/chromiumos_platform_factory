@@ -251,14 +251,5 @@
         }
       }
     }
-  },
-  "ec_component_mux": {
-    "generic": {
-      "eval": {
-        "ec_component": {
-          "type": "mux"
-        }
-      }
-    }
   }
 }

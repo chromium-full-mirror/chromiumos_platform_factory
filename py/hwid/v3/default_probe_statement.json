@@ -467,18 +467,5 @@
         "component_name"
       ]
     }
-  },
-  "ec_component_mux": {
-    "generic": {
-      "eval": {
-        "ec_component": {
-          "type": "mux"
-        }
-      },
-      "keys": [
-        "component_type",
-        "component_name"
-      ]
-    }
   }
 }
