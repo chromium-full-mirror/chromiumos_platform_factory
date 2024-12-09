@@ -11,7 +11,6 @@ Scans given python modules and see their dependency. Usage:
 
 import argparse
 import ast
-from distutils import sysconfig
 import functools
 import importlib.util
 import json
@@ -21,6 +20,7 @@ import os.path
 import re
 import subprocess
 import sys
+import sysconfig
 from typing import NamedTuple, Optional, Sequence
 
 import yaml
@@ -37,8 +37,8 @@ PY_BASE_DIR = os.path.join(FACTORY_DIR, 'py')
 PY_PKG_BASE_DIR = os.path.join(FACTORY_DIR, 'py_pkg', 'cros', 'factory')
 PY_PKG_ROOT_DIR = os.path.join(FACTORY_DIR, 'py_pkg')
 
-STANDARD_LIB_DIR = sysconfig.get_python_lib(standard_lib=True) + '/'
-SITE_PACKAGES_DIR = sysconfig.get_python_lib(standard_lib=False) + '/'
+STANDARD_LIB_DIR = sysconfig.get_path('stdlib') + '/'
+SITE_PACKAGES_DIR = sysconfig.get_path('purelib') + '/'
 
 _KNOWN_STD_LIB_EXCEPTIONS = frozenset(['zipimport'])
 
@@ -121,7 +121,8 @@ class _ModuleSpec(NamedTuple):
 def FindModuleSpec(name, paths) -> Optional[_ModuleSpec]:
   """Wrapper for importlib.util.find_spec, that returns the module spec."""
 
-  if name in sys.builtin_module_names:
+  if name in sys.builtin_module_names or (sys.version_info >= (3, 10) and
+                                          name in sys.stdlib_module_names):
     # (Python 3.6) There are exceptions where some modules in
     # sys.builtin_module_names but the origin of module spec is empty.  (e.g.
     # sys, _imp, builtins).  Therefore we don't use spec.origin == 'built-in' as
@@ -177,8 +178,6 @@ def GuessIsBuiltinOrStdlib(module):
     return False
   if module_spec.is_builtin:
     return True
-  # TODO: The stdlib check could be replaced with sys.stdlib_module_names check
-  # in Python 3.10.
 
   # On some environment, the origin might be set as relative paths like
   # /usr/lib/python-exec/python3.6/../../../lib64/python3.6/os.py, so we have to
