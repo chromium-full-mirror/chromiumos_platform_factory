@@ -9,6 +9,7 @@ cros.factory.umpire.server.rpc_dut.UmpireDUTCommands.
 
 import json
 import logging
+import re
 import tempfile
 from typing import cast
 import xmlrpc.client
@@ -22,6 +23,21 @@ from cros.factory.umpire.server import rpc_cli
 from cros.factory.utils import process_utils
 
 
+_PEER_PATTERN = re.compile(r'ipv4:(.*):\d+')
+
+
+def ParseIpFromPeer(peer: str) -> str:
+  """Parse ip from peer.
+
+  Example input: "ipv4:192.168.71.139:42710"
+  Example output: "192.168.71.139"
+  """
+  match = _PEER_PATTERN.fullmatch(peer)
+  if not match:
+    raise ValueError(f'{peer} does not match ${_PEER_PATTERN.pattern}')
+  return match.group(1)
+
+
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
 
@@ -33,9 +49,10 @@ class UmpireDUTCommandsServicer(
   def UpdateFactoryApp(self,
                        request: umpire_dut_commands_pb2.UpdateFactoryAppRequest,
                        context: grpc.ServicerContext):
-    target = request.target
-    logging.info('target: %s, peer: %s', target, context.peer())
+    logging.info('request.target: %s, peer: %s', request.target, context.peer())
     try:
+      target = request.target or ParseIpFromPeer(context.peer())
+      logging.info('target: %s', target)
       config = json.loads(self.CLI_command.GetActiveConfig())
       bundle_id = config['active_bundle_id']
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
