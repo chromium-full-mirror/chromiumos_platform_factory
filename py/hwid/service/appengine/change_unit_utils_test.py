@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 import collections
-import os.path
+import os.path  # TODO(b/383206574) pylint: disable=no-name-in-module
 import pickle
 import textwrap
 from typing import Iterable, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple
@@ -1216,9 +1216,11 @@ class ChangeUnitManagerTest(unittest.TestCase):
                 ('AddEncodingCombination:new_field-comp_cls_1:'
                  'comp_1_1_renamed,comp_1_2')
             },
-            # Not depended by other change units (status change only).
-            'CompChange:comp_cls_1:comp_1_2':
-                set(),
+            # status change is mentioned at this combination.
+            'CompChange:comp_cls_1:comp_1_2': {
+                'AddEncodingCombination:new_field-comp_cls_1:'
+                'comp_1_1_renamed,comp_1_2'
+            },
             'CompChange:comp_cls_1:new_comp(new)': {
                 # new_comp is mentioned at these combinations.
                 'AddEncodingCombination:new_field(first)-comp_cls_1:new_comp',

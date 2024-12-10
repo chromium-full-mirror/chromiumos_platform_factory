@@ -59,13 +59,6 @@ def _GetExactlyOneComponentClassFromEncodedField(db: database.Database,
   return next(iter(comp_classes))
 
 
-def _IsNewlyCreatedOrRenamedComp(
-    analysis_result: _HWIDComponentAnalysisResult) -> bool:
-  return (analysis_result.is_newly_added or
-          (analysis_result.diff_prev is not None and
-           analysis_result.diff_prev.name_changed))
-
-
 class ChangeUnitDepSpec:
   """Using fields to represent or filter change units.
 
@@ -146,9 +139,7 @@ class CompChange(ChangeUnit):
                probe_values: Optional[database.ProbedValueType],
                information: Optional[Mapping[str, Any]], comp_hash: str,
                bundle_uuids: Optional[Sequence[str]] = None):
-    super().__init__(
-        self.CreateDepSpec(analysis_result.comp_cls, comp_hash,
-                           _IsNewlyCreatedOrRenamedComp(analysis_result)))
+    super().__init__(self.CreateDepSpec(analysis_result.comp_cls, comp_hash))
     self._analysis_result = analysis_result
     self._probe_values = probe_values
     self._information = information
@@ -170,9 +161,8 @@ class CompChange(ChangeUnit):
     return self._probe_values
 
   @classmethod
-  def CreateDepSpec(cls, comp_cls: str, comp_hash: str,
-                    new_or_renamed: bool) -> ChangeUnitDepSpec:
-    return ChangeUnitDepSpec(cls, comp_cls, comp_hash, new_or_renamed)
+  def CreateDepSpec(cls, comp_cls: str, comp_hash: str) -> ChangeUnitDepSpec:
+    return ChangeUnitDepSpec(cls, comp_cls, comp_hash)
 
   @_UnifyException
   def Patch(self, db_builder: builder.DatabaseBuilder):
@@ -269,7 +259,7 @@ class AddEncodingCombination(ChangeUnit):
 
   def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
     # Combinations depend on the mentioned components.
-    yield from (CompChange.CreateDepSpec(self._comp_cls, comp_hash, True)
+    yield from (CompChange.CreateDepSpec(self._comp_cls, comp_hash)
                 for comp_hash in self._comp_hashes)
     if not self._is_first:
       # The first combination of a certain encoded field might be used as the
