@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 import collections
-import os.path  # TODO(b/383206574) pylint: disable=no-name-in-module
+import os.path
 import pickle
 import textwrap
 from typing import Iterable, Mapping, MutableMapping, NamedTuple, Optional, Sequence, Tuple

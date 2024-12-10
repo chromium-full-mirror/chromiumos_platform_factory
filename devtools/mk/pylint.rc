@@ -103,21 +103,33 @@ disable=
     import-outside-toplevel,
     invalid-name,
     locally-disabled,
-    locally-enabled,
     missing-docstring,
     no-member,
-    no-self-use,
     too-few-public-methods,
     too-many-arguments,
     too-many-branches,
     too-many-instance-attributes,
     too-many-lines,
     too-many-locals,
+    too-many-positional-arguments,
     too-many-public-methods,
     too-many-return-statements,
     too-many-statements,
     useless-suppression,
     wrong-import-order,
+    # TODO(b/383206574): Review the following messages which fail the current
+    # sources.  Either remove them to enable or leave them here to disable the
+    # unexpected checks.
+    broad-exception-raised,
+    contextmanager-generator-missing-cleanup,
+    missing-timeout,
+    possibly-used-before-assignment,
+    return-in-finally,
+    unnecessary-direct-lambda-call,
+    unnecessary-dunder-call,
+    unnecessary-lambda-assignment,
+    unsupported-membership-test,
+    use-yield-from,
 
 [REPORTS]
 

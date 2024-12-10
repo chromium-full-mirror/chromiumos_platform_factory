@@ -9,7 +9,7 @@ google-cloud-pubsub==1.6.1
 google-cloud-storage==2.10.0
 google-cloud-tasks==2.14.2
 packaging==20.9
-pylint==2.13.9
+pylint==3.3.2
 pycryptodome==3.7.3
 redis==3.3.11
 spyne==2.14.0
