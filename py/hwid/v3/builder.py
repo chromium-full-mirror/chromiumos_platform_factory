@@ -92,8 +92,9 @@ def _DetermineFeatureManagementComponentName(
   else:
     postfix.append('not_chassis_branded')
 
-  if value.get('hw_compliance_version', '0') != '0':
-    postfix.append('hw_compliant')
+  hw_compliance_version = value.get('hw_compliance_version', '0')
+  if hw_compliance_version != '0':
+    postfix.append(f'hw_compliant_v{hw_compliance_version}')
   else:
     postfix.append('hw_incompliant')
   postfix_str = '_'.join(postfix)
@@ -304,8 +305,18 @@ class DatabaseBuilder:
                auto_accept_essential_prompt=auto_accept_essential_prompt)
 
   @_EnsureInBuilderContext
-  def AddFeatureManagementFlagComponents(self):
-    """Adds component items and encoded bits for feature management flags."""
+
+  def AddFeatureManagementFlagComponents(
+      self, target_hw_compliance_version: int):
+    """Adds component items and encoded bits for feature management flags.
+
+    Args:
+      target_hw_compliance_version: The HW compliance version for devices with
+        compliant HW.
+    """
+    if target_hw_compliance_version not in (1, 2):
+      raise ValueError(
+          f'Unsupported HW compliance version: {target_hw_compliance_version}.')
 
     comp_cls = 'feature_management_flags'
     existed_comps = self._database.GetComponents(comp_cls)
@@ -316,7 +327,11 @@ class DatabaseBuilder:
           'Use only when updating the database for the first time.')
 
     # ('is_chassis_branded', 'hw_compliance_version')
-    valid_feature_flag_pairs = [('0', '0'), ('0', '1'), ('1', '1')]
+    valid_feature_flag_pairs = (
+        ('0', '0'),
+        ('0', str(target_hw_compliance_version)),
+        ('1', str(target_hw_compliance_version)),
+    )
     for chassis_branded, hw_compliance_version in valid_feature_flag_pairs:
       value = {
           'hw_compliance_version': hw_compliance_version,

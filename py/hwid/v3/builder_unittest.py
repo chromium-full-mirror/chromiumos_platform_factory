@@ -253,7 +253,7 @@ class DatabaseBuilderTest(unittest.TestCase):
 
     with builder.DatabaseBuilder.FromFilePath(
         db_path=_TEST_DATABASE_PATH) as db_builder:
-      db_builder.AddFeatureManagementFlagComponents()
+      db_builder.AddFeatureManagementFlagComponents(1)
 
     db = db_builder.Build()
 
@@ -265,7 +265,7 @@ class DatabaseBuilderTest(unittest.TestCase):
     self.assertEqual(
         comp_items,
         sorted([{
-            'feature_management_flags_not_chassis_branded_hw_compliant': {
+            'feature_management_flags_not_chassis_branded_hw_compliant_v1': {
                 'hw_compliance_version': '1',
                 'is_chassis_branded': '0'
             }
@@ -275,7 +275,7 @@ class DatabaseBuilderTest(unittest.TestCase):
                 'is_chassis_branded': '0'
             }
         }, {
-            'feature_management_flags_chassis_branded_hw_compliant': {
+            'feature_management_flags_chassis_branded_hw_compliant_v1': {
                 'hw_compliance_version': '1',
                 'is_chassis_branded': '1'
             }
@@ -287,6 +287,14 @@ class DatabaseBuilderTest(unittest.TestCase):
     # This function should only be called once.
     with self.assertRaises(builder.BuilderException):
       db_builder.AddFeatureManagementFlagComponents()
+
+  # TODO (b/212216855)
+  @label_utils.Informational
+  def testAddFeatureManagementFlagComponentsWithInvalidVersion(self):
+    with self.assertRaises(ValueError):
+      with builder.DatabaseBuilder.FromFilePath(
+          db_path=_TEST_DATABASE_PATH) as db_builder:
+        db_builder.AddFeatureManagementFlagComponents(9999)
 
 
   # TODO (b/212216855)
