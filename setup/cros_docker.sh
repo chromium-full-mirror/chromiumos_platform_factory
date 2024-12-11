@@ -955,6 +955,7 @@ do_prepare_dome() {
     --rm \
     --interactive \
     --tty \
+    --volume "${HOST_SHARED_TMP_VOLUME}:${DOCKER_SHARED_TMP_DIR}" \
     --volume "${HOST_DOME_DIR}/${db_filename}:${docker_db_dir}/${db_filename}" \
     --volume "${host_log_dir}:${docker_log_dir}" \
     --workdir "${DOCKER_DOME_DIR}" \
@@ -966,6 +967,7 @@ do_prepare_dome() {
   # been removed.
   ${DOCKER} run \
     --rm \
+    --volume "${HOST_SHARED_TMP_VOLUME}:${DOCKER_SHARED_TMP_DIR}" \
     --volume "${HOST_DOME_DIR}/${db_filename}:${docker_db_dir}/${db_filename}" \
     --volume "${host_log_dir}:${docker_log_dir}" \
     --workdir "${DOCKER_DOME_DIR}" \
@@ -976,6 +978,7 @@ do_prepare_dome() {
   # Restart all old umpire instances.
   ${DOCKER} run \
     --rm \
+    --volume "${HOST_SHARED_TMP_VOLUME}:${DOCKER_SHARED_TMP_DIR}" \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume "${HOST_DOME_DIR}/${db_filename}:${docker_db_dir}/${db_filename}" \
     --volume "${host_log_dir}:${docker_log_dir}" \
