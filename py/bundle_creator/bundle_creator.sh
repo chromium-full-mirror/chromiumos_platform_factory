@@ -276,7 +276,7 @@ prepare_python_venv() {
 
   info "Install dependent python modules with \`${requirements_path}\`."
   "${venv_dir}/bin/${VENV_PYTHON_NAME}" -m \
-    pip install --require-hashes -r "${requirements_path}"
+    pip install --require-hashes --no-deps -r "${requirements_path}"
 }
 
 # Print the path of the test log directory created by this command, and link

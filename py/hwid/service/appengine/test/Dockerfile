@@ -32,7 +32,7 @@ ARG requirements_version
 RUN echo "${requirements_version}"
 ADD requirements.txt "${workdir}/requirements.txt"
 
-RUN pip install --require-hashes \
+RUN pip install --require-hashes --no-deps \
       --target "${workdir}"/lib \
       --requirement "${workdir}"/requirements.txt
 
