@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.google.desktop.factory.shopfloor;
+package com.google.android.desktop.factory.proto.shopfloor;
 
 import "google/protobuf/struct.proto";
 
