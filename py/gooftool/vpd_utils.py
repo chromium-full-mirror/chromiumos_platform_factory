@@ -193,13 +193,22 @@ class VPDUtils:
       return {}
 
     num_channels = len(channel_names)
-    logging.info(
-        'The VPD RO should contain `dsm_calib_r0_N` and '
-        '`dsm_calib_temp_N` where N ranges from 0 ~ %d.', num_channels - 1)
     dsm_vpd_ro_data = {}
-    for channel in range(num_channels):
-      dsm_vpd_ro_data[f'dsm_calib_r0_{int(channel)}'] = r'[0-9]*'
-      dsm_vpd_ro_data[f'dsm_calib_temp_{int(channel)}'] = r'[0-9]*'
+
+    if speaker_amp == 'TAS2563':
+      logging.info(
+          'The VPD RO should contain `dsm_calib_register_array` and '
+          '`dsm_calib_value_N` where N ranges from 0 ~ %d.', (num_channels - 1))
+      dsm_vpd_ro_data['dsm_calib_register_array'] = r'[0-9a-f]*'
+      for channel in range(num_channels):
+        dsm_vpd_ro_data[f'dsm_calib_value_{int(channel)}'] = r'[0-9a-f]*'
+    else:
+      logging.info(
+          'The VPD RO should contain `dsm_calib_r0_N` and '
+          '`dsm_calib_temp_N` where N ranges from 0 ~ %d.', (num_channels - 1))
+      for channel in range(num_channels):
+        dsm_vpd_ro_data[f'dsm_calib_r0_{int(channel)}'] = r'[0-9]*'
+        dsm_vpd_ro_data[f'dsm_calib_temp_{int(channel)}'] = r'[0-9]*'
 
     return dsm_vpd_ro_data
 
@@ -275,7 +284,7 @@ class VPDUtils:
           # RegCode should be ready since PVT
           registration_codes.CheckRegistrationCode(
               rw_vpd[vpd_field_name], type=type_name, device=device_name,
-              allow_dummy=(phase.GetPhase() < phase.PVT_DOGFOOD))
+              allow_dummy=phase.GetPhase() < phase.PVT_DOGFOOD)
         except registration_codes.RegistrationCodeException as e:
           raise VPDError(f'{vpd_field_name} is invalid: {e!r}') from None
 

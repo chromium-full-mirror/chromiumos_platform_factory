@@ -238,6 +238,29 @@ class VPDUtilsTest(unittest.TestCase):
     ])
 
   @mock.patch('cros.factory.test.utils.smart_amp_utils.GetSmartAmpInfo')
+  def testGetAudioVPDROData_TAS2563(self, mock_get_amp_info):
+    mock_get_amp_info.return_value = 'TAS2563', 'sound_card_init_file', [
+        'Speaker', 'Speaker', 'Speaker', 'Speaker'
+    ]
+    with self.assertLogs() as cm:
+      res = self.vpd_utils._GetAudioVPDROData()
+
+    self.assertEqual(
+        res, {
+            'dsm_calib_register_array': r'[0-9a-f]*',
+            'dsm_calib_value_0': r'[0-9a-f]*',
+            'dsm_calib_value_1': r'[0-9a-f]*',
+            'dsm_calib_value_2': r'[0-9a-f]*',
+            'dsm_calib_value_3': r'[0-9a-f]*',
+        })
+
+    self.assertSequenceEqual(cm.output, [
+        'INFO:root:Amplifier TAS2563 found on DUT.',
+        'INFO:root:The VPD RO should contain `dsm_calib_register_array` and'
+        ' `dsm_calib_value_N` where N ranges from 0 ~ 3.'
+    ])
+
+  @mock.patch('cros.factory.test.utils.smart_amp_utils.GetSmartAmpInfo')
   def testGetAudioVPDRODataNotFound(self, mock_get_amp_info):
     mock_get_amp_info.return_value = 'speaker_amp', '', ['channel']
 
@@ -478,7 +501,8 @@ class VPDUtilsTest(unittest.TestCase):
     rw_vpd_value = self._SIMPLE_VALID_RW_VPD_DATA.copy()
     self._SetupVPDMocks(ro=self._SIMPLE_VALID_RO_VPD_DATA_WITHOUT_PVS,
                         rw=rw_vpd_value)
-    self.assertRaisesRegex(vpd_utils.VPDError, 'Missing required RO VPD values: dlm_sku_id',
+    self.assertRaisesRegex(vpd_utils.VPDError,
+                           'Missing required RO VPD values: dlm_sku_id',
                            self.vpd_utils.VerifyVPD)
 
   # TODO (b/212216855)
