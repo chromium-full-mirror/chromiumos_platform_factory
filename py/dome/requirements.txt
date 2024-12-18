@@ -28,9 +28,9 @@ coverage==4.2 \
     --hash=sha256:d12b46247e74c1881768feb3ae48fbbb95e5c883b0c3517acdf86f435560fc61 \
     --hash=sha256:e312776d3ef04632ec742ce2d2b7048b635073e0245e4f44dfe8b08cc50ac656
     # via -r py/dome/requirements.in
-django==4.2.15 \
-    --hash=sha256:61ee4a130efb8c451ef3467c67ca99fdce400fedd768634efc86a68c18d80d30 \
-    --hash=sha256:c77f926b81129493961e19c0e02188f8d07c112a1162df69bfab178ae447f94a
+django==4.2.17 \
+    --hash=sha256:3a93350214ba25f178d4045c0786c61573e7dbfa3c509b3551374f1e11ba8de0 \
+    --hash=sha256:6b56d834cc94c8b21a8f4e775064896be3b4a4ca387f2612d4406a5927cd2fdc
     # via
     #   -r py/dome/requirements.in
     #   djangorestframework
