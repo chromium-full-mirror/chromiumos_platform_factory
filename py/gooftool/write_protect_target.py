@@ -111,6 +111,9 @@ class _ECWriteProtectTarget(IWriteProtectTarget):
   def SetProtectionStatus(self, enable, skip_enable_check=False):
     self._InvokeCommand('enable now' if enable else 'disable')
 
+    # Enable CBI WP immediately to align with behavior using `flashrom`
+    common.Shell(' '.join(['ectool', 'reboot_ec', 'RO']))
+
     # Verify new WP state
     if self.GetStatus() != enable:
       raise WriteProtectError(
