@@ -71,6 +71,7 @@ class InstallAsPrivAppArgs:
   target: Optional[str] = None
   package_name: str = ''
   permission_path: pathlib.Path = pathlib.Path()
+  uninstall_previous: bool = False
 
   @property
   def adb(self):
@@ -89,6 +90,8 @@ def MakeParser():
                       help='Use as HOST in adb connection.')
   parser.add_argument('--dir_app_name', type=str, default='Factory',
                       help='The apk name on the device.')
+  parser.add_argument('--uninstall_previous', action='store_true',
+                      help='Uninstall the app before deployment.')
   parser.add_argument(
       '--skip_factory_settings', action='store_true',
       help=('If set, skip factory settings. Factory settings include stay on '
@@ -142,6 +145,8 @@ def UnInstallPrevious(args: InstallAsPrivAppArgs):
   May need to modify the code to uninstall for all users or a specific user
   later.
   """
+  if not args.uninstall_previous:
+    return
   for user in (10, 0):
     UnInstallPreviousForUser(args, user)
 
