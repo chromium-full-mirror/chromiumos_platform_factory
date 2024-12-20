@@ -19,13 +19,34 @@ class ChargeManagerTest(unittest.TestCase):
     self._power = mock.Mock(Power)
     # Patch in the ChargeState Enum.
     self._power.ChargeState = Power.ChargeState
+
+    patcher_output = mock.patch('cros.factory.utils.process_utils.CheckOutput')
+    self._mock_check_output = patcher_output.start()
+    self._mock_check_output.return_value = ''
+    self.addCleanup(patcher_output.stop)
+
     self._charge_manager = charge_manager.ChargeManager(70, 80, self._power)
 
     patcher = mock.patch('cros.factory.utils.process_utils.CheckCall')
     self._mock_check_call = patcher.start()
     self.addCleanup(patcher.stop)
 
-  def testCharge(self):
+  def testCharge_nonARM(self):
+    self._power.CheckBatteryPresent.return_value = True
+    self._power.CheckACPresent.return_value = True
+    self._power.GetChargePct.return_value = 65
+
+    self._charge_manager.AdjustChargeState()
+
+    self._power.CheckBatteryPresent.assert_called_once_with()
+    self._power.CheckACPresent.assert_called_once_with()
+    self._power.GetChargePct.assert_called_once_with()
+    self._power.SetChargeState.assert_called_once_with(
+        self._power.ChargeState.CHARGE)
+
+  def testCharge_ARM(self):
+    self._mock_check_output.return_value = 'arm'
+    self._charge_manager = charge_manager.ChargeManager(70, 80, self._power)
     self._power.CheckBatteryPresent.return_value = True
     self._power.CheckACPresent.return_value = True
     self._power.GetChargePct.return_value = 65
