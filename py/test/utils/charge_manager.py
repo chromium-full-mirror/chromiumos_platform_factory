@@ -59,6 +59,10 @@ class ChargeManager:
     self._power = (device_utils.CreateDUTInterface().power if power is None
                    else power)
 
+    # Check if the device platform is ARM.
+    arch = process_utils.CheckOutput(['crossystem', 'arch'])
+    self._is_arm = 'arm' in arch.lower()
+
   def _SetState(self, new_state):
     if self.state != new_state:
       self.state = new_state
@@ -113,6 +117,9 @@ class ChargeManager:
 
   def EnableDPS(self):
     """Enable dynamic PDO selection."""
+    # Skip Enable DPS on non-ARM platform.
+    if not self._is_arm:
+      return
     try:
       process_utils.CheckCall(['ectool', 'usbpddps', 'enable'])
     except process_utils.CalledProcessError as ex:
@@ -123,6 +130,9 @@ class ChargeManager:
 
   def DisableDPS(self):
     """Disable dynamic PDO selection."""
+    # Skip Disable DPS on non-ARM platform.
+    if not self._is_arm:
+      return
     try:
       process_utils.CheckCall(['ectool', 'usbpddps', 'disable'])
     except process_utils.CalledProcessError as ex:
