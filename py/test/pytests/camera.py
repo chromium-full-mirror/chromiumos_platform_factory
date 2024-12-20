@@ -775,6 +775,9 @@ class CameraTest(test_case.TestCase):
   def setUp(self):
     self.dut = device_utils.CreateDUTInterface()
 
+    # Set cv2 logging level to ERROR to avoid noise.
+    cv.setLogLevel(0)  # type: ignore #TODO(b/338318729) Fixit!
+
     # yapf: disable
     self.mode = self.args.mode  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
