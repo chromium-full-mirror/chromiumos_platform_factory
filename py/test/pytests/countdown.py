@@ -411,6 +411,13 @@ class CountDownTest(test_case.TestCase):
       connection_manager.SetWifiScanInterval(scan_interval=0)
       self.addCleanup(connection_manager.SetWifiScanInterval)
 
+    # Switch to Bluez if Floss is used on the device.
+    if bluetooth_utils.IsFlossBluetoothStack():
+      bluetooth_utils.SwitchToBluez(self._dut)
+    # Initialize the Bluetooth manager.
+    self.btmgmt = bluetooth_utils.BtMgmt()
+    self.btmgmt.PowerOn()
+
     self._als_controller = None
     try:
       self._als_controller = self._dut.ambient_light_sensor.GetController(
@@ -436,8 +443,6 @@ class CountDownTest(test_case.TestCase):
     self._event_loop_stop = False
     self.last_status = Status(None, None, None)
     self.goofy = state.GetInstance()
-    self.btmgmt = bluetooth_utils.BtMgmt()
-    self.btmgmt.PowerOn()
     # yapf: disable
     self._last_thread: Dict[str, threading.Thread] = {}  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
