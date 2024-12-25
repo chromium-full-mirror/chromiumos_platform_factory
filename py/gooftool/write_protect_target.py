@@ -11,7 +11,9 @@ import tempfile
 from cros.factory.gooftool import common
 from cros.factory.test.utils import fpmcu_utils
 from cros.factory.utils import file_utils
+from cros.factory.utils import sync_utils
 from cros.factory.utils import sys_interface
+from cros.factory.utils import type_utils
 from cros.factory.utils.type_utils import Error
 
 
@@ -113,6 +115,11 @@ class _ECWriteProtectTarget(IWriteProtectTarget):
 
     # Enable CBI WP immediately to align with behavior using `flashrom`
     common.Shell(' '.join(['ectool', 'reboot_ec', 'RO']))
+    try:
+      sync_utils.WaitFor(self.GetStatus, timeout_secs=10)
+    except type_utils.TimeoutError as e:
+      raise WriteProtectError(
+          "Timeout waiting for EC to become ready after EC reboot.") from e
 
     # Verify new WP state
     if self.GetStatus() != enable:
