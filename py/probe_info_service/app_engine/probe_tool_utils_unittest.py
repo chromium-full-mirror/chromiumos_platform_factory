@@ -69,6 +69,7 @@ class ProbeInfoAnalyzerTest(unittest.TestCase):
         'ec_component.ec_component_accel',
         'ec_component.ec_component_als',
         'ec_component.ec_component_charger',
+        'ec_component.ec_component_mux',
         'emmc_pcie_assembly.generic',
         'emmc_pcie_storage_bridge.mmc_host',
         'raw_probe_statement',

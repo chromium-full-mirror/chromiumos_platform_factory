@@ -1348,7 +1348,7 @@ class _TypedECComponentProbeFuncConverter(_SingleProbeFuncConverter):
 def _BuildUSBCICConverter() -> _IBidirectionalProbeInfoConverter:
   optional_sub_converters = {
       component_type: _TypedECComponentProbeFuncConverter(component_type)
-      for component_type in ('ppc', 'bc12', 'tcpc')
+      for component_type in ('ppc', 'bc12', 'tcpc', 'pdc')
   }
   return _MultiProbeFuncConverter(
       'usb_c.ec_components',
@@ -1951,7 +1951,9 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
                   'pci_class', value_converter=_ParamValueConverter(
                       'string', _RemoveHexPrefixAndCapitalize,
                       _AddHexPrefixIfNotExistAndLowerize)),
-          ], probe_function_argument={'is_emmc_attached': True}),
+          ], probe_function_argument={
+              'is_emmc_attached': True
+          }),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'storage', 'mmc_storage', probe_params=[
               *_MMC_BASIC_PARAMS,
@@ -2003,18 +2005,23 @@ def GetAllConverters() -> Sequence[_IBidirectionalProbeInfoConverter]:
       _TypedECComponentProbeFuncConverter('charger'),
       _TypedECComponentProbeFuncConverter('accel'),
       _TypedECComponentProbeFuncConverter('als'),
+      _TypedECComponentProbeFuncConverter('mux'),
       _BuildUSBCICConverter(),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'touchpad', 'input_device',
-          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
-          probe_function_argument={'device_type': 'touchpad'}),
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
+              'device_type': 'touchpad'
+          }),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'touchscreen', 'input_device',
-          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
-          probe_function_argument={'device_type': 'touchscreen'}),
+          probe_params=_TOUCH_COMPONENT_PROBE_PARAMS, probe_function_argument={
+              'device_type': 'touchscreen'
+          }),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'stylus', 'input_device', probe_params=_TOUCH_COMPONENT_PROBE_PARAMS,
-          probe_function_argument={'device_type': 'stylus'}),
+          probe_function_argument={
+              'device_type': 'stylus'
+          }),
       _SingleProbeFuncConverter.FromDefaultRuntimeProbeStatementGenerator(
           'tpm', 'tpm', probe_params=[
               _ProbeFunctionParam('spec_level',
