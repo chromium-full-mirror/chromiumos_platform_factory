@@ -580,6 +580,7 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
                              feature_version=str(feature_version))
     brand_allowed_feature_enablement_types = {
         'ABCD': [_FeatureEnablementType.HARD_BRANDED],
+        'EFGH': [_FeatureEnablementType.HARD_BRANDED],
     }
     hwid_requirement_candidates = []
 
@@ -590,7 +591,20 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
 
     actual = matcher.GenerateRMADFeatureEnabledDevicesPayload()
     self.assertIsNotNone(actual)
-    self.assertEqual(actual, 'devices: "ABCD"\n')
+    self.assertEqual(
+        actual,
+        textwrap.dedent("""\
+            devices: "ABCD"
+            devices: "EFGH"
+            feature_levels {
+              key: "ABCD"
+              value: 1
+            }
+            feature_levels {
+              key: "EFGH"
+              value: 1
+            }
+            """))
 
   def testConvertedHWIDFeatureMatcher_GenerateLegacyPayload_NoLegacyBrands(
       self):
