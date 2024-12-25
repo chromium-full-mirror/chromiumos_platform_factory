@@ -28,6 +28,8 @@ _SUPPORT_COMPONENT_CLASS = {
     'cpu',
     'display_panel',
     'dram',
+    # TODO(b:346455715): Add `ec_component_*` once the stakeholder approves and
+    #    existing data are well backfilled.
     'storage',
     'storage_bridge',
     'tpm',
