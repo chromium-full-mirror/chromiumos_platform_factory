@@ -426,7 +426,7 @@ class CameraTest(test_case.TestCase):
             file_utils.ReadFile(blob_path, encoding=None), 'base64')
         os.unlink(blob_path)
         # yapf: disable
-        return cv.imdecode(np.fromstring(blob, dtype=np.uint8), cv.IMREAD_COLOR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        return cv.imdecode(np.frombuffer(blob, dtype=np.uint8), cv.IMREAD_COLOR)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
         # yapf: enable
 
       self.RunJSPromiseBlocking('cameraTest.grabFrame()')

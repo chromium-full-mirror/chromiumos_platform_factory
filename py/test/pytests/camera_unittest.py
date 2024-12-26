@@ -616,7 +616,7 @@ class CameraUnitTest(unittest.TestCase):
 
       mock_runjs.assert_called_with('cameraTest.grabFrame()')
 
-  @mock.patch.object(camera.np, 'fromstring', autospec=True)
+  @mock.patch.object(camera.np, 'frombuffer', autospec=True)
   @mock.patch.object(camera.os, 'unlink', autospec=True)
   @mock.patch.object(camera.file_utils, 'ReadFile', autospec=True)
   @mock.patch.object(camera.codecs, 'decode', autospec=True)
