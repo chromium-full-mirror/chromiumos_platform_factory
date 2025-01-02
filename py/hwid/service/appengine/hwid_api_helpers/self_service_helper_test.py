@@ -3220,6 +3220,122 @@ class SelfServiceShardTest(unittest.TestCase):
 
     self.assertEqual(resp, hwid_api_messages_pb2.CreateHwidRegionClResponse())
 
+  def testPatchHwidDbEditableSection_NewStatus(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+
+    hwid_db_editable_section = _ActionHelperCls.RemoveHeader(raw_db)
+    req = hwid_api_messages_pb2.PatchHwidDbEditableSectionRequest(
+        hwid_db_editable_section=hwid_db_editable_section,
+        component_class='comp_cls1', component_name='comp_cls1_3',
+        new_status=_SupportStatusCase.UNSUPPORTED)
+    resp = self.service.PatchHwidDbEditableSection(req)
+
+    expected_diff = textwrap.dedent('''\
+      ---
+      +++
+      @@ -40,7 +40,7 @@
+               values:
+                 key: value4
+             comp_cls1_3:
+      -        status: unqualified
+      +        status: unsupported
+               values: null
+
+       rules: []''')
+    self.assertEqual(
+        resp,
+        hwid_api_messages_pb2.PatchHwidDbEditableSectionResponse(
+            hwid_db_editable_section=_ApplyUnifiedDiff(
+                hwid_db_editable_section, expected_diff), diff=expected_diff))
+
+  def testPatchHwidDbEditableSection_Rename(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+
+    hwid_db_editable_section = _ActionHelperCls.RemoveHeader(raw_db)
+    req = hwid_api_messages_pb2.PatchHwidDbEditableSectionRequest(
+        hwid_db_editable_section=hwid_db_editable_section,
+        component_class='comp_cls1', component_name='comp_cls1_3',
+        new_component_name='comp_cls_1_10')
+    resp = self.service.PatchHwidDbEditableSection(req)
+
+    expected_diff = textwrap.dedent('''\
+      ---
+      +++
+      @@ -17,7 +17,7 @@
+           2:
+             comp_cls1: comp_cls1_subcomp_2
+           3:
+      -      comp_cls1: comp_cls1_3
+      +      comp_cls1: comp_cls_1_10
+
+       components:
+         region: !region_component
+      @@ -39,7 +39,7 @@
+               status: unqualified
+               values:
+                 key: value4
+      -      comp_cls1_3:
+      +      comp_cls_1_10:
+               status: unqualified
+               values: null
+      ''')
+    self.assertEqual(
+        resp,
+        hwid_api_messages_pb2.PatchHwidDbEditableSectionResponse(
+            hwid_db_editable_section=_ApplyUnifiedDiff(
+                hwid_db_editable_section, expected_diff), diff=expected_diff))
+
+  def testPatchHwidDbEditableSection_DeleteComponent(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+
+    hwid_db_editable_section = _ActionHelperCls.RemoveHeader(raw_db)
+    req = hwid_api_messages_pb2.PatchHwidDbEditableSectionRequest(
+        hwid_db_editable_section=hwid_db_editable_section,
+        component_class='comp_cls1', component_name='comp_cls1_3',
+        delete_component=True)
+    resp = self.service.PatchHwidDbEditableSection(req)
+
+    expected_diff = textwrap.dedent('''\
+      ---
+      +++
+      @@ -16,8 +16,6 @@
+             comp_cls1: comp_cls1_1_1
+           2:
+             comp_cls1: comp_cls1_subcomp_2
+      -    3:
+      -      comp_cls1: comp_cls1_3
+
+       components:
+         region: !region_component
+      @@ -39,8 +37,5 @@
+               status: unqualified
+               values:
+                 key: value4
+      -      comp_cls1_3:
+      -        status: unqualified
+      -        values: null
+
+       rules: []''')
+    self.assertEqual(
+        resp,
+        hwid_api_messages_pb2.PatchHwidDbEditableSectionResponse(
+            hwid_db_editable_section=_ApplyUnifiedDiff(
+                hwid_db_editable_section, expected_diff), diff=expected_diff))
+
+  def testPatchHwidDbEditableSection_NothingToPatch(self):
+    raw_db = file_utils.ReadFile(_HWID_V3_UPDATE_COMP_FILE)
+
+    hwid_db_editable_section = _ActionHelperCls.RemoveHeader(raw_db)
+    req = hwid_api_messages_pb2.PatchHwidDbEditableSectionRequest(
+        hwid_db_editable_section=hwid_db_editable_section,
+        component_class='comp_cls1', component_name='comp_cls1_3')
+
+    with self.assertRaises(protorpc_utils.ProtoRPCException) as ex:
+      self.service.PatchHwidDbEditableSection(req)
+
+    self.assertEqual(ex.exception.code,
+                     protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT)
+
 
 if __name__ == '__main__':
   unittest.main()

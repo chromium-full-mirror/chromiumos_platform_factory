@@ -1178,6 +1178,31 @@ message UpdateDlmDeviceResponse {
   DlmDeviceUpdateResult update_result = 2;
 }
 
+// Request to patch HWID editable section.
+message PatchHwidDbEditableSectionRequest {
+  // HWID editable section to be patched.
+  string hwid_db_editable_section = 1;
+  // Component class to be patched.
+  string component_class = 2;
+  // Component name to be patched.
+  string component_name = 3;
+  // Action to patch the component.
+  oneof action {
+    ComponentSupportStatus.Case new_status = 4;
+    string new_component_name = 5;
+    bool delete_component = 6;
+  }
+}
+
+// Response of patch HWID editable section.
+message PatchHwidDbEditableSectionResponse {
+  // The patched result.
+  string hwid_db_editable_section = 1;
+  // The diff between original and patched DB.
+  string diff = 2;
+}
+
+
 service HwidService {
   rpc GetProjects(ProjectsRequest) returns (ProjectsResponse);
 
@@ -1281,4 +1306,8 @@ service HwidService {
   // Update DLM product data with DLM device data.
   rpc UpdateDlmDevice(UpdateDlmDeviceRequest)
       returns (UpdateDlmDeviceResponse);
+
+  // Patch HWID editable section.
+  rpc PatchHwidDbEditableSection(PatchHwidDbEditableSectionRequest)
+      returns (PatchHwidDbEditableSectionResponse);
 }

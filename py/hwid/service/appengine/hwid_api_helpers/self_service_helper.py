@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import abc
 import datetime
+import difflib
 import functools
 import io
 import logging
@@ -931,7 +932,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
         raise common_helper.ConvertExceptionToProtoRPCException(
             ValueError('Cannot derive firmware key name from signer: '
                        f'{bundle_record.firmware_signer}.'))
-      mp_key = (match.group(1) == 'mp')
+      mp_key = match.group(1) == 'mp'
 
     for firmware_record in bundle_record.firmware_records:
       model = _NormalizeProjectString(firmware_record.model)
@@ -1626,6 +1627,55 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     )
 
     return resp
+
+  @protorpc_utils.ProtoRPCServiceMethod
+  @auth.RpcCheck
+  def PatchHwidDbEditableSection(self, request):
+    dummy_header = textwrap.dedent('''\
+        checksum:
+        project: DUMMY
+        encoding_patterns:
+          0: default
+        ''')
+    db = database.WritableDatabase.LoadData(
+        dummy_header + request.hwid_db_editable_section, expected_checksum=None)
+    diffbase = v3_action_helper.HWIDV3SelfServiceActionHelper.RemoveHeader(
+        db.DumpDataWithoutChecksum(internal=False,
+                                   suppress_support_status=False))
+    try:
+      with v3_builder.DatabaseBuilder.FromExistingDB(db) as builder:
+        comp_info = builder.GetComponents(
+            request.component_class)[request.component_name]
+        match request.WhichOneof('action'):
+          case 'new_status':
+            builder.UpdateComponent(
+                request.component_class, request.component_name,
+                request.component_name, comp_info.values,
+                common_helper.HWID_STRING_OF_SUPPORT_STATUS_CASE[
+                    request.new_status])
+          case 'new_component_name':
+            builder.UpdateComponent(
+                request.component_class, request.component_name,
+                request.new_component_name, comp_info.values, comp_info.status)
+          case 'delete_component' if request.delete_component:
+            builder.RemoveComponent(request.component_class,
+                                    request.component_name)
+      new_hwid_db_editable_section = (
+          v3_action_helper.HWIDV3SelfServiceActionHelper.RemoveHeader(
+              builder.Build().DumpDataWithoutChecksum(
+                  internal=False, suppress_support_status=False)))
+      if new_hwid_db_editable_section == diffbase:
+        raise ValueError('Nothing to patch in the request.')
+    except (ValueError, KeyError, v3_builder.BuilderException) as ex:
+      raise common_helper.ConvertExceptionToProtoRPCException(ex) from None
+
+    diff = difflib.unified_diff(
+        diffbase.splitlines(keepends=True),
+        new_hwid_db_editable_section.splitlines(keepends=True))
+
+    return hwid_api_messages_pb2.PatchHwidDbEditableSectionResponse(
+        hwid_db_editable_section=new_hwid_db_editable_section,
+        diff='\n'.join(line.rstrip() for line in diff))
 
   def _GetRepoAndAction(
       self, project: str) -> Tuple[hwid_repo.HWIDRepo, hwid_action.HWIDAction]:
