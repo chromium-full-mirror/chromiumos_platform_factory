@@ -183,6 +183,13 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
     boot_to_shimless: Whether or not to boot to Shimless RMA process.
   """
 
+  def _StartSwapStop():
+    # First stop swap service to avoid swap space being used by other services.
+    # Swap management will hold stateful partition and make wiping fail if other
+    # services using swap space.
+    process_utils.Spawn(['start', 'swap_stop'], log=True,
+                        log_stderr_on_error=True, check_call=True)
+
   def _CheckBug78323428():
     # b/78323428: Check if dhcpcd is locking /var/run. If dhcpcd is locking
     # /var/run, unmount will fail. Need CL:1021611 to use /run instead.
@@ -194,6 +201,7 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
             f'image with CL:1021611 included. Lock info: "{lock_result.stdout}'
             '"')
 
+  _StartSwapStop()
   _CheckBug78323428()
 
   Daemonize()
