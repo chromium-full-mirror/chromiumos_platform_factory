@@ -37,6 +37,8 @@ _SUPPORT_COMPONENT_CLASS = {
     'wireless',
 }
 
+_PROBE_INFO_SUGGESTION_BLOCK_LIST = frozenset({'dram'})
+
 
 class _AVLKey(NamedTuple):
   cid: int
@@ -167,14 +169,15 @@ class AVLConverter:
 
     avl_key_suggestions, probe_info_suggestions = [], []
     avl_matcher = self._matcher_map.get(avl_key)
-    if avl_matcher is not None:
-      suggestions = avl_matcher.GetProbeInfoSuggestion(component)
-      if suggestions is not None:
-        probe_info_suggestions = [
-            stubby_pb2.ProbeParameterSuggestion(hint=s.suggestion, key=s.key,
-                                                value=s.value)
-            for s in suggestions
-        ]
+    if comp_cls not in _PROBE_INFO_SUGGESTION_BLOCK_LIST:
+      if avl_matcher is not None:
+        suggestions = avl_matcher.GetProbeInfoSuggestion(component)
+        if suggestions is not None:
+          probe_info_suggestions = [
+              stubby_pb2.ProbeParameterSuggestion(hint=s.suggestion, key=s.key,
+                                                  value=s.value)
+              for s in suggestions
+          ]
     is_subcomp = isinstance(name_info, npa.LinkAVLNameSubcompInfo)
     for avl_key, avl_matcher in self._matcher_map.items():
       if avl_matcher.Match(component).matched:
