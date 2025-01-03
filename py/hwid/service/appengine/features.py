@@ -576,17 +576,22 @@ class _AbstractSatisfiedEncodedValueResolver(abc.ABC):
     return field_values
 
 
-class CPUV1Spec(HWIDSpec):
-  """Holds the CPU spec for feature v1.
+class CPUSpec(HWIDSpec):
+  """Holds the CPU spec for specific feature version.
 
-  It states that the HWID is compatible to v1 feature only if the encoded
-  CPU has the corresponding `1` listed in the `compatible_versions` on DLM.
+  It states that the HWID is compatible to the specific versioned feature only
+  if the encoded CPU has the corresponding value listed in the
+  `compatible_versions` on DLM.
   """
+  TARGET_VERSION: int
 
   class _CPUV1SatisfiedEncodedFieldValueResolver(
       _AbstractSatisfiedEncodedValueResolver):
-    _TARGET_VERSION = 1
     _CPU_COMPONENT_TYPE = 'cpu'
+
+    def __init__(self, target_version: int, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+      self._target_version = target_version
 
     @classmethod
     def _GetComponentTypesToCheck(cls) -> Collection[str]:
@@ -598,18 +603,27 @@ class CPUV1Spec(HWIDSpec):
       """See base class."""
       return bool(dlm_entry.cpu_property) and (
           # yapf: disable
-          self._TARGET_VERSION in dlm_entry.cpu_property.compatible_versions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          self._target_version in dlm_entry.cpu_property.compatible_versions)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
 
   def GetName(self) -> str:
-    return 'CPUv1'
+    return f'CPUv{self.TARGET_VERSION}'
 
   def FindSatisfiedEncodedValues(
       self, db: db_module.Database,
       dlm_db: DLMComponentDatabase) -> Mapping[str, Collection[int]]:
     """See base class."""
-    resolver = self._CPUV1SatisfiedEncodedFieldValueResolver(db, dlm_db)
+    resolver = self._CPUV1SatisfiedEncodedFieldValueResolver(
+        self.TARGET_VERSION, db, dlm_db)
     return resolver.FindSatisfiedEncodedValues()
+
+
+class CPUV1Spec(CPUSpec):
+  TARGET_VERSION = 1
+
+
+class CPUV2Spec(CPUSpec):
+  TARGET_VERSION = 2
 
 
 class MemoryV1Spec(HWIDSpec):
@@ -731,19 +745,24 @@ class StorageV1Spec(HWIDSpec):
     return resolver.FindSatisfiedEncodedValues()
 
 
-class DisplayPanelV1Spec(HWIDSpec):
-  """Holds the display panel spec for feature v1.
+class DisplayPanelV1V2Spec(HWIDSpec):
+  """Holds the display panel spec for feature v1 or v2.
 
-  It states that the HWID is compatible to v1 feature only if the display panel
-  resolution is FHD or above and also the panel type must not be TN.
+  It states that the HWID is compatible to v1 or v2 feature only if the display
+  panel resolution is FHD or above and also the panel type must not be TN.
   """
 
-  class _DisplayV1SatisfiedEncodedFieldValueResolver(
+  TARGET_VERSION: int
+
+  class _DisplayV1V2SatisfiedEncodedFieldValueResolver(
       _AbstractSatisfiedEncodedValueResolver):
     _DISPLAY_COMPONENT_TYPE = 'display_panel'
     _FHD_HORIZONTAL_RESOLUTION = 1920
     _FHD_VERTICAL_RESOLUTION = 1080
-    _TARGET_VERSION = 1
+
+    def __init__(self, target_version: int, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+      self._target_version = target_version
 
     @classmethod
     def _GetComponentTypesToCheck(cls) -> Collection[str]:
@@ -757,7 +776,9 @@ class DisplayPanelV1Spec(HWIDSpec):
         return False
       properties = dlm_entry.display_panel_property
       if properties.compatible_versions is not None:
-        return self._TARGET_VERSION in properties.compatible_versions
+        return self._target_version in properties.compatible_versions
+      # TODO(yhong): Remove deprecated logic once the upstream is confirmed
+      #     that `compatible_versions` will be provided in all cases.
       return all((
           properties.panel_type != DisplayPanelType.TN,
           # yapf: disable
@@ -769,29 +790,42 @@ class DisplayPanelV1Spec(HWIDSpec):
       ))
 
   def GetName(self) -> str:
-    return 'DisplayPanelV1'
+    return f'DisplayPanelV{self.TARGET_VERSION}'
 
   def FindSatisfiedEncodedValues(
       self, db: db_module.Database,
       dlm_db: DLMComponentDatabase) -> Mapping[str, Collection[int]]:
     """See base class."""
-    resolver = self._DisplayV1SatisfiedEncodedFieldValueResolver(db, dlm_db)
+    resolver = self._DisplayV1V2SatisfiedEncodedFieldValueResolver(
+        self.TARGET_VERSION, db, dlm_db)
     return resolver.FindSatisfiedEncodedValues()
 
 
-class CameraV1Spec(HWIDSpec):
-  """Holds the camera spec for feature v1.
+class DisplayPanelV1Spec(DisplayPanelV1V2Spec):
+  TARGET_VERSION = 1
 
-  It states that the HWID is compatible to v1 feature only if the UFC camera
-  is FHD or above and has TNR enabled.
+
+class DisplayPanelV2Spec(DisplayPanelV1V2Spec):
+  TARGET_VERSION = 2
+
+
+class CameraV1V2Spec(HWIDSpec):
+  """Holds the camera spec for feature v1 or v2.
+
+  It states that the HWID is compatible to v1 or v2 feature only if the UFC
+  camera is FHD or above and has TNR enabled.
   """
+  TARGET_VERSION: int
 
   class _CameraV1SatisfiedEncodedFieldValueResolver(
       _AbstractSatisfiedEncodedValueResolver):
     _CAMERA_COMPONENT_TYPES = ('camera', 'video')
     _MIN_HORIZONTAL_RESOLUTION = 1920
     _MIN_VERTICAL_RESOLUTION = 1080
-    _TARGET_VERSION = 1
+
+    def __init__(self, target_version: int, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+      self._target_version = target_version
 
     @classmethod
     def _GetComponentTypesToCheck(cls) -> Collection[str]:
@@ -805,7 +839,9 @@ class CameraV1Spec(HWIDSpec):
         return False
       properties = dlm_entry.camera_property
       if properties.compatible_versions is not None:
-        return self._TARGET_VERSION in properties.compatible_versions
+        return self._target_version in properties.compatible_versions
+      # TODO(yhong): Remove deprecated logic once the upstream is confirmed
+      #     that `compatible_versions` will be provided in all cases.
       return all((
           properties.has_tnr,
           properties.is_user_facing,
@@ -818,14 +854,23 @@ class CameraV1Spec(HWIDSpec):
       ))
 
   def GetName(self) -> str:
-    return 'CameraV1'
+    return f'CameraV{self.TARGET_VERSION}'
 
   def FindSatisfiedEncodedValues(
       self, db: db_module.Database,
       dlm_db: DLMComponentDatabase) -> Mapping[str, Collection[int]]:
     """See base class."""
-    resolver = self._CameraV1SatisfiedEncodedFieldValueResolver(db, dlm_db)
+    resolver = self._CameraV1SatisfiedEncodedFieldValueResolver(
+        self.TARGET_VERSION, db, dlm_db)
     return resolver.FindSatisfiedEncodedValues()
+
+
+class CameraV1Spec(CameraV1V2Spec):
+  TARGET_VERSION = 1
+
+
+class CameraV2Spec(CameraV1V2Spec):
+  TARGET_VERSION = 2
 
 
 class V1HWIDRequirementResolver(HWIDRequirementResolver):
@@ -837,12 +882,21 @@ class V1HWIDRequirementResolver(HWIDRequirementResolver):
                       DisplayPanelV1Spec(), CameraV1Spec()))
 
 
+class V2HWIDRequirementResolver(HWIDRequirementResolver):
+  """The HWID requirement resolver for feature v1."""
+
+  def __init__(self):
+    """Initializer."""
+    super().__init__((CPUV2Spec(), MemoryV1Spec(), StorageV1Spec(),
+                      DisplayPanelV2Spec(), CameraV2Spec()))
+
+
 NO_FEATURE_VERSION = 0
 
 
 _HWID_REQUIREMENT_RESOLVERS = {
     1: V1HWIDRequirementResolver(),
-    2: V1HWIDRequirementResolver(),
+    2: V2HWIDRequirementResolver(),
 }
 
 
