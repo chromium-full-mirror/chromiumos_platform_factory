@@ -868,6 +868,8 @@ message SplitHwidDbChangeRequest {
   string session_token = 1;
   // The external resource required for validating the AVL alignment status.
   HwidDbExternalResource db_external_resource = 2;
+  // Whether to reuse the external resource in the session cache.
+  string db_external_resource_cache_token = 3;
 }
 
 // The change unit with information for making approval decisions.

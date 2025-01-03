@@ -49,7 +49,7 @@ from cros.factory.probe_info_service.app_engine import protorpc_utils
 from cros.factory.utils import json_utils
 
 
-_SESSION_TIMEOUT = 3 * 60  # 3 minutes
+_SESSION_TIMEOUT = 30 * 60  # 30 minutes
 
 
 class SessionCache(NamedTuple):
@@ -1412,7 +1412,12 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
   def SplitHwidDbChange(self, request):
     session_cache = self._GetSessionCache(request.session_token)
     project = session_cache.project
-    avl_resource = request.db_external_resource
+    if request.db_external_resource_cache_token:
+      avl_resource = self._GetSessionCache(
+          request.db_external_resource_cache_token
+      ).avl_resource or hwid_api_messages_pb2.HwidDbExternalResource()
+    else:
+      avl_resource = request.db_external_resource
     try:
       action = self._hwid_action_manager.GetHWIDAction(project)
     except (KeyError, ValueError, RuntimeError) as ex:

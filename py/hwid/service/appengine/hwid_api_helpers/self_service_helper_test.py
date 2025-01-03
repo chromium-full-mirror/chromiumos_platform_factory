@@ -2121,6 +2121,42 @@ class SelfServiceShardTest(unittest.TestCase):
                        avl_suggestion=avl_suggestion),
     ], list(split_resp.change_units.values()))
 
+  def testSplitHwidDbChange_ReuseAvlResourceCache(self):
+    # Arrange.
+    project = 'CHROMEBOOK'
+    old_db_data = file_utils.ReadFile(_HWID_V3_CHANGE_UNIT_BEFORE)
+    # Config repo and action.
+    self._ConfigLiveHWIDRepo(project, 3, old_db_data)
+    action = self._CreateFakeHWIDBAction(project, old_db_data)
+    self._modules.ConfigHWID(project, 3, old_db_data, hwid_action=action)
+    # Call AnalyzeHwidDbEditableSection without new_db_data to start a HWID DB
+    # change workflow.
+    analyze_resp = _AnalyzeHwidDbEditableSection(self.service, project, '')
+    session_token = analyze_resp.validation_token
+    avl_resource_session_token = 'avl-resource-session'
+    db_external_resource = hwid_api_messages_pb2.HwidDbExternalResource(
+        component_probe_infos=[
+            stubby_pb2.ComponentProbeInfo(
+                component_identity=stubby_pb2.ComponentIdentity(
+                    component_id=1), probe_info=stubby_pb2.ProbeInfo(
+                        probe_function_name='func'))
+        ])
+    self._modules.fake_session_cache_adapter.Put(
+        avl_resource_session_token,
+        _SessionCache(project, None, avl_resource=db_external_resource))
+
+    # Act
+    split_req = hwid_api_messages_pb2.SplitHwidDbChangeRequest(
+        session_token=session_token,
+        db_external_resource_cache_token=avl_resource_session_token)
+
+    split_resp = self.service.SplitHwidDbChange(split_req)
+
+    self.assertEqual(1, len(split_resp.change_units))
+    change_unit = next(iter(split_resp.change_units.values()))
+    self.assertFalse(change_unit.comp_change.diff_prev.unchanged)
+    self.assertEqual(change_unit.data_source, _DataSource.HWID_CONFIG)
+
   def testSplitHwidDbChange_ResyncAvlResource(self):
     # Arrange.
     project = 'CHROMEBOOK'
