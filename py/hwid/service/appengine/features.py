@@ -841,7 +841,8 @@ NO_FEATURE_VERSION = 0
 
 
 _HWID_REQUIREMENT_RESOLVERS = {
-    1: V1HWIDRequirementResolver()
+    1: V1HWIDRequirementResolver(),
+    2: V1HWIDRequirementResolver(),
 }
 
 
