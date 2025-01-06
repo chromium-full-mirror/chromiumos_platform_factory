@@ -569,7 +569,10 @@ def _InformStation(ip, port, token, wipe_init_log=None, wipe_in_ramfs_log=None,
     sock = socket.socket()
     sock.connect((ip, port))
 
-    response = dict(token=token, success=success)
+    response = {
+        "token": token,
+        "success": success
+    }
 
     if wipe_init_log:
       response['wipe_init_log'] = file_utils.ReadFile(wipe_init_log)
@@ -631,7 +634,7 @@ def _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
                         log=True)
     process_utils.Spawn(
         ['chown', f'{_USER_RMAD}:{_USER_RMAD}', _SHIMLESS_STATE_FILE_PATH],
-        check_call=True, log=True)
+        log=True)
 
   try:
     if not keep_developer_mode_flag:
