@@ -4329,12 +4329,20 @@ msgid "Probe Fingerprint Sensor"
 msgstr "指紋センサーのプローブ"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Set Has Fingerprint"
-msgstr "指紋ありに設定"
+msgid "Set Has Fingerprint (Bloonchipper)"
+msgstr "指紋センサーを Bloonchipper に設定する"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Buccaneer)"
+msgstr "指紋センサーを Buccaneer に設定する"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Dartmonkey)"
+msgstr "指紋センサーを Dartmonkey に設定する"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Unset Has Fingerprint"
-msgstr "指紋の設定を解除"
+msgstr "指紋センサーを無効化"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Update Fingerprint Firmware with Local Build Firmware"

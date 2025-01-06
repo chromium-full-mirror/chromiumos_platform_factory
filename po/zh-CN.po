@@ -4244,8 +4244,16 @@ msgid "Probe Fingerprint Sensor"
 msgstr "侦测指纹传感器硬件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Set Has Fingerprint"
-msgstr "设置 Has Fingerprint"
+msgid "Set Has Fingerprint (Bloonchipper)"
+msgstr "设置有指纹传感器 (Bloonchipper)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Buccaneer)"
+msgstr "设置有指纹传感器（Buccaneer）"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Dartmonkey)"
+msgstr "设置有指纹传感器 (Dartmonkey)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Unset Has Fingerprint"

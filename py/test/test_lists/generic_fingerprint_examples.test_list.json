@@ -72,6 +72,7 @@
     "FPCFPSTestPlusPixelMedianTestForBloonchipper": {
       "inherit": "FPCFPSTestPlusPixelMedianTestForDartmonkey",
       "label": "FPC Fingerprint Sensor Test + Pixel Median Test (Bloonchipper)",
+      "run_if": "device.component.has_fingerprint and device.component.fingerprint_board == 'bloonchipper'",
       "args": {
         "detect_zones": [
           [
@@ -152,6 +153,7 @@
     "FPCFPSTestPlusPixelMedianTestForDartmonkey": {
       "inherit": "FPCFPSTest",
       "label": "FPC Fingerprint Sensor Test + Pixel Median Test (Dartmonkey)",
+      "run_if": "device.component.has_fingerprint and device.component.fingerprint_board == 'dartmonkey'",
       "args": {
         "max_dead_pixels": 10,
         "pixel_median": {
@@ -270,7 +272,9 @@
       "inherit": "TestGroup",
       "label": "Fingerprint Sensor Test Helpers",
       "subtests": [
-        "SetHasFingerprint",
+        "SetHasFingerprintForBloonchipper",
+        "SetHasFingerprintForBuccaneer",
+        "SetHasFingerprintForDartmonkey",
         "UnsetHasFingerprint",
         "ProbeFingerprintSensor",
         "UpdateFPFirmware",
@@ -295,14 +299,34 @@
         ]
       }
     },
-    "SetHasFingerprint": {
+    "SetHasFingerprintForBloonchipper": {
       "pytest_name": "exec_shell",
-      "label": "Set Has Fingerprint",
+      "label": "Set Has Fingerprint (Bloonchipper)",
       "related_components": [
         "test_tags.TestCategory.FINGERPRINT_SENSOR"
       ],
       "args": {
-        "commands": "factory device-data component.has_fingerprint=1"
+        "commands": "factory device-data component.has_fingerprint=1 && factory device-data component.fingerprint_board=bloonchipper"
+      }
+    },
+    "SetHasFingerprintForBuccaneer": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Fingerprint (Buccaneer)",
+      "related_components": [
+        "test_tags.TestCategory.FINGERPRINT_SENSOR"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_fingerprint=1 && factory device-data component.fingerprint_board=buccaneer"
+      }
+    },
+    "SetHasFingerprintForDartmonkey": {
+      "pytest_name": "exec_shell",
+      "label": "Set Has Fingerprint (Dartmonkey)",
+      "related_components": [
+        "test_tags.TestCategory.FINGERPRINT_SENSOR"
+      ],
+      "args": {
+        "commands": "factory device-data component.has_fingerprint=1 && factory device-data component.fingerprint_board=dartmonkey"
       }
     },
     "UnsetHasFingerprint": {
@@ -312,7 +336,7 @@
         "test_tags.TestCategory.FINGERPRINT_SENSOR"
       ],
       "args": {
-        "commands": "factory device-data component.has_fingerprint=0"
+        "commands": "factory device-data component.has_fingerprint=0 && factory device-data component.fingerprint_board="
       }
     },
     "UpdateFPFirmwareWithLocalBuildFirmware": {

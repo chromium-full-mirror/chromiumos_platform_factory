@@ -4261,12 +4261,20 @@ msgid "Probe Fingerprint Sensor"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Set Has Fingerprint"
-msgstr ""
+msgid "Set Has Fingerprint (Bloonchipper)"
+msgstr "ชุดนี้ประกอบด้วยเซ็นเซอร์ลายนิ้วมือ (Bloonchipper)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Buccaneer)"
+msgstr "ชุดนี้ประกอบด้วยเซ็นเซอร์ลายนิ้วมือ (Buccaneer)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Dartmonkey)"
+msgstr "ชุดนี้ประกอบด้วยเซ็นเซอร์ลายนิ้วมือ (Dartmonkey)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Unset Has Fingerprint"
-msgstr ""
+msgstr "ยกเลิกการตั้งค่ามีลายนิ้วมือ"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Update Fingerprint Firmware with Local Build Firmware"

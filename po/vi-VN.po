@@ -4306,12 +4306,20 @@ msgid "Probe Fingerprint Sensor"
 msgstr ""
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Set Has Fingerprint"
-msgstr ""
+msgid "Set Has Fingerprint (Bloonchipper)"
+msgstr "Bộ có cảm biến vân tay (Bloonchipper)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Buccaneer)"
+msgstr "Bộ có cảm biến vân tay (Buccaneer)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Set Has Fingerprint (Dartmonkey)"
+msgstr "Bộ có cảm biến vân tay (Dartmonkey)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Unset Has Fingerprint"
-msgstr ""
+msgstr "Bỏ đặt có dấu vân tay"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Update Fingerprint Firmware with Local Build Firmware"
