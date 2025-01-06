@@ -6,7 +6,7 @@
 
 Description
 -----------
-This pytest is to test the Elan fingerprint test.
+This pytest is to test the Elan fingerprint sensor.
 
 The Elan fingerprint test consists of four sub-tests: base test, sensor test,
 reset test, and WOE test. Only WOE test requires user interactions.
