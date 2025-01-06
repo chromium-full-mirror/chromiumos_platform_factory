@@ -43,10 +43,6 @@
         "test_case": 2
       }
     },
-    "ElanFPSTest": {
-      "pytest_name": "fingerprint_sensor_elan",
-      "run_if": "device.component.has_fingerprint"
-    },
     "ElanFPSTestGroup": {
       "inherit": "TestGroup",
       "label": "Elan Fingerprint Sensor Test Group",
