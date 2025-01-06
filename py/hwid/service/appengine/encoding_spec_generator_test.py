@@ -4,8 +4,9 @@
 # found in the LICENSE file.
 
 import os
-from typing import Sequence, Set, Tuple
+from typing import Collection, Sequence, Set, Tuple
 import unittest
+from unittest import mock
 
 import hardware_verifier_pb2  # pylint: disable=import-error
 
@@ -21,6 +22,7 @@ _EncodedFields = hardware_verifier_pb2.EncodedFields
 _EncodingPattern = hardware_verifier_pb2.EncodingPattern
 _BitRange = hardware_verifier_pb2.BitRange
 _FirstZeroBit = hardware_verifier_pb2.FirstZeroBit
+_EncodingSpec = hardware_verifier_pb2.EncodingSpec
 
 
 class EncodingSpecGeneratorTest(unittest.TestCase):
@@ -307,6 +309,44 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
                                    component_names=['storage_subcomp_7#3']),
             ]),
     ])
+
+  @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
+                     'GenerateEncodingPatterns')
+  @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
+                     'GenerateEncodedFields')
+  def testGenerateEncodedFields(self, mock_generate_encoded_fields,
+                                mock_generate_encoding_patterns):
+    mock_db = mock.create_autospec(database.Database, instance=True)
+    waived_comp_categories: Sequence[str] = ['battery']
+    vp_related_comps: Collection[Tuple[str, str]] = set()
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            mock_db, waived_comp_categories, vp_related_comps))
+    encoded_fields = [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+    ]
+    encoding_patterns = [
+        _EncodingPattern(
+            image_ids=[0], bit_ranges=[
+                _BitRange(category='camera', start=0, end=0),
+            ], first_zero_bits=[
+                _FirstZeroBit(category='camera', zero_bit_position=0),
+            ]),
+    ]
+    mock_generate_encoded_fields.return_value = encoded_fields
+    mock_generate_encoding_patterns.return_value = encoding_patterns
+
+    encoding_spec = encoding_spec_generator.GenerateEncodingSpec()
+
+    self.assertEqual(
+        encoding_spec,
+        _EncodingSpec(encoding_patterns=encoding_patterns,
+                      encoded_fields=encoded_fields,
+                      waived_categories=waived_comp_categories))
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -233,3 +233,10 @@ class EncodingSpecGenerator:
               encoded_components=self._GenerateEncodedComponents(field)))
 
     return encoded_fields
+
+  def GenerateEncodingSpec(self) -> hardware_verifier_pb2.EncodingSpec:
+    encoding_patterns = self.GenerateEncodingPatterns()
+    encoded_fields = self.GenerateEncodedFields()
+    return hardware_verifier_pb2.EncodingSpec(
+        encoding_patterns=encoding_patterns, encoded_fields=encoded_fields,
+        waived_categories=self._waived_comp_categories)
