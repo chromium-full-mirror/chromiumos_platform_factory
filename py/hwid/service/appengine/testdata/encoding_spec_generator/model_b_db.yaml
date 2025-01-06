@@ -1,0 +1,113 @@
+checksum: DUMMY
+
+board: MODEL_B
+
+encoding_patterns: {0: default}
+
+image_id:
+  0: EVT
+
+pattern:
+- image_ids:
+  - 0
+  encoding_scheme: base8192
+  fields:
+  - aaa_field: 0
+  - bbb_field: 3
+  - aaa_field: 1
+  - touchpad_field: 2
+  - ccc_field: 2
+  - camera_field: 3
+  - storage_field: 0
+  - bbb_field: 2
+  - dram_field: 0
+  - storage_field: 3
+  - video_field: 0
+  - dram_field: 2
+  - video_field: 2
+
+encoded_fields:
+  aaa_field:
+    0: {aaa: aaa_1_1}
+  bbb_field:
+    0: {bbb: bbb_2_2}
+  ccc_field:
+    0: {ccc: ccc_3_3}
+  touchpad_field:
+    0: {touchpad: null}
+  camera_field:
+    0:
+      camera:
+      - camera_4
+      - camera_5_5
+      - camera_6_6#3
+    1:
+      camera:
+      - camera_4
+      - camera_untracked#4
+    2: {camera: XYZ}
+  storage_field:
+    0: {storage: storage_6_6}
+    1: {storage: storage_subcomp_7}
+    2: {storage: storage_subcomp_7#3}
+  dram_field:
+    0: {dram: dram_8_8}
+  video_field:
+    0: {video: video_9_9}
+
+components:
+  aaa:
+    items:
+      aaa_1_1:
+        status: supported
+        values: null
+  bbb:
+    items:
+      bbb_2_2:
+        status: supported
+        values: null
+  ccc:
+    items:
+      ccc_3_3:
+        status: supported
+        values: null
+  camera:
+    items:
+      camera_4:
+        status: supported
+        values: null
+      camera_5_5:
+        status: supported
+        values: null
+      camera_6_6#3:
+        status: supported
+        values: null
+      camera_untracked#4:
+        status: supported
+        values: null
+      XYZ:
+        status: supported
+        values: null
+  storage:
+    items:
+      storage_6_6:
+        status: supported
+        values: null
+      storage_subcomp_7:
+        status: supported
+        values: null
+      storage_subcomp_7#3:
+        status: supported
+        values: null
+  dram:
+    items:
+      dram_8_8:
+        status: supported
+        values: null
+  video:
+    items:
+      video_9_9:
+        status: unsupported
+        values: null
+
+rules: []

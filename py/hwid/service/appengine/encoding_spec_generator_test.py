@@ -16,12 +16,24 @@ from cros.factory.hwid.v3 import database
 
 TESTDATA_DIR = os.path.join(
     os.path.dirname(__file__), 'testdata', 'encoding_spec_generator')
+_EncodedComponents = hardware_verifier_pb2.EncodedComponents
+_EncodedFields = hardware_verifier_pb2.EncodedFields
 _EncodingPattern = hardware_verifier_pb2.EncodingPattern
 _BitRange = hardware_verifier_pb2.BitRange
 _FirstZeroBit = hardware_verifier_pb2.FirstZeroBit
 
 
 class EncodingSpecGeneratorTest(unittest.TestCase):
+
+  def _GenerateVPRelatedComps(self,
+                              db: database.Database) -> Set[Tuple[str, str]]:
+    vp_related_comps = set()
+    for comp_cls in db.GetComponentClasses():
+      components = db.GetComponents(comp_cls)
+      for comp_name in components:
+        vp_related_comps.add((comp_cls, comp_name))
+
+    return vp_related_comps
 
   def _UpdateCompStatus(self, db: database.Database, comp_cls: str,
                         status: common.ComponentStatus):
@@ -31,13 +43,22 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
           comp_cls, comp_name, comp_name, comp_info.values, status,
           comp_info.information, comp_info.bundle_uuids)
 
+  def _UpdateCompGroup(self, db: database.Database, comp_cls: str,
+                       comp_name: str, comp_group: str):
+    comp_info = db.GetComponents(comp_cls)[comp_name]
+    db.raw_components.UpdateComponent(comp_cls, comp_name, comp_name,
+                                      comp_info.values, comp_info.status, {
+                                          'comp_group': comp_group
+                                      }, comp_info.bundle_uuids)
+
   def testGenerateEncodingPatterns_WithSupportedCamera_ShouldSkipVideo(self):
     db = database.Database.LoadFile(
         os.path.join(TESTDATA_DIR, 'model_a_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories))
+            db, waived_comp_categories, vp_related_comps))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -68,9 +89,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     self._UpdateCompStatus(db, 'camera', common.ComponentStatus.unsupported)
     self._UpdateCompStatus(db, 'video', common.ComponentStatus.supported)
     waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories))
+            db, waived_comp_categories, vp_related_comps))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -98,9 +120,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     db = database.Database.LoadFile(
         os.path.join(TESTDATA_DIR, 'model_a_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = ['touchscreen']
+    vp_related_comps = self._GenerateVPRelatedComps(db)
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories))
+            db, waived_comp_categories, vp_related_comps))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -122,6 +145,168 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
             ]),
     ])
 
+  def testGenerateEncodedFields_ShouldCheckCompNameAVLCompliance(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(
+                    index=0,
+                    component_names=['camera_4', 'camera_5_5', 'camera_6_6#3']),
+                _EncodedComponents(index=1, component_names=['camera_4']),
+                _EncodedComponents(index=2, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0, component_names=['storage_6_6']),
+                _EncodedComponents(index=1,
+                                   component_names=['storage_subcomp_7']),
+                _EncodedComponents(index=2,
+                                   component_names=['storage_subcomp_7#3']),
+            ]),
+    ])
+
+  def testGenerateEncodedFields_WithSupportedVideo_ShouldSkipCamera(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    self._UpdateCompStatus(db, 'camera', common.ComponentStatus.unsupported)
+    self._UpdateCompStatus(db, 'video', common.ComponentStatus.supported)
+    waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(index=0, component_names=['video_9_9']),
+            ]),
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0, component_names=['storage_6_6']),
+                _EncodedComponents(index=1,
+                                   component_names=['storage_subcomp_7']),
+                _EncodedComponents(index=2,
+                                   component_names=['storage_subcomp_7#3']),
+            ]),
+    ])
+
+  def testGenerateEncodedFields_ShouldSkipWaivedCategories(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    waived_comp_categories: Sequence[str] = ['camera']
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0, component_names=['storage_6_6']),
+                _EncodedComponents(index=1,
+                                   component_names=['storage_subcomp_7']),
+                _EncodedComponents(index=2,
+                                   component_names=['storage_subcomp_7#3']),
+            ]),
+    ])
+
+  def testGenerateEncodedFields_ShouldCheckVPRelatedComps(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    vp_related_comps.remove(('camera', 'camera_4'))
+    vp_related_comps.remove(('storage', 'storage_subcomp_7'))
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(
+                    index=0, component_names=['camera_5_5', 'camera_6_6#3']),
+                _EncodedComponents(index=1, component_names=[]),
+                _EncodedComponents(index=2, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0, component_names=['storage_6_6']),
+                _EncodedComponents(index=1, component_names=[]),
+                _EncodedComponents(index=2,
+                                   component_names=['storage_subcomp_7#3']),
+            ]),
+    ])
+
+  def testGenerateEncodedFields_WithCompGroup_ShouldUseCompGroup(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    self._UpdateCompGroup(db, 'camera', 'camera_4', 'camera_untracked#4')
+    self._UpdateCompGroup(db, 'camera', 'XYZ', 'camera_5_5')
+    self._UpdateCompGroup(db, 'storage', 'storage_6_6', 'storage_subcomp_7#3')
+    waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(
+                    index=0, component_names=['camera_5_5', 'camera_6_6#3']),
+                _EncodedComponents(index=1, component_names=[]),
+                _EncodedComponents(index=2, component_names=['camera_5_5']),
+            ]),
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0,
+                                   component_names=['storage_subcomp_7#3']),
+                _EncodedComponents(index=1,
+                                   component_names=['storage_subcomp_7']),
+                _EncodedComponents(index=2,
+                                   component_names=['storage_subcomp_7#3']),
+            ]),
+    ])
 
 if __name__ == '__main__':
   unittest.main()
