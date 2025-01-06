@@ -26,6 +26,11 @@ The WOE test requires user interaction. Please take the following steps.
 4. The pytest collects required data and analyzes the sensor's functionality
    automatically.
 
+Dependency
+----------
+The pytest supposes that the system as a fingerprint MCU exposed through the
+kernel cros_ec driver as ``/dev/cros_fp``.
+
 Examples
 --------
 Run only base test:
