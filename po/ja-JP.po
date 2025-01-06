@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 18:14+CST\n"
+"PO-Revision-Date: 2025-01-06 18:18+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4293,8 +4293,8 @@ msgid "Elan Fingerprint Sensor Sensor Test"
 msgstr "Elan 指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan Fingerprint Sensor Test Group"
-msgstr "Elan 指紋センサーテストグループ"
+msgid "Elan Fingerprint Sensor Tests"
+msgstr "Elan 指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor WOE Test"
@@ -4319,6 +4319,10 @@ msgstr "FPC 指紋センサーテスト + ピクセル中央値テスト (Dartmo
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "FPC Fingerprint Sensor Tests"
 msgstr "FPC 指紋センサーテスト"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "Fingerprint Sensor Test Helpers"
+msgstr "指紋センサーテストヘルパー"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Probe Fingerprint Sensor"

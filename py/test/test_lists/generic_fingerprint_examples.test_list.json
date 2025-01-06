@@ -43,16 +43,10 @@
         "test_case": 2
       }
     },
-    "ElanFPSTestGroup": {
+    "ElanFPSTests": {
       "inherit": "TestGroup",
-      "label": "Elan Fingerprint Sensor Test Group",
+      "label": "Elan Fingerprint Sensor Tests",
       "subtests": [
-        "SetHasFingerprint",
-        "UnsetHasFingerprint",
-        "ProbeFingerprintSensor",
-        "UpdateFPFirmware",
-        "CheckFPFirmware",
-        "UpdateFPFirmwareWithLocalBuildFirmware",
         "ElanFPSBaseTest",
         "ElanFPSSensorTest",
         "ElanFPSResetTest",
@@ -272,21 +266,16 @@
         "FPCFPSTestPlusRubberStamperTest"
       ]
     },
-    "FingerprintTests": {
+    "FPSTestHelpers": {
       "inherit": "TestGroup",
+      "label": "Fingerprint Sensor Test Helpers",
       "subtests": [
         "SetHasFingerprint",
         "UnsetHasFingerprint",
         "ProbeFingerprintSensor",
         "UpdateFPFirmware",
         "CheckFPFirmware",
-        "UpdateFPFirmwareWithLocalBuildFirmware",
-        "FPCFPSTest",
-        "FPSTestPlusManualTest",
-        "FPSTestPlusPixelMedianTestForDartmonkey",
-        "FPSTestPlusPixelMedianTestForBloonchipper",
-        "FPSTestPlusRubberStamperTest",
-        "FPSGroup"
+        "UpdateFPFirmwareWithLocalBuildFirmware"
       ]
     },
     "ProbeFingerprintSensor": {
@@ -336,8 +325,8 @@
     }
   },
   "tests": [
-    "FingerprintTests",
-    "ElanFPSTestGroup",
+    "FPSTestHelpers",
+    "ElanFPSTests",
     "FPCFPSTests"
   ]
 }

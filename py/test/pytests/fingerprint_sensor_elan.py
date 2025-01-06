@@ -37,19 +37,19 @@ Run only base test:
 
 .. test_list::
 
-  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSBaseTest
+  generic_fingerprint_examples:ElanFPSTests.ElanFPSBaseTest
 
 Run only non-interactive sub-tests:
 
 .. test_list::
 
-  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSNonInteractiveTest
+  generic_fingerprint_examples:ElanFPSTests.ElanFPSNonInteractiveTest
 
 Run all sub-tests:
 
 .. test_list::
 
-  generic_fingerprint_examples:ElanFPSTestGroup.ElanFPSCompleteTest
+  generic_fingerprint_examples:ElanFPSTests.ElanFPSCompleteTest
 
 """
 
