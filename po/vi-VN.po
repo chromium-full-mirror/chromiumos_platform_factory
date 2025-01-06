@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:48+CST\n"
+"PO-Revision-Date: 2025-01-06 18:14+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -4276,20 +4276,26 @@ msgid "Elan Fingerprint Sensor WOE Test"
 msgstr "Kiểm tra WOE cảm biến vân tay Elan"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus manual test"
-msgstr ""
+msgid "FPC Fingerprint Sensor Test + Manual Test"
+msgstr "Kiểm tra cảm biến vân tay FPC + Kiểm tra thủ công"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Bloonchipper)"
 msgstr ""
+"Kiểm tra cảm biến vân tay FPC + Kiểm tra điểm ảnh trung bình (Bloonchipper)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Dartmonkey)"
 msgstr ""
+"Kiểm tra cảm biến vân tay FPC + Kiểm tra điểm ảnh trung bình (Dartmonkey)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus rubber stamper test"
-msgstr ""
+msgid "FPC Fingerprint Sensor Test + Rubber Stamper Test"
+msgstr "Kiểm tra cảm biến vân tay FPC + Kiểm tra con dấu cao su"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "FPC Fingerprint Sensor Tests"
+msgstr "Kiểm tra cảm biến vân tay FPC"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Probe Fingerprint Sensor"

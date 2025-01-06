@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:48+CST\n"
+"PO-Revision-Date: 2025-01-06 18:14+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -260,11 +260,11 @@ msgstr "最终程序"
 
 #: ../build/pytests_label_generated.json
 msgid "Fingerprint Sensor Elan"
-msgstr "指纹感应器 Elan"
+msgstr "指纹传感器 Elan"
 
 #: ../build/pytests_label_generated.json
 msgid "Fingerprint Sensor FPC"
-msgstr "指纹感应器 FPC"
+msgstr "指纹传感器 FPC"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -324,7 +324,7 @@ msgstr "光感测器"
 
 #: ../build/pytests_label_generated.json
 msgid "Light Sensor Calibration"
-msgstr "光感应器校正"
+msgstr "光传感器校正"
 
 #: ../build/pytests_label_generated.json
 msgid "Lightbar"
@@ -491,7 +491,7 @@ msgstr "关机"
 
 #: ../build/pytests_label_generated.json
 msgid "Spatial Sensor Calibration"
-msgstr "感应器校正"
+msgstr "传感器校正"
 
 #: ../build/pytests_label_generated.json
 msgid "Start"
@@ -559,7 +559,7 @@ msgstr "温度压力"
 
 #: ../build/pytests_label_generated.json
 msgid "Thermal Sensors"
-msgstr "温度感应器"
+msgstr "温度传感器"
 
 #: ../build/pytests_label_generated.json
 msgid "Thermal Slope"
@@ -2183,7 +2183,7 @@ msgstr "指纹辨识手动测试"
 
 #: ../py/test/pytests/fingerprint_sensor_fpc.py
 msgid "Touch fingerprint sensor"
-msgstr "触碰指纹辨识感应器"
+msgstr "触碰指纹辨识传感器"
 
 #: ../py/test/pytests/fingerprint_sensor_fpc.py
 msgid "Fingerprint MQT Test"
@@ -2349,7 +2349,7 @@ msgstr ""
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Demagnetizing lid sensor"
-msgstr "消磁化上盖感应器"
+msgstr "消磁化上盖传感器"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Open the lid"
@@ -2357,7 +2357,7 @@ msgstr "请打开上盖"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Magnetizing lid sensor"
-msgstr "磁化上盖感应器"
+msgstr "磁化上盖传感器"
 
 #: ../py/test/pytests/lid_switch.py
 msgid "Close then open the lid"
@@ -2366,7 +2366,7 @@ msgstr "关上接着打开上盖"
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Cover light sensor with finger"
-msgstr "盖住光感应器"
+msgstr "盖住光传感器"
 
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
@@ -2376,11 +2376,11 @@ msgstr "移除遮蔽"
 #: ../py/test/pytests/light_sensor.py
 #: ../py/test/test_lists/generic_ec_component_als.test_list.json
 msgid "Shine light sensor with flashlight"
-msgstr "用强光照射光感应器"
+msgstr "用强光照射光传感器"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "ALS Sensor Calibration"
-msgstr "光感应器校正"
+msgstr "光传感器校正"
 
 #: ../py/test/pytests/light_sensor_calibration.py
 msgid "Cleaning up calibration values"
@@ -2565,11 +2565,11 @@ msgstr "已经侦测SIM卡卡盘, 请移除SIM卡卡盘"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Please cover the sensor by hand"
-msgstr "请用手遮住感应器"
+msgstr "请用手遮住传感器"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Please un-cover the sensor"
-msgstr "请将手远离感应器"
+msgstr "请将手远离传感器"
 
 #: ../py/test/pytests/proximity_sensor.py
 msgid "Setting the sensor"
@@ -4132,7 +4132,7 @@ msgstr "一般加速度计/IMU测试"
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Light Sensor Calibration With Mocked Chamber"
-msgstr "使用模拟箱进行光感应器校正"
+msgstr "使用模拟箱进行光传感器校正"
 
 #: ../py/test/test_lists/generic_ec_component_als_examples.test_list.json
 msgid "Generic Ambient Light Sensor Factory tests"
@@ -4173,11 +4173,11 @@ msgstr "确认指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Elan Fingerprint Sensor Test"
-msgstr "Elan 指纹感应器测试"
+msgstr "Elan 指纹传感器测试"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "FPC Fingerprint Sensor Test"
-msgstr "FPC 指纹感应器测试"
+msgstr "FPC 指纹传感器测试"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Fingerprint Test Group"
@@ -4189,51 +4189,55 @@ msgstr "更新指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Base Test"
-msgstr "Elan 指纹感应器基准测试"
+msgstr "Elan 指纹传感器基准测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Complete Test"
-msgstr "Elan 指纹感应器非完整测试"
+msgstr "Elan 指纹传感器非完整测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Non-interactive Test"
-msgstr "Elan 指纹感应器非互动测试"
+msgstr "Elan 指纹传感器非互动测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Reset Test"
-msgstr "Elan 指纹感应器重置测试"
+msgstr "Elan 指纹传感器重置测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Sensor Test"
-msgstr "Elan 指纹感应器感应测试"
+msgstr "Elan 指纹传感器感应测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Test Group"
-msgstr "Elan 指纹感应器测试群组"
+msgstr "Elan 指纹传感器测试群组"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor WOE Test"
-msgstr "Elan 指纹感应器 WOE 测试"
+msgstr "Elan 指纹传感器 WOE 测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus manual test"
-msgstr "指纹感应器测试并手动测试"
+msgid "FPC Fingerprint Sensor Test + Manual Test"
+msgstr "FPC 指纹传感器测试 + 手动测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
-msgstr "指纹感应器测试并像素中值测试 (Bloonchipper)"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Bloonchipper)"
+msgstr "FPC 指纹传感器测试 + 像素中值测试 (Bloonchipper)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
-msgstr "指纹感应器测试并像素中值测试 (Dartmonkey)"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Dartmonkey)"
+msgstr "FPC 指纹传感器测试 + 像素中值测试 (Dartmonkey)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus rubber stamper test"
-msgstr "指纹感应器测试并橡皮印章测试"
+msgid "FPC Fingerprint Sensor Test + Rubber Stamper Test"
+msgstr "FPC指纹识别器测试 + 橡胶压模测试"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "FPC Fingerprint Sensor Tests"
+msgstr "FPC 指纹传感器测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Probe Fingerprint Sensor"
-msgstr "侦测指纹感应器硬件"
+msgstr "侦测指纹传感器硬件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Set Has Fingerprint"
@@ -4249,7 +4253,7 @@ msgstr "使用本地构建固件更新指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Generic Fingerprint Sensor Factory tests"
-msgstr "一般指纹感应器测试"
+msgstr "一般指纹传感器测试"
 
 #: ../py/test/test_lists/generic_grt.test_list.json
 #: ../py/test/test_lists/generic_rma.test_list.json

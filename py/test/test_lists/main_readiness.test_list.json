@@ -44,6 +44,7 @@
     "DisplayPanelTests",
     "EthernetTests",
     "FingerprintTests",
+    "FPCFPSTests",
     "StorageTests",
     "TouchscreenTests",
     "TouchpadTests",

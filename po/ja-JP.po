@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:48+CST\n"
+"PO-Revision-Date: 2025-01-06 18:14+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4301,20 +4301,24 @@ msgid "Elan Fingerprint Sensor WOE Test"
 msgstr "Elan 指紋センサー WOE テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus manual test"
-msgstr "指紋センサーテストと手動テスト"
+msgid "FPC Fingerprint Sensor Test + Manual Test"
+msgstr "FPC 指紋センサーテスト + 手動テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Bloonchipper"
-msgstr "指紋センサーテストとBloonchipperのピクセル中央値テスト"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Bloonchipper)"
+msgstr "FPC 指紋センサーテスト + ピクセル中央値テスト (Bloonchipper)"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus pixel median test for Dartmonkey"
+msgid "FPC Fingerprint Sensor Test + Pixel Median Test (Dartmonkey)"
 msgstr "指紋センサーテストとDartmonkeyのピクセル中央値テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Fingerprint Sensor test plus rubber stamper test"
-msgstr "指紋センサーテストとゴムスタンプテスト"
+msgid "FPC Fingerprint Sensor Test + Rubber Stamper Test"
+msgstr "FPC 指紋センサーテスト + ピクセル中央値テスト (Dartmonkey)"
+
+#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
+msgid "FPC Fingerprint Sensor Tests"
+msgstr "FPC 指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Probe Fingerprint Sensor"

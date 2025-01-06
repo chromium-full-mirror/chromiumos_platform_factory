@@ -68,16 +68,16 @@
         "test_case": 8
       }
     },
-    "FPSTestPlusManualTest": {
+    "FPCFPSTestPlusManualTest": {
       "inherit": "FPCFPSTest",
-      "label": "Fingerprint Sensor test plus manual test",
+      "label": "FPC Fingerprint Sensor Test + Manual Test",
       "args": {
         "number_of_manual_captures": 10
       }
     },
-    "FPSTestPlusPixelMedianTestForBloonchipper": {
-      "inherit": "FPSTestPlusPixelMedianTestForDartmonkey",
-      "label": "Fingerprint Sensor test plus pixel median test for Bloonchipper",
+    "FPCFPSTestPlusPixelMedianTestForBloonchipper": {
+      "inherit": "FPCFPSTestPlusPixelMedianTestForDartmonkey",
+      "label": "FPC Fingerprint Sensor Test + Pixel Median Test (Bloonchipper)",
       "args": {
         "detect_zones": [
           [
@@ -155,9 +155,9 @@
         ]
       }
     },
-    "FPSTestPlusPixelMedianTestForDartmonkey": {
+    "FPCFPSTestPlusPixelMedianTestForDartmonkey": {
       "inherit": "FPCFPSTest",
-      "label": "Fingerprint Sensor test plus pixel median test for Dartmonkey",
+      "label": "FPC Fingerprint Sensor Test + Pixel Median Test (Dartmonkey)",
       "args": {
         "max_dead_pixels": 10,
         "pixel_median": {
@@ -254,12 +254,23 @@
         ]
       }
     },
-    "FPSTestPlusRubberStamperTest": {
+    "FPCFPSTestPlusRubberStamperTest": {
       "inherit": "FPCFPSTest",
-      "label": "Fingerprint Sensor test plus rubber stamper test",
+      "label": "FPC Fingerprint Sensor Test + Rubber Stamper Test",
       "args": {
         "rubber_finger_present": true
       }
+    },
+    "FPCFPSTests": {
+      "inherit": "TestGroup",
+      "label": "FPC Fingerprint Sensor Tests",
+      "subtests": [
+        "FPCFPSTest",
+        "FPCFPSTestPlusManualTest",
+        "FPCFPSTestPlusPixelMedianTestForDartmonkey",
+        "FPCFPSTestPlusPixelMedianTestForBloonchipper",
+        "FPCFPSTestPlusRubberStamperTest"
+      ]
     },
     "FingerprintTests": {
       "inherit": "TestGroup",
@@ -326,6 +337,7 @@
   },
   "tests": [
     "FingerprintTests",
-    "ElanFPSTestGroup"
+    "ElanFPSTestGroup",
+    "FPCFPSTests"
   ]
 }
