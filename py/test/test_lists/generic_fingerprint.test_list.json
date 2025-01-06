@@ -21,6 +21,14 @@
         "fpmode_retry_count": 2
       }
     },
+    "FPCFPSTest": {
+      "pytest_name": "fingerprint_sensor_fpc",
+      "label": "FPC Fingerprint Sensor Test",
+      "run_if": "device.component.has_fingerprint and (device.component.fingerprint_board == 'bloonchipper' or device.component.fingerprint_board == 'helipilot')",
+      "args": {
+        "fpframe_retry_count": 2
+      }
+    },
     "FPSGroup": {
       "label": "Fingerprint Test Group",
       "run_if": "device.component.has_fingerprint",
@@ -29,16 +37,8 @@
         "RebootStep",
         "CheckFPFirmware",
         "ElanFPSTest",
-        "FPSTest"
+        "FPCFPSTest"
       ]
-    },
-    "FPSTest": {
-      "pytest_name": "fingerprint_sensor_fpc",
-      "label": "Fingerprint Sensor test",
-      "run_if": "device.component.has_fingerprint",
-      "args": {
-        "fpframe_retry_count": 2
-      }
     },
     "UpdateFPFirmware": {
       "pytest_name": "update_fpmcu_firmware",

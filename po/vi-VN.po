@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:44+CST\n"
+"PO-Revision-Date: 2025-01-06 16:48+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -4236,12 +4236,12 @@ msgid "Elan Fingerprint Sensor Test"
 msgstr "การทดสอบเซนเซอร์ลายนิ้วมือ Elan"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
-msgid "Fingerprint Test Group"
-msgstr ""
+msgid "FPC Fingerprint Sensor Test"
+msgstr "Kiểm tra cảm biến vân tay ABC FPC"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
-msgid "Fingerprint Sensor test"
-msgstr ""
+msgid "Fingerprint Test Group"
+msgstr "Nhóm kiểm tra vân tay"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Update Fingerprint Firmware"
