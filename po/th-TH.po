@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:42+CST\n"
+"PO-Revision-Date: 2025-01-06 16:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -259,12 +259,12 @@ msgid "Finalize"
 msgstr "เสร็จสิ้น"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Mcu"
-msgstr "ไมโครคอนโทรลเลอร์ลายนิ้วมือ"
+msgid "Fingerprint Sensor Elan"
+msgstr "เซ็นเซอร์ลายนิ้วมือ Elan"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Sensor Elan"
-msgstr "การทดสอบเซ็นเซอร์ลายนิ้วมือ"
+msgid "Fingerprint Sensor FPC"
+msgstr "เซ็นเซอร์ลายนิ้วมือ FPC"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -2163,18 +2163,6 @@ msgstr ""
 "กําลังทําการสิ้นสุด "
 "กรุณารอสักครู่<br>อย่ารีสตาร์ทอุปกรณ์หรือยุติการทดสอบนี้<br>มิฉะนั้นอุปกรณ์อาจจะใช้การไม่ได้"
 
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint Manual Test"
-msgstr "การทดสอบลายนิ้วมือด้วยตนเอง"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Touch fingerprint sensor"
-msgstr "เซ็นเซอร์ลายนิ้วมือแบบสัมผัส"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint MQT Test"
-msgstr "การทดสอบ MQT ลายนิ้วมือ"
-
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Please don't touch the fingerprint sensor."
 msgstr "โปรดอย่าสัมผัสเซ็นเซอร์ลายนิ้วมือ"
@@ -2198,6 +2186,18 @@ msgstr "เซ็นเซอร์ลายนิ้วมือแบบสั
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Detected touch. Now running WOE test. Don't touch the sensor."
 msgstr "ตรวจพบการสัมผัส กำลังทดสอบ WOE อย่าสัมผัสเซ็นเซอร์"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint Manual Test"
+msgstr "การทดสอบลายนิ้วมือด้วยตนเอง"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Touch fingerprint sensor"
+msgstr "เซ็นเซอร์ลายนิ้วมือแบบสัมผัส"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint MQT Test"
+msgstr "การทดสอบ MQT ลายนิ้วมือ"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""

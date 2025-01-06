@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:42+CST\n"
+"PO-Revision-Date: 2025-01-06 16:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -259,12 +259,12 @@ msgid "Finalize"
 msgstr "ファイナライズ"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Mcu"
-msgstr "指紋MCU"
+msgid "Fingerprint Sensor Elan"
+msgstr "指紋センサー Elan"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Sensor Elan"
-msgstr "指紋センサーテスト"
+msgid "Fingerprint Sensor FPC"
+msgstr "指紋センサー FPC"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -2198,18 +2198,6 @@ msgstr ""
 "トを終了したりしないでください。<br>そうしないと、デバイスが使用できなくなる"
 "可能性があります。"
 
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint Manual Test"
-msgstr "Fingerprintマニュアルテスト"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Touch fingerprint sensor"
-msgstr "指紋センサーに触れてください"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint MQT Test"
-msgstr "Fingerprint MQTテスト"
-
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Please don't touch the fingerprint sensor."
 msgstr "指紋センサーに触れないでください。"
@@ -2235,6 +2223,18 @@ msgid "Detected touch. Now running WOE test. Don't touch the sensor."
 msgstr ""
 "タッチを検出しました。現在 WOE テストを実行しています。センサーに触れないでく"
 "ださい。"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint Manual Test"
+msgstr "Fingerprintマニュアルテスト"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Touch fingerprint sensor"
+msgstr "指紋センサーに触れてください"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint MQT Test"
+msgstr "Fingerprint MQTテスト"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""

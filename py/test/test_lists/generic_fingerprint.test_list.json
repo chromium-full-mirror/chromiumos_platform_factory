@@ -33,7 +33,7 @@
       ]
     },
     "FPSTest": {
-      "pytest_name": "fingerprint_mcu",
+      "pytest_name": "fingerprint_sensor_fpc",
       "label": "Fingerprint Sensor test",
       "run_if": "device.component.has_fingerprint",
       "args": {

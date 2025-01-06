@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:42+CST\n"
+"PO-Revision-Date: 2025-01-06 16:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -259,12 +259,12 @@ msgid "Finalize"
 msgstr "最终程序"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Mcu"
-msgstr ""
+msgid "Fingerprint Sensor Elan"
+msgstr "指纹感应器 Elan"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Sensor Elan"
-msgstr "指纹感应器测试"
+msgid "Fingerprint Sensor FPC"
+msgstr "指纹感应器 FPC"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -2153,18 +2153,6 @@ msgid ""
 msgstr ""
 "正在开始最终程序，请稍等.<br>不要重启机器或停止测试，<br>不然机器将无法开机。"
 
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint Manual Test"
-msgstr "指纹辨识手动测试"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Touch fingerprint sensor"
-msgstr "触碰指纹辨识感应器"
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint MQT Test"
-msgstr "指纹辨识 MQT 测试"
-
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Please don't touch the fingerprint sensor."
 msgstr "请不要触摸指纹传感器。"
@@ -2188,6 +2176,18 @@ msgstr "触摸指纹传感器然后立即抬起手指。"
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Detected touch. Now running WOE test. Don't touch the sensor."
 msgstr "已检测到触摸。现在正在运行 WOE 测试。请勿触摸传感器。"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint Manual Test"
+msgstr "指纹辨识手动测试"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Touch fingerprint sensor"
+msgstr "触碰指纹辨识感应器"
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint MQT Test"
+msgstr "指纹辨识 MQT 测试"
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""

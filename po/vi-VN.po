@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:42+CST\n"
+"PO-Revision-Date: 2025-01-06 16:44+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: vi-VN\n"
@@ -259,12 +259,12 @@ msgid "Finalize"
 msgstr "Trình tự cuối cùng"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Mcu"
-msgstr ""
+msgid "Fingerprint Sensor Elan"
+msgstr "Cảm biến vân tay Elan"
 
 #: ../build/pytests_label_generated.json
-msgid "Fingerprint Sensor Elan"
-msgstr ""
+msgid "Fingerprint Sensor FPC"
+msgstr "Cảm biến vân tay FPC"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
@@ -2188,18 +2188,6 @@ msgstr ""
 "Bắt đầu trình tự cuối cùng, vui lòng đợi.<br>Không khởi động lại máy hoặc "
 "ngừng thử nghiệm.<br>Nếu không, máy sẽ không khởi động"
 
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint Manual Test"
-msgstr ""
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Touch fingerprint sensor"
-msgstr ""
-
-#: ../py/test/pytests/fingerprint_mcu.py
-msgid "Fingerprint MQT Test"
-msgstr ""
-
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Please don't touch the fingerprint sensor."
 msgstr "Vui lòng không chạm vào cảm biến vân tay."
@@ -2223,6 +2211,18 @@ msgstr "Chạm vào cảm biến vân tay, sau đó nhấc ngón tay lên."
 #: ../py/test/pytests/fingerprint_sensor_elan.py
 msgid "Detected touch. Now running WOE test. Don't touch the sensor."
 msgstr "Đã phát hiện chạm. Đang chạy thử nghiệm WOE. Không chạm vào cảm biến."
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint Manual Test"
+msgstr ""
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Touch fingerprint sensor"
+msgstr ""
+
+#: ../py/test/pytests/fingerprint_sensor_fpc.py
+msgid "Fingerprint MQT Test"
+msgstr ""
 
 #: ../py/test/pytests/gyroscope.py
 msgid ""

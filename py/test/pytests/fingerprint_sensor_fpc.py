@@ -2,12 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""A factory test for the Fingerprint sensor.
+"""A factory test for the FPC fingerprint sensor.
 
 Description
 -----------
-Tests that the fingerprint sensor is connected properly and has no defect
-by executing commands through the fingerprint micro-controller.
+Tests that the FPC fingerprint sensor is connected properly and has no defect by
+executing commands through the fingerprint micro-controller.
 
 Internal references
 ^^^^^^^^^^^^^^^^^^^
@@ -46,9 +46,8 @@ properly and fits the default quality settings:
 
   generic_fingerprint_examples:FingerprintTests.FPSTest
 
-To check if the sensor has at most 10 dead pixels,
-with bounds for the pixel grayscale median values and finger detection zones,
-add this in test list:
+To check if the sensor has at most 10 dead pixels, with bounds for the pixel
+grayscale median values and finger detection zones, add this in test list:
 
 .. test_list::
 
@@ -114,8 +113,8 @@ _NON_INTERACTIVE_TEST_TIMEOUT_MS = 500
 _PixelMedianAttribute = Literal["cb_type1", "cb_type2", "icb_type", "icb_type2"]
 
 
-class FingerprintTest(test_case.TestCase):
-  """Tests the fingerprint sensor."""
+class FPCFingerprintTest(test_case.TestCase):
+  """Tests the FPC fingerprint sensor."""
   related_components = (test_case.TestCategory.FINGERPRINT_SENSOR, )
   ARGS = [
       Arg('max_dead_pixels', int,
