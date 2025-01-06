@@ -10,35 +10,35 @@
   "definitions": {
     "ElanFPSBaseTest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS Base Test",
+      "label": "Elan Fingerprint Sensor Base Test",
       "args": {
         "test_case": 1
       }
     },
     "ElanFPSCompleteTest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS Complete Test",
+      "label": "Elan Fingerprint Sensor Complete Test",
       "args": {
         "test_case": 15
       }
     },
     "ElanFPSNonInteractiveTest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS Non-interactive Test",
+      "label": "Elan Fingerprint Sensor Non-interactive Test",
       "args": {
         "test_case": 7
       }
     },
     "ElanFPSResetTest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS Reset Test",
+      "label": "Elan Fingerprint Sensor Reset Test",
       "args": {
         "test_case": 4
       }
     },
     "ElanFPSSensorTest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS Sensor Test",
+      "label": "Elan Fingerprint Sensor Sensor Test",
       "args": {
         "test_case": 2
       }
@@ -49,7 +49,7 @@
     },
     "ElanFPSTestGroup": {
       "inherit": "TestGroup",
-      "label": "Elan FPS Test Group",
+      "label": "Elan Fingerprint Sensor Test Group",
       "subtests": [
         "SetHasFingerprint",
         "UnsetHasFingerprint",
@@ -67,7 +67,7 @@
     },
     "ElanFPSWOETest": {
       "inherit": "ElanFPSTest",
-      "label": "Elan FPS WOE Test",
+      "label": "Elan Fingerprint Sensor WOE Test",
       "args": {
         "test_case": 8
       }
@@ -321,7 +321,7 @@
     },
     "UpdateFPFirmwareWithLocalBuildFirmware": {
       "pytest_name": "update_fpmcu_firmware",
-      "label": "Update Fingerprint Firmware with local build firmware",
+      "label": "Update Fingerprint Firmware with Local Build Firmware",
       "args": {
         "method": "UPDATE",
         "firmware_file": "/path/to/image.bin"

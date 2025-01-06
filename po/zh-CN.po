@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-28 03:38+UTC\n"
+"PO-Revision-Date: 2025-01-06 16:36+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: zh-CN\n"
@@ -131,7 +131,7 @@ msgstr ""
 
 #: ../build/pytests_label_generated.json
 msgid "Cellular Switch Firmware"
-msgstr "切换数据机韧体"
+msgstr "切换数据机固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Charger"
@@ -156,7 +156,7 @@ msgstr "检查出厂系统是否为 LVM"
 
 #: ../build/pytests_label_generated.json
 msgid "Check Retimer Firmware"
-msgstr "确认 Retimer 韧体"
+msgstr "确认 Retimer 固件"
 
 #: ../build/pytests_label_generated.json
 #: ../py/test/test_lists/generic_tpm.test_list.json
@@ -174,7 +174,7 @@ msgstr "检查测试列表"
 
 #: ../build/pytests_label_generated.json
 msgid "Clear Inactive GSC Slot"
-msgstr "清除未使用的 GSC 韧体"
+msgstr "清除未使用的 GSC 固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Compass"
@@ -268,7 +268,7 @@ msgstr "指纹感应器测试"
 
 #: ../build/pytests_label_generated.json
 msgid "Flash Netboot"
-msgstr "烧录 netboot 韧体"
+msgstr "烧录 netboot 固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Get Intel Desc Status"
@@ -615,11 +615,11 @@ msgstr "更新 CBI"
 
 #: ../build/pytests_label_generated.json
 msgid "Update CR50 Firmware"
-msgstr "更新 CR50 韧体"
+msgstr "更新 CR50 固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Detachable Base"
-msgstr "更新可拆式底座韧体"
+msgstr "更新可拆式底座固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Device Data"
@@ -629,11 +629,11 @@ msgstr "更新机器资料"
 #: ../py/test/test_lists/generic_common.test_list.json
 #: ../py/test/test_lists/generic_smt.test_list.json
 msgid "Update Firmware"
-msgstr "更新韧体"
+msgstr "更新固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Fpmcu Firmware"
-msgstr "更新 Fpmcu 韧体"
+msgstr "更新 Fpmcu 固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Kernel"
@@ -641,7 +641,7 @@ msgstr "更新 Kernel"
 
 #: ../build/pytests_label_generated.json
 msgid "Update Plugin Firmware"
-msgstr "更新插件韧体"
+msgstr "更新插件固件"
 
 #: ../build/pytests_label_generated.json
 msgid "Update PSR Oem Data"
@@ -1633,7 +1633,7 @@ msgstr "请按下绿色键以停止充电,然后按下电脑的 space 键"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Read firmware revision string."
-msgstr "读取键盘韧体版本"
+msgstr "读取键盘固件版本"
 
 #: ../py/test/pytests/bluetooth.py
 msgid "Check if the battery has charged to a higher percentage"
@@ -1809,7 +1809,7 @@ msgstr ""
 
 #: ../py/test/pytests/cellular_switch_firmware.py
 msgid "Switching firmware to {target!r}"
-msgstr "切换数据机至{target!r}韧体"
+msgstr "切换数据机至{target!r}固件"
 
 #: ../py/test/pytests/charger.py
 msgid "Discharging"
@@ -1861,7 +1861,7 @@ msgstr "正在更新 {component}..."
 
 #: ../py/test/pytests/check_retimer_firmware.py
 msgid "Checking the retimer firmware version..."
-msgstr "正在检查 Retimer 韧体版本"
+msgstr "正在检查 Retimer 固件版本"
 
 #: ../py/test/pytests/check_retimer_firmware.py
 msgid "Please remove USB type-C cable from port {port}"
@@ -3126,7 +3126,7 @@ msgstr "用任意顺序画完全部格子; 按 Esc 键标记失败"
 
 #: ../py/test/pytests/update_detachable_base.py
 msgid "Updating base firmware. Do not remove the base."
-msgstr "更新韧体中，勿移除底座"
+msgstr "更新固件中，勿移除底座"
 
 #: ../py/test/pytests/update_detachable_base.py
 msgid "Verifying detachable base information..."
@@ -4169,7 +4169,7 @@ msgstr "FFT (最终功能测试)"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Check Fingerprint Firmware"
-msgstr "确认指纹韧体"
+msgstr "确认指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Fingerprint Test Group"
@@ -4181,34 +4181,34 @@ msgstr "指纹感应器测试"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Update Fingerprint Firmware"
-msgstr "更新指纹韧体"
+msgstr "更新指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Base Test"
+msgid "Elan Fingerprint Sensor Base Test"
 msgstr "Elan 指纹感应器基准测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Complete Test"
+msgid "Elan Fingerprint Sensor Complete Test"
 msgstr "Elan 指纹感应器非完整测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Non-interactive Test"
+msgid "Elan Fingerprint Sensor Non-interactive Test"
 msgstr "Elan 指纹感应器非互动测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Reset Test"
+msgid "Elan Fingerprint Sensor Reset Test"
 msgstr "Elan 指纹感应器重置测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Sensor Test"
+msgid "Elan Fingerprint Sensor Sensor Test"
 msgstr "Elan 指纹感应器感应测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Test Group"
+msgid "Elan Fingerprint Sensor Test Group"
 msgstr "Elan 指纹感应器测试群组"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS WOE Test"
+msgid "Elan Fingerprint Sensor WOE Test"
 msgstr "Elan 指纹感应器 WOE 测试"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
@@ -4240,8 +4240,8 @@ msgid "Unset Has Fingerprint"
 msgstr "移除 Has Fingerprint"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Update Fingerprint Firmware with local build firmware"
-msgstr "使用特定韧体更新指纹韧体"
+msgid "Update Fingerprint Firmware with Local Build Firmware"
+msgstr "使用本地构建固件更新指纹固件"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Generic Fingerprint Sensor Factory tests"
@@ -4475,11 +4475,11 @@ msgstr "断言 GSC 版号未设置"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Check Cr50 Firmware Version"
-msgstr "检查 CR50 韧体版本"
+msgstr "检查 CR50 固件版本"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Check Ti50 Firmware Version"
-msgstr "检查 Ti50 韧体版本"
+msgstr "检查 Ti50 固件版本"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Clear Cr50 AP RO Hash"
@@ -4487,7 +4487,7 @@ msgstr "清除 Cr50 AP RO Hash"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Clear Inactive Ti50 Slot"
-msgstr "清除未使用的 Ti50 韧体"
+msgstr "清除未使用的 Ti50 固件"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Cr50 AP RO Verification"
@@ -4519,11 +4519,11 @@ msgstr "验证 Ti50 AP RO"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Update Cr50 Firmware"
-msgstr "更新 CR50 韧体"
+msgstr "更新 CR50 固件"
 
 #: ../py/test/test_lists/generic_tpm.test_list.json
 msgid "Update Ti50 Firmware"
-msgstr "更新 Ti50 韧体"
+msgstr "更新 Ti50 固件"
 
 #: ../py/test/test_lists/generic_tpm_examples.test_list.json
 msgid "Assert GSC Board ID flags is pre-pvt"
@@ -4539,11 +4539,11 @@ msgstr "侦测 TPM"
 
 #: ../py/test/test_lists/generic_tpm_examples.test_list.json
 msgid "Update GSC Firmware without upstart"
-msgstr "不使用 upstart 模式更新 GSC 韧体"
+msgstr "不使用 upstart 模式更新 GSC 固件"
 
 #: ../py/test/test_lists/generic_tpm_examples.test_list.json
 msgid "Update Ti50 Firmware from 0.0.15- to 0.0.16+"
-msgstr "将 Ti50 韧体从 0.0.15- 更新到 0.0.16+"
+msgstr "将 Ti50 固件从 0.0.15- 更新到 0.0.16+"
 
 #: ../py/test/test_lists/generic_tpm_examples.test_list.json
 msgid "Generic TPM Factory tests"
@@ -4659,7 +4659,7 @@ msgstr "开始 PSR 记录"
 
 #: ../py/test/test_lists/intel_common.test_list.json
 msgid "Update Intel Firmware"
-msgstr "更新Intel韧体"
+msgstr "更新Intel固件"
 
 #: ../py/test/test_lists/main_readiness.test_list.json
 msgid "Main Readiness Factory tests"

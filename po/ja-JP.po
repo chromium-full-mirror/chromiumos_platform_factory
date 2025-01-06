@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2024-11-28 03:38+UTC\n"
+"PO-Revision-Date: 2025-01-06 16:36+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4269,31 +4269,31 @@ msgid "Update Fingerprint Firmware"
 msgstr "指紋ファームウェアの更新"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Base Test"
+msgid "Elan Fingerprint Sensor Base Test"
 msgstr "Elan 指紋センサーのベーステスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Complete Test"
+msgid "Elan Fingerprint Sensor Complete Test"
 msgstr "Elan 指紋センサーの完全テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Non-interactive Test"
+msgid "Elan Fingerprint Sensor Non-interactive Test"
 msgstr "Elan 指紋センサーの非対話型テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Reset Test"
-msgstr "Elan 指紋センサーのリセットテスト"
+msgid "Elan Fingerprint Sensor Reset Test"
+msgstr "Elan 指紋センサーリセットテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Sensor Test"
-msgstr "Elan 指紋センサーセンサーテスト"
+msgid "Elan Fingerprint Sensor Sensor Test"
+msgstr "Elan 指紋センサーテスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Test Group"
+msgid "Elan Fingerprint Sensor Test Group"
 msgstr "Elan 指紋センサーテストグループ"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS WOE Test"
+msgid "Elan Fingerprint Sensor WOE Test"
 msgstr "Elan 指紋センサー WOE テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
@@ -4325,8 +4325,8 @@ msgid "Unset Has Fingerprint"
 msgstr "指紋の設定を解除"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Update Fingerprint Firmware with local build firmware"
-msgstr "ローカルビルドのファームウェアで指紋ファームウェアを更新"
+msgid "Update Fingerprint Firmware with Local Build Firmware"
+msgstr "ローカルビルドファームウェアで指紋ファームウェアを更新する"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Generic Fingerprint Sensor Factory tests"
