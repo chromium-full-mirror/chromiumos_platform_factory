@@ -388,6 +388,9 @@ class Database(abc.ABC):
   def GetImageIdByName(self, image_name: str) -> int:
     return self._image_id.GetImageIdByName(image_name)
 
+  def GetImageIdsByPatternId(self, pattern_id: int) -> Sequence[int]:
+    return self._pattern.pattern_id_to_image_ids[pattern_id]
+
   def GetEncodingScheme(self, image_id: Optional[int] = None) -> str:
     return self._pattern.GetEncodingScheme(image_id)
 
@@ -2009,15 +2012,10 @@ class Pattern:
   def Export(self) -> Sequence[Mapping[str, Any]]:
     """Exports this `pattern` part of HWID database into a serializable object
     which can be stored into a HWID database file."""
-    inverse_mapping: DefaultDict[
-        int, MutableSequence[int]] = collections.defaultdict(list)
-    for image_id, pattern_idx in self._image_id_to_pattern.items():
-      inverse_mapping[pattern_idx].append(image_id)
-
     pattern_list = []
     for seq, pattern in enumerate(self._patterns):
       pattern_list.append(
-          yaml.Dict([('image_ids', inverse_mapping[seq]),
+          yaml.Dict([('image_ids', self.pattern_id_to_image_ids[seq]),
                      ('encoding_scheme', pattern.encoding_scheme),
                      ('fields', [{
                          field.name: field.bit_length
@@ -2028,6 +2026,14 @@ class Pattern:
   def all_image_ids(self):
     """Returns all image ids."""
     return list(self._image_id_to_pattern)
+
+  @property
+  def pattern_id_to_image_ids(self) -> Mapping[int, Sequence[int]]:
+    """Returns the mapping that maps pattern ids to image id lists"""
+    pattern_id_to_image_ids = collections.defaultdict(list)
+    for image_id, pattern_id in self._image_id_to_pattern.items():
+      pattern_id_to_image_ids[pattern_id].append(image_id)
+    return pattern_id_to_image_ids
 
   def AddEmptyPattern(
       self, image_id, encoding_scheme: Union[str,

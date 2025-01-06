@@ -288,6 +288,15 @@ class DatabaseTest(unittest.TestCase):
     for i in range(db.GetPatternCount()):
       self.assertNotIn('field2', dict(db.GetPattern(pattern_idx=i).fields))
 
+  def testGetImageIdsByPatternId(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    self.assertCountEqual(db.GetImageIdsByPatternId(pattern_id=0), [0, 1])
+    self.assertCountEqual(db.GetImageIdsByPatternId(pattern_id=1), [2])
+
+
 class ImageIdTest(unittest.TestCase):
 
   def testExport(self):
@@ -1700,17 +1709,31 @@ class PatternTest(unittest.TestCase):
     }
     patterns = database.Pattern([pattern_0, pattern_1])
     self.assertEqual(2, patterns.num_patterns)
+    self.assertEqual({
+        0: [0, 1, 2],
+        1: [3]
+    }, patterns.pattern_id_to_image_ids)
 
     # Add new image id with a new pattern.
     associated_pattern_idx = patterns.AddEmptyPattern(
         4, common.EncodingScheme.base8192)
 
     self.assertEqual(2, associated_pattern_idx)
+    self.assertEqual({
+        0: [0, 1, 2],
+        1: [3],
+        2: [4]
+    }, patterns.pattern_id_to_image_ids)
 
     # Add new image id and reuse an existing pattern.
     associated_pattern_idx = patterns.AddImageId(5, reference_image_id=1)
 
     self.assertEqual(0, associated_pattern_idx)
+    self.assertEqual({
+        0: [0, 1, 2, 5],
+        1: [3],
+        2: [4]
+    }, patterns.pattern_id_to_image_ids)
 
   def testGetPattern(self):
     pattern_0 = {

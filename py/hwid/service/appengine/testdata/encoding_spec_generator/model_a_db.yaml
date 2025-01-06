@@ -1,0 +1,76 @@
+checksum: DUMMY
+
+board: MODEL_A
+
+encoding_patterns: {0: default}
+
+image_id:
+  0: EVT_1
+  1: EVT_2
+  2: EVT_3
+  3: EVT_4
+
+pattern:
+- image_ids:
+  - 0
+  - 1
+  encoding_scheme: base8192
+  fields:
+  - aaa_field: 0
+  - bbb_field: 3
+  - touchscreen_field: 0
+  - aaa_field: 1
+  - battery_field: 2
+  - ccc_field: 2
+  - camera_field: 2
+  - cellular_field: 0
+  - bbb_field: 2
+  - dram_field: 0
+  - cellular_field: 3
+  - dram_field: 2
+  - touchscreen_field: 2
+- image_ids:
+  - 2
+  - 3
+  encoding_scheme: base8192
+  fields:
+  - battery_field: 2
+  - camera_field: 0
+  - video_field: 0
+  - camera_field: 2
+  - video_field: 1
+  - touchscreen_field: 2
+
+encoded_fields:
+  aaa_field:
+    0: {aaa: null}
+  bbb_field:
+    0: {bbb: null}
+  ccc_field:
+    0: {ccc: null}
+  battery_field:
+    0: {battery: null}
+  camera_field:
+    0: {camera: camera_111_222}
+  cellular_field:
+    0: {cellular: null}
+  dram_field:
+    0: {dram: null}
+  touchscreen_field:
+    0: {touchscreen: null}
+  video_field:
+    0: {video: video_XYZ}
+
+components:
+  camera:
+    items:
+      camera_111_222:
+        status: supported
+        values: null
+  video:
+    items:
+      video_XYZ:
+        status: unsupported
+        values: null
+
+rules: []
