@@ -13,6 +13,14 @@
         "method": "CHECK_VERSION"
       }
     },
+    "ElanFPSTest": {
+      "pytest_name": "fingerprint_sensor_elan",
+      "label": "Elan Fingerprint Sensor Test",
+      "run_if": "device.component.has_fingerprint and device.component.fingerprint_board == 'buccaneer'",
+      "args": {
+        "fpmode_retry_count": 2
+      }
+    },
     "FPSGroup": {
       "label": "Fingerprint Test Group",
       "run_if": "device.component.has_fingerprint",
@@ -20,6 +28,7 @@
         "UpdateFPFirmware",
         "RebootStep",
         "CheckFPFirmware",
+        "ElanFPSTest",
         "FPSTest"
       ]
     },
