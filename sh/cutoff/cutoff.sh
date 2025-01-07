@@ -115,33 +115,23 @@ get_ectool_battery_voltage() {
   echo "${voltage}"
 }
 
-find_ac_path() {
-  local ac_path=""
-  for power_supply in "${POWER_SUPPLY_PATH}"/*; do
-    if [ -f "${power_supply}/type" ] &&
-       [ "$(cat "${power_supply}/type")" != "Battery" ] &&
-       [ -f "${power_supply}/online" ] &&
-       [ "$(cat "${power_supply}/online")" != "0" ]; then
-      ac_path="${power_supply}"
-      break
-    fi
-  done
-  echo "${ac_path}"
+is_ac_present() {
+  ectool battery | grep -q "Flags.*AC_PRESENT"
 }
 
 require_ac() {
-  if [ -z "$(find_ac_path)" ]; then
+  if ! is_ac_present; then
     "${DISPLAY_MESSAGE}" "connect_ac"
-    while [ -z "$(find_ac_path)" ]; do
+    while ! is_ac_present; do
       sleep 0.5
     done
   fi
 }
 
 require_remove_ac() {
-  if [ -n "$(find_ac_path)" ]; then
+  if is_ac_present; then
     "${DISPLAY_MESSAGE}" "remove_ac"
-    while [ -n "$(find_ac_path)" ]; do
+    while is_ac_present; do
       sleep 0.5
     done
   fi
