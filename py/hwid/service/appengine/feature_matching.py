@@ -482,11 +482,6 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
 
   def GenerateRMADFeatureEnabledDevicesPayload(self) -> Optional[str]:
     """See base class."""
-    devices = [
-        brand_code
-        for brand_code, p in self._spec.brand_code_permissions.items()
-        if p.allow_hard_branded_units
-    ]
     feature_levels = {
         brand_code: self._spec.feature_version
         for brand_code, p in self._spec.brand_code_permissions.items()
@@ -495,7 +490,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     if not feature_levels:
       return None
     msg = feature_enabled_devices_pb2.FeatureEnabledDevices(
-        devices=sorted(devices), feature_levels=feature_levels)
+        feature_levels=feature_levels)
     return text_format.MessageToString(msg)
 
   def _BuildFeatureManagementFlagChecker(

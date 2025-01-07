@@ -594,8 +594,6 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
     self.assertEqual(
         actual,
         textwrap.dedent("""\
-            devices: "ABCD"
-            devices: "EFGH"
             feature_levels {
               key: "ABCD"
               value: 1
