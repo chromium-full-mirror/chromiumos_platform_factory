@@ -337,7 +337,7 @@ class DatabaseBuilder:
           'hw_compliance_version': hw_compliance_version,
           'is_chassis_branded': chassis_branded
       }
-      self.AddComponentCheck(comp_cls, value)
+      self.AddComponentCheck(comp_cls, value, supported=True)
 
     existed_comp_names = self._database.GetComponents(comp_cls).keys()
     field_name = f'{comp_cls}_field'
