@@ -286,7 +286,7 @@ class DatabaseBuilderTest(unittest.TestCase):
 
     # This function should only be called once.
     with self.assertRaises(builder.BuilderException):
-      db_builder.AddFeatureManagementFlagComponents()
+      db_builder.AddFeatureManagementFlagComponents(1)
 
   # TODO (b/212216855)
   @label_utils.Informational
