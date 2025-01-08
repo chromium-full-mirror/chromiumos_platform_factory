@@ -580,7 +580,7 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
                              feature_version=str(feature_version))
     brand_allowed_feature_enablement_types = {
         'ABCD': [_FeatureEnablementType.HARD_BRANDED],
-        'EFGH': [_FeatureEnablementType.HARD_BRANDED],
+        'EFGH': [_FeatureEnablementType.SOFT_BRANDED_LEGACY],
     }
     hwid_requirement_candidates = []
 

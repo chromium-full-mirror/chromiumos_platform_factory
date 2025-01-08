@@ -485,7 +485,8 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     feature_levels = {
         brand_code: self._spec.feature_version
         for brand_code, p in self._spec.brand_code_permissions.items()
-        if p.allow_hard_branded_units
+        if (p.allow_hard_branded_units or p.allow_soft_branded_legacy_units or
+            p.allow_soft_branded_waiver_units)
     }
     if not feature_levels:
       return None
