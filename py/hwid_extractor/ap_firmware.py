@@ -14,7 +14,7 @@ VPD_BIN = '/usr/sbin/vpd'
 CMD_TIMEOUT_SECOND = 20
 
 HWID_RE = re.compile(r'hardware_id: ([A-Z0-9- ]+)')
-SERIAL_NUMBER_RE = re.compile(r'"serial_number"="([A-Za-z0-9]+)"')
+SERIAL_NUMBER_RE = re.compile(r'"serial_number"="([A-Za-z0-9-]+)"')
 
 
 def _GetHWID(firmware_binary_file):
