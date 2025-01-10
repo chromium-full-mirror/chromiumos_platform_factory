@@ -15,6 +15,7 @@ Dependencies:
 
 import argparse
 import dataclasses
+import enum
 import logging
 import pathlib
 import re
@@ -25,7 +26,6 @@ import time
 from typing import List, Optional, Sequence, Union
 
 
-_PRIV_APP_PATH = pathlib.Path('/system/priv-app')
 _PACKAGE_NAME_PATTERN = re.compile(r"package: name='([^']*)'")
 _PERMISSION_PATTERN = re.compile(r"uses-permission: name='([^']*)'", re.M)
 _PRIVILEGED_PATTERN = re.compile(r'^.*\bprivateFlags=.*\bPRIVILEGED\b.*$', re.M)
@@ -67,6 +67,16 @@ def Run(
                         encoding=encoding, **kwargs)
 
 
+class AndroidPartition(enum.Enum):
+  system = pathlib.Path('system')
+  system_ext = pathlib.Path('system_ext')
+  vendor = pathlib.Path('vendor')
+  product = pathlib.Path('product')
+
+  def __str__(self) -> str:
+    return self.name
+
+
 @dataclasses.dataclass
 class InstallAsPrivAppArgs:
   apk_path: pathlib.Path
@@ -74,6 +84,7 @@ class InstallAsPrivAppArgs:
   dpc_enabled: bool
   dpc_receiver_name: str
   skip_factory_settings: bool
+  partition: AndroidPartition
   target: Optional[str] = None
   package_name: str = ''
   permission_path: pathlib.Path = pathlib.Path()
@@ -112,6 +123,10 @@ def MakeParser():
       help=('If set, skip factory settings. Factory settings include stay on '
             'while plugged in and other configurations. Check '
             'SetFactorySettings for detail.'))
+  parser.add_argument('--partition', type=AndroidPartition.__getitem__,
+                      default=AndroidPartition.system,
+                      choices=AndroidPartition.__members__.values(),
+                      help='The target partition to install.')
   return parser
 
 
@@ -222,7 +237,7 @@ def Install(args: InstallAsPrivAppArgs):
     logging.info('return code is %s.', result.returncode)
     sys.exit(1)
 
-  on_device_dir_path = _PRIV_APP_PATH / args.dir_app_name
+  on_device_dir_path = args.partition.value / 'priv-app' / args.dir_app_name
   Run(args.adb + ['shell', 'mkdir', '-p', str(on_device_dir_path)])
   Run(args.adb + ['shell', 'chmod', '755', str(on_device_dir_path)])
 
@@ -230,9 +245,8 @@ def Install(args: InstallAsPrivAppArgs):
   Run(args.adb + ['push', str(args.apk_path), str(on_device_apk_path)])
   Run(args.adb + ['shell', 'chmod', '644', str(on_device_apk_path)])
 
-  on_device_permission_path = pathlib.Path(
-      'system', 'etc', 'permissions',
-      f'privapp-permissions-{args.dir_app_name}.xml')
+  on_device_permission_path = args.partition.value / pathlib.Path(
+      'etc', 'permissions', f'privapp-permissions-{args.dir_app_name}.xml')
   Run(args.adb +
       ['push',
        str(args.permission_path),
