@@ -170,7 +170,8 @@ def QueueGet(q: 'queue.Queue[T]',
 
 
 def EventWait(event: threading.Event, timeout: Optional[float] = None,
-              poll_interval_secs: float = DEFAULT_POLL_INTERVAL_SECS) -> bool:
+              poll_interval_secs: float = DEFAULT_POLL_INTERVAL_SECS,
+              enable_logging: bool = True) -> bool:
   """Wait for a threading.Event upto `timeout` seconds
 
   This function waits for a `Event` to be set. If the `Event` is set within
@@ -183,7 +184,7 @@ def EventWait(event: threading.Event, timeout: Optional[float] = None,
     timeout = math.inf
 
   @RetryDecorator(timeout_sec=timeout, interval_sec=poll_interval_secs,
-                  target_condition=bool)
+                  target_condition=bool, enable_logging=enable_logging)
   def WaitEventSet() -> bool:
     return event.is_set()
 

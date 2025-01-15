@@ -270,7 +270,8 @@ class SyncFactoryServerUnitTest(unittest.TestCase):
         ])
     ])
     mock_wait.assert_has_calls(
-        [mock.call(self.test.do_setup_url, timeout=1)] * (2 + 4 + 8 + 10))
+        [mock.call(self.test.do_setup_url, timeout=1, enable_logging=False)] *
+        (2 + 4 + 8 + 10))
     self.ui.AdvanceProgress.assert_called_once()
     self.ui.SetHTML.assert_has_calls(
         [mock.call(RetryMessage(i), id='retry') for i in reversed(range(2))] +
@@ -544,8 +545,8 @@ class SyncFactoryServerUnitTest(unittest.TestCase):
                      autospec=True)
   def testPing_SetupUrl(self, mock_get_server_proxy, mock_wait):
 
-    def EventWaitSideEffect(e):
-      del e
+    def EventWaitSideEffect(e, enable_logging=True):
+      del e, enable_logging
       self.test.do_setup_url.clear()
 
     self.test.server = None
