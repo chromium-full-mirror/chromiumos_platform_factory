@@ -156,7 +156,7 @@
       "pytest_name": "exec_shell",
       "label": "Set Has Front Camera",
       "related_components": [
-        "test_tags.TestCategory.Camera"
+        "test_tags.TestCategory.CAMERA"
       ],
       "args": {
         "commands": "factory device-data component.has_front_camera=1"
@@ -166,7 +166,7 @@
       "pytest_name": "exec_shell",
       "label": "Set Has Rear Camera",
       "related_components": [
-        "test_tags.TestCategory.Camera"
+        "test_tags.TestCategory.CAMERA"
       ],
       "args": {
         "commands": "factory device-data component.has_rear_camera=1"
@@ -176,7 +176,7 @@
       "pytest_name": "exec_shell",
       "label": "Unset Has Front Camera",
       "related_components": [
-        "test_tags.TestCategory.Camera"
+        "test_tags.TestCategory.CAMERA"
       ],
       "args": {
         "commands": "factory device-data component.has_front_camera=0"
@@ -186,7 +186,7 @@
       "pytest_name": "exec_shell",
       "label": "Unset Has Rear Camera",
       "related_components": [
-        "test_tags.TestCategory.Camera"
+        "test_tags.TestCategory.CAMERA"
       ],
       "args": {
         "commands": "factory device-data component.has_rear_camera=0"
