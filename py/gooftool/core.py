@@ -236,43 +236,44 @@ class Gooftool:
     factory installed DLC images under stateful partition and compare their
     hashes using `dlcverify`.
     """
+    model = self.GetModelName()
 
     def _ListSubDirectories(dir_path):
-      sub_dir_names = []
+      sub_dir_names = set()
       for name in os.listdir(dir_path):
         if os.path.isdir(os.path.join(dir_path, name)):
-          sub_dir_names.append(name)
+          sub_dir_names.add(name)
 
       return sub_dir_names
 
-    def _GetNumDLCToBeVerified():
+    def _GetDLCToBeVerified():
       with sys_utils.MountPartition(
           self._util.GetReleaseRootPartitionPath()) as root:
         dlc_metadata_path = os.path.join(root, _DLCMETADATADIR)
         dlc_list = self._util.shell([
             'dlc_metadata_util', f'--metadata_dir={dlc_metadata_path}',
-            '--list', '--factory_install'
+            '--list', f'--attribute={model}'
         ])
         if not dlc_list.success:
           raise Error('Failed to get the factory-install DLC list.')
 
-        return len(json.loads(dlc_list.stdout))
+        return set(json.loads(dlc_list.stdout))
 
     dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
                                   wipe.DLC_CACHE_PAYLOAD_NAME)
-    expected_num_dlcs = _GetNumDLCToBeVerified()
+    expected_dlcs = _GetDLCToBeVerified()
 
     try:
       file_utils.CheckPath(dlc_cache_path)
     except IOError:
-      if expected_num_dlcs == 0:
+      if not expected_dlcs:
         logging.info(
             'Cannot find %s. Factory installed DLC images are not enabled. '
             'Skip checking.', dlc_cache_path)
         return
       raise Error(
-          'No factory installed DLC images found! Expected number of DLCs: '
-          f'{int(expected_num_dlcs)}! {_DLC_ERROR_TEMPLATE}') from None
+          'No factory installed DLC images found! Expected DLCs: '
+          f'{(expected_dlcs)}! {_DLC_ERROR_TEMPLATE}') from None
 
     with file_utils.TempDirectory() as tmpdir:
       # The DLC images are stored as compressed format.
@@ -288,15 +289,15 @@ class Gooftool:
       dlc_image_path = os.path.join(tmpdir, 'unencrypted', 'dlc-factory-images')
 
       # Enumerate all the DLC sub-directories under dlc_image_path.
-      sub_dir_names = _ListSubDirectories(dlc_image_path)
-      cur_num_dlcs = len(sub_dir_names)
+      current_dlcs = _ListSubDirectories(dlc_image_path)
 
-      if cur_num_dlcs != expected_num_dlcs:
+      if not expected_dlcs.issubset(current_dlcs):
         raise Error(
-            f'Current number of factory installed DLCs: {int(cur_num_dlcs)}, '
-            f'expected: {int(expected_num_dlcs)}. {_DLC_ERROR_TEMPLATE}')
+            'Some factory installed DLCs are missing. Current DLCs: '
+            f'{current_dlcs}, Expected DLCs: {expected_dlcs}. '
+            f'{_DLC_ERROR_TEMPLATE}')
 
-      if cur_num_dlcs == 0:
+      if not current_dlcs:
         logging.info('No DLC images under %s. Skip checking.', dlc_image_path)
         return
 
@@ -304,11 +305,11 @@ class Gooftool:
       error_messages = {}
       with sys_utils.MountPartition(
           self._util.GetReleaseRootPartitionPath()) as root:
-        for sub_dir_name in sub_dir_names:
-          image_path = os.path.join(dlc_image_path, sub_dir_name, 'package',
+        for dlc in current_dlcs:
+          image_path = os.path.join(dlc_image_path, dlc, 'package',
                                     'dlc.img')
           verify_command = (
-              f'{_DLCVERIFY} --id={sub_dir_name} --image={image_path} '
+              f'{_DLCVERIFY} --id={dlc} --image={image_path} '
               f'--rootfs_mount={root}')
           logging.info(verify_command)
           check_hash_out = self._util.shell(verify_command)
@@ -710,13 +711,16 @@ class Gooftool:
         return config
     return None
 
-  def VerifyCrosConfig(self):
-    """Verify that entries in cros config make sense."""
+  def GetModelName(self):
     model = self._cros_config.GetModelName()
     if not model:
       db_identity, cur_identity = self.GetIdentity()
       raise CrosConfigError('Model name is empty', db_identity, cur_identity)
+    return model
 
+  def VerifyCrosConfig(self):
+    """Verify that entries in cros config make sense."""
+    model = self.GetModelName()
     self.vpd_utils.VerifyCacheForIdentity()
 
     def _ParseCrosConfig(config_path):
