@@ -16,6 +16,7 @@ from google.protobuf import text_format
 import hardware_verifier_pb2  # pylint: disable=import-error
 import runtime_probe_pb2  # pylint: disable=import-error
 
+from cros.factory.hwid.service.appengine import encoding_spec_generator as encoding_spec_generator_module
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common as hwid_common
 from cros.factory.hwid.v3 import database
@@ -798,8 +799,14 @@ def GetAllComponentVerificationPayloadPieces(
   return ret
 
 
-def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
-                                salt: Optional[bytes] = None):
+def GenerateVerificationPayload(
+    dbs: Sequence[Tuple[
+        database.Database,
+        vpg_config_module.VerificationPayloadGeneratorConfig
+    ]],
+    encryption_key: Optional[str] = None,
+    salt: Optional[bytes] = None,
+  ):
   """Generates the corresponding verification payload from the given HWID DBs.
 
   This function ignores the component categories that no corresponding generator
@@ -1003,6 +1010,10 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
     skip_comp_names = _CollectSkipCompNames(db)
     all_pieces = GetAllComponentVerificationPayloadPieces(
         db, vpg_config, skip_comp_names)
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, vpg_config.waived_comp_categories, set(all_pieces)))
+
     if skip_comp_names:
       logging.info('Skip generating payload for components: %s',
                    skip_comp_names)
@@ -1061,6 +1072,12 @@ def GenerateVerificationPayload(dbs, encryption_key: Optional[str] = None,
       # hardware_verifier run without failures.  Therefore, the Tast test for
       # hardware_verifier still works.
       probe_config = generic_probe_config
+    else:
+      encoding_spec = encoding_spec_generator.GenerateEncodingSpec()
+      encoding_spec_pathname = (
+          f'runtime_probe/{model_prefix}/encoding_spec.txtpb')
+      generated_file_contents[
+          encoding_spec_pathname] = text_format.MessageToString(encoding_spec)
 
     probe_config_pathname = f'runtime_probe/{model_prefix}/probe_config.json'
     generated_file_contents[probe_config_pathname] = probe_config.DumpToString()

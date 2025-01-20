@@ -8,11 +8,13 @@ import os
 import subprocess
 from typing import Optional
 import unittest
+from unittest import mock
 
 from google.protobuf import json_format
 from google.protobuf import text_format
 import hardware_verifier_pb2  # pylint: disable=import-error
 
+from cros.factory.hwid.service.appengine import encoding_spec_generator as encoding_spec_generator_module
 from cros.factory.hwid.service.appengine import verification_payload_generator
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common as hwid_common
@@ -25,6 +27,12 @@ from cros.factory.utils import json_utils
 
 
 _vp_generator = verification_payload_generator
+_EncodedComponents = hardware_verifier_pb2.EncodedComponents
+_EncodedFields = hardware_verifier_pb2.EncodedFields
+_EncodingPattern = hardware_verifier_pb2.EncodingPattern
+_BitRange = hardware_verifier_pb2.BitRange
+_FirstZeroBit = hardware_verifier_pb2.FirstZeroBit
+_EncodingSpec = hardware_verifier_pb2.EncodingSpec
 
 MissingComponentValueError = _vp_generator.MissingComponentValueError
 ProbeStatementConversionError = _vp_generator.ProbeStatementConversionError
@@ -684,7 +692,9 @@ class EdidProbeStatementGeneratorTest(unittest.TestCase):
 
 class GenerateVerificationPayloadTest(unittest.TestCase):
 
-  def testSucc(self):
+  @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
+                     'GenerateEncodingSpec')
+  def testSucc(self, mock_generate_encoding_spec):
     dbs = [(database.Database.LoadFile(
         os.path.join(TESTDATA_DIR, name), verify_checksum=False),
             vpg_config_module.VerificationPayloadGeneratorConfig.Create())
@@ -693,12 +703,29 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
                         'model_g_db.yaml')]
     expected_outputs = json_utils.LoadFile(
         os.path.join(TESTDATA_DIR, 'expected_model_ab_output.json'))
+    mock_encoding_spec = _EncodingSpec(
+        encoding_patterns=[
+            _EncodingPattern(
+                image_ids=[0], bit_ranges=[
+                    _BitRange(category='camera', start=0, end=0),
+                ], first_zero_bits=[
+                    _FirstZeroBit(category='camera', zero_bit_position=0),
+                ]),
+        ], encoded_fields=[
+            _EncodedFields(
+                category='camera', encoded_components=[
+                    _EncodedComponents(index=0,
+                                       component_names=['camera_123_456']),
+                ]),
+        ], waived_categories=['battery'])
+    mock_generate_encoding_spec.return_value = mock_encoding_spec
 
     files = _vp_generator.GenerateVerificationPayload(
         dbs).generated_file_contents
 
-    # files should include hw_verification_spec.prototxt.
-    self.assertEqual(len(files), len(dbs) + 1)
+    # files should include probe_config.json, encoding_spec.txtpb and
+    # hw_verification_spec.prototxt.
+    self.assertEqual(len(files), len(dbs) * 2 + 1)
     self.assertEqual(
         json_utils.LoadStr(files['runtime_probe/model_a/probe_config.json']),
         expected_outputs['runtime_probe/model_a/probe_config.json'])
@@ -726,6 +753,12 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
     self.assertEqual(
         json_format.MessageToDict(hw_verification_spec),
         expected_outputs['hw_verification_spec.prototxt'])
+    for model_name in [
+        'model_a', 'model_b', 'model_c', 'model_d', 'model_e', 'model_f',
+        'model_g'
+    ]:
+      self.assertEqual(files[f'runtime_probe/{model_name}/encoding_spec.txtpb'],
+                       text_format.MessageToString(mock_encoding_spec))
 
   def testHasUnsupportedComps(self):
     # The database bad_model_db.yaml contains an unknown storage, which is not
@@ -753,6 +786,8 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
         dbs, 'testkey').generated_file_contents
 
     # files should include hw_verification_spec.prototxt.
+    # files should include probe_config.json, probe_config.json.enc, and
+    # hw_verification_spec.prototxt.
     self.assertEqual(len(files), len(dbs) * 2 + 1)
     self.assertEqual(
         json_utils.LoadStr(

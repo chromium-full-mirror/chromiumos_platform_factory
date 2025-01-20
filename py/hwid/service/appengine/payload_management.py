@@ -513,25 +513,17 @@ class VerificationPayloadManager(PayloadManager):
                        repo: git_util.MemoryRepo,
                        payloads: _Payload) -> Sequence[str]:
     """See base class."""
-    vps = set()
-    encrypted_vps = set()
-
-    vp_pattern = re.compile(r'runtime_probe/(?P<model>\w+)/'
-                            r'(?P<config_name>probe_config\.json(\.enc)?$)')
-    for filepath in payloads.contents:
-      search_res = vp_pattern.search(filepath)
-      if search_res is None:
-        continue
-
-      if search_res['config_name'].endswith('.enc'):
-        encrypted_vps.add(search_res['model'])
-      else:
-        vps.add(search_res['model'])
+    file_pattern = re.compile(r'runtime_probe/\w+/[\w\.]+')
+    generated_files = {
+        filepath
+        for filepath in payloads.contents
+        if file_pattern.fullmatch(filepath)
+    }
 
     if not repo.check_path_existence(f'{setting.prefix}runtime_probe'):
       return []
 
-    # Search the repository for existing probe config files.
+    # Search the repository for existing files.
     delete_files = []
     for model, mode, unused_data in repo.list_files(
         f'{setting.prefix}runtime_probe'):
@@ -543,9 +535,9 @@ class VerificationPayloadManager(PayloadManager):
         if file_mode != git_util.NORMAL_FILE_MODE:
           continue
 
-        if ((file_name == 'probe_config.json' and model not in vps) or
-            (file_name == 'probe_config.json.enc' and
-             model not in encrypted_vps)):
+        if file_name in (
+            'probe_config.json', 'probe_config.json.enc', 'encoding_spec.txtpb'
+        ) and f'runtime_probe/{model}/{file_name}' not in generated_files:
           # The existing file is not generated anymore. Delete it.
           delete_files.append(
               f'{setting.prefix}runtime_probe/{model}/{file_name}')
