@@ -134,27 +134,59 @@ def MakePartition(block_dev, part):
   return f"{block_dev}{'p' if block_dev[-1].isdigit() else ''}{part}"
 
 
-def FilterDLC(image_path, attribute):
-  part = Partition(image_path, PART_CROS_ROOTFS_A)
-  with part.MountAsCrOSRootfs() as rootfs:
-    manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
-    if os.path.exists(os.path.join(rootfs, manifests_dir)):
-      dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
+def _GetDLCIds(rootfs, attributes=None):
+  """Retrieves DLC IDs based on attributes or factory install status.
+
+    Args:
+        rootfs: Path to the mounted rootfs.
+        attributes: A list of attributes to filter for. If None, gets factory
+                    installed DLCs.
+
+    Returns:
+        A set of DLC IDs. Returns an empty set if no DLCs are found or an error
+        occurs. Raises RuntimeError if the dlc metadata directory doesn't exist.
+    """
+
+  manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
+  if not os.path.exists(manifests_dir):
+    raise RuntimeError('Failed to find dlc metadata directory.')
+
+  dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
+  dlc_ids = set()
+
+  if attributes:
+    for attribute in attributes:
       dlc_ids_str = Sudo([
           dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}', '--list',
           f'--attribute={attribute}'
       ], output=True)
-    else:
-      raise RuntimeError(
-          'Failed to filter DLC because there is no dlc metadata with '
-          f'attribute: {attribute}')
+      dlc_ids.update(set(json.loads(dlc_ids_str)))
+  else:
+    dlc_ids_str = Sudo([
+        dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}', '--list',
+        '--factory_install'
+    ], output=True)
+    dlc_ids = set(json.loads(dlc_ids_str))
+
+  return dlc_ids
+
+
+def FilterDLC(image_path, attributes):
+  """Remove DLCs not matching any attribute from a Chromium OS disk image.
+
+  Args:
+    image_path: a path to a Chromium OS disk image.
+    attributes: a list of attributes to filter for removal.
+  """
+  part = Partition(image_path, PART_CROS_ROOTFS_A)
+  with part.MountAsCrOSRootfs() as rootfs:
+    dlc_ids = _GetDLCIds(rootfs, attributes)
 
   with Partition(image_path, PART_CROS_STATEFUL).Mount(rw=True) as stateful:
     dlc_dir = os.path.join(stateful, 'unencrypted', 'dlc-factory-images')
     if not os.path.exists(dlc_dir):
       print(f'No DLC directory found in image ({image_path}) at: {dlc_dir}')
     else:
-      dlc_ids = set(json.loads(dlc_ids_str))
       for filename in os.listdir(dlc_dir):
         if filename not in dlc_ids:
           Sudo(['rm', '-rf', os.path.join(dlc_dir, filename)])
@@ -1577,7 +1609,8 @@ class ChromeOSFactoryBundle:
                factory_shim=None, enable_firmware=True, firmware=None,
                hwid=None, complete=None, netboot=None, toolkit_config=None,
                description=None, project_config=None, setup_dir=None,
-               server_url=None, project=None, designs=None, dlc_attribute=None):
+               server_url=None, project=None, designs=None,
+               dlc_attributes=None):
     self._temp_dir = temp_dir
     # Member data will be looked up by getattr so we don't prefix with '_'.
     self._board = board
@@ -1599,7 +1632,7 @@ class ChromeOSFactoryBundle:
     self.project_config = project_config
     self.setup_dir = setup_dir
     self.server_url = server_url
-    self.dlc_attribute = dlc_attribute
+    self.dlc_attributes = dlc_attributes
 
   @classmethod
   def DefineBundleArguments(cls, parser, build_type):
@@ -1972,18 +2005,9 @@ class ChromeOSFactoryBundle:
         manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
         if os.path.exists(os.path.join(rootfs, manifests_dir)):
           dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
-          if self.dlc_attribute:
-            dlc_ids_str = Sudo([
-                dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
-                '--list', f'--attribute={self.dlc_attribute}'
-            ], output=True)
-          else:
-            dlc_ids_str = Sudo([
-                dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
-                '--list', '--factory_install'
-            ], output=True)
-          logging.info('Image contains factory installed DLCs %s', dlc_ids_str)
-          dlc_ids = json.loads(dlc_ids_str)
+          dlc_ids = _GetDLCIds(rootfs, self.dlc_attributes)
+          logging.info('Image contains factory installed DLCs %s',
+                       list(dlc_ids))
           for dlc_id in dlc_ids:
             metadata = Sudo([
                 dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
@@ -3301,15 +3325,21 @@ class CreatePreflashImageCommand(AbstractSubCommand):
     # yapf: enable
                                 help='path to the output disk image file.')
     # yapf: disable
-    self.subparser.add_argument('--dlc_attribute', default='',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        '--dlc_attributes',
+        default=[],
+        nargs='+',
+        help=('Filter DLCs based on these attributes. If no attributes are '
+              'given, all factory installed DLCs are included. If attributes '
+              'are given, all DLCs matching any of the provided attributes is '
+              'used.'))
     # yapf: enable
-                                help='Attribute to filter DLCs.')
 
   def Run(self):
-    if self.args.dlc_attribute:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    if self.args.dlc_attributes:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       print('Filtering DLCs before building the preflash image...')
-      FilterDLC(self.args.release_image, self.args.dlc_attribute)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      FilterDLC(self.args.test_image, self.args.dlc_attribute)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      FilterDLC(self.args.release_image, self.args.dlc_attributes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      FilterDLC(self.args.test_image, self.args.dlc_attributes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     with SysUtils.TempDirectory(prefix='diskimg_') as temp_dir:
       bundle = ChromeOSFactoryBundle(
           temp_dir=temp_dir,
@@ -3339,7 +3369,7 @@ class CreatePreflashImageCommand(AbstractSubCommand):
           designs=self.args.designs,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
           # yapf: enable
           # yapf: disable
-          dlc_attribute=self.args.dlc_attribute,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          dlc_attributes=self.args.dlc_attributes,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
           # yapf: enable
       )
       # yapf: disable
@@ -4733,7 +4763,7 @@ class EditToolkitConfigCommand(AbstractSubCommand):
 
 
 class RemoveDLCByAttribute(AbstractSubCommand):
-  """Remove DLCs by attribute from a Chromium OS disk image."""
+  """Remove DLCs by attributes from a Chromium OS disk image."""
   name = 'trim-dlc'
 
   def Init(self):
@@ -4749,13 +4779,17 @@ class RemoveDLCByAttribute(AbstractSubCommand):
     self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
         '-a',
-        '--attribute',
+        '--attributes',
         type=str,
+        nargs='+',
         required=True,
-        help='DLC attribute to filter for removal')
+        help=('Filter DLCs based on these attributes. If no attributes are '
+              'given, all factory installed DLCs are included. If attributes '
+              'are given, the union of all DLCs matching any of the provided '
+              'attributes is used.'))
 
   def Run(self):
-    FilterDLC(self.args.image, self.args.attribute)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    FilterDLC(self.args.image, self.args.attributes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 def main():
   # Support `cros_payload` in bin/ folder, so that we can run
