@@ -388,13 +388,15 @@ class ProbeInfoService(ProbeInfoServiceProtoRPCBase):  # type: ignore #TODO(b/33
   def GetDeviceComponentHwidInfo(
       self, request: stubby_pb2.GetDeviceComponentHwidInfoRequest):
     response = stubby_pb2.GetDeviceComponentHwidInfoResponse()
-    for comp_identity in request.component_identities:
-      entry = self._avl_probe_entry_mngr.GetAVLProbeEntry(
-          comp_identity.component_id, comp_identity.qual_id)
+    avl_ids = [(comp_identity.component_id, comp_identity.qual_id)
+               for comp_identity in request.component_identities]
+    for entry in self._avl_probe_entry_mngr.GetAVLProbeEntries(avl_ids):
       if not entry or not entry.is_valid:
         continue
       comp_probe_info = stubby_pb2.ComponentProbeInfo(
-          component_identity=comp_identity, probe_info=entry.probe_info)
+          component_identity=stubby_pb2.ComponentIdentity(
+              component_id=entry.cid, qual_id=entry.qid),
+          probe_info=entry.probe_info)
       metadata = stubby_pb2.ProbeMetadata(
           probe_statement_type=stubby_pb2.ProbeMetadata.AUTO_GENERATED,
           is_tested=entry.is_tested,

@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from typing import Optional, Tuple
+from typing import Optional, Sequence, Tuple
 
 from google.cloud import datastore
 
@@ -82,6 +82,23 @@ class AVLProbeEntryManager:
     if not entity:
       return None
     return AVLProbeEntry.FromEntity(entity)
+
+  def GetAVLProbeEntries(
+      self, avl_ids: Sequence[tuple[int, int]]) -> Sequence[AVLProbeEntry]:
+    """Batch loads the AVL probe entries.
+
+    Args:
+      avl_ids: a list of (cid, qid) tuples
+
+    Returns:
+      A list of AVLProbeEntry.
+    """
+    keys = [
+        self._client.key(*AVLProbeEntry.GetKeyPath(cid, qid))
+        for cid, qid in avl_ids
+    ]
+    entities = self._client.get_multi(keys)
+    return [AVLProbeEntry.FromEntity(e) for e in entities]
 
   def GetOrCreateAVLProbeEntry(self, cid: int,
                                qid: int) -> Tuple[bool, AVLProbeEntry]:

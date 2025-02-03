@@ -1,7 +1,6 @@
 # corresponding fingerprint: 5b4e4b54aebea41595c10d4d59cf8cc0493ff428
 component_identity: {
   qual_id: 1
-  readable_label: "PART_NO_1234"
   component_id: 100
 }
 probe_info: {
