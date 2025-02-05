@@ -5,7 +5,6 @@
 import collections
 from typing import DefaultDict, Iterable, List, Mapping, NamedTuple, Optional
 
-from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.v3.avl import builder as avl_builder
 from cros.factory.hwid.v3.avl import default_builder
@@ -98,10 +97,8 @@ class AVLConverter:
     self._adapter = npa.NamePatternAdapter()
     self._get_avl_key_acceptor = _GetAVLKeyAcceptor()
 
-  def LinkAVL(
-      self,
-      hwid_db_content: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
-    with builder.DatabaseBuilder.FromDBData(hwid_db_content) as db_builder:
+  def LinkAVL(self, hwid_db: database.WritableDatabase):
+    with builder.DatabaseBuilder.FromExistingDB(hwid_db) as db_builder:
       for comp_cls in db_builder.GetComponentClasses():
         if comp_cls not in self._supported_classes:
           continue
@@ -150,10 +147,6 @@ class AVLConverter:
               probe_info_matched, probe_info_override,
               probe_info_override_matched, collections.OrderedDict(comp_values))
           db_builder.SetLinkAVLProbeValue(comp_cls, comp_name, avl_probe_value)
-    db = db_builder.Build()
-    return db.DumpDataWithoutChecksum(suppress_support_status=False,
-                                      magic_placeholder_options=None,
-                                      internal=True)
 
   def GetAVLSuggestion(
       self, comp_cls: str, comp_name: str,

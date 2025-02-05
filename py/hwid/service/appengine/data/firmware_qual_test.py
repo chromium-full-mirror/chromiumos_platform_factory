@@ -20,16 +20,16 @@ HWIDV3_FILE = os.path.join(
 class FirmwareQualTest(unittest.TestCase):
 
   def testPatchFirmareQualStatus_Success(self):
-    db = database.Database.LoadFile(HWIDV3_FILE, verify_checksum=False)
+    db = database.WritableDatabase.LoadFile(HWIDV3_FILE, verify_checksum=False)
 
     firmware_quals = [_FirmwareQual(build_version='1111.1.1')]
-    new_db = firmware_qual.PatchFirmwareQualStatus(db, firmware_quals)
+    firmware_qual.PatchFirmwareQualStatus(db, firmware_quals)
 
     self.assertEqual(
-        new_db.GetComponents('ro_main_firmware')['ro_main_firmware_1'].status,
+        db.GetComponents('ro_main_firmware')['ro_main_firmware_1'].status,
         'supported')
     self.assertEqual(
-        new_db.GetComponents('ro_ec_firmware')['ro_ec_firmware_1'].status,
+        db.GetComponents('ro_ec_firmware')['ro_ec_firmware_1'].status,
         'supported')
 
 

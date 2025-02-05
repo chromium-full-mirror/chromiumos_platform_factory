@@ -93,24 +93,15 @@ class HWIDV3SelfServiceActionHelper:
         suppress_support_status=suppress_support_status, internal=internal)
     return self.RemoveHeader(dumped_db)
 
-  def PatchFirmwareBundleUUIDs(
-      self,
-      internal_db_content: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
-    """Patches existing bundle UUIDs from internal HWID DB in repo."""
+  def _PatchFirmwareBundleUUIDs(self, new_db: database.WritableDatabase):
+    """Inplace patches existing bundle UUIDs from internal HWID DB in repo."""
 
-    old_db = database.Database.LoadData(
-        self._preproc_data.raw_database_internal)
-    new_db = database.Database.LoadData(internal_db_content)
+    old_db = self._preproc_data.database
     for comp_cls in common.FirmwareComps:
       new_db_components = new_db.GetComponents(comp_cls)
       for comp_name, comp_info in old_db.GetComponents(comp_cls).items():
         if comp_info.bundle_uuids and comp_name in new_db_components:
-          # yapf: disable
-          new_db.SetBundleUUIDs(comp_cls, comp_name, comp_info.bundle_uuids)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-    return self.PatchHeader(
-        new_db.DumpDataWithoutChecksum(internal=True,
-                                       suppress_support_status=False))
+          new_db.SetBundleUUIDs(comp_cls, comp_name, comp_info.bundle_uuids)
 
   def AnalyzeDBEditableSection(
       self,
@@ -139,7 +130,7 @@ class HWIDV3SelfServiceActionHelper:
 
     # Try to normalize the input by loading and dumping.
     try:
-      new_db = database.Database.LoadData(new_hwid_db_contents_external)
+      new_db = database.WritableDatabase.LoadData(new_hwid_db_contents_external)
       new_db_dumped = new_db.DumpDataWithoutChecksum(
           suppress_support_status=False)
       # Check if the the change is no-op for external DB.
@@ -158,9 +149,10 @@ class HWIDV3SelfServiceActionHelper:
 
     if internal:
       assert avl_converter is not None
+      self.ConvertToInternalHWIDDB(avl_converter, new_db)
       new_hwid_db_contents = new_hwid_db_contents_internal = (
-          self.ConvertToInternalHWIDDBContent(avl_converter,
-                                              new_hwid_db_contents_external))
+          new_db.DumpDataWithoutChecksum(internal=True,
+                                         suppress_support_status=False))
       curr_hwid_db_contents = curr_hwid_db_contents_internal
     else:
       new_hwid_db_contents = new_hwid_db_contents_external
@@ -195,17 +187,15 @@ class HWIDV3SelfServiceActionHelper:
         ], [], {})
 
     try:
-      # Patch bundle_uuids to external DB to validate NOT editing components
-      # with bundle_uuids.
       vpg_targets = vpg_targets_data_manager.GetVpgTargets()
-      self._hwid_validator.ValidateChange(
-          new_hwid_db_contents, curr_hwid_db_contents, vpg_targets,
-          self.PatchFirmwareBundleUUIDs(curr_hwid_db_contents), device_metadata)
+      self._hwid_validator.ValidateChange(new_hwid_db_contents,
+                                          curr_hwid_db_contents, vpg_targets,
+                                          None, device_metadata)
     except hwid_validator.ValidationError as ex:
       return report_factory(ex.errors, [], [], {})
 
-    analyzer = contents_analyzer.ContentsAnalyzer(new_hwid_db_contents, None,
-                                                  curr_hwid_db_contents)
+    analyzer = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        new_hwid_db_contents, None, curr_hwid_db_contents)
     skip_avl_check_checker = (
         avl_metadata_manager.SkipAVLCheck
         if avl_metadata_manager is not None else None)
@@ -298,15 +288,10 @@ class HWIDV3SelfServiceActionHelper:
     unused_header, lines = _SplitHWIDDBV3Sections(hwid_db_contents)
     return _NormalizeAndJoinHWIDDBEditableSectionLines(lines)
 
-  def ConvertToInternalHWIDDBContent(
-      self, avl_converter: converter_utils.AVLConverter,
-      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
-
-    hwid_db_editable_contents_with_avl = avl_converter.LinkAVL(hwid_db_contents)
-    new_hwid_db_contents_internal_without_bundle = self.PatchHeader(
-        hwid_db_editable_contents_with_avl)
-    return self.PatchFirmwareBundleUUIDs(
-        new_hwid_db_contents_internal_without_bundle)
+  def ConvertToInternalHWIDDB(self, avl_converter: converter_utils.AVLConverter,
+                              hwid_db: database.WritableDatabase) -> None:
+    avl_converter.LinkAVL(hwid_db)
+    self._PatchFirmwareBundleUUIDs(hwid_db)
 
   def GenerateBatteryConfigMetadata(
       self, battery_config_fetcher: hwid_action.IBatteryConfigFetcher

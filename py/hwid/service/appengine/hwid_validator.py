@@ -39,8 +39,9 @@ class HwidValidator:
     """
     expected_checksum = database.Database.ChecksumForText(hwid_config_contents)
 
-    contents_analyzer_inst = contents_analyzer.ContentsAnalyzer(
-        hwid_config_contents, expected_checksum, None)
+    contents_analyzer_inst = (
+        contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+            hwid_config_contents, expected_checksum, None))
     report = contents_analyzer_inst.ValidateIntegrity()
     if report.errors:
       raise ValidationError(report.errors)
@@ -66,7 +67,7 @@ class HwidValidator:
       device_metadata: additional metadata to validate HWID change.
     """
     expected_checksum = database.Database.ChecksumForText(hwid_config_contents)
-    analyzer = contents_analyzer.ContentsAnalyzer(
+    analyzer = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
         hwid_config_contents, expected_checksum, prev_hwid_config_contents)
 
     report_of_change = analyzer.ValidateChange()
@@ -86,9 +87,10 @@ class HwidValidator:
       raise ValidationError(report_of_integrity.errors)
 
     if prev_hwid_config_contents_with_bundle_uuid:
-      analyzer_of_firmware = contents_analyzer.ContentsAnalyzer(
-          hwid_config_contents, None,
-          prev_hwid_config_contents_with_bundle_uuid)
+      analyzer_of_firmware = (
+          contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+              hwid_config_contents, None,
+              prev_hwid_config_contents_with_bundle_uuid))
       report_of_firmware = analyzer_of_firmware.ValidateFirmwareComponents()
       if report_of_firmware.errors:
         raise ValidationError(report_of_firmware.errors)

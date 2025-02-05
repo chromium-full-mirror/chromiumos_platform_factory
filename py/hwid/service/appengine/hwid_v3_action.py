@@ -105,11 +105,9 @@ class HWIDV3Action(hwid_action.HWIDAction):
         comps[comp_cls] = db.GetComponents(comp_cls)
     return comps
 
-  def ConvertToInternalHWIDDBContent(
-      self, avl_converter: converter_utils.AVLConverter,
-      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
-    return self._ss_helper.ConvertToInternalHWIDDBContent(
-        avl_converter, hwid_db_contents)
+  def ConvertToInternalHWIDDB(self, avl_converter: converter_utils.AVLConverter,
+                              hwid_db: database.WritableDatabase) -> None:
+    self._ss_helper.ConvertToInternalHWIDDB(avl_converter, hwid_db)
 
   def GetFeatureEnablementStatus(
       self, hwid_string: str) -> feature_matching.FeatureEnablementStatus:

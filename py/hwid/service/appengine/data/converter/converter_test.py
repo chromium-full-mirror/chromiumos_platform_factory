@@ -12,7 +12,6 @@ from cros.factory.hwid.v3.avl import builder as avl_builder
 from cros.factory.hwid.v3.avl.converter import common as avl_common
 from cros.factory.hwid.v3 import builder as v3_builder
 from cros.factory.hwid.v3 import contents_analyzer
-from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import rule as v3_rule
 from cros.factory.probe.runtime_probe import matchers as runtime_probe_matchers
 from cros.factory.probe_info_service.app_engine import stubby_pb2  # pylint: disable=no-name-in-module
@@ -92,7 +91,7 @@ class ConverterManagerTest(unittest.TestCase):
           'converted_key1': 'value1',
           'converted_key2': 'value-not-2',
       }, 'unsupported')
-    db_with_components_only = builder.Build().DumpDataWithoutChecksum()
+    db = builder.Build()
     avl_resource = _HWIDDBExternalResourceFromProbeInfos({
         (cid, 0):
             _ProbeInfoFromMapping({
@@ -104,10 +103,9 @@ class ConverterManagerTest(unittest.TestCase):
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
         avl_resource, 'CHROMEBOOK', None)
-    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
+    avl_converter.LinkAVL(db)
 
     # Assert.
-    avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -126,7 +124,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value2'),
             ]),
         ),
-        avl_linked_db.GetComponents('comp_cls')[comp_name1].values)
+        db.GetComponents('comp_cls')[comp_name1].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -145,7 +143,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value-not-2'),
             ]),
         ),
-        avl_linked_db.GetComponents('comp_cls')[comp_name2].values)
+        db.GetComponents('comp_cls')[comp_name2].values)
 
   def testLinkAVL_LookupProbeInfoByCIDQID(self):
     # Arrange.
@@ -158,7 +156,7 @@ class ConverterManagerTest(unittest.TestCase):
           'converted_key1': 'value1',
           'converted_key2': 'another-value2',
       }, 'unsupported')
-    db_with_components_only = builder.Build().DumpDataWithoutChecksum()
+    db = builder.Build()
     avl_resource = _HWIDDBExternalResourceFromProbeInfos({
         (123, 1):
             _ProbeInfoFromMapping({
@@ -175,10 +173,9 @@ class ConverterManagerTest(unittest.TestCase):
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
         avl_resource, 'CHROMEBOOK', None)
-    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
+    avl_converter.LinkAVL(db)
 
     # Assert.
-    avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -197,7 +194,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value2'),
             ]),
         ),
-        avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
+        db.GetComponents('comp_cls')['comp_cls_123_1'].values)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -216,7 +213,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'another-value2'),
             ]),
         ),
-        avl_linked_db.GetComponents('comp_cls')['comp_cls_123_2'].values)
+        db.GetComponents('comp_cls')['comp_cls_123_2'].values)
 
   def testLinkAVL_ProbeInfoOverridePreserved(self):
     # Arrange.
@@ -239,8 +236,7 @@ class ConverterManagerTest(unittest.TestCase):
           ]),
       )
       builder.AddComponent('comp_cls', 'comp_cls_123_1', value, 'supported')
-    db_with_components_only = builder.Build().DumpDataWithoutChecksum(
-        internal=True)
+    db = builder.Build()
     avl_resource = _HWIDDBExternalResourceFromProbeInfos({
         (123, 1):
             _ProbeInfoFromMapping({
@@ -252,10 +248,9 @@ class ConverterManagerTest(unittest.TestCase):
     # Act.
     avl_converter = self.converter_manager.GetAVLConverter(
         avl_resource, 'CHROMEBOOK', None)
-    avl_linked_db_content = avl_converter.LinkAVL(db_with_components_only)
+    avl_converter.LinkAVL(db)
 
     # Assert.
-    avl_linked_db = database.Database.LoadData(avl_linked_db_content)
     self.assertEqual(
         v3_rule.AVLProbeValue(
             identifier='converter1',
@@ -279,7 +274,7 @@ class ConverterManagerTest(unittest.TestCase):
                 ('converted_key2', 'value2'),
             ]),
         ),
-        avl_linked_db.GetComponents('comp_cls')['comp_cls_123_1'].values)
+        db.GetComponents('comp_cls')['comp_cls_123_1'].values)
 
   def testGetAVLSuggestion(self):
     # Arrange.

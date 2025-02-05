@@ -155,7 +155,8 @@ class HWIDDBsPatternTest(unittest.TestCase):
       db_path: Path of the HWID database to be verified.
     """
     old_db, new_db = HWIDDBsPatternTest.GetOldNewDB(hwid_dir, commit, db_path)
-    analyzer = contents_analyzer.ContentsAnalyzer(new_db, None, old_db)
+    analyzer = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        new_db, None, old_db)
     report = analyzer.ValidateChange(ignore_invalid_old_db=True)
     if report.errors:
       raise ValidationError(str(report.errors))

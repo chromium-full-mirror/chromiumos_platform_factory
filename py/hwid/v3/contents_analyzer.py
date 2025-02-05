@@ -624,17 +624,28 @@ def _FillTouchedSections(
 
 
 class ContentsAnalyzer:
-  _curr_db: Union[_LoadedDB, _LoadError]
-  _prev_db: Optional[Union[_LoadedDB, _LoadError]]
 
-  def __init__(self, curr_db_contents: str,
-               expected_curr_db_checksum: Optional[str],
-               prev_db_contents: Optional[str]):
-    self._curr_db = _LoadFromDBContents(curr_db_contents,
-                                        expected_curr_db_checksum)
-    self._prev_db = (
+  def __init__(self, curr_db: Union[_LoadedDB, _LoadError],
+               prev_db: Optional[Union[_LoadedDB, _LoadError]]):
+    self._curr_db = curr_db
+    self._prev_db = prev_db
+
+  @classmethod
+  def FromDBInstance(cls, curr_db: database.Database,
+                     prev_db: Optional[database.Database]):
+    return cls(
+        _LoadedDB(instance=curr_db),
+        None if prev_db is None else _LoadedDB(instance=prev_db))
+
+  @classmethod
+  def FromRawDBContent(cls, curr_db_contents: str,
+                       expected_curr_db_checksum: Optional[str],
+                       prev_db_contents: Optional[str]):
+    curr_db = _LoadFromDBContents(curr_db_contents, expected_curr_db_checksum)
+    prev_db = (
         _LoadFromDBContents(prev_db_contents, None)
         if prev_db_contents is not None else None)
+    return cls(curr_db, prev_db)
 
   @property
   def curr_db_instance(self) -> Optional[database.Database]:

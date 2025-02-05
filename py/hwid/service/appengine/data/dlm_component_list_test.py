@@ -21,7 +21,8 @@ GOLDEN_HWIDV3_FILE = os.path.join(
 class DlmComponentListTest(unittest.TestCase):
 
   def testPathComponentList_Success(self):
-    db = database.Database.LoadFile(GOLDEN_HWIDV3_FILE, verify_checksum=False)
+    db = database.WritableDatabase.LoadFile(GOLDEN_HWIDV3_FILE,
+                                            verify_checksum=False)
     comp_list = [
         _DlmComponentMsg(
             avl_info=_AvlInfoMsg(cid=1), related_hwid_classes=['comp_cls1'],
@@ -36,24 +37,25 @@ class DlmComponentListTest(unittest.TestCase):
             has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=False),
     ]
 
-    new_db = dlm_component_list.PatchComponentList(db, comp_list)
+    dlm_component_list.PatchComponentList(db, comp_list)
 
-    comps = new_db.GetComponents('comp_cls1')
+    comps = db.GetComponents('comp_cls1')
     self.assertEqual(comps['comp_cls1_1'].status, 'supported')
     self.assertEqual(comps['comp_cls1_1_1'].status, 'unsupported')
     self.assertEqual(comps['comp_cls1_subcomp_2'].status, 'deprecated')
 
   def testPathComponentList_ExcludeDefaultComps(self):
-    db = database.Database.LoadFile(GOLDEN_HWIDV3_FILE, verify_checksum=False)
+    db = database.WritableDatabase.LoadFile(GOLDEN_HWIDV3_FILE,
+                                            verify_checksum=False)
     comp_list = [
         _DlmComponentMsg(
             avl_info=_AvlInfoMsg(cid=3), related_hwid_classes=['comp_cls1'],
             has_claim_for_pvt_or_mp_use=True, claim_for_pvt_or_mp_use=True),
     ]
 
-    new_db = dlm_component_list.PatchComponentList(db, comp_list)
+    dlm_component_list.PatchComponentList(db, comp_list)
 
-    comps = new_db.GetComponents('comp_cls1')
+    comps = db.GetComponents('comp_cls1')
     self.assertEqual(comps['comp_cls1_3'].status, 'unqualified')
 
 

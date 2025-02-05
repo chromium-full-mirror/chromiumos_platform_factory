@@ -36,10 +36,8 @@ _STATUS_TRANSITION: Mapping[Tuple[str, bool], str] = {
 }
 
 
-def PatchComponentList(db: database.Database,
-                       comp_list: DeviceComponentList) -> database.Database:
-  new_db = database.WritableDatabase.LoadData(
-      db.DumpDataWithoutChecksum(internal=True))
+def PatchComponentList(db: database.WritableDatabase,
+                       comp_list: DeviceComponentList) -> None:
   all_classes = set(
       itertools.chain.from_iterable(
           comp.related_hwid_classes for comp in comp_list))
@@ -49,7 +47,7 @@ def PatchComponentList(db: database.Database,
   }
   for comp_cls in all_classes:
     name_pattern = npa.NamePattern(comp_cls)
-    for comp_name, comp_info in new_db.GetComponents(comp_cls, False).items():
+    for comp_name, comp_info in db.GetComponents(comp_cls, False).items():
       avl_info = name_pattern.Matches(comp_name).Provide(AVL_INFO_ACCEPTOR)
       if avl_info is None:
         continue
@@ -59,5 +57,4 @@ def PatchComponentList(db: database.Database,
       update_status = _STATUS_TRANSITION.get(
           (comp_info.status, comp.claim_for_pvt_or_mp_use))
       if update_status is not None:
-        new_db.SetComponentStatus(comp_cls, comp_name, update_status)
-  return new_db
+        db.SetComponentStatus(comp_cls, comp_name, update_status)

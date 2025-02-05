@@ -468,17 +468,14 @@ class HWIDAction:
     raise NotSupportedError(
         f'`PatchHeader` is not supported in HWID v{self.HWID_VERSION}')
 
-  def ConvertToInternalHWIDDBContent(
-      self, avl_converter: converter_utils.AVLConverter,
-      hwid_db_contents: hwid_db_data.HWIDDBData) -> hwid_db_data.HWIDDBData:
-    """Converts an external HWID DB to internal HWID DB.
+  def ConvertToInternalHWIDDB(self, avl_converter: converter_utils.AVLConverter,
+                              hwid_db: v3_database.WritableDatabase) -> None:
+    """Inplace converts an external HWID DB to internal HWID DB.
 
     Args:
       avl_converter: A converter responsible for converting AVL probe
           values to HWID probe values for comparison.
-      hwid_db_contents: The external HWID DB content.
-    Returns:
-      An internal HWID DB with internal tags.
+      hwid_db: The external HWID DB.
     """
     raise NotSupportedError(
         '`ConvertToInternalHWIDDBContent` is not supported in HWID '

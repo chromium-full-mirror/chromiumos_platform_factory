@@ -57,13 +57,15 @@ class ContentsAnalyzerTest(unittest.TestCase):
 
   def test_ValidateIntegrity_Pass(self):
     db_contents = file_utils.ReadFile(DB_DRAM_GOOD_PATH)
-    inst = contents_analyzer.ContentsAnalyzer(db_contents, None, None)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        db_contents, None, None)
     report = inst.ValidateIntegrity()
     self.assertFalse(report.errors)
 
   def test_ValidateIntegrity_BadDramField(self):
     db_contents = file_utils.ReadFile(DB_DRAM_BAD_PATH)
-    inst = contents_analyzer.ContentsAnalyzer(db_contents, None, None)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        db_contents, None, None)
     report = inst.ValidateIntegrity()
     expected_error = contents_analyzer.Error(
         contents_analyzer.ErrorCode.CONTENTS_ERROR,
@@ -72,7 +74,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
 
   def test_ValidateIntegrity_MissingFormFactorComp(self):
     db_contents = file_utils.ReadFile(DB_FORM_FACTOR_COMP_PATH)
-    inst = contents_analyzer.ContentsAnalyzer(db_contents, None, None)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        db_contents, None, None)
     report = inst.ValidateIntegrity(form_factor=common.FormFactor.CONVERTIBLE)
     expected_error = contents_analyzer.Error(
         contents_analyzer.ErrorCode.CONTENTS_ERROR,
@@ -81,7 +84,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
 
   def test_ValidateIntegrity_FormFactoryCompAlias(self):
     db_contents = file_utils.ReadFile(DB_FORM_FACTOR_COMP_PATH)
-    inst = contents_analyzer.ContentsAnalyzer(db_contents, None, None)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        db_contents, None, None)
     report = inst.ValidateIntegrity(form_factor=common.FormFactor.CONVERTIBLE)
     expected_error = contents_analyzer.Error(
         contents_analyzer.ErrorCode.CONTENTS_ERROR,
@@ -92,8 +96,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_COMP_AFTER_GOOD_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateChange()
 
     self.assertEqual(report.errors, [])
@@ -103,8 +107,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     curr_db_contents = file_utils.ReadFile(
         DB_COMP_AFTER_INCOMPATIBLE_CHANGE_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateChange()
 
     expect_error = contents_analyzer.Error(
@@ -119,8 +123,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_ADD_COMP_CLS_PVT_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateChange()
     expect_error = contents_analyzer.Error(
         contents_analyzer.ErrorCode.COMPATIBLE_ERROR,
@@ -133,8 +137,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_EXTEND_BIT_PVT_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateChange()
 
     self.assertEqual(report.errors, [])
@@ -143,8 +147,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_COMP_ADD_SAME_VALUE_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateChange()
 
     expect_error = contents_analyzer.Error(
@@ -158,8 +162,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     curr_db_contents = file_utils.ReadFile(
         DB_COMP_MODIFY_FROM_FACTORY_BUNDLE_PATH)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.ValidateFirmwareComponents()
 
     expect_error = contents_analyzer.Error(
@@ -172,8 +176,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
   def test_AnalyzeChange_PreconditionErrors(self):
     prev_db_contents = 'some invalid text for HWID DB.'
     curr_db_contents = 'some invalid text for HWID DB.'
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.AnalyzeChange(lambda s: s, True)
     self.assertTrue(report.precondition_errors)
 
@@ -189,8 +193,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
 
     prev_db_contents = self._ReadTestData('test_analyze_change_db_before.yaml')
     curr_db_contents = self._ReadTestData('test_analyze_change_db_after.yaml')
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     report = inst.AnalyzeChange(_HWIDDBHeaderPatcher, True)
 
     test_name = 'test_analyze_change_with_lines'
@@ -212,8 +216,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
 
     prev_db_contents = self._ReadTestData('test_analyze_change_db_before.yaml')
     curr_db_contents = self._ReadTestData('test_analyze_change_db_after.yaml')
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     analysis = inst.AnalyzeChange(_HWIDDBHeaderPatcher, False)
     self.assertFalse(analysis.precondition_errors)
     self.assertFalse(analysis.lines)
@@ -222,8 +226,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = self._ReadTestData('test_database_db.yaml')
     curr_db_contents = self._ReadTestData(
         'test_database_db_touched_sections.yaml')
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     analysis = inst.AnalyzeChange(None, False)
 
     self.assertEqual(
@@ -253,7 +257,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
       return category == 'cls3' and comp == skippable_comp
 
     curr_db_contents = self._ReadTestData('test_database_db.yaml')
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None, None)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, None)
 
     analysis = inst.AnalyzeChange(None, False, Checker)
 
@@ -279,8 +284,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     curr_db_contents = self._ReadTestData(
         'test_database_internal_db_after.yaml')
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     analysis = inst.AnalyzeChange(None, False)
 
     # converter_identifier changed.
@@ -326,8 +331,8 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_ADD_COMP_WITH_NAME_INFO)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     analysis = inst.AnalyzeChange(None, False)
 
     self.assertIn(
@@ -380,16 +385,16 @@ class ContentsAnalyzerTest(unittest.TestCase):
     prev_db_contents = file_utils.ReadFile(DB_COMP_BEFORE_PATH)
     curr_db_contents = file_utils.ReadFile(DB_INTERNAL_COMP_WITH_NULL_VALUE)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     inst.AnalyzeChange(None, False)
 
   def test_AnalyzeChange_ProbeInfoChanged(self):
     prev_db_contents = file_utils.ReadFile(DB_INTERNAL_BEFORE)
     curr_db_contents = file_utils.ReadFile(DB_INTERNAL_PROBE_INFO)
 
-    inst = contents_analyzer.ContentsAnalyzer(curr_db_contents, None,
-                                              prev_db_contents)
+    inst = contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+        curr_db_contents, None, prev_db_contents)
     analysis = inst.AnalyzeChange(None, False)
 
     diff = analysis.hwid_components['x@@@@component-cls4-comp6@@y@'].diff_prev

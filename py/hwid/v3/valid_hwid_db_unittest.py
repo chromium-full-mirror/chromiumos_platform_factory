@@ -94,8 +94,9 @@ def _CheckProject(args):
       logging.warning(
           'Database %s:%s does not have checksum field. Will skip checksum '
           'verification.', commit, db_path)
-    contents_analyzer_inst = contents_analyzer.ContentsAnalyzer(
-        db_raw, expected_checksum, None)
+    contents_analyzer_inst = (
+        contents_analyzer.ContentsAnalyzer.FromRawDBContent(
+            db_raw, expected_checksum, None))
     report = contents_analyzer_inst.ValidateIntegrity()
     for msg in report.warnings:
       logging.warning(msg)

@@ -33,12 +33,9 @@ def _GetBundleUUIDsByBuildVersion(
   return bundle_uuids
 
 
-def PatchFirmwareQualStatus(
-    db: database.Database,
-    firmware_quals: Sequence[FirmwareQual]) -> database.Database:
+def PatchFirmwareQualStatus(db: database.WritableDatabase,
+                            firmware_quals: Sequence[FirmwareQual]) -> None:
   """Patches support status according to the given firmware quals"""
-  new_db = database.WritableDatabase.LoadData(
-      db.DumpDataWithoutChecksum(internal=True))
   bundle_uuids = _GetBundleUUIDsByBuildVersion(
       firmware_quals, db.GetComponents(common.FirmwareComps.RO_MAIN_FIRMWARE))
   for comp_cls in common.FirmwareComps:
@@ -46,6 +43,5 @@ def PatchFirmwareQualStatus(
       if comp_info.status != common.ComponentStatus.unqualified:
         continue
       if bundle_uuids.intersection(comp_info.bundle_uuids):
-        new_db.SetComponentStatus(comp_cls, comp_name,
-                                  common.ComponentStatus.supported)
-  return new_db
+        db.SetComponentStatus(comp_cls, comp_name,
+                              common.ComponentStatus.supported)

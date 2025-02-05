@@ -115,7 +115,7 @@ _SplitChangeUnitException = change_unit_utils.SplitChangeUnitException
 _ApplyChangeUnitException = change_unit_utils.ApplyChangeUnitException
 _DataSource = hwid_api_messages_pb2.ChangeUnit.DataSource
 
-_ApplyFunction = Callable[[database.Database], database.Database]
+_ApplyFunction = Callable[[database.WritableDatabase], None]
 
 
 def _ConvertTouchedSectionToMsg(
@@ -1431,26 +1431,24 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     avl_converter = self._avl_converter_manager.GetAVLConverter(
         avl_resource, project, factory_branch)
 
-    new_hwid_db_contents_internal = action.ConvertToInternalHWIDDBContent(
-        avl_converter,
+    new_db = database.WritableDatabase.LoadData(
         action.PatchHeader(session_cache.new_hwid_db_editable_section or
                            old_hwid_db_editable_section))
-    new_db = database.Database.LoadData(new_hwid_db_contents_internal)
+    action.ConvertToInternalHWIDDB(avl_converter, new_db)
+
     apply_functions: Sequence[Tuple[_ApplyFunction, _DataSource]] = [
-        (lambda x: x, _DataSource.HWID_CONFIG),
+        (lambda x: None, _DataSource.HWID_CONFIG),
         (functools.partial(
             dlm_component_list.PatchComponentList,
-            comp_list=avl_resource.dlm_components),
-         _DataSource.COMPONENT_LIST),
-        (functools.partial(
-            firmware_qual.PatchFirmwareQualStatus,
-            firmware_quals=avl_resource.firmware_quals),
+            comp_list=avl_resource.dlm_components), _DataSource.COMPONENT_LIST),
+        (functools.partial(firmware_qual.PatchFirmwareQualStatus,
+                           firmware_quals=avl_resource.firmware_quals),
          _DataSource.FIRMWARE_QUAL),
     ]
 
     change_unit_manager = change_unit_utils.ChangeUnitManager(old_db)
     for func, data_source in apply_functions:
-      new_db = func(new_db)
+      func(new_db)
       try:
         change_units = change_unit_manager.ApplyChange(
             new_db, self._avl_metadata_manager.SkipAVLCheck)

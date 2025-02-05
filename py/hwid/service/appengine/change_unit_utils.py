@@ -737,9 +737,7 @@ def _ExtractChangeUnits(
   Raises:
     SplitChangeUnitException: If the DB change cannot be splitted.
   """
-  analyzer = contents_analyzer.ContentsAnalyzer(
-      new_db.DumpDataWithoutChecksum(internal=True), None,
-      old_db.DumpDataWithoutChecksum(internal=True))
+  analyzer = contents_analyzer.ContentsAnalyzer.FromDBInstance(new_db, old_db)
   analysis = analyzer.AnalyzeChange(
       None, False, skip_avl_check_checker=skip_avl_check_checker)
   analysis_mapping: MutableMapping[Tuple[str, str],
@@ -895,7 +893,8 @@ class ChangeUnitManager:
       self._change_units[change_unit.identity] = change_unit
     dep_nodes = _BuildDependencies(change_units)
     self._MergeDependencyNodes(dep_nodes)
-    self._new_db = new_db
+    self._new_db = database.Database.LoadData(
+        new_db.DumpDataWithoutChecksum(internal=True))
     return {
         c.identity: c
         for c in change_units
