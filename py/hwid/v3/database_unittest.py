@@ -1444,10 +1444,14 @@ class EncodedFieldsTest(unittest.TestCase):
     e = database.EncodedFields({
         'e1': {
             0: {
+                'a': None,
+                'b': None
+            },
+            1: {
                 'a': 'A',
                 'b': 'B'
             },
-            1: {
+            2: {
                 'a': ['AA', 'AAA'],
                 'b': 'B'
             }
@@ -1462,7 +1466,11 @@ class EncodedFieldsTest(unittest.TestCase):
     e.RemoveEncodedFieldsByComponent('a', 'A')
     self.assertEqual(e._fields, {
         'e1': {
-            1: {
+            0: {
+                'a': None,
+                'b': None
+            },
+            2: {
                 'a': ['AA', 'AAA'],
                 'b': 'B'
             }

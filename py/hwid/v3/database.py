@@ -1367,7 +1367,8 @@ class EncodedFields:
     for field_name in self.GetFieldsForComponent(comp_cls):
       remove_combinations = set()
       for index, combination in self._fields[field_name].items():
-        if comp_name in combination[comp_cls]:
+        if (combination[comp_cls] is not None and
+            comp_name in combination[comp_cls]):
           remove_combinations.add(index)
       for index in remove_combinations:
         del self._fields[field_name][index]
