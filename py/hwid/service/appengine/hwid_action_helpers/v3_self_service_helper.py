@@ -151,8 +151,9 @@ class HWIDV3SelfServiceActionHelper:
       assert avl_converter is not None
       self.ConvertToInternalHWIDDB(avl_converter, new_db)
       new_hwid_db_contents = new_hwid_db_contents_internal = (
-          new_db.DumpDataWithoutChecksum(internal=True,
-                                         suppress_support_status=False))
+          self.PatchHeader(
+              new_db.DumpDataWithoutChecksum(internal=True,
+                                             suppress_support_status=False)))
       curr_hwid_db_contents = curr_hwid_db_contents_internal
     else:
       new_hwid_db_contents = new_hwid_db_contents_external
