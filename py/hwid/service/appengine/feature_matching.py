@@ -42,6 +42,7 @@ class _FeatureManagementFlagField(str, enum.Enum):
   def __format__(self, format_spec: str) -> str:
     return self.value.__format__(format_spec)
 
+
 class _FeatureManagementFlagHWIDSpec(features.HWIDSpec):
   """Leverages `features.HWIDSpec` to match feature management flags."""
 
@@ -495,25 +496,24 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     return text_format.MessageToString(msg)
 
   def _BuildFeatureManagementFlagChecker(
-      self, target_field: _FeatureManagementFlagField
-  ) -> feature_compliance.FeatureRequirementSpecChecker:
+      self, target_field: _FeatureManagementFlagField,
+      target_value: str) -> feature_compliance.FeatureRequirementSpecChecker:
     """Builds a `FeatureRequirementSpecChecker` for the feature mngt flag field.
 
     Args:
       target_field: The field name in the feature management component values
         to check.
+      target_value: The expected value for the field.
 
     Returns:
       A `FeatureRequirementSpecChecker` instance, which
       `CheckFeatureComplianceVersion` method returns
       `self._spec.feature_version` if and only if the HWID contains
       the feature management flag component with `target_field` value being
-      `str(self._spec.feature_version)`.
+      `target_value`.
     """
-    hwid_requirement_resolver = features.HWIDRequirementResolver([
-        _FeatureManagementFlagHWIDSpec(target_field,
-                                       str(self._spec.feature_version))
-    ])
+    hwid_requirement_resolver = features.HWIDRequirementResolver(
+        [_FeatureManagementFlagHWIDSpec(target_field, target_value)])
     hwid_requirement_candidates = (
         hwid_requirement_resolver.DeduceHWIDRequirementCandidates(self._db, {}))
 
@@ -540,7 +540,7 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     """The checker to match the chassis branding state."""
     assert self._spec.feature_version != features.NO_FEATURE_VERSION
     return self._BuildFeatureManagementFlagChecker(
-        _FeatureManagementFlagField.IS_CHASSIS_BRANDED)
+        _FeatureManagementFlagField.IS_CHASSIS_BRANDED, '1')
 
   @functools.cached_property
   def _hw_compliant_checker(
@@ -548,7 +548,8 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     """The checker to match the HW compliance version state."""
     assert self._spec.feature_version != features.NO_FEATURE_VERSION
     return self._BuildFeatureManagementFlagChecker(
-        _FeatureManagementFlagField.HW_COMPLIANCE_VERSION)
+        _FeatureManagementFlagField.HW_COMPLIANCE_VERSION,
+        str(self._spec.feature_version))
 
   @functools.cached_property
   def _legacy_checker(self) -> feature_compliance.FeatureRequirementSpecChecker:

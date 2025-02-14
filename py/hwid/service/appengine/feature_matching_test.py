@@ -93,7 +93,7 @@ def _BuildHWIDDBForTest(project_name: str, image_ids: Collection[int],
                 chassis_branded_and_hw_compliant:
                   status: supported
                   values:
-                    is_chassis_branded: {feature_version!r}
+                    is_chassis_branded: '1'
                     hw_compliance_version: {feature_version!r}
           rules: []
           """),
