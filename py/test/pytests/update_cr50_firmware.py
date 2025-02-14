@@ -228,7 +228,7 @@ class UpdateCr50FirmwareTest(test_case.TestCase):
       with sys_utils.MountPartition(self.dut.partitions.RELEASE_ROOTFS.path,
                                     dut=self.dut) as root:
         firmware_files = [
-            os.path.join(root, firmware_file)
+            os.path.join(root, firmware_file[1:])
             for firmware_file in self.gsc_utils.image_paths
         ]
         self._CallMethod(firmware_files)
