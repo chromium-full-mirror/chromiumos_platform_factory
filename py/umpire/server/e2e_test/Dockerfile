@@ -24,6 +24,7 @@ RUN apk upgrade --no-cache && apk add --no-cache \
 
 # add docker client -- Use the same version as we use in factory server image.
 ADD build/docker/docker.tgz /
+RUN cp /docker/* /usr/bin/
 
 COPY py_pkg "${server_dir}/py_pkg/"
 COPY bin "${server_dir}/bin/"

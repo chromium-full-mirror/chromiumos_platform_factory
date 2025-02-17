@@ -22,6 +22,7 @@ ARG dome_builder_output_file="frontend.tar"
 # docker engine which takes a lot of space as well (we don't need it, we need
 # only the small client to communicate with the host's docker server)
 ADD build/docker/docker.tgz /
+RUN cp /docker/* /usr/bin/
 
 # Install packages. Python packages should be installed by pip if possible.
 # However, uwsgi-python and psutil from pip needs to build from source, Twisted
