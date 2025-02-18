@@ -12,6 +12,7 @@ import contextlib
 import csv
 from distutils import version as version_module
 import errno
+import functools
 import glob
 import logging
 import os
@@ -20,7 +21,7 @@ import shutil
 import sys
 import textwrap
 import time
-from typing import List, Optional, Set
+from typing import Callable, List, Optional, Set
 import urllib.parse
 
 import yaml
@@ -159,6 +160,20 @@ def _PackFirmwareUpdater(updater_path, dirpath, operation='repack'):
           check_call=True)
 
 
+def _LogRunTime(function: Callable) -> Callable:
+
+  @functools.wraps(function)
+  def Wrapper(*args, **kwargs):
+    start_time = time.time()
+    result = function(*args, **kwargs)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    logging.debug('%s: cost %.4f second(s).', function.__name__, execution_time)
+    return result
+
+  return Wrapper
+
+
 USAGE = """
 Finalizes a factory bundle.  This script checks to make sure that the
 bundle is valid, outputs version information into the README file, and
@@ -281,6 +296,7 @@ class FinalizeBundle:
     self.BundleRecord()
     self.CreateRMAShim()
 
+  @_LogRunTime
   def ProcessManifest(self):
     try:
       # yapf: disable
@@ -530,6 +546,7 @@ class FinalizeBundle:
 
     return None
 
+  @_LogRunTime
   def LocateResources(self):
     """Locates test image, release image, and factory toolkit.
 
@@ -581,6 +598,7 @@ class FinalizeBundle:
           'https://developers.google.com/storage/docs/gsutil_install), and '
           'make sure this is in your PATH before the system gsutil.')
 
+  @_LogRunTime
   def DownloadResources(self):
     """Downloads test image, release image, factory toolkit if needed."""
 
@@ -738,6 +756,7 @@ class FinalizeBundle:
         raise FinalizeBundleException(
             f'No release image for firmware at {self.firmware_image_source}')
 
+  @_LogRunTime
   def GetAndSetResourceVersions(self):
     """Gets and sets versions of test, release image, and factory toolkit."""
     self.test_image_version = self._GetImageVersion(self.test_image_path)
@@ -756,6 +775,7 @@ class FinalizeBundle:
     self.toolkit_version = match.group(1)  # May be None if locally built
     logging.info('Toolkit version: %s', self.toolkit_version)
 
+  @_LogRunTime
   def AddProjectToolkit(self):
     """Use project toolkit if exists and the source is not local."""
     if self.toolkit_source == LOCAL:
@@ -777,6 +797,7 @@ class FinalizeBundle:
       shutil.move(project_toolkit_path, self.toolkit_path)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
 
+  @_LogRunTime
   def AddDefaultCompleteScript(self):
     """Adds default complete script if not set."""
     # yapf: disable
@@ -837,6 +858,7 @@ class FinalizeBundle:
         for model, fp_boards in model_fp_boards.items()
     }
 
+  @_LogRunTime
   def AddFirmwareUpdaterAndImages(self):
     """Add firmware updater and extract firmware images.
 
@@ -1283,6 +1305,7 @@ class FinalizeBundle:
                              only_extracts=missing_netboot_firmware_list,
                              use_parallel=True, ignore_errors=True)
 
+  @_LogRunTime
   def PrepareNetboot(self):
     """Prepares netboot resource for TFTP setup."""
     # crrev.com/c/3406490 landed in 14489.0.0.
@@ -1382,6 +1405,7 @@ class FinalizeBundle:
          'cros_secure cros_netboot earlyprintk cros_debug loglevel=7 '
          f'{tftpserverip_config} console=ttyS2,115200n8'))
 
+  @_LogRunTime
   def UpdateInstallShim(self):
     # yapf: disable
     server_url = self.manifest.get('server_url')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -1464,6 +1488,7 @@ class FinalizeBundle:
     if not has_install_shim:
       logging.warning('There is no install shim in the bundle.')
 
+  @_LogRunTime
   def PrepareProjectConfig(self):
     # yapf: disable
     config_dir = os.path.join(self.bundle_dir, 'project_config')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -1500,6 +1525,7 @@ class FinalizeBundle:
            '-C', extracted_dir, config], check_call=True, log=True)
     os.remove(config_path)
 
+  @_LogRunTime
   def RemoveUnnecessaryFiles(self):
     """Removes vim backup files, pyc files, and empty directories."""
     logging.info('Removing unnecessary files')
@@ -1518,6 +1544,7 @@ class FinalizeBundle:
           if e.errno != errno.ENOTEMPTY:
             raise
 
+  @_LogRunTime
   def UpdateReadme(self):
     REQUIRED_SECTIONS = ['VITAL INFORMATION', 'CHANGES']
 
@@ -1650,6 +1677,7 @@ class FinalizeBundle:
     if self.no_firmware:
       args.append('--no-firmware')
 
+  @_LogRunTime
   def Archive(self):
     if self.archive:
       # Done! tar it up, and encourage the poor shmuck who has to build
@@ -1709,6 +1737,7 @@ class FinalizeBundle:
         'to check your changes into %s.',
         factory_board_bundle_path)
 
+  @_LogRunTime
   def CreateRMAShim(self):
     """Create a bootable RMA shim.
 
@@ -1739,6 +1768,7 @@ class FinalizeBundle:
     logging.info('Created %s (%.1f GiB).', output_file,
                  os.path.getsize(output_file) / (1024 * 1024 * 1024))
 
+  @_LogRunTime
   def BundleRecord(self):
     record = {
         'board': self.board,
@@ -2054,6 +2084,8 @@ class FinalizeBundle:
                         help='Create a rma shim (for testing only)')
     parser.add_argument('--no-firmware', action='store_true',
                         help='Skip downloading and packing firmware.')
+    parser.add_argument('--debug', action='store_true',
+                        help='log runtime of each functions')
 
     args = parser.parse_args()
     assert args.jobs > 0
@@ -2072,6 +2104,9 @@ if __name__ == '__main__':
       info = FinalizeBundle.ExtractFirmwareInfo(cmd_args.extract_firmware_info)
       logging.info(json_utils.DumpStr(info[0], pretty=True))
     else:
+      if cmd_args.debug:
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
       FinalizeBundle.FromArgs(cmd_args).Main()
   except Exception:
     logging.exception('')
