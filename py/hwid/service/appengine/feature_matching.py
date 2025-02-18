@@ -543,13 +543,17 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
         _FeatureManagementFlagField.IS_CHASSIS_BRANDED, '1')
 
   @functools.cached_property
-  def _hw_compliant_checker(
-      self) -> feature_compliance.FeatureRequirementSpecChecker:
-    """The checker to match the HW compliance version state."""
+  def _all_hw_compliant_checkers(
+      self) -> Mapping[int, feature_compliance.FeatureRequirementSpecChecker]:
+    """The checkers to match the HW compliance version state."""
     assert self._spec.feature_version != features.NO_FEATURE_VERSION
-    return self._BuildFeatureManagementFlagChecker(
-        _FeatureManagementFlagField.HW_COMPLIANCE_VERSION,
-        str(self._spec.feature_version))
+    return {
+        hw_compliance_version:
+            self._BuildFeatureManagementFlagChecker(
+                _FeatureManagementFlagField.HW_COMPLIANCE_VERSION,
+                str(hw_compliance_version))
+        for hw_compliance_version in range(1, self._spec.feature_version + 1)
+    }
 
   @functools.cached_property
   def _legacy_checker(self) -> feature_compliance.FeatureRequirementSpecChecker:
@@ -605,13 +609,18 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     # (i.e. libsegmentation) deduce whether the versioned feature is enabled or
     # not.
 
-    build_hw_compliant_result = functools.partial(FeatureEnablementStatus,
-                                                  self._spec.feature_version)
+    hw_compliance_version = features.NO_FEATURE_VERSION
+    for version, checker in self._all_hw_compliant_checkers.items():
+      if _MatchByChecker(checker, hwid_identity):
+        hw_compliance_version = version
+        break
 
-    if _MatchByChecker(self._chassis_is_branded_checker, hwid_identity):
-      return build_hw_compliant_result(FeatureEnablementType.HARD_BRANDED)
+    if hw_compliance_version > features.NO_FEATURE_VERSION:
+      build_hw_compliant_result = functools.partial(FeatureEnablementStatus,
+                                                    hw_compliance_version)
+      if _MatchByChecker(self._chassis_is_branded_checker, hwid_identity):
+        return build_hw_compliant_result(FeatureEnablementType.HARD_BRANDED)
 
-    if _MatchByChecker(self._hw_compliant_checker, hwid_identity):
       if hwid_identity.brand_code in self.soft_branded_brand_code_set:
         return build_hw_compliant_result(
             FeatureEnablementType.SOFT_BRANDED_WAIVER)
@@ -619,8 +628,8 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
 
     if _MatchByChecker(self._legacy_checker, hwid_identity):
       # Legacy and soft-branded case.
-      return build_hw_compliant_result(
-          FeatureEnablementType.SOFT_BRANDED_LEGACY)
+      return FeatureEnablementStatus(self._spec.feature_version,
+                                     FeatureEnablementType.SOFT_BRANDED_LEGACY)
 
     return FeatureEnablementStatus.FromHWIncompliance()
 

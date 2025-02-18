@@ -289,6 +289,26 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
           with self.assertRaises(expected_match_result_or_error):
             matcher.Match(hwid_string)
 
+  def testConvertedHWIDFeatureMatcherHwCompliantNotMatchFeatureLevel(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    brand_allowed_feature_enablement_types = {
+        'WXYZ': [
+            _FeatureEnablementType.HARD_BRANDED,
+            _FeatureEnablementType.DISABLED,
+        ],
+    }
+    source = self._builder.GenerateFeatureMatcherRawSource(
+        2, brand_allowed_feature_enablement_types, [])
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
+
+    actual = matcher.Match('THEPROJ-WXYZ C2A-A2C-B93')
+    self.assertEqual(
+        actual,
+        _FeatureEnablementStatus(feature_version,
+                                 _FeatureEnablementType.HARD_BRANDED))
+
   def testConvertedHWIDFeatureMatcherCanMatchForOldHWIDDB(self):
     feature_version = 1
     db = db_module.Database.LoadData(
