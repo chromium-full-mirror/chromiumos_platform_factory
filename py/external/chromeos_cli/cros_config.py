@@ -121,5 +121,9 @@ class CrosConfig:
   def GetShimlessEnabledStatus(self):
     """Checks if Shimless RMA has been enabled on this device."""
     result = self.GetValue('/rmad', 'enabled')
-
     return result.stdout and result.stdout.strip() == 'true'
+
+  def GetModemFirmwareVariant(self):
+    """Returns the modem firmware variant."""
+    result = self.GetValue('/modem', 'firmware-variant')
+    return result.stdout.strip() if result.stdout else ''
