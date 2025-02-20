@@ -236,8 +236,6 @@ class Gooftool:
     factory installed DLC images under stateful partition and compare their
     hashes using `dlcverify`.
     """
-    model = self.GetModelName()
-
     def _ListSubDirectories(dir_path):
       sub_dir_names = set()
       for name in os.listdir(dir_path):
@@ -247,17 +245,29 @@ class Gooftool:
       return sub_dir_names
 
     def _GetDLCToBeVerified():
+      modem_dlc_name = self.GetModemDLCNameFromModemVariant()
+      if not modem_dlc_name:
+        logging.info('There is no LTE on this device.')
+        return set()
+
       with sys_utils.MountPartition(
           self._util.GetReleaseRootPartitionPath()) as root:
         dlc_metadata_path = os.path.join(root, _DLCMETADATADIR)
-        dlc_list = self._util.shell([
+        dlc_cmd_result = self._util.shell([
             'dlc_metadata_util', f'--metadata_dir={dlc_metadata_path}',
-            '--list', f'--attribute={model}'
+            '--list', f'--attribute={modem_dlc_name}'
         ])
-        if not dlc_list.success:
+        if not dlc_cmd_result.success:
           raise Error('Failed to get the factory-install DLC list.')
 
-        return set(json.loads(dlc_list.stdout))
+        dlc_items = json.loads(dlc_cmd_result.stdout)
+        if not dlc_items:
+          raise Error(
+              'DLC list should not be empty when modem_dlc_name is present.\n'
+              f'modem_dlc_name: {modem_dlc_name}.\n'
+              f'dlc_list.stdout: {dlc_cmd_result.stdout}.')
+
+        return set(dlc_items)
 
     dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
                                   wipe.DLC_CACHE_PAYLOAD_NAME)
@@ -301,7 +311,9 @@ class Gooftool:
         logging.info('No DLC images under %s. Skip checking.', dlc_image_path)
         return
 
-      # Mount the release rootfs and check the hashes of the images
+      # Verify DLC image integrity by checking hashes on the release rootfs.
+      # Uses _DLCVERIFY to check all currently installed DLCs (current_dlcs),
+      # including those not necessarily expected for the device.
       error_messages = {}
       with sys_utils.MountPartition(
           self._util.GetReleaseRootPartitionPath()) as root:
@@ -710,6 +722,32 @@ class Gooftool:
       if not mismatch:
         return config
     return None
+
+  def GetModemDLCNameFromModemVariant(self):
+    """
+    Retrieves the modem DLC name from the modem firmware variant.
+
+    The modem firmware variant is expected to be in the format: <model>_<modem>.
+    For example: nivviks_fm101.
+
+    Returns:
+      str: The modem DLC name extracted from the variant. An empty string
+           return value represents that the device doesn't use LTE, so modem DLC
+           is not needed.
+
+    Raises:
+      Error: If the variant string is not in the expected format and the modem
+             DLC name cannot be parsed.
+    """
+    try:
+      variant = self._cros_config.GetModemFirmwareVariant()
+      if not variant:
+        return ''
+
+      model, _ = variant.split('_')
+      return model
+    except ValueError as exc:
+      raise Error(f'Cannot parse model from variant: {variant}') from exc
 
   def GetModelName(self):
     model = self._cros_config.GetModelName()
