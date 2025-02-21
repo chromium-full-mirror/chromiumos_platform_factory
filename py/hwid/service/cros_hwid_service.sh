@@ -40,6 +40,7 @@ HOST_REDIS_RDB_PATH=""
 
 . "${FACTORY_DIR}/devtools/mk/common.sh" || exit 1
 . "${FACTORY_PRIVATE_DIR}/config/hwid/service/appengine/config.sh" || exit 1
+. "${FACTORY_DIR}/devtools/aufs/shflags" || exit 1
 
 # Following variables will be assigned by `load_config <DEPLOYMENT_TYPE>`
 GCP_PROJECT=
@@ -102,6 +103,13 @@ check_credentials() {
   gcloud auth application-default --project "${project}" login
 }
 
+local_add_temp() {
+  if [ "${FLAGS_ci_cd}" == "${FLAGS_TRUE}" ]; then
+    return 0
+  fi
+  add_temp "$@"
+}
+
 run_in_temp() {
   (cd "${TEMP_DIR}"; "$@")
 }
@@ -109,7 +117,7 @@ run_in_temp() {
 prepare_cros_regions() {
   cros_regions="${TEMP_DIR}/resource/cros-regions.json"
   ${REGIONS_DIR}/regions.py --format=json --all --notes > "${cros_regions}"
-  add_temp "${cros_regions}"
+  local_add_temp "${cros_regions}"
 }
 
 prepare_protoc() {
@@ -132,7 +140,7 @@ prepare_protobuf() {
   local protoc
 
   protoc_dir="$(mktemp -d)"
-  add_temp "${protoc_dir}"
+  local_add_temp "${protoc_dir}"
   prepare_protoc "${protoc_dir}"
   protoc="${protoc_dir}/bin/protoc"
   mkdir -p "${protobuf_out}"
@@ -193,7 +201,7 @@ sync_to_commit() {
 
 do_make_build_folder() {
   mkdir -p "${TEMP_DIR}"
-  add_temp "${TEMP_DIR}"
+  local_add_temp "${TEMP_DIR}"
   # Change symlink to hard link due to b/70037640.
   local cp_files=(cron.yaml requirements.txt .gcloudignore gunicorn.conf.py \
     start_server.sh check_datastore_status.sh)
@@ -210,6 +218,7 @@ ${FACTORY_PRIVATE_DIR}/config/hwid/service/appengine/configurations.yaml" \
 
   prepare_protobuf
   prepare_cros_regions
+  prepare_app_config
 }
 
 handle_rdb_path() {
@@ -223,21 +232,7 @@ handle_rdb_path() {
   fi
 }
 
-do_deploy() {
-  local deployment_type="$1"
-  shift
-  check_gcloud
-  check_credentials "${GCP_PROJECT}"
-
-  if [ "${deployment_type}" == "${DEPLOYMENT_PROD}" ]; then
-    ensure_clean_repo
-    sync_to_commit cros/main "${PUBLIC_DEPENDENCY[@]}"
-    sync_to_commit cros-internal/main "${INTERNAL_DEPENDENCY[@]}"
-    do_test
-  fi
-
-  do_make_build_folder
-
+prepare_app_config() {
   local common_envs=(
     GCP_PROJECT="${GCP_PROJECT}"
     VPC_CONNECTOR_REGION="${VPC_CONNECTOR_REGION}"
@@ -252,6 +247,35 @@ do_deploy() {
   env "${common_envs[@]}" SERVICE=default \
     envsubst < "${APPENGINE_DIR}/app.standard.yaml.template" > \
     "${TEMP_DIR}/app.yaml"
+  env "${common_envs[@]}" SERVICE=cron \
+        envsubst < "${APPENGINE_DIR}/app.standard.yaml.template" > \
+        "${TEMP_DIR}/app.cron.yaml"
+}
+
+do_deploy() {
+  local deployment_type="$1"
+  shift
+
+  local gcloud_flags=()
+  if [ "${FLAGS_ci_cd}" == "${FLAGS_FALSE}" ]; then
+    check_gcloud
+    check_credentials "${GCP_PROJECT}"
+
+    if [ "${deployment_type}" == "${DEPLOYMENT_PROD}" ]; then
+      ensure_clean_repo
+      sync_to_commit cros/main "${PUBLIC_DEPENDENCY[@]}"
+      sync_to_commit cros-internal/main "${INTERNAL_DEPENDENCY[@]}"
+      do_test
+    fi
+
+    do_make_build_folder
+  else
+    if [ "${deployment_type}" == "${DEPLOYMENT_LOCAL}" ]; then
+      echo "WARNING: Deploying HWID Service locally in CI/CD mode."
+    fi
+
+    gcloud_flags+=("--quiet")
+  fi
 
   case "${deployment_type}" in
     "${DEPLOYMENT_LOCAL}")
@@ -310,14 +334,11 @@ do_deploy() {
       ;;
     "${DEPLOYMENT_E2E}")
       run_in_temp gcloud --project="${GCP_PROJECT}" app deploy --no-promote \
-        --version=e2e-test app.yaml
+        --version=e2e-test app.yaml "${gcloud_flags[@]}"
       ;;
     *)
-      env "${common_envs[@]}" SERVICE=cron \
-        envsubst < "${APPENGINE_DIR}/app.standard.yaml.template" > \
-        "${TEMP_DIR}/app.cron.yaml"
       run_in_temp gcloud --project="${GCP_PROJECT}" app deploy app.yaml \
-        app.cron.yaml cron.yaml
+        app.cron.yaml cron.yaml "${gcloud_flags[@]}"
       ;;
   esac
 }
@@ -354,11 +375,11 @@ do_test() {
     "cros/factory/hwid/service/appengine/proto/hwid_api_messages.proto" \
     "cros/factory/hwid/service/appengine/proto/ingestion.proto" \
     "cros/factory/probe_info_service/app_engine/stubby.proto"
-  add_temp "${PY_PKG_DIR}/cros/factory/hwid/service/appengine/proto/\
+  local_add_temp "${PY_PKG_DIR}/cros/factory/hwid/service/appengine/proto/\
 hwid_api_messages_pb2.py"
-  add_temp "${PY_PKG_DIR}/cros/factory/hwid/service/appengine/proto/\
+  local_add_temp "${PY_PKG_DIR}/cros/factory/hwid/service/appengine/proto/\
 ingestion_pb2.py"
-  add_temp "${PY_PKG_DIR}/cros/factory/probe_info_service/app_engine/\
+  local_add_temp "${PY_PKG_DIR}/cros/factory/probe_info_service/app_engine/\
 stubby_pb2.py"
 
   if [[ "${#test_files[@]}" != 0 ]]; then
@@ -424,10 +445,23 @@ commands:
       py/hwid/service/appengine are given, runs the integration tests in the
       files.
 
+  $0 make-build-folder [prod|e2e|staging]
+      Creates a build folder and builds all the artifacts for Appengine
+      deployment. Should only be executed with --ci_cd.
+
+flags:
+  --ci_cd
+      Runs the script in CI/CD mode.
+
 __EOF__
 }
 
 main() {
+  set +e  # Temporarily turn off non-zero status check for the shflags library.
+  DEFINE_boolean ci_cd "${FLAGS_FALSE}" "Runs the script in CI/CD mode."
+  FLAGS "$@" || die $?
+  set -e
+
   case "$1" in
     deploy)
       shift
@@ -451,6 +485,21 @@ main() {
     request)
       shift
       request "${@}"
+      ;;
+    make-build-folder)
+      shift
+      [ $# -gt 0 ] || (usage && exit 1);
+      local deployment_type="$1"
+      shift
+      if ! load_config "${deployment_type}" ; then
+        usage
+        die "Unsupported deployment type: \"${deployment_type}\"."
+      fi
+
+      if [ "${FLAGS_ci_cd}" == "${FLAGS_FALSE}" ]; then
+        die "make-build-folder should be run with --ci_cd."
+      fi
+      do_make_build_folder "${@}"
       ;;
     *)
       usage
