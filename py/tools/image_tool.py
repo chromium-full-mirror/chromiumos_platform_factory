@@ -134,40 +134,6 @@ def MakePartition(block_dev, part):
   return f"{block_dev}{'p' if block_dev[-1].isdigit() else ''}{part}"
 
 
-def FilterDLC(image_path, attributes):
-  """Remove DLCs not matching any attribute from a Chromium OS disk image.
-
-  Args:
-    image_path: a path to a Chromium OS disk image.
-    attributes: a list of attributes to filter for removal.
-  """
-  part = Partition(image_path, PART_CROS_ROOTFS_A)
-  with part.MountAsCrOSRootfs() as rootfs:
-    manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
-    if not os.path.exists(manifests_dir):
-      raise RuntimeError('Failed to find dlc metadata directory.')
-
-    dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
-    dlc_ids = set()
-    for attribute in attributes:
-      dlc_ids_str = Sudo([
-          dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}', '--list',
-          f'--attribute={attribute}'
-      ], output=True)
-      dlc_ids.update(set(json.loads(dlc_ids_str)))
-
-  with Partition(image_path, PART_CROS_STATEFUL).Mount(rw=True) as stateful:
-    dlc_dir = os.path.join(stateful, 'unencrypted', 'dlc-factory-images')
-    if not os.path.exists(dlc_dir):
-      print(f'No DLC directory found in image ({image_path}) at: {dlc_dir}')
-    else:
-      for filename in os.listdir(dlc_dir):
-        if filename not in dlc_ids:
-          Sudo(['rm', '-rf', os.path.join(dlc_dir, filename)])
-          print(f'Removing DLC: {filename}')
-      print(f'Remaining DLCs: {os.listdir(dlc_dir)}')
-
-
 class ArgTypes:
   """Helper class to collect all argument type checkers."""
 
@@ -2073,7 +2039,7 @@ class ChromeOSFactoryBundle:
     """Creates the RMA bootable installation disk image.
 
     This creates an RMA image that can boot and install all factory software
-    resouces to device.
+    resources to device.
 
     Args:
       output: a path to disk image to initialize.
@@ -4751,8 +4717,84 @@ class RemoveDLCByAttribute(AbstractSubCommand):
               'are given, the union of all DLCs matching any of the provided '
               'attributes is used.'))
 
+  def _dlc_has_attribute(self, dlc_cmd):
+    """Checks if any DLC has attributes."""
+    for dlc_id in json.loads(Sudo(dlc_cmd + ['--list', '--factory_install'],
+                                  output=True)):
+      dlc_info = json.loads(Sudo(dlc_cmd + ['--get', f'--id={dlc_id}'],
+                                 output=True))
+      if dlc_info.get('manifest', {}).get('attributes', {}):
+        return True
+    return False
+
+  def _get_target_dlc_ids(self, rootfs, attributes):
+    """Gets the target DLC IDs based on attributes or filenames."""
+
+    target_dlc_ids = set()
+    manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
+    if not os.path.exists(manifests_dir):
+      raise FileNotFoundError('Failed to find dlc metadata directory.')
+    dlc_cmd = [
+        SysUtils.FindCommand('dlc_metadata_util'),
+        f'--metadata_dir={manifests_dir}'
+        ]
+
+    if self._dlc_has_attribute(dlc_cmd):
+      print('Going to filter DLC by attribute')
+      for attribute in attributes:
+        target_dlc_ids_str = Sudo(dlc_cmd + ['--list',
+                                             f'--attribute={attribute}'],
+                                  output=True)
+        target_dlc_ids.update(set(json.loads(target_dlc_ids_str)))
+    else:
+      print('Going to filter DLC by filename')
+      factory_dlc_ids_str = Sudo(dlc_cmd + ['--list', '--factory_install'],
+                                 output=True)
+      factory_dlc_ids = set(json.loads(factory_dlc_ids_str))
+      target_dlc_ids = {
+          dlc_id
+          for dlc_id in factory_dlc_ids
+          if any(attribute in dlc_id for attribute in attributes)
+      }
+    print(f'The dlc ids to keep: {target_dlc_ids}')
+    return target_dlc_ids
+
+  def FilterDLC(self, image_path, attributes):
+    """Filters DLCs in a Chrome OS disk image based on attributes.
+
+    This function filters DLCs based on two criteria:
+
+    1.  Attribute-based filtering: For ChromeOS versions that support it,
+        DLCs are filtered based on the specified attributes.
+    2.  Filename-based filtering: For older ChromeOS versions, DLCs are
+        filtered based on whether their filenames contain any of the
+        specified attributes.
+
+    Args:
+        image_path: The path to the Chromium OS disk image.
+        attributes: A list of attributes to filter for.
+
+    Raises:
+        FileNotFoundError: If the DLC metadata or factory images directory
+                           is not found.
+  """
+    part = Partition(image_path, PART_CROS_ROOTFS_A)
+    with part.MountAsCrOSRootfs() as rootfs:
+      target_dlc_ids = self._get_target_dlc_ids(rootfs, attributes)
+
+    with Partition(image_path, PART_CROS_STATEFUL).Mount(rw=True) as stateful:
+      dlc_dir = os.path.join(stateful, 'unencrypted', 'dlc-factory-images')
+      if not os.path.exists(dlc_dir):
+        raise FileNotFoundError('No DLC directory found in image '
+                                f'({image_path}) at: {dlc_dir}')
+      for dlc_id in os.listdir(dlc_dir):
+        if dlc_id not in target_dlc_ids:
+          Sudo(['rm', '-rf', os.path.join(dlc_dir, dlc_id)])
+          print(f'Removing DLC: {dlc_id}')
+      print(f'Remaining DLCs: {os.listdir(dlc_dir)}')
+
   def Run(self):
-    FilterDLC(self.args.image, self.args.attributes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    self.FilterDLC(self.args.image, self.args.attributes)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
 def main():
   # Support `cros_payload` in bin/ folder, so that we can run
