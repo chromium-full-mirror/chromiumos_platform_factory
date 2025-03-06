@@ -245,10 +245,10 @@ class Gooftool:
     """
 
     def _ListSubDirectories(dir_path):
-      sub_dir_names = []
+      sub_dir_names = set()
       for name in os.listdir(dir_path):
         if os.path.isdir(os.path.join(dir_path, name)):
-          sub_dir_names.append(name)
+          sub_dir_names.add(name)
 
       return sub_dir_names
 
@@ -261,9 +261,57 @@ class Gooftool:
       release_image_version = LooseVersion(self._util.GetReleaseImageVersion())
       return release_image_version < LooseVersion('15875.0.0')
 
+    def _DLCHasAttribute():
+      """Checks if the DLC has the 'attributes' metadata field.
+
+      Before version 16151.31.0, DLCs did not have 'attributes'.
+      """
+      release_image_version = LooseVersion(self._util.GetReleaseImageVersion())
+      return release_image_version > LooseVersion('16151.31.0')
+
+    def _IsDLCModemCompatible(dlc_metadata, variant, model, dlc_has_attr):
+      """Checks DLC modem compatibility.
+
+      Compatibility is determined by matching either the 'attributes' field
+      (if present) or the 'id' field of the DLC metadata against the provided
+      modem model or variant.
+
+      Args:
+        dlc_metadata (dict): The DLC metadata dictionary.
+        variant (str): The modem firmware variant (e.g., "nivviks_fm101").
+        model (str): The modem model (e.g., "nivviks").
+        dlc_has_attr (bool): True if the DLC metadata is expected to have an
+                             'attribute' field, False if it should be checked
+                             against the 'id' field.
+
+      Returns:
+        bool: True if the DLC is compatible with the modem, False otherwise.
+      """
+      if dlc_has_attr:
+        return {model, variant}.intersection(dlc_metadata.get('attributes'))
+      # The 'id' field of the DLC metadata is the DLC ID, which is the same as
+      # the file name of the DLC image.
+      return model in dlc_metadata.get('id', '')
+
     def _GetDLCIDsToBeVerified(rootfs):
-      factory_install_dlc_ids = []
+      variant = self._cros_config.GetModemFirmwareVariant()
+      if not variant:
+        logging.info('There is no LTE on this device.')
+        return set()
+      try:
+        # Usually, <model> matches `cros_config / name``. However, exceptions
+        # exist. For instance, multiple models might share the same modem
+        # firmware (e.g., anraggar & anraggar360). In such scenarios, the modem
+        # variant name would be anraggar_fm101 (using the base model name).
+        model, _ = variant.split('_')
+      except ValueError as exc:
+        raise Error(f'Cannot parse model from variant: {variant}. The modem'
+                    'firmware variant is expected to be in the format: '
+                    '<model>_<modem>. For example: nivviks_fm101.') from exc
+
+      target_dlc_ids = set()
       dlc_metadata_path = os.path.join(rootfs, _DLCMETADATADIR)
+      dlc_has_attr = _DLCHasAttribute()
       # Enumerate all the possible paths to factory installed DLC metadata.
       dlc_ids = _ListSubDirectories(dlc_metadata_path)
       for dlc_id in dlc_ids:
@@ -272,10 +320,16 @@ class Gooftool:
         if os.path.exists(metadata_path):
           metadata = json_utils.LoadFile(metadata_path)
           # A DLC is a factory installed DLC if `factory-install` is true.
-          if metadata['factory-install']:
-            factory_install_dlc_ids.append(dlc_id)
+          if (metadata['factory-install'] and
+              _IsDLCModemCompatible(metadata, variant, model, dlc_has_attr)):
+            target_dlc_ids.add(dlc_id)
 
-      return factory_install_dlc_ids
+      if not target_dlc_ids:
+        raise Error(
+            'DLC list should not be empty when modem variant is present.\n'
+            f'modem variant: {variant}.\n')
+
+      return target_dlc_ids
 
     def _DecompressDLCMetadata(release_rootfs, dst_dir):
       """Decompress DLC's metadata using dlc_metadata_util.
@@ -332,21 +386,20 @@ class Gooftool:
       rootfs_with_dlc_metadata = (
           release_rootfs if use_dlc_legacy_metadata else tmpdir)
       dlc_ids_to_be_verified = _GetDLCIDsToBeVerified(rootfs_with_dlc_metadata)
-      expected_num_dlcs = len(dlc_ids_to_be_verified)
 
       dlc_cache_path = os.path.join(wipe.STATEFUL_PARTITION_PATH,
                                     wipe.DLC_CACHE_PAYLOAD_NAME)
       try:
         file_utils.CheckPath(dlc_cache_path)
       except IOError:
-        if expected_num_dlcs == 0:
+        if not dlc_ids_to_be_verified:
           logging.info(
               'Cannot find %s. Factory installed DLC images are not enabled. '
               'Skip checking.', dlc_cache_path)
           return
-        raise Error('No factory installed DLC images found! Expected number of'
-                    ' DLCs: %d! %s' %
-                    (expected_num_dlcs, _DLC_ERROR_TEMPLATE)) from None
+        raise Error(
+            'No factory installed DLC images found! Expected DLCs: '
+            f'{(dlc_ids_to_be_verified)}! {_DLC_ERROR_TEMPLATE}') from None
 
       decompress_command = 'tar -xpvf %s -C %s' % (dlc_cache_path, tmpdir)
       logging.info(decompress_command)
@@ -357,16 +410,15 @@ class Gooftool:
                     (decompress_out.stderr, _DLC_ERROR_TEMPLATE))
 
       dlc_image_path = os.path.join(tmpdir, 'unencrypted', 'dlc-factory-images')
-
       # Enumerate all the DLC sub-directories under dlc_image_path.
-      cur_num_dlcs = len(_ListSubDirectories(dlc_image_path))
+      current_dlcs = _ListSubDirectories(dlc_image_path)
 
-      if cur_num_dlcs != expected_num_dlcs:
-        raise Error(
-            'Current number of factory installed DLCs: %d, expected: '
-            '%d. %s' % (cur_num_dlcs, expected_num_dlcs, _DLC_ERROR_TEMPLATE))
+      if not dlc_ids_to_be_verified.issubset(current_dlcs):
+        raise Error('Some factory installed DLCs are missing. Current DLCs: '
+                    f'{current_dlcs}, Expected DLCs: {dlc_ids_to_be_verified}. '
+                    f'{_DLC_ERROR_TEMPLATE}')
 
-      if cur_num_dlcs == 0:
+      if not current_dlcs:
         logging.info('No DLC images under %s. Skip checking.', dlc_image_path)
         return
 
@@ -374,8 +426,8 @@ class Gooftool:
       error_messages = {}
       for dlc_id in dlc_ids_to_be_verified:
         image_path = os.path.join(dlc_image_path, dlc_id, 'package', 'dlc.img')
-        verify_command = '%s --id=%s --image=%s --rootfs_mount=%s' % \
-                          (_DLCVERIFY, dlc_id, image_path, rootfs_with_dlc_metadata)
+        verify_command = (f'{_DLCVERIFY} --id={dlc_id} --image={image_path} '
+                          f'--rootfs_mount={rootfs_with_dlc_metadata}')
         logging.info(verify_command)
         check_hash_out = self._util.shell(verify_command)
 

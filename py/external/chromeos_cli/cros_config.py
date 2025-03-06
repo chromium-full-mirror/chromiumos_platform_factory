@@ -4,6 +4,7 @@
 
 from cros.factory.external.chromeos_cli import shell
 
+
 # Path to the product name and sku id of the device.
 # ARM devices: DEVICE_TREE_COMPATIBLE_PATH and DEVICE_TREE_SKU_ID_PATH
 # x86 devices: PRODUCT_NAME_PATH and PRODUCT_SKU_ID_PATH
@@ -99,4 +100,9 @@ class CrosConfig:
     Only smart amplifiers have sound-card-init-conf file.
     """
     result = self.GetValue('/audio/main', 'sound-card-init-conf')
+    return result.stdout.strip() if result.stdout else ''
+
+  def GetModemFirmwareVariant(self):
+    """Returns the modem firmware variant."""
+    result = self.GetValue('/modem', 'firmware-variant')
     return result.stdout.strip() if result.stdout else ''
