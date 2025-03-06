@@ -4775,9 +4775,21 @@ class RemoveDLCByAttribute(AbstractSubCommand):
         return True
     return False
 
-  def _get_target_dlc_ids(self, rootfs, attributes):
-    """Gets the target DLC IDs based on attributes or filenames."""
+  def _filter_dlc_ids_by_attribute_substring(self, dlc_ids, attributes):
+    """Filters a set of DLC IDs based on attribute substrings.
 
+    Args:
+      dlc_ids: A set of DLC IDs (strings).
+      attributes: A list of attribute strings.
+
+    Returns:
+      A set of DLC IDs with attribute substrings.
+    """
+    return {dlc_id for dlc_id in dlc_ids
+            if any(attribute in dlc_id for attribute in attributes)}
+
+  def _get_target_dlc_ids(self, rootfs, attributes):
+    """Gets target DLC IDs based on attributes/filenames."""
     target_dlc_ids = set()
     manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
     if not os.path.exists(manifests_dir):
@@ -4785,25 +4797,41 @@ class RemoveDLCByAttribute(AbstractSubCommand):
     dlc_cmd = [
         SysUtils.FindCommand('dlc_metadata_util'),
         f'--metadata_dir={manifests_dir}'
-        ]
+    ]
 
     if self._dlc_has_attribute(dlc_cmd):
-      print('Going to filter DLC by attribute')
+      print('Filtering DLC by attribute')
       for attribute in attributes:
-        target_dlc_ids_str = Sudo(dlc_cmd + ['--list',
-                                             f'--attribute={attribute}'],
-                                  output=True)
+        target_dlc_ids_str = Sudo(
+            dlc_cmd + ['--list', f'--attribute={attribute}'],
+            output=True
+        )
         target_dlc_ids.update(set(json.loads(target_dlc_ids_str)))
+    elif UseLegacyDLCMetadata(rootfs):
+      print('Filtering DLC by filename with legacy metadata')
+      factory_dlc_ids = set()
+      for subdir in os.listdir(manifests_dir):
+        manifest = os.path.join(
+            manifests_dir, subdir, 'package', 'imageloader.json'
+        )
+        if not os.path.exists(manifest):
+          continue
+        with open(manifest, encoding='utf8') as f:
+          data = json.load(f)
+          if data['factory-install']:
+            factory_dlc_ids.add(data['id'])
+      target_dlc_ids = self._filter_dlc_ids_by_attribute_substring(
+          factory_dlc_ids, attributes
+      )
     else:
-      print('Going to filter DLC by filename')
-      factory_dlc_ids_str = Sudo(dlc_cmd + ['--list', '--factory_install'],
-                                 output=True)
+      print('Filtering DLC by filename')
+      factory_dlc_ids_str = Sudo(
+          dlc_cmd + ['--list', '--factory_install'], output=True
+      )
       factory_dlc_ids = set(json.loads(factory_dlc_ids_str))
-      target_dlc_ids = {
-          dlc_id
-          for dlc_id in factory_dlc_ids
-          if any(attribute in dlc_id for attribute in attributes)
-      }
+      target_dlc_ids = self._filter_dlc_ids_by_attribute_substring(
+          factory_dlc_ids, attributes
+      )
     print(f'The dlc ids to keep: {target_dlc_ids}')
     return target_dlc_ids
 
