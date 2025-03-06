@@ -4712,10 +4712,18 @@ class RemoveDLCByAttribute(AbstractSubCommand):
         type=str,
         nargs='+',
         required=True,
-        help=('Filter DLCs based on these attributes. If no attributes are '
-              'given, all factory installed DLCs are included. If attributes '
+        help=('Filter DLCs based on these attributes. If multiple attributes '
               'are given, the union of all DLCs matching any of the provided '
               'attributes is used.'))
+    # yapf: disable
+    self.subparser.add_argument(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+        '-d',
+        '--dry-run',
+        action='store_true',
+        required=False,
+        help=('Perform a dry run, showing which DLCs would be kept after the '
+              'trim, without actually modifying the image.'))
 
   def _dlc_has_attribute(self, dlc_cmd):
     """Checks if any DLC has attributes."""
@@ -4781,6 +4789,9 @@ class RemoveDLCByAttribute(AbstractSubCommand):
     part = Partition(image_path, PART_CROS_ROOTFS_A)
     with part.MountAsCrOSRootfs() as rootfs:
       target_dlc_ids = self._get_target_dlc_ids(rootfs, attributes)
+
+    if self.args.dry_run: # type: ignore #TODO(b/338318729) Fixit!
+      return
 
     with Partition(image_path, PART_CROS_STATEFUL).Mount(rw=True) as stateful:
       dlc_dir = os.path.join(stateful, 'unencrypted', 'dlc-factory-images')
