@@ -134,6 +134,23 @@ def MakePartition(block_dev, part):
   return f"{block_dev}{'p' if block_dev[-1].isdigit() else ''}{part}"
 
 
+def UseLegacyDLCMetadata(rootfs):
+  """Check if the DLC metadata in `rootfs` is using legacy format.
+
+  Legacy DLC metadata refers to a plain JSON file.
+  Current (non-legacy) DLC metadata is compressed and requires the
+  `dlc_metadata_util` tool to be read.
+
+  According to b/341860616#comment13, the legacy DLC metadata format is
+  removed in 15875.0.0.
+  """
+  lsb_data = LSBFile(os.path.join(rootfs, 'etc', 'lsb-release'))
+  version_string = lsb_data.GetChromeOSVersion(remove_milestone=True)
+  image_version = version_utils.parse(version_string)
+
+  return image_version < version_utils.parse('15875.0.0')
+
+
 class ArgTypes:
   """Helper class to collect all argument type checkers."""
 
@@ -1936,6 +1953,37 @@ class ChromeOSFactoryBundle:
       verbose: provide more verbose output when initializing disk image.
     """
 
+    def _CalculateDLCPreallocatedSize(manifests_dir, dlc_ids, legacy):
+      """Calculates the total pre-allocated size for DLC manifests.
+
+      For factory-installed DLCs, we need to preserve `2 * pre-allocated size`.
+      (See b/219670647#comment13)
+      """
+      total_size = 0
+
+      if legacy:
+        for subdir in os.listdir(manifests_dir):
+          manifest = os.path.join(manifests_dir, subdir, 'package',
+                                  'imageloader.json')
+          if not os.path.exists(manifest):
+            continue
+          with open(manifest, encoding='utf8') as f:
+            data = json.load(f)
+            if data['factory-install']:
+              total_size += int(data['pre-allocated-size']) * 2
+      else:
+        dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
+        for dlc_id in dlc_ids:
+          metadata = Sudo([
+              dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}', '--get',
+              f'--id={dlc_id}'
+          ], output=True)
+          pre_alloc = int(
+              json.loads(metadata)['manifest']['pre-allocated-size'])
+          total_size += pre_alloc * 2
+
+      return total_size
+
     def _CalculateDLCRuntimeSize(dev, image_path):
       """Calculate the size we need for factory installed DLC in runtime."""
       total_size = 0
@@ -1953,17 +2001,9 @@ class ChromeOSFactoryBundle:
       with part.MountAsCrOSRootfs() as rootfs:
         manifests_dir = os.path.join(rootfs, 'opt', 'google', 'dlc')
         if os.path.exists(os.path.join(rootfs, manifests_dir)):
-          dlc_metadata_util_bin = SysUtils.FindCommand('dlc_metadata_util')
-          for dlc_id in dlc_ids:
-            metadata = Sudo([
-                dlc_metadata_util_bin, f'--metadata_dir={manifests_dir}',
-                '--get', f'--id={dlc_id}'
-            ], output=True)
-            # We need to preserve `2 * preallocated size`.
-            # (See b/219670647#comment13)
-            pre_alloc = int(
-                json.loads(metadata)['manifest']['pre-allocated-size'])
-            total_size += pre_alloc * 2
+          legacy = UseLegacyDLCMetadata(rootfs)
+          total_size = _CalculateDLCPreallocatedSize(manifests_dir, dlc_ids,
+                                                     legacy)
 
       if not total_size:
         logging.info('No factory installed DLC found. Do nothing.')
