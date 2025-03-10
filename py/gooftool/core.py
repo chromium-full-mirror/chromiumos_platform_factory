@@ -1012,8 +1012,15 @@ class Gooftool:
 
     def _ParseCrosConfig(config_path):
       with open(config_path, encoding='utf8') as f:
-        obj = yaml.safe_load(f)
-
+        try:
+          obj = json.load(f)
+        except json.JSONDecodeError:
+          # For non-boxster projects, it's in yaml format
+          logging.info('Failed to parse cros_config as JSON (likely a YAML '
+                       'file). Attempting to parse as YAML. This may take '
+                       'sometime for large files.')
+          f.seek(0)
+          obj = yaml.safe_load(f)
       # According to https://crbug.com/1070692, 'platform-name' is not a part of
       # identity info.  We shouldn't check it.
       for config in obj['chromeos']['configs']:
