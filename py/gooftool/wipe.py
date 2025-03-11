@@ -174,7 +174,7 @@ def ResetLog(logfile=None):
 def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
                 station_port=None, wipe_finish_token=None,
                 keep_developer_mode_flag=False, boot_to_shimless=False,
-                test_umount=False):
+                test_umount=False, is_dm_default_key=None):
   """Prepare to wipe by pivot root to ram and unmount stateful partition.
 
   Args:
@@ -242,7 +242,9 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
   root_disk = util.GetPrimaryDevicePath()
   release_rootfs = util.GetReleaseRootPartitionPath()
   state_dev = util.GetPrimaryDevicePath(1)
+  powerwash_dev = util.GetPrimaryDevicePath(11)
   wipe_args = 'factory' + (' fast' if is_fast else '')
+  wipe_args += (' disable_lvm_install' if is_dm_default_key else '')
 
   logging.debug('state_dev: %s', state_dev)
   logging.debug('factory_par: %s', factory_par)
@@ -326,6 +328,7 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
         args += ['--test_umount']
       args += ['--state_dev', state_dev]
       args += ['--release_rootfs', release_rootfs]
+      args += ['--powerwash_dev', powerwash_dev]
       args += ['--root_disk', root_disk]
       args += ['--old_root', old_root]
       if keep_developer_mode_flag:
@@ -618,7 +621,7 @@ def _InformStation(ip, port, token, wipe_init_log=None, wipe_in_ramfs_log=None,
 
 
 def _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
-                  keep_developer_mode_flag, boot_to_shimless):
+                  keep_developer_mode_flag, boot_to_shimless, powerwash_dev):
 
   def _RestoreIfExist(path_to_file):
     logging.info('Checking %s...', path_to_file)
@@ -632,6 +635,27 @@ def _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
   clobber_state_env.update(ROOT_DEV=release_rootfs, ROOT_DISK=root_disk)
   logging.debug('clobber-state: root_dev=%s, root_disk=%s', release_rootfs,
                 root_disk)
+
+  # To enable dm-default-key in the factory with older factory branches without
+  # cherry-picking the CL chain, we need to do several things:
+  # 1) Wipe and mkfs partition 11 (POWERWASH) into `ext4`.
+  # 2) Query release image cros_config to check if dm-default-key is enabled.
+  # 3) If enabled, do not clobber the stateful partition as LVM. Leverage
+  #    `--disable_lvm_install` argument option and it will fallback to ext4.
+  # Note that this part of code is only needed in certain factory branches,
+  # as in the updated version of clobber-state (>= M135) the above logic are
+  # all implemented by default. We're doing this manually here to avoid
+  # dealing with dependency & cherry-pick difficulties.
+
+  # For dm-default-key clobber, `disable_lvm_install` is needed. The
+  # determination process will be done outside of tmpfs. Add some log
+  # here for easier debugging process.
+  if 'disable_lvm_install' in wipe_args:
+    logging.info('Device should be clobbering into dm-default-key.')
+    logging.info('Creating ext4 powerwash partition.')
+
+    process_utils.Spawn(['mkfs.ext4', powerwash_dev],
+                        check_call=True, log=True, log_stderr_on_error=True)
 
   process_utils.Spawn(['clobber-state', wipe_args], env=clobber_state_env,
                       check_call=True, log=True, log_stderr_on_error=True)
@@ -710,7 +734,8 @@ def _Cutoff():
 
 def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
              root_disk, old_root, station_ip, station_port, finish_token,
-             keep_developer_mode_flag, boot_to_shimless, test_umount):
+             keep_developer_mode_flag, boot_to_shimless, test_umount,
+             powerwash_dev):
   Daemonize()
   logfile = '/tmp/wipe_init.log'
   ResetLog(logfile)
@@ -721,6 +746,7 @@ def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
   logging.debug('state_dev: %s', state_dev)
   logging.debug('release_rootfs: %s', release_rootfs)
   logging.debug('root_disk: %s', root_disk)
+  logging.debug('powerwash dev: %s', powerwash_dev)
   logging.debug('old_root: %s', old_root)
   logging.debug('boot_to_shimless: %s', boot_to_shimless)
   logging.debug('test_umount: %s', test_umount)
@@ -763,7 +789,7 @@ def WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
 
     try:
       _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
-                    keep_developer_mode_flag, boot_to_shimless)
+                    keep_developer_mode_flag, boot_to_shimless, powerwash_dev)
     except Exception:
       process_utils.Spawn([
           os.path.join(CUTOFF_SCRIPT_DIR, 'display_wipe_message.sh'),
