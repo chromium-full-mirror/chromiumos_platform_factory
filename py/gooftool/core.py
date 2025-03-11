@@ -735,6 +735,29 @@ class Gooftool:
         return config
     return None
 
+  def ParseCrosConfig(self, config_path, fields, model):
+      with open(config_path, encoding='utf8') as f:
+        try:
+          obj = json.load(f)
+        except json.JSONDecodeError:
+          # For non-boxster projects, it's in yaml format
+          logging.info('Failed to parse cros_config as JSON (likely a YAML '
+                       'file). Attempting to parse as YAML. This may take '
+                       'sometime for large files.')
+          f.seek(0)
+          obj = yaml.safe_load(f)
+
+      # According to https://crbug.com/1070692, 'platform-name' is not a part of
+      # identity info.  We shouldn't check it.
+      for config in obj['chromeos']['configs']:
+        config['identity'].pop('platform-name', None)
+
+      configs = [{field: config[field]
+                  for field in fields}
+                 for config in obj['chromeos']['configs']
+                 if config['name'] == model]
+      return configs
+
   def GetModelName(self):
     model = self._cros_config.GetModelName()
     if not model:
@@ -747,36 +770,16 @@ class Gooftool:
     model = self.GetModelName()
     self.vpd_utils.VerifyCacheForIdentity()
 
-    def _ParseCrosConfig(config_path):
-      with open(config_path, encoding='utf8') as f:
-        try:
-          obj = json.load(f)
-        except json.JSONDecodeError:
-          # For non-boxster projects, it's in yaml format
-          logging.info('Failed to parse cros_config as JSON (likely a YAML '
-                       'file). Attempting to parse as YAML. This may take '
-                       'sometime for large files.')
-          f.seek(0)
-          obj = yaml.safe_load(f)
-      # According to https://crbug.com/1070692, 'platform-name' is not a part of
-      # identity info.  We shouldn't check it.
-      for config in obj['chromeos']['configs']:
-        config['identity'].pop('platform-name', None)
-
-      fields = ['name', 'identity', 'brand-code']
-      configs = [{field: config[field]
-                  for field in fields}
-                 for config in obj['chromeos']['configs']
-                 if config['name'] == model]
-      return configs
-
     # Load config.yaml from release image (FSI) and test image, and compare the
     # fields we cared about.
+    fields = ['name', 'identity', 'brand-code']
     config_path = 'usr/share/chromeos-config/yaml/config.yaml'
-    test_configs = _ParseCrosConfig(os.path.join('/', config_path))
+    test_configs = self.ParseCrosConfig(os.path.join('/', config_path),
+                                        fields, model)
     with sys_utils.MountPartition(
         self._util.GetReleaseRootPartitionPath()) as root:
-      release_configs = _ParseCrosConfig(os.path.join(root, config_path))
+      release_configs = self.ParseCrosConfig(os.path.join(root, config_path),
+                                             fields, model)
 
     unused_db_identity, cur_identity = self.GetIdentity()
     matched_test_config = self._MatchConfigWithIdentity(test_configs,
@@ -851,18 +854,40 @@ class Gooftool:
     GBB_FLAG_FORCE_DEV_SWITCH_ON = 0x00000008
     keep_developer_mode_flag = bool(gbb_flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
 
+    is_dm_default_key = False
+    model = self._cros_config.GetModelName()
+    config_path = 'usr/share/chromeos-config/yaml/config.yaml'
+    with sys_utils.MountPartition(
+        self._util.GetReleaseRootPartitionPath()) as root:
+          try:
+            rel_config = self.ParseCrosConfig(os.path.join(root, config_path),
+                                              ['disk-layout'], model)
+            # Even though this value is encoded under individual SKU, since
+            # this is a model based configuration, simply pick one SKU would do.
+            # If we cannot find this key in the cros config, it means that the
+            # release image is not update-to-date enough to have this layout.
+            if rel_config:
+              sku_disk_layout = rel_config[0]['disk-layout']
+              if 'default-key-stateful' in sku_disk_layout:
+                is_dm_default_key = bool(sku_disk_layout['default-key-stateful'])
+                logging.info(('default-key-stateful from cros config: '
+                              f'{is_dm_default_key}'))
+          except KeyError:
+            logging.info('`disk-layout` not found in config, use LVM.')
+
     wipe.WipeInRamFs(is_fast, factory_server_url, station_ip, station_port,
                      wipe_finish_token, keep_developer_mode_flag,
-                     boot_to_shimless, test_umount)
+                     boot_to_shimless, test_umount, is_dm_default_key)
 
   def WipeInit(self, wipe_args, factory_server_url, state_dev, release_rootfs,
                root_disk, old_root, station_ip, station_port, wipe_finish_token,
-               keep_developer_mode_flag, boot_to_shimless, test_umount):
+               keep_developer_mode_flag, boot_to_shimless, test_umount,
+               powerwash_dev):
     """Start wiping test image."""
     wipe.WipeInit(wipe_args, factory_server_url, state_dev, release_rootfs,
                   root_disk, old_root, station_ip, station_port,
                   wipe_finish_token, keep_developer_mode_flag, boot_to_shimless,
-                  test_umount)
+                  test_umount, powerwash_dev)
 
   def WriteVPDForRLZPing(self, embargo_offset=7):
     """Write VPD values related to RLZ ping into VPD."""

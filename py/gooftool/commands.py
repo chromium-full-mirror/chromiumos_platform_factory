@@ -896,6 +896,7 @@ def WipeInPlace(options):
     CmdArg('--wipe_args', help='arguments for clobber-state'),  # this
     CmdArg('--state_dev', help='path to stateful partition device'),  # this
     CmdArg('--root_disk', help='path to primary device'),  # this
+    CmdArg('--powerwash_dev', help='path to powerwash partition device'),  # this
     CmdArg('--old_root', help='path to old root'),  # this
     _factory_server_url_args_cmd_arg,  # this
     _release_rootfs_cmd_arg,  # this
@@ -914,7 +915,7 @@ def WipeInit(options):
       options.release_rootfs, options.root_disk, options.old_root,
       options.station_ip, options.station_port, options.wipe_finish_token,
       options.keep_developer_mode_flag_after_clobber_state,
-      options.boot_to_shimless, options.test_umount)
+      options.boot_to_shimless, options.test_umount, options.powerwash_dev)
 
 
 @Command(
