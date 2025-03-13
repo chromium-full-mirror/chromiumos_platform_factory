@@ -143,16 +143,18 @@ class BundleComponent extends React.Component<BundleComponentProps> {
             className={classes.activeSwitch}
           />
           <DragHandle />
-          <Tooltip title="delete this bundle">
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteBundle(bundle.name);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
+          {(bundle.active) ? <></> :
+            <Tooltip title="delete this bundle">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteBundle(bundle.name);
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          }
           <Tooltip title="use this bundle's netboot resource">
             <Button
               color="primary"
