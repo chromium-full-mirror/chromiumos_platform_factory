@@ -1,0 +1,58 @@
+checksum: DUMMY
+
+board: CHROMEBOOK
+
+encoding_patterns:
+  0: default
+
+image_id:
+  0: EVT
+
+pattern:
+  - image_ids: [0]
+    encoding_scheme: base32
+    fields:
+    - camera_field: 2
+    - video_field: 1
+
+encoded_fields:
+  camera_field:
+    0:
+      camera: null
+    1:
+      camera: camera_0
+    2:
+      camera: camera_1
+  video_field:
+    0:
+      video: video_0
+    1:
+      video: video_1
+
+components:
+  camera:
+    items:
+      camera_0:
+        status: unsupported
+        values:
+          idVendor: '1234'
+          idProduct: abc
+      camera_1:
+        status: unsupported
+        values:
+          idVendor: '1234'
+          idProduct: def
+  video:
+    items:
+      video_0:
+        status: supported
+        values:
+          idVendor: '1234'
+          idProduct: abc
+      video_1:
+        status: supported
+        values:
+          idVendor: '1234'
+          idProduct: def
+
+rules: []

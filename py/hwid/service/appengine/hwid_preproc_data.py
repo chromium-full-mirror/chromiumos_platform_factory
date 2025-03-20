@@ -107,7 +107,7 @@ class HWIDV2PreprocData(HWIDPreprocData):
 class HWIDV3PreprocData(HWIDPreprocData):
   """Holds preprocessed HWIDv3 data."""
 
-  CACHE_VERSION = '11'
+  CACHE_VERSION = '12'
   HWID_FEATURE_MATCHER_BUILDER = feature_matching.HWIDFeatureMatcherBuilder()
 
   @classmethod

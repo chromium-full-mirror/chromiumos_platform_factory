@@ -3,8 +3,9 @@
 # found in the LICENSE file.
 """Defines available actions for HWIDv3 DB."""
 
+import collections
 import logging
-from typing import List, Mapping, Optional
+from typing import DefaultDict, List, Mapping, Optional, Sequence
 
 from cros.factory.hwid.service.appengine.data import avl_metadata_util
 from cros.factory.hwid.service.appengine.data.converter import converter_utils
@@ -16,10 +17,14 @@ from cros.factory.hwid.service.appengine.hwid_action_helpers import v3_self_serv
 from cros.factory.hwid.service.appengine import hwid_preproc_data
 from cros.factory.hwid.service.appengine.proto import bundles_pb2  # pylint: disable=no-name-in-module
 from cros.factory.hwid.service.appengine.proto import hwid_api_messages_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.service.appengine import runtime_hwid_utils
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
 from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import hwid_utils
+
+
+UNIDENTIFIED_COMPONENT_SUFFIX = 'unidentified'
 
 
 class HWIDV3Action(hwid_action.HWIDAction):
@@ -30,17 +35,79 @@ class HWIDV3Action(hwid_action.HWIDAction):
     self._ss_helper = (
         ss_helper_module.HWIDV3SelfServiceActionHelper(self._preproc_data))
 
+  def _RuntimeHWIDToComponents(
+      self, runtime_hwid_comps: runtime_hwid_utils.RuntimeHWIDComponents
+  ) -> Mapping[str, Sequence[str]]:
+    runtime_components: DefaultDict[str,
+                                    List[str]] = collections.defaultdict(list)
+    valid_comp_cls = self._preproc_data.database.GetComponentClasses()
+    for comp_cls, comp_list in runtime_hwid_comps.component_positions.items():
+      if comp_cls == 'camera':
+        comp_cls = self._preproc_data.database.GetCameraComponentClass()
+
+      if comp_cls not in valid_comp_cls:
+        # Not a component position.
+        continue
+      if comp_cls == 'dram':
+        # Always uses dram from Factory HWID.
+        continue
+      if comp_list == ['#']:
+        # No component of this category is probed, and the RACC payload does not
+        # contain components of this category. Uses components from Factory HWID
+        # instead.
+        continue
+      if comp_list == ['X']:
+        # No component of this category is probed, but the RACC payload contains
+        # components of this category.
+        runtime_components[comp_cls] = []
+        continue
+
+      for position in comp_list:
+        if position == '?':
+          # An unidentified component.
+          runtime_components[comp_cls].append(
+              f'{comp_cls}_{UNIDENTIFIED_COMPONENT_SUFFIX}')
+        elif position.isdigit():
+          pos = int(position)
+          try:
+            comp_name = self._preproc_data.database.GetComponentNameByPosition(
+                comp_cls, pos)
+            runtime_components[comp_cls].append(comp_name)
+          except KeyError as e:
+            raise runtime_hwid_utils.InvalidRuntimeHWIDError(
+                f'Component position {pos} does not exist in {comp_cls} '
+                'components') from e
+        else:
+          raise runtime_hwid_utils.InvalidRuntimeHWIDError(
+              f'Component position contains unknown character: "{position}"')
+
+    return runtime_components
+
   def GetBOMAndConfigless(
       self, hwid_string: str, verbose: Optional[bool] = False,
       vpg_config: Optional[
           vpg_config_module.VerificationPayloadGeneratorConfig] = None,
       require_vp_info: Optional[bool] = False):
+    runtime_comps: Mapping[str, Sequence[str]] = {}
+    try:
+      hwid_v3_string, runtime_hwid_comps = (
+          runtime_hwid_utils.ExtractRuntimeHWID(hwid_string))
+      if runtime_hwid_comps:
+        runtime_comps = self._RuntimeHWIDToComponents(runtime_hwid_comps)
+    except runtime_hwid_utils.InvalidRuntimeHWIDError as e:
+      logging.info('Unable to decode invalid Runtime HWID: %s', hwid_string)
+      raise hwid_action.InvalidHWIDError(
+          f'Invalid Runtime HWID: {hwid_string}') from e
+
     try:
       hwid, _bom, configless = hwid_utils.DecodeHWID(
-          self._preproc_data.database, hwid_string)
+          self._preproc_data.database, hwid_v3_string)
     except common.HWIDException as e:
       logging.info('Unable to decode a valid HWID. %s', hwid_string)
       raise hwid_action.InvalidHWIDError(f'HWID not found {hwid_string}', e)
+
+    for comp_cls, comps in runtime_comps.items():
+      _bom.SetComponent(comp_cls, comps)
 
     bom = hwid_action.BOM()
 

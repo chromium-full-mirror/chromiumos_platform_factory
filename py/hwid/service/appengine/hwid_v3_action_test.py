@@ -18,6 +18,9 @@ from cros.factory.utils import file_utils
 
 GOLDEN_HWIDV3_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'testdata/v3-golden.yaml')
+GOLDEN_HWIDV3_CAMERA_VIDEO_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'testdata/v3-golden-camera-and-video.yaml')
 TEST_V3_HWID_1 = 'CHROMEBOOK AA5A-Y6L'
 TEST_V3_HWID_WITH_CONFIGLESS = 'CHROMEBOOK-BRAND 0-8-74-180 AA5C-YNQ'
 
@@ -45,11 +48,27 @@ class HWIDV3ActionWithoutFeatureMatcherTextTest(unittest.TestCase):
     self.assertIn(
         hwid_action.Component('keyboard', 'keyboard_us'),
         bom.GetComponents('keyboard'))
-    self.assertIn(
-        hwid_action.Component('dram', 'dram_0'), bom.GetComponents('dram'))
+    self.assertEqual([hwid_action.Component('battery', 'battery_huge')],
+                     bom.GetComponents('battery'))
+    self.assertEqual([hwid_action.Component('camera', 'camera_0')],
+                     bom.GetComponents('camera'))
+    self.assertCountEqual(
+        [hwid_action.Component('display_panel', 'display_panel_0')],
+        bom.GetComponents('display_panel'))
+    self.assertCountEqual([], bom.GetComponents('stylus'))
+    self.assertCountEqual([], bom.GetComponents('touchpad'))
+    self.assertCountEqual([], bom.GetComponents('touchscreen'))
+    self.assertCountEqual([hwid_action.Component('dram', 'dram_0')],
+                          bom.GetComponents('dram'))
+    self.assertCountEqual([], bom.GetComponents('cellular'))
+    self.assertCountEqual([], bom.GetComponents('ethernet'))
+    self.assertCountEqual([], bom.GetComponents('wireless'))
+    self.assertCountEqual([hwid_action.Component('storage', 'storage_0')],
+                          bom.GetComponents('storage'))
+
     self.assertEqual('EVT', bom.phase)
     self.assertEqual('CHROMEBOOK', bom.project)
-    self.assertEqual(None, configless)
+    self.assertIsNone(configless)
 
     self.assertRaises(hwid_action.InvalidHWIDError,
                       self.action.GetBOMAndConfigless, 'NOTCHROMEBOOK HWID')
@@ -138,6 +157,142 @@ class HWIDV3ActionWithoutFeatureMatcherTextTest(unittest.TestCase):
 
     for comp in bom.GetComponents(cls='storage'):
       self.assertTrue(comp.is_vp_related)
+
+  def testGetBOMAndConfiglessWithRuntimeHWID(self):
+    bom, configless = self.action.GetBOMAndConfigless(
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-2-1-#-#-3')
+
+    self.assertIn(
+        hwid_action.Component('chipset', 'chipset_0'),
+        bom.GetComponents('chipset'))
+    self.assertIn(
+        hwid_action.Component('keyboard', 'keyboard_us'),
+        bom.GetComponents('keyboard'))
+    self.assertCountEqual([hwid_action.Component('battery', 'battery_medium')],
+                          bom.GetComponents('battery'))
+    self.assertCountEqual([hwid_action.Component('camera', 'camera_0')],
+                          bom.GetComponents('camera'))
+    self.assertCountEqual(
+        [hwid_action.Component('display_panel', 'display_panel_0')],
+        bom.GetComponents('display_panel'))
+    self.assertCountEqual([], bom.GetComponents('stylus'))
+    self.assertCountEqual([], bom.GetComponents('touchpad'))
+    self.assertCountEqual([], bom.GetComponents('touchscreen'))
+    self.assertCountEqual([hwid_action.Component('dram', 'dram_0')],
+                          bom.GetComponents('dram'))
+    self.assertCountEqual([hwid_action.Component('cellular', 'cellular_0')],
+                          bom.GetComponents('cellular'))
+    self.assertCountEqual([], bom.GetComponents('ethernet'))
+    self.assertCountEqual([], bom.GetComponents('wireless'))
+    self.assertCountEqual([
+        hwid_action.Component('storage', 'storage_2', {
+            'comp_group': 'storage_0'
+        })
+    ], bom.GetComponents('storage'))
+    self.assertEqual('EVT', bom.phase)
+    self.assertEqual('CHROMEBOOK', bom.project)
+    self.assertIsNone(configless)
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_NoComponentIsProbed(self):
+    bom, configless = self.action.GetBOMAndConfigless(
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-X-1')
+
+    self.assertCountEqual([hwid_action.Component('battery', 'battery_medium')],
+                          bom.GetComponents('battery'))
+    self.assertCountEqual([], bom.GetComponents('camera'))
+    self.assertCountEqual(
+        [hwid_action.Component('display_panel', 'display_panel_0')],
+        bom.GetComponents('display_panel'))
+    self.assertIsNone(configless)
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithUnidentifiedComponent(self):
+    bom, configless = self.action.GetBOMAndConfigless(
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-?-1')
+
+    self.assertCountEqual([hwid_action.Component('battery', 'battery_medium')],
+                          bom.GetComponents('battery'))
+    self.assertCountEqual(
+        [hwid_action.Component('camera', 'camera_unidentified')],
+        bom.GetComponents('camera'))
+    self.assertCountEqual(
+        [hwid_action.Component('display_panel', 'display_panel_0')],
+        bom.GetComponents('display_panel'))
+    self.assertIsNone(configless)
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithMultipleComponents(self):
+    bom, configless = self.action.GetBOMAndConfigless(
+        'CHROMEBOOK AA5A-Y6L R:1-1-1,2-1-1')
+
+    self.assertCountEqual([
+        hwid_action.Component('battery', 'battery_medium'),
+        hwid_action.Component('battery', 'battery_small')
+    ], bom.GetComponents('battery'))
+    self.assertCountEqual([hwid_action.Component('camera', 'camera_0')],
+                          bom.GetComponents('camera'))
+    self.assertCountEqual(
+        [hwid_action.Component('display_panel', 'display_panel_0')],
+        bom.GetComponents('display_panel'))
+    self.assertIsNone(configless)
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_ShouldIgnoreDram(self):
+    for runtime_hwid in [
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-1',
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-2',
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-?',
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-X',
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-1-1-#-#-#-#',
+    ]:
+      bom, unused_configless = self.action.GetBOMAndConfigless(runtime_hwid)
+
+      self.assertCountEqual(
+          [hwid_action.Component('battery', 'battery_medium')],
+          bom.GetComponents('battery'))
+      self.assertCountEqual([hwid_action.Component('camera', 'camera_0')],
+                            bom.GetComponents('camera'))
+      self.assertCountEqual(
+          [hwid_action.Component('display_panel', 'display_panel_0')],
+          bom.GetComponents('display_panel'))
+      self.assertCountEqual([], bom.GetComponents('stylus'))
+      self.assertCountEqual([], bom.GetComponents('touchpad'))
+      self.assertCountEqual([], bom.GetComponents('touchscreen'))
+      self.assertCountEqual([hwid_action.Component('dram', 'dram_0')],
+                            bom.GetComponents('dram'))
+      self.assertCountEqual([], bom.GetComponents('cellular'))
+      self.assertCountEqual([], bom.GetComponents('ethernet'))
+      self.assertCountEqual([], bom.GetComponents('wireless'))
+      self.assertCountEqual([hwid_action.Component('storage', 'storage_0')],
+                            bom.GetComponents('storage'))
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithInvalidPosition(self):
+    self.assertRaises(hwid_action.InvalidHWIDError,
+                      self.action.GetBOMAndConfigless,
+                      'CHROMEBOOK AA5A-Y6L R:1-1-100')
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithUnknownCharacter(self):
+    self.assertRaises(hwid_action.InvalidHWIDError,
+                      self.action.GetBOMAndConfigless,
+                      'CHROMEBOOK AA5A-Y6L R:1-1-1-A-2')
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithWrongProject(self):
+    self.assertRaises(hwid_action.InvalidHWIDError,
+                      self.action.GetBOMAndConfigless,
+                      'NOTCHROMEBOOK HWID R:1-1-1-2-3-4')
+
+  def testGetBOMAndConfiglessWithRuntimeHWID_WithCameraAndVideo(self):
+    self.preproc_data = hwid_preproc_data.HWIDV3PreprocData(
+        'CHROMEBOOK', 'CHROMEBOOK',
+        file_utils.ReadFile(GOLDEN_HWIDV3_CAMERA_VIDEO_FILE),
+        file_utils.ReadFile(GOLDEN_HWIDV3_CAMERA_VIDEO_FILE), 'COMMIT-ID', None,
+        None)
+    self.action = hwid_v3_action.HWIDV3Action(self.preproc_data)
+    bom, configless = self.action.GetBOMAndConfigless(
+        'CHROMEBOOK ACR3 R:1-1-#-2')
+
+    self.assertCountEqual([], bom.GetComponents('battery'))
+    self.assertCountEqual([hwid_action.Component('video', 'video_1')],
+                          bom.GetComponents('video'))
+    self.assertCountEqual([], bom.GetComponents('camera'))
+    self.assertIsNone(configless)
 
   def testGetFeatureEnablementStatus(self):
     status = self.action.GetFeatureEnablementStatus(TEST_V3_HWID_1)

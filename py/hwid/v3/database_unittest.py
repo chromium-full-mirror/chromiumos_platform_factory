@@ -350,6 +350,27 @@ class DatabaseTest(unittest.TestCase):
 
     self.assertEqual(db.GetCameraComponentClass(), 'camera')
 
+  def testGetComponentNameByPosition(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    self.assertEqual(db.GetComponentNameByPosition('cls1', 1), 'comp1')
+    self.assertEqual(db.GetComponentNameByPosition('cls1', 2), 'comp2')
+    self.assertEqual(db.GetComponentNameByPosition('cls2', 1), 'comp3')
+    self.assertEqual(db.GetComponentNameByPosition('cls3', 1), 'comp4')
+    self.assertEqual(db.GetComponentNameByPosition('cls3', 2), 'comp5')
+    self.assertEqual(db.GetComponentNameByPosition('cls4', 1), 'comp6')
+    self.assertEqual(db.GetComponentNameByPosition('cls4', 2), 'comp7')
+    self.assertEqual(db.GetComponentNameByPosition('cls4', 3), 'comp8')
+
+  def testGetComponentNameByPosition_PositionDoesNotExist(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    self.assertRaises(KeyError, db.GetComponentNameByPosition, 'cls1', 3)
+
 
 class ImageIdTest(unittest.TestCase):
 
@@ -740,8 +761,12 @@ class ComponentsTest(unittest.TestCase):
     c = database.Components(expr)
     self.assertEqual(c.GetComponents('cls1')['comp1'].position, 1)
     self.assertEqual(c.GetComponents('cls1')['comp2'].position, 2)
+    self.assertEqual(c.GetComponentNameByPosition('cls1', 1), 'comp1')
+    self.assertEqual(c.GetComponentNameByPosition('cls1', 2), 'comp2')
     self.assertEqual(c.GetComponents('cls2')['comp4'].position, 1)
     self.assertEqual(c.GetComponents('cls2')['comp3'].position, 2)
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 1), 'comp4')
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 2), 'comp3')
 
     c.AddComponent('cls1', 'comp5', {
         'p1': 'v5',
@@ -759,10 +784,17 @@ class ComponentsTest(unittest.TestCase):
     self.assertEqual(c.GetComponents('cls1')['comp1'].position, 1)
     self.assertEqual(c.GetComponents('cls1')['comp2'].position, 2)
     self.assertEqual(c.GetComponents('cls1')['comp5'].position, 3)
+    self.assertEqual(c.GetComponentNameByPosition('cls1', 1), 'comp1')
+    self.assertEqual(c.GetComponentNameByPosition('cls1', 2), 'comp2')
+    self.assertEqual(c.GetComponentNameByPosition('cls1', 3), 'comp5')
     self.assertEqual(c.GetComponents('cls2')['comp4'].position, 1)
     self.assertEqual(c.GetComponents('cls2')['comp3'].position, 2)
     self.assertEqual(c.GetComponents('cls2')['comp7'].position, 3)
     self.assertEqual(c.GetComponents('cls2')['comp6'].position, 4)
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 1), 'comp4')
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 2), 'comp3')
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 3), 'comp7')
+    self.assertEqual(c.GetComponentNameByPosition('cls2', 4), 'comp6')
 
   def testSetComponentStatus(self):
     c = database.Components(

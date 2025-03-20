@@ -562,6 +562,10 @@ class Database(abc.ABC):
   def GetComponentNameByHash(self, comp_cls: str, comp_hash: str) -> str:
     return self._components.GetComponentNameByHash(comp_cls, comp_hash)
 
+  def GetComponentNameByPosition(self, comp_cls: str, comp_pos: int) -> str:
+    """See `Components.GetComponentNameByPosition()`."""
+    return self._components.GetComponentNameByPosition(comp_cls, comp_pos)
+
   def GetActiveRegionComponents(self) -> Mapping[str, ComponentInfo]:
     region_comps = self._components.GetComponents(common.REGION_CLS)
     ret = {}
@@ -1436,10 +1440,20 @@ class ComponentsStore(ComponentsStoreBase):
     super().__init__(*args, **kwargs)
     self._comp_cls = comp_cls
     self._hash_mapping: MutableMapping[str, str] = {}
+    self._position_mapping: MutableMapping[int, str] = {}
 
   def __setitem__(self, comp_name: str, val: ComponentInfo):
     if comp_name in self:
+      if self[comp_name].position != val.position:
+        raise common.HWIDException(
+            f'The position of {comp_name!r} is modified from '
+            f'{self[comp_name].position} to {val.position}.')
+
       self._hash_mapping.pop(self[comp_name].comp_hash, None)
+    else:
+      val.position = len(self) + 1
+      self._position_mapping[val.position] = comp_name
+
     self._hash_mapping[val.comp_hash] = comp_name
     super().__setitem__(comp_name, val)
 
@@ -1449,6 +1463,21 @@ class ComponentsStore(ComponentsStoreBase):
 
   def GetComponentNameByHash(self, comp_hash: str):
     return self._hash_mapping[comp_hash]
+
+  def GetComponentNameByPosition(self, comp_pos: int) -> str:
+    """Gets the component name by position.
+
+    Args:
+      comp_pos: An int of the position of the component.
+
+    Returns:
+      A string of the component name.
+
+    Raises:
+      KeyError if there is no corresponding component for the given component
+      position.
+    """
+    return self._position_mapping[comp_pos]
 
   def UpdateComponent(self, old_name: str, new_name: str,
                       new_comp_info: ComponentInfo):
@@ -1473,13 +1502,17 @@ class ComponentsStore(ComponentsStoreBase):
           self._hash_mapping.pop(old_comp_info.comp_hash, None)
           comp_list[idx] = (new_name, new_comp_info)
           self._hash_mapping[new_comp_info.comp_hash] = new_name
+
+          assert new_comp_info.position is not None
+          self._position_mapping[new_comp_info.position] = new_name
           break
       self.update(comp_list)
 
   def _RefreshComponentPositions(self):
     """Refreshes the positions of all stored components."""
-    for idx, comp_info in enumerate(self.values(), 1):
+    for idx, (comp_name, comp_info) in enumerate(self.items(), 1):
       comp_info.position = idx
+      self._position_mapping[idx] = comp_name
 
   def __reduce__(self):
     state = list(super().__reduce__())
@@ -1745,6 +1778,24 @@ class Components:
   def GetComponentNameByHash(self, comp_cls: str, comp_hash: str) -> str:
     return self._components[comp_cls].GetComponentNameByHash(comp_hash)
 
+  def GetComponentNameByPosition(self, comp_cls: str, comp_pos: int) -> str:
+    """Gets component name of the specific component class and position.
+
+    See also `ComponentsStore.GetComponentNameByPosition()`.
+
+    Args:
+      comp_cls: A string of the name of the component class.
+      comp_pos: An int of the position of the component.
+
+    Returns:
+      A string of the component name.
+
+    Raises:
+      KeyError if there is no corresponding component for the given component
+      class and position.
+    """
+    return self._components[comp_cls].GetComponentNameByPosition(comp_pos)
+
   def GetDefaultComponent(self, comp_cls) -> Optional[str]:
     """Gets the default components of the specific component class if exists.
 
@@ -1842,7 +1893,7 @@ class Components:
 
     self._components.setdefault(comp_cls, ComponentsStore(comp_cls))
     self._components[comp_cls][comp_name] = ComponentInfo(
-        values, status, information, position=len(existed_comp) + 1)
+        values, status, information)
 
   def SetLinkAVLProbeValue(self, comp_cls: str, comp_name: str,
                            avl_probe_value: v3_rule.AVLProbeValue):
