@@ -10,7 +10,6 @@ from typing import Collection, Dict, Mapping, Optional, Sequence, Tuple
 import hardware_verifier_pb2  # pylint: disable=import-error
 import runtime_probe_pb2  # pylint: disable=import-error
 
-from cros.factory.hwid.v3 import common
 from cros.factory.hwid.v3 import database
 from cros.factory.hwid.v3 import name_pattern_adapter
 
@@ -93,13 +92,8 @@ class EncodingSpecGenerator:
         for comp_cls in db.GetComponentClasses()
     }
 
-    # Some HWID DBs contain both camera_field and video_field, but only one of
-    # them is used, and the other is unexpectedly added to the DB.
-    # Use component status to determine which one needs to be skipped.
     skip_fields = set()
-    cameras = db.GetComponents('camera')
-    if any(camera.status == common.ComponentStatus.supported
-           for camera in cameras.values()):
+    if db.GetCameraComponentClass() == 'camera':
       skip_fields.add('video_field')
     else:
       skip_fields.add('camera_field')

@@ -296,6 +296,28 @@ class DatabaseTest(unittest.TestCase):
     self.assertCountEqual(db.GetImageIdsByPatternId(pattern_id=0), [0, 1])
     self.assertCountEqual(db.GetImageIdsByPatternId(pattern_id=1), [2])
 
+  def testGetCameraComponentClass_WithSupportedCamera(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db_supported_camera.yaml'),
+        verify_checksum=False)
+
+    self.assertEqual(db.GetCameraComponentClass(), 'camera')
+
+  def testGetCameraComponentClass_WithSupportedVideo(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db_supported_video.yaml'),
+        verify_checksum=False)
+
+    self.assertEqual(db.GetCameraComponentClass(), 'video')
+
+  def testGetCameraComponentClass_WithUnsupportedCameraAndVideo(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH,
+                     'test_database_db_unsupported_camera_and_video.yaml'),
+        verify_checksum=False)
+
+    self.assertEqual(db.GetCameraComponentClass(), 'camera')
+
 
 class ImageIdTest(unittest.TestCase):
 

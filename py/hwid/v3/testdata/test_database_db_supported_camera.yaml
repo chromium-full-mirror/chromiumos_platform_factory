@@ -1,0 +1,48 @@
+checksum:
+
+project: CHROMEBOOK
+
+encoding_patterns:
+  0: default
+
+image_id:
+  0: AAA
+
+pattern:
+  - image_ids: [0]
+    encoding_scheme: base32
+    fields:
+      - camera_field: 1
+      - video_field: 1
+
+encoded_fields:
+  camera_field:
+    0: {camera: camera_1}
+    1: {camera: camera_2}
+
+  video_field:
+    0: {video: video_1}
+    1: {video: video_2}
+
+components:
+  camera:
+    items:
+      camera_1:
+        status: supported
+        values:
+          aaa: bbb
+      camera_2:
+        status: supported
+        values:
+          ccc: ddd
+  video:
+    items:
+      video_1:
+        status: unsupported
+        values:
+          aaa: bbb
+      video_2:
+        status: unsupported
+        values:
+          ccc: ddd
+rules: []

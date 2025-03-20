@@ -55,6 +55,8 @@ from cros.factory.utils import type_utils
 
 
 _DUMMY_CHECKSUM = 'DUMMY'
+_CAMERA_COMPONENT_CLASS = 'camera'
+_VIDEO_COMPONENT_CLASS = 'video'
 
 _ProbeValueValueType = Union[str, v3_rule.Value]
 ProbedValueType = Mapping[str, _ProbeValueValueType]
@@ -482,6 +484,30 @@ class Database(abc.ABC):
       ret |= set(self._encoded_fields.GetComponentClasses(e))
 
     return ret
+
+  def GetCameraComponentClass(self) -> str:
+    """Gets the component class name of camera components
+
+    Some HWID DBs contain both camera_field and video_field, but only one of
+    them is used, and the other is unexpectedly added to the DB.
+    If there is no camera components, returns `camera`.
+    If there is only `camera` or `video` in the database, returns it.
+    If there are both `camera` and `video` in the database, returns the one with
+    at least one supported component. If there is no supported component for
+    both of them, returns `camera`.
+    """
+    comp_class = set(self._components.component_classes)
+    if _VIDEO_COMPONENT_CLASS not in comp_class:
+      return _CAMERA_COMPONENT_CLASS
+    if _CAMERA_COMPONENT_CLASS not in comp_class:
+      return _VIDEO_COMPONENT_CLASS
+
+    # Both video and camera are present.
+    videos = self.GetComponents(_VIDEO_COMPONENT_CLASS)
+    if any(video.status == common.ComponentStatus.supported
+           for video in videos.values()):
+      return _VIDEO_COMPONENT_CLASS
+    return _CAMERA_COMPONENT_CLASS
 
   def GetEncodedFieldForComponent(self, comp_cls: str) -> Optional[str]:
     return self._encoded_fields.GetFieldForComponent(comp_cls)
