@@ -50,7 +50,7 @@ def GetFLMSTR(sku: SKU, board: str):
         5: 0x00000000,
     }
   if sku == SKU.Lite:
-    if board == 'rex':
+    if board in ('rex', 'ovis'):
       return {
           1: 0x00220700,
           2: 0x00400500,
