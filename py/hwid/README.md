@@ -140,62 +140,15 @@ manual post-processing.
 Below, we will list some common use cases of HWID database change, and provide
 the recommendation way to do it.
 
-### 1. Create a Minimal HWID Database
+### 1. Get an initial HWID Database
 
-**Deprecation note**: This use case is deprecated, please find the minimal
-HWID database from the HWID bundle downloaded from ChromeOS Device Lifecycle
-Management (DLM) page.  For HWID repository owners, please follow project
-tracker instructions to create the minimal HWID database on DLM directly.
+To update (e.g. add components, change status, etc) the HWID database, we
+firstly need to have a HWID database file.  To get the initial HWID database
+file, please request one from your device management page on ChromeOS Device
+Lifecycle Management (DLM).  Once the request is accepted, a HWID bundle with
+the initial HWID database will be created for you to download.
 
-At the beginning of the project, we need to create a new HWID database.  Since
-Jan 2022, one is encouraged to create a minimal HWID DB and add probed
-components in later changes with system validations.
-
-The steps of generating a minimal HWID database are:
-
-1. Create a minimal DB with the project name and corresponding phase.
-```shell
-# Create a minimal DB
-$ hwid build-database --minimal --project <proj_name> --image-id <initial_phase>
-```
-an example HWID DB will look like:
-```yaml
-checksum: <hash>
-
-project: GOOGLE
-
-encoding_patterns:
-  0: default
-
-image_id:
-  0: EVT
-
-pattern:
-- image_ids:
-  - 0
-  encoding_scheme: base8192
-  fields: []
-
-encoded_fields:
-  region_field: !region_field []
-
-components:
-  region: !region_component
-
-rules: []
-```
-
-2. Add the project info in `projects.yaml` manifest file.
-```yaml
-GOOGLE:
-    board: GOOGLE
-    branch: main
-    version: 3
-    path: v3/GOOGLE
-```
-3. Submit the change of the two files.
-
-### 2. Add Probed Value, Second Source, or Update Firmware
+### 2. Add Probed Value, or Second Source
 This is the most common update in HWID database. When we have the initial HWID
 DB, we can start to add the probed values, introduce second source, or update
 firmware version.  We need to add new component item into HWID database. Just
@@ -241,7 +194,7 @@ After the probing code is ready, add the component item and deprecate the
 default item.
 
 |||---|||
-#### Before the probing code is ready
+#### Before updating the HWID config file
 ```yaml
 image_id:
   0: EVT
@@ -249,22 +202,14 @@ image_id:
 pattern:
 - image_ids: [0]
   encoding_scheme: base8192
-  fields:
-  - cellular_field: 3
+  fields: []
 
-encoded_fields:
-  cellular_field:
-    0: {cellular: cellular_default}
+encoded_fields: {}
 
-components:
-  cellular:
-    items:
-      cellular_default:
-        status: unqualified
-        value: NULL
+components: {}
 ```
 
-#### After the probing code is ready
+#### After updating the HWID config file
 ```yaml
 image_id:
   0: EVT
@@ -274,19 +219,22 @@ pattern:
   encoding_scheme: base8192
   fields:
   - cellular_field: 3
+  - other_probeable_component_field: 2
 
 encoded_fields:
   cellular_field:
     0: {cellular: cellular_default}
-    1: {cellular: aa}
+  other_probeable_component_field:
+    0: {other_probeable_component: comp_1}
 
 components:
   cellular:
     items:
       cellular_default:
-        status: unsupported
         value: NULL
-      aa:
+  other_probeable_component:
+    items:
+      comp_1:
         value: {compact_str: aa}
 ```
 |||---|||
@@ -294,18 +242,13 @@ components:
 The command for this scenario is:
 
 ```shell
-# Add a default item with "--add-default-component" argument
-$ hwid build-database \
-    --project GOOGLE \
-    --material-file /tmp/material.yaml \  # the probe result doesn't contain
-                                          # cellulars.
-    --add-default-component cellular
-
-# Update the database by the probed result
+# While updating the database by the probed result, add a default item with
+# "--add-default-component" argument.
 $ hwid update-database \
     --project GOOGLE \
-    --material-file /tmp/material.yaml  # the probe result contains the
-                                        # cellulars "aa".
+    --add-default-component cellular \
+    --material-file /tmp/material.yaml  # the probe result doesn't contain
+                                        # cellulars.
 ```
 
 ### 4. Add a Null Item {#add_null_item}
@@ -428,9 +371,9 @@ components:
 |||---|||
 
 ### 6. Add New Component in Device
-When we add new components during the build, we need to create a new `pattern`
-and new `image_id`. Please refer [Update Rule 2](#rule_encoded_field) for more
-details.
+When we add new component types during the build, we need to create a new
+`pattern` and new `image_id`. Please refer [Update Rule 2](#rule_encoded_field)
+for more details.
 
 For example, we don't have cellular in EVT build, but add cellular in DVT build.
 To complicate the situation even more, in DVT build we might have one SKU that
@@ -507,8 +450,8 @@ components:
 
 The command for this scenario is:
 ```shell
-# Create the database at EVT build
-$ hwid build-database \
+# Update the database at EVT build
+$ hwid update-database \
     --project GOOGLE \
     --image-id EVT \
     --material-file /tmp/material.yaml  # the probe result contains doesn't
@@ -598,7 +541,172 @@ devices with old HWID string have the component with index 0. [y/N] y
 Please choose **"Y"** for the question, then the database builder will append
 the component into the current pattern.
 
-### 7. Convert Legacy Region Style to List Style
+### 7. Append Full Component Combinations to the Encoded Field
+
+The argument `--fill-combination <ENCODED_FIELD>:<NUMBER_OF_COMPONENTS>`
+helps ensure the encoded field contains all possible component combinations.
+When a device is equipped with multiple components of the same type (2 cameras,
+one for user-facing and one for world-facing, for example), the corresponding
+encoded field allocates each unuqie combination a dedicate index number.
+Which means that the user will need to register all possible combinations into
+the HWID DB.  Approaches include running
+`hwid updat-database --material-file ...` on all SKUs, or manually appending
+all possible combinations based on the build plan.  Both of the approaches
+involve many manual works, and hence `--fill-combination` is here to simplify
+the process.
+
+For example, assuming the HWID DB already includes some existing cameras.
+And now we want to add a new camera into HWID DB.  The following command
+
+```shell
+hwid update-database \
+    --material-file <COLLECTED_MATERIAL_FILE_FROM_A_DEVICE_WITH_NEW_CAMERA> \
+    --fill-combination camera_field:2  # Specify to append full combinations of
+                                       # 2 components to camera_field.
+```
+
+will not only add the new camera into the HWID DB but also make sure
+`camera_field` includes all *pairs* of cameras.  So if the HWID DB contains
+4 cameras in total after update, `camera_fields` will contain at least 10
+combinations.
+
+Another usage is that if all the candidate cameras already exist and the user
+only want to fulfill the encoded field, they can run the following command,
+which will not update the HWID DB based on collected materials and only touch
+the specified encoded field.
+
+```shell
+hwid update-database \
+    --skip-update-by-collected-material \
+    --fill-combination camera_field:2  # Specify to append full combinations of
+                                       # 2 components to camera_field.
+```
+
+**Note**: Only `unqualified` or `supported` components are used to generate
+the combinations.
+
+## Appendix
+
+### Unprobeable Component (Deprecated)
+
+**Deprecation note**: Unprobeable components are no longer allowed in new
+HWID configuration files.
+
+When a component with the attribute `probeable: False`, it means one of these:
+
+- The component class is removed at the latest pattern.
+- The value is determined at the evaluation time. Set at rule.
+- Exception: If there is only one item in this component class, set the index
+  to 0. It is only for backward compatibility.
+  **Please use "default" argument instead of using this.**
+
+### Default Component Item
+
+If a component item has a `null` probe values (i.e. `values: null`), or has
+the attribute `default: True`, it is a default component item. The feature of
+the default component item is:
+
+- It is always matched when generating HWID string, no matter the probe result
+  exists or not.
+- If another component is also matched, then the default component item will be
+  ignored.
+
+### Status of a Component Item {#component_status}
+
+- **supported**
+
+  Default status. The component is currently used to build new units.
+
+- **unqualified**
+
+  The component is now allowed to be used after PVT phase. The components added
+  by the auto-generator should be unqualified. Then SIE or TAM should remove it
+  after the component is confirmed.
+
+- **deprecated**
+
+  The component is no longer being used to build new units, but is supported in
+  RMA process.
+
+- **unsupported**
+
+  The component is not allowed to be used to build new units, and is not
+  supported in RMA process. The component cannot be matched. It is used for the
+  wrong component or the equivalent component but with different probed result.
+
+- **duplicate**
+
+  The component is a subset of another component, so it should not be matched
+  while encoding.  For example:
+
+```
+  comp_1:
+    values:
+      key: !re 'PART_NUMBER_1-.*'
+  comp_2:
+    status: duplicate  # this is necessary, otherwise 'PART_NUMBER_1-2' will
+                       # match comp_1 and comp_2, and cause an error.
+    values:
+      key: PART_NUMBER_1-2
+```
+
+### Internal Only Database Builder Use Cases
+
+The following use cases are **only for Googlers' test purpose**.  They are not
+applicable for a regular ChromeOS device development journey.
+
+#### 1. Manually Register a Minimal HWID Database for a New Project
+
+**Deprecation note**: This use case is deprecated, please find the minimal
+HWID database from the HWID bundle downloaded from ChromeOS Device Lifecycle
+Management (DLM) page.  For HWID repository owners, please follow project
+tracker instructions to create the minimal HWID database on DLM directly.
+
+The steps of generating a minimal HWID database are:
+
+1. Create a minimal DB with the project name and corresponding phase.
+```shell
+# Create a minimal DB
+$ hwid build-database --minimal --project <proj_name> --image-id <initial_phase>
+```
+an example HWID DB will look like:
+```yaml
+checksum: <hash>
+
+project: GOOGLE
+
+encoding_patterns:
+  0: default
+
+image_id:
+  0: EVT
+
+pattern:
+- image_ids:
+  - 0
+  encoding_scheme: base8192
+  fields: []
+
+encoded_fields:
+  region_field: !region_field []
+
+components:
+  region: !region_component
+
+rules: []
+```
+
+2. Add the project info in `projects.yaml` manifest file.
+```yaml
+GOOGLE:
+    board: GOOGLE
+    branch: main
+    version: 3
+    path: v3/GOOGLE
+```
+3. Submit the change of the two files.
+
+#### 2. Convert Legacy Region Style to List Style
 We use magic tag `"!region_field"` to generate the region encoded field. There
 are two styles: legacy and list style. In legacy style, each region has its own
 index mapping. For example, "us" maps to 29 and "gb" maps to 16. However, in
@@ -666,107 +774,3 @@ uses the legacy style.
 *** note
 **Note:** a new `image_id` is required when converting.
 ***
-
-### 8. Append Full Component Combinations to the Encoded Field
-
-The argument `--fill-combination <ENCODED_FIELD>:<NUMBER_OF_COMPONENTS>`
-helps ensure the encoded field contains all possible component combinations.
-When a device is equipped with multiple components of the same type (2 cameras,
-one for user-facing and one for world-facing, for example), the corresponding
-encoded field allocates each unuqie combination a dedicate index number.
-Which means that the user will need to register all possible combinations into
-the HWID DB.  Approaches include running
-`hwid updat-database --material-file ...` on all SKUs, or manually appending
-all possible combinations based on the build plan.  Both of the approaches
-involve many manual works, and hence `--fill-combination` is here to simplify
-the process.
-
-For example, assuming the HWID DB already includes some existing cameras.
-And now we want to add a new camera into HWID DB.  The following command
-
-```shell
-hwid update-database \
-    --material-file <COLLECTED_MATERIAL_FILE_FROM_A_DEVICE_WITH_NEW_CAMERA> \
-    --fill-combination camera_field:2  # Specify to append full combinations of
-                                       # 2 components to camera_field.
-```
-
-will not only add the new camera into the HWID DB but also make sure
-`camera_field` includes all *pairs* of cameras.  So if the HWID DB contains
-4 cameras in total after update, `camera_fields` will contain at least 10
-combinations.
-
-Another usage is that if all the candidate cameras already exist and the user
-only want to fulfill the encoded field, they can run the following command,
-which will not update the HWID DB based on collected materials and only touch
-the specified encoded field.
-
-```shell
-hwid update-database \
-    --skip-update-by-collected-material \
-    --fill-combination camera_field:2  # Specify to append full combinations of
-                                       # 2 components to camera_field.
-```
-
-**Note**: Only `unqualified` or `supported` components are used to generate
-the combinations.
-
-## Appendix
-
-### Unprobeable Component
-When a component with the attribute `probeable: False`, it means one of these:
-
-- The component class is removed at the latest pattern.
-- The value is determined at the evaluation time. Set at rule.
-- Exception: If there is only one item in this component class, set the index
-  to 0. It is only for backward compatibility.
-  **Please use "default" argument instead of using this.**
-
-### Default Component Item
-
-If a component item has the attribute `default: True`, it is a default component
-item. The feature of the default component item is:
-
-- It is always matched when generating HWID string, no matter the probe result
-  exists or not.
-- If another component is also matched, then the default component item will be
-  ignored.
-
-### Status of a Component Item {#component_status}
-
-- **supported**
-
-  Default status. The component is currently used to build new units.
-
-- **unqualified**
-
-  The component is now allowed to be used after PVT phase. The components added
-  by the auto-generator should be unqualified. Then SIE or TAM should remove it
-  after the component is confirmed.
-
-- **deprecated**
-
-  The component is no longer being used to build new units, but is supported in
-  RMA process.
-
-- **unsupported**
-
-  The component is not allowed to be used to build new units, and is not
-  supported in RMA process. The component cannot be matched. It is used for the
-  wrong component or the equivalent component but with different probed result.
-
-- **duplicate**
-
-  The component is a subset of another component, so it should not be matched
-  while encoding.  For example:
-
-```
-  comp_1:
-    values:
-      key: !re 'PART_NUMBER_1-.*'
-  comp_2:
-    status: duplicate  # this is necessary, otherwise 'PART_NUMBER_1-2' will
-                       # match comp_1 and comp_2, and cause an error.
-    values:
-      key: PART_NUMBER_1-2
-```
