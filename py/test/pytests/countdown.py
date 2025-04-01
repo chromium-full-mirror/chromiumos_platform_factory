@@ -411,12 +411,13 @@ class CountDownTest(test_case.TestCase):
       connection_manager.SetWifiScanInterval(scan_interval=0)
       self.addCleanup(connection_manager.SetWifiScanInterval)
 
-    # Switch to Bluez if Floss is used on the device.
-    if bluetooth_utils.IsFlossBluetoothStack():
-      bluetooth_utils.SwitchToBluez(self._dut)
-    # Initialize the Bluetooth manager.
-    self.btmgmt = bluetooth_utils.BtMgmt()
-    self.btmgmt.PowerOn()
+    if self.args.bluetooth_update_interval:
+      # Switch to Bluez if Floss is used on the device.
+      if bluetooth_utils.IsFlossBluetoothStack():
+        bluetooth_utils.SwitchToBluez(self._dut)
+      # Initialize the Bluetooth manager.
+      self.btmgmt = bluetooth_utils.BtMgmt()
+      self.btmgmt.PowerOn()
 
     self._als_controller = None
     try:
