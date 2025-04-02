@@ -789,9 +789,11 @@ class DatabaseBuilderTest(unittest.TestCase):
 
     components = db.GetComponents('comp_cls_3')
     self.assertEqual(
-        database.ComponentInfo({'value': '3'}, 'unqualified',
-                               {'extra_info_1': 'extra_val_1'}),
-        components.get('comp_3_3'))
+        database.ComponentInfo({
+            'value': '3'
+        }, 'unqualified', {
+            'extra_info_1': 'extra_val_1'
+        }, position=3), components.get('comp_3_3'))
 
   # TODO (b/204729913)
   @label_utils.Informational

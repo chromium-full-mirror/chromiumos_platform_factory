@@ -149,14 +149,15 @@ class DatabaseTest(unittest.TestCase):
                     database.ComponentInfo(
                         values=yaml.Dict([('field1', 'value1'),
                                           ('field2', 'value2')]),
-                        status='deprecated')),
+                        status='deprecated', position=1)),
                    ('comp7',
                     database.ComponentInfo(
                         values=yaml.Dict([('ggg', 'hhh')]), status='supported',
-                        information=yaml.Dict([('comp_group', 'comp6')]))),
+                        information=yaml.Dict([('comp_group', 'comp6')]),
+                        position=2)),
                    ('comp8',
-                    database.ComponentInfo(values=None, status='supported'))]),
-        comps)
+                    database.ComponentInfo(values=None, status='supported',
+                                           position=3))]), comps)
 
   def testUpdateComponentNameChanged(self):
     db = database.WritableDatabase.LoadFile(
@@ -172,12 +173,14 @@ class DatabaseTest(unittest.TestCase):
             ('comp9',
              database.ComponentInfo(
                  values=yaml.Dict([('field1', 'value1'), ('field2', 'value2')]),
-                 status='deprecated')),
+                 status='deprecated', position=1)),
             ('comp7',
              database.ComponentInfo(
                  values=yaml.Dict([('ggg', 'hhh')]), status='supported',
-                 information=yaml.Dict([('comp_group', 'comp6')]))),
-            ('comp8', database.ComponentInfo(values=None, status='supported')),
+                 information=yaml.Dict([('comp_group', 'comp6')]), position=2)),
+            ('comp8',
+             database.ComponentInfo(values=None, status='supported',
+                                    position=3)),
         ]), comps)
     self.assertEqual({
         0: {
@@ -268,11 +271,40 @@ class DatabaseTest(unittest.TestCase):
 
     db.RemoveComponent('cls1', 'comp1')
 
-    self.assertNotIn('comp1', db.GetComponents('cls1'))
+    self.assertEqual(
+        yaml.Dict([
+            ('comp2',
+             database.ComponentInfo(
+                 values=yaml.Dict([('ccc', 'ddd')]), status='supported',
+                 position=1)),
+        ]), db.GetComponents('cls1'))
     # 0: {cls1: comp1} should be removed
     self.assertEqual(db.GetEncodedField('field1'), {
         1: {
             'cls1': ['comp2']
+        }
+    })
+
+  def testRemoveComponent_RemoveMiddleComponent(self):
+    db = database.WritableDatabase.LoadFile(
+        os.path.join(_TEST_DATA_PATH, 'test_database_db.yaml'),
+        verify_checksum=False)
+
+    db.RemoveComponent('cls4', 'comp7')
+
+    self.assertEqual(
+        yaml.Dict([('comp6',
+                    database.ComponentInfo(
+                        values=yaml.Dict([('eee', 'fff')]), status='supported',
+                        position=1)),
+                   ('comp8',
+                    database.ComponentInfo(values=None, status='supported',
+                                           position=2))]),
+        db.GetComponents('cls4'))
+    # 1: {cls4: comp7} should be removed
+    self.assertEqual(db.GetEncodedField('field4'), {
+        0: {
+            'cls4': ['comp6']
         }
     })
 
@@ -283,7 +315,7 @@ class DatabaseTest(unittest.TestCase):
 
     db.RemoveComponent('cls2', 'comp3')
 
-    self.assertNotIn('comp3', db.GetComponents('cls2'))
+    self.assertEqual(yaml.Dict(), db.GetComponents('cls2'))
     self.assertNotIn('field2', db.raw_encoded_fields)
     for i in range(db.GetPatternCount()):
       self.assertNotIn('field2', dict(db.GetPattern(pattern_idx=i).fields))

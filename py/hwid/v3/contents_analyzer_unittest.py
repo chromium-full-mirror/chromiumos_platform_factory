@@ -251,7 +251,9 @@ class ContentsAnalyzerTest(unittest.TestCase):
         ), analysis.touched_sections)
 
   def test_AnalyzeChange_WithSkipAVLCheckChecker(self):
-    skippable_comp = database.ComponentInfo({'xxx': 'yyy'}, 'supported')
+    skippable_comp = database.ComponentInfo({
+        'xxx': 'yyy'
+    }, 'supported', position=1)
 
     def Checker(category: str, comp: database.ComponentInfo) -> bool:
       return category == 'cls3' and comp == skippable_comp

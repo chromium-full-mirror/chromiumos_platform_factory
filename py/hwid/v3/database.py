@@ -105,17 +105,19 @@ class ComponentInfo:
     # Casts status to str type for avoiding yaml dump error.
     self._status = str(status)
     self._information = information
-    self._position = position
     self._bundle_uuids = bundle_uuids or []
     self._comp_hash = hashlib.sha1(
         yaml.safe_dump(
             self.Export(sort_values_by_key=True), default_flow_style=False,
             internal=True).encode('utf8')).hexdigest()
 
+    self.position = position
+
   def __eq__(self, rhs: Any) -> bool:
     return (self._values == rhs._values and self._status == rhs._status and
             self._information == rhs._information and
-            set(self._bundle_uuids) == set(rhs._bundle_uuids))
+            set(self._bundle_uuids) == set(rhs._bundle_uuids) and
+            self.position == rhs.position)
 
   def Export(self, suppress_support_status: bool = False,
              override_support_status: Optional[str] = None,
@@ -173,10 +175,6 @@ class ComponentInfo:
   @property
   def bundle_uuids(self) -> Sequence[str]:
     return self._bundle_uuids
-
-  @property
-  def position(self) -> Optional[int]:
-    return self._position
 
 
 class Database(abc.ABC):
@@ -1445,6 +1443,10 @@ class ComponentsStore(ComponentsStoreBase):
     self._hash_mapping[val.comp_hash] = comp_name
     super().__setitem__(comp_name, val)
 
+  def __delitem__(self, key):
+    super().__delitem__(key)
+    self._RefreshComponentPositions()
+
   def GetComponentNameByHash(self, comp_hash: str):
     return self._hash_mapping[comp_hash]
 
@@ -1454,6 +1456,7 @@ class ComponentsStore(ComponentsStoreBase):
       raise common.HWIDException(
           f'No such Component ({self._comp_cls!r}, {old_name!r}).')
 
+    new_comp_info.position = self[old_name].position
     if old_name == new_name:  # Update in-place.
       self[old_name] = new_comp_info
     else:
@@ -1472,6 +1475,11 @@ class ComponentsStore(ComponentsStoreBase):
           self._hash_mapping[new_comp_info.comp_hash] = new_name
           break
       self.update(comp_list)
+
+  def _RefreshComponentPositions(self):
+    """Refreshes the positions of all stored components."""
+    for idx, comp_info in enumerate(self.values(), 1):
+      comp_info.position = idx
 
   def __reduce__(self):
     state = list(super().__reduce__())
