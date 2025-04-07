@@ -178,9 +178,13 @@ class BatteryCurrentTest(test_case.TestCase):
     for unused_i in range(10):
       try:
         status = self._dut.usb_c.GetPDPowerStatus()
-        voltage_field = ('max_millivolt' if self.args.use_max_voltage else 'millivolt')
+        # yapf: disable
+        voltage_field = ('max_millivolt' if self.args.use_max_voltage else 'millivolt') # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
         if voltage_field not in status[self._usbpd_port]:
-          self.ui.SetState(
+          # yapf: disable
+          self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          # yapf: enable
               _('Insert power to {prompt}({voltage}mV)',
                 prompt=self._usbpd_prompt,
                 voltage=0))
@@ -189,7 +193,9 @@ class BatteryCurrentTest(test_case.TestCase):
         millivolt = status[self._usbpd_port][voltage_field]
         logging.info('millivolt %d, acceptable range (%d, %d)', millivolt,
                      self._usbpd_min_millivolt, self._usbpd_max_millivolt)
-        self.ui.SetState(
+        # yapf: disable
+        self.ui.SetState(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
             _('Insert power to {prompt}({voltage}mV)',
               prompt=self._usbpd_prompt,
               voltage=millivolt))
@@ -197,7 +203,7 @@ class BatteryCurrentTest(test_case.TestCase):
                 self._usbpd_max_millivolt):
           return False
       except Exception as e:
-        logging.exception(f"Error checking USB-PD status: {e}")
+        logging.exception('Error checking USB-PD status: %s', e)
         return False
       self.Sleep(0.1)
     return True
