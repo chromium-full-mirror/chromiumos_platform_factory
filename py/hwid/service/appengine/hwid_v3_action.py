@@ -95,7 +95,8 @@ class HWIDV3Action(hwid_action.HWIDAction):
       if runtime_hwid_comps:
         runtime_comps = self._RuntimeHWIDToComponents(runtime_hwid_comps)
     except runtime_hwid_utils.InvalidRuntimeHWIDError as e:
-      logging.info('Unable to decode invalid Runtime HWID: %s', hwid_string)
+      logging.info('Unable to decode invalid Runtime HWID: %r. Got error %r',
+                   hwid_string, e)
       raise hwid_action.InvalidHWIDError(
           f'Invalid Runtime HWID: {hwid_string}') from e
 

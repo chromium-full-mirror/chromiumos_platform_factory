@@ -289,6 +289,73 @@ class HWIDFeatureMatcherBuilderTest(unittest.TestCase):
           with self.assertRaises(expected_match_result_or_error):
             matcher.Match(hwid_string)
 
+  def testConvertedHWIDFeatureMatcherCanMatchRuntimeHWIDs(self):
+    feature_version = 1
+    db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],
+                             feature_version=str(feature_version))
+    brand_allowed_feature_enablement_types = {
+        'ABCD': [
+            _FeatureEnablementType.SOFT_BRANDED_LEGACY,
+            _FeatureEnablementType.SOFT_BRANDED_WAIVER,
+            _FeatureEnablementType.DISABLED,
+        ],
+        'EFGH': [
+            _FeatureEnablementType.SOFT_BRANDED_WAIVER,
+            _FeatureEnablementType.DISABLED,
+        ],
+        'WXYZ': [
+            _FeatureEnablementType.HARD_BRANDED,
+            _FeatureEnablementType.DISABLED,
+        ],
+    }
+
+    source = self._builder.GenerateFeatureMatcherRawSource(
+        feature_version, brand_allowed_feature_enablement_types, [])
+    matcher = self._builder.CreateHWIDFeatureMatcher(db, source)
+
+    hw_incompliant_match_result = _FeatureEnablementStatus.FromHWIncompliance()
+    legacy_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.SOFT_BRANDED_LEGACY)
+    branded_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.HARD_BRANDED)
+    waiver_enabled_match_result = _FeatureEnablementStatus(
+        feature_version, _FeatureEnablementType.SOFT_BRANDED_WAIVER)
+    for hwid_string, expected_match_result_or_error in (
+        # incorrect project
+        ('NOTTHISPROJ-ABCD A2A-B47 R:1-1-1-1', ValueError),
+        # no brand, feature_level = 0
+        ('THEPROJ A2A-B47 R:0-0-1-1', hw_incompliant_match_result),
+        # no brand, feature_level = 1
+        ('THEPROJ A2A-B47 R:1-0-1-1', ValueError),
+        # feature_level = 0
+        ('THEPROJ-ABCD A8A-B4T R:0-0-1-1', hw_incompliant_match_result),
+        # feature_level = 1, scope_level = 0, also the brand code is on the
+        # legacy list
+        ('THEPROJ-ABCD A8A-B4T R:1-0-1-1', legacy_enabled_match_result),
+        # feature_level = 1, scope_level = 1, also the brand code is not on the
+        # hard branded list
+        ('THEPROJ-ABCD A8A-B4T R:1-1-1-1', ValueError),
+        # feature_level = 1, scope_level = 0, also the brand code is on the
+        # waiver list
+        ('THEPROJ-EFGH A46-A3C R:1-0-1-1', waiver_enabled_match_result),
+        # feature_level = 1, scope_level = 0, also the brand code is not on the
+        # soft branded list
+        ('THEPROJ-WXYZ A2A-B9W R:1-0-1-1', ValueError),
+        # feature_level = 1, scope_level = 1, also the brand code is on the
+        # hard branded list
+        ('THEPROJ-WXYZ A2A-B9W R:1-1-1-1', branded_enabled_match_result),
+    ):
+      if isinstance(expected_match_result_or_error, _FeatureEnablementStatus):
+        with self.subTest(hwid_string=hwid_string,
+                          expected_version=expected_match_result_or_error):
+          actual = matcher.Match(hwid_string)
+          self.assertEqual(actual, expected_match_result_or_error)
+      else:
+        with self.subTest(hwid_string=hwid_string,
+                          expected_error=expected_match_result_or_error):
+          with self.assertRaises(expected_match_result_or_error):
+            matcher.Match(hwid_string)
+
   def testConvertedHWIDFeatureMatcherHwCompliantNotMatchFeatureLevel(self):
     feature_version = 1
     db = _BuildHWIDDBForTest(project_name='THEPROJ', image_ids=[0, 1, 2],

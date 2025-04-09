@@ -22,6 +22,7 @@ from cros.factory.hwid.service.appengine import features
 from cros.factory.hwid.service.appengine import git_util
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine.proto import feature_match_pb2  # pylint: disable=no-name-in-module
+from cros.factory.hwid.service.appengine import runtime_hwid_utils
 from cros.factory.hwid.v3 import common as v3_common
 from cros.factory.hwid.v3 import database as db_module
 from cros.factory.hwid.v3 import feature_compliance
@@ -32,6 +33,8 @@ from cros.factory.hwid.v3 import identity as identity_module
 #    `cros.factory.hwid.v3.common` to reduce duplications.
 
 _FEATURE_MANAGEMENT_FLAGS_CATEGORY = 'feature_management_flags'
+_SOFT_BRANDED_SCOPE_LEVEL = 0
+_HARD_BRANDED_SCOPE_LEVEL = 1
 
 
 class _FeatureManagementFlagField(str, enum.Enum):
@@ -596,6 +599,9 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
     if not self._IsHWIDStringProjectMatch(hwid_string):
       raise ValueError('The given HWID string does not belong to the HWID DB.')
 
+    if runtime_hwid_utils.CheckIsRuntimeHWID(hwid_string):
+      return self._MatchRuntimeHWID(hwid_string)
+
     if self._spec.feature_version == features.NO_FEATURE_VERSION:
       # It implies that the product is legacy and totally non-soft-branded.
       return FeatureEnablementStatus.FromHWIncompliance()
@@ -632,6 +638,39 @@ class _HWIDFeatureMatcherImpl(HWIDFeatureMatcher):
                                      FeatureEnablementType.SOFT_BRANDED_LEGACY)
 
     return FeatureEnablementStatus.FromHWIncompliance()
+
+  def _MatchRuntimeHWID(self, runtime_hwid: str) -> FeatureEnablementStatus:
+    masked_factory_hwid, runtime_hwid_comps = (
+        runtime_hwid_utils.ExtractRuntimeHWID(runtime_hwid))
+    assert runtime_hwid_comps is not None
+
+    if runtime_hwid_comps.feature_level == features.NO_FEATURE_VERSION:
+      return FeatureEnablementStatus.FromHWIncompliance()
+
+    masked_factory_hwid_identity = self._GetHWIDIdentityFromHWIDString(
+        masked_factory_hwid)
+    brand_code = masked_factory_hwid_identity.brand_code
+    if brand_code is None:
+      raise ValueError(f'No brand code for Runtime HWID {runtime_hwid!r}.')
+
+    brand_code_permission = self._spec.brand_code_permissions[brand_code]
+    if (runtime_hwid_comps.scope_level == _HARD_BRANDED_SCOPE_LEVEL and
+        brand_code_permission.allow_hard_branded_units):
+      return FeatureEnablementStatus(runtime_hwid_comps.feature_level,
+                                     FeatureEnablementType.HARD_BRANDED)
+    if runtime_hwid_comps.scope_level == _SOFT_BRANDED_SCOPE_LEVEL:
+      if brand_code_permission.allow_soft_branded_legacy_units:
+        return FeatureEnablementStatus(
+            runtime_hwid_comps.feature_level,
+            FeatureEnablementType.SOFT_BRANDED_LEGACY)
+      if brand_code_permission.allow_soft_branded_waiver_units:
+        return FeatureEnablementStatus(
+            runtime_hwid_comps.feature_level,
+            FeatureEnablementType.SOFT_BRANDED_WAIVER)
+
+    raise ValueError(
+        f'The feature enablement status for Runtime HWID {runtime_hwid!r} is '
+        'invalid')
 
 
 def _ToFeatureEnablementPermissionMsg(
