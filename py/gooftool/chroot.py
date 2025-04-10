@@ -3,9 +3,9 @@
 # found in the LICENSE file.
 
 import contextlib
-from distutils import sysconfig
 import logging
 import os
+import sysconfig
 
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
@@ -97,13 +97,17 @@ class TmpChroot:
 
     self.logger.debug('copy necessary files and dirs')
     files_dirs = self.file_dir_list + [
-        sysconfig.get_python_lib(standard_lib=True),
-        sysconfig.get_python_inc()]
+        sysconfig.get_path('stdlib'),
+        sysconfig.get_path('include')
+    ]
     files_dirs = list(filter(os.path.exists, files_dirs))
+    # TODO(stevesu): This is a WA for b/409665280 to quickly unblock the issue.
+    # The path is having a file system loop causing infinite tar processes.
+    # Check if we can fix this from upstream firmware changes.
     process_utils.Spawn(
-        f"tar -h -c {' '.join(files_dirs)} | tar -C {self.new_root} -x "
-        "--skip-old-files", shell=True, call=True, log=True,
-        log_stderr_on_error=True)
+        f"tar --exclude='/lib/firmware/intel/ipu' -h -c {' '.join(files_dirs)}"
+        " | tar -C {self.new_root} -x --skip-old-files", shell=True, call=True,
+        log=True, log_stderr_on_error=True)
 
     self.logger.debug('copy necessary binaries')
     bin_deps = self.binary_list + ['python3', 'busybox']
