@@ -73,6 +73,12 @@ class Label(NamedTuple):
   value: Optional[str]
 
 
+# A special suffix denotes that the component was erroneously probed despite not
+# being equipped. The component name suggests it should be treated as a null
+# component.
+_NULL_SUFFIX = '_null'
+
+
 class BOM:
   """An abstraction of a BOM with both components and labels."""
 
@@ -119,6 +125,8 @@ class BOM:
                    component.
       fields dict (optional) The detail fields of the component.
     """
+    if name is not None and name.endswith(_NULL_SUFFIX):
+      return
     if cls not in self._components:
       self._components[cls] = []
 

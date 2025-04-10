@@ -74,6 +74,11 @@ class BOMTest(unittest.TestCase):
     self._AssertHasComponent('foo', 'bar')
     self._AssertHasComponent('baz', 'qux')
 
+  def testNullSuffixComponent(self):
+    self.bom.AddComponent('foo', 'foo_null')
+
+    self.assertCountEqual([], self.bom.GetComponents('foo'))
+
   def testAddAllComponents(self):
     self.bom.AddAllComponents({
         'foo': 'bar',
@@ -83,6 +88,15 @@ class BOMTest(unittest.TestCase):
     self._AssertHasComponent('foo', 'bar')
     self._AssertHasComponent('baz', 'qux')
     self._AssertHasComponent('baz', 'rox')
+
+  def testAddAllComponentsWithNullSuffix(self):
+    self.bom.AddAllComponents({
+        'foo': 'bar_null',
+        'baz': ['qux', 'rox_null']
+    })
+
+    self.assertCountEqual([], self.bom.GetComponents('foo'))
+    self._AssertHasComponent('baz', 'qux')
 
   def testAddAllComponentsWithInfo(self):
     db = v3_database.Database.LoadFile(GOLDEN_HWIDV3_FILE,
