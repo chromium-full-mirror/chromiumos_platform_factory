@@ -40,7 +40,7 @@ _CROS_PAYLOADS_PATH = 'dev_image/opt/cros_payloads'
 _USER_RMAD = 'rmad'
 _SHIMLESS_DATA_PATH = '/mnt/stateful_partition/unencrypted/rma-data'
 _SHIMLESS_STATE_FILE_PATH = '%s/state' % _SHIMLESS_DATA_PATH
-_SHIMLESS_STATE_FILE_CONTENT = '{"firmware_updated": true}'
+_SHIMLESS_STATE_FILE_CONTENT = '{"spare_mlb": true}'
 
 CRX_CACHE_PAYLOAD_NAME = 'dev_image/opt/cros_payloads/release_image.crx_cache'
 CRX_CACHE_TAR_PATH = '/tmp/crx_cache.tar'
@@ -518,14 +518,9 @@ def _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
     process_utils.Spawn(['mkdir', '-p', _SHIMLESS_DATA_PATH], check_call=True,
                         log=True)
 
-    # TODO(jeffulin): It would be better to make the Shimless RMA directly in
-    # rework flow.
-    with open(_SHIMLESS_STATE_FILE_PATH, 'w') as f:
+    with open(_SHIMLESS_STATE_FILE_PATH, "w", encoding="utf-8") as f:
       f.write(_SHIMLESS_STATE_FILE_CONTENT)
-      f.flush()
 
-    # Some of the factory branch has no rmad user/group, so failing to call this
-    # command is expected.
     process_utils.Spawn(
         ['chown', '%s:%s' % (_USER_RMAD, _USER_RMAD), _SHIMLESS_STATE_FILE_PATH],
         log=True)
