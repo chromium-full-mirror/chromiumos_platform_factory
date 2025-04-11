@@ -106,7 +106,7 @@ class TmpChroot:
     # Check if we can fix this from upstream firmware changes.
     process_utils.Spawn(
         f"tar --exclude='/lib/firmware/intel/ipu' -h -c {' '.join(files_dirs)}"
-        " | tar -C {self.new_root} -x --skip-old-files", shell=True, call=True,
+        f" | tar -C {self.new_root} -x --skip-old-files", shell=True, call=True,
         log=True, log_stderr_on_error=True)
 
     self.logger.debug('copy necessary binaries')
