@@ -79,17 +79,38 @@ officially supported.
 
 #### Docker
 
-1. If your server is running recommended Ubuntu, simply run following commands
-   to install Docker:
+1. If your server is running recommended Ubuntu, you can run following commands
+   to install Docker
+   [(reference docs)](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository):
 
-       sudo apt-get update && sudo apt-get install docker.io
+    1-a. Set up Docker's apt repository.
+
+       # Add Docker's official GPG key:
+       sudo apt-get update
+       sudo apt-get install ca-certificates curl
+       sudo install -m 0755 -d /etc/apt/keyrings
+       sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+       sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+       # Add the repository to Apt sources:
+       echo \
+       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+       $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+       sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+       sudo apt-get update
+
+    1-b. Install the Docker packages. To install the latest version, run:
+
+       sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
    Otherwise, read [Docker docs](https://docs.docker.com/engine/installation/)
    to find the right instruction for your server.
 
 2. Type `docker version` and make sure your Docker server is ready.
-   - known incompatible docker versions: version < 1.10.3 or version > 24.0.9
-   - known compatible docker versions: version == `20.10.21`
+   - In dome version `20250326164643`, known compatible docker versions:
+   version >= `20.10.0` and version <= `27.5.1`.
+   - If you are using an older version of dome, it might be incompatible with
+   the latest docker version.
    - Note: If you need, please contact the Google contact of your project to
    request supporting for newer docker version.
 
