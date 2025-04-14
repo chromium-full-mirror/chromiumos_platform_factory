@@ -414,6 +414,11 @@ def _CollectMountPointsToUmount(state_dev):
     fields = line.split()
     if fields[0] == state_dev or re.match(r'\/dev\/mapper\/', fields[0]):
       mount_point_list.append(fields[2])
+    if re.match(r'(.*?)dev_image\.block', fields[0]):
+      # For newer images, the dev_image will be a sparse file system gets
+      # mounted on several mount points. Adding these mount points to properly
+      # unmount the stateful partition.
+      mount_point_list.append(fields[2])
     if fields[0] == 'nsfs':
       namespace_list.append(fields[2])
     # Mount type of mount namespace is 'proc' for some kernel versions. Make
@@ -558,6 +563,12 @@ def _UnmountStatefulPartition(root, state_dev, test_umount):
         ['dmsetup', 'remove', 'encstateful', '--noudevrules', '--noudevsync'],
         check_call=True)
     process_utils.Spawn(['losetup', '-D'], check_call=True)
+
+  if os.path.exists(
+      os.path.join(root, 'dev', 'mapper', 'defaultkey_encrypted')):
+    # For default-key-stateful encryption, we also need to do some non-critical
+    # umount first to properly unmount dev_image.block related mount points.
+    _UnmountAll(critical=False)
 
   _UnmountAll(critical=True)
   process_utils.Spawn(['sync'], call=True)
