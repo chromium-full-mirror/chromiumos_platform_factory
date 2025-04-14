@@ -220,7 +220,7 @@ class ProbeStatementDefinition:
     if information is not None:
       statement['information'] = information
     if component_position is not None:
-      statement['position'] = component_position
+      statement['position'] = str(component_position)
     return ComponentProbeStatement(self.category_name, component_name,
                                    statement)
 

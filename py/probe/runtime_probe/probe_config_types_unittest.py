@@ -215,7 +215,7 @@ class ProbeStatementDefinitionTest(ConcreteProbeStatementDefinitionTestBase):
                 'str_field': [True, 'str', '!eq sss'],
                 'int_field': [True, 'int', '!eq 3'],
                 'hex_field': [True, 'hex', '!eq 0x0BAD']
-            }, component_position=1))
+            }, component_position='1'))
 
 
 class ProbeConfigPayloadTest(ConcreteProbeStatementDefinitionTestBase):

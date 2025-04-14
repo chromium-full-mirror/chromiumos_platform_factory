@@ -861,7 +861,7 @@ class GenerateProbeStatementTest(unittest.TestCase):
                     'pci_device': [True, 'hex', '!eq 0x1234'],
                     'nvme_model': [False, 'str']
                 },
-                'position': 1
+                'position': '1'
             }))
 
 
