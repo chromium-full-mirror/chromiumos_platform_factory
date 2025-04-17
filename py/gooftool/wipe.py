@@ -184,7 +184,7 @@ def ResetLog(logfile=None):
 def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
                 station_port=None, wipe_finish_token=None,
                 keep_developer_mode_flag=False, boot_to_shimless=False,
-                test_umount=False):
+                test_umount=False, is_dm_default_key=False):
   """Prepare to wipe by pivot root to ram and unmount stateful partition.
 
   Args:
@@ -253,6 +253,7 @@ def WipeInRamFs(is_fast=None, factory_server_url=None, station_ip=None,
   release_rootfs = util.GetReleaseRootPartitionPath()
   state_dev = util.GetPrimaryDevicePath(1)
   wipe_args = 'factory' + (' fast' if is_fast else '')
+  wipe_args += (' default_key_migration_wipe' if is_dm_default_key else '')
 
   logging.debug('state_dev: %s', state_dev)
   logging.debug('factory_par: %s', factory_par)

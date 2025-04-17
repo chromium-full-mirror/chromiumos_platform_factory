@@ -127,3 +127,8 @@ class CrosConfig:
     """Returns the modem firmware variant."""
     result = self.GetValue('/modem', 'firmware-variant')
     return result.stdout.strip() if result.stdout else ''
+
+  def GetDefaultKeyStateful(self) -> bool:
+    """Returns if the disk layout is default-key-stateful."""
+    result = self.GetValue('/disk-layout', 'default-key-stateful')
+    return True if result.stdout.strip().lower() == 'true' else False

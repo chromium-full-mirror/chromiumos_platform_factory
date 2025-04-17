@@ -865,9 +865,10 @@ class Gooftool:
     GBB_FLAG_FORCE_DEV_SWITCH_ON = 0x00000008
     keep_developer_mode_flag = bool(gbb_flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
 
+    is_dm_default_key = self._cros_config.GetDefaultKeyStateful()
     wipe.WipeInRamFs(is_fast, factory_server_url, station_ip, station_port,
                      wipe_finish_token, keep_developer_mode_flag,
-                     boot_to_shimless, test_umount)
+                     boot_to_shimless, test_umount, is_dm_default_key)
 
   def WipeInit(self, wipe_args, factory_server_url, state_dev, release_rootfs,
                root_disk, old_root, station_ip, station_port, wipe_finish_token,
