@@ -7,7 +7,9 @@ set -e
 
 # Utility functions
 DOCKER_VERSION="20.10.0"
+DOCKER_MAX_VERSION="27.5.1"
 TEMP_OBJECTS=()
+DOCKER_INSTRUCTION_URL="https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/setup/FACTORY_SERVER.md#docker"
 
 on_exit() {
   # clear all temp objects
@@ -44,7 +46,11 @@ realpath() {
 
 check_docker() {
   if ! type docker >/dev/null 2>&1; then
-    die "Docker not installed, abort."
+    die """
+Docker not installed, abort.
+You must have the Docker service on your device.
+Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}
+"""
   fi
   DOCKER="docker"
   if [ "$(id -un)" != "root" ]; then
@@ -62,16 +68,31 @@ check_docker() {
     # Old Docker (i.e., 1.6.2) does not support --format.
     docker_version="$(${DOCKER} version | sed -n 's/Server version: //p')"
   fi
-  local error_message="Require Docker version >= ${DOCKER_VERSION} but you have ${docker_version}"
-  local required_version=(${DOCKER_VERSION//./ })
-  local current_version=(${docker_version//./ })
+  local error_message="Require Docker version >= ${DOCKER_VERSION} and \
+<= ${DOCKER_MAX_VERSION}, but you have ${docker_version}. \
+Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}"
+  local required_version
+  read -ra required_version <<< "${DOCKER_VERSION//./ }"
+  local max_version
+  read -ra max_version <<< "${DOCKER_MAX_VERSION//./ }"
+  local current_version
+  read -ra current_version <<< "${docker_version//./ }"
   for ((i = 0; i < ${#required_version[@]}; ++i)); do
     if (( ${#current_version[@]} <= i )); then
       die "${error_message}"  # the current version array is not long enough
-    elif (( ${required_version[$i]} < ${current_version[$i]} )); then
+    elif (( ${required_version[${i}]} < ${current_version[${i}]} )); then
       break
-    elif (( ${required_version[$i]} > ${current_version[$i]} )); then
+    elif (( ${required_version[${i}]} > ${current_version[${i}]} )); then
       die "${error_message}"
+    fi
+  done
+  for ((i = 0; i < ${#max_version[@]}; ++i)); do
+    if (( ${#current_version[@]} <= i )); then
+      break
+    elif (( ${max_version[${i}]} < ${current_version[${i}]} )); then
+      die "${error_message}"
+    elif (( ${max_version[${i}]} > ${current_version[${i}]} )); then
+      break
     fi
   done
 }
