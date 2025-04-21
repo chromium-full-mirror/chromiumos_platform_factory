@@ -166,7 +166,10 @@ class ResourceTable extends React.Component<ResourceTableProps> {
                   )}
                 </div>
               </div>
-              <div className={classes.cell}>
+              <div
+                className={classes.cell}
+                data-testid={`resource-download-${resource.type}`}
+              >
                 <IconButton
                   onClick={
                     () => openUpdateResourceForm(name, resourceType,

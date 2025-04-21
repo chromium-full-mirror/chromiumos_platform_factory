@@ -122,7 +122,11 @@ class BundleComponent extends React.Component<BundleComponentProps> {
       <Card
         className={classNames(classes.root, !bundle.active && classes.inactive)}
       >
-        <CardContent className={classes.header} onClick={this.toggleExpand}>
+        <CardContent
+          className={classes.header}
+          onClick={this.toggleExpand}
+          data-testid={`bundle-content-${bundle.name}`}
+        >
           {Object.keys(bundle.requireUserAction).length > 0 &&
             <ErrorIcon className={classes.errorIcon} />
           }

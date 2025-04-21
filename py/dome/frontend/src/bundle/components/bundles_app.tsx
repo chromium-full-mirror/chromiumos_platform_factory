@@ -39,6 +39,7 @@ const BundlesApp: React.SFC<BundlesAppProps> =
         <>
           <Portal container={overlay}>
             <Fab
+              data-testid="upload-factory-bundle"
               color="primary"
               title="Upload Factory Bundle (zip or {gzip|bzip2|xz} compressed
                 tarball)"
