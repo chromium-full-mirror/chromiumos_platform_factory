@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     moreutils \
     nginx \
+    p7zip-full \
     pbzip2 \
     pigz \
     rsync \
