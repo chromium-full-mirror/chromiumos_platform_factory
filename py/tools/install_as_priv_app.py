@@ -259,7 +259,7 @@ def InstallApk(args: InstallAsPrivAppArgs):
   Run(args.adb + ['install', '-g', '-t', str(args.apk_path)])
 
 
-def Install(args: InstallAsPrivAppArgs):
+def Remount(args: InstallAsPrivAppArgs):
   Run(args.adb + ['root'])
   result = Run(args.adb + ['remount', '-R'], check=False)
   if result.returncode == 255:
@@ -267,11 +267,13 @@ def Install(args: InstallAsPrivAppArgs):
     WaitForSystem(args)
     Run(args.adb + ['remount'])
   elif result.returncode == 0:
-    logging.info('return code is 0.')
+    logging.info('return code is 0. The device is already remounted.')
   else:
     logging.info('return code is %s.', result.returncode)
     sys.exit(1)
 
+
+def Install(args: InstallAsPrivAppArgs):
   on_device_dir_path = args.partition.value / 'priv-app' / args.dir_app_name
   Run(args.adb + ['shell', 'mkdir', '-p', str(on_device_dir_path)])
   Run(args.adb + ['shell', 'chmod', '755', str(on_device_dir_path)])
@@ -343,12 +345,11 @@ def DoMain(argv: List[str]):
   GeneratePermissionFile(args, apk_info)
   if args.target is not None:
     Run(['adb', 'connect', args.target])
-  SwitchUser(args, 10)
+  Remount(args)  # DUT will reboot if it's not already remounted.
   DeprovisionDPC(args)
   UnInstallPrevious(args)
-  Install(args)
+  Install(args)  # DUT will reboot if the app is not priv-app before this.
   SetFactorySettings(args)
-  # Reboot may switch us back to user 0.
   SwitchUser(args, 10)
   LaunchApp(args)
 
