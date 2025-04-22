@@ -25,32 +25,33 @@ test('Simple import test can pass', () => {
  * HiddenFileSelect component test.
  */
 describe('HiddenFileSelect', () => {
-  let node: HTMLElement;
+  let fileInput: Element;
   let handleFileChange: (files: FileList | null) => undefined;
 
   beforeEach(() => {
     handleFileChange = jest.fn((files: FileList | null) => undefined);
-    const {getByRole} =
-      render(<HiddenFileSelect multiple onChange={handleFileChange} />);
-    node = getByRole('textbox', {hidden: true});
+    const {container} = render(
+      <HiddenFileSelect multiple onChange={handleFileChange} />,
+    );
+    fileInput = container.querySelector('input[type="file"]')!;
   });
 
   test('verify that HiddenFileSelect dom node is correct', () => {
-    expect(node).toBeDefined();
-    expect(node).toHaveClass('hidden');
-    expect(node).toHaveAttribute('type', 'file');
-    expect(node).toHaveAttribute('multiple');
+    expect(fileInput).toBeDefined();
+    expect(fileInput).toHaveClass('hidden');
+    expect(fileInput).toHaveAttribute('type', 'file');
+    expect(fileInput).toHaveAttribute('multiple');
   });
 
   test('select file and trigger on file change', () => {
     const rows = ['chromeos', 'chrome os factory', 'chrome os factory dome'];
     const file = new File([rows.join('\n')], 'cros.csv');
-    fireEvent.change(node, {target: {files: [file]}});
+    fireEvent.change(fileInput, {target: {files: [file]}});
     expect(handleFileChange).toHaveBeenCalledWith([file]);
   });
 
   test('select an empty file and trigger the onchage event', () => {
-    fireEvent.change(node, {target: {files: null}});
+    fireEvent.change(fileInput, {target: {files: null}});
     expect(handleFileChange).not.toHaveBeenCalled();
   });
 

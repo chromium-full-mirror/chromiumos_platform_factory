@@ -43,8 +43,9 @@ describe('FileUploadDialog', () => {
   });
 
   test('verify that uploading multiple files is correct', () => {
-    const {getByRole, getByText} = FileUploadDialogDOM;
-    fireEvent.change(getByRole('textbox'), {target: {files: [file, file]}});
+    const {container, getByText} = FileUploadDialogDOM;
+    const fileInput = container.querySelector('input[type="file"]')!;
+    fireEvent.change(fileInput, {type: 'file', target: {files: [file, file]}});
     fireEvent.submit(getByText('Test onSubmit'));
     expect(mockOnSubmitFn).toHaveBeenCalled();
 
@@ -53,7 +54,7 @@ describe('FileUploadDialog', () => {
   });
 
   test('verify that uploading single file is correct', () => {
-    const {getByRole, getByText, rerender} = FileUploadDialogDOM;
+    const {container, getByText, rerender} = FileUploadDialogDOM;
     rerender(
       <FileUploadDialog
         open={mockOpenFn}
@@ -69,7 +70,8 @@ describe('FileUploadDialog', () => {
       </FileUploadDialog>,
     );
 
-    fireEvent.change(getByRole('textbox'), {target: {files: [file]}});
+    const fileInput = container.querySelector('input[type="file"]')!;
+    fireEvent.change(fileInput, {type: 'file', target: {files: [file]}});
     fireEvent.submit(getByText('Test onSubmit'));
     expect(mockOnSubmitFn).toHaveBeenCalled();
 
