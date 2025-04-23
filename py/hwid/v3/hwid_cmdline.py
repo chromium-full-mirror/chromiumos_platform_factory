@@ -97,11 +97,6 @@ _HWID_MATERIAL_FIELD_COMMON_ARGS = [
               'If some rules in the HWID database need VPD values, '
               'either --run-vpd or --vpd-data-file should be '
               'specified.')),
-    CmdArg(
-        '--config-yaml', type=str, default=None,
-        help=('The config.yaml to load. This is the config file behind '
-              'cros_config command. It contains the definition of all possible '
-              'SKUs.')),
     CmdArg('--form-factor', default=None, metavar='FORMFACTOR',
            help='Form factor to validate the HWID materials.')
 ]
@@ -221,9 +216,6 @@ def ObtainHWIDMaterial(options):
        even if `material_file` is specified.
     3. Optionally, we can load VPD data from a file specified by
        `vpd_data_file`.
-    4. Optionally, we can load SKU IDs from a file `config_yaml` in config.yaml
-       format.  (You should find this file at
-       /build/$BOARD/usr/share/chromeos-config/yaml/config.yaml).
 
   Running on DUT:
     In this case, the data can either be collected from device or loaded from
@@ -240,9 +232,6 @@ def ObtainHWIDMaterial(options):
     3. If `run_vpd` is set, we load VPD data from `vpd` command.
     4. If `vpd_data_file` is set, we load VPD data from the file. Note that (3)
        and (4) are mutually exclusive.
-    5. `config_yaml` is optional. If it is not set, we load data from
-       /usr/share/chromeos-config/yaml/config.yaml on DUT.  Otherwise, the given
-       file will be loaded.
 
   Args:
     options: The given options.
@@ -316,10 +305,9 @@ def ObtainHWIDMaterial(options):
       options.vpd_data_file):
     kwargs['vpd'] = hwid_utils.GetVPDData(run_vpd=options.run_vpd,
                                           infile=options.vpd_data_file)
-  if base_hwid_material_file is None or options.config_yaml:
-    if options.config_yaml or sys_utils.InCrOSDevice():
-      kwargs['sku_ids'] = hwid_utils.GetSkuIdsFromCrosConfig(
-          project=options.project, config_yaml_path=options.config_yaml)
+  if base_hwid_material_file is None and sys_utils.InCrOSDevice():
+    kwargs['sku_ids'] = hwid_utils.GetSkuIdsFromCrosConfig(
+        project=options.project)
   if base_hwid_material_file is None or options.form_factor:
     kwargs['form_factor'] = hwid_utils.GetFormFactor(options.form_factor)
 
@@ -414,7 +402,6 @@ def BuildDatabaseWrapper(options):
         options.device_info_file,
         options.run_vpd,
         options.vpd_data_file,
-        options.config_yaml,
         options.fill_combinations,
     ]):
       raise ValueError(('The argument --minimal should not be set with '
@@ -820,7 +807,7 @@ def InitializeDefaultOptions(options):
                   options.project.upper())
     options.database = db_module.Database.LoadFile(
         os.path.join(options.hwid_db_path, options.project.upper()),
-        verify_checksum=(not options.no_verify_checksum))
+        verify_checksum=not options.no_verify_checksum)
 
     phase.OverridePhase(options.phase)
 
