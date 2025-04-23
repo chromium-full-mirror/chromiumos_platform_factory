@@ -5,6 +5,7 @@
 """HWID v3 utility functions."""
 
 import collections
+import json
 import logging
 import os
 from typing import Optional
@@ -21,7 +22,6 @@ from cros.factory.hwid.v3.rule import Context
 from cros.factory.hwid.v3 import transformer
 from cros.factory.hwid.v3 import verifier
 from cros.factory.hwid.v3 import yaml_wrapper as yaml
-from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import type_utils
 
@@ -551,14 +551,21 @@ def GetProjectProbeStatementPath(project=None):
   return path
 
 
-def GetSkuIdsFromCrosConfig(project, config_yaml_path=None):
+def GetSkuIdsFromCrosConfig(project):
   from cros.factory.utils import sys_utils
-  assert sys_utils.InCrOSDevice() or config_yaml_path
+  assert sys_utils.InCrOSDevice()
 
-  if not config_yaml_path:
-    config_yaml_path = '/usr/share/chromeos-config/yaml/config.yaml'
-
-  obj = yaml.safe_load(file_utils.ReadFile(config_yaml_path))
+  config_path = '/usr/share/chromeos-config/yaml/config.yaml'
+  with open(config_path, encoding='utf8') as f:
+    try:
+      obj = json.load(f)
+    except json.JSONDecodeError:
+      # For non-boxster projects, it's in yaml format
+      logging.info('Failed to parse cros_config as JSON (likely a YAML '
+                   'file). Attempting to parse as YAML. This may take '
+                   'sometime for large files.')
+      f.seek(0)
+      obj = yaml.safe_load(f)
 
   sku_ids = []
   for config in obj['chromeos']['configs']:
