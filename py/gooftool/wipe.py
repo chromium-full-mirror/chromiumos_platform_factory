@@ -654,6 +654,10 @@ def _WipeStateDev(release_rootfs, root_disk, wipe_args, state_dev,
     logging.info('Device should be clobbering into dm-default-key.')
     logging.info('Creating ext4 powerwash partition.')
 
+    # Make sure to clear out superblock and metadata.
+    process_utils.Spawn(
+        ['dd', 'if=/dev/zero', f'of={powerwash_dev}', 'bs=1M', 'count=1'],
+        check_call=True, log=True, log_stderr_on_error=True)
     process_utils.Spawn(['mkfs.ext4', powerwash_dev],
                         check_call=True, log=True, log_stderr_on_error=True)
 
