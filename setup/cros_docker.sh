@@ -46,11 +46,9 @@ realpath() {
 
 check_docker() {
   if ! type docker >/dev/null 2>&1; then
-    die """
-Docker not installed, abort.
-You must have the Docker service on your device.
-Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}
-"""
+    die "Docker not installed, abort. \
+You must have the Docker service on your device. \
+Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}"
   fi
   DOCKER="docker"
   if [ "$(id -un)" != "root" ]; then
