@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 18:18+CST\n"
+"PO-Revision-Date: 2025-04-28 18:38+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: ja-JP\n"
@@ -4257,6 +4257,10 @@ msgid "Check Fingerprint Firmware"
 msgstr "指紋ファームウェアの確認"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Elan Fingerprint Sensor Non-interactive Test"
+msgstr "Elan 指紋センサーの非対話型テスト"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Elan Fingerprint Sensor Test"
 msgstr "Elan 指紋センサーテスト"
 
@@ -4279,10 +4283,6 @@ msgstr "Elan 指紋センサーのベーステスト"
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Complete Test"
 msgstr "Elan 指紋センサーの完全テスト"
-
-#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan Fingerprint Sensor Non-interactive Test"
-msgstr "Elan 指紋センサーの非対話型テスト"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan Fingerprint Sensor Reset Test"

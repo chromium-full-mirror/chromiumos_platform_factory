@@ -22,13 +22,6 @@
         "test_case": 15
       }
     },
-    "ElanFPSNonInteractiveTest": {
-      "inherit": "ElanFPSTest",
-      "label": "Elan Fingerprint Sensor Non-interactive Test",
-      "args": {
-        "test_case": 7
-      }
-    },
     "ElanFPSResetTest": {
       "inherit": "ElanFPSTest",
       "label": "Elan Fingerprint Sensor Reset Test",
