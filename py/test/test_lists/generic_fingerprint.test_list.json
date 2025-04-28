@@ -13,6 +13,14 @@
         "method": "CHECK_VERSION"
       }
     },
+    "ElanFPSNonInteractiveTest": {
+      "inherit": "ElanFPSTest",
+      "label": "Elan Fingerprint Sensor Non-interactive Test",
+      "run_if": "device.component.has_fingerprint and device.component.fingerprint_board == 'buccaneer'",
+      "args": {
+        "test_case": 7
+      }
+    },
     "ElanFPSTest": {
       "pytest_name": "fingerprint_sensor_elan",
       "label": "Elan Fingerprint Sensor Test",
