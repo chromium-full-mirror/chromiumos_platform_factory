@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ChromeOS Factory Software\n"
-"PO-Revision-Date: 2025-01-06 16:42+CST\n"
+"PO-Revision-Date: 2025-05-02 15:58+CST\n"
 "Last-Translator: ChromeOS Factory Team\n"
 "Language-Team: ChromeOS Factory Team\n"
 "Language: th-TH\n"
@@ -1697,8 +1697,8 @@ msgid ""
 "Please verify if the chassis has ChromeBook Plus label on it.If Yes, press "
 "\"Y\". If not, press \"N\""
 msgstr ""
-"กรุณาตรวจสอบว่าโครงสร้างมีป้าย ChromeBook Plus หรือไม่ ถ้ามี ให้กด \"Y\" ถ้าไม่มี ให้กด \"N"
-"\""
+"กรุณาตรวจสอบว่าโครงสร้างมีป้าย ChromeBook Plus หรือไม่ ถ้ามี ให้กด \"Y\" ถ้าไม่มี ให้กด "
+"\"N\""
 
 #: ../py/test/pytests/branded_chassis.py
 msgid "The DUT is a branded chassis"
@@ -2658,8 +2658,8 @@ msgid ""
 "The scanned value \"{value}\" does not match the expected value <span "
 "class=test-engineering-mode-only>\"{expected_value}\"</span>."
 msgstr ""
-"ค่าที่สแกนได้ \"{value}\" ไม่ตรงกับค่าที่คาดหวัง <spanclass=test-engineering-mode-only>"
-"\"{expected_value}\"</span>."
+"ค่าที่สแกนได้ \"{value}\" ไม่ตรงกับค่าที่คาดหวัง <spanclass=test-engineering-mode-"
+"only>\"{expected_value}\"</span>."
 
 #: ../py/test/pytests/scan.py
 msgid "Writing to VPD. Please wait..."
@@ -4067,6 +4067,10 @@ msgid "Check Fingerprint Firmware"
 msgstr "ตรวจสอบเฟิร์มแวร์ลายนิ้วมือ"
 
 #: ../py/test/test_lists/generic_fingerprint.test_list.json
+msgid "Elan Fingerprint Sensor Non-interactive Test"
+msgstr "การทดสอบแบบไม่โต้ตอบของเซ็นเซอร์ลายนิ้วมือ Elan"
+
+#: ../py/test/test_lists/generic_fingerprint.test_list.json
 msgid "Elan Fingerprint Sensor Test"
 msgstr "การทดสอบเซนเซอร์ลายนิ้วมือ Elan"
 
@@ -4089,10 +4093,6 @@ msgstr "การทดสอบฐานเซนเซอร์ลายนิ
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan FPS Complete Test"
 msgstr "ทดสอบเซ็นเซอร์ลายนิ้วมือ Elan เสร็จสมบูรณ์"
-
-#: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
-msgid "Elan FPS Non-interactive Test"
-msgstr "การทดสอบแบบไม่โต้ตอบของเซ็นเซอร์ลายนิ้วมือ Elan"
 
 #: ../py/test/test_lists/generic_fingerprint_examples.test_list.json
 msgid "Elan FPS Reset Test"
