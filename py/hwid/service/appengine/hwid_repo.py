@@ -265,6 +265,7 @@ class HWIDRepo(HWIDRepoView):
       commit_msg: str,
       reviewers: Sequence[str],
       cc_list: Sequence[str],
+      is_prod_env: bool,
       *,
       change_id: Optional[str] = None,
       bot_commit: bool = False,
@@ -355,6 +356,7 @@ class HWIDRepo(HWIDRepoView):
           author=author,
           committer=author,
           commit_msg=commit_msg,
+          is_prod_env=is_prod_env,
           change_id=change_id,
           reviewers=reviewers,
           cc=list(set(cc_list)),
@@ -541,7 +543,7 @@ class HWIDRepoManager:
                               git_util.GetGerritAuthCookie(), cl_number,
                               reason=reason)
 
-  def RebaseCLMetadata(self, cl_info: HWIDDBCLInfo):
+  def RebaseCLMetadata(self, cl_info: HWIDDBCLInfo, is_prod_env: bool):
     """Rebases `projects.yaml` and try to resolve merge conflict for the CL."""
     conflicts = git_util.RebaseCL(INTERNAL_REPO_REVIEW_URL,
                                   str(cl_info.cl_number),
@@ -581,4 +583,5 @@ class HWIDRepoManager:
         cl_number=cl_info.cl_number,
         reasons=[f'Auto resolved merge conflict for {_PROJECTS_YAML_PATH}'],
         approval_case=git_util.ApprovalCase.APPROVED,
+        is_prod_env=is_prod_env,
     )

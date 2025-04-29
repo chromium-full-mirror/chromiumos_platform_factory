@@ -100,7 +100,7 @@ class MemoryRepoTest(unittest.TestCase):
         git_util.GitUtilNoModificationException, git_util.CreateOrPatchCL,
         'https://chromium.googlesource.com/chromiumos/platform/factory', '',
         'stabilize-rust-13562.B', new_files, 'John Doe <no-reply@google.com>',
-        'John Doe <no-reply@google.com>', '')
+        'John Doe <no-reply@google.com>', '', True)
 
   def testListFiles(self):
     new_files = [
@@ -887,7 +887,8 @@ class CreateOrPatchCLTest(unittest.TestCase):
 
     git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
                              committer, commit_msg, reviewers=reviewers, cc=ccs,
-                             bot_commit=True, commit_queue=True, verified=1)
+                             bot_commit=True, commit_queue=True, verified=1,
+                             is_prod_env=True)
 
     mock_porcelain.push.assert_called_once_with(
         mock.ANY, url,
@@ -921,6 +922,7 @@ class CreateOrPatchCLTest(unittest.TestCase):
         author,
         committer,
         commit_msg,
+        is_prod_env=False,
         change_id=change_id,
         reviewers=reviewers,
         cc=ccs,
@@ -956,6 +958,7 @@ class CreateOrPatchCLTest(unittest.TestCase):
         author,
         committer,
         commit_msg,
+        is_prod_env=True,
         reviewers=reviewers,
         cc=ccs,
         bot_commit=True,
@@ -1016,24 +1019,42 @@ class GitFilesystemAdapterTest(unittest.TestCase):
 
 class ApprovalCaseTest(unittest.TestCase):
 
-  def testConvertToVotes(self):
+  def testConvertToVotes_Prod(self):
     self.assertCountEqual([
-        git_util.ReviewVote('Bot-Commit', 1),
+        git_util.ReviewVote('Bot-Commit', 1, prod_only=True),
         git_util.ReviewVote('Code-Review', 0),
         git_util.ReviewVote('Commit-Queue', 2),
-    ], git_util.ApprovalCase.APPROVED.ConvertToVotes())
+    ], git_util.ApprovalCase.APPROVED.ConvertToVotes(is_prod_env=True))
 
     self.assertCountEqual([
-        git_util.ReviewVote('Bot-Commit', 0),
+        git_util.ReviewVote('Bot-Commit', 0, prod_only=True),
         git_util.ReviewVote('Code-Review', -2),
         git_util.ReviewVote('Commit-Queue', 0),
-    ], git_util.ApprovalCase.REJECTED.ConvertToVotes())
+    ], git_util.ApprovalCase.REJECTED.ConvertToVotes(is_prod_env=True))
 
     self.assertCountEqual([
-        git_util.ReviewVote('Bot-Commit', 0),
+        git_util.ReviewVote('Bot-Commit', 0, prod_only=True),
         git_util.ReviewVote('Code-Review', 0),
         git_util.ReviewVote('Commit-Queue', 0),
-    ], git_util.ApprovalCase.NEED_MANUAL_REVIEW.ConvertToVotes())
+    ], git_util.ApprovalCase.NEED_MANUAL_REVIEW.ConvertToVotes(
+        is_prod_env=True))
+
+  def testConvertToVotes_NonProd(self):
+    self.assertCountEqual([
+        git_util.ReviewVote('Code-Review', 0),
+        git_util.ReviewVote('Commit-Queue', 2),
+    ], git_util.ApprovalCase.APPROVED.ConvertToVotes(is_prod_env=False))
+
+    self.assertCountEqual([
+        git_util.ReviewVote('Code-Review', -2),
+        git_util.ReviewVote('Commit-Queue', 0),
+    ], git_util.ApprovalCase.REJECTED.ConvertToVotes(is_prod_env=False))
+
+    self.assertCountEqual([
+        git_util.ReviewVote('Code-Review', 0),
+        git_util.ReviewVote('Commit-Queue', 0),
+    ], git_util.ApprovalCase.NEED_MANUAL_REVIEW.ConvertToVotes(
+        is_prod_env=False))
 
 
 class GetLastMergedChangeCommitTest(unittest.TestCase):

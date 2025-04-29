@@ -213,11 +213,12 @@ class PayloadManager(abc.ABC):
     hwid_prev_commit = self._cl_upload_manager.GetLatestHWIDMainCommit()
 
     self._RefreshCredential()
+    assert self._auth_cookie is not None
 
     if skip_model_check:
       board_models = self._GetBoardModelsMapping(limit_models, live_hwid_repo)
     else:
-      board_models = self._GetSupportedModels(limit_models, live_hwid_repo)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      board_models = self._GetSupportedModels(limit_models, live_hwid_repo)
 
     result = {}
     author = self._author
@@ -233,7 +234,7 @@ class PayloadManager(abc.ABC):
             setting.prefix, filepath), git_util.NORMAL_FILE_MODE, filecontent)
                      for filepath, filecontent in payloads.contents.items()]
         commit_msg = self._GetCLMessage(board, models, payloads,
-                                        hwid_live_commit, hwid_prev_commit)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                        hwid_live_commit, hwid_prev_commit)
         try:
           repo = git_util.MemoryRepo(auth_cookie=self._auth_cookie)
           # only fetches last commit
@@ -242,20 +243,21 @@ class PayloadManager(abc.ABC):
           change_id, unused_cl_number = self._cl_upload_manager.CreateCL(
               dryrun,
               git_url,
-              self._auth_cookie,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              self._auth_cookie,
               branch,
               git_files,
-              author,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+              author,
               author,
               commit_msg,
+              self._config_data.is_prod_env(),
               repo=repo,
               topic=setting.topic,
               auto_submit=True,
               hashtags=setting.hashtags,
               files_to_delete=files_to_delete,
           )
-          self._PostUpdate(board, models, change_id, payloads)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          result[board] = UpdatedResult(payloads.hash_value, change_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          self._PostUpdate(board, models, change_id, payloads)
+          result[board] = UpdatedResult(payloads.hash_value, change_id)
         except git_util.GitUtilNoModificationException:
           self._logger.debug('No modification is made, skipped')
         except git_util.GitUtilException as ex:
@@ -268,11 +270,12 @@ class PayloadManager(abc.ABC):
 
   def AbandonCLs(self, dryrun: bool, change_ids: Mapping[str, str]):
     """Abandons CLs with given change IDs."""
+    assert self._auth_cookie is not None
     for board, change_id in change_ids.items():
       setting = self._GetCLSetting(board)
       try:
         self._cl_upload_manager.AbandonCL(dryrun, setting.review_host,
-                                          self._auth_cookie, change_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+                                          self._auth_cookie, change_id)
       except git_util.GitUtilException as ex:
         self._logger.error('Cannot abandon CL for %r: %r', change_id, str(ex))
 

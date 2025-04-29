@@ -186,5 +186,8 @@ class Config:
         'cq_count_over_limit_cl_reviewers', [])
     self.payload_bot_reviewer = conf.get('payload_bot_reviewer', '')
 
+  def is_prod_env(self) -> bool:
+    return self.env == 'prod'
+
 
 CONFIG = type_utils.LazyObject(Config)

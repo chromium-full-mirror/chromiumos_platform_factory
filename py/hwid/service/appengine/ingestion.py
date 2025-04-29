@@ -142,7 +142,7 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
             config_data))
     self.vpg_config_manager = vpg_config_manager.VPGConfigManager(
         config.dlm_product_manager, config.vpg_config_cl_upload_manager,
-        self.hwid_action_manager)
+        self.hwid_action_manager, config_data.is_prod_env())
 
   def _UpdatePayloads(self, payload_manager: payload_management.PayloadManager,
                       dryrun: bool, limit_models: Collection[str],
@@ -173,7 +173,7 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     # Force use of limit_models and limit_boards without any model support
     # check. (e2e test only)
     skip_model_check = request.skip_model_check
-    if skip_model_check and self._config_data.env == 'prod':
+    if skip_model_check and self._config_data.is_prod_env():
       raise protorpc_utils.ProtoRPCException(
           protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
           detail='skip_model_check can not be True in production.')
@@ -293,7 +293,7 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
     del request  # unused
 
     # Only upload CL for production.
-    dryrun_upload = self._config_data.env != 'prod'
+    dryrun_upload = not self._config_data.is_prod_env()
     live_hwid_repo = self.hwid_repo_manager.GetLiveHWIDRepo()
 
     try:

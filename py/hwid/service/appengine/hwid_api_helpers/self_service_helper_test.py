@@ -123,6 +123,7 @@ def _CreateFakeSelfServiceShard(
     vpg_targets_data_manager: Optional[
         vpg_targets_data.VPGTargetsDataManager] = None,
     dlm_product_manager: Optional[dlm_product_data.DLMProductManager] = None,
+    is_prod_env: bool = False,
     cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
 ) -> ss_helper_module.SelfServiceShard:
   avl_metadata_manager = (
@@ -145,6 +146,7 @@ def _CreateFakeSelfServiceShard(
       battery_config_fetcher,
       vpg_targets_data_manager or modules.fake_vpg_targets_data_manager,
       dlm_product_manager or modules.fake_dlm_product_manager,
+      is_prod_env,
       cq_count_over_limit_cl_reviewers,
   )
 
@@ -1212,10 +1214,11 @@ class SelfServiceShardTest(unittest.TestCase):
     self.assertCountEqual([
         mock.call(hwid_repo.INTERNAL_REPO_REVIEW_URL, mock.ANY,
                   approval_case=git_util.ApprovalCase.COMMIT_QUEUE, cl_number=2,
-                  reasons=[]),
+                  reasons=[], is_prod_env=False),
         *(mock.call(hwid_repo.INTERNAL_REPO_REVIEW_URL, mock.ANY,
                     approval_case=git_util.ApprovalCase.COMMIT_QUEUE,
-                    cl_number=cl_number, reasons=['CL:*2 has been approved.'])
+                    cl_number=cl_number, reasons=['CL:*2 has been approved.'
+                                                 ], is_prod_env=False)
           for cl_number in [3, 4, 5])
     ], mock_review_cl.call_args_list)
 

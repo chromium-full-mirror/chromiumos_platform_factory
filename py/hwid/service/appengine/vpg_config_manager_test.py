@@ -44,7 +44,7 @@ class VPGConfigManagerTest(unittest.TestCase):
         hwid_action_manager_module.HWIDActionManager, instance=True)
     self._vpg_config_manager = vpg_config_manager.VPGConfigManager(
         self._modules.fake_dlm_product_manager, self._mock_cl_upload_manager,
-        self._mock_hwid_action_manager)
+        self._mock_hwid_action_manager, False)
 
     fake_repo = git_util.MemoryRepo('')
     self._fake_live_hwid_repo = hwid_repo.HWIDRepo(fake_repo, 'test_repo',
@@ -186,7 +186,7 @@ class VPGConfigManagerTest(unittest.TestCase):
         'chromeos/platform/factory-private', mock.ANY, mock.ANY,
         [('config/hwid/service/appengine/vpg_targets.yaml', 0o100644,
           _TEST_VPG_TARGETS_DATA)], mock.ANY, mock.ANY,
-        'vpg_targets: Update the list of model to generate payloads',
+        'vpg_targets: Update the list of model to generate payloads', False,
         topic='vpg-targets-automated-sync', auto_submit=True, hashtags=None)
     self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_called_with(
         '36f5209b029355fec53071c7c5063297bdcc6e4c')

@@ -20,12 +20,14 @@ class ConfigTest(unittest.TestCase):
     os.environ['GOOGLE_CLOUD_PROJECT'] = 'unknown project id'
     from cros.factory.hwid.service.appengine.data import config_data
     self.assertEqual('dev', config_data.Config(_TEST_CONFIG_PATH).env)
+    self.assertFalse(config_data.Config(_TEST_CONFIG_PATH).is_prod_env())
 
   def testConfigSwitchingProd(self):
     # Have to patch os.enviorn before importing config module
     os.environ['GOOGLE_CLOUD_PROJECT'] = 'prod-project-name'
     from cros.factory.hwid.service.appengine.data import config_data
     self.assertEqual('prod', config_data.Config(_TEST_CONFIG_PATH).env)
+    self.assertTrue(config_data.Config(_TEST_CONFIG_PATH).is_prod_env())
 
 
 if __name__ == '__main__':

@@ -65,6 +65,7 @@ DEFAULT_RETRY_COUNT = 5
 class ReviewVote(NamedTuple):
   label: str
   score: int
+  prod_only: bool = False
 
 
 class ApprovalCase(enum.Enum):
@@ -73,23 +74,26 @@ class ApprovalCase(enum.Enum):
   NEED_MANUAL_REVIEW = enum.auto()
   COMMIT_QUEUE = enum.auto()
 
-  def ConvertToVotes(self) -> Sequence[ReviewVote]:
-    return _REVIEW_VOTES_OF_CASE[self]
+  def ConvertToVotes(self, is_prod_env: bool) -> Sequence[ReviewVote]:
+    return [
+        vote for vote in _REVIEW_VOTES_OF_CASE[self]
+        if is_prod_env or not vote.prod_only
+    ]
 
 
 _REVIEW_VOTES_OF_CASE = {
     ApprovalCase.APPROVED: [
-        ReviewVote(_BOT_COMMIT, 1),
+        ReviewVote(_BOT_COMMIT, 1, prod_only=True),
         ReviewVote(_CODE_REVIEW, 0),
         ReviewVote(_COMMIT_QUEUE, 2),
     ],
     ApprovalCase.REJECTED: [
-        ReviewVote(_BOT_COMMIT, 0),
+        ReviewVote(_BOT_COMMIT, 0, prod_only=True),
         ReviewVote(_CODE_REVIEW, -2),
         ReviewVote(_COMMIT_QUEUE, 0),
     ],
     ApprovalCase.NEED_MANUAL_REVIEW: [
-        ReviewVote(_BOT_COMMIT, 0),
+        ReviewVote(_BOT_COMMIT, 0, prod_only=True),
         ReviewVote(_CODE_REVIEW, 0),
         ReviewVote(_COMMIT_QUEUE, 0),
     ],
@@ -571,6 +575,7 @@ def CreateOrPatchCL(
     author: str,
     committer: str,
     commit_msg: str,
+    is_prod_env: bool,
     *,
     change_id: Optional[str] = None,
     reviewers: Optional[Sequence[str]] = None,
@@ -595,6 +600,7 @@ def CreateOrPatchCL(
     author: Author in form of "Name <email@domain>"
     committer: Committer in form of "Name <email@domain>"
     commit_msg: Commit message
+    is_prod_env: A bool indicating if the current env is prod.
     change_id: An optional string of change id for patching to an existing
         CL.  None for creating a new CL.
     reviewers: List of emails of reviewers
@@ -646,7 +652,8 @@ def CreateOrPatchCL(
     options.append(f'r={_RUBBER_STAMPER_ACCOUNT}')
   if cc:
     options.extend(f'cc={email}' for email in cc)
-  options.append(f'l={_BOT_COMMIT}+{1 if bot_commit else 0}')
+  if is_prod_env:
+    options.append(f'l={_BOT_COMMIT}+{1 if bot_commit else 0}')
   options.append(f'l={_COMMIT_QUEUE}+{2 if commit_queue else 0}')
   options.append(f'l={_VERIFIED}{verified:+d}')
   options.append(f'l={_AUTO_SUBMIT}+{1 if auto_submit else 0}')
@@ -1300,6 +1307,8 @@ def ReviewCL(
     cl_number: int,
     reasons: Sequence[str],
     approval_case: ApprovalCase,
+    is_prod_env: bool,
+    *,
     reviewers: Optional[Sequence[str]] = None,
     ccs: Optional[Sequence[str]] = None,
 ):
@@ -1311,6 +1320,7 @@ def ReviewCL(
     cl_number: The CL number.
     reasons: An optional list of string messages as the reason of the action.
     approval_case: The approval case.
+    is_prod_env: A bool indicating if the current env is prod.
     reviewers: The additional reviewers to be added.
     ccs: The additional CC reviewers to be added.
 
@@ -1319,7 +1329,7 @@ def ReviewCL(
   """
   reviewers = reviewers or []
   ccs = ccs or []
-  votes = approval_case.ConvertToVotes()
+  votes = approval_case.ConvertToVotes(is_prod_env)
   try:
     _InvokeGerritAPIJSON(
         'POST', f'{review_host}/changes/{cl_number}/revisions/current/review',

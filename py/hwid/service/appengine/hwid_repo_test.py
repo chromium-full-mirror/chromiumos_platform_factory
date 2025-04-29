@@ -20,8 +20,6 @@ from cros.factory.utils import file_utils
 
 # yapf: enable
 
-
-
 _SERVER_BOARDS_YAML = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'testdata/boards_server.yaml')
 _SERVER_BOARDS_DATA = file_utils.ReadFile(_SERVER_BOARDS_YAML, encoding=None)
@@ -82,7 +80,9 @@ class HWIDRepoTest(HWIDRepoBaseTest):
         self._fake_repo, 'test_repo', 'test_branch', self._fake_unverified_ccs)
 
   def testListHWIDDBMetadata_Success(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
 
     actual_hwid_db_metadata_list = self._hwid_repo.ListHWIDDBMetadata()
 
@@ -168,52 +168,64 @@ class HWIDRepoTest(HWIDRepoBaseTest):
       self._hwid_repo.LoadV3HWIDDBByName('NO_SUCH_BOARD')
 
   def testLoadV3HWIDDBByName_ValidNameButDbNotFound(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
       self._hwid_repo.LoadV3HWIDDBByName('SBOARD')
 
   def testCommitHWIDDB_InvalidHWIDDBName(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
 
     with self.assertRaises(hwid_repo.InvalidProjectError):
       self._hwid_repo.CommitHWIDDB('no_such_board', 'unused_test_str',
-                                   'unused_test_str', [], [])
+                                   'unused_test_str', [], [], False)
 
   def testCommitHWIDDB_FailedToUploadCL(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     self._mocked_create_patch_cl.side_effect = git_util.GitUtilException
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [])
+                                   'unused_test_str', [], [], False)
 
   def testCommitHWIDDB_FailedToGetCLNumber(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     self._mocked_create_patch_cl.return_value = 'Ithis_is_change_id', None
     self._mocked_get_cl_info.side_effect = git_util.GitUtilException
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [])
+                                   'unused_test_str', [], [], False)
 
   def testCommitHWIDDB_FailedNoModificationException(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     self._mocked_create_patch_cl.side_effect = (
         git_util.GitUtilNoModificationException)
 
     with self.assertRaises(git_util.GitUtilNoModificationException):
       self._hwid_repo.CommitHWIDDB('SBOARD', 'unused_test_str',
-                                   'unused_test_str', [], [])
+                                   'unused_test_str', [], [], False)
 
   def testCommitHWIDDB_Succeed(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     expected_cl_number = 123
     self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
                                                  expected_cl_number)
 
     actual_cl_number = self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False,
         hwid_db_contents_internal='hwid_db_contents_internal')
 
     self.assertEqual(actual_cl_number, expected_cl_number)
@@ -224,13 +236,15 @@ class HWIDRepoTest(HWIDRepoBaseTest):
     ], kwargs['new_files'])
 
   def testCommitHWIDDB_SucceedWithFeatureMatcher(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     expected_cl_number = 123
     self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
                                                  expected_cl_number)
 
     actual_cl_number = self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False,
         hwid_db_contents_internal='hwid_db_contents_internal',
         feature_matcher_source='feature matcher payload')
 
@@ -244,13 +258,15 @@ class HWIDRepoTest(HWIDRepoBaseTest):
     ], kwargs['new_files'])
 
   def testCommitHWIDDB_SucceedWithBundleMetadata(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     expected_cl_number = 123
     self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id',
                                                  expected_cl_number)
 
     actual_cl_number = self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False,
         hwid_db_contents_internal='hwid_db_contents_internal',
         bundle_metadata_source='the bundle metadata')
 
@@ -261,12 +277,14 @@ class HWIDRepoTest(HWIDRepoBaseTest):
         kwargs['new_files'])
 
   def testCommitHWIDDB_Succeed_RemoveChecksum(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     self._mocked_create_patch_cl.return_value = ('unused_change_id', 123)
 
     self._hwid_repo.CommitHWIDDB(
         'SBOARD', 'hwid_db_contents\nchecksum: 12345\n', 'unused_test_str', [],
-        [],
+        [], False,
         hwid_db_contents_internal='hwid_db_contents_internal\nchecksum: 12345\n'
     )
     kwargs = self._mocked_create_patch_cl.call_args[1]
@@ -277,11 +295,13 @@ class HWIDRepoTest(HWIDRepoBaseTest):
     ], kwargs['new_files'])
 
   def testCommitHWIDDB_Succeed_UnverifiedChange(self):
-    self._AddFilesToFakeRepo({'projects.yaml': _SERVER_BOARDS_DATA})
+    self._AddFilesToFakeRepo({
+        'projects.yaml': _SERVER_BOARDS_DATA
+    })
     self._mocked_create_patch_cl.return_value = ('Ithis_is_change_id', 123)
 
     self._hwid_repo.CommitHWIDDB(
-        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [],
+        'SBOARD', 'hwid_db_contents', 'unused_test_str', [], [], False,
         hwid_db_contents_internal='hwid_db_contents_internal', verified=-1)
 
     kwargs = self._mocked_create_patch_cl.call_args[1]
@@ -448,7 +468,7 @@ class HWIDRepoManagerTest(HWIDRepoBaseTest):
                               git_util.CLStatus.NEW, [], None, None,
                               datetime.datetime.utcnow(), None, None, None,
                               None, None, None)
-    self._hwid_repo_manager.RebaseCLMetadata(cl_info)
+    self._hwid_repo_manager.RebaseCLMetadata(cl_info, False)
 
     patch_cl.assert_called_with(mock.ANY, mock.ANY, mock.ANY, expected_metadata,
                                 mock.ANY)
@@ -462,7 +482,7 @@ class HWIDRepoManagerTest(HWIDRepoBaseTest):
                               None, None, None)
 
     with self.assertRaises(hwid_repo.HWIDRepoError):
-      self._hwid_repo_manager.RebaseCLMetadata(cl_info)
+      self._hwid_repo_manager.RebaseCLMetadata(cl_info, False)
 
   def testRebaseCLMetadata_NoProjectNameInCommitMessage(self):
     self._mocked_rebase_cl.return_value = ['projects.yaml']
@@ -472,7 +492,7 @@ class HWIDRepoManagerTest(HWIDRepoBaseTest):
                               None, None, None)
 
     with self.assertRaises(ValueError):
-      self._hwid_repo_manager.RebaseCLMetadata(cl_info)
+      self._hwid_repo_manager.RebaseCLMetadata(cl_info, False)
 
 
 if __name__ == '__main__':

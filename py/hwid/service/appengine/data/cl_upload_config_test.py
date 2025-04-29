@@ -170,11 +170,12 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
     change_id, cl_number = manager.CreateCL(
         False, 'https://chrome-internal.googlesource.com/fake-project',
         'fake-cookie', 'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg')
+        'fake-commit-msg', False)
 
     mock_create_patch_cl.assert_called_once_with(
         'https://chrome-internal.googlesource.com/fake-project', 'fake-cookie',
         'fake-branch', [], 'fake-author', 'fake-committer', 'fake-commit-msg',
+        False,
         reviewers=['bot-reviewer@example.com'], cc=[
             'reviewer@example.com', 'cc@example.com'
         ], bot_commit=False, commit_queue=False, repo=None, topic=None,
@@ -196,11 +197,12 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
     change_id, cl_number = manager.CreateCL(
         False, 'https://chrome-internal.googlesource.com/fake-project',
         'fake-cookie', 'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg')
+        'fake-commit-msg', False)
 
     mock_create_patch_cl.assert_called_once_with(
         'https://chrome-internal.googlesource.com/fake-project', 'fake-cookie',
         'fake-branch', [], 'fake-author', 'fake-committer', 'fake-commit-msg',
+        False,
         reviewers=[], cc=['reviewer@example.com',
                           'cc@example.com'], bot_commit=True, commit_queue=True,
         repo=None, topic=None, verified=0, auto_submit=False,
@@ -221,12 +223,12 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
     change_id, cl_number = manager.CreateCL(
         False, 'https://chrome-internal.googlesource.com/fake-project',
         'fake-cookie', 'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg')
+        'fake-commit-msg', False)
 
     mock_create_patch_cl.assert_called_once_with(
         'https://chrome-internal.googlesource.com/fake-project', 'fake-cookie',
         'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg', reviewers=['reviewer@example.com'], cc=[
+        'fake-commit-msg', False, reviewers=['reviewer@example.com'], cc=[
             'cc@example.com'
         ], bot_commit=False, commit_queue=False, repo=None, topic=None,
         verified=0, auto_submit=False, rubber_stamper=False, hashtags=None,
@@ -246,7 +248,7 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
     change_id, cl_number = manager.CreateCL(
         True, 'https://chrome-internal.googlesource.com/fake-project',
         'fake-cookie', 'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg')
+        'fake-commit-msg', False)
 
     mock_create_patch_cl.assert_not_called()
     self.assertIsNone(change_id)
@@ -500,11 +502,12 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     change_id, cl_number = manager.CreateCL(
         False, 'https://chrome-internal.googlesource.com/fake-project',
         'fake-cookie', 'fake-branch', [], 'fake-author', 'fake-committer',
-        'fake-commit-msg')
+        'fake-commit-msg', False)
 
     mock_create_patch_cl.assert_called_once_with(
         'https://chrome-internal.googlesource.com/fake-project', 'fake-cookie',
         'fake-branch', [], 'fake-author', 'fake-committer', 'fake-commit-msg',
+        False,
         reviewers=['bot-reviewer@example.com'], cc=[
             'reviewer@example.com', 'cc@example.com'
         ], bot_commit=False, commit_queue=False, repo=None, topic=None,

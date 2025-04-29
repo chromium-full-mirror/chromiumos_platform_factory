@@ -752,6 +752,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       battery_config_fetcher: hwid_action.IBatteryConfigFetcher,
       vpg_targets_data_manager: vpg_targets_data.VPGTargetsDataManager,
       dlm_product_manager: dlm_product_data.DLMProductManager,
+      is_prod_env: bool,
       cq_count_over_limit_cl_reviewers: Optional[Sequence[str]] = None,
   ):
     self._hwid_action_manager = hwid_action_manager_inst
@@ -764,6 +765,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     self._battery_config_fetcher = battery_config_fetcher
     self._vpg_targets_data_manager = vpg_targets_data_manager
     self._dlm_product_manager = dlm_product_manager
+    self._is_prod_env = is_prod_env
     self._cq_count_over_limit_cl_reviewers = (
         cq_count_over_limit_cl_reviewers or [])
 
@@ -883,6 +885,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           commit_msg='\n'.join(commit_msg),
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
+          is_prod_env=self._is_prod_env,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
           hwid_db_contents_internal=analysis.new_hwid_db_contents_internal,
@@ -1004,6 +1007,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
               commit_msg=commit_msg,
               reviewers=request_metadata.reviewer_emails,
               cc_list=request_metadata.cc_emails,
+              is_prod_env=self._is_prod_env,
               bot_commit=request_metadata.auto_approved,
               commit_queue=request_metadata.auto_approved,
               hwid_db_contents_internal=internal_db,
@@ -1074,6 +1078,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             reasons=[]
             if cl_number == cl_info.cl_number else parent_cl_cq_reasons,
             approval_case=git_util.ApprovalCase.COMMIT_QUEUE,
+            is_prod_env=self._is_prod_env,
         )
       except git_util.GitUtilException as ex:
         raise protorpc_utils.ProtoRPCException(
@@ -1099,7 +1104,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     if not cl_info.mergeable and _IsCLReadyForCQ(cl_info):
       logging.info('CL %d merge conflict, perform auto rebase.', cl_number)
       try:
-        self._hwid_repo_manager.RebaseCLMetadata(cl_info)
+        self._hwid_repo_manager.RebaseCLMetadata(cl_info, self._is_prod_env)
       except (git_util.GitUtilException, hwid_repo.HWIDRepoError,
               ValueError) as ex:
         logging.warning(
@@ -1380,6 +1385,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
+          is_prod_env=self._is_prod_env,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
           update_metadata=new_metadata,
@@ -1410,6 +1416,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             cl_number=cl_number,
             reasons=cl_action.reasons,
             approval_case=approval_case,
+            is_prod_env=self._is_prod_env,
             reviewers=cl_action.reviewers,
             ccs=cl_action.ccs,
         )
@@ -1624,6 +1631,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
+          is_prod_env=self._is_prod_env,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
           hwid_db_contents_internal=internal_db,
@@ -1759,6 +1767,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           author=author,
           committer=author,
           commit_msg=commit_msg,
+          is_prod_env=self._is_prod_env,
           cc=setting.avl_metadata_cl_ccs,
           topic=setting.avl_metadata_topic,
           auto_submit=True,
@@ -1876,6 +1885,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             commit_msg=commit_msg,
             reviewers=list(reviewers),
             cc_list=list(ccs),
+            is_prod_env=self._is_prod_env,
             change_id=change_id,
             bot_commit=bot_commit,
             commit_queue=commit_queue,

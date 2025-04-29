@@ -116,13 +116,17 @@ class VPGConfigManager:
   }
 
   def __init__(
-      self, dlm_product_manager: dlm_product_data.DLMProductManager,
+      self,
+      dlm_product_manager: dlm_product_data.DLMProductManager,
       cl_upload_manager: cl_upload_config.VPGTargetsCLUploadManager,
-      hwid_action_manager: hwid_action_manager_module.HWIDActionManager):
+      hwid_action_manager: hwid_action_manager_module.HWIDActionManager,
+      is_prod_env: bool,
+  ):
     self._logger = logging.getLogger(self.__class__.__name__)
     self._dlm_product_manager = dlm_product_manager
     self._cl_upload_manager = cl_upload_manager
     self._hwid_action_manager = hwid_action_manager
+    self._is_prod_env = is_prod_env
 
     self._cl_setting = config_data_module.CreateVPGTargetsSettings()
     self._gerrit_credentials = None
@@ -220,6 +224,7 @@ class VPGConfigManager:
           author,
           author,
           commit_msg,
+          self._is_prod_env,
           topic=self._cl_setting.topic,
           auto_submit=True,
           hashtags=self._cl_setting.hashtags,
