@@ -10,3 +10,6 @@ import './dashboard_shopfloor.e2e.test';
 
 // An e2e test for upload bundle and download resources
 import './upload_bundle.e2e.test';
+
+// An e2e test for updating resource with a bundle to an umpire project
+import './update_resource.e2e.test';
