@@ -79,9 +79,7 @@ class PayloadManager(abc.ABC):
 
   @property
   def _author(self) -> str:
-    # yapf: disable
     service_account_name = self._gerrit_credentials[0]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
     return f'chromeoshwid <{service_account_name}>'
 
   def _RefreshCredential(self):
@@ -219,9 +217,7 @@ class PayloadManager(abc.ABC):
     if skip_model_check:
       board_models = self._GetBoardModelsMapping(limit_models, live_hwid_repo)
     else:
-      # yapf: disable
       board_models = self._GetSupportedModels(limit_models, live_hwid_repo)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
 
     result = {}
     author = self._author
@@ -237,36 +233,29 @@ class PayloadManager(abc.ABC):
             setting.prefix, filepath), git_util.NORMAL_FILE_MODE, filecontent)
                      for filepath, filecontent in payloads.contents.items()]
         commit_msg = self._GetCLMessage(board, models, payloads,
-                                        # yapf: disable
                                         hwid_live_commit, hwid_prev_commit)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
         try:
           repo = git_util.MemoryRepo(auth_cookie=self._auth_cookie)
           # only fetches last commit
           repo.shallow_clone(git_url, branch=branch)
           files_to_delete = self._GetDeletedFiles(setting, repo, payloads)
           change_id, unused_cl_number = self._cl_upload_manager.CreateCL(
-              # yapf: disable
               dryrun,
               git_url,
               self._auth_cookie,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
               branch,
               git_files,
               author,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-              # yapf: enable
               author,
               commit_msg,
               repo=repo,
               topic=setting.topic,
               auto_submit=True,
               hashtags=setting.hashtags,
-              files_to_delete=files_to_delete)
-          # yapf: disable
+              files_to_delete=files_to_delete,
+          )
           self._PostUpdate(board, models, change_id, payloads)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          # yapf: disable
           result[board] = UpdatedResult(payloads.hash_value, change_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
         except git_util.GitUtilNoModificationException:
           self._logger.debug('No modification is made, skipped')
         except git_util.GitUtilException as ex:
@@ -283,9 +272,7 @@ class PayloadManager(abc.ABC):
       setting = self._GetCLSetting(board)
       try:
         self._cl_upload_manager.AbandonCL(dryrun, setting.review_host,
-                                          # yapf: disable
                                           self._auth_cookie, change_id)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
       except git_util.GitUtilException as ex:
         self._logger.error('Cannot abandon CL for %r: %r', change_id, str(ex))
 
@@ -373,9 +360,7 @@ class HWIDSelectionPayloadManager(_BaseFeatureEnablementPayloadManager):
         'device_selection_sample.textproto':
             payload_builder.BuildDeviceSelectionSample(),
     }
-    # yapf: disable
     return _Payload(payloads, _JSONHash(payloads), {'models': generated_models})  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
 
   def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
                        repo: git_util.MemoryRepo,
@@ -506,8 +491,9 @@ class VerificationPayloadManager(PayloadManager):
         db_list.append((db, vpg_target))
 
     result = vpg_module.GenerateVerificationPayload(db_list, key)
-    return _Payload(result.generated_file_contents, result.payload_hash,
-                    {'primary_identifier': result.primary_identifiers})
+    return _Payload(result.generated_file_contents, result.payload_hash, {
+        'primary_identifier': result.primary_identifiers
+    })
 
   def _GetDeletedFiles(self, setting: config_data_module.CLSetting,
                        repo: git_util.MemoryRepo,

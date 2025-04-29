@@ -923,8 +923,9 @@ _CHANGE_INFO_SCHEMA = schema.FixedDict(
             schema.List('hashtags', schema.Scalar('hashtag', str)),
     }, allow_undefined_keys=True)
 _MERGEABLE_INFO = schema.FixedDict(
-    'MergeableInfo', items={'mergeable': schema.Scalar('mergeable', bool)},
-    allow_undefined_keys=True)
+    'MergeableInfo', items={
+        'mergeable': schema.Scalar('mergeable', bool)
+    }, allow_undefined_keys=True)
 _CONTEXT_LINE_SCHEMA = schema.FixedDict(
     'ContextLine', items={
         'line_number': schema.Scalar('line_number', int),
@@ -947,8 +948,9 @@ _COMMIT_INFO = schema.FixedDict(
         'parents':
             schema.List(
                 'parents',
-                schema.FixedDict(
-                    'commit', items={'commit': schema.Scalar('commit', str)}))
+                schema.FixedDict('commit', items={
+                    'commit': schema.Scalar('commit', str)
+                }))
     }, allow_undefined_keys=True)
 _RELATED_CHANGE_INFO = schema.FixedDict(
     'RelatedChangeInfo', items={
@@ -957,9 +959,9 @@ _RELATED_CHANGE_INFO = schema.FixedDict(
         '_change_number': schema.Scalar('_change_number', int),
     }, allow_undefined_keys=True)
 _RELATED_CHANGES_INFO = schema.FixedDict(
-    'RelatedChangesInfo',
-    items={'changes': schema.List('changes', _RELATED_CHANGE_INFO)},
-    allow_undefined_keys=True)
+    'RelatedChangesInfo', items={
+        'changes': schema.List('changes', _RELATED_CHANGE_INFO)
+    }, allow_undefined_keys=True)
 _CL_MESSAGE = schema.FixedDict(
     'CommitMessage', items={
         'date': schema.Scalar('date', str),
@@ -1172,9 +1174,9 @@ def GetCLInfo(
       for replying_comment_json in replying_comment_json_list:
         # yapf: disable
         comment_thread.comments.append(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
             CLComment(replying_comment_json['author'].get('email'),
                       replying_comment_json.get('message', '')))
+        # yapf: enable
         replying_comment_id = replying_comment_json['id']
         comment_thread_of_comment_id[replying_comment_id] = comment_thread
         comment_id_queue.append(replying_comment_id)
@@ -1292,10 +1294,15 @@ def AddReviewer(
         f'Add hashtag failed for CL number: {cl_number}.') from ex
 
 
-def ReviewCL(review_host: str, auth_cookie: str, cl_number: int,
-             reasons: Sequence[str], approval_case: ApprovalCase,
-             reviewers: Optional[Sequence[str]] = None,
-             ccs: Optional[Sequence[str]] = None):
+def ReviewCL(
+    review_host: str,
+    auth_cookie: str,
+    cl_number: int,
+    reasons: Sequence[str],
+    approval_case: ApprovalCase,
+    reviewers: Optional[Sequence[str]] = None,
+    ccs: Optional[Sequence[str]] = None,
+):
   """Reviews a CL.
 
   Args:
@@ -1321,8 +1328,10 @@ def ReviewCL(review_host: str, auth_cookie: str, cl_number: int,
                 True,
             'message':
                 '\n'.join(reasons),
-            'labels': {vote.label: vote.score
-                       for vote in votes},
+            'labels': {
+                vote.label: vote.score
+                for vote in votes
+            },
             'reviewers': [{
                 'reviewer': reviewer
             } for reviewer in reviewers] + [{
@@ -1349,8 +1358,9 @@ def AbandonCL(review_host, auth_cookie, change_id,
   """
   try:
     _InvokeGerritAPIJSON('POST', f'{review_host}/a/changes/{change_id}/abandon',
-                         auth_cookie=auth_cookie,
-                         json_body={'message': reason} if reason else None)
+                         auth_cookie=auth_cookie, json_body={
+                             'message': reason
+                         } if reason else None)
   except GitUtilException as ex:
     raise GitUtilException(
         f'Abandon failed for change id: {change_id}.') from ex
@@ -1374,8 +1384,9 @@ def RebaseCL(review_host: str, change_id: str, auth_cookie: str = '',
   try:
     resp = _InvokeGerritAPI(
         'POST', f'{review_host}/changes/{change_id}/rebase',
-        auth_cookie=auth_cookie, return_resp=not force,
-        json_body={'allow_conflicts': force} if force else None)
+        auth_cookie=auth_cookie, return_resp=not force, json_body={
+            'allow_conflicts': force
+        } if force else None)
     if not force:
       # yapf: disable
       if resp.status == 409:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -1476,7 +1487,9 @@ _FILE_LOG_SCHEMA = schema.FixedDict(
             schema.List(
                 'logs', element_type=schema.FixedDict(
                     'commit details',
-                    items={'commit': schema.Scalar('commit', str)},
+                    items={
+                        'commit': schema.Scalar('commit', str)
+                    },
                     allow_undefined_keys=True,
                 )),
     },

@@ -171,11 +171,9 @@ class VPGConfigManager:
         collections.defaultdict(lambda: collections.defaultdict(set)))
     all_categories = vpg_module.GetAllProbeStatementGenerators().keys()
     for product in dlm_products:
-      if (
-          product.model not in live_hwid_repo.hwid_db_metadata_of_name or
+      if (product.model not in live_hwid_repo.hwid_db_metadata_of_name or
           product.product_status in self._INVALID_PRODUCT_STATUS or
-          product.device_type == _DeviceType.REFERENCE_BOARD
-      ):
+          product.device_type == _DeviceType.REFERENCE_BOARD):
         continue
 
       try:
@@ -214,11 +212,18 @@ class VPGConfigManager:
     commit_msg = 'vpg_targets: Update the list of model to generate payloads'
     try:
       self._cl_upload_manager.CreateCL(
-          # yapf: disable
-          dryrun, git_url, self._auth_cookie, branch, git_files, author, author,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
-          commit_msg, topic=self._cl_setting.topic, auto_submit=True,
-          hashtags=self._cl_setting.hashtags)
+          dryrun,
+          git_url,
+          self._auth_cookie,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+          branch,
+          git_files,
+          author,
+          author,
+          commit_msg,
+          topic=self._cl_setting.topic,
+          auto_submit=True,
+          hashtags=self._cl_setting.hashtags,
+      )
     except git_util.GitUtilNoModificationException:
       self._logger.debug('No modification is made, skipped')
     except git_util.GitUtilException as ex:
@@ -247,12 +252,12 @@ class VPGConfigManager:
     vpg_config = self._GetVPGConfig()
     # yapf: disable
     models_vp_on = collections.defaultdict(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
         lambda: collections.defaultdict(dict))
+    # yapf: enable
     models_vp_on.update(vpg_config.models_force_vp_on)
 
-    product_status_mapping = self._GetProductStatusMapping(vpg_config,
-                                                           live_hwid_repo)
+    product_status_mapping = self._GetProductStatusMapping(
+        vpg_config, live_hwid_repo)
     for board, model_to_status in product_status_mapping.items():
       for model, product_status in model_to_status.items():
         if vpg_config.ShouldSkipProductStatus(board, model):
@@ -272,9 +277,9 @@ class VPGConfigManager:
     # Sort the result to avoid flakiness.
     # yapf: disable
     models_vp_on = {  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
         'models_vp_on': _ToSortedDict(models_vp_on)
     }
+    # yapf: enable
     vpg_targets = VPGTargets.Create(models_vp_on)
 
     if self._cl_upload_manager.ShouldCreateCL(vpg_targets.hash_value):

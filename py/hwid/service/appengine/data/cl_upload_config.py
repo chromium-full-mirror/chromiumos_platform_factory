@@ -189,11 +189,25 @@ class AbstractCLUploadManager(abc.ABC):
       self._logger.debug(debug_info)
       return None, None
     return git_util.CreateOrPatchCL(
-        git_url, auth_cookie, branch, new_files, author, committer, commit_msg,
-        reviewers=reviewers, cc=ccs, bot_commit=self_approval,
-        commit_queue=self_approval, repo=repo, topic=topic, verified=verified,
-        auto_submit=auto_submit, rubber_stamper=rubber_stamper,
-        hashtags=hashtags, files_to_delete=files_to_delete)
+        git_url,
+        auth_cookie,
+        branch,
+        new_files,
+        author,
+        committer,
+        commit_msg,
+        reviewers=reviewers,
+        cc=ccs,
+        bot_commit=self_approval,
+        commit_queue=self_approval,
+        repo=repo,
+        topic=topic,
+        verified=verified,
+        auto_submit=auto_submit,
+        rubber_stamper=rubber_stamper,
+        hashtags=hashtags,
+        files_to_delete=files_to_delete,
+    )
 
   def AbandonCL(self, dryrun: bool, review_host: str, auth_cookie: str,
                 change_id: str, reason: Optional[str] = None):

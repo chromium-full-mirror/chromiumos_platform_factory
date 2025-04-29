@@ -29,7 +29,6 @@ from cros.factory.utils import type_utils
 # yapf: enable
 
 
-
 def _BuildGitTreeByFiles(files) -> Tuple[git_util.MemoryRepo, dw_objects.Tree]:
   repo = git_util.MemoryRepo('')
   tree = dw_objects.Tree()
@@ -200,6 +199,7 @@ class MemoryRepoTest(unittest.TestCase):
     self.assertFalse(repo.check_path_existence('a/x'))
     self.assertFalse(repo.check_path_existence('a/b/x'))
     self.assertFalse(repo.check_path_existence('a/b/c/x'))
+
 
 class GetChangeIdTest(unittest.TestCase):
 
@@ -913,10 +913,22 @@ class CreateOrPatchCLTest(unittest.TestCase):
     repo.shallow_clone(url, branch=branch)
     new_files = [(file_name, 0o100644, b'')]
 
-    git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
-                             committer, commit_msg, change_id=change_id,
-                             reviewers=reviewers, cc=ccs, bot_commit=True,
-                             commit_queue=True, repo=repo, verified=1)
+    git_util.CreateOrPatchCL(
+        url,
+        auth_cookie,
+        branch,
+        new_files,
+        author,
+        committer,
+        commit_msg,
+        change_id=change_id,
+        reviewers=reviewers,
+        cc=ccs,
+        bot_commit=True,
+        commit_queue=True,
+        repo=repo,
+        verified=1,
+    )
 
     self.assertEqual(b'commit msg\n\nChange-Id: Ithe_change_id',
                      repo[repo.head()].message)
@@ -936,10 +948,21 @@ class CreateOrPatchCLTest(unittest.TestCase):
     new_files = [(new_file_name, 0o100644, b'')]
     files_to_delete = [delete_file_name]
 
-    git_util.CreateOrPatchCL(url, auth_cookie, branch, new_files, author,
-                             committer, commit_msg, reviewers=reviewers, cc=ccs,
-                             bot_commit=True, commit_queue=True, verified=1,
-                             files_to_delete=files_to_delete)
+    git_util.CreateOrPatchCL(
+        url,
+        auth_cookie,
+        branch,
+        new_files,
+        author,
+        committer,
+        commit_msg,
+        reviewers=reviewers,
+        cc=ccs,
+        bot_commit=True,
+        commit_queue=True,
+        verified=1,
+        files_to_delete=files_to_delete,
+    )
 
     mock_porcelain.push.assert_called_once_with(
         mock.ANY, url,
@@ -954,6 +977,7 @@ class CreateOrPatchCLTest(unittest.TestCase):
         name for name, unused_mode, unused_content in repo.list_files('/'))
     self.assertIn(new_file_name, file_names)
     self.assertNotIn(delete_file_name, file_names)
+
 
 class GitFilesystemAdapterTest(unittest.TestCase):
 
@@ -1030,15 +1054,16 @@ class GetLastMergedChangeCommitTest(unittest.TestCase):
 
   def testSuccess(self):
     mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
-    mock_urlopen.return_value = _BuildGerritSuccResponse(
-        {'log': [
+    mock_urlopen.return_value = _BuildGerritSuccResponse({
+        'log': [
             {
                 'commit': '12345',
             },
             {
                 'commit': '67890',
             },
-        ]})
+        ]
+    })
 
     result = git_util.GetLastMergedChangeCommit('the_url', 'the_project',
                                                 'the_target_path', 'the_head')

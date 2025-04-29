@@ -543,8 +543,8 @@ class FeatureMatcherBuilderImpl(FeatureMatcherBuilder):
         if hwid_storage_size_in_gb < 0:
           self._warnings.append(f'The HWID component {db_comp_name} has '
                                 'suspicious storage size info.')
-        if (self._RoundUpToPowerOf2Or0(hwid_storage_size_in_gb) !=
-            self._RoundUpToPowerOf2Or0(dlm_storage_size_in_gb)):
+        if (self._RoundUpToPowerOf2Or0(hwid_storage_size_in_gb)
+            != self._RoundUpToPowerOf2Or0(dlm_storage_size_in_gb)):
           self._warnings.append(
               f'The estimated storage size ({hwid_storage_size_in_gb}) '
               f'from HWID component {db_comp_name} is different than the DLM '
@@ -711,9 +711,7 @@ class TOTBatteryConfigFetcher(hwid_action.IBatteryConfigFetcher):
                required_git_auth_cookie: bool, repo_name: str, base_dir: str):
     self._gerrit_review_url = gerrit_review_url
     self._git_auth_cookie_getter: Callable[[], str] = (
-        git_util.GetGerritAuthCookie
-        if required_git_auth_cookie else str
-    )
+        git_util.GetGerritAuthCookie if required_git_auth_cookie else str)
     self._gitiles_url = gitiles_url
     self._repo_name = repo_name
     self._path_prefix = f'{base_dir}/' if base_dir else ''
@@ -1001,12 +999,15 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
           live_hwid_repo.ResetRepo()
         try:
           cl_number = live_hwid_repo.CommitHWIDDB(
-              name=model_name, hwid_db_contents=external_db,
-              commit_msg=commit_msg, reviewers=request_metadata.reviewer_emails,
+              name=model_name,
+              hwid_db_contents=external_db,
+              commit_msg=commit_msg,
+              reviewers=request_metadata.reviewer_emails,
               cc_list=request_metadata.cc_emails,
               bot_commit=request_metadata.auto_approved,
               commit_queue=request_metadata.auto_approved,
-              hwid_db_contents_internal=internal_db)
+              hwid_db_contents_internal=internal_db,
+          )
         except hwid_repo.HWIDRepoError:
           logging.exception(
               'Caught an unexpected exception while uploading a HWID CL.')
@@ -1067,10 +1068,13 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     for cl_number in put_cq:
       try:
         git_util.ReviewCL(
-            hwid_repo.INTERNAL_REPO_REVIEW_URL, git_util.GetGerritAuthCookie(),
-            cl_number=cl_number, reasons=[]
+            hwid_repo.INTERNAL_REPO_REVIEW_URL,
+            git_util.GetGerritAuthCookie(),
+            cl_number=cl_number,
+            reasons=[]
             if cl_number == cl_info.cl_number else parent_cl_cq_reasons,
-            approval_case=git_util.ApprovalCase.COMMIT_QUEUE)
+            approval_case=git_util.ApprovalCase.COMMIT_QUEUE,
+        )
       except git_util.GitUtilException as ex:
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from ex
@@ -1371,12 +1375,15 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     new_metadata = hwid_repo.HWIDDBMetadata(project, board, 3, f'v3/{project}')
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project, hwid_db_contents=db_content, commit_msg=commit_msg,
+          name=project,
+          hwid_db_contents=db_content,
+          commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
-          update_metadata=new_metadata)
+          update_metadata=new_metadata,
+      )
     except hwid_repo.HWIDRepoError:
       logging.exception(
           'Caught an unexpected exception while uploading a HWID CL.')
@@ -1397,11 +1404,15 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT) from None
       approval_case = _APPROVAL_CASE[cl_action.approval_case]
       try:
-        git_util.ReviewCL(hwid_repo.INTERNAL_REPO_REVIEW_URL,
-                          git_util.GetGerritAuthCookie(), cl_number=cl_number,
-                          reasons=cl_action.reasons,
-                          approval_case=approval_case,
-                          reviewers=cl_action.reviewers, ccs=cl_action.ccs)
+        git_util.ReviewCL(
+            hwid_repo.INTERNAL_REPO_REVIEW_URL,
+            git_util.GetGerritAuthCookie(),
+            cl_number=cl_number,
+            reasons=cl_action.reasons,
+            approval_case=approval_case,
+            reviewers=cl_action.reviewers,
+            ccs=cl_action.ccs,
+        )
       except git_util.GitUtilException as ex:
         raise protorpc_utils.ProtoRPCException(
             protorpc_utils.RPCCanonicalErrorCode.INTERNAL) from ex
@@ -1457,8 +1468,8 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
       for identity, change_unit in change_units.items():
         avl_suggestion = None
         if (isinstance(change_unit, change_unit_utils.CompChange) and
-            change_unit.comp_analysis.probe_value_alignment_status !=
-            hwid_action.DBHWIDPVAlignmentStatus.ALIGNED):
+            change_unit.comp_analysis.probe_value_alignment_status
+            != hwid_action.DBHWIDPVAlignmentStatus.ALIGNED):
           avl_suggestion = avl_converter.GetAVLSuggestion(
               change_unit.comp_analysis.comp_cls,
               change_unit.comp_analysis.comp_name, change_unit.probe_values)
@@ -1608,12 +1619,15 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
 
     try:
       cl_number = live_hwid_repo.CommitHWIDDB(
-          name=project, hwid_db_contents=external_db, commit_msg=commit_msg,
+          name=project,
+          hwid_db_contents=external_db,
+          commit_msg=commit_msg,
           reviewers=request_metadata.reviewer_emails,
           cc_list=request_metadata.cc_emails,
           bot_commit=request_metadata.auto_approved,
           commit_queue=request_metadata.auto_approved,
-          hwid_db_contents_internal=internal_db)
+          hwid_db_contents_internal=internal_db,
+      )
     except hwid_repo.HWIDRepoError:
       logging.exception(
           'Caught an unexpected exception while uploading a HWID CL.')

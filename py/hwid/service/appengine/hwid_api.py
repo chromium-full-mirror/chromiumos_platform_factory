@@ -38,10 +38,10 @@ def GetAllHWIDServiceShards(
       config.release_version_manager,
   )
   sku_helper = sku_helper_module.SKUHelper(config.decoder_data_manager)
-  get_bom_shard = decoding_apis.GetBOMShard(
-      config.hwid_action_manager, bc_helper)
-  get_sku_shard = decoding_apis.GetSKUShard(
-      config.hwid_action_manager, bc_helper, sku_helper)
+  get_bom_shard = decoding_apis.GetBOMShard(config.hwid_action_manager,
+                                            bc_helper)
+  get_sku_shard = decoding_apis.GetSKUShard(config.hwid_action_manager,
+                                            bc_helper, sku_helper)
   get_dut_label_shard = decoding_apis.GetDUTLabelShard(
       config.decoder_data_manager, goldeneye_memcache_adapter, bc_helper,
       sku_helper, config.hwid_action_manager, config.vpg_targets_data_manager)

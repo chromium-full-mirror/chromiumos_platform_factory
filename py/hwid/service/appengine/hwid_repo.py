@@ -258,16 +258,23 @@ class HWIDRepo(HWIDRepoView):
     """Resets the repo to ToT."""
     self._repo.checkout_branch(self._repo_branch)
 
-  def CommitHWIDDB(self, name: str, hwid_db_contents: str, commit_msg: str,
-                   reviewers: Sequence[str], cc_list: Sequence[str],
-                   *,
-                   change_id: Optional[str] = None,
-                   bot_commit: bool = False, commit_queue: bool = False,
-                   update_metadata: Optional[HWIDDBMetadata] = None,
-                   hwid_db_contents_internal: Optional[str] = None,
-                   feature_matcher_source: Optional[str] = None,
-                   bundle_metadata_source: Optional[str] = None,
-                   verified: int = 0):
+  def CommitHWIDDB(
+      self,
+      name: str,
+      hwid_db_contents: str,
+      commit_msg: str,
+      reviewers: Sequence[str],
+      cc_list: Sequence[str],
+      *,
+      change_id: Optional[str] = None,
+      bot_commit: bool = False,
+      commit_queue: bool = False,
+      update_metadata: Optional[HWIDDBMetadata] = None,
+      hwid_db_contents_internal: Optional[str] = None,
+      feature_matcher_source: Optional[str] = None,
+      bundle_metadata_source: Optional[str] = None,
+      verified: int = 0,
+  ):
     """Commit an HWID DB to the repo.
 
     Args:
@@ -343,12 +350,20 @@ class HWIDRepo(HWIDRepoView):
       change_id, cl_number = git_util.CreateOrPatchCL(
           gerrit_review_url=self._repo_url,
           auth_cookie=git_util.GetGerritAuthCookie(),
-          branch=self._repo_branch, new_files=new_files, author=author,
-          committer=author, commit_msg=commit_msg, change_id=change_id,
+          branch=self._repo_branch,
+          new_files=new_files,
+          author=author,
+          committer=author,
+          commit_msg=commit_msg,
+          change_id=change_id,
           reviewers=reviewers,
-          cc=list(set(cc_list)), bot_commit=bot_commit,
-          commit_queue=commit_queue, repo=self._repo, verified=verified,
-          hashtags=hashtags)
+          cc=list(set(cc_list)),
+          bot_commit=bot_commit,
+          commit_queue=commit_queue,
+          repo=self._repo,
+          verified=verified,
+          hashtags=hashtags,
+      )
       if cl_number is None:
         logging.warning(
             'Failed to parse CL number from change_id=%s. Get CL number from '
@@ -412,8 +427,8 @@ class GerritCLHWIDRepo(_GerritHWIDRepo):
     self._repo_branch = repo_branch
     self._cl_number = cl_number
 
-  def _GetGitFileRawContents(
-      self, path: str, optional: bool) -> Optional[bytes]:
+  def _GetGitFileRawContents(self, path: str,
+                             optional: bool) -> Optional[bytes]:
     """See base class."""
     return git_util.GetFileContent(
         INTERNAL_REPO_REVIEW_URL, _CHROMEOS_HWID_PROJECT, path,
@@ -427,8 +442,8 @@ class GerritToTHWIDRepo(_GerritHWIDRepo):
   def __init__(self, repo_branch: str):
     self._repo_branch = repo_branch
 
-  def _GetGitFileRawContents(
-      self, path: str, optional: bool) -> Optional[bytes]:
+  def _GetGitFileRawContents(self, path: str,
+                             optional: bool) -> Optional[bytes]:
     """See base class."""
     return git_util.GetFileContent(
         INTERNAL_REPO_REVIEW_URL, _CHROMEOS_HWID_PROJECT, path,
@@ -561,7 +576,9 @@ class HWIDRepoManager:
                      _DumpMetadata(metadata).encode(),
                      git_util.GetGerritAuthCookie())
     git_util.ReviewCL(
-        INTERNAL_REPO_REVIEW_URL, git_util.GetGerritAuthCookie(),
-        cl_number=cl_info.cl_number, reasons=[
-            f'Auto resolved merge conflict for {_PROJECTS_YAML_PATH}'
-        ], approval_case=git_util.ApprovalCase.APPROVED)
+        INTERNAL_REPO_REVIEW_URL,
+        git_util.GetGerritAuthCookie(),
+        cl_number=cl_info.cl_number,
+        reasons=[f'Auto resolved merge conflict for {_PROJECTS_YAML_PATH}'],
+        approval_case=git_util.ApprovalCase.APPROVED,
+    )

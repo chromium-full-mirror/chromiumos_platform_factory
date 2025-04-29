@@ -95,6 +95,7 @@ def CreateVerificationPayloadSettings(board: str) -> CLSetting:
                        f'racc-verification-payload-{board.lower()}'
                    ])
 
+
 def CreateHWIDSelectionPayloadSettings(board: str) -> CLSetting:
   """Create a repo setting of HWID selection payload for specific board.
 
