@@ -150,12 +150,6 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
                       skip_model_check: bool = False) -> Mapping[str, str]:
     board_result = payload_manager.Update(dryrun, limit_models, force_update,
                                           live_hwid_repo, skip_model_check)
-    change_ids = {
-        board: result.change_id
-        for board, result in board_result.items()
-    }
-    if self._config_data.env != 'prod':
-      payload_manager.AbandonCLs(dryrun, change_ids)
     return {
         board: result.payload_hash
         for board, result in board_result.items()
