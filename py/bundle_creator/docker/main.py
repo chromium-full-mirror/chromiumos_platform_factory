@@ -31,6 +31,8 @@ def main():
 if __name__ == '__main__':
   if config.ENV_TYPE == 'local':
     logging.basicConfig(level=logging.INFO)
-  else:
+  elif config.DOCKER_LOG_LEVEL != 'DEBUG':
     gc_logging.Client().setup_logging(log_level=logging.INFO)
+  else:
+    gc_logging.Client().setup_logging(log_level=logging.DEBUG)
   main()

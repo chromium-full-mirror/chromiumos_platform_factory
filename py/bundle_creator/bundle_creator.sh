@@ -21,7 +21,7 @@ LOCAL_BUILD_BUNDLE="${FACTORY_DIR}/build/bundle"
 TOOLKIT_NAME="install_factory_toolkit.run"
 LOCAL_BUILD_TOOLKIT="${LOCAL_BUILD_BUNDLE}/toolkit/${TOOLKIT_NAME}"
 REMOTE_TOOLKIT_BOARD="grunt"
-REMOTE_TOOLKIT_VERSION="16050.0.0"
+REMOTE_TOOLKIT_VERSION="16273.0.0"
 REMOTE_TOOLKIT_PATH="gs://chromeos-releases/dev-channel/\
 ${REMOTE_TOOLKIT_BOARD}/${REMOTE_TOOLKIT_VERSION}/*-factory-*.zip"
 CACHED_REMOTE_TOOLKIT_DIR="${LOCAL_DEPLOYMENT_DIR}/toolkit/\
@@ -56,6 +56,9 @@ APPENGINE_ID=
 SERVICE_ACCOUNT=
 HWID_API_ENDPOINT=
 DOWNLOAD_LINK_FORMAT=
+
+# Following variable will be assigned by `do_deploy_docker`
+DOCKER_LOG_LEVEL=
 
 load_config_by_deployment_type() {
   local deployment_type="$1"
@@ -102,6 +105,7 @@ prepare_docker_files() {
     DOWNLOAD_LINK_FORMAT="${DOWNLOAD_LINK_FORMAT}" \
     RETRY_PUBSUB_SUBSCRIPTION="${RETRY_PUBSUB_SUBSCRIPTION}" \
     RETRY_FAILURE_EMAIL="${RETRY_FAILURE_EMAIL}" \
+    DOCKER_LOG_LEVEL="${DOCKER_LOG_LEVEL}" \
     envsubst < "${SOURCE_DIR}/docker/config.py" > \
       "${destination_dir}/docker/config.py"
 
@@ -423,6 +427,9 @@ do_deploy_appengine_legacy() {
 }
 
 do_deploy_docker() {
+  if [[ "$2" == "--debug" ]]; then
+    DOCKER_LOG_LEVEL="DEBUG"
+  fi
   build_docker_image "$1"
   upload_docker_image "$1"
   create_vm "$1"
@@ -570,9 +577,11 @@ commands
       Deploys the code and configuration under
       \`py/bundle_creator/app_engine_legacy\` to App Engine.
 
-  $0 deploy-docker [prod|staging|dev|dev2]
+  $0 deploy-docker [prod|staging|dev|dev2] [--debug]
       Builds a docker image from the \`py/bundle_creator/docker/Dockerfile\` and
-      creates a compute engine instance which uses the docker image.
+      creates a compute engine instance which uses the docker image.  Run this
+      command with \`--debug\` could deploy a docker which logs the runtime of
+      some functions while creating a factory bundle.
 
   $0 deploy-all [prod|staging|dev|dev2]
       Does \`deploy-appengine-v2\`, \`deploy-appengine-legacy\` and
@@ -618,7 +627,7 @@ main() {
         do_deploy_appengine_legacy "$2"
         ;;
       deploy-docker)
-        do_deploy_docker "$2"
+        do_deploy_docker "$2" "$3"
         ;;
       deploy-all)
         do_deploy_appengine_v2 "$2"

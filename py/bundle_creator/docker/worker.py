@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import logging
 import os
+import time
 from typing import List, Optional, Tuple
 
 import yaml
@@ -275,6 +276,8 @@ class EasyBundleCreationWorker(AbstractWorker):
         finalize_bundle_command += ['--bundle-record', bundle_record_path]
       if task.no_firmware:
         finalize_bundle_command += ['--no-firmware']
+      if config.DOCKER_LOG_LEVEL:
+        finalize_bundle_command += ['--debug']
       output = None
       try:
         output = process_utils.LogAndCheckOutput(finalize_bundle_command,
@@ -283,10 +286,15 @@ class EasyBundleCreationWorker(AbstractWorker):
         raise CreateBundleException(e.stdout) from None
       self._logger.info(output)
 
+      upload_start_time = time.time()
       bundle_path = os.path.join(
           temp_dir, f'factory_bundle_{task.project}_{bundle_name}.tar.bz2')
       gs_path = self._storage_connector.UploadCreatedBundle(
           bundle_path, task.ToStorageBundleMetadata())
+      upload_end_time = time.time()
+      upload_time = upload_end_time - upload_start_time
+      self._logger.debug('UploadCreatedBundle: cost %.4f second(s).',
+                         upload_time)
 
       cl_url = []
       cl_error_msg = None
