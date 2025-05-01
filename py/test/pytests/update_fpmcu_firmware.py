@@ -124,6 +124,8 @@ class UpdateFpmcuFirmwareTest(test_case.TestCase):
     if not self.args.firmware_file:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
       logging.info('No specified path to FPMCU FW image')
+      # Note: this gets the firmware image from the FSI image, not the factory
+      # image.
       logging.info('Get FPMCU FW image from the release rootfs partition.')
 
       with sys_utils.MountPartition(
