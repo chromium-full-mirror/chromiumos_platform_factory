@@ -324,10 +324,13 @@ start_emulator() {
       "before testing."
   }
 
+  local log_dir
+  log_dir="$(create_test_log_dir "${emulator_name}-emulator")"
+  local logfile_path="${log_dir}/stdout_and_stderr.log"
   local sid
   sid="$(setsid bash -c "gcloud beta emulators ${emulator_name} start \
     --host-port=localhost:${port} \
-    2>/dev/null >/dev/null & echo \$\$")"
+    >${logfile_path} 2>&1 & echo \$\$")"
   EMULATOR_SIDS+=("${sid}")
 }
 
