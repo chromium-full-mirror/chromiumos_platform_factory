@@ -4,6 +4,7 @@ package com.google.android.desktop.factory.proto.umpire;
 
 message UpdateFactoryAppRequest {
   string target = 1;
+  bool dpc = 2;
 }
 
 message UpdateFactoryAppResponse {
@@ -27,14 +28,16 @@ message GetUpdateVersionResponse {
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
-      returns (UpdateFactoryAppResponse) {}
+      returns (UpdateFactoryAppResponse) {
+  }
 
   /* Return the version of a component.
    *
    * In xmlrpc, DUT gets the cros_payload JSON file by GetCROSPayloadURL and
-   * parse the bundle information from it. Check Updater.GetUpdateInfo. In grpc,
-   * this API returns the version directly.
+   * parses the bundle information from it. Check Updater.GetUpdateInfo. In
+   * grpc, this API returns the version directly.
    */
   rpc GetUpdateVersion(GetUpdateVersionRequest)
-    returns (GetUpdateVersionResponse) {}
+      returns (GetUpdateVersionResponse) {
+  }
 }

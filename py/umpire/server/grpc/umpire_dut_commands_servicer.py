@@ -62,6 +62,8 @@ class UmpireDUTCommandsServicer(
             '/usr/local/factory/py/tools/install_as_priv_app.py', f.name,
             '--target', target
         ]
+        if request.dpc:
+          cmd.append('--dpc_enabled')
         process_utils.CheckCall(cmd, log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
