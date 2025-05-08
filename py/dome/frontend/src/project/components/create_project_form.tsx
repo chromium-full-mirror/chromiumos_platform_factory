@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import React from 'react';
 import {InjectedFormProps, reduxForm} from 'redux-form';
 
@@ -13,6 +15,7 @@ import {CREATE_PROJECT_FORM} from '../constants';
 
 export interface CreateProjectFormData {
   name: string;
+  isAndroid: boolean;
 }
 
 interface CreateProjectFormProps {
@@ -29,7 +32,7 @@ class CreateProjectForm extends React.Component<
   }
 
   render() {
-    const {handleSubmit} = this.props;
+    const {handleSubmit, isAndroid, change} = this.props;
     return (
       <form onSubmit={handleSubmit}>
         <ReduxFormTextField
@@ -39,6 +42,14 @@ class CreateProjectForm extends React.Component<
             validateRequired,
             this.validateUnique,
           ]}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              check={isAndroid}
+              onChange={(event) => change('isAndroid', event.target.checked)}
+            />}
+          label="Is this an Android project?"
         />
         <Button
           color="primary"

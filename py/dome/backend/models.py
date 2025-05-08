@@ -501,6 +501,7 @@ class Project(django.db.models.Model):
   umpire_enabled = django.db.models.BooleanField(default=False)
   umpire_port = django.db.models.PositiveIntegerField(null=True)
   netboot_bundle = django.db.models.CharField(max_length=200, null=True)
+  is_android = django.db.models.BooleanField(default=False)
 
   # TODO(littlecvr): add TFTP and Overlord ports
 
@@ -835,10 +836,17 @@ class Bundle:
     self.require_user_action = require_user_action
     self.warning_message = warning_message
 
-    self.resources = {
-        type_name: Resource(type_name, 'N/A', '', '')
-        for type_name in umpire_resource.PayloadTypes.__members__
-    }
+    project = Project.GetProjectByName(project_name)
+    if project.is_android:
+      self.resources = {
+          type_name: Resource(type_name, 'N/A', '', '')
+          for type_name in umpire_resource.AndroidPayloadTypes.__members__
+      }
+    else:
+      self.resources = {
+          type_name: Resource(type_name, 'N/A', '', '')
+          for type_name in umpire_resource.PayloadTypes.__members__
+      }
     for type_name in payloads:
       if type_name == 'netboot_firmware':
         warning_message = GetNetbootFirmwarewarningMessage(

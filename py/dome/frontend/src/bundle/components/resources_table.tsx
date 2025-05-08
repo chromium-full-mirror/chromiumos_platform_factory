@@ -208,6 +208,9 @@ const resourceNameToFileType: Record<string, string> = {
     release_image: '*.bin',
     test_image: '*.bin',
     toolkit: '*.run',
+    android_apk: '*.apk',
+    android_preflash_img: '*.img',
+    gpt_bin: '*.bin',
 };
 
 const mapDispatchToProps = {

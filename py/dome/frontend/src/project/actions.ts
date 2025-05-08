@@ -30,11 +30,13 @@ export const basicActions = {
   deleteProjectImpl,
 };
 
-export const createProject = (name: string) => async (dispatch: Dispatch) => {
-  const description = `Create project "${name}"`;
-  await dispatch(
-    task.actions.runTask(description, 'POST', '/projects/', {name}));
-  await dispatch(fetchProjects());
+export const createProject = (name: string, isAndroid: boolean) =>
+  async (dispatch: Dispatch) => {
+    const description = `Create project "${name}". Is Android: "${isAndroid}"`;
+    await dispatch(
+      task.actions.runTask(description, 'POST', '/projects/',
+                           {name, isAndroid}));
+    await dispatch(fetchProjects());
 };
 
 export const updateProject = (

@@ -35,6 +35,9 @@ COMPONENTS_ALL="test_image release_image toolkit hwid firmware complete \
 netboot_kernel netboot_firmware netboot_cmdline toolkit_config lsb_factory \
 description project_config"
 
+# Constants for Android components
+ANDROID_COMPONENTS_ALL="android_apk android_preflash_img gpt_bin"
+
 # A variable for the file name of tracking temp files.
 TMP_OBJECTS=""
 
@@ -372,7 +375,7 @@ cmd_help() {
     COMPONENT: The type name of imaging resource. For disk image components,
                a '.partN' can be added to specify partition N, for example
                'test_image.part1'.
-               Known values: ${COMPONENTS_ALL}
+               Known values: ${COMPONENTS_ALL} ${ANDROID_COMPONENTS_ALL}
     JSON_PATH: A path to local JSON configuration file.
     JSON_URL:  An URL to remote or local JSON configuration file.
     DEST:      Destination (a folder, file, or block device like /dev/sda).
@@ -715,34 +718,64 @@ add_image_part() {
     dd if="${file}" bs="${bs}" skip="${start}" count="${count}" 2>/dev/null \
       | do_compress "${CROS_PAYLOAD_FORMAT}" | tee "${tmp_file}" | md5sum -b)"
 
+  if [ "${component}" = "android_preflash_img" ]; then
+    local partition_name
+    local subtype
+    local version
 
-  if [ "${nr}" = 1 ]; then
-    # Try to archive 'unencrypted' folder which contains CRX cache.
-    local stateful_dir="$(mktemp -d)"
-    local crx_cache_dir="unencrypted/import_extensions"
-    local dlc_factory_dir="unencrypted/dlc-factory-images"
-    register_tmp_object "${stateful_dir}"
-    if ${SUDO} mount "${file}" "${stateful_dir}" -o \
-      ro,offset=$((start * bs)),sizelimit=$((count * bs)); then
-      pack_src_under_stateful "${component}" "${output_dir}" \
-        "${stateful_dir}" "${crx_cache_dir}" "crx_cache"
-      pack_src_under_stateful "${component}" "${output_dir}" \
-        "${stateful_dir}" "${dlc_factory_dir}" "dlc_factory_cache"
-      ${SUDO} umount "${stateful_dir}"
+    if has_tool cgpt; then
+      partition_name="$(cgpt show -i "${nr}" -l "${file}")"
+    elif has_tool partx; then
+      # The order must be same as what CGPT outputs.
+      partition_name="$(partx -g -r -o NAME "${file}" -n "${nr}")"
+    else
+      die "Missing partition tools - please install cgpt or partx."
     fi
-  elif [ "${nr}" = 3 ]; then
-    # Read version from /etc/lsb-release#CHROMEOS_RELEASE_DESCRIPTION
-    local rootfs_dir="$(mktemp -d)"
-    register_tmp_object "${rootfs_dir}"
-    ${SUDO} mount "${file}" "${rootfs_dir}" -t ext2 -o \
-      ro,offset=$((start * bs)),sizelimit=$((count * bs))
-    version="$(sed -n 's/^CHROMEOS_RELEASE_DESCRIPTION=//p' \
-      "${rootfs_dir}/etc/lsb-release")"
-    ${SUDO} umount "${rootfs_dir}"
-  fi
 
-  commit_payload "${component}" "part${nr}" "${md5sum%% *}" \
-    "${tmp_file}" "${output_dir}"
+    subtype="${partition_name}"
+    commit_payload "${component}" "${subtype}" "${md5sum%% *}" \
+      "${tmp_file}" "${output_dir}"
+
+    # TODO(stevesu): Ideally we should import lpunpack to get the version
+    # build.prop file located in system partition, but the program is now
+    # being built as a static linked binary. Before we fix the linkage
+    # issue, use md5sum here as a temporary solution. Image tool should also
+    # be exporting the md5sum of the super partition so we can cross-reference
+    # the correctness of partition extraction processes.
+    if [ "${nr}" = 3 ]; then
+      version="${md5sum%% *}"
+    fi
+  else
+    if [ "${nr}" = 1 ]; then
+      local stateful_dir crx_cache_dir dlc_factory_dir
+      # Try to archive 'unencrypted' folder which contains CRX cache.
+      stateful_dir="$(mktemp -d)"
+      crx_cache_dir="unencrypted/import_extensions"
+      dlc_factory_dir="unencrypted/dlc-factory-images"
+      register_tmp_object "${stateful_dir}"
+      if ${SUDO} mount "${file}" "${stateful_dir}" -o \
+        ro,offset=$((start * bs)),sizelimit=$((count * bs)); then
+        pack_src_under_stateful "${component}" "${output_dir}" \
+          "${stateful_dir}" "${crx_cache_dir}" "crx_cache"
+        pack_src_under_stateful "${component}" "${output_dir}" \
+          "${stateful_dir}" "${dlc_factory_dir}" "dlc_factory_cache"
+        ${SUDO} umount "${stateful_dir}"
+      fi
+    elif [ "${nr}" = 3 ]; then
+      local rootfs_dir
+      # Read version from /etc/lsb-release#CHROMEOS_RELEASE_DESCRIPTION
+      rootfs_dir="$(mktemp -d)"
+      register_tmp_object "${rootfs_dir}"
+      ${SUDO} mount "${file}" "${rootfs_dir}" -t ext2 -o \
+        ro,offset=$((start * bs)),sizelimit=$((count * bs))
+      version="$(sed -n 's/^CHROMEOS_RELEASE_DESCRIPTION=//p' \
+        "${rootfs_dir}/etc/lsb-release")"
+      ${SUDO} umount "${rootfs_dir}"
+    fi
+
+    commit_payload "${component}" "part${nr}" "${md5sum%% *}" \
+      "${tmp_file}" "${output_dir}"
+  fi
 
   if [ -n "${version}" ]; then
     update_json_meta "${json_path}" "${component}" version "${version}"
@@ -868,6 +901,16 @@ for k in j:
       local temp="$(md5sum "${file}")"
       echo "${temp%% *}"
       ;;
+    gpt_bin)
+      local temp
+      temp="$(md5sum "${file}")"
+      echo "${temp%% *}"
+      ;;
+    android_apk)
+      local temp
+      temp="$(md5sum "${file}")"
+      echo "${version} (${temp%% *})"
+      ;;
   esac
 }
 
@@ -939,7 +982,7 @@ cmd_add() {
   fi
 
   case "${component}" in
-    release_image | test_image)
+    release_image | test_image | android_preflash_img)
       cache_sudo
       file="$(get_uncompressed_file "${file}")"
       add_image_component "${json_path}" "${component}" "${file}"
@@ -949,7 +992,7 @@ cmd_add() {
       file="$(get_uncompressed_file "${file}")"
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
-    project_config)
+    project_config | android_apk | gpt_bin)
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
     *)

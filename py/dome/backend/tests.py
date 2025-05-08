@@ -236,6 +236,28 @@ class DomeAPITest(rest_framework.test.APITestCase):
     self.assertJSONEqual(
         response.content, {
             'name': PROJECT_NAME,
+            'isAndroid': False,
+            'umpireEnabled': False,
+            'umpirePort': None,
+            'netbootBundle': None,
+            'hasExistingUmpire': False
+        })
+
+    # no docker commands should be called
+    self.mocks['subprocess.call'].assert_not_called()
+    self.mocks['subprocess.check_call'].assert_not_called()
+    self.mocks['subprocess.check_output'].assert_not_called()
+
+  def testCreateAndroidProject(self):
+    PROJECT_NAME = 'testing_project'
+
+    response = self._CreateProject(PROJECT_NAME, is_android=True)
+    self.assertEqual(response.status_code,
+                     rest_framework.status.HTTP_201_CREATED)
+    self.assertJSONEqual(
+        response.content, {
+            'name': PROJECT_NAME,
+            'isAndroid': True,
             'umpireEnabled': False,
             'umpirePort': None,
             'netbootBundle': None,
@@ -296,6 +318,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
     self.assertJSONEqual(
         response.content, {
             'name': self.PROJECT_WITH_UMPIRE_NAME,
+            'isAndroid': False,
             'umpireEnabled': False,
             'umpirePort': 8080,
             'netbootBundle': None,
@@ -313,6 +336,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
     self.assertJSONEqual(
         response.content, {
             'name': self.PROJECT_WITHOUT_UMPIRE_NAME,
+            'isAndroid': False,
             'umpireEnabled': False,
             'umpirePort': None,
             'netbootBundle': None,
@@ -338,6 +362,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
     self.assertJSONEqual(
         response.content, {
             'name': self.PROJECT_WITHOUT_UMPIRE_NAME,
+            'isAndroid': False,
             'umpireEnabled': True,
             'umpirePort': UMPIRE_PORT,
             'netbootBundle': None,
@@ -570,9 +595,10 @@ class DomeAPITest(rest_framework.test.APITestCase):
     return self.client.put(f'/projects/{project_name}/',
                            data={'umpireEnabled': True}, format='json')
 
-  def _CreateProject(self, project_name):
-    return self.client.post('/projects/', data={'name': project_name},
-                            format='json')
+  def _CreateProject(self, project_name, is_android=False):
+    return self.client.post('/projects/',
+                            data={'name': project_name,
+                                  'is_android': is_android},format='json')
 
   def _CreateResource(self, project_name, resource_type):
     return self.client.post(f'/projects/{project_name}/resources/', {

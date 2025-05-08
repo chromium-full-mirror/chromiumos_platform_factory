@@ -112,6 +112,7 @@ class BundleComponent extends React.Component<BundleComponentProps> {
       deleteBundle,
       setBundleAsNetboot,
       classes,
+      projectIsAndroid,
     } = this.props;
 
     // Disable the toggle when there's only one active bundle left.
@@ -159,6 +160,22 @@ class BundleComponent extends React.Component<BundleComponentProps> {
               </IconButton>
             </Tooltip>
           }
+          { projectIsAndroid ?
+            <>
+              <Tooltip title="use this bundle's fastboot resource">
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setBundleAsNetboot(bundle.name, projectName);
+                  }}
+                >
+                  FASTBOOT
+                </Button>
+              </Tooltip>
+              {/* <FastbootStatusDialog/> */}
+            </> :
           <Tooltip title="use this bundle's netboot resource">
             <Button
               color="primary"
@@ -172,6 +189,7 @@ class BundleComponent extends React.Component<BundleComponentProps> {
               NETBOOT
             </Button>
           </Tooltip>
+          }
         </CardContent>
         <Collapse in={expanded}>
           <CardContent>
@@ -194,6 +212,8 @@ const mapStateToProps =
     projectName: project.selectors.getCurrentProject(state),
     projectNetbootBundle:
       project.selectors.getCurrentProjectObject(state)!.netbootBundle,
+    projectIsAndroid:
+      project.selectors.getCurrentProjectObject(state)!.isAndroid,
   });
 
 const mapDispatchToProps = {

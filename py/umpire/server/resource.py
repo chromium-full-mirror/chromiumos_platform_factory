@@ -44,6 +44,16 @@ class PayloadTypes(enum.Enum):
     return self.name
 
 
+# TODO(stevesu) Add import pattern once we support bundle upload as a whole.
+class AndroidPayloadTypes(enum.Enum):
+  android_apk = PayloadType('android_apk', '')
+  android_preflash_img = PayloadType('android_preflash_img', '')
+  gpt_bin = PayloadType('gpt_bin', '')
+
+  def __str__(self):
+    return self.name
+
+
 def GetResourceHashFromFile(file_path):
   """Calculates hash of a resource file.
 

@@ -43,7 +43,8 @@ class ResourceUpdater:
   def _CheckPayloadsList(self, payloads_to_update):
     """Check the correctness of payloads list."""
     for type_name, file_path in payloads_to_update:
-      if type_name not in resource.PayloadTypes.__members__:
+      if (type_name not in resource.PayloadTypes.__members__ and
+          type_name not in resource.AndroidPayloadTypes.__members__):
         raise common.UmpireError(f'Unsupported payload type: {type_name}')
       if not os.path.isfile(file_path):
         raise common.UmpireError(f'File not found: {file_path}')

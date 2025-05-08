@@ -71,8 +71,8 @@ class ProjectsApp extends React.Component<ProjectAppProps, DialogStates> {
     name: '',
   };
 
-  handleSubmit = ({name}: CreateProjectFormData) => {
-    this.props.createProject(name);
+  handleSubmit = ({name, isAndroid}: CreateProjectFormData) => {
+    this.props.createProject(name, isAndroid);
     this.props.resetForm();
   }
 
@@ -115,7 +115,8 @@ class ProjectsApp extends React.Component<ProjectAppProps, DialogStates> {
                   onClick={() => switchProject(name)}
                 >
                   <ListItemText
-                    primary={name}
+                    primary={projects[name].isAndroid ? name + ' (Android) ' :
+                                                        name}
                     data-testid={`project-name-${idx}`}
                   />
                   <ListItemSecondaryAction>

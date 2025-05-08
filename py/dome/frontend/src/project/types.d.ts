@@ -10,6 +10,7 @@ export interface UmpireSetting {
 
 export interface UmpireServerResponse {
   name: string;
+  isAndroid: boolean;
   umpireEnabled: boolean;
   umpirePort: number | null;
   netbootBundle: string | null;
