@@ -1,8 +1,6 @@
 {
   "inherit": [
     "generic_fingerprint.test_list",
-    "generic_tpm.test_list",
-    "generic_wireless.test_list",
     "generic_common.test_list"
   ],
   "constants": {
