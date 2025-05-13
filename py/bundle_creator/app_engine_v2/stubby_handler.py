@@ -158,15 +158,21 @@ class FactoryBundleV2Service(protorpc_utils.ProtoRPCServiceBase):
     fw_info_preview = collections.defaultdict(set)
 
     try:
-      cros_config = self._image_archive_storage_connector.ReadFile(
-          os.path.join(archive_dir, 'config.yaml'))
-      for conf in json.loads(cros_config)['chromeos']['configs']:
-        if conf.get('name') != request.project:
-          continue
-        if 'fingerprint' in conf and 'board' in conf['fingerprint']:
-          fw_info_preview['fp-ro-image'].add(conf['fingerprint']['board'])
-        if 'sku-id' in conf['identity']:
-          fw_info_preview['sku-id'].add(str(conf['identity']['sku-id']))
+      if request.board == 'nissa':
+        # b/417371218: Skip reading cros config for nissa because of large
+        # config might causing deadline exceeded and memory outage.
+        fw_info_preview['sku-id'].add('Unable to preview because of too many '
+                                      'SKUs.')
+      else:
+        cros_config = self._image_archive_storage_connector.ReadFile(
+            os.path.join(archive_dir, 'config.yaml'))
+        for conf in json.loads(cros_config)['chromeos']['configs']:
+          if conf.get('name') != request.project:
+            continue
+          if 'fingerprint' in conf and 'board' in conf['fingerprint']:
+            fw_info_preview['fp-ro-image'].add(conf['fingerprint']['board'])
+          if 'sku-id' in conf['identity']:
+            fw_info_preview['sku-id'].add(str(conf['identity']['sku-id']))
     except api_exceptions.NotFound:
       # TODO(b/344448755): read sku/fp from other place
       pass
