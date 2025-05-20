@@ -42,10 +42,19 @@ def _CheckManifestVersion(manifest_path: str):
                                  f'{manifest_version!r}.')
 
 
+_NUM_RETRY = 5
+
+
 def _ProbeECComponent(args: dict, manifest_path: str):
   _CheckManifestVersion(manifest_path)
   args['manifest_path'] = manifest_path
-  return runtime_probe_adapter.RunProbeFunction('ec_component', args)
+  best_probed_result: list = []
+  # Retry the probe multiple times to avoid flakiness.
+  for unused_counter in range(_NUM_RETRY):
+    probed_result: list = runtime_probe_adapter.RunProbeFunction(
+        'ec_component', args)
+    best_probed_result = max(best_probed_result, probed_result, key=len)
+  return best_probed_result
 
 
 class ECComponent(probe_function.AbstractProbeFunction):
