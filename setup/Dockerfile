@@ -59,6 +59,7 @@ RUN apk upgrade --no-cache && apk add --no-cache \
     gnupg \
     jq \
     nginx \
+    nmap \
     openssl \
     pigz \
     py3-lxml \

@@ -51,6 +51,7 @@ _ACTIVE_UMPIRE_CONFIG = 'active_umpire.json'
 _REPORT_INDEX_JSON_FILE = 'report_index.json'
 _UMPIRE_DATA_DIR = 'umpire_data'
 _RESOURCES_DIR = 'resources'
+_FASTBOOT_IMG_DIR = 'fastboot_img_src'
 _FACTORY_DRIVES_DIR = 'factory_drives'
 _CONFIG_DIR = 'conf'
 _LOG_DIR = 'log'
@@ -102,6 +103,10 @@ class UmpireEnv:
   @property
   def factory_drives_dir(self):
     return os.path.join(self.base_dir, _FACTORY_DRIVES_DIR)
+
+  @property
+  def fastboot_img_dir(self):
+    return os.path.join(self.base_dir, _FASTBOOT_IMG_DIR)
 
   @property
   def config_dir(self):
@@ -290,7 +295,8 @@ class UmpireEnv:
     """
     type_name = (
         payload_type.name
-        if isinstance(payload_type, resource.PayloadTypes) else payload_type)
+        if isinstance(payload_type, (resource.AndroidPayloadTypes,
+                                     resource.PayloadTypes)) else payload_type)
 
     with file_utils.TempDirectory(dir=self.temp_dir) as temp_dir:
       json_name = '.json'
@@ -370,6 +376,29 @@ class UmpireEnv:
         if (part == 'file' or re.fullmatch(r'part\d+', part) or
             part == 'crx_cache' or part == 'dlc_factory_cache'):
           files.add((type_name, part, res_name))
+    return files
+
+  def GetFastbootImagePayloads(self, payloads_name):
+    """ Gets image payloads for fastboot."""
+    # These partitions are extracted from preflash image.
+    # We don't need to copy partition b but we still keep them for now.
+    REQUIRED_IMG_PART = ('super', 'boot_a', 'init_boot_a', 'vbmeta_a',
+                         'pvmfw_a', 'userdata', 'vendor_boot_a', 'misc')
+    files = set()
+    payloads = self.GetPayloadsDict(payloads_name)
+    for type_name, payload_dict in payloads.items():
+      if type_name == resource.AndroidPayloadTypes.android_preflash_img.name:
+        for part, res_name in payload_dict.items():
+          if part in REQUIRED_IMG_PART:
+            # Remove _a slot post-fix.
+            if part.endswith('_a'):
+              part = part[:-2]
+            files.add((part + '.img', res_name))
+      # MBR / GPT bin is added as file with cros_payload
+      elif type_name == resource.AndroidPayloadTypes.gpt_bin.name:
+        for part, res_name in payload_dict.items():
+          if part == 'file':
+            files.add(('mbr-gpt.bin', res_name))
     return files
 
   def GetActivePayload(self, active_config_file):

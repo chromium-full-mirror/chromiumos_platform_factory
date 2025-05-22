@@ -1,0 +1,25 @@
+{
+  "dut_ip_addrs": {
+    "description": "DUT IP list for fastboot installation.",
+    "type": "array",
+    "items": {
+      "description": "DUT IP list",
+      "type": "object",
+      "properties": {
+        "dut_ip": {
+          "description": "IP address or CIDR range. Example: 192.168.1.100/24 or 192.168.1.135",
+          "type": "string"
+        }
+      },
+      "required": ["dut_ip"]
+    }
+  },
+  "scan_interval": {
+    "description": "Orchestrator scan interval in seconds. Default = 10 seconds",
+    "type": "string"
+  },
+  "board_name": {
+    "description": "Board name of the project. This field will be removed once per model build is introduced. Example: brya",
+    "type": "string"
+  }
+}

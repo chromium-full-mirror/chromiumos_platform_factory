@@ -10,6 +10,7 @@ from cros.factory.umpire import common
 from cros.factory.umpire.server.commands import delete_log
 from cros.factory.umpire.server.commands import deploy
 from cros.factory.umpire.server.commands import duplicate_update
+from cros.factory.umpire.server.commands import export_fastboot_payload
 from cros.factory.umpire.server.commands import export_log
 from cros.factory.umpire.server.commands import export_payload
 from cros.factory.umpire.server.commands import import_bundle
@@ -286,6 +287,15 @@ class CLICommand(umpire_rpc.UmpireRPC):
   @umpire_rpc.RPCCall
   def GetActivePayload(self):
     return self.env.GetActivePayload(self.daemon.env.active_config_file)
+
+  @umpire_rpc.RPCCall
+  def GetFastbootImagePayloads(self):
+    return self.env.GetFastbootImagePayloads()
+
+  @umpire_rpc.RPCCall
+  def ExportFastbootImagePayload(self, bundle_id):
+    exporter = export_fastboot_payload.FastbootImagePayloadExporter(self.env)
+    exporter.Export(bundle_id)
 
   @umpire_rpc.RPCCall
   def CheckAndUpdate(self, target_payloads, target_url):

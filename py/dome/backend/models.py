@@ -561,6 +561,15 @@ class Project(django.db.models.Model):
     """Return active Umpire config."""
     return GetUmpireConfig(self.name)
 
+  def MapFastbootResource(self, bundle_name):
+    umpire_server = GetUmpireServer(self.name)
+    payload_type = umpire_resource.AndroidPayloadTypes.android_preflash_img.name
+
+    if Bundle.HasResource(self.name, bundle_name, payload_type):
+      umpire_server.ExportFastbootImagePayload(bundle_name)
+
+    return self
+
   def MapNetbootResourceToTFTP(self, bundle_name):
     umpire_server = GetUmpireServer(self.name)
     netboot_resources = [
@@ -765,7 +774,13 @@ class Project(django.db.models.Model):
       # replace netboot resource in TFTP root
       if ('netboot_bundle' in kwargs and
           project.netboot_bundle != kwargs['netboot_bundle']):
-        project.MapNetbootResourceToTFTP(kwargs['netboot_bundle'])
+        # TODO(stevesu) consider using `net_download_bundle` as key to share
+        # between netboot & fastboot. This flag can still be reused but netboot
+        # is too specific for fastboot case.
+        if project.is_android:
+          project.MapFastbootResource(kwargs['netboot_bundle'])
+        else:
+          project.MapNetbootResourceToTFTP(kwargs['netboot_bundle'])
 
       # update attributes assigned in kwargs
       for attr, value in kwargs.items():
