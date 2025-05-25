@@ -107,8 +107,11 @@ _DEFAULT_SENSOR_VALUE_PATH = 'in_proximity0_raw'
 
 
 class ProximityEventType(int, enum.Enum):
-  close = 0
+  # These values (1 and 2) correspond to the specific output values
+  # provided by the iio service buffer. Do not change them unless
+  # the iio service buffer output changes.
   far = 1
+  close = 2
 
   def __str__(self):
     return self.name
