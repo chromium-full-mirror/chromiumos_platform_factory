@@ -1123,3 +1123,8 @@ class DatabaseBuilder:
   def RemoveComponent(self, comp_cls: str, comp_name: str):
     """See database.WritableDatabase.RemoveComponent."""
     self._database.RemoveComponent(comp_cls, comp_name)
+
+  @_EnsureInBuilderContext
+  def SetComponentStatus(self, comp_cls: str, comp_name: str, status: str):
+    """See database.WritableDatabase.SetComponentStatus."""
+    self._database.SetComponentStatus(comp_cls, comp_name, status)

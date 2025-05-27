@@ -1668,9 +1668,8 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
             request.component_class)[request.component_name]
         match request.WhichOneof('action'):
           case 'new_status':
-            builder.UpdateComponent(
+            builder.SetComponentStatus(
                 request.component_class, request.component_name,
-                request.component_name, comp_info.values,
                 common_helper.HWID_STRING_OF_SUPPORT_STATUS_CASE[
                     request.new_status])
           case 'new_component_name':
