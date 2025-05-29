@@ -58,7 +58,9 @@ class Gyroscope(test_case.TestCase):
       Arg('autostart', bool, 'Auto start this test.', default=True),
       Arg('setup_sensor', bool, 'Setup gyro sensor via ectool', default=True),
       Arg('location', enum.Enum('location', ['base', 'lid']),
-          'Gyro is located in "base" or "lid".', default='base')
+          'Gyro is located in "base" or "lid".', default='base'),
+      Arg('is_ish_enabled', bool, 'Whether the sensor data is sourced via ISH',
+          default=False)
   ]
 
   def setUp(self):
@@ -81,7 +83,8 @@ class Gyroscope(test_case.TestCase):
     # yapf: disable
     if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      self.gyroscope.SetupMotionSensor()
+      self.gyroscope.SetupMotionSensor(
+          is_ish_enabled=self.args.is_ish_enabled)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
     # yapf: disable
     if not self.args.autostart:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
