@@ -82,7 +82,9 @@ class Gyroscope(test_case.TestCase):
       Arg('capture_count', int,
           'How many records to read for each time getting data', default=50),
       Arg('sample_rate', int, 'Sample rate in Hz to read data from sensors',
-          default=200)
+          default=200),
+      Arg('is_ish_connected', bool, 'If the sensor is connected via ISH or not',
+          default=False)
   ]
 
   def setUp(self):
@@ -105,7 +107,8 @@ class Gyroscope(test_case.TestCase):
     # yapf: disable
     if self.args.setup_sensor:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable
-      self.gyroscope.SetupMotionSensor()
+      self.gyroscope.SetupMotionSensor(
+          is_ish_connected=self.args.is_ish_connected)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
     logging.info('%r', self.gyroscope)
 

@@ -61,7 +61,7 @@ class GyroscopeController(sensor_utils.BasicSensorController):
         f'freq={self.freq!r}',
     ]
 
-  def SetupMotionSensor(self):
+  def SetupMotionSensor(self, is_ish_enabled=False):
     """Set up motion sensor for gyroscope.
 
     Essentially this method tries to execute this command to do setup:
@@ -79,7 +79,9 @@ class GyroscopeController(sensor_utils.BasicSensorController):
       Raise MotionSensorException if failed to setup motion sensor.
     """
     gyro = {}
-    base_cmd = ['ectool', 'motionsense']
+    base_cmd = ['ectool', '--name=cros_ish', 'motionsense'
+               ] if is_ish_enabled else ['ectool', 'motionsense']
+
     gyro_id_path = os.path.join(self._iio_path, "id")
 
     # Find a default gyro id if it's not set

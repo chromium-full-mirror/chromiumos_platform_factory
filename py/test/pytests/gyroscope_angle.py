@@ -99,7 +99,9 @@ class Gyroscope(test_case.TestCase):
       Arg('capture_count', int,
           'How many records to read for each time getting data', default=40),
       Arg('sample_rate', int, 'Sample rate in Hz to read data from sensors',
-          default=200)
+          default=200),
+      Arg('is_ish_enabled', bool, 'Whether the sensor data is sourced via ISH',
+          default=False)
   ]
 
   args: GyroscopeTestArgs
@@ -120,7 +122,8 @@ class Gyroscope(test_case.TestCase):
 
   def runTest(self):
     if self.args.setup_sensor:
-      self.gyroscope.SetupMotionSensor()
+      self.gyroscope.SetupMotionSensor(
+          is_ish_enabled=self.args.is_ish_enabled)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
     logging.info('%r', self.gyroscope)
 
