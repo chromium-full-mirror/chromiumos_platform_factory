@@ -1953,6 +1953,13 @@ class ChromeOSFactoryBundle:
       verbose: provide more verbose output when initializing disk image.
     """
 
+    def _PatchLsbFactory(root_dir):
+      Sudo(['touch', os.path.join(root_dir, PATH_LSB_FACTORY)], check=False)
+      Sudo([
+          'cp', '-pf', json_path,
+          os.path.join(root_dir, PATH_PREFLASH_PAYLOADS_JSON)
+      ], check=False)
+
     def _CalculateDLCPreallocatedSize(manifests_dir, dlc_ids, legacy):
       """Calculates the total pre-allocated size for DLC manifests.
 
@@ -2052,9 +2059,15 @@ class ChromeOSFactoryBundle:
 
     logging.debug('Add /etc/lsb-factory if not exists.')
     with part.Mount(rw=True) as stateful:
-      Sudo(['touch', os.path.join(stateful, PATH_LSB_FACTORY)], check=False)
-      Sudo(['cp', '-pf', json_path,
-            os.path.join(stateful, PATH_PREFLASH_PAYLOADS_JSON)], check=False)
+      dev_image_path = os.path.join(stateful, 'unencrypted/dev_image.block')
+      # Mount additional fs if sparse filesystem exists.
+      if os.path.exists(dev_image_path):
+        with SysUtils.TempDirectory() as dev_image_mount:
+          Sudo(['mount', dev_image_path, dev_image_mount], check=False)
+          _PatchLsbFactory(dev_image_mount)
+          Sudo(['umount', dev_image_mount], check=False)
+      else:
+        _PatchLsbFactory(stateful)
     return new_size
 
   @classmethod
