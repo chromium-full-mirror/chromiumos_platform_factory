@@ -1124,10 +1124,26 @@ install_payload() {
     register_tmp_object "${mount_point}"
     ${SUDO} mount "${dev}" "${mount_point}"
 
-    local out_dir="${mount_point}/${OUT_DIR_CROS_PAYLOADS}"
+    local out_dir dev_image_mount_point block_file
+    out_dir="${mount_point}/${OUT_DIR_CROS_PAYLOADS}"
+
+    # After M135, dev_image is now a sparse file system rather than a
+    # directory on some board, as a result we need to mount it if it exists,
+    # before installing stub files and other resources.
+    block_file="${mount_point}/unencrypted/dev_image.block"
+    if [ -f "${block_file}" ]; then
+      dev_image_mount_point="$(mktemp -d)"
+      ${SUDO} mount "${block_file}" "${dev_image_mount_point}"
+      out_dir="${dev_image_mount_point}/${OUT_DIR_CROS_PAYLOADS}"
+    fi
+
     mkdir -p "${out_dir}"
     output="${out_dir}/${payload}.${file_ext}"
-    output_display="${dev}!${output#${mount_point}}"
+    if [ -n "${dev_image_mount_point}" ]; then
+      output_display="${dev}!${output#"${dev_image_mount_point}"}"
+    else
+      output_display="${dev}!${output#"${mount_point}"}"
+    fi
   fi
 
   if [ -z "${output_display}" ]; then
@@ -1186,6 +1202,10 @@ install_payload() {
 
   if grep -q "Failed to fetch" "${tmp_file}"; then
     die "install_payload failed! Error msg: $(cat "${tmp_file}")"
+  fi
+
+  if [ -n "${dev_image_mount_point}" ]; then
+    ${SUDO} umount "${dev_image_mount_point}"
   fi
 
   if [ -n "${mount_point}" ]; then
