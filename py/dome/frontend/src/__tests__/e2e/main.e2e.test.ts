@@ -8,6 +8,9 @@ import './project_list.e2e.test';
 // An e2e test for test connection of shopfloor service
 import './dashboard_shopfloor.e2e.test';
 
+// An e2e test for setup multiple umpire projects
+import './setup_multiple_umpire.e2e.test';
+
 // An e2e test for upload bundle and download resources
 import './upload_bundle.e2e.test';
 

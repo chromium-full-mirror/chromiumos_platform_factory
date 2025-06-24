@@ -7,4 +7,5 @@ export default {
     pageWidth: 1280,
     pageHeight: 720,
     umpireFakeProjectName: 'fake_correct_project_name',
+    umpireFakeSecondary: 'fake_secondary',
 };

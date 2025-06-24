@@ -800,7 +800,8 @@ do_dev_run() {
     "${DOME_DIR}/frontend"
   ${DOCKER} rm "${builder_container_name}"
 
-  ${DOCKER} network create "${DOME_DEV_DOCKER_NETWORK_NAME}"
+  ${DOCKER} network create --subnet=172.18.0.0/16 \
+    "${DOME_DEV_DOCKER_NETWORK_NAME}"
 
   # Start dev server for frontend code.
   ${DOCKER} run \

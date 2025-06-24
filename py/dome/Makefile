@@ -16,9 +16,13 @@ endef
 export DOME_MAKE_HELP_MESSAGE
 
 DOME_DIR=/usr/local/factory/py/dome
+TEMP_DOCKER_HOST_IP=172.18.0.10
 TEMP_DOME_E2E_DIR=/tmp/dome_e2e
 TEMP_UMPIRE=umpire_fake_correct_project_name
+TEMP_SECONDARY_UMPIRE=umpire_fake_secondary
 TEMP_UMPIRE_EXIST=$(shell docker ps --format {{.Names}} | grep ${TEMP_UMPIRE})
+TEMP_SECONDARY_UMPIRE_EXIST=$(shell docker ps \
+	--format {{.Names}} | grep ${TEMP_SECONDARY_UMPIRE})
 
 # Command used to analyze test coverage in target 'test-backend'.
 TEST_COVERAGE_CMD = \
@@ -82,12 +86,17 @@ e2e-test:
 	if [ -n "$(TEMP_UMPIRE_EXIST)" ]; then \
 		docker stop "${TEMP_UMPIRE}" && docker rm "${TEMP_UMPIRE}"; \
 	fi
+	if [ -n "$(TEMP_SECONDARY_UMPIRE_EXIST)" ]; then \
+		docker stop "${TEMP_SECONDARY_UMPIRE}" && \
+		docker rm "${TEMP_SECONDARY_UMPIRE}"; \
+	fi
 	ps -eaf | grep -i 'shopfloor' | grep -v grep | \
 		awk '{print $$2}' | xargs -r kill
 	HOST_SHARED_DIR="${TEMP_DOME_E2E_DIR}" ../../setup/cros_docker.sh dev run
 	../../bin/factory_env python3 ../../py/shopfloor/shopfloor_service.py \
 		-p 8091 & sudo sh -c "echo $$! > ${TEMP_DOME_E2E_DIR}/shopfloor.pid"
-	docker run --network dome-dev-network --rm cros/dome-builder npm run e2e
+	docker run --network dome-dev-network --ip ${TEMP_DOCKER_HOST_IP} \
+		--rm cros/dome-builder npm run e2e
 	kill `cat ${TEMP_DOME_E2E_DIR}/shopfloor.pid`
 	../../setup/cros_docker.sh dev destroy
 	touch .e2e-tests-passed
