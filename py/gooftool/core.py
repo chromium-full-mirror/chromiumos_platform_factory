@@ -245,8 +245,8 @@ class Gooftool:
       return sub_dir_names
 
     def _GetDLCToBeVerified():
-      modem_dlc_name = self.GetModemDLCNameFromModemVariant()
-      if not modem_dlc_name:
+      variant = self._cros_config.GetModemFirmwareVariant()
+      if not variant:
         logging.info('There is no LTE on this device.')
         return set()
 
@@ -255,7 +255,7 @@ class Gooftool:
         dlc_metadata_path = os.path.join(root, _DLCMETADATADIR)
         dlc_cmd_result = self._util.shell([
             'dlc_metadata_util', f'--metadata_dir={dlc_metadata_path}',
-            '--list', f'--attribute={modem_dlc_name}'
+            '--list', f'--attribute={variant}'
         ])
         if not dlc_cmd_result.success:
           raise Error('Failed to get the factory-install DLC list.')
@@ -263,8 +263,8 @@ class Gooftool:
         dlc_items = json.loads(dlc_cmd_result.stdout)
         if not dlc_items:
           raise Error(
-              'DLC list should not be empty when modem_dlc_name is present.\n'
-              f'modem_dlc_name: {modem_dlc_name}.\n'
+              'DLC list should not be empty when modem fw variant is present.\n'
+              f'modem fw variant: {variant}.\n'
               f'dlc_list.stdout: {dlc_cmd_result.stdout}.')
 
         return set(dlc_items)
@@ -722,32 +722,6 @@ class Gooftool:
       if not mismatch:
         return config
     return None
-
-  def GetModemDLCNameFromModemVariant(self):
-    """
-    Retrieves the modem DLC name from the modem firmware variant.
-
-    The modem firmware variant is expected to be in the format: <model>_<modem>.
-    For example: nivviks_fm101.
-
-    Returns:
-      str: The modem DLC name extracted from the variant. An empty string
-           return value represents that the device doesn't use LTE, so modem DLC
-           is not needed.
-
-    Raises:
-      Error: If the variant string is not in the expected format and the modem
-             DLC name cannot be parsed.
-    """
-    try:
-      variant = self._cros_config.GetModemFirmwareVariant()
-      if not variant:
-        return ''
-
-      model, _ = variant.split('_')
-      return model
-    except ValueError as exc:
-      raise Error(f'Cannot parse model from variant: {variant}') from exc
 
   def GetModelName(self):
     model = self._cros_config.GetModelName()
