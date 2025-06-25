@@ -845,34 +845,37 @@ def GenerateVerificationPayload(
                        r'"{model}_".')
     return comp_name.partition('_')[2]
 
-  def _CollectPrimaryIdentifiers(grouped_comp_vp_piece_per_model,
-                                 grouped_primary_comp_name_per_model):
+  def _CollectPrimaryIdentifiers(
+      model: str,
+      grouped_comp_vp_piece: Mapping[int, List[
+          ComponentVerificationPayloadPiece]],
+      grouped_primary_comp_name: Mapping[int, str],
+  ) -> Dict[Tuple[str, str], str]:
     """Collect the mappings from grouped comp_vp_pieces.
 
-    This function extracts the required fields (model, category, component name,
-    and targeted component name) for deduplicating probe
-    statements from ComponentVerificationPayloadPiece which contains unnecessary
-    information.
+    This function extracts the required fields (category, component name, and
+    targeted component name) for deduplicating probe statements from
+    ComponentVerificationPayloadPiece which contains unnecessary information.
     """
 
-    # yapf: disable
-    primary_identifiers = collections.defaultdict(dict)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    for model, grouped_comp_vp_piece in grouped_comp_vp_piece_per_model.items():
-      grouped_primary_comp_name = grouped_primary_comp_name_per_model[model]
-      for hash_value, comp_vp_piece_list in grouped_comp_vp_piece.items():
-        if len(comp_vp_piece_list) <= 1:
+    primary_identifiers: Dict[Tuple[str, str], str] = {}
+
+    for hash_value, comp_vp_piece_list in grouped_comp_vp_piece.items():
+      if len(comp_vp_piece_list) <= 1:
+        continue
+      primary_component_name = grouped_primary_comp_name[hash_value]
+      for comp_vp_piece in comp_vp_piece_list:
+        probe_statement = comp_vp_piece.probe_statement
+        assert probe_statement is not None
+
+        if probe_statement.component_name == primary_component_name:
           continue
-        primary_component_name = grouped_primary_comp_name[hash_value]
-        for comp_vp_piece in comp_vp_piece_list:
-          probe_statement = comp_vp_piece.probe_statement
-          if probe_statement.component_name == primary_component_name:
-            continue
-          primary_identifiers[model][
-              probe_statement.category_name,
-              _StripModelPrefix(probe_statement
-                                .component_name, model)] = _StripModelPrefix(
-                                    primary_component_name, model)
+        primary_identifiers[
+            probe_statement.category_name,
+            _StripModelPrefix(probe_statement
+                              .component_name, model)] = _StripModelPrefix(
+                                  primary_component_name, model)
+
     return primary_identifiers
 
   def _MergeExpectedFields(probe_config, vp_pieces):
@@ -996,9 +999,8 @@ def GenerateVerificationPayload(
 
   error_msgs = []
   generated_file_contents = {}
+  primary_identifiers: DefaultDict[str, Dict] = collections.defaultdict(dict)
 
-  grouped_comp_vp_piece_per_model = {}
-  grouped_primary_comp_name_per_model = {}
   hw_verification_spec = hardware_verifier_pb2.HwVerificationSpec()
   multi_exp_categories = GetMultiExpectedFieldsCategories()
 
@@ -1082,11 +1084,8 @@ def GenerateVerificationPayload(
     probe_config_pathname = f'runtime_probe/{model_prefix}/probe_config.json'
     generated_file_contents[probe_config_pathname] = probe_config.DumpToString()
 
-    grouped_comp_vp_piece_per_model[db.project] = grouped_comp_vp_piece
-    grouped_primary_comp_name_per_model[db.project] = grouped_primary_comp_name
-
-  primary_identifiers = _CollectPrimaryIdentifiers(
-      grouped_comp_vp_piece_per_model, grouped_primary_comp_name_per_model)
+    primary_identifiers[db.project] = _CollectPrimaryIdentifiers(
+        db.project, grouped_comp_vp_piece, grouped_primary_comp_name)
 
   hw_verification_spec.component_infos.sort(
       key=lambda ci: (ci.component_category, ci.component_uuid))
