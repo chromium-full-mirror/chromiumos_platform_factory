@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 import os
-from typing import Collection, Sequence, Set, Tuple
+from typing import Collection, Mapping, Sequence, Set, Tuple
 import unittest
 from unittest import mock
 
@@ -58,9 +58,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
         os.path.join(TESTDATA_DIR, 'model_a_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = []
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -92,9 +93,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     self._UpdateCompStatus(db, 'video', common.ComponentStatus.supported)
     waived_comp_categories: Sequence[str] = []
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -123,9 +125,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
         os.path.join(TESTDATA_DIR, 'model_a_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = ['touchscreen']
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoding_patterns = encoding_spec_generator.GenerateEncodingPatterns()
 
@@ -152,9 +155,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
         os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = []
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoded_fields = encoding_spec_generator.GenerateEncodedFields()
 
@@ -188,9 +192,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     self._UpdateCompStatus(db, 'video', common.ComponentStatus.supported)
     waived_comp_categories: Sequence[str] = []
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoded_fields = encoding_spec_generator.GenerateEncodedFields()
 
@@ -218,9 +223,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
         os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
     waived_comp_categories: Sequence[str] = ['camera']
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoded_fields = encoding_spec_generator.GenerateEncodedFields()
 
@@ -246,9 +252,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     vp_related_comps = self._GenerateVPRelatedComps(db)
     vp_related_comps.remove(('camera', 'camera_4'))
     vp_related_comps.remove(('storage', 'storage_subcomp_7'))
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoded_fields = encoding_spec_generator.GenerateEncodedFields()
 
@@ -281,9 +288,10 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     self._UpdateCompGroup(db, 'storage', 'storage_6_6', 'storage_subcomp_7#3')
     waived_comp_categories: Sequence[str] = []
     vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, waived_comp_categories, vp_related_comps))
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
 
     encoded_fields = encoding_spec_generator.GenerateEncodedFields()
 
@@ -310,6 +318,44 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
             ]),
     ])
 
+  def testGenerateEncodedFields_WithCompGroup_ShouldUsePrimaryIdentifiers(self):
+    db = database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_b_db.yaml'), verify_checksum=False)
+    waived_comp_categories: Sequence[str] = []
+    vp_related_comps = self._GenerateVPRelatedComps(db)
+    primary_identifiers: Mapping[Tuple[str, str], str] = {
+        ('camera', 'camera_4'): 'camera_5_5',
+        ('storage', 'storage_subcomp_7#3'): 'storage_6_6',
+    }
+    encoding_spec_generator = (
+        encoding_spec_generator_module.EncodingSpecGenerator.Create(
+            db, waived_comp_categories, vp_related_comps, primary_identifiers))
+
+    encoded_fields = encoding_spec_generator.GenerateEncodedFields()
+
+    self.assertCountEqual(encoded_fields, [
+        _EncodedFields(
+            category='camera', encoded_components=[
+                _EncodedComponents(
+                    index=0, component_names=[
+                        'camera_5_5', 'camera_5_5', 'camera_6_6#3'
+                    ]),
+                _EncodedComponents(index=1, component_names=['camera_5_5']),
+                _EncodedComponents(index=2, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='touchpad', encoded_components=[
+                _EncodedComponents(index=0, component_names=[]),
+            ]),
+        _EncodedFields(
+            category='storage', encoded_components=[
+                _EncodedComponents(index=0, component_names=['storage_6_6']),
+                _EncodedComponents(index=1,
+                                   component_names=['storage_subcomp_7']),
+                _EncodedComponents(index=2, component_names=['storage_6_6']),
+            ]),
+    ])
+
   @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
                      'GenerateEncodingPatterns')
   @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
@@ -319,9 +365,11 @@ class EncodingSpecGeneratorTest(unittest.TestCase):
     mock_db = mock.create_autospec(database.Database, instance=True)
     waived_comp_categories: Sequence[str] = ['battery']
     vp_related_comps: Collection[Tuple[str, str]] = set()
+    primary_identifiers: Mapping[Tuple[str, str], str] = {}
     encoding_spec_generator = (
         encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            mock_db, waived_comp_categories, vp_related_comps))
+            mock_db, waived_comp_categories, vp_related_comps,
+            primary_identifiers))
     encoded_fields = [
         _EncodedFields(
             category='camera', encoded_components=[

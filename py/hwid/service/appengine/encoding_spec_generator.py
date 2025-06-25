@@ -62,12 +62,14 @@ class EncodingSpecGenerator:
       db: database.Database,
       waived_comp_categories: Collection[_ProbeRequestSupportCategory],
       vp_related_comps: Collection[Tuple[str, str]],
+      primary_identifiers: Mapping[Tuple[str, str], str],
       skip_fields: Collection[str],
       name_patterns: Mapping[str, name_pattern_adapter.NamePattern],
   ):
     self._db = db
     self._waived_comp_categories = waived_comp_categories
     self._vp_related_comps = vp_related_comps
+    self._primary_identifiers = primary_identifiers
     self._skip_fields = skip_fields
     self._name_patterns = name_patterns
     self._avl_compliance_acceptor = _AVLComplianceAcceptor()
@@ -75,7 +77,9 @@ class EncodingSpecGenerator:
   @classmethod
   def Create(
       cls, db: database.Database, waived_comp_categories: Sequence[str],
-      vp_related_comps: Collection[Tuple[str, str]]) -> EncodingSpecGenerator:
+      vp_related_comps: Collection[Tuple[str, str]],
+      primary_identifiers: Mapping[Tuple[str, str],
+                                   str]) -> EncodingSpecGenerator:
     """Creates an encoding spec generator for a specific HWID DB.
 
     Args:
@@ -103,7 +107,7 @@ class EncodingSpecGenerator:
         set(
             getattr(_ProbeRequestSupportCategory, category)
             for category in waived_comp_categories), vp_related_comps,
-        skip_fields, name_patterns)
+        primary_identifiers, skip_fields, name_patterns)
 
   def _ShouldSkipField(self, field_name: str) -> bool:
     """Checks if an encoded field should be skipped in encoding specs.
@@ -200,6 +204,8 @@ class EncodingSpecGenerator:
       component_names = []
       for comp_name in comp_names_encoded:
         info = comp_infos[comp_name].information
+        comp_name = self._primary_identifiers.get((comp_cls, comp_name),
+                                                  comp_name)
         comp_name = info and info.get('comp_group') or comp_name
 
         if self._ShouldSkipComponent(comp_cls, comp_name):

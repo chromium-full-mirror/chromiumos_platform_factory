@@ -1012,9 +1012,6 @@ def GenerateVerificationPayload(
     skip_comp_names = _CollectSkipCompNames(db)
     all_pieces = GetAllComponentVerificationPayloadPieces(
         db, vpg_config, skip_comp_names)
-    encoding_spec_generator = (
-        encoding_spec_generator_module.EncodingSpecGenerator.Create(
-            db, vpg_config.waived_comp_categories, set(all_pieces)))
 
     if skip_comp_names:
       logging.info('Skip generating payload for components: %s',
@@ -1048,6 +1045,9 @@ def GenerateVerificationPayload(
     for vp_pieces in grouped_merge_vp_piece.values():
       _MergeExpectedFields(probe_config, vp_pieces)
 
+    primary_identifiers[db.project] = _CollectPrimaryIdentifiers(
+        db.project, grouped_comp_vp_piece, grouped_primary_comp_name)
+
     # Append the generic probe statements.
     for ps_gen in (
         generic_probe_statement.GetAllGenericProbeStatementInfoRecords()):
@@ -1075,6 +1075,10 @@ def GenerateVerificationPayload(
       # hardware_verifier still works.
       probe_config = generic_probe_config
     else:
+      encoding_spec_generator = (
+          encoding_spec_generator_module.EncodingSpecGenerator.Create(
+              db, vpg_config.waived_comp_categories, set(all_pieces),
+              primary_identifiers[db.project]))
       encoding_spec = encoding_spec_generator.GenerateEncodingSpec()
       encoding_spec_pathname = (
           f'runtime_probe/{model_prefix}/encoding_spec.txtpb')
@@ -1083,9 +1087,6 @@ def GenerateVerificationPayload(
 
     probe_config_pathname = f'runtime_probe/{model_prefix}/probe_config.json'
     generated_file_contents[probe_config_pathname] = probe_config.DumpToString()
-
-    primary_identifiers[db.project] = _CollectPrimaryIdentifiers(
-        db.project, grouped_comp_vp_piece, grouped_primary_comp_name)
 
   hw_verification_spec.component_infos.sort(
       key=lambda ci: (ci.component_category, ci.component_uuid))
