@@ -19,6 +19,8 @@ import presubmit_common
 
 # Paths of venv and yapf.
 SCRIPT_DIR = os.path.dirname(__file__)
+CHROMITE_PATH = os.path.join(SCRIPT_DIR, '../../../../../chromite')
+ISORT_PATH = os.path.join(CHROMITE_PATH, 'scripts/isort')
 YAPF_VENV_SCRIPT = os.path.join(SCRIPT_DIR, 'yapf.sh')
 YAPF_STYLE_PATH = os.path.join(SCRIPT_DIR, 'style.yapf')
 
@@ -56,7 +58,7 @@ def _PassByIsort(fix, file_path):
   if not file_path.endswith('.py'):
     return True
 
-  command = ['isort', '--sp', 'devtools/vscode/.isort.cfg', file_path]
+  command = [ISORT_PATH, '--sp', 'devtools/vscode/.isort.cfg', file_path]
   if not fix:
     command += ['--check']
 
