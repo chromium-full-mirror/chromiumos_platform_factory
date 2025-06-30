@@ -57,7 +57,7 @@ class UmpireDUTCommandsServicer(
       bundle_id = config['active_bundle_id']
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
         self.CLI_command.ExportPayload(
-            bundle_id, resource.PayloadTypes.toolkit.name, f.name)
+            bundle_id, resource.AndroidPayloadTypes.android_apk.name, f.name)
         cmd = [
             '/usr/local/factory/py/tools/install_as_priv_app.py', f.name,
             '--target', target
@@ -82,7 +82,7 @@ class UmpireDUTCommandsServicer(
       return umpire_dut_commands_pb2.GetUpdateVersionResponse()
     # May add more components later.
     field_name = {
-        umpire_dut_commands_pb2.COMPONENT_TOOLKIT: 'toolkit'
+        umpire_dut_commands_pb2.COMPONENT_TOOLKIT: 'android_apk'
     }.get(request.component)
     return umpire_dut_commands_pb2.GetUpdateVersionResponse(
         version=payloads.get(field_name, {}).get('version', ''))

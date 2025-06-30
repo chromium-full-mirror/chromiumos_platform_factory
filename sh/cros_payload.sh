@@ -1344,7 +1344,8 @@ install_components() {
           "${dest}" "${json_file}" "${component}"
         ;;
       toolkit | hwid | firmware | complete | *_image.* | netboot_* | \
-          toolkit_config | lsb_factory | description | project_config)
+          toolkit_config | lsb_factory | description | project_config | \
+          android_apk)
         install_payload "file" "${json_url}" \
           "${dest}" "${json_file}" "${component}"
         ;;
