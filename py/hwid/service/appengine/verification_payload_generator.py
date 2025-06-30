@@ -848,7 +848,7 @@ def GenerateVerificationPayload(
   def _CollectPrimaryIdentifiers(
       model: str,
       grouped_comp_vp_piece: Mapping[int, List[
-          ComponentVerificationPayloadPiece]],
+          Tuple[str, ComponentVerificationPayloadPiece]]],
       grouped_primary_comp_name: Mapping[int, str],
   ) -> Dict[Tuple[str, str], str]:
     """Collect the mappings from grouped comp_vp_pieces.
@@ -860,18 +860,20 @@ def GenerateVerificationPayload(
 
     primary_identifiers: Dict[Tuple[str, str], str] = {}
 
-    for hash_value, comp_vp_piece_list in grouped_comp_vp_piece.items():
-      if len(comp_vp_piece_list) <= 1:
+    for (hash_value,
+         hwid_category_and_comp_vp_piece_list) in grouped_comp_vp_piece.items():
+      if len(hwid_category_and_comp_vp_piece_list) <= 1:
         continue
       primary_component_name = grouped_primary_comp_name[hash_value]
-      for comp_vp_piece in comp_vp_piece_list:
+      for (hwid_category,
+           comp_vp_piece) in hwid_category_and_comp_vp_piece_list:
         probe_statement = comp_vp_piece.probe_statement
         assert probe_statement is not None
 
         if probe_statement.component_name == primary_component_name:
           continue
         primary_identifiers[
-            probe_statement.category_name,
+            hwid_category,
             _StripModelPrefix(probe_statement
                               .component_name, model)] = _StripModelPrefix(
                                   primary_component_name, model)
@@ -1020,16 +1022,23 @@ def GenerateVerificationPayload(
     grouped_comp_vp_piece = collections.defaultdict(list)
     grouped_primary_comp_name = {}
     grouped_merge_vp_piece = collections.defaultdict(list)
-    for comp_vp_piece in all_pieces.values():
+    for (hwid_comp_category,
+         unused_comp_name), comp_vp_piece in all_pieces.items():
       if comp_vp_piece.is_duplicate:
         continue
       if comp_vp_piece.error_msg:
         error_msgs.append(comp_vp_piece.error_msg)
       if comp_vp_piece.probe_statement:
         grouped_comp_vp_piece[
-            comp_vp_piece.probe_statement.statement_hash].append(comp_vp_piece)
+            comp_vp_piece.probe_statement.statement_hash].append(
+                (hwid_comp_category, comp_vp_piece))
 
-    for hash_val, comp_vp_piece_list in grouped_comp_vp_piece.items():
+    for (hash_val,
+         hwid_category_and_comp_vp_piece_list) in grouped_comp_vp_piece.items():
+      comp_vp_piece_list = [
+          hwid_category_and_comp_vp_piece[1] for hwid_category_and_comp_vp_piece
+          in hwid_category_and_comp_vp_piece_list
+      ]
       comp_vp_piece = min(comp_vp_piece_list, key=_ComponentSortKey)
       grouped_primary_comp_name[
           hash_val] = comp_vp_piece.probe_statement.component_name
