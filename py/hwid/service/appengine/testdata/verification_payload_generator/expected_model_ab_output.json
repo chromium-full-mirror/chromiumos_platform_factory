@@ -2434,11 +2434,6 @@
           "usb_camera": {}
         },
         "expect": {
-          "usb_bcd_device": [
-            true,
-            "hex",
-            "!eq 0x0001"
-          ],
           "usb_product_id": [
             true,
             "hex",
@@ -2938,11 +2933,6 @@
           "usb_camera": {}
         },
         "expect": {
-          "usb_bcd_device": [
-            true,
-            "hex",
-            "!eq 0x0001"
-          ],
           "usb_product_id": [
             true,
             "hex",

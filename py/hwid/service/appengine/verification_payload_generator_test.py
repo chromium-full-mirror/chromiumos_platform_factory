@@ -887,8 +887,7 @@ class USBCameraProbeStatementGeneratorTest(unittest.TestCase):
             },
             'expect': {
                 'usb_vendor_id': [True, 'hex', '!eq 0x1234'],
-                'usb_product_id': [True, 'hex', '!eq 0x5678'],
-                'usb_bcd_device': [True, 'hex', '!eq 0x90AB']
+                'usb_product_id': [True, 'hex', '!eq 0x5678']
             }
         })
     self.assertEqual(ps, expected)

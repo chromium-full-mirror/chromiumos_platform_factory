@@ -383,11 +383,13 @@ def GetAllProbeStatementGenerators():
       _FieldRecord(['device', 'sdio_device_id'], 'sdio_device_id',
                    HexToHexValueConverter(4)),
   ]
-  usb_fields = [
+  usb_fields_without_bcd = [
       _FieldRecord(['idVendor', 'usb_vendor_id'], 'usb_vendor_id',
                    HexToHexValueConverter(4, has_prefix=False)),
       _FieldRecord(['idProduct', 'usb_product_id'], 'usb_product_id',
                    HexToHexValueConverter(4, has_prefix=False)),
+  ]
+  usb_fields = usb_fields_without_bcd + [
       _FieldRecord(['bcdDevice', 'usb_bcd_device'], 'usb_bcd_device',
                    HexToHexValueConverter(4, has_prefix=False),
                    is_optional=True),
@@ -501,12 +503,12 @@ def GetAllProbeStatementGenerators():
 
   # This is the old name for video_codec + camera.
   all_probe_statement_generators['video'] = [
-      _ProbeStatementGenerator('camera', 'usb_camera', usb_fields),
+      _ProbeStatementGenerator('camera', 'usb_camera', usb_fields_without_bcd),
       _ProbeStatementGenerator('camera', 'mipi_camera', mipi_fields_eeprom),
       _ProbeStatementGenerator('camera', 'mipi_camera', mipi_fields_v4l2),
   ]
   all_probe_statement_generators['camera'] = [
-      _ProbeStatementGenerator('camera', 'usb_camera', usb_fields),
+      _ProbeStatementGenerator('camera', 'usb_camera', usb_fields_without_bcd),
       _ProbeStatementGenerator('camera', 'mipi_camera', mipi_fields_eeprom),
       _ProbeStatementGenerator('camera', 'mipi_camera', mipi_fields_v4l2),
   ]
