@@ -927,7 +927,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     # Derive firmware key component name
     mp_key = False
     if bundle_record.firmware_signer:
-      match = re.fullmatch(f'{bundle_record.board}(mp|premp)keys(?:-v[0-9]+)?',
+      match = re.fullmatch('.*(mp|premp)keys(?:-v[0-9]+)?',
                            bundle_record.firmware_signer.lower())
       if match is None:
         raise common_helper.ConvertExceptionToProtoRPCException(

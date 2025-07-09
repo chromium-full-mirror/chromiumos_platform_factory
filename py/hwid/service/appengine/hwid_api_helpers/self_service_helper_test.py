@@ -2957,7 +2957,8 @@ class SelfServiceShardTest(unittest.TestCase):
               ], sku_id=[_FirmwareRecord.SkuId(sku_id='123')],
               supported=supported))
 
-    return _FactoryBundleRecord(board='board', firmware_signer='BoardMPKeys-V1',
+    return _FactoryBundleRecord(board='board1',
+                                firmware_signer='Board2MPKeys-V1',
                                 firmware_records=firmware_records)
 
   def _ConfigLiveHWIDRepo(self, project, version, db_contents,
