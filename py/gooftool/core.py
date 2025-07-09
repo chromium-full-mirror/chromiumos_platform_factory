@@ -1290,7 +1290,7 @@ class Gooftool:
       return ''
 
     def get_vpd_val(tag_name):
-      return self.vpd.GetValue(tag_name, 'empty')
+      return self.vpd.GetValue(tag_name) or 'empty'
 
     db_identity = CrosConfigIdentity(IdentitySourceEnum.cros_config)
     product_name, product_name_match = self._cros_config.GetProductName()
