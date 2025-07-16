@@ -69,11 +69,13 @@ charging, add this in test list:
 import enum
 import logging
 import os
+import re
 
 from cros.factory.device import device_utils
 from cros.factory.test.env import paths
 from cros.factory.test import event_log  # TODO(chuntsen): Deprecate event log.
 from cros.factory.test.i18n import _
+from cros.factory.test import session
 from cros.factory.test import test_case
 from cros.factory.test.utils import goofy_plugin_utils
 from cros.factory.testlog import testlog
@@ -83,6 +85,7 @@ from cros.factory.utils.process_utils import CheckOutput
 from cros.factory.utils.process_utils import LogAndCheckCall
 
 
+_CHARGER_ERROR_KEYWORDS = ('OCP', 'OVP', 'TSD')
 _DEFAULT_TARGET_CHARGE = 78
 
 
@@ -135,6 +138,8 @@ class ChargerTest(test_case.TestCase):
           default=True),
       Arg('dim_backlight_pct', float,
           'The brightness in linear % when charging.', default=3.0),
+      Arg('log_check_interval', int, 'Period of Log checking in seconds',
+          default=10),
   ]
 
   def setUp(self):
@@ -142,6 +147,10 @@ class ChargerTest(test_case.TestCase):
 
     # Group checker for Testlog.
     self._group_checker = testlog.GroupParam('charge', ['charge', 'elapsed'])
+
+    self._ec_log = '/var/log/cros_ec.log'
+    self._re_rule = re.compile('|'.join(_CHARGER_ERROR_KEYWORDS), re.IGNORECASE)
+    self._last_log_size = 0
 
     # yapf: disable
     if self.args.dim_backlight:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
@@ -164,6 +173,26 @@ class ChargerTest(test_case.TestCase):
           'backlight_tool',
           f'--set_brightness_percent={self._init_backlight_pct:f}'
       ])
+
+  def CheckChargerErrorLog(self):
+    """Periodicly checks if the keywords of charger error show in ec log."""
+
+    curr_log_size = os.path.getsize(self._ec_log)
+    if curr_log_size < self._last_log_size:
+      session.console.warning('Old log has been replaced, '
+                              'will read from the beginning of the new file.')
+      self._last_log_size = 0
+
+    with open(self._ec_log, 'r', encoding='utf-8', errors='ignore') as f:
+      f.seek(self._last_log_size)
+
+      for line in f:
+        result = self._re_rule.search(line)
+        if result:
+          self.FailTask(f'Detect {result.group()} hardware error in ec log, '
+                        'please check the flex cable.')
+
+      self._last_log_size = f.tell()
 
   def runTest(self):
     self.assertTrue(self._power.CheckBatteryPresent(), 'Cannot find battery.')
@@ -198,6 +227,8 @@ class ChargerTest(test_case.TestCase):
     self.ui.SetState(MakeSpriteHTMLTag('charging_sprite.png', 256, 256))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
     logging.info('Charging starting at %d%%', start_charge)
+    self.event_loop.AddTimedHandler(self.CheckChargerErrorLog,
+                                    self.args.log_check_interval, repeat=True)
 
     # yapf: disable
     for elapsed in range(self.args.timeout_secs):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
