@@ -12,11 +12,11 @@ from cros.factory.utils import json_utils
 
 
 @mock.patch('cros.factory.probe.runtime_probe.runtime_probe_adapter'
-            '.process_utils.CheckOutput')
+            '.process_utils.LogAndCheckCall')
 class RuntimeProbeFunctionTest(unittest.TestCase):
 
-  def testProbe(self, mockCheckOutput):
-    mockCheckOutput.return_value = '''
+  def testProbe(self, mockLogAndCheckCall):
+    mockLogAndCheckCall.return_value.stdout_data = '''
       {
         "adaptor_category": [
           {
@@ -36,6 +36,7 @@ class RuntimeProbeFunctionTest(unittest.TestCase):
         ]
       }
     '''
+    mockLogAndCheckCall.return_value.stderr_data = '''some debug info'''
 
     func_class = runtime_probe_function.CreateRuntimeProbeFunction(
         'fake_probe_function', [])
@@ -51,12 +52,11 @@ class RuntimeProbeFunctionTest(unittest.TestCase):
             'device_id': 'ghi'
         },
     ])
-    # TODO(chungsheng): Use mockCheckOutput.call_args.args[0] after python3.8.
-    called_command = mockCheckOutput.call_args[0][0]
+    called_command = mockLogAndCheckCall.call_args.args[0]
     self.assertEqual(called_command[0],
                      '/usr/local/usr/bin/factory_runtime_probe')
     self.assertEqual(
-        json_utils.LoadStr(called_command[1]), {
+        json_utils.LoadStr(called_command[-1]), {
             'adaptor_category': {
                 'adaptor_component': {
                     'eval': {
@@ -67,8 +67,9 @@ class RuntimeProbeFunctionTest(unittest.TestCase):
             }
         })
 
-  def testArgs(self, mockCheckOutput):
-    mockCheckOutput.return_value = '{"adaptor_category": []}'
+  def testArgs(self, mockLogAndCheckCall):
+    mockLogAndCheckCall.return_value.stdout_data = '{"adaptor_category": []}'
+    mockLogAndCheckCall.return_value.stderr_data = 'some debug info'
 
     func_class = runtime_probe_function.CreateRuntimeProbeFunction(
         'fake_probe_function', [
@@ -79,10 +80,9 @@ class RuntimeProbeFunctionTest(unittest.TestCase):
 
     func = func_class(int_arg=1, str_arg='str', opt_str_arg='opt')
     func()
-    # TODO(chungsheng): Use mockCheckOutput.call_args.args[0] after python3.8.
-    called_command = mockCheckOutput.call_args[0][0]
+    called_command = mockLogAndCheckCall.call_args.args[0]
     self.assertEqual(
-        json_utils.LoadStr(called_command[1]), {
+        json_utils.LoadStr(called_command[-1]), {
             'adaptor_category': {
                 'adaptor_component': {
                     'eval': {
@@ -100,10 +100,9 @@ class RuntimeProbeFunctionTest(unittest.TestCase):
     # Test no opt_str_arg won't break.
     func = func_class(int_arg=1, str_arg='str')
     func()
-    # TODO(chungsheng): Use mockCheckOutput.call_args.args[0] after python3.8.
-    called_command = mockCheckOutput.call_args[0][0]
+    called_command = mockLogAndCheckCall.call_args.args[0]
     self.assertEqual(
-        json_utils.LoadStr(called_command[1]), {
+        json_utils.LoadStr(called_command[-1]), {
             'adaptor_category': {
                 'adaptor_component': {
                     'eval': {

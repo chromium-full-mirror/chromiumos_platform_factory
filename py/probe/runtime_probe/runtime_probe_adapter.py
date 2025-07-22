@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import logging
+
 from cros.factory.probe.runtime_probe import probe_config_types
 from cros.factory.utils import json_utils
 from cros.factory.utils import process_utils
@@ -20,7 +22,9 @@ def RunProbeFunction(probe_function_name, args):
   payload = probe_config_types.ProbeConfigPayload()
   payload.AddComponentProbeStatement(probe_statement)
 
-  output = process_utils.CheckOutput(
-      [RUNTIME_PROBE_BIN, payload.DumpToString()])
-  res = json_utils.LoadStr(output)
+  process_result = process_utils.LogAndCheckCall(
+      [RUNTIME_PROBE_BIN, '--log_level=-2',
+       payload.DumpToString()], read_stdout=True, read_stderr=True)
+  logging.info('Runtime probe logs: %s', process_result.stderr_data)
+  res = json_utils.LoadStr(process_result.stdout_data)
   return [x['values'] for x in res[CATEGORY_NAME]]

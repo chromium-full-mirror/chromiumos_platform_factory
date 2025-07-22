@@ -114,9 +114,11 @@ def _ProbeECComponent(args: dict, ec_manifest_path: str,
 
   best_probed_result: list = []
   # Retry the probe multiple times to avoid flakiness.
-  for unused_counter in range(_NUM_RETRY):
+  for i in range(_NUM_RETRY):
     probed_result: list = runtime_probe_adapter.RunProbeFunction(
         'ec_component', args)
+    logging.info('Retry #%d, probed %d components: %r', i + 1,
+                 len(probed_result), probed_result)
     best_probed_result = max(best_probed_result, probed_result, key=len)
   return best_probed_result
 
