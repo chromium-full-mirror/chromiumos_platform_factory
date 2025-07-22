@@ -42,6 +42,13 @@ class FastbootService(umpire_service.UmpireService):
       except ValueError as e:
         raise UmpireError('Cannot set interval with invalid values.') from e
 
+    idle_timeout = 60
+    if 'idle_timeout' in fastboot_service_config:
+      try:
+        idle_timeout = int(fastboot_service_config['idle_timeout'])
+      except ValueError as e:
+        raise UmpireError('Cannot set idle timeout with invalid values.') from e
+
     if ('board_name' not in fastboot_service_config or
         not fastboot_service_config['board_name']):
       raise UmpireError('Please input board name for orchestrator to run.')
@@ -65,7 +72,9 @@ class FastbootService(umpire_service.UmpireService):
             '-t',
             str(scan_interval),  # otherwise the launch will fail.
             '-l',
-            log_path
+            log_path,
+            '--idle_timeout',
+            str(idle_timeout)
         ],
         'path': '/tmp',
         'env': os.environ

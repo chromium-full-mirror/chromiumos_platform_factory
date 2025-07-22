@@ -5,8 +5,11 @@
 import logging
 import os
 import re
+import shlex
+from subprocess import CalledProcessError
 from subprocess import PIPE
 from subprocess import STDOUT
+from subprocess import TimeoutExpired
 from typing import List
 
 from cros.factory.utils import net_utils
@@ -35,8 +38,71 @@ class FastbootUtil:
       Combined stdout / stderr output as string.
     """
 
-    return process_utils.CheckOutput(
-        ['fastboot', '-s', self.serial_device] + args, stderr=STDOUT)
+    cmd = ['fastboot', '-s', self.serial_device] + args
+    output = process_utils.CheckOutput(cmd, stderr=STDOUT)
+    logging.debug('DUT [%s] finished fastboot cmd: %s\n--- OUTPUT ---\n%s',
+                  self.serial_device, shlex.join(cmd), output)
+    return output
+
+  def _FastbootCheckOutputWithTimeout(self, args: List) -> str:
+    """Runs fastboot command with timeout and collect its output.
+
+    Runs a command and raises SubprocessIdleTimeoutError if there's no output
+    for more than idle_timeout seconds.
+
+    Note that the `fastboot` raw command directs progress output to `stderr`
+    so we'll need to handle it correctly in order to preserve information.
+
+    Args:
+      args: A list of arguments to be executed
+      idle_timeout: The idle time limit for executing a single fastboot command.
+
+    Raises:
+      `subprocess.CalledProcessError` if the command call failed.
+      `subprocess.TimeoutExpired` if the subprocess becomes idle for too long.
+
+    Returns:
+      Combined stdout / stderr output as string.
+    """
+
+    cmd = ['fastboot', '-s', self.serial_device] + args
+    try:
+      process = process_utils.Spawn(
+          cmd,
+          stdout=PIPE,
+          stderr=STDOUT,
+          encoding='utf-8',
+      )
+      last_output_len = 0
+
+      while process.poll() is None:
+        try:
+          # try to get process's output
+          process.communicate(timeout=self.idle_timeout)
+        except TimeoutExpired as e:
+          partial_output = e.stdout
+          # An increasing partial output indicates that the process is not idle
+          if partial_output and len(partial_output) > last_output_len:
+            last_output_len = len(partial_output)
+          else:
+            raise e
+
+      # process.communicate() returns all stdout and stderr even though
+      # we have called it before.
+      stdout, unused_stderr = process.communicate()
+
+      retcode = process.poll()
+      if retcode and retcode != 0:
+        raise CalledProcessError(retcode, cmd)
+      logging.debug('DUT [%s] finished fastboot cmd: %s\n--- OUTPUT ---\n%s',
+                    self.serial_device, shlex.join(cmd), stdout)
+
+      if stdout:
+        return stdout
+      return ''
+    finally:
+      if process and process.poll() is None:
+        process.terminate()
 
   def _FastbootSpawn(self, args: List, terminate_token: str = '') -> None:
     """Runs a fastboot command.
@@ -62,11 +128,11 @@ class FastbootUtil:
 
     logging.debug('DUT [%s] Flashing MBR & GPT', self.serial_device)
     gpt_file = os.path.join(self.img_src_dir, 'mbr-gpt.bin')
-    self._FastbootCheckOutput(['flash', 'raw-sector:0', gpt_file])
+    self.FastbootCheckOutputExecutor(['flash', 'raw-sector:0', gpt_file])
 
   def SetActive(self, slot_name: str):
     """Sets the designated slot to be active."""
-    self._FastbootCheckOutput(['set_active', slot_name])
+    self.FastbootCheckOutputExecutor(['set_active', slot_name])
 
   def FlashBootPartitions(self) -> None:
     """Flashes essential partitions to boot."""
@@ -108,7 +174,7 @@ class FastbootUtil:
       String outputs of all variables collected via fastboot command.
     """
 
-    return self._FastbootCheckOutput(['getvar', 'all'])
+    return self.FastbootCheckOutputExecutor(['getvar', 'all'])
 
   def GetVarWithKey(self, key: str) -> str:
     """Gets the value of a specific key
@@ -120,7 +186,7 @@ class FastbootUtil:
       The parsed value as string, or None if the key does not exist
     """
 
-    out = self._FastbootCheckOutput(['getvar', f'{key}'])
+    out = self.FastbootCheckOutputExecutor(['getvar', f'{key}'])
     match = re.search(rf'{key}:\s*(\w+)', out)
 
     value = ''
@@ -168,7 +234,7 @@ class FastbootUtil:
 
     """
     logging.debug('DUT [%s] Flashing all partitions', self.serial_device)
-    self._FastbootCheckOutput(['flashall'])
+    self.FastbootCheckOutputExecutor(['flashall'])
 
   def Flash(self, partition_name: str) -> None:
     """Flashes a single partition.
@@ -176,18 +242,24 @@ class FastbootUtil:
     This command will flash `partition_name.img` onto the `partition_name`
     partition.
     """
-    self._FastbootCheckOutput(['flash', partition_name])
+    self.FastbootCheckOutputExecutor(['flash', partition_name])
 
-  def __init__(self, _img_src_dir):
+  def __init__(self, _img_src_dir, _idle_timeout):
     self.img_src_dir = _img_src_dir
+    self.idle_timeout = _idle_timeout
     os.environ['ANDROID_PRODUCT_OUT'] = self.img_src_dir
+
+    if self.idle_timeout > 0:
+      self.FastbootCheckOutputExecutor = self._FastbootCheckOutputWithTimeout
+    else:
+      self.FastbootCheckOutputExecutor = self._FastbootCheckOutput
 
 
 class FastbootTcpUtil(FastbootUtil):
   """A util class wrapper for fastboot over TCP."""
 
-  def __init__(self, ip, img_src):
-    super().__init__(img_src)
+  def __init__(self, ip, img_src, idle_timeout):
+    super().__init__(img_src, idle_timeout)
     self.serial_device = f'tcp:{ip}:5554'
 
 
@@ -196,18 +268,19 @@ class FastbootUsbUtil(FastbootUtil):
 
   # TODO(stevesu): Implement & test this. It should be as simple as supplying
   # the USB device name for the given cable.
-  def __init__(self, cable_name, img_src):
-    super().__init__(img_src)
+  def __init__(self, cable_name, img_src, idle_timeout):
+    super().__init__(img_src, idle_timeout)
     self.serial_device = f'{cable_name}'
 
 
-def FastbootRunnerFactory(dut_info: str, img_src_dir) -> FastbootUtil:
+def FastbootRunnerFactory(dut_info: str, img_src_dir: str,
+                          idle_timeout: int) -> FastbootUtil:
   """A util factory function to create fastboot runner."""
 
   try:
     family = net_utils.ConvertIPtoFamily(ip_str=dut_info)
     if family == net_utils.IpAddressFamily.ipv4:
-      return FastbootTcpUtil(dut_info, img_src_dir)
+      return FastbootTcpUtil(dut_info, img_src_dir, idle_timeout)
   except ValueError:
     pass
-  return FastbootUsbUtil(dut_info, img_src_dir)
+  return FastbootUsbUtil(dut_info, img_src_dir, idle_timeout)

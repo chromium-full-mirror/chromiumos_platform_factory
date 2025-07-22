@@ -8,6 +8,8 @@ import argparse
 import ipaddress
 import logging
 import queue
+from subprocess import CalledProcessError
+from subprocess import TimeoutExpired
 import threading
 import time
 from typing import List, Set
@@ -123,7 +125,8 @@ class FastbootImagingOrchestrator:
 
   def __init__(self, board_name: str, project_name: str, src_image_dir: str,
                ip_list: List[str], usb_device_list: List[str],
-               is_fixed_ip: bool = False, scan_interval: int = 5):
+               is_fixed_ip: bool = False, scan_interval: int = 5,
+               idle_timeout: int = 60):
 
     self.project_name = project_name
     self.board_name = board_name
@@ -133,6 +136,7 @@ class FastbootImagingOrchestrator:
     self.is_fixed_ip = is_fixed_ip
     self.usb_device_list = usb_device_list
     self.scan_interval = scan_interval
+    self.idle_timeout = idle_timeout
 
     # TODO(stevesu) Wrap set with lock to have simpler coding pattern.
     self.dut_in_use: Set[str] = set()
@@ -187,26 +191,36 @@ class FastbootImagingOrchestrator:
 
   def TaskFinished(self, dut_info: str) -> None:
     with self.dut_in_use_lock:
-      logging.info('DUT [%s] finished flashing task.', dut_info)
+      logging.info('DUT [%s] exited flashing task.', dut_info)
       self.dut_in_use.remove(dut_info)
 
   # TODO(stevesu) Add support of fixed ip & usb cable case.
   def ProcessTask(self, dut_info: str) -> None:
-    runner = fastboot_util.FastbootRunnerFactory(dut_info, self.src_image_dir)
+    runner = fastboot_util.FastbootRunnerFactory(dut_info, self.src_image_dir,
+                                                 self.idle_timeout)
     # FW fastboot & userspace fastboot reports different product name now.
     # This will be aligned after per-model build is introduced.
-    if runner.GetProductName().lower() in (self.board_name, self.project_name):
-      is_userspace = runner.GetIsUserSpace()
-      if is_userspace:
-        # Flash with userspace fastboot. We decided to flash everything again
-        # during userspace fastboot, just to be safe. `flashall` will reboot
-        # the device automatically.
-        runner.FlashAll()
-      else:
-        runner.FlashMbrAndGptTable()
-        runner.FlashBootPartitions()
-        runner.RebootToUserSpaceFastboot()
-    self.TaskFinished(dut_info)
+    try:
+      if runner.GetProductName().lower() in (self.board_name,
+                                             self.project_name):
+        is_userspace = runner.GetIsUserSpace()
+        if is_userspace:
+          # Flash with userspace fastboot. We decided to flash everything again
+          # during userspace fastboot, just to be safe. `flashall` will reboot
+          # the device automatically.
+          runner.FlashAll()
+        else:
+          runner.FlashMbrAndGptTable()
+          runner.FlashBootPartitions()
+          runner.RebootToUserSpaceFastboot()
+    except TimeoutExpired as e:
+      logging.error(('DUT [%s] task is terminated due to '
+                     'exceeding the idle time limit (error: %r)'), dut_info, e)
+    except CalledProcessError as e:
+      logging.error(('DUT [%s] task is terminated due to '
+                     'non-zero exit (error: %r)'), dut_info, e)
+    finally:
+      self.TaskFinished(dut_info)
 
   def ShutDown(self) -> None:
     self.stop_event.set()  # Signal all threads to stop
@@ -257,6 +271,10 @@ if __name__ == '__main__':
   parser.add_argument('--usb_device_list', '-u',
                       help='A list of adb/fastboot usb cable device to monitor')
   parser.add_argument('--log_path', '-l', help='Path to the log file')
+  parser.add_argument(
+      '--idle_timeout', type=int, default=60,
+      help=('The idle time limit for executing a single fastboot command. '
+            'Set to any non-positive number for unlimited timeout'))
 
   args = parser.parse_args()
   if args.ip_list is None and args.usb_device_name is None:
@@ -265,5 +283,6 @@ if __name__ == '__main__':
   InitLogger(args.log_path, args.log_level)
   orchestartor = FastbootImagingOrchestrator(
       args.board, args.project, args.src_image_dir, args.ip_list,
-      args.is_fixed_ip, args.usb_device_list, args.scan_interval)
+      args.is_fixed_ip, args.usb_device_list, args.scan_interval,
+      args.idle_timeout)
   orchestartor.RunTask()

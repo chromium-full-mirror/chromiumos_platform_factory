@@ -21,5 +21,9 @@
   "board_name": {
     "description": "Board name of the project. This field will be removed once per model build is introduced. Example: brya",
     "type": "string"
+  },
+  "idle_timeout": {
+    "description": "The idle time limit for executing a fastboot command. Default = 60 seconds",
+    "type": "string"
   }
 }
