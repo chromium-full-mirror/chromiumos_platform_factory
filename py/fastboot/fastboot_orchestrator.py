@@ -128,8 +128,8 @@ class FastbootImagingOrchestrator:
                is_fixed_ip: bool = False, scan_interval: int = 5,
                idle_timeout: int = 60):
 
-    self.project_name = project_name
-    self.board_name = board_name
+    self.project_name = project_name.lower()
+    self.board_name = board_name.lower()
     self.src_image_dir = src_image_dir
 
     self.ip_list = ip_list
@@ -206,9 +206,11 @@ class FastbootImagingOrchestrator:
         is_userspace = runner.GetIsUserSpace()
         if is_userspace:
           # Flash with userspace fastboot. We decided to flash everything again
-          # during userspace fastboot, just to be safe. `flashall` will reboot
-          # the device automatically.
-          runner.FlashAll()
+          # during userspace fastboot, just to be safe. After flashing, erase
+          # userdata by zero out the beginning of the userdata partition.
+          runner.FlashAll(reboot=False)
+          runner.EraseUserdata()
+          runner.Reboot()
         else:
           runner.FlashMbrAndGptTable()
           runner.FlashBootPartitions()

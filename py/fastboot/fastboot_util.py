@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import shlex
+import tempfile
 from subprocess import CalledProcessError
 from subprocess import PIPE
 from subprocess import STDOUT
@@ -214,7 +215,18 @@ class FastbootUtil:
 
     return self.GetVarWithKey('product')
 
-  def FlashAll(self) -> None:
+  def EraseUserdata(self) -> None:
+    """Erase the userdata partition.
+
+    Erase the userdata by zero out the beginning of the userdata partition.
+    """
+    logging.debug('DUT [%s] Erasing userdata', self.serial_device)
+    with tempfile.NamedTemporaryFile(dir='/tmp') as f:
+      cmd = ['dd', 'if=/dev/zero', f'of={f.name}', 'bs=1M', 'count=2']
+      process_utils.CheckCall(cmd)
+      self.FastbootCheckOutputExecutor(['flash', 'userdata', f.name])
+
+  def FlashAll(self, reboot=False) -> None:
     """Flashes all partitions.
 
     For `fastboot flashall`, it will try to locate the `ANDROID_PRODUCT_OUT`
@@ -234,7 +246,10 @@ class FastbootUtil:
 
     """
     logging.debug('DUT [%s] Flashing all partitions', self.serial_device)
-    self.FastbootCheckOutputExecutor(['flashall'])
+    if reboot:
+      self.FastbootCheckOutputExecutor(['flashall'])
+    else:
+      self.FastbootCheckOutputExecutor(['flashall', '--skip-reboot'])
 
   def Flash(self, partition_name: str) -> None:
     """Flashes a single partition.

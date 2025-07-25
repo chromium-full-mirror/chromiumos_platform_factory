@@ -65,8 +65,7 @@ class FastbootImagePayloadExporter:
         flash vendor_boot
         flash --apply-vbmeta vbmeta
         flash super
-        if-wipe erase userdata
-        if-wipe erase metadata
+        erase metadata
         '''))
 
     files = self._env.GetFastbootImagePayloads(bundle['payloads'])
