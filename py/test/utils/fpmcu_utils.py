@@ -406,8 +406,8 @@ class FpmcuDevice:
       pass
 
     # Wait for a delay so that the previous FPMCU command make effect
-    # completely.
-    time.sleep(2)
+    # completely. 5 seconds would be OK (see b/421051444#comment35).
+    time.sleep(5)
 
     self._cached_flash_protect_flags = None
 
