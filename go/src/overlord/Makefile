@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-GO=go
+GO=GOPROXY=direct GO111MODULE=on GOPATH=$(GOPATH) go
 FACTORY=$(CURDIR)/../../..
 BUILDDIR=$(FACTORY)/build
 PACKAGEDIR=$(BUILDDIR)/overlord
@@ -23,22 +23,22 @@ all: ghost overlordd overlord_lan_disc
 deps:
 	mkdir -p $(BINDIR)
 	if $(DEPS); then \
-		GO111MODULE=on GOPATH=$(GOPATH) $(GO) get $(OVERLORD); \
+		$(GO) get $(OVERLORD); \
 	fi
 
 overlordd: deps
-	(GO111MODULE=on GOPATH=$(GOPATH) $(GO) build $(LDFLAGS) \
+	($(GO) build $(LDFLAGS) \
 		$(OVERLORD)/cmd/$@)
 	mv -f $@ $(BINDIR)
 	ln -sf $(CURDIR)/app $(BINDIR)
 
 overlord_lan_disc: deps
-	(GO111MODULE=on GOPATH=$(GOPATH) $(GO) build $(LDFLAGS) \
+	($(GO) build $(LDFLAGS) \
 		$(OVERLORD)/cmd/$@)
 	mv -f $@ $(BINDIR)
 
 ghost: deps
-	(GO111MODULE=on GOPATH=$(GOPATH) $(GO) build $(LDFLAGS) \
+	($(GO) build $(LDFLAGS) \
 		$(OVERLORD)/cmd/$@)
 	mv -f $@ $(BINDIR)
 
