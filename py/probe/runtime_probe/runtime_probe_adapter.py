@@ -25,6 +25,7 @@ def RunProbeFunction(probe_function_name, args):
   process_result = process_utils.LogAndCheckCall(
       [RUNTIME_PROBE_BIN, '--log_level=-2',
        payload.DumpToString()], read_stdout=True, read_stderr=True)
+  assert process_result.stdout_data is not None
   logging.info('Runtime probe logs: %s', process_result.stderr_data)
   res = json_utils.LoadStr(process_result.stdout_data)
   return [x['values'] for x in res[CATEGORY_NAME]]
