@@ -20,23 +20,6 @@ from cros.factory.utils import cros_board_utils
 from cros.factory.utils import process_utils
 
 
-try:
-  DEPOT_TOOLS_PATH = os.path.join(
-      os.path.dirname(os.environ.get('CROS_WORKON_SRCROOT',
-                                     '/mnt/host/source')),
-      'depot_tools')
-  if DEPOT_TOOLS_PATH not in sys.path:
-    sys.path.append(DEPOT_TOOLS_PATH)
-  # yapf: disable
-  import gerrit_util  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-
-  # yapf: enable
-except ImportError:
-  logging.exception('cannot find module gerrit_util, which should be found '
-                    'under %s, are you in chroot?', DEPOT_TOOLS_PATH)
-  raise
-
-
 def GetFactoryRepoInfo(options):
   return {
       'url': 'chromium-review.googlesource.com',
@@ -87,6 +70,22 @@ def QueryChanges(info, options):
       value returned by `GetFactoryRepoInfo` or `GetBoardRepoInfo`.
     options: parsed command line argument.
   """
+  try:
+    DEPOT_TOOLS_PATH = os.path.join(
+        os.path.dirname(
+            os.environ.get('CROS_WORKON_SRCROOT', '/mnt/host/source')),
+        'depot_tools')
+    if DEPOT_TOOLS_PATH not in sys.path:
+      sys.path.append(DEPOT_TOOLS_PATH)
+    # yapf: disable
+    import gerrit_util  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+
+    # yapf: enable
+  except ImportError:
+    logging.exception(
+        'cannot find module gerrit_util, which should be found '
+        'under %s, are you in chroot?', DEPOT_TOOLS_PATH)
+    raise
   param = [('project', info['project']),
            ('status', 'open')]
   if options.branch:
