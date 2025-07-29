@@ -261,8 +261,11 @@ class TerminateOrKillProcessTest(unittest.TestCase):
 
   def DoTest(self, logging_debug_mock, is_sudo, is_trap):
     if is_trap:
-      process = Spawn('trap true SIGTERM SIGKILL; sleep 10', shell=True,
-                      sudo=is_sudo)
+      if is_sudo:
+        cmd = 'trap true SIGTERM SIGKILL; sudo sleep 10'
+      else:
+        cmd = 'trap true SIGTERM SIGKILL; sleep 10'
+      process = Spawn(cmd, shell=True)
       # Allow the process some time to execute and setup signal trap.
       time.sleep(1)
     else:
