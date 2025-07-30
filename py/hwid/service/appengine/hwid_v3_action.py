@@ -40,14 +40,10 @@ class HWIDV3Action(hwid_action.HWIDAction):
   ) -> Mapping[str, Sequence[str]]:
     runtime_components: DefaultDict[str,
                                     List[str]] = collections.defaultdict(list)
-    valid_comp_cls = self._preproc_data.database.GetComponentClasses()
     for comp_cls, comp_list in runtime_hwid_comps.component_positions.items():
       if comp_cls == 'camera':
         comp_cls = self._preproc_data.database.GetCameraComponentClass()
 
-      if comp_cls not in valid_comp_cls:
-        # Not a component position.
-        continue
       if comp_cls == 'dram':
         # Always uses dram from Factory HWID.
         continue

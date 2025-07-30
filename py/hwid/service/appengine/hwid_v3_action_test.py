@@ -207,7 +207,7 @@ class HWIDV3ActionWithoutFeatureMatcherTextTest(unittest.TestCase):
 
   def testGetBOMAndConfiglessWithRuntimeHWID_WithUnidentifiedComponent(self):
     bom, configless = self.action.GetBOMAndConfigless(
-        'CHROMEBOOK AA5A-Y6L R:1-1-2-?-1')
+        'CHROMEBOOK AA5A-Y6L R:1-1-2-?-1-?')
 
     self.assertCountEqual([hwid_action.Component('battery', 'battery_medium')],
                           bom.GetComponents('battery'))
@@ -217,6 +217,9 @@ class HWIDV3ActionWithoutFeatureMatcherTextTest(unittest.TestCase):
     self.assertCountEqual(
         [hwid_action.Component('display_panel', 'display_panel_0')],
         bom.GetComponents('display_panel'))
+    self.assertCountEqual(
+        [hwid_action.Component('stylus', 'stylus_unidentified')],
+        bom.GetComponents('stylus'))
     self.assertIsNone(configless)
 
   def testGetBOMAndConfiglessWithRuntimeHWID_WithMultipleComponents(self):

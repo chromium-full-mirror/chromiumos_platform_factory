@@ -164,7 +164,7 @@ class BOM:
     for component_class, component_val in component_dict.items():
       db_components = comp_db and comp_db.GetComponents(component_class)
       for component_name in type_utils.MakeList(component_val):
-        comp_info = db_components and db_components.get(component_name)
+        comp_info = db_components.get(component_name) if db_components else None
         fields = None
         if verbose and comp_info is not None:
           fields = comp_info.values

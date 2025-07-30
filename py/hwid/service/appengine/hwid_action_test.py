@@ -10,6 +10,7 @@ from cros.factory.hwid.service.appengine import hwid_action
 from cros.factory.hwid.v3 import database as v3_database
 from cros.factory.hwid.v3 import rule as v3_rule
 
+
 GOLDEN_HWIDV3_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'testdata/v3-golden.yaml')
 
@@ -117,6 +118,22 @@ class BOMTest(unittest.TestCase):
             'vendor': 'vendor1',
             'serial': v3_rule.Value(r'^#123\d+$', is_re=True)
         }, comp.fields)
+
+  def testAddAllComponentsWithComponentsNotInDB(self):
+    db = v3_database.Database.LoadFile(GOLDEN_HWIDV3_FILE,
+                                       verify_checksum=False)
+
+    self.bom.AddAllComponents({
+        'touchpad': ['touchpad_3']
+    }, db)
+
+    self.assertEqual(len(self.bom.GetComponents('touchpad')), 1)
+    comp = self.bom.GetComponents('touchpad')[0]
+    self.assertEqual('touchpad', comp.cls)
+    self.assertEqual('touchpad_3', comp.name)
+    self.assertIsNone(comp.information)
+    self.assertEqual(False, comp.is_vp_related)
+    self.assertEqual({}, comp.fields)
 
   def testGetComponents(self):
     self.bom.AddComponent('foo', 'bar')
