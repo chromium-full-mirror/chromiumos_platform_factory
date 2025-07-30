@@ -665,7 +665,7 @@ class CrosPayloadUtils:
       dest_dir = os.path.dirname(dest)
       Sudo(['chown', '-R', 'root:root', new_payloads_dir])
       Sudo(['mkdir', '-p', dest_dir, '-m', f'{MODE_NEW_DIR:o}'])
-      Sudo(['rsync', '-a', new_payloads_dir, dest_dir])
+      Sudo(['rsync', '-a', '--checksum', new_payloads_dir, dest_dir])
 
     # Shrink stateful partition.
     if remain_size > new_payloads_size + 2 * margin:
