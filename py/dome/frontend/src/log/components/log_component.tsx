@@ -11,7 +11,7 @@ import ExpandIcon from '@mui/icons-material/ExpandMore';
 import ReportIcon from '@mui/icons-material/ReportProblem';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
-import green from '@mui/material/colors/green';
+import {green} from '@mui/material/colors';
 import IconButton from '@mui/material/IconButton';
 import {Theme} from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
