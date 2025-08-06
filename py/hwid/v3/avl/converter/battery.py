@@ -191,6 +191,9 @@ class BatteryPrefixMatchLength11Expand(BatteryPrefixMatchLength11):
                   _BatteryExpandMatcherPattern2ToChar(key, v[:-5] + 'A'),
                   _BatteryExpandMatcherPattern2ToDigit(key, v)
               ]))
+      else:
+        # Plain string equal match.
+        matchers.append(runtime_probe_matchers.StringEqualMatcher(key, v))
     return (
         runtime_probe_matchers.OrMatcher(matchers),
         suggester_type(key, key),

@@ -127,6 +127,19 @@ class BatteryTest(unittest.TestCase):
                 'model_name': 'abcde12345(0|1|2|3|4|5|6|7|8|9|A)',
             }), expected_result)
 
+  def testBatteryTrimExpandAndTrimOnly(self):
+    for (test_name, (manufacturer, model_name), expected_result) in (('Match', (
+        ['abcde123456789'],
+        ['abcde12345[0-9][0-9][0-9]'],
+    ), matcher.MatchResult(True, 'BatteryPrefixMatchLength11Expand')), ):
+      with self.subTest(test_name):
+        m = _GetMatcher(manufacturer, model_name, 'factory-board-1.B')
+        self.assertEqual(
+            m.Match({
+                'manufacturer': 'abcde123456',
+                'model_name': 'abcde12345(0|1|2|3|4|5|6|7|8|9)',
+            }), expected_result)
+
   def testBatteryTrim(self):
     m = _GetMatcher(['123456 abc 123'], ['abc'], 'factory-board-1.B')
     with self.subTest('BatteryPrefixMatchLength11Trim'):
