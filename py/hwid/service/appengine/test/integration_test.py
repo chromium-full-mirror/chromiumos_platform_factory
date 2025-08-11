@@ -7,7 +7,6 @@
 import argparse
 import logging
 import os
-import re
 import sys
 
 from cros.factory.utils import file_utils
@@ -71,13 +70,9 @@ def _PrepareTests(test_names):
 
 
 def _BuildDockerImage():
-  """Builds docker image and returns the image tag."""
-  out = process_utils.CheckOutput([DEPLOY_SCRIPT, 'build'], log=True,
-                                  cwd=HOST_FACTORY_DIR)
-  # yapf: disable
-  return re.search(r'^Successfully tagged (\w+:\w+)', out,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-                   re.MULTILINE).group(1)
+  """Builds docker image."""
+  process_utils.CheckOutput([DEPLOY_SCRIPT, 'build'], log=True,
+                            cwd=HOST_FACTORY_DIR)
 
 
 def RunTest(image, test_names):
@@ -143,9 +138,11 @@ def main():
             'folder, of tests to run.'))
   args = parser.parse_args()
 
-  image = DEFAULT_DOCKER_IMAGE_NAME if args.no_build else _BuildDockerImage()
+  if not args.no_build:
+    _BuildDockerImage()
+
   tests_to_run = _PrepareTests(args.test_names)
-  if not RunTest(image, tests_to_run):
+  if not RunTest(DEFAULT_DOCKER_IMAGE_NAME, tests_to_run):
     sys.exit(1)
 
 

@@ -48,6 +48,7 @@ APP_ID=
 APP_HOSTNAME=
 IMPERSONATED_SERVICE_ACCOUNT=
 
+# TODO(b/437780940): consider replace docker with podman
 check_docker() {
   if ! type docker >/dev/null 2>&1; then
     die "Docker not installed, abort."
