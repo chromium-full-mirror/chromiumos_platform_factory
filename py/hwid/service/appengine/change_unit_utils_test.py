@@ -618,7 +618,9 @@ class PadEncodingBitsTest(ChangeUnitTestBase):
   def testPadExistingPatternsNewEncodedField(self):
     pad_bits = _PadEncodingBits(
         encoded_field_name='field_absent_in_pattern',
-        pattern_idxes=[0],
+        pattern_idxes={
+            0: 0
+        },
     )
 
     self._AssertApplyingPatchesEqualsData(
@@ -641,7 +643,9 @@ class PadEncodingBitsTest(ChangeUnitTestBase):
   def testApplyPadEncodingBitsChangeUnit(self):
     with builder.DatabaseBuilder.FromDBData(
         self.db_content_before) as db_builder:
-      _PadEncodingBits('comp_cls_1_field', [0]).Patch(db_builder)
+      _PadEncodingBits('comp_cls_1_field', {
+          0: 1
+      }).Patch(db_builder)
 
     self.assertEqual(self.db_content_after,
                      db_builder.Build().DumpDataWithoutChecksum())
@@ -1010,7 +1014,9 @@ class MixedChangeUnitTest(ChangeUnitTestBase):
                                                     comp_1_1_analysis,
                                                     comp_1_3_analysis,
                                                 ]),
-        _PadEncodingBits('new_comp_cls_1_field', [0]),
+        _PadEncodingBits('new_comp_cls_1_field', {
+            0: 1
+        }),
     ]
     expected_diff = textwrap.dedent('''\
         ---
@@ -1184,7 +1190,6 @@ class ChangeUnitManagerTest(unittest.TestCase):
     manager.ApplyChange(database.Database.LoadData(new_db_content))
 
     graph = manager.ExportDependencyGraph(readable=True)
-
     self.assertDictEqual(
         {
             'AddEncodingCombination:new_field(first)-comp_cls_1:new_comp': {
@@ -1201,16 +1206,10 @@ class ChangeUnitManagerTest(unittest.TestCase):
                 'PadEncodingBits:new_field-0',
             },
             ('AddEncodingCombination:new_field-comp_cls_1:'
-             'comp_1_1_renamed,comp_1_2'): {
-                # Padding bits of new_field to pattern idx 0 depends on this
-                # change.
-                'PadEncodingBits:new_field-0'
-            },
-            'AddEncodingCombination:new_field-comp_cls_1:new_comp,new_comp': {
-                # Padding bits of new_field to pattern idx 0 depends on this
-                # change.
-                'PadEncodingBits:new_field-0',
-            },
+             'comp_1_1_renamed,comp_1_2'):
+                set(),
+            'AddEncodingCombination:new_field-comp_cls_1:new_comp,new_comp':
+                set(),
             # Component renamed is depended by combination addition.
             'CompChange:comp_cls_1:comp_1_1_renamed': {
                 ('AddEncodingCombination:new_field-comp_cls_1:'
@@ -1239,9 +1238,12 @@ class ChangeUnitManagerTest(unittest.TestCase):
                 # image id additions.
                 'AssignBitMappingToEncodingPattern:PHASE_NEW_PATTERN_1(5)(last)'
             },
-            # Not depended by other change units.
-            'PadEncodingBits:new_field-0':
-                set(),
+            # Non-first combinations depends on padding encoding bits.
+            'PadEncodingBits:new_field-0': {
+                'AddEncodingCombination:new_field-comp_cls_1:new_comp,new_comp',
+                ('AddEncodingCombination:new_field-comp_cls_1:comp_1_1_renamed'
+                 ',comp_1_2'),
+            },
             'RenameImages': {
                 # Change units of adding new images depend on rename images.
                 ('AssignBitMappingToEncodingPattern:'

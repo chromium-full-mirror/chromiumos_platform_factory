@@ -2354,7 +2354,7 @@ class SelfServiceShardTest(unittest.TestCase):
          #
          #####
         -checksum: 7e2b35baa9d1ee6b80337589d676e33c62a61cc8
-        +checksum: 4a4d70a2aa4aa645697ed1e7269be486bef55c71
+        +checksum: 3a17b7573cad5f5a37973780de9c25023d5c3431
 
          ##### END CHECKSUM BLOCK. See the warning above. 请参考上面的警告。
 
@@ -2371,7 +2371,7 @@ class SelfServiceShardTest(unittest.TestCase):
            - ro_main_firmware_field: 1
            - comp_cls_1_field: 2
            - comp_cls_23_field: 2
-        +  - new_field: 1
+        +  - new_field: 2
          - image_ids:
            - 3
            - 4

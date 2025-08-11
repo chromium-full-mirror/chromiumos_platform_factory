@@ -266,6 +266,8 @@ class AddEncodingCombination(ChangeUnit):
       # default component, so other components depend on such change unit if
       # exists.
       yield self.CreateDepSpec(True, self._encoded_field_name)
+      # Non-first combinations depend on padding encoding bits.
+      yield PadEncodingBits.CreateDepSpec(self._encoded_field_name)
 
 
 class PadEncodingBits(ChangeUnit):
@@ -278,9 +280,9 @@ class PadEncodingBits(ChangeUnit):
   def __init__(
       self,
       encoded_field_name: str,
-      pattern_idxes: Sequence[int],
+      pattern_idxes: Mapping[int, int],
   ):
-    super().__init__(self.CreateDepSpec())
+    super().__init__(self.CreateDepSpec(encoded_field_name))
     self._encoded_field_name = encoded_field_name
     self._pattern_idxes = pattern_idxes
 
@@ -290,20 +292,20 @@ class PadEncodingBits(ChangeUnit):
             f'{pattern_idxes_str}')
 
   @classmethod
-  def CreateDepSpec(cls) -> ChangeUnitDepSpec:
-    return ChangeUnitDepSpec(cls)
+  def CreateDepSpec(cls, encoded_field_name) -> ChangeUnitDepSpec:
+    return ChangeUnitDepSpec(cls, encoded_field_name)
 
   @_UnifyException
   def Patch(self, db_builder: builder.DatabaseBuilder):
     """See base class."""
-    db_builder.FillEncodedFieldBit(self._encoded_field_name,
-                                   self._pattern_idxes)
+    for pattern_idx, bits in self._pattern_idxes.items():
+      db_builder.AppendEncodedFieldBit(self._encoded_field_name, bits,
+                                       pattern_idx=pattern_idx)
 
   def GetDependedSpecs(self) -> Iterable[ChangeUnitDepSpec]:
-    # Padding pattern bits depend on AddEncodingCombination change units of the
-    # encoded field.
+    # Padding pattern bits depend on the first AddEncodingCombination change
+    # units of the encoded field.
     yield AddEncodingCombination.CreateDepSpec(True, self._encoded_field_name)
-    yield AddEncodingCombination.CreateDepSpec(False, self._encoded_field_name)
 
 
 class NewImageIdToExistingEncodingPattern(ChangeUnit):
@@ -531,33 +533,14 @@ def _ExtractEncodingRelatedChanges(
   else:
     common_pattern_idxes = range(old_db.GetPatternCount())
 
-  def _GetPatternIdxesHavingEncodedField(
-      encoded_field_name: str) -> Sequence[int]:
-    """Gets the indices of common patterns having the given encoded field.
-
-    Returns:
-      Indices of patterns including the specified encoded field in new_db.
-    """
-
-    return [
-        pattern_idx for pattern_idx in common_pattern_idxes
-        if encoded_field_name in new_db.GetEncodedFieldsBitLength(
-            pattern_idx=pattern_idx)
-    ]
-
   def _GetPatternIdxesRequiringPadding(
-      encoded_field_name: str) -> Sequence[int]:
+      encoded_field_name: str) -> Mapping[int, int]:
     """Gets the indices of common patterns requiring bit filling.
 
     Returns:
-      Indices of patterns including the specified encoded field in the following
-      cases:
-        1. The given encoded field exists in a pattern of the new DB but not the
-          old DB.
-        2. The given encoded field exists in a pattern of both new DB and old
-          DB, but the bit length in new DB is greater than in old DB.
+      A dict containing the number of bits need to be padded fro each pattern.
     """
-    pattern_idxes_required = []
+    pattern_idxes_required = {}
     for pattern_idx in common_pattern_idxes:
       old_bit_lengths = old_db.GetEncodedFieldsBitLength(
           pattern_idx=pattern_idx)
@@ -568,11 +551,12 @@ def _ExtractEncodingRelatedChanges(
         continue
       if encoded_field_name not in old_bit_lengths:
         # In new DB but not in old DB.
-        pattern_idxes_required.append(pattern_idx)
-      elif new_bit_lengths[encoded_field_name] > old_bit_lengths[
-          encoded_field_name]:
+        pattern_idxes_required[pattern_idx] = (
+            new_bit_lengths[encoded_field_name])
+      elif (extra_bits := new_bit_lengths[encoded_field_name] -
+            old_bit_lengths[encoded_field_name]) > 0:
         # Exists in the pattern of both old/new DB and has more bits in new DB.
-        pattern_idxes_required.append(pattern_idx)
+        pattern_idxes_required[pattern_idx] = extra_bits
     return pattern_idxes_required
 
   def _GetComponentHashes(comp_cls: str,
@@ -595,7 +579,7 @@ def _ExtractEncodingRelatedChanges(
         new_db, extra_encoded_field)
 
     # Only fill bits in existing patterns that include this encoded field.
-    pattern_idxes_to_fill = _GetPatternIdxesHavingEncodedField(
+    pattern_idxes_to_fill = _GetPatternIdxesRequiringPadding(
         extra_encoded_field)
     if pattern_idxes_to_fill:
       yield PadEncodingBits(extra_encoded_field, pattern_idxes_to_fill)
@@ -638,10 +622,6 @@ def _ExtractEncodingRelatedChanges(
               'Modifying existing combinations is unsupported.')
 
     if old_comb_idx_set < new_comb_idx_set:
-      # Only fill bits in existing patterns that include this encoded field.
-      pattern_idxes_to_fill = _GetPatternIdxesHavingEncodedField(encoded_field)
-      if pattern_idxes_to_fill:
-        yield PadEncodingBits(encoded_field, pattern_idxes_to_fill)
       comp_cls = _GetExactlyOneComponentClassFromEncodedField(
           new_db, encoded_field)
       for i in new_comb_idx_set - old_comb_idx_set:  # new combinations
@@ -652,12 +632,9 @@ def _ExtractEncodingRelatedChanges(
         ]
         yield AddEncodingCombination(False, encoded_field, comp_cls,
                                      component_hashes, comp_analyses)
-    else:
-      # A pattern introduces an existing encoded field without combinations
-      # changed.
-      pattern_idxes_to_fill = _GetPatternIdxesRequiringPadding(encoded_field)
-      if pattern_idxes_to_fill:
-        yield PadEncodingBits(encoded_field, pattern_idxes_to_fill)
+    pattern_idxes_to_fill = _GetPatternIdxesRequiringPadding(encoded_field)
+    if pattern_idxes_to_fill:
+      yield PadEncodingBits(encoded_field, pattern_idxes_to_fill)
 
 
 def _ExtractRenameImages(old_db: database.Database,
