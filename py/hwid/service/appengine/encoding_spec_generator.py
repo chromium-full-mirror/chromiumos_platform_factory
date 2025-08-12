@@ -60,14 +60,14 @@ class EncodingSpecGenerator:
   def __init__(
       self,
       db: database.Database,
-      waived_comp_categories: Collection[_ProbeRequestSupportCategory],
+      vpg_waived_categories: Collection[_ProbeRequestSupportCategory],
       vp_related_comps: Collection[Tuple[str, str]],
       primary_identifiers: Mapping[Tuple[str, str], str],
       skip_fields: Collection[str],
       name_patterns: Mapping[str, name_pattern_adapter.NamePattern],
   ):
     self._db = db
-    self._waived_comp_categories = waived_comp_categories
+    self._vpg_waived_categories = vpg_waived_categories
     self._vp_related_comps = vp_related_comps
     self._primary_identifiers = primary_identifiers
     self._skip_fields = skip_fields
@@ -76,7 +76,7 @@ class EncodingSpecGenerator:
 
   @classmethod
   def Create(
-      cls, db: database.Database, waived_comp_categories: Sequence[str],
+      cls, db: database.Database, vpg_waived_categories: Sequence[str],
       vp_related_comps: Collection[Tuple[str, str]],
       primary_identifiers: Mapping[Tuple[str, str],
                                    str]) -> EncodingSpecGenerator:
@@ -84,9 +84,9 @@ class EncodingSpecGenerator:
 
     Args:
       db: The HWID DB used to build the encoding spec generator.
-      waived_comp_categories: The component categories to be waived in the
-          encoding specs. In general, this should come from the verification
-          payload generator config.
+      vpg_waived_categories: The component categories to be waived in the
+          verification payload generator. In general, this should come from the
+          verification payload generator config.
       vp_related_comps: (component category, component name) of all components
           that can be used to generate valid probe statements.
     """
@@ -106,26 +106,30 @@ class EncodingSpecGenerator:
         db,
         set(
             getattr(_ProbeRequestSupportCategory, category)
-            for category in waived_comp_categories), vp_related_comps,
+            for category in vpg_waived_categories), vp_related_comps,
         primary_identifiers, skip_fields, name_patterns)
 
-  def _ShouldSkipField(self, field_name: str) -> bool:
-    """Checks if an encoded field should be skipped in encoding specs.
+  def _GetFieldCategoryIfNotSkipped(
+      self, field_name: str) -> _ProbeRequestSupportCategory | None:
+    """Gets the category if the field should not be skipped in encoding spec.
 
     We should skip the encoded field if any of the following is true:
     1. The field is unexpectedly added to the HWID DB.
     2. The category of the field is not Runtime-Probe-supported.
-    3. The category of the field is waived.
+    3. The category of the field is waived in the verification payload
+        generator.
 
     Args:
       field_name: The encoded field name. Should be "{CATEGORY}_field".
 
     Returns:
-      A bool value indicating whether the field should be skipped or not.
+      The category if it should not be skipped, otherwise None.
     """
     category = self._FIELD_CATEGORY_MAP.get(field_name)
-    return (category is None or field_name in self._skip_fields or
-            category in self._waived_comp_categories)
+    if (category is None or field_name in self._skip_fields or
+        category in self._vpg_waived_categories):
+      return None
+    return category
 
   def _ShouldSkipComponent(self, comp_cls: str, comp_name: str) -> bool:
     """Checks if a component should be skipped in encoding specs.
@@ -145,19 +149,22 @@ class EncodingSpecGenerator:
                                  comp_name) not in self._vp_related_comps
 
   def _GenerateEncodingPattern(
-      self, pattern_id: int) -> hardware_verifier_pb2.EncodingPattern:
+      self, pattern_id: int,
+      encoding_spec_categories: Collection[_ProbeRequestSupportCategory]
+  ) -> hardware_verifier_pb2.EncodingPattern:
     """Generates the EncodingPattern message for a specific pattern in DB.
 
     Args:
       pattern_id: The ID of the pattern used to generate the message.
+      encoding_spec_categories: The valid categories in the encoding spec.
     """
     bit_ranges = []
     category_first_zero_bit: Dict[_ProbeRequestSupportCategory, int] = {}
     pattern_datum = self._db.GetPattern(pattern_idx=pattern_id)
     start_idx = 0
     for field in pattern_datum.fields:
-      if not self._ShouldSkipField(field.name):
-        category = self._FIELD_CATEGORY_MAP[field.name]
+      category = self._GetFieldCategoryIfNotSkipped(field.name)
+      if category is not None and category in encoding_spec_categories:
         if field.bit_length > 0:
           bit_ranges.append(
               hardware_verifier_pb2.BitRange(
@@ -177,10 +184,15 @@ class EncodingSpecGenerator:
         bit_ranges=bit_ranges, first_zero_bits=first_zero_bits)
 
   def GenerateEncodingPatterns(
-      self) -> Sequence[hardware_verifier_pb2.EncodingPattern]:
+      self, encoded_fields: Sequence[hardware_verifier_pb2.EncodedFields]
+  ) -> Sequence[hardware_verifier_pb2.EncodingPattern]:
     """Generates all EncodingPattern messages for the DB."""
+    encoding_spec_categories = {
+        encoded_field.category
+        for encoded_field in encoded_fields
+    }
     return [
-        self._GenerateEncodingPattern(pattern_id)
+        self._GenerateEncodingPattern(pattern_id, encoding_spec_categories)
         for pattern_id in range(self._db.GetPatternCount())
     ]
 
@@ -197,6 +209,7 @@ class EncodingSpecGenerator:
           message.
     """
     encoded_components = []
+    has_valid_comp = False
     for index, components in self._db.GetEncodedField(
         encoded_field_name).items():
       comp_cls, comp_names_encoded = next(iter(components.items()))
@@ -213,30 +226,45 @@ class EncodingSpecGenerator:
 
         component_names.append(comp_name)
 
+      if component_names:
+        has_valid_comp = True
+
       encoded_components.append(
           hardware_verifier_pb2.EncodedComponents(
               index=index, component_names=component_names))
 
+    if not has_valid_comp:
+      return []
+
     return encoded_components
 
-  def GenerateEncodedFields(
-      self) -> Sequence[hardware_verifier_pb2.EncodedFields]:
+  def GenerateEncodedFieldsAndWaivedCategories(
+      self
+  ) -> tuple[Sequence[hardware_verifier_pb2.EncodedFields],
+             Collection[_ProbeRequestSupportCategory]]:
     """Generates EncodedFields messages for all categories in the DB."""
     encoded_fields = []
+    waived_categories = set(self._vpg_waived_categories)
     for field in self._db.encoded_fields:
-      if self._ShouldSkipField(field):
+      category = self._GetFieldCategoryIfNotSkipped(field)
+      if category is None:
+        continue
+
+      encoded_components = self._GenerateEncodedComponents(field)
+      if not encoded_components:
+        waived_categories.add(category)
         continue
 
       encoded_fields.append(
           hardware_verifier_pb2.EncodedFields(
-              category=self._FIELD_CATEGORY_MAP[field],
-              encoded_components=self._GenerateEncodedComponents(field)))
+              category=category, encoded_components=encoded_components))
 
-    return encoded_fields
+    return encoded_fields, waived_categories
 
   def GenerateEncodingSpec(self) -> hardware_verifier_pb2.EncodingSpec:
-    encoding_patterns = self.GenerateEncodingPatterns()
-    encoded_fields = self.GenerateEncodedFields()
+    encoded_fields, waived_categories = (
+        self.GenerateEncodedFieldsAndWaivedCategories())
+    encoding_patterns = self.GenerateEncodingPatterns(encoded_fields)
     return hardware_verifier_pb2.EncodingSpec(
         encoding_patterns=encoding_patterns, encoded_fields=encoded_fields,
-        waived_categories=self._waived_comp_categories)
+        waived_categories=waived_categories)

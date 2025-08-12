@@ -33,8 +33,6 @@ encoded_fields:
     0: {bbb: bbb_2_2}
   ccc_field:
     0: {ccc: ccc_3_3}
-  touchpad_field:
-    0: {touchpad: null}
   camera_field:
     0:
       camera:
@@ -54,6 +52,8 @@ encoded_fields:
     0: {dram: dram_8_8}
   video_field:
     0: {video: video_9_9}
+  touchpad_field:
+    0: {touchpad: touchpad_10_10}
 
 components:
   aaa:
@@ -108,6 +108,11 @@ components:
     items:
       video_9_9:
         status: unsupported
+        values: null
+  touchpad:
+    items:
+      touchpad_10_10:
+        status: supported
         values: null
 
 rules: []
