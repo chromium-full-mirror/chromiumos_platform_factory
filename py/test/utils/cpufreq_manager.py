@@ -68,6 +68,11 @@ class CpufreqManager:
       # crbug.com/736746 To really set CPU frequency governor should be
       # 'userspace' but it's not supported by most CPU today so instead we want
       # CPU to run in full speed.
+      # 'powersave' governor is used to save power in the assembly line.
+      # But for specific platforms, it schedules the tasks to the small cores,
+      # which significantly increases the time required for some tests.
+      # In this case, partners can change to use 'schedutil' governor for
+      # better efficiency. See b/431672371 for details.
       governor = 'powersave' if enabled else 'performance'
       cpu_speed_hz = None if enabled else self.cpu_speed_hz
       success = True
@@ -127,7 +132,7 @@ class CpufreqManager:
       logging.warning('Gave up on trying to set CPU scaling parameters')
 
   def _GetThermalService(self):
-    possible_services = ('thermal')
+    possible_services = ('thermal', )
 
     exist_services = []
     for service in possible_services:
