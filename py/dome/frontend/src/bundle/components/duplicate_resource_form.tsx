@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import Button from '@mui/material/Button';
-import red from '@mui/material/colors/red';
+import {red} from '@mui/material/colors';
 import List from '@mui/material/List';
 import {Theme} from '@mui/material/styles';
 import Typography from '@mui/material/Typography';

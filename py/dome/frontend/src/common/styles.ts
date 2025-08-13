@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import grey from '@mui/material/colors/grey';
+import {grey} from '@mui/material/colors';
 import {CSSProperties} from '@mui/styles/withStyles';
 
 export const thinScrollBarX: CSSProperties = {
