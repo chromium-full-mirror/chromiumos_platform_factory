@@ -73,8 +73,26 @@ class FinalizeUnittest(unittest.TestCase):
   def testFinalizeMLB(self, mock_finalize, mock_upload_report_args):
     mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
     self.test.FinalizeMLB()
-    mock_finalize.assert_called_with('gooftool -v 4 smt_finalize upload_args',
-                                     True)
+    mock_finalize.assert_called_with(
+        'gooftool -v 4 smt_finalize upload_args --factory_process FULL', True)
+
+  @mock.patch(f'{finalize.__name__}.Finalize.AppendUploadReportArgs')
+  @mock.patch(f'{finalize.__name__}.Finalize._DoFinalize')
+  def testFinalizeShimlessMLB(self, mock_finalize, mock_upload_report_args):
+    self.test.args.factory_process = FactoryProcessEnum.RMA
+    self.test.args.mode = FinalizeMode.SHIMLESS_MLB
+    mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
+
+    self.test.FinalizeMLB()
+    mock_finalize.assert_called_with(
+        'gooftool -v 4 smt_finalize upload_args --factory_process RMA '
+        '--boot_to_shimless', False)
+
+    self.test.args.secure_wipe = False
+    self.test.FinalizeMLB()
+    mock_finalize.assert_called_with(
+        'gooftool -v 4 smt_finalize upload_args --factory_process RMA '
+        '--boot_to_shimless --fast', False)
 
   def testUploadReportArgsUploadMethodNone(self):
     self.test.args.enable_factory_server = False
