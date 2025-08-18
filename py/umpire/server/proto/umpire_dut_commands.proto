@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.google.android.desktop.factory.proto.umpire;
+package com.google.android.factory.factory.proto.umpire;
 
 message UpdateFactoryAppRequest {
   string target = 1;
