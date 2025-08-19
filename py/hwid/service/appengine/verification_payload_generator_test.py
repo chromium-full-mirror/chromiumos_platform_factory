@@ -700,7 +700,7 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
             vpg_config_module.VerificationPayloadGeneratorConfig.Create())
            for name in ('model_a_db.yaml', 'model_b_db.yaml', 'model_c_db.yaml',
                         'model_d_db.yaml', 'model_e_db.yaml', 'model_f_db.yaml',
-                        'model_g_db.yaml')]
+                        'model_g_db.yaml', 'model_encoding_spec_a_db.yaml')]
     expected_outputs = json_utils.LoadFile(
         os.path.join(TESTDATA_DIR, 'expected_model_ab_output.json'))
     mock_encoding_spec = _EncodingSpec(
@@ -747,6 +747,10 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
     self.assertEqual(
         json_utils.LoadStr(files['runtime_probe/model_g/probe_config.json']),
         expected_outputs['runtime_probe/model_g/probe_config.json'])
+    self.assertEqual(
+        json_utils.LoadStr(
+            files['runtime_probe/modelencodingspeca/probe_config.json']),
+        expected_outputs['runtime_probe/modelencodingspeca/probe_config.json'])
     hw_verification_spec = hardware_verifier_pb2.HwVerificationSpec()
     text_format.Parse(files['hw_verification_spec.prototxt'],
                       hw_verification_spec)
@@ -755,10 +759,47 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
         expected_outputs['hw_verification_spec.prototxt'])
     for model_name in [
         'model_a', 'model_b', 'model_c', 'model_d', 'model_e', 'model_f',
-        'model_g'
+        'model_g', 'modelencodingspeca'
     ]:
       self.assertEqual(files[f'runtime_probe/{model_name}/encoding_spec.txtpb'],
                        text_format.MessageToString(mock_encoding_spec))
+
+  @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
+                     'Create')
+  def testSucc_ShouldHandleEncodingSpecs(self, mock_create):
+    mock_encodong_spec_generator = mock.create_autospec(
+        encoding_spec_generator_module.EncodingSpecGenerator, instance=True)
+    mock_create.return_value = mock_encodong_spec_generator
+    db = (database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, 'model_encoding_spec_a_db.yaml'),
+        verify_checksum=False),
+          vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+              waived_comp_categories=['ethernet']))
+
+    unused_files = _vp_generator.GenerateVerificationPayload(
+        [db]).generated_file_contents
+
+    mock_create.assert_called_once()
+    mock_encodong_spec_generator.GenerateEncodingSpec.assert_called_once()
+
+    args, unused_kwargs = mock_create.call_args
+    self.assertIs(args[0], db[0])
+    self.assertCountEqual(args[1], ['ethernet'])
+    self.assertCountEqual(
+        args[2], {
+            ('battery', 'battery_0_0'),
+            ('camera', 'camera_5_5'),
+            ('camera', 'camera_6_6'),
+            ('touchscreen', 'touchscreen_2_2'),
+            ('touchscreen', 'touchscreen_3_3'),
+            ('touchscreen', 'touchscreen_4_4'),
+            ('video', 'video_8_8'),
+        })
+    self.assertEqual(
+        args[3], {
+            ('touchscreen', 'touchscreen_2_2'): 'touchscreen_3_3',
+            ('video', 'video_8_8'): 'camera_5_5'
+        })
 
   def testHasUnsupportedComps(self):
     # The database bad_model_db.yaml contains an unknown storage, which is not

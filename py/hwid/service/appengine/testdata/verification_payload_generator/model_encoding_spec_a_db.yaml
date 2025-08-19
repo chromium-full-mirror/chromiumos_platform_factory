@@ -1,0 +1,105 @@
+checksum: DUMMY
+
+board: MODELENCODINGSPECA
+
+encoding_patterns: {0: default}
+
+image_id:
+  0: PVT_1
+  1: PVT_2
+  2: PVT_3
+
+pattern:
+- image_ids:
+  - 0
+  - 1
+  encoding_scheme: base8192
+  fields:
+  - battery_field: 2
+  - touchscreen_field: 2
+  - camera_field: 2
+  - video_field: 1
+  - display_panel_field: 1
+- image_ids:
+  - 2
+  encoding_scheme: base8192
+  fields:
+  - display_panel_field: 1
+  - battery_field: 0
+  - battery_field: 2
+
+encoded_fields:
+  battery_field:
+    0: {battery: battery_0_0}
+    1: {battery: battery_1_1}
+  touchscreen_field:
+    0: {touchscreen: touchscreen_2_2}
+    1: {touchscreen: touchscreen_3_3}
+    2: {touchscreen: touchscreen_4_4}
+  camera_field:
+    0: {camera: camera_5_5}
+    1: {camera: camera_6_6}
+    2: {camera: camera_7_7}
+  video_field:
+    0: {video: video_8_8}
+  display_panel_field:
+    0: {display_panel: display_panel_9_9}
+
+components:
+  battery:
+    items:
+      battery_0_0:
+        values:
+          manufacturer: mfr
+          model_name: S
+          technology: Li-ion
+      battery_1_1:
+        values:
+          manufacturer: mfr
+          model_name: S
+          technology: O1E0
+  touchscreen:
+    items:
+      touchscreen_2_2:
+        status: unsupported
+        values:
+          id: 'ELAN1234:00'
+          fw_version: '2.0'
+          product_id: '123.0'
+      touchscreen_3_3:
+        values:
+          id: 'ELAN1234:00'
+          fw_version: '1.0'
+          product_id: '123.0'
+      touchscreen_4_4:
+        values:
+          name: Touchscreen Name
+          product: 007b
+          vendor: 04f3
+  camera:
+    items:
+      camera_5_5:
+        values:
+          idVendor: 04f2
+          idProduct: b221
+      camera_6_6:
+        values:
+          module_id: MIPI_MOD
+          sensor_id: MIPI_SEN
+      camera_7_7:
+        values:
+          name: Intel IPU6 TPG 0
+  video:
+    items:
+      video_8_8:
+        status: unsupported
+        values:
+          idVendor: 04f2
+          idProduct: b221
+  display_panel:
+    items:
+      display_panel_9_9:
+        values:
+          name: "ABC"
+
+rules: []

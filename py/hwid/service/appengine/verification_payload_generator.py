@@ -6,11 +6,12 @@
 
 import abc
 import collections
+from collections.abc import Set
 import hashlib
 import itertools
 import logging
 import re
-from typing import DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Set, Tuple, Union
+from typing import Callable, DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.protobuf import text_format
 import hardware_verifier_pb2  # pylint: disable=import-error
@@ -396,26 +397,34 @@ def GetAllProbeStatementGenerators():
   ]
   all_probe_statement_generators['cellular'] = [
       _ProbeStatementGenerator(
-          'cellular', 'network', network_pci_fields,
-          probe_function_argument={'device_type': 'cellular'}),
+          'cellular', 'network', network_pci_fields, probe_function_argument={
+              'device_type': 'cellular'
+          }),
       _ProbeStatementGenerator(
-          'cellular', 'network', usb_fields,
-          probe_function_argument={'device_type': 'cellular'}),
+          'cellular', 'network', usb_fields, probe_function_argument={
+              'device_type': 'cellular'
+          }),
   ]
   all_probe_statement_generators['ethernet'] = [
       _ProbeStatementGenerator(
-          'ethernet', 'network', network_pci_fields,
-          probe_function_argument={'device_type': 'ethernet'}),
+          'ethernet', 'network', network_pci_fields, probe_function_argument={
+              'device_type': 'ethernet'
+          }),
       _ProbeStatementGenerator(
-          'ethernet', 'network', usb_fields,
-          probe_function_argument={'device_type': 'ethernet'}),
+          'ethernet', 'network', usb_fields, probe_function_argument={
+              'device_type': 'ethernet'
+          }),
   ]
   all_probe_statement_generators['wireless'] = [
       _ProbeStatementGenerator('wireless', 'network',
                                [network_pci_fields, network_sdio_fields],
-                               probe_function_argument={'device_type': 'wifi'}),
+                               probe_function_argument={
+                                   'device_type': 'wifi'
+                               }),
       _ProbeStatementGenerator('wireless', 'network', usb_fields,
-                               probe_function_argument={'device_type': 'wifi'}),
+                               probe_function_argument={
+                                   'device_type': 'wifi'
+                               }),
   ]
 
   dram_fields = [
@@ -466,26 +475,38 @@ def GetAllProbeStatementGenerators():
   all_probe_statement_generators['stylus'] = [
       _ProbeStatementGenerator(
           'stylus', 'input_device', input_device_fields,
-          probe_function_argument={'device_type': 'stylus'}),
+          probe_function_argument={
+              'device_type': 'stylus'
+          }),
       _ProbeStatementGenerator(
           'stylus', 'input_device', input_device_fields_old,
-          probe_function_argument={'device_type': 'stylus'}),
+          probe_function_argument={
+              'device_type': 'stylus'
+          }),
   ]
   all_probe_statement_generators['touchpad'] = [
       _ProbeStatementGenerator(
           'touchpad', 'input_device', input_device_fields,
-          probe_function_argument={'device_type': 'touchpad'}),
+          probe_function_argument={
+              'device_type': 'touchpad'
+          }),
       _ProbeStatementGenerator(
           'touchpad', 'input_device', input_device_fields_old,
-          probe_function_argument={'device_type': 'touchpad'}),
+          probe_function_argument={
+              'device_type': 'touchpad'
+          }),
   ]
   all_probe_statement_generators['touchscreen'] = [
       _ProbeStatementGenerator(
           'touchscreen', 'input_device', input_device_fields,
-          probe_function_argument={'device_type': 'touchscreen'}),
+          probe_function_argument={
+              'device_type': 'touchscreen'
+          }),
       _ProbeStatementGenerator(
           'touchscreen', 'input_device', input_device_fields_old,
-          probe_function_argument={'device_type': 'touchscreen'}),
+          probe_function_argument={
+              'device_type': 'touchscreen'
+          }),
   ]
 
   mipi_fields_eeprom = [
@@ -638,7 +659,7 @@ def GenerateProbeStatement(
 def GetAllComponentVerificationPayloadPieces(
     db, vpg_config: Optional[
         vpg_config_module.VerificationPayloadGeneratorConfig] = None,
-    skip_comp_names: Optional[Set[str]] = None):
+    skip_comp_names: Optional[set[str]] = None):
   """Generates materials for verification payload from each components in HWID.
 
   This function goes over each component in HWID one-by-one, and attempts to
@@ -801,6 +822,84 @@ def GetAllComponentVerificationPayloadPieces(
   return ret
 
 
+def _CollectSkipCompNames(db: database.Database) -> set[str]:
+  """Collect a set of component names for which we should skip generating
+  probe statements.
+
+  This function checks all components in `db` and collects those for which we
+  should skip generating probe statements. The collected components are HWID
+  components that are expectedly probed, and should be omitted during the
+  payload generation while still being marked as is_vp_related during the
+  decoding of the HWID string (for example, when a component's probe statement
+  is a subset of another component's).
+  """
+  skip_comp_names = set()
+
+  batteries = db.GetComponents('battery', include_default=False)
+
+  def _ComponentKeyFunc(
+      components: Mapping[str, database.ComponentInfo]
+  ) -> Callable[[str], Tuple[int, str]]:
+
+    def _KeyFunc(comp_name: str) -> Tuple[int, str]:
+      """Key function for deciding which component to skip.
+
+      The component with larger key returned by this function is going to be
+      skipped, in the order:
+      1. Support status.
+      2. Component name (skip the lexicographically larger one).
+      """
+      component = components[comp_name]
+      # yapf: disable
+      status = _SUPPORT_STATUS_PREFERENCE.get(component.status)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+      # yapf: enable
+
+      return (status, comp_name)
+
+    return _KeyFunc
+
+  def _UpdateSkipComps(components: Mapping[str, database.ComponentInfo],
+                       check_should_skip_comp: Callable[..., bool]):
+    for comp_name_1, comp_name_2 in itertools.combinations(components, 2):
+      if comp_name_1 in skip_comp_names or comp_name_2 in skip_comp_names:
+        continue
+
+      comp_1 = components[comp_name_1].values
+      comp_2 = components[comp_name_2].values
+
+      if check_should_skip_comp(comp_1, comp_2):
+        skip_comp_names.add(
+            max(comp_name_1, comp_name_2, key=_ComponentKeyFunc(components)))
+
+  def _CheckShouldSkipBattery(
+      battery_lhs: Mapping[str, str | hwid_rule.Value],
+      battery_rhs: Mapping[str, str | hwid_rule.Value]) -> bool:
+    """Check if we should skip generating probe statements for either
+    `battery_lhs` or `battery_rhs`.
+
+    Return True if the following are satisfied:
+    1. `model_name` and `manufacturer` of the two batteries are the same.
+    2. `technology` of one battery is going to be ignored when generating probe
+        statements, while `technology` of the other is not.
+    """
+
+    for field in ['model_name', 'manufacturer']:
+      field_lhs = battery_lhs.get(field)
+      field_rhs = battery_rhs.get(field)
+      if field_lhs != field_rhs:
+        return False
+
+    lhs_technology = battery_lhs.get('technology')
+    rhs_technology = battery_rhs.get('technology')
+
+    return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
+        rhs_technology in COMMON_HWID_TECHNOLOGY)
+
+  _UpdateSkipComps(batteries, _CheckShouldSkipBattery)
+
+  return skip_comp_names
+
+
 def GenerateVerificationPayload(
     dbs: Sequence[Tuple[
         database.Database,
@@ -929,74 +1028,6 @@ def GenerateVerificationPayload(
         vp_piece.probe_statement.UpdateExpect(new_expect_fields)
 
       probe_config.AddComponentProbeStatement(vp_piece.probe_statement)
-
-  def _CheckShouldSkipBattery(
-      battery_lhs: Mapping[str, Union[str, hwid_rule.Value]],
-      battery_rhs: Mapping[str, Union[str, hwid_rule.Value]]) -> bool:
-    """Check if we should skip generating probe statements for either
-    `battery_lhs` or `battery_rhs`.
-
-    Return True if the following are satisfied:
-    1. `model_name` and `manufacturer` of the two batteries are the same.
-    2. `technology` of one battery is going to be ignored when generating probe
-        statements, while `technology` of the other is not.
-    """
-
-    for field in ['model_name', 'manufacturer']:
-      field_lhs = battery_lhs.get(field)
-      field_rhs = battery_rhs.get(field)
-      if field_lhs != field_rhs:
-        return False
-
-    lhs_technology = battery_lhs.get('technology')
-    rhs_technology = battery_rhs.get('technology')
-
-    return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
-        rhs_technology in COMMON_HWID_TECHNOLOGY)
-
-  def _CollectSkipCompNames(db: database.Database) -> Set[str]:
-    """Collect a set of component names for which we should skip generating
-    probe statements.
-
-    This function checks all components in `db` and collects those for which we
-    should skip generating probe statements. The collected components are HWID
-    components that are expectedly probed, and should be omitted during the
-    payload generation while still being marked as is_vp_related during the
-    decoding of the HWID string (for example, when a component's probe statement
-    is a subset of another component's).
-    """
-    skip_comp_names = set()
-
-    batteries = db.GetComponents('battery', include_default=False)
-
-    def BatteryKeyFunc(comp_name: str) -> Tuple[int, str]:
-      """Key function for deciding which battery to skip.
-
-      The battery with larger key returned by this function is going to be
-      skipped, in the order:
-      1. Support status.
-      2. Component name (skip the lexicographically larger one).
-      """
-      component = batteries[comp_name]
-      # yapf: disable
-      status = _SUPPORT_STATUS_PREFERENCE.get(component.status)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
-
-      return (status, comp_name)
-
-    for comp_name_1, comp_name_2 in itertools.combinations(batteries, 2):
-      if comp_name_1 in skip_comp_names or comp_name_2 in skip_comp_names:
-        continue
-
-      comp_1 = batteries[comp_name_1].values
-      comp_2 = batteries[comp_name_2].values
-
-      # yapf: disable
-      if _CheckShouldSkipBattery(comp_1, comp_2):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        skip_comp_names.add(max(comp_name_1, comp_name_2, key=BatteryKeyFunc))
-
-    return skip_comp_names
 
   def _Encrypt(data: str, key: str, salt: Optional[bytes]) -> str:
     return crypto_utils.AES256Encrypt(data.encode(), key, salt).decode()
