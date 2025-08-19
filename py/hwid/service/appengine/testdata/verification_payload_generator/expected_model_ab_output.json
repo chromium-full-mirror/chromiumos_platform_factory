@@ -92,6 +92,11 @@
       },
       {
         "componentCategory": "battery",
+        "componentUuid": "model_f_battery_3_0_common_technology",
+        "qualificationStatus": "REJECTED"
+      },
+      {
+        "componentCategory": "battery",
         "componentUuid": "modelencodingspeca_battery_0_0",
         "qualificationStatus": "QUALIFIED"
       },
@@ -4042,6 +4047,28 @@
           ]
         },
         "position": "7"
+      },
+      "model_f_battery_3_0_common_technology": {
+        "eval": {
+          "generic_battery": {}
+        },
+        "expect": {
+          "chemistry": [
+            false,
+            "str"
+          ],
+          "manufacturer": [
+            true,
+            "str",
+            "!re mfr.*"
+          ],
+          "model_name": [
+            true,
+            "str",
+            "!re XL.*"
+          ]
+        },
+        "position": "8"
       }
     },
     "camera": {

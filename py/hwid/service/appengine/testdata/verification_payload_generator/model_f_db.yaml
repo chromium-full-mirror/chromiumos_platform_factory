@@ -10,7 +10,7 @@ pattern:
   - image_ids: [0]
     encoding_scheme: base8192
     fields:
-    - battery: 3
+    - battery: 4
 
 encoded_fields:
   battery:
@@ -21,6 +21,8 @@ encoded_fields:
     4: {battery: battery_1_1_special_chemistry}
     5: {battery: battery_2_0_common_technology}
     6: {battery: battery_2_1_special_chemistry}
+    7: {battery: battery_3_0_common_technology}
+    8: {battery: battery_3_1_special_chemistry_duplicate}
 
 components:
   battery:
@@ -70,6 +72,19 @@ components:
         values:
           manufacturer: mfr
           model_name: M
+          technology: O1E0
+      # ===================================================================== #
+      battery_3_0_common_technology: # Should not be skipped.
+        status: unsupported
+        values:
+          manufacturer: mfr
+          model_name: XL
+          technology: Li-ion
+      battery_3_1_special_chemistry_duplicate:
+        status: duplicate
+        values:
+          manufacturer: mfr
+          model_name: XL
           technology: O1E0
 
 rules: []

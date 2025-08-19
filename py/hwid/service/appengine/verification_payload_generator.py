@@ -598,7 +598,7 @@ _STATUS_MAP: Mapping[str, hardware_verifier_pb2.QualificationStatus] = {
     hwid_common.ComponentStatus.unsupported: hardware_verifier_pb2.REJECTED,
 }
 
-_SUPPORT_STATUS_PREFERENCE = {
+_SUPPORT_STATUS_PREFERENCE: Mapping[str, int] = {
     hwid_common.ComponentStatus.supported: 0,
     hwid_common.ComponentStatus.deprecated: 1,
     hwid_common.ComponentStatus.unqualified: 2,
@@ -850,9 +850,7 @@ def _CollectSkipCompNames(db: database.Database) -> set[str]:
       2. Component name (skip the lexicographically larger one).
       """
       component = components[comp_name]
-      # yapf: disable
-      status = _SUPPORT_STATUS_PREFERENCE.get(component.status)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      status = _SUPPORT_STATUS_PREFERENCE[component.status]
 
       return (status, comp_name)
 
@@ -864,10 +862,14 @@ def _CollectSkipCompNames(db: database.Database) -> set[str]:
       if comp_name_1 in skip_comp_names or comp_name_2 in skip_comp_names:
         continue
 
-      comp_1 = components[comp_name_1].values
-      comp_2 = components[comp_name_2].values
+      comp_1 = components[comp_name_1]
+      comp_2 = components[comp_name_2]
+      if hwid_common.ComponentStatus.duplicate in {
+          comp_1.status, comp_2.status
+      }:
+        continue
 
-      if check_should_skip_comp(comp_1, comp_2):
+      if check_should_skip_comp(comp_1.values, comp_2.values):
         skip_comp_names.add(
             max(comp_name_1, comp_name_2, key=_ComponentKeyFunc(components)))
 
