@@ -797,6 +797,7 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
         })
     self.assertEqual(
         args[3], {
+            ('battery', 'battery_1_1'): 'battery_0_0',
             ('touchscreen', 'touchscreen_2_2'): 'touchscreen_3_3',
             ('video', 'video_8_8'): 'camera_5_5'
         })

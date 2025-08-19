@@ -822,20 +822,19 @@ def GetAllComponentVerificationPayloadPieces(
   return ret
 
 
-def _CollectSkipCompNames(db: database.Database) -> set[str]:
-  """Collect a set of component names for which we should skip generating
-  probe statements.
+def _CollectSkipCompPrimaryIdentifiers(
+      db: database.Database) -> Dict[Tuple[str, str], str]:
+  """Collect primary identifiers that link components for which we skip
+  generating probe statements to components in the probe configs.
 
   This function checks all components in `db` and collects those for which we
   should skip generating probe statements. The collected components are HWID
   components that are expectedly probed, and should be omitted during the
-  payload generation while still being marked as is_vp_related during the
-  decoding of the HWID string (for example, when a component's probe statement
-  is a subset of another component's).
+  payload generation while being linked to another component during the decoding
+  of the HWID string (for example, when a component's probe statement is a
+  subset of another component's).
   """
-  skip_comp_names = set()
-
-  batteries = db.GetComponents('battery', include_default=False)
+  primary_identifiers: Dict[Tuple[str, str], str] = {}
 
   def _ComponentKeyFunc(
       components: Mapping[str, database.ComponentInfo]
@@ -856,10 +855,12 @@ def _CollectSkipCompNames(db: database.Database) -> set[str]:
 
     return _KeyFunc
 
-  def _UpdateSkipComps(components: Mapping[str, database.ComponentInfo],
-                       check_should_skip_comp: Callable[..., bool]):
+  def _UpdatePrimaryIdentifiers(hwid_category: str,
+                                check_should_skip_comp: Callable[..., bool]):
+    components = db.GetComponents(hwid_category, include_default=False)
     for comp_name_1, comp_name_2 in itertools.combinations(components, 2):
-      if comp_name_1 in skip_comp_names or comp_name_2 in skip_comp_names:
+      if ((hwid_category, comp_name_1) in primary_identifiers or
+          (hwid_category, comp_name_2) in primary_identifiers):
         continue
 
       comp_1 = components[comp_name_1]
@@ -870,8 +871,9 @@ def _CollectSkipCompNames(db: database.Database) -> set[str]:
         continue
 
       if check_should_skip_comp(comp_1.values, comp_2.values):
-        skip_comp_names.add(
-            max(comp_name_1, comp_name_2, key=_ComponentKeyFunc(components)))
+        primary_comp, comp_to_skip = sorted([comp_name_1, comp_name_2],
+                                            key=_ComponentKeyFunc(components))
+        primary_identifiers[hwid_category, comp_to_skip] = primary_comp
 
   def _CheckShouldSkipBattery(
       battery_lhs: Mapping[str, str | hwid_rule.Value],
@@ -897,9 +899,9 @@ def _CollectSkipCompNames(db: database.Database) -> set[str]:
     return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
         rhs_technology in COMMON_HWID_TECHNOLOGY)
 
-  _UpdateSkipComps(batteries, _CheckShouldSkipBattery)
+  _UpdatePrimaryIdentifiers('battery', _CheckShouldSkipBattery)
 
-  return skip_comp_names
+  return primary_identifiers
 
 
 def GenerateVerificationPayload(
@@ -1046,7 +1048,11 @@ def GenerateVerificationPayload(
     probe_config = probe_config_types.ProbeConfigPayload()
     generic_probe_config = probe_config_types.ProbeConfigPayload()
 
-    skip_comp_names = _CollectSkipCompNames(db)
+    skip_comp_primary_identifiers = _CollectSkipCompPrimaryIdentifiers(db)
+    skip_comp_names = {
+        comp_name
+        for unused_category, comp_name in skip_comp_primary_identifiers
+    }
     all_pieces = GetAllComponentVerificationPayloadPieces(
         db, vpg_config, skip_comp_names)
 
@@ -1091,6 +1097,7 @@ def GenerateVerificationPayload(
 
     primary_identifiers[db.project] = _CollectPrimaryIdentifiers(
         db.project, grouped_comp_vp_piece, grouped_primary_comp_name)
+    primary_identifiers[db.project].update(skip_comp_primary_identifiers)
 
     # Append the generic probe statements.
     for ps_gen in (
