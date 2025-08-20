@@ -86,3 +86,41 @@ class UmpireDUTCommandsServicer(
     }.get(request.component)
     return umpire_dut_commands_pb2.GetUpdateVersionResponse(
         version=payloads.get(field_name, {}).get('version', ''))
+
+  def GetOtaPackageVersion(
+      self,
+      request: umpire_dut_commands_pb2.GetOtaPackageVersionRequest,
+      context: grpc.ServicerContext,
+  ):
+    logging.info('GetOtaPackageVersion: peer: %s', context.peer())
+    payloads = self.CLI_command.GetActivePayload()
+    if not payloads:
+      return umpire_dut_commands_pb2.GetOtaPackageVersionResponse()
+    field_name = {
+        umpire_dut_commands_pb2.COMPONENT_TOOLKIT: 'ota_zip'
+    }.get(request.component)
+    return umpire_dut_commands_pb2.GetOtaPackageVersionResponse(
+        version=payloads.get(field_name, {}).get('version', ''))
+
+  def UpdateOtaPackage(self, request, context):
+    logging.info('request.target: %s, peer: %s', request.target, context.peer())
+    try:
+      target = request.target or ParseIpFromPeer(context.peer())
+      logging.info('UpdateOtaPackage target: %s', target)
+      config = json.loads(self.CLI_command.GetActiveConfig())
+      bundle_id = config['active_bundle_id']
+      with tempfile.NamedTemporaryFile('+ab', suffix='.otazip') as f:
+        self.CLI_command.ExportPayload(
+            bundle_id, resource.AndroidPayloadTypes.ota_zip.name, f.name)
+        process_utils.CheckCall(['adb', 'connect', target], log=True,
+                                log_stderr_on_error=True)
+        process_utils.CheckCall(['adb', '-s', target, 'root'], log=True,
+                                log_stderr_on_error=True)
+        process_utils.CheckCall([
+            'adb', '-s', target, 'push', f.name, '/data/factory_ota_content.zip'
+        ], log=True, log_stderr_on_error=True)
+    except Exception as err:
+      return umpire_dut_commands_pb2.UpdateOtaPackageResponse(
+          success=False, messages=str(err))
+    return umpire_dut_commands_pb2.UpdateOtaPackageResponse(
+        success=True, messages='')

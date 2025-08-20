@@ -209,6 +209,7 @@ const resourceNameToFileType: Record<string, string> = {
     test_image: '*.bin',
     toolkit: '*.run',
     android_apk: '*.apk',
+    ota_zip: '*.zip',
     android_preflash_img: '*.img',
     gpt_bin: '*.bin',
 };

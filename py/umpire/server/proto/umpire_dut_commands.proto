@@ -25,6 +25,23 @@ message GetUpdateVersionResponse {
   string version = 1;
 }
 
+message GetOtaPackageVersionRequest {
+  Component component = 1;
+}
+
+message GetOtaPackageVersionResponse {
+  string version = 1;
+}
+
+message UpdateOtaPackageRequest {
+  string target = 1;
+}
+
+message UpdateOtaPackageResponse {
+  bool success = 1;
+  string messages = 2;
+}
+
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
@@ -39,5 +56,15 @@ service UmpireDUTCommands {
    */
   rpc GetUpdateVersion(GetUpdateVersionRequest)
       returns (GetUpdateVersionResponse) {
+  }
+
+  /* Return the version of the OTA package. */
+  rpc GetOtaPackageVersion(GetOtaPackageVersionRequest)
+      returns (GetOtaPackageVersionResponse) {
+  }
+
+  /* Update the user image OTA package to the target device with adb. */
+  rpc UpdateOtaPackage(UpdateOtaPackageRequest)
+      returns (UpdateOtaPackageResponse) {
   }
 }

@@ -36,7 +36,7 @@ netboot_kernel netboot_firmware netboot_cmdline toolkit_config lsb_factory \
 description project_config"
 
 # Constants for Android components
-ANDROID_COMPONENTS_ALL="android_apk android_preflash_img gpt_bin"
+ANDROID_COMPONENTS_ALL="android_apk android_preflash_img gpt_bin ota_zip"
 
 # A variable for the file name of tracking temp files.
 TMP_OBJECTS=""
@@ -911,6 +911,11 @@ for k in j:
       temp="$(md5sum "${file}")"
       echo "${version} (${temp%% *})"
       ;;
+    ota_zip)
+      local temp
+      temp="$(md5sum "${file}")"
+      echo "${version} (${temp%% *})"
+      ;;
   esac
 }
 
@@ -992,7 +997,7 @@ cmd_add() {
       file="$(get_uncompressed_file "${file}")"
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
-    project_config | android_apk | gpt_bin)
+    project_config | android_apk | gpt_bin | ota_zip)
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
     *)
@@ -1345,7 +1350,7 @@ install_components() {
         ;;
       toolkit | hwid | firmware | complete | *_image.* | netboot_* | \
           toolkit_config | lsb_factory | description | project_config | \
-          android_apk)
+          android_apk | ota_zip)
         install_payload "file" "${json_url}" \
           "${dest}" "${json_file}" "${component}"
         ;;

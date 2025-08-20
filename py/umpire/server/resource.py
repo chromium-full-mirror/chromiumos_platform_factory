@@ -49,6 +49,7 @@ class AndroidPayloadTypes(enum.Enum):
   android_apk = PayloadType('android_apk', '')
   android_preflash_img = PayloadType('android_preflash_img', '')
   gpt_bin = PayloadType('gpt_bin', '')
+  ota_zip = PayloadType('ota_zip', '')
 
   def __str__(self):
     return self.name
