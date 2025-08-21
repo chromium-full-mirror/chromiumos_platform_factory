@@ -870,14 +870,14 @@ def _CollectSkipCompPrimaryIdentifiers(
       }:
         continue
 
-      if check_should_skip_comp(comp_1.values, comp_2.values):
+      if check_should_skip_comp(comp_1, comp_2):
         primary_comp, comp_to_skip = sorted([comp_name_1, comp_name_2],
                                             key=_ComponentKeyFunc(components))
         primary_identifiers[hwid_category, comp_to_skip] = primary_comp
 
   def _CheckShouldSkipBattery(
-      battery_lhs: Mapping[str, str | hwid_rule.Value],
-      battery_rhs: Mapping[str, str | hwid_rule.Value]) -> bool:
+      battery_lhs: database.ComponentInfo,
+      battery_rhs: database.ComponentInfo) -> bool:
     """Check if we should skip generating probe statements for either
     `battery_lhs` or `battery_rhs`.
 
@@ -886,20 +886,63 @@ def _CollectSkipCompPrimaryIdentifiers(
     2. `technology` of one battery is going to be ignored when generating probe
         statements, while `technology` of the other is not.
     """
+    values_lhs = battery_lhs.values
+    values_rhs = battery_rhs.values
+
+    if values_lhs is None or values_rhs is None:
+      return False
 
     for field in ['model_name', 'manufacturer']:
-      field_lhs = battery_lhs.get(field)
-      field_rhs = battery_rhs.get(field)
+      field_lhs = values_lhs.get(field)
+      field_rhs = values_rhs.get(field)
       if field_lhs != field_rhs:
         return False
 
-    lhs_technology = battery_lhs.get('technology')
-    rhs_technology = battery_rhs.get('technology')
+    lhs_technology = values_lhs.get('technology')
+    rhs_technology = values_rhs.get('technology')
 
     return (lhs_technology in COMMON_HWID_TECHNOLOGY) != (
         rhs_technology in COMMON_HWID_TECHNOLOGY)
 
+  def _CheckShouldSkipInputDevice(
+      input_device_lhs: database.ComponentInfo,
+      input_device_rhs: database.ComponentInfo) -> bool:
+    """Check if we should skip generating probe statements for either
+    `input_device_lhs` or `input_device_rhs`.
+
+    Return True if the following are satisfied:
+    1. `product` and `vendor` of the two input devices are the same.
+    2. One of the input devices has a `name` field in the probe statement, while
+        the other doesn't.
+    """
+
+    # The input devices share the same generation logic. Use one of them as we
+    # only care about the expect values here.
+    ps_gens = GetAllProbeStatementGenerators()['touchpad']
+    vp_piece_lhs = GenerateProbeStatement(ps_gens, '', input_device_lhs)
+    vp_piece_rhs = GenerateProbeStatement(ps_gens, '', input_device_rhs)
+
+    if (vp_piece_lhs is None or
+        vp_piece_lhs.probe_statement is None or
+        vp_piece_rhs is None or
+        vp_piece_rhs.probe_statement is None):
+      return False
+
+    expect_lhs = vp_piece_lhs.probe_statement.statement['expect']
+    expect_rhs = vp_piece_rhs.probe_statement.statement['expect']
+
+    if ('name' in expect_lhs) == ('name' in expect_rhs):
+      return False
+
+    expect_lhs.pop('name', None)
+    expect_rhs.pop('name', None)
+
+    return expect_lhs == expect_rhs
+
   _UpdatePrimaryIdentifiers('battery', _CheckShouldSkipBattery)
+  _UpdatePrimaryIdentifiers('touchpad', _CheckShouldSkipInputDevice)
+  _UpdatePrimaryIdentifiers('touchscreen', _CheckShouldSkipInputDevice)
+  _UpdatePrimaryIdentifiers('stylus', _CheckShouldSkipInputDevice)
 
   return primary_identifiers
 

@@ -190,11 +190,6 @@
         "qualificationStatus": "QUALIFIED"
       },
       {
-        "componentCategory": "touchscreen",
-        "componentUuid": "modelencodingspeca_touchscreen_4_4",
-        "qualificationStatus": "QUALIFIED"
-      },
-      {
         "componentCategory": "dram",
         "componentUuid": "model_e_dram2",
         "qualificationStatus": "QUALIFIED"
@@ -5585,39 +5580,6 @@
           ]
         },
         "position": "2"
-      },
-      "modelencodingspeca_touchscreen_4_4": {
-        "eval": {
-          "input_device": {
-            "device_type": "touchscreen"
-          }
-        },
-        "expect": {
-          "bus": [
-            false,
-            "hex"
-          ],
-          "name": [
-            true,
-            "str",
-            "!eq Touchscreen Name"
-          ],
-          "product": [
-            true,
-            "hex",
-            "!eq 0x007B"
-          ],
-          "vendor": [
-            true,
-            "hex",
-            "!eq 0x04F3"
-          ],
-          "version": [
-            false,
-            "hex"
-          ]
-        },
-        "position": "3"
       }
     },
     "wireless": {
