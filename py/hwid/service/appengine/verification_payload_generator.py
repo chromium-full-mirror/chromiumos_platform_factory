@@ -822,6 +822,83 @@ def GetAllComponentVerificationPayloadPieces(
   return ret
 
 
+class _UnionFindPrimaryIdentifiers:
+  """A class to manage relationships between indistinguishable components.
+
+  This class uses a union-find data structure to group components with
+  indistinguishable probe statements. For each group, one component is
+  designated as the "primary" component, and the others are considered
+  "skipped".
+  """
+  def __init__(self):
+    self._components: Dict[Tuple[str, str], Tuple[str, str]] = {}
+
+  def _Find(self, comp_key: Tuple[str, str]) -> Tuple[str, str]:
+    """Finds the primary component key for the given component key
+
+    Args:
+      comp_key: A tuple of (component category, component name).
+
+    Returns:
+      A tuple of (component category, component name) indicating the primary
+      component key for the given component key.
+    """
+    if self._components[comp_key] == comp_key:
+      return comp_key
+    self._components[comp_key] = self._Find(self._components[comp_key])
+    return self._components[comp_key]
+
+  def AddComponent(
+      self, skip_comp_key: Tuple[str, str], primary_comp_key: Tuple[str, str]
+  ):
+    """Adds components to the primary identifiers.
+
+    Adds the given components to the primary identifiers, and links
+    `skip_comp_key` to `primary_comp_key`.
+
+    Args:
+      skip_comp_key: A tuple of (component category, component name) indicating
+          the component to skip.
+      primary_comp_key: A tuple of (component category, component name)
+          indicating the primary component.
+    """
+    self._components.setdefault(skip_comp_key, skip_comp_key)
+    self._components.setdefault(primary_comp_key, primary_comp_key)
+
+    skip_comp_key = self._Find(skip_comp_key)
+    primary_comp_key = self._Find(primary_comp_key)
+
+    self._components[skip_comp_key] = primary_comp_key
+
+  def IsSkipComp(self, comp_key: Tuple[str, str]) -> bool:
+    """Checks if the given component is skipped.
+
+    Args:
+      comp_key: A tuple of (component category, component name).
+
+    Returns:
+      A bool value that indicates if the component is skipped.
+    """
+    return self._components.get(comp_key, comp_key) != comp_key
+
+  def Export(self) -> Dict[Tuple[str, str], str]:
+    """Exports the primary identifiers.
+
+    Returns:
+      A dictionary that maps the skipped components to the primary components.
+      The keys are tuples of component category and component name.
+    """
+    primary_identifiers: Dict[Tuple[str, str], str] = {}
+    for skip_comp_key in self._components:
+      primary_comp_key = self._Find(skip_comp_key)
+      if skip_comp_key == primary_comp_key:
+        continue
+
+      primary_identifiers[skip_comp_key] = primary_comp_key[1]
+
+    return primary_identifiers
+
+
 def _CollectSkipCompPrimaryIdentifiers(
       db: database.Database) -> Dict[Tuple[str, str], str]:
   """Collect primary identifiers that link components for which we skip
@@ -834,7 +911,8 @@ def _CollectSkipCompPrimaryIdentifiers(
   of the HWID string (for example, when a component's probe statement is a
   subset of another component's).
   """
-  primary_identifiers: Dict[Tuple[str, str], str] = {}
+
+  uf_primary_identifers = _UnionFindPrimaryIdentifiers()
 
   def _ComponentKeyFunc(
       components: Mapping[str, database.ComponentInfo]
@@ -859,21 +937,21 @@ def _CollectSkipCompPrimaryIdentifiers(
                                 check_should_skip_comp: Callable[..., bool]):
     components = db.GetComponents(hwid_category, include_default=False)
     for comp_name_1, comp_name_2 in itertools.combinations(components, 2):
-      if ((hwid_category, comp_name_1) in primary_identifiers or
-          (hwid_category, comp_name_2) in primary_identifiers):
+      if (uf_primary_identifers.IsSkipComp((hwid_category, comp_name_1)) or
+          uf_primary_identifers.IsSkipComp((hwid_category, comp_name_2))):
         continue
 
       comp_1 = components[comp_name_1]
       comp_2 = components[comp_name_2]
       if hwid_common.ComponentStatus.duplicate in {
           comp_1.status, comp_2.status
-      }:
+      } or not check_should_skip_comp(comp_1, comp_2):
         continue
 
-      if check_should_skip_comp(comp_1, comp_2):
-        primary_comp, comp_to_skip = sorted([comp_name_1, comp_name_2],
-                                            key=_ComponentKeyFunc(components))
-        primary_identifiers[hwid_category, comp_to_skip] = primary_comp
+      primary_comp, comp_to_skip = sorted([comp_name_1, comp_name_2],
+                                          key=_ComponentKeyFunc(components))
+      uf_primary_identifers.AddComponent((hwid_category, comp_to_skip),
+                                  (hwid_category, primary_comp))
 
   def _CheckShouldSkipBattery(
       battery_lhs: database.ComponentInfo,
@@ -944,7 +1022,7 @@ def _CollectSkipCompPrimaryIdentifiers(
   _UpdatePrimaryIdentifiers('touchscreen', _CheckShouldSkipInputDevice)
   _UpdatePrimaryIdentifiers('stylus', _CheckShouldSkipInputDevice)
 
-  return primary_identifiers
+  return uf_primary_identifers.Export()
 
 
 def GenerateVerificationPayload(
