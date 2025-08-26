@@ -46,8 +46,8 @@ class ResourcesGarbageCollectionButton
           message={resources != null &&
             <>
               <span>Released space: {this.byteDisplay(resources.size)}</span>
-              {resources.files.map((file) => (
-                <p>{file}</p>
+              {resources.files.map((file, id) => (
+                <p key={id}>{file}</p>
               ))}
             </>}
         />
