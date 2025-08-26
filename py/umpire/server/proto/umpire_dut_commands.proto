@@ -42,6 +42,25 @@ message UpdateOtaPackageResponse {
   string messages = 2;
 }
 
+/* Metadata for uploading factory report. */
+message ReportMetadata {
+  /* The serial number of the DUT. */
+  string serial_number = 1;
+  /* The testing stage; e.g. SMT, FAT, RUNIN, FFT, or GRT. */
+  string stage = 2;
+}
+
+message UploadReportRequest {
+  oneof data {
+    ReportMetadata metadata = 1;
+    bytes chunk = 2;
+  }
+}
+
+message UploadReportResponse {
+  bool success = 1;
+}
+
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
@@ -67,4 +86,12 @@ service UmpireDUTCommands {
   rpc UpdateOtaPackage(UpdateOtaPackageRequest)
       returns (UpdateOtaPackageResponse) {
   }
+
+  /* Uploads factory report to the factory server.
+   *
+   * Compared to the xmlrpc uploading report method, this method compresses the
+   * report as zst at the factory server side and supports streaming upload. The
+   * report is a single file.
+   */
+  rpc UploadReport(stream UploadReportRequest) returns (UploadReportResponse) {}
 }
