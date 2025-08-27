@@ -74,7 +74,8 @@ class FinalizeUnittest(unittest.TestCase):
     mock_upload_report_args.side_effect = self._FakeAppendUploadReportArgs
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with(
-        'gooftool -v 4 smt_finalize upload_args --factory_process FULL', True)
+        'gooftool -v 4 smt_finalize upload_args --factory_process FULL '
+        '--no_write_protect', True)
 
   @mock.patch(f'{finalize.__name__}.Finalize.AppendUploadReportArgs')
   @mock.patch(f'{finalize.__name__}.Finalize._DoFinalize')
@@ -86,9 +87,10 @@ class FinalizeUnittest(unittest.TestCase):
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with(
         'gooftool -v 4 smt_finalize upload_args --factory_process RMA '
-        '--boot_to_shimless', False)
+        '--no_write_protect --boot_to_shimless', False)
 
     self.test.args.secure_wipe = False
+    self.test.args.write_protection = True
     self.test.FinalizeMLB()
     mock_finalize.assert_called_with(
         'gooftool -v 4 smt_finalize upload_args --factory_process RMA '
