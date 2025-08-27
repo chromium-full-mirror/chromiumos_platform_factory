@@ -427,6 +427,9 @@ class Finalize(test_case.TestCase):
     command = 'gooftool -v 4 smt_finalize'
     command = self.AppendUploadReportArgs(command)
     command += f' --factory_process {self.args.factory_process}'
+    if not self.args.write_protection:
+      self.Warn('WRITE PROTECTION IS DISABLED.')
+      command += ' --no_write_protect'
 
     # yapf: disable
     if self.args.factory_process == FactoryProcessEnum.RMA and self.args.mode == FinalizeMode.SHIMLESS_MLB:  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long

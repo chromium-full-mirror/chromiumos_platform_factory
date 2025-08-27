@@ -96,7 +96,7 @@ _skip_list_cmd_arg = CmdArg(
 # `cros.factory.hwid.v3.hwid_utils` provides methods to parse such file.
 _probe_results_cmd_arg = CmdArg(
     '--probe_results', metavar='RESULTS.json',
-    help=('Output from "hwid probe" (used instead of probing this system).'))
+    help='Output from "hwid probe" (used instead of probing this system).')
 
 _hwid_cmd_arg = CmdArg(
     '--hwid', metavar='HWID',
@@ -1308,7 +1308,7 @@ def SMTFinalize(options):
   spare boards, local OEM projects.
   """
 
-  GetGooftool(options).GSCSMTWriteFlashInfo()
+  GetGooftool(options).GSCSMTWriteFlashInfo(options.no_write_protect)
   event_log.Log('gsc_smt_write_flash_info')
   LogSourceHashes(options)
   LogSystemDetails(options)

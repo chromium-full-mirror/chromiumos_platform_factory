@@ -1158,12 +1158,15 @@ class Gooftool:
                     'fields?')
 
 
-  def GSCSMTWriteFlashInfo(self):
+  def GSCSMTWriteFlashInfo(self, no_write_protect=True):
     """Write device info into GSC flash in SMT, usually used in two stages
     projects.
     """
 
     self.VerifyCustomLabel()
+
+    if self.gsc_utils.IsTi50():
+      self.gsc_utils.Ti50ProvisionSPIData(no_write_protect)
 
     # The MLB is still not finalized, and some dependencies of
     # SN bits or AP RO Hash might be uncertain at this time.
