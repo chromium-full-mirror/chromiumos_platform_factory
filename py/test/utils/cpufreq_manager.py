@@ -68,7 +68,7 @@ class CpufreqManager:
       # crbug.com/736746 To really set CPU frequency governor should be
       # 'userspace' but it's not supported by most CPU today so instead we want
       # CPU to run in full speed.
-      governor = 'powersave' if enabled else 'performance'
+      governor = 'schedutil' if enabled else 'performance'
       cpu_speed_hz = None if enabled else self.cpu_speed_hz
       success = True
       exception = None
