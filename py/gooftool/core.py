@@ -6,7 +6,7 @@ import codecs
 from collections import namedtuple
 from contextlib import contextmanager
 import datetime
-from distutils.version import LooseVersion
+from packaging.version import Version as LooseVersion
 import enum
 import glob
 import json
