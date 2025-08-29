@@ -6,7 +6,6 @@ import codecs
 from collections import namedtuple
 from contextlib import contextmanager
 import datetime
-from distutils.version import LooseVersion
 import enum
 import glob
 import json
@@ -17,6 +16,7 @@ import sys
 import tempfile
 import time
 
+from packaging.version import Version as LooseVersion
 import yaml
 
 from cros.factory.gooftool import bmpblk
@@ -1158,7 +1158,8 @@ class Gooftool:
                     'fields?')
 
 
-  def GSCSMTWriteFlashInfo(self, no_write_protect=True):
+  def GSCSMTWriteFlashInfo(self, factory_process=FactoryProcessEnum.TWOSTAGES,
+                           no_write_protect=True):
     """Write device info into GSC flash in SMT, usually used in two stages
     projects.
     """
@@ -1168,10 +1169,17 @@ class Gooftool:
     if self.gsc_utils.IsTi50():
       self.gsc_utils.Ti50ProvisionSPIData(no_write_protect)
 
-    # The MLB is still not finalized, and some dependencies of
-    # SN bits or AP RO Hash might be uncertain at this time.
-    # So we only set Board ID flags for security issue.
-    self.gsc_utils.GSCSetBoardId(two_stages=True, is_flags_only=True)
+    try:
+      # The MLB is still not finalized, and some dependencies of
+      # SN bits or AP RO Hash might be uncertain at this time.
+      # So we only set Board ID flags for security issue.
+      self.gsc_utils.GSCSetBoardId(two_stages=True, is_flags_only=True)
+    except Error as err:
+      # This may be a refurbished MLB which will be used for RMA.
+      if factory_process == FactoryProcessEnum.RMA:
+        self.gsc_utils.GSCSetBoardId(two_stages=False, is_flags_only=True)
+      else:
+        raise err
 
   def GSCWriteFlashInfo(
       self, enable_zero_touch=False, factory_process=FactoryProcessEnum.FULL,
