@@ -1286,6 +1286,7 @@ def FpmcuInitializeEntropy(options):
 
 @Command(
     'smt_finalize',
+    _factory_process_cmd_arg,  # this
     # yapf: disable
     *GetGooftool.__args__,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
@@ -1307,7 +1308,9 @@ def SMTFinalize(options):
   spare boards, local OEM projects.
   """
 
-  GetGooftool(options).GSCSMTWriteFlashInfo(options.no_write_protect)
+  GetGooftool(options).GSCSMTWriteFlashInfo(
+      factory_process=options.factory_process,
+      no_write_protect=options.no_write_protect)
   event_log.Log('gsc_smt_write_flash_info')
   LogSourceHashes(options)
   LogSystemDetails(options)
