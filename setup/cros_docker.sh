@@ -22,12 +22,16 @@ on_exit() {
 trap on_exit EXIT
 
 die() {
-  echo "ERROR: $*"
+  RED='\033[0;31m'
+  NC='\033[0m'  # No Color - resets to default
+  echo -e "${RED}ERROR: $*${NC}"
   exit 1
 }
 
 warn() {
-  echo "WARNING: $*"
+  YELLOW='\033[0;33m'
+  NC='\033[0m'  # No Color - resets to default
+  echo -e "${YELLOW}WARNING: $*${NC}"
 }
 
 is_macosx() {
@@ -88,7 +92,7 @@ Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}"
     if (( ${#current_version[@]} <= i )); then
       break
     elif (( ${max_version[${i}]} < ${current_version[${i}]} )); then
-      die "${error_message}"
+      warn "${error_message}"
     elif (( ${max_version[${i}]} > ${current_version[${i}]} )); then
       break
     fi
