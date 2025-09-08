@@ -10,6 +10,7 @@ from cros.factory.hwid.v3.avl.converter import cpu
 from cros.factory.hwid.v3.avl.converter import display_panel
 from cros.factory.hwid.v3.avl.converter import dram
 from cros.factory.hwid.v3.avl.converter import ec_components
+from cros.factory.hwid.v3.avl.converter import input_device
 from cros.factory.hwid.v3.avl.converter import storage
 from cros.factory.hwid.v3.avl.converter import tpm
 from cros.factory.hwid.v3.avl.converter import wifi
@@ -27,4 +28,5 @@ def GetDefaultBuilder() -> builder.Builder:
   b.AddConverterSets(tpm.GetConverterSet())
   b.AddConverterSets(*wifi.GetConverterSets())
   b.AddConverterSets(*ec_components.GetConverterSets())
+  b.AddConverterSets(*input_device.GetConverterSets())
   return b
