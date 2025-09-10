@@ -18,6 +18,7 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
   def testCreate_WithConfig(self):
     config = {
         'waived_comp_categories': ['battery'],
+        'encoding_spec_waived_categories': ['wireless'],
         'ignore_error': ['stylus'],
         'encrypted': True
     }
@@ -27,6 +28,8 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     # yapf: enable
     self.assertCountEqual(vpg_config.ignore_error, ['stylus'])
     self.assertCountEqual(vpg_config.waived_comp_categories, ['battery'])
+    self.assertCountEqual(vpg_config.encoding_spec_waived_categories,
+                          ['wireless'])
     self.assertTrue(vpg_config.encrypted)
 
   def testBatchCreate(self):
@@ -38,6 +41,7 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
             },
             'MODEL2': {
                 'waived_comp_categories': ['memory'],
+                'encoding_spec_waived_categories': ['wireless'],
             },
         },
         'BOARD2': {
@@ -56,15 +60,22 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     self.assertEqual(len(vpg_configs), 3)
     self.assertCountEqual(vpg_configs['MODEL1'].waived_comp_categories,
                           ['battery'])
+    self.assertCountEqual(vpg_configs['MODEL1'].encoding_spec_waived_categories,
+                          [])
     self.assertCountEqual(vpg_configs['MODEL1'].ignore_error, ['stylus'])
     self.assertFalse(vpg_configs['MODEL1'].encrypted)
     self.assertCountEqual(vpg_configs['MODEL2'].waived_comp_categories,
                           ['memory'])
+    self.assertCountEqual(vpg_configs['MODEL2'].encoding_spec_waived_categories,
+                          ['wireless'])
     self.assertCountEqual(vpg_configs['MODEL2'].ignore_error, [])
     self.assertFalse(vpg_configs['MODEL2'].encrypted)
     self.assertCountEqual(vpg_configs['MODEL3'].waived_comp_categories, [])
+    self.assertCountEqual(vpg_configs['MODEL3'].encoding_spec_waived_categories,
+                          [])
     self.assertCountEqual(vpg_configs['MODEL3'].ignore_error, [])
     self.assertTrue(vpg_configs['MODEL3'].encrypted)
+
 
 if __name__ == '__main__':
   unittest.main()

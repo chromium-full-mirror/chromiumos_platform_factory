@@ -29,6 +29,19 @@
                 }
               ]
             },
+            "encoding_spec_waived_categories": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/component_category"
+                  }
+                }
+              ]
+            },
             "ignore_error": {
               "oneOf": [
                 {

@@ -76,7 +76,7 @@ class EncodingSpecGenerator:
 
   @classmethod
   def Create(
-      cls, db: database.Database, vpg_waived_categories: Sequence[str],
+      cls, db: database.Database, vpg_waived_categories: Collection[str],
       vp_related_comps: Collection[Tuple[str, str]],
       primary_identifiers: Mapping[Tuple[str, str],
                                    str]) -> EncodingSpecGenerator:

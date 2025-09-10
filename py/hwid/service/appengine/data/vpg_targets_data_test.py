@@ -80,7 +80,7 @@ class VPGTargetsDataManager(unittest.TestCase):
     self.assertEqual(
         res, {
             'MODEL':
-                vpg_config_module.VerificationPayloadGeneratorConfig(
+                vpg_config_module.VerificationPayloadGeneratorConfig.Create(
                     ignore_error=[], waived_comp_categories=[], encrypted=False)
         })
 

@@ -305,22 +305,29 @@ class GenericStorageNVMeProbeStatementGeneratorTest(unittest.TestCase):
             }))
 
     # Should report not supported if some fields are missing.
-    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1',
-                      {'sectors': '112233', 'class': '0x123456'})
+    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1', {
+        'sectors': '112233',
+        'class': '0x123456'
+    })
 
     # Should report not supported if some fields contain incorrect format.
-    self.assertRaises(ProbeStatementConversionError, ps_gen.TryGenerate, 'n1',
-                      {'sectors': '112233', 'class': '12345678',
-                       'vendor': '0x1234', 'device': '0x5678'})
+    self.assertRaises(
+        ProbeStatementConversionError, ps_gen.TryGenerate, 'n1', {
+            'sectors': '112233',
+            'class': '12345678',
+            'vendor': '0x1234',
+            'device': '0x5678'
+        })
 
 
 class NetworkProbeStatementGeneratorTest(unittest.TestCase):
 
   def testUSB(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['wireless'][1]
-    ps = ps_gen.TryGenerate(
-        'name1',
-        {'idVendor': '1122', 'idProduct': '5566'})
+    ps = ps_gen.TryGenerate('name1', {
+        'idVendor': '1122',
+        'idProduct': '5566'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -481,8 +488,9 @@ class NetworkProbeStatementGeneratorTest(unittest.TestCase):
 
   def testPciOrSdioFail(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['wireless'][0]
-    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1',
-                      {'device': '0x5678'})
+    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1', {
+        'device': '0x5678'
+    })
 
 
 class MemoryProbeStatementGeneratorTest(unittest.TestCase):
@@ -490,8 +498,11 @@ class MemoryProbeStatementGeneratorTest(unittest.TestCase):
   def testTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['dram'][0]
 
-    ps = ps_gen.TryGenerate(
-        'name1', {'part': 'ABC123DEF-A1_0', 'size': '4096', 'slot': '0'})
+    ps = ps_gen.TryGenerate('name1', {
+        'part': 'ABC123DEF-A1_0',
+        'size': '4096',
+        'slot': '0'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -506,7 +517,10 @@ class MemoryProbeStatementGeneratorTest(unittest.TestCase):
                 }
             }))
 
-    ps = ps_gen.TryGenerate('name2', {'part': 'ABC123DEF-A1', 'size': '4096'})
+    ps = ps_gen.TryGenerate('name2', {
+        'part': 'ABC123DEF-A1',
+        'size': '4096'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -527,9 +541,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
   def testStylusTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['stylus'][0]
 
-    ps = ps_gen.TryGenerate(
-        'name1',
-        {'name': 'foo', 'product': '1122', 'vendor': '5566'})
+    ps = ps_gen.TryGenerate('name1', {
+        'name': 'foo',
+        'product': '1122',
+        'vendor': '5566'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -551,9 +567,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
   def testTouchpadTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['touchpad'][0]
 
-    ps = ps_gen.TryGenerate(
-        'name1',
-        {'name': 'foo', 'product': '1122', 'vendor': '5566'})
+    ps = ps_gen.TryGenerate('name1', {
+        'name': 'foo',
+        'product': '1122',
+        'vendor': '5566'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -575,12 +593,11 @@ class InputDeviceProbeStatementGeneratorTest(unittest.TestCase):
   def testTouchscreenNormal(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['touchscreen'][0]
 
-    ps = ps_gen.TryGenerate(
-        'name1', {
-            'name': 'foo',
-            'product': '0x11223344',
-            'vendor': '5566',
-        })
+    ps = ps_gen.TryGenerate('name1', {
+        'name': 'foo',
+        'product': '0x11223344',
+        'vendor': '5566',
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -670,10 +687,12 @@ class EdidProbeStatementGeneratorTest(unittest.TestCase):
   def testTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['display_panel'][0]
 
-    ps = ps_gen.TryGenerate(
-        'name1',
-        {'height': '1080', 'product_id': '1a2b', 'vendor': 'FOO',
-         'width': '1920'})
+    ps = ps_gen.TryGenerate('name1', {
+        'height': '1080',
+        'product_id': '1a2b',
+        'vendor': 'FOO',
+        'width': '1920'
+    })
     self.assertEqual(
         ps,
         probe_config_types.ComponentProbeStatement(
@@ -774,7 +793,8 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
         os.path.join(TESTDATA_DIR, 'model_encoding_spec_a_db.yaml'),
         verify_checksum=False),
           vpg_config_module.VerificationPayloadGeneratorConfig.Create(
-              waived_comp_categories=['ethernet']))
+              waived_comp_categories=['ethernet'],
+              encoding_spec_waived_categories=['wireless']))
 
     unused_files = _vp_generator.GenerateVerificationPayload(
         [db]).generated_file_contents
@@ -784,7 +804,7 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
 
     args, unused_kwargs = mock_create.call_args
     self.assertIs(args[0], db[0])
-    self.assertCountEqual(args[1], ['ethernet'])
+    self.assertCountEqual(args[1], ['ethernet', 'wireless'])
     self.assertCountEqual(
         args[2], {
             ('battery', 'battery_0_0'),
@@ -911,9 +931,12 @@ class USBCameraProbeStatementGeneratorTest(unittest.TestCase):
   def testTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['video'][0]
     ps = ps_gen.TryGenerate(
-        'name1',
-        {'idVendor': '1234', 'idProduct': '5678', 'bcdDevice': '90AB',
-         'bus_type': 'usb'})
+        'name1', {
+            'idVendor': '1234',
+            'idProduct': '5678',
+            'bcdDevice': '90AB',
+            'bus_type': 'usb'
+        })
     ps_new = ps_gen.TryGenerate(
         'name1', {
             'usb_vendor_id': '1234',
@@ -935,31 +958,33 @@ class USBCameraProbeStatementGeneratorTest(unittest.TestCase):
     self.assertEqual(ps_new, expected)
 
     # Should report not supported if some fields are missing.
-    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1',
-                      {'idVendor': '1234', 'bcdDevice': '90AB'})
+    self.assertRaises(MissingComponentValueError, ps_gen.TryGenerate, 'name1', {
+        'idVendor': '1234',
+        'bcdDevice': '90AB'
+    })
 
     # Should report not supported if some fields contain incorrect format.
-    self.assertRaises(ProbeStatementConversionError, ps_gen.TryGenerate, 'n1',
-                      {'idVendor': 'this-is-invalid', 'idProduct': '2147',
-                       'bcdDevice': '4836'})
+    self.assertRaises(ProbeStatementConversionError, ps_gen.TryGenerate, 'n1', {
+        'idVendor': 'this-is-invalid',
+        'idProduct': '2147',
+        'bcdDevice': '4836'
+    })
 
 
 class MIPICameraEepromProbeStatementGeneratorTest(unittest.TestCase):
 
   def testTryGenerate(self):
     ps_gen = _vp_generator.GetAllProbeStatementGenerators()['video'][1]
-    ps = ps_gen.TryGenerate(
-        'name1', {
-            'module_id': 'TC1234',
-            'sensor_id': 'OV5678',
-            'bus_type': 'mipi'
-        })
-    ps_new = ps_gen.TryGenerate(
-        'name1', {
-            'mipi_module_id': 'TC1234',
-            'mipi_sensor_id': 'OV5678',
-            'bus_type': 'mipi'
-        })
+    ps = ps_gen.TryGenerate('name1', {
+        'module_id': 'TC1234',
+        'sensor_id': 'OV5678',
+        'bus_type': 'mipi'
+    })
+    ps_new = ps_gen.TryGenerate('name1', {
+        'mipi_module_id': 'TC1234',
+        'mipi_sensor_id': 'OV5678',
+        'bus_type': 'mipi'
+    })
     expected = probe_config_types.ComponentProbeStatement(
         'camera', 'name1', {
             'eval': {
@@ -1054,13 +1079,17 @@ class GenerateVerificationPayloadCmdTest(unittest.TestCase):
             f'{model}.{category}'
             for category in setting.get('waived_comp_categories', [])
         ]
+        encoding_spec_waived_categories = [
+            f'{model}.{category}' for category in setting.get(
+                'encoding_spec_waived_comp_categories', [])
+        ]
 
         with self.subTest(f'GenerateFor{model}'):
           try:
             verification_payload_generator.RunCommand(
                 'dont care', hwid_db_paths, ignore_errors, waived_categories,
-                encrypted_models, encryption_key='TEST_KEY', nosalt=False,
-                for_testing=True)
+                encoding_spec_waived_categories, encrypted_models,
+                encryption_key='TEST_KEY', nosalt=False, for_testing=True)
           except Exception as e:
             self.fail(
                 'Verification payload generator fails to generate payloads: '

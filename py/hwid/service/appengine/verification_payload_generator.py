@@ -1247,9 +1247,12 @@ def GenerateVerificationPayload(
       # hardware_verifier still works.
       probe_config = generic_probe_config
     else:
+      waived_categories = set(
+          itertools.chain(vpg_config.waived_comp_categories,
+                          vpg_config.encoding_spec_waived_categories))
       encoding_spec_generator = (
           encoding_spec_generator_module.EncodingSpecGenerator.Create(
-              db, vpg_config.waived_comp_categories, set(all_pieces),
+              db, waived_categories, set(all_pieces),
               primary_identifiers[db.project]))
       encoding_spec = encoding_spec_generator.GenerateEncodingSpec()
       encoding_spec_pathname = (
@@ -1282,6 +1285,7 @@ def GenerateVerificationPayload(
 
 def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
                ignore_errors: Sequence[str], waived_categories: Sequence[str],
+               encoding_spec_waived_categories: Sequence[str],
                encrypted_models: Sequence[str],
                encryption_key: Optional[str] = None, nosalt: bool = False,
                for_testing: bool = False):
@@ -1308,6 +1312,11 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
     model_name, unused_sep, category_name = category.partition('.')
     waived_category[model_name.lower()].append(category_name)
 
+  encoding_spec_waived_category = collections.defaultdict(list)
+  for category in encoding_spec_waived_categories:
+    model_name, unused_sep, category_name = category.partition('.')
+    encoding_spec_waived_category[model_name.lower()].append(category_name)
+
   ignore_error = collections.defaultdict(list)
   for category in ignore_errors:
     model_name, unused_sep, category_name = category.partition('.')
@@ -1326,9 +1335,12 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
         ignore_error=ignore_error[model],
         waived_comp_categories=waived_category[model],
+        encoding_spec_waived_categories=encoding_spec_waived_category[model],
         encrypted=model in encrypted_models)
     logging.info('Waived component category: %r',
                  vpg_config.waived_comp_categories)
+    logging.info('Waived component category for encoding specs: %r',
+                 vpg_config.encoding_spec_waived_categories)
     logging.info('Ignore exception component category: %r',
                  vpg_config.ignore_error)
     dbs.append((db, vpg_config))
@@ -1386,6 +1398,11 @@ def main():
       '--waived_comp_category', nargs='*', default=[], dest='waived_categories',
       help=('Waived component category, must specify in format of '
             '`<model_name>.<category_name>`.'))
+  ap.add_argument(
+      '--encoding_spec_waived_categories', nargs='*', default=[],
+      dest='encoding_spec_waived_categories',
+      help=('Waived component category for encoding specs, must specify in '
+            'format of `<model_name>.<category_name>`.'))
   ap.add_argument('--encrypted_model', nargs='*', default=[],
                   dest='encrypted_models', help='Encrypted models')
   ap.add_argument('-k', '--key', help='Encryption key')
@@ -1397,8 +1414,9 @@ def main():
     ap.error("--encrypted_model requires --key.")
 
   RunCommand(args.output_dir, args.hwid_db_paths, args.ignore_error,
-             args.waived_categories, args.encrypted_models,
-             encryption_key=args.key, nosalt=args.nosalt, for_testing=False)
+             args.waived_categories, args.encoding_spec_waived_categories,
+             args.encrypted_models, encryption_key=args.key, nosalt=args.nosalt,
+             for_testing=False)
 
 
 if __name__ == '__main__':
