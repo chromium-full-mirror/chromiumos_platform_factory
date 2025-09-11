@@ -14,6 +14,9 @@ import './dashboard_umpire_timezone.e2e.test';
 // An e2e test for downloading or cleaning the log/report from factory server
 import './download_log_or_report.e2e.test';
 
+// An e2e test for downloading or cleaning the csv from factory server
+import './download_csv.e2e.test';
+
 // An e2e test for setup multiple umpire projects
 import './setup_multiple_umpire.e2e.test';
 
