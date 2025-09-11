@@ -30,8 +30,11 @@ WORKDIR "${workdir}"
 # install google-chrome-stable for dome e2e test environment.
 ARG dome_dev_run
 ENV dome_dev_run="${dome_dev_run}"
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-ENV PUPPETEER_SKIP_DOWNLOAD true
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+RUN echo "deb http://archive.debian.org/debian/ buster main" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian/ buster-updates main" >> /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security/ buster/updates main" >> /etc/apt/sources.list
 COPY docker/install_chrome.sh docker/install_chrome.sh
 RUN ./docker/install_chrome.sh
 

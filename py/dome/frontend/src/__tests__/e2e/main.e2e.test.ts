@@ -11,6 +11,9 @@ import './dashboard_shopfloor.e2e.test';
 // An e2e test for changing the timezone on specific umpire project
 import './dashboard_umpire_timezone.e2e.test';
 
+// An e2e test for downloading or cleaning the log/report from factory server
+import './download_log_or_report.e2e.test';
+
 // An e2e test for setup multiple umpire projects
 import './setup_multiple_umpire.e2e.test';
 

@@ -70,6 +70,7 @@ _GRPC_PORT_OFFSET = 9
 
 PROJECT_NAME_ENV_KEY = 'UMPIRE_PROJECT_NAME'
 PROJECT_PORT_ENV_KEY = 'UMPIRE_PROJECT_PORT'
+DOME_DEV_SERVER_ENV_KEY = 'DOME_DEV_SERVER'
 
 
 def GetRsyncPortFromBasePort(base_port):
@@ -226,6 +227,10 @@ class UmpireEnv:
     except Exception:
       logging.error('Failed to parse %s: %r.', key, url)
     return url.rstrip('/')
+
+  @property
+  def is_dev_server(self):
+    return os.environ.get(DOME_DEV_SERVER_ENV_KEY) == '1'
 
   @property
   def project(self):

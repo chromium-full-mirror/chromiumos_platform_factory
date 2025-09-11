@@ -30,6 +30,9 @@ import traceback
 import xmlrpc.client
 
 # yapf: disable
+from backend import common  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+# yapf: enable
+# yapf: disable
 import django  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 # yapf: enable
 # yapf: disable
@@ -678,6 +681,8 @@ class Project(django.db.models.Model):
       ]
       if LOCALTIME_DOCKER_PATH:
         cmd += ['--volume', f'{LOCALTIME_DOCKER_PATH}:/etc/localtime:ro']
+      if common.IsDomeDevServer():
+        cmd += ['--env', 'DOME_DEV_SERVER=1']
       cmd += [FACTORY_SERVER_IMAGE_NAME, UMPIRED_FILEPATH]
       logger.info('Running command %r', cmd)
       subprocess.check_call(cmd)

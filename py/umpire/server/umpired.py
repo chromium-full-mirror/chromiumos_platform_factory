@@ -54,6 +54,14 @@ def StartServer():
   umpired.AddWebApp(
       webapp_download_slots.PATH_INFO,
       webapp_download_slots.DownloadSlotsApp())
+  # Trigger UploadReport action if DOME_DEV_SERVER flag is true
+  if env.is_dev_server:
+    serial_number = 'test_serial_number'
+    report_blob = b'test_report_blob'
+    report_name = None
+    stage = 'EVT100'
+    rpc_dut.LogDUTCommands(umpired).UploadReport(serial_number, report_blob,
+                                                 report_name, stage)
   # Start listening to command port and webapp port.
   umpired.Run()
 
