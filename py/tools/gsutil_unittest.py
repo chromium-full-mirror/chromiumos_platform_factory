@@ -195,6 +195,21 @@ class GsutilUnittest(unittest.TestCase):
         ('canary', 'daisy_spring', '4262.453.0', 'factory', 'mp-v2'),
         (obj.channel, obj.board, obj.image_version, obj.image_type, obj.key))
 
+  def testBuildResourceBaseURL(self):
+    self.assertEqual('gs://chromeos-releases/canary-channel/brya/12345.0.0',
+                     gsutil.BuildResourceBaseURL('canary', 'brya', '12345.0.0'))
+
+    self.assertEqual('gs://chromeos-releases/dev-channel/brya/12345.0.0',
+                     gsutil.BuildResourceBaseURL('dev', 'brya', '12345.0.0'))
+
+    # Test cases for nirva board workaround. See b/441809628.
+    self.assertEqual(
+        'gs://chromeos-image-archive/factory-nissa-16077.B-nirva/R132-16077.165.0',
+        gsutil.BuildResourceBaseURL('canary', 'nirva', '16077.165.0'))
+
+    self.assertEqual(
+        'gs://chromeos-releases/canary-channel/nirva/16332.0.0',
+        gsutil.BuildResourceBaseURL('canary', 'nirva', '16332.0.0'))
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.DEBUG)

@@ -5,7 +5,7 @@
 """A tool for gsutil."""
 
 import argparse
-from distutils import version as version_utils
+from distutils import version as version_utils  # pylint: disable=deprecated-module
 import enum
 import logging
 import os
@@ -102,9 +102,9 @@ class GSUtil:
       raise GSUtilError(f'Invalid channel {channel!r}. '
                         f'Valid choices are: {list(self.Channels.__members__)}')
     return ('gs://chromeos-releases/'
-            f'{dict(channel=channel, board=self.board.gsutil_name)["channel"]}'
+            f'{dict(channel=channel, board=self.board.gsutil_name)["channel"]}'  # pylint: disable=use-dict-literal
             '-channel/'
-            f'{dict(channel=channel, board=self.board.gsutil_name)["board"]}/')
+            f'{dict(channel=channel, board=self.board.gsutil_name)["board"]}/')  # pylint: disable=use-dict-literal
 
   def GetLatestBuildPath(self, channel, branch=None):
     """Gets the latest build version from Google storage.
@@ -169,19 +169,18 @@ class GSUtil:
         tag = self.board.short_name
       else:
         tag = r'\w*'
-      filespec_re = re.compile(
-          r'chromeos_\d+\.\d+\.\d+_'
-          r'%(board)s_'
-          r'%(filetype)s-?'
-          r'%(tag)s_'
-          r'\w+-channel_%(key)s.bin$' % dict(
-              board=self.board.gsutil_name, filetype=filetype, tag=tag,
-              key=key))
+      filespec_re = re.compile(r'chromeos_\d+\.\d+\.\d+_'
+                               r'%(board)s_'
+                               r'%(filetype)s-?'
+                               r'%(tag)s_'
+                               r'\w+-channel_%(key)s.bin$' % dict(  # pylint: disable=use-dict-literal
+                                   board=self.board.gsutil_name,
+                                   filetype=filetype, tag=tag, key=key))
     else:
       filespec_re = re.compile(
           r'ChromeOS-%(filetype)s-'
           r'R\d+-\d+\.\d+\.\d+-'
-          r'%(board)s.%(fileext)s$' % dict(
+          r'%(board)s.%(fileext)s$' % dict(  # pylint: disable=use-dict-literal
               filetype=filetype, board=self.board.gsutil_name,
               fileext=fileext[filetype]))
 
@@ -302,6 +301,16 @@ def BuildResourceBaseURL(channel, board, version):
   assert channel in GSUtil.Channels.__members__
   assert isinstance(board, str)
   assert isinstance(version, str)
+
+  # Temporarily use nissa images for nirva in older versions. See b/441809628.
+  # `16332.0.0` is the first version where nirva has its own builds.
+  # TODO(b/441842121): Remove this workaround.
+  # yapf: disable
+  if board == 'nirva' and version_utils.StrictVersion(version) < version_utils.StrictVersion('16332.0.0'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    return f'gs://chromeos-image-archive/factory-nissa-16077.B-nirva/R132-{version}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
 
   return BASE_URL_FORMAT.format(channel=channel,
                                 board=board,
