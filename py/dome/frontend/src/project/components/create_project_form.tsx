@@ -32,7 +32,7 @@ class CreateProjectForm extends React.Component<
   }
 
   render() {
-    const {handleSubmit, isAndroid, change} = this.props;
+    const {handleSubmit, change} = this.props;
     return (
       <form onSubmit={handleSubmit}>
         <ReduxFormTextField
@@ -46,7 +46,7 @@ class CreateProjectForm extends React.Component<
         <FormControlLabel
           control={
             <Checkbox
-              check={isAndroid}
+              name="isAndroid"
               onChange={(event) => change('isAndroid', event.target.checked)}
             />}
           label="Is this an Android project?"
