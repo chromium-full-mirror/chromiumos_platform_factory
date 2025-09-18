@@ -31,6 +31,8 @@ _SUPPORT_COMPONENT_CLASS = {
     #    existing data are well backfilled.
     'storage',
     'storage_bridge',
+    'touchpad',
+    'touchscreen',
     'tpm',
     'video',
     'wireless',
