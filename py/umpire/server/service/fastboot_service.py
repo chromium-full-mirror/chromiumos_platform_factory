@@ -53,6 +53,10 @@ class FastbootService(umpire_service.UmpireService):
         not fastboot_service_config['board_name']):
       raise UmpireError('Please input board name for orchestrator to run.')
 
+    if ('model_name' not in fastboot_service_config or
+        not fastboot_service_config['model_name']):
+      raise UmpireError('Please input model name for orchestrator to run.')
+
     script_path = os.path.join(env.server_toolkit_dir, 'py', 'fastboot',
                                'fastboot_orchestrator.py')
 
@@ -66,7 +70,7 @@ class FastbootService(umpire_service.UmpireService):
             '-s',
             env.fastboot_img_dir,
             '-p',
-            env.project,
+            fastboot_service_config['model_name'],
             '-b',
             fastboot_service_config['board_name'],
             '-t',
