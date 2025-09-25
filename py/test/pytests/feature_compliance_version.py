@@ -84,10 +84,11 @@ class FeatureComplianceVersionTest(test_case.TestCase):
         # yapf: disable
         device_info,
         vpd,
-        self.args.rma_mode,  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        rma_mode=False,
         # yapf: enable
         with_configless_fields=False,
-        brand_code=hwid_utils.GetBrandCode())
+        brand_code=hwid_utils.GetBrandCode(),
+        verify_component_rma_mode=self.args.rma_mode)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     logging.info(identity)
     return identity
 
