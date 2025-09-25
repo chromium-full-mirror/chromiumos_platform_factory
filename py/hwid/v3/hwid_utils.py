@@ -39,7 +39,8 @@ def _HWIDMode(rma_mode):
 
 def GenerateHWID(database, probed_results, device_info, vpd, rma_mode,
                  with_configless_fields, brand_code,
-                 allow_mismatched_components=False, use_name_match=False):
+                 allow_mismatched_components=False, use_name_match=False,
+                 verify_component_rma_mode=None):
   """Generates a HWID v3 from the given data.
 
   The HWID is generated based on the given device info and a BOM object. If
@@ -55,12 +56,14 @@ def GenerateHWID(database, probed_results, device_info, vpd, rma_mode,
         should be specified in project-specific component database.
     vpd: A dict of RO and RW VPD values.  This argument should be set
         if some rules in the HWID database rely on the VPD values.
-    rma_mode: Whether to verify components status in RMA mode.
+    rma_mode: Whether to encode HWID string in RMA mode.
     with_configless_fields: Whether to include configless fields.
     brand_code: None or a string of Chromebook brand code.
     allow_mismatched_components: Whether to allows some probed components to be
         ignored if no any component in the database matches with them.
     use_name_match: Use component name from probed results as matched component.
+    verify_component_rma_mode: Whether to verify component status in RMA mode.
+        Or `None` to align with `rma_mode`.
 
   Returns:
     The generated HWID Identity object.
@@ -72,7 +75,10 @@ def GenerateHWID(database, probed_results, device_info, vpd, rma_mode,
   bom = probe.GenerateBOMFromProbedResults(
       database, probed_results, device_info, vpd, hwid_mode,
       allow_mismatched_components, use_name_match)[0]
-  verifier.VerifyComponentStatus(database, bom, hwid_mode,
+  verify_component_hwid_mode = (
+      hwid_mode if verify_component_rma_mode is None else
+      _HWIDMode(verify_component_rma_mode))
+  verifier.VerifyComponentStatus(database, bom, verify_component_hwid_mode,
                                  accept_unqualified_on_pvt=True)
 
   encoded_configless = None

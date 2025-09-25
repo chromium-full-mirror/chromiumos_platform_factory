@@ -69,6 +69,34 @@ class GenerateHWIDTest(_HWIDTestCaseBase):
                       self.database, self.probed_results, {}, {}, False, False,
                       None)
 
+  def testWithDeprecatedStatusInPvtThenFail(self):
+    self.probed_results['battery'] = [{
+        'name': 'battery_deprecated',
+        'values': {
+            'size': '10'
+        }
+    }]
+
+    with self.assertRaises(common.HWIDException):
+      hwid_utils.GenerateHWID(self.database, self.probed_results,
+                              device_info={}, vpd={}, rma_mode=False,
+                              with_configless_fields=False, brand_code=None)
+
+  def testWithDeprecatedStatusInPvtButVerifyWithRmaModeThenSuccess(self):
+    self.probed_results['battery'] = [{
+        'name': 'battery_deprecated',
+        'values': {
+            'size': '10'
+        }
+    }]
+
+    hwid_utils.GenerateHWID(self.database, self.probed_results, device_info={},
+                            vpd={}, rma_mode=False,
+                            with_configless_fields=False, brand_code=None,
+                            verify_component_rma_mode=True)
+
+    # Assert nothing as it's consider success if no exception is raised.
+
 
 class GenerateTestHWIDTest(_HWIDTestCaseBase):
   """The unittest of GenerateTestHWID."""
