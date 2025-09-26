@@ -25,23 +25,6 @@ message GetUpdateVersionResponse {
   string version = 1;
 }
 
-message GetOtaPackageVersionRequest {
-  Component component = 1;
-}
-
-message GetOtaPackageVersionResponse {
-  string version = 1;
-}
-
-message UpdateOtaPackageRequest {
-  string target = 1;
-}
-
-message UpdateOtaPackageResponse {
-  bool success = 1;
-  string messages = 2;
-}
-
 /* Metadata for uploading factory report. */
 message ReportMetadata {
   /* The serial number of the DUT. */
@@ -61,11 +44,20 @@ message UploadReportResponse {
   bool success = 1;
 }
 
+message GetOtaPackageRequest {
+  string target = 1;
+  string path = 2;
+}
+
+message GetOtaPackageResponse {
+  bool success = 1;
+  string messages = 2;
+}
+
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
-      returns (UpdateFactoryAppResponse) {
-  }
+      returns (UpdateFactoryAppResponse) {}
 
   /* Return the version of a component.
    *
@@ -74,18 +66,7 @@ service UmpireDUTCommands {
    * grpc, this API returns the version directly.
    */
   rpc GetUpdateVersion(GetUpdateVersionRequest)
-      returns (GetUpdateVersionResponse) {
-  }
-
-  /* Return the version of the OTA package. */
-  rpc GetOtaPackageVersion(GetOtaPackageVersionRequest)
-      returns (GetOtaPackageVersionResponse) {
-  }
-
-  /* Update the user image OTA package to the target device with adb. */
-  rpc UpdateOtaPackage(UpdateOtaPackageRequest)
-      returns (UpdateOtaPackageResponse) {
-  }
+      returns (GetUpdateVersionResponse) {}
 
   /* Uploads factory report to the factory server.
    *
@@ -94,4 +75,7 @@ service UmpireDUTCommands {
    * report is a single file.
    */
   rpc UploadReport(stream UploadReportRequest) returns (UploadReportResponse) {}
+
+  /* Get the user image OTA package to the target device with adb. */
+  rpc GetOtaPackage(GetOtaPackageRequest) returns (GetOtaPackageResponse) {}
 }
