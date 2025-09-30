@@ -132,7 +132,7 @@ const Task: React.SFC<TaskProps> = ({
   }
   return (
     <>
-      <Typography variant="body2" className={classes.description} >
+      <Typography variant="overline" className={classes.description} >
         {description}
         {
           (warningMessage === '' ||
@@ -155,12 +155,14 @@ const Task: React.SFC<TaskProps> = ({
       </Typography>
       <Tooltip title="cancel">
         {/* We need an extra div so tooltip works when button is disabled. */}
-        <IconButton
-          onClick={cancel}
-          disabled={!isCancellable(state)}
-        >
-          <DeleteIcon />
-        </IconButton>
+        <span>
+          <IconButton
+            onClick={cancel}
+            disabled={!isCancellable(state)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </span>
       </Tooltip>
       {actionButton}
     </>
