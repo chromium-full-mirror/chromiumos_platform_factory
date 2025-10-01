@@ -33,22 +33,29 @@ const syncStatusContent = (status: any) => {
     items.push(
       (index === 'status') ?
       (
-        <TableCell align="left" style={{color: statusToColor(value)}}>
+        <TableCell
+          key={index}
+          align="left"
+          style={{color: statusToColor(value)}}
+        >
           {`${value}`}
         </TableCell>
       )
       :
-      <TableCell> {value} </TableCell>);
+      <TableCell key={index}> {value} </TableCell>);
   }
   return items;
 };
 
 class SyncStatusApp extends React.Component<SyncStatusAppProps> {
   timerID: number;
+  private isComponentMounted: boolean;  // Flag to track mounted state
+
   constructor(props: SyncStatusAppProps) {
     super(props);
     this.state = {};
     this.timerID = 0;
+    this.isComponentMounted = false;  // Initially false
   }
 
   getStatus = async () => {
@@ -56,9 +63,13 @@ class SyncStatusApp extends React.Component<SyncStatusAppProps> {
       const response = await authorizedAxios().get(
         `projects/${this.props.projectName}/sync/status/`,
       );
-      this.setState(response.data);
+      if (this.isComponentMounted) {  // Check if component is still mounted
+        this.setState(response.data);
+      }
     } catch (unknownError: unknown) {
-      this.setState({});
+      if (this.isComponentMounted) {  // Check if component is still mounted
+        this.setState({});
+      }
     }
   }
 
@@ -77,11 +88,13 @@ class SyncStatusApp extends React.Component<SyncStatusAppProps> {
   }
 
   componentDidMount() {
+    this.isComponentMounted = true;  // Component is now mounted
     this.getStatus();
     this.timerID = window.setInterval(this.getStatus, 1000);
   }
 
   componentWillUnmount() {
+    this.isComponentMounted = false;  // Component is unmounting
     clearInterval(this.timerID);
   }
 
