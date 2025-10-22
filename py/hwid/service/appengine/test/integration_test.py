@@ -23,6 +23,10 @@ HOST_FACTORY_PRIVATE_DIR = os.path.abspath(
 HOST_VPG_TARGETS_FILE = os.path.abspath(
     os.path.join(HOST_FACTORY_PRIVATE_DIR,
                  'config/hwid/service/appengine/vpg_targets.yaml'))
+HOST_GENERIC_PST_OVERRIDE_FILE = os.path.abspath(
+    os.path.join(
+        HOST_FACTORY_PRIVATE_DIR,
+        'config/hwid/service/appengine/generic_probe_statement_override.json'))
 HOST_CHROMEOS_HWID_DIR = os.path.abspath(
     os.path.join(HOST_FACTORY_DIR, '../chromeos-hwid'))
 HOST_DEPLOY_DIR = os.path.join(HOST_FACTORY_DIR, 'deploy')
@@ -88,7 +92,9 @@ def RunTest(image, test_names):
       'docker', 'run', '-d', '-it', '--rm', '--volume',
       f'{HOST_VPG_TARGETS_FILE}:'
       f'{GUEST_PRIVATE_TESTDATA_DIR}/vpg_targets.yaml:ro', '--volume',
-      f'{HOST_CHROMEOS_HWID_DIR}:'
+      f'{HOST_GENERIC_PST_OVERRIDE_FILE}:'
+      f'{GUEST_PRIVATE_TESTDATA_DIR}/generic_probe_statement_override.json:ro',
+      '--volume', f'{HOST_CHROMEOS_HWID_DIR}:'
       f'{GUEST_PRIVATE_TESTDATA_DIR}/chromeos-hwid:ro', image
   ], log=True).strip()
 

@@ -9,6 +9,7 @@ import collections
 from collections.abc import Set
 import hashlib
 import itertools
+import json
 import logging
 import re
 from typing import Callable, DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Tuple, Union
@@ -1223,11 +1224,18 @@ def GenerateVerificationPayload(
     # Append the generic probe statements.
     for ps_gen in (
         generic_probe_statement.GetAllGenericProbeStatementInfoRecords()):
-      if ps_gen.probe_category not in vpg_config.waived_comp_categories:
-        probe_config.AddComponentProbeStatement(ps_gen.GenerateProbeStatement())
-        if vpg_config.encrypted:
-          generic_probe_config.AddComponentProbeStatement(
-              ps_gen.GenerateProbeStatement())
+      if ps_gen.probe_category in vpg_config.waived_comp_categories:
+        continue
+
+      probe_statement = ps_gen.GenerateProbeStatement()
+      if (override_expect := vpg_config.generic_probe_statement_override.get(
+          ps_gen.probe_category)) is not None:
+        probe_statement.UpdateExpect(override_expect)
+
+      probe_config.AddComponentProbeStatement(probe_statement)
+      if vpg_config.encrypted:
+        generic_probe_config.AddComponentProbeStatement(
+            ps_gen.GenerateProbeStatement())
 
     if vpg_config.encrypted:
       # Use determined salt from the hash of content to guarantee the encrypted
@@ -1283,12 +1291,20 @@ def GenerateVerificationPayload(
       generated_file_contents, error_msgs, payload_hash, primary_identifiers)
 
 
-def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
-               ignore_errors: Sequence[str], waived_categories: Sequence[str],
-               encoding_spec_waived_categories: Sequence[str],
-               encrypted_models: Sequence[str],
-               encryption_key: Optional[str] = None, nosalt: bool = False,
-               for_testing: bool = False):
+def RunCommand(
+    output_dir: str,
+    hwid_db_paths: Sequence[str],
+    ignore_errors: Sequence[str],
+    waived_categories: Sequence[str],
+    encoding_spec_waived_categories: Sequence[str],
+    *,
+    generic_probe_statement_override_keys: Sequence[str],
+    encrypted_models: Sequence[str],
+    generic_probe_statement_override_path: Optional[str],
+    encryption_key: Optional[str] = None,
+    nosalt: bool = False,
+    for_testing: bool = False,
+):
   """Executes the generator from command line.
 
   See main() for descriptions of other parameters.
@@ -1322,6 +1338,16 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
     model_name, unused_sep, category_name = category.partition('.')
     ignore_error[model_name.lower()].append(category_name)
 
+  generic_pst_override: dict[str, dict] = collections.defaultdict(dict)
+  if generic_probe_statement_override_keys:
+    content = file_utils.ReadFile(generic_probe_statement_override_path)
+    generic_probe_statement_override = json.loads(content)
+
+    for override_key in generic_probe_statement_override_keys:
+      model_name, unused_sep, key = override_key.partition('.')
+      generic_pst_override[
+          model_name.lower()] = generic_probe_statement_override[key]
+
   # yapf: disable
   encrypted_models = {model.lower()  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
   # yapf: enable
@@ -1336,6 +1362,7 @@ def RunCommand(output_dir: str, hwid_db_paths: Sequence[str],
         ignore_error=ignore_error[model],
         waived_comp_categories=waived_category[model],
         encoding_spec_waived_categories=encoding_spec_waived_category[model],
+        generic_probe_statement_override=generic_pst_override[model],
         encrypted=model in encrypted_models)
     logging.info('Waived component category: %r',
                  vpg_config.waived_comp_categories)
@@ -1403,8 +1430,17 @@ def main():
       dest='encoding_spec_waived_categories',
       help=('Waived component category for encoding specs, must specify in '
             'format of `<model_name>.<category_name>`.'))
+  ap.add_argument(
+      '--generic_probe_statement_override_keys', nargs='*', default=[],
+      dest='generic_pst_override_keys',
+      help=('Keys to get overridden generic probe statements, must specify in '
+            'format of `<model_name>.<key>`.'))
   ap.add_argument('--encrypted_model', nargs='*', default=[],
                   dest='encrypted_models', help='Encrypted models')
+  ap.add_argument('--gp',
+                  '--generic_probe_statement_override_path',
+                  dest='generic_pst_override_path',
+                  help='The path to generic_probe_statement_override.json')
   ap.add_argument('-k', '--key', help='Encryption key')
   ap.add_argument('--nosalt', action='store_true',
                   help='Do not use salt in KDF')
@@ -1412,11 +1448,24 @@ def main():
 
   if args.encrypted_models and args.key is None:
     ap.error("--encrypted_model requires --key.")
+  if (args.generic_pst_override_keys and
+      args.generic_pst_override_path is None):
+    ap.error('--generic_probe_statement_override_keys requires '
+             '--generic_probe_statement_override_path.')
 
-  RunCommand(args.output_dir, args.hwid_db_paths, args.ignore_error,
-             args.waived_categories, args.encoding_spec_waived_categories,
-             args.encrypted_models, encryption_key=args.key, nosalt=args.nosalt,
-             for_testing=False)
+  RunCommand(
+      args.output_dir,
+      args.hwid_db_paths,
+      args.ignore_error,
+      args.waived_categories,
+      args.encoding_spec_waived_categories,
+      generic_probe_statement_override_keys=args.generic_pst_override_keys,
+      encrypted_models=args.encrypted_models,
+      generic_probe_statement_override_path=args.generic_pst_override_path,
+      encryption_key=args.key,
+      nosalt=args.nosalt,
+      for_testing=False,
+  )
 
 
 if __name__ == '__main__':

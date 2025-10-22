@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import copy
 import functools
 import os
 import subprocess
@@ -711,6 +712,13 @@ class EdidProbeStatementGeneratorTest(unittest.TestCase):
 
 class GenerateVerificationPayloadTest(unittest.TestCase):
 
+  def _GetOverriddenProbeStatement(self, probe_statement: dict,
+                                   overrides: dict):
+    overridden_pst = copy.deepcopy(probe_statement)
+    for category, override in overrides.items():
+      overridden_pst[category]['generic']['expect'] = override
+    return overridden_pst
+
   @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
                      'GenerateEncodingSpec')
   def testSucc(self, mock_generate_encoding_spec):
@@ -865,6 +873,87 @@ class GenerateVerificationPayloadTest(unittest.TestCase):
     self.assertEqual(
         json_format.MessageToDict(hw_verification_spec),
         expected_outputs['hw_verification_spec_encrypted.prototxt'])
+
+  @mock.patch.object(encoding_spec_generator_module.EncodingSpecGenerator,
+                     'GenerateEncodingSpec')
+  def testWithGenericProbeStatementOverride(self, mock_generate_encoding_spec):
+    overrides = {
+        'camera': {
+            'foo': 'bar'
+        }
+    }
+    dbs = [(database.Database.LoadFile(
+        os.path.join(TESTDATA_DIR, name), verify_checksum=False),
+            vpg_config_module.VerificationPayloadGeneratorConfig.Create(
+                generic_probe_statement_override=overrides))
+           for name in ('model_a_db.yaml', 'model_b_db.yaml', 'model_c_db.yaml',
+                        'model_d_db.yaml', 'model_e_db.yaml', 'model_f_db.yaml',
+                        'model_g_db.yaml', 'model_encoding_spec_a_db.yaml')]
+    expected_outputs = json_utils.LoadFile(
+        os.path.join(TESTDATA_DIR, 'expected_model_ab_output.json'))
+    mock_encoding_spec = _EncodingSpec()
+    mock_generate_encoding_spec.return_value = mock_encoding_spec
+
+    files = _vp_generator.GenerateVerificationPayload(
+        dbs).generated_file_contents
+
+    # files should include probe_config.json, encoding_spec.txtpb and
+    # hw_verification_spec.prototxt.
+    self.assertEqual(len(files), len(dbs) * 2 + 1)
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_a/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_a/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_b/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_b/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_c/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_c/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_d/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_d/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_e/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_e/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_f/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_f/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(files['runtime_probe/model_g/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs['runtime_probe/model_g/probe_config.json'],
+            overrides))
+    self.assertEqual(
+        json_utils.LoadStr(
+            files['runtime_probe/modelencodingspeca/probe_config.json']),
+        self._GetOverriddenProbeStatement(
+            expected_outputs[
+                'runtime_probe/modelencodingspeca/probe_config.json'],
+            overrides))
+    hw_verification_spec = hardware_verifier_pb2.HwVerificationSpec()
+    text_format.Parse(files['hw_verification_spec.prototxt'],
+                      hw_verification_spec)
+    self.assertEqual(
+        json_format.MessageToDict(hw_verification_spec),
+        expected_outputs['hw_verification_spec.prototxt'])
+    for model_name in [
+        'model_a', 'model_b', 'model_c', 'model_d', 'model_e', 'model_f',
+        'model_g', 'modelencodingspeca'
+    ]:
+      self.assertEqual(files[f'runtime_probe/{model_name}/encoding_spec.txtpb'],
+                       text_format.MessageToString(mock_encoding_spec))
 
 
 class GenerateProbeStatementTest(unittest.TestCase):
@@ -1063,6 +1152,9 @@ class GenerateVerificationPayloadCmdTest(unittest.TestCase):
   def testGeneratePayloads_WithLatestVpgTargets_ShouldNotRaiseException(self):
     vpg_targets_path = os.path.join(PRIVATE_TESTDATA_DIR, 'vpg_targets.yaml')
     vpg_targets = yaml.safe_load(file_utils.ReadFile(vpg_targets_path))
+    generic_pst_override_path = (
+        os.path.join(PRIVATE_TESTDATA_DIR,
+                     'generic_probe_statement_override.json'))
 
     boards_models = vpg_targets['models_vp_on']
     for model_list in boards_models.values():
@@ -1083,13 +1175,26 @@ class GenerateVerificationPayloadCmdTest(unittest.TestCase):
             f'{model}.{category}' for category in setting.get(
                 'encoding_spec_waived_comp_categories', [])
         ]
+        generic_pst_override_keys = []
+        if (key :=
+            setting.get('generic_probe_statement_override_key')) is not None:
+          generic_pst_override_keys.append(f'{model}.{key}')
 
         with self.subTest(f'GenerateFor{model}'):
           try:
             verification_payload_generator.RunCommand(
-                'dont care', hwid_db_paths, ignore_errors, waived_categories,
-                encoding_spec_waived_categories, encrypted_models,
-                encryption_key='TEST_KEY', nosalt=False, for_testing=True)
+                'dont care',
+                hwid_db_paths,
+                ignore_errors,
+                waived_categories,
+                encoding_spec_waived_categories,
+                generic_probe_statement_override_keys=generic_pst_override_keys,
+                encrypted_models=encrypted_models,
+                generic_probe_statement_override_path=generic_pst_override_path,
+                encryption_key='TEST_KEY',
+                nosalt=False,
+                for_testing=True,
+            )
           except Exception as e:
             self.fail(
                 'Verification payload generator fails to generate payloads: '
