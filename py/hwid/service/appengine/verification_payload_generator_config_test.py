@@ -13,6 +13,8 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create()
     self.assertCountEqual(vpg_config.ignore_error, [])
     self.assertCountEqual(vpg_config.waived_comp_categories, [])
+    self.assertCountEqual(vpg_config.encoding_spec_waived_categories, [])
+    self.assertEqual(vpg_config.generic_probe_statement_override, {})
     self.assertFalse(vpg_config.encrypted)
 
   def testCreate_WithConfig(self):
@@ -20,6 +22,11 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
         'waived_comp_categories': ['battery'],
         'encoding_spec_waived_categories': ['wireless'],
         'ignore_error': ['stylus'],
+        'generic_probe_statement_override': {
+            'camera': {
+                'foo': 'bar'
+            }
+        },
         'encrypted': True
     }
     vpg_config = vpg_config_module.VerificationPayloadGeneratorConfig.Create(
@@ -30,6 +37,11 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     self.assertCountEqual(vpg_config.waived_comp_categories, ['battery'])
     self.assertCountEqual(vpg_config.encoding_spec_waived_categories,
                           ['wireless'])
+    self.assertEqual(vpg_config.generic_probe_statement_override, {
+        'camera': {
+            'foo': 'bar'
+        }
+    })
     self.assertTrue(vpg_config.encrypted)
 
   def testBatchCreate(self):
@@ -47,6 +59,11 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
         'BOARD2': {
             'MODEL3': {
                 'encrypted': True,
+                'generic_probe_statement_override': {
+                    'camera': {
+                        'foo': 'bar'
+                    }
+                },
             },
         },
     }
@@ -63,17 +80,24 @@ class VerificationPayloadGeneratorConfigTest(unittest.TestCase):
     self.assertCountEqual(vpg_configs['MODEL1'].encoding_spec_waived_categories,
                           [])
     self.assertCountEqual(vpg_configs['MODEL1'].ignore_error, ['stylus'])
+    self.assertEqual(vpg_configs['MODEL1'].generic_probe_statement_override, {})
     self.assertFalse(vpg_configs['MODEL1'].encrypted)
     self.assertCountEqual(vpg_configs['MODEL2'].waived_comp_categories,
                           ['memory'])
     self.assertCountEqual(vpg_configs['MODEL2'].encoding_spec_waived_categories,
                           ['wireless'])
     self.assertCountEqual(vpg_configs['MODEL2'].ignore_error, [])
+    self.assertEqual(vpg_configs['MODEL2'].generic_probe_statement_override, {})
     self.assertFalse(vpg_configs['MODEL2'].encrypted)
     self.assertCountEqual(vpg_configs['MODEL3'].waived_comp_categories, [])
     self.assertCountEqual(vpg_configs['MODEL3'].encoding_spec_waived_categories,
                           [])
     self.assertCountEqual(vpg_configs['MODEL3'].ignore_error, [])
+    self.assertEqual(vpg_configs['MODEL3'].generic_probe_statement_override, {
+        'camera': {
+            'foo': 'bar'
+        }
+    })
     self.assertTrue(vpg_configs['MODEL3'].encrypted)
 
 

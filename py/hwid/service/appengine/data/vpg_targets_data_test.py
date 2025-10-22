@@ -11,14 +11,18 @@ from unittest import mock
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import test_utils
 from cros.factory.hwid.service.appengine import verification_payload_generator_config as vpg_config_module
-from cros.factory.hwid.service.appengine import vpg_config_manager
 from cros.factory.utils import file_utils
 
 
 _TEST_VPG_TARGETS_PATH = os.path.join(
-    os.path.dirname(__file__), '../testdata', 'test_vpg_targets.yaml')
+    os.path.dirname(__file__), '../', 'testdata', 'test_vpg_targets.yaml')
 _TEST_VPG_TARGETS_DATA = file_utils.ReadFile(_TEST_VPG_TARGETS_PATH,
                                              encoding=None)
+_TEST_GENERIC_PST_OVERRIDE_PATH = os.path.join(
+    os.path.dirname(__file__), '../'
+    'testdata', 'test_generic_probe_statement_override.json')
+_TEST_GENERIC_PST_OVERRIDE_DATA = file_utils.ReadFile(
+    _TEST_GENERIC_PST_OVERRIDE_PATH, encoding=None)
 _TEST_VPG_TARGETS = {
     'MODEL1':
         vpg_config_module.VerificationPayloadGeneratorConfig.Create(
@@ -36,7 +40,13 @@ _TEST_VPG_TARGETS = {
             encrypted=True),
     'MODEL7':
         vpg_config_module.VerificationPayloadGeneratorConfig.Create(
-            encrypted=True),
+            generic_probe_statement_override={
+                'camera': {
+                    'foo': 'bar'
+                }
+            }, encrypted=True),
+    'MODEL8':
+        vpg_config_module.VerificationPayloadGeneratorConfig.Create(),
 }
 
 
@@ -53,13 +63,13 @@ class VPGTargetsDataManager(unittest.TestCase):
 
     self.addCleanup(mock.patch.stopall)
     self._mock_get_gerrit_auth_cookie = mock.patch.object(
-        vpg_config_manager.git_util, 'GetGerritAuthCookie',
+        vpg_targets_data.git_util, 'GetGerritAuthCookie',
         autospec=True).start()
     self._mock_get_gerrit_credentials = mock.patch.object(
-        vpg_config_manager.git_util, 'GetGerritCredentials',
+        vpg_targets_data.git_util, 'GetGerritCredentials',
         autospec=True).start()
     self._mock_get_file_content = mock.patch.object(
-        vpg_config_manager.git_util, 'GetFileContent', autospec=True).start()
+        vpg_targets_data.git_util, 'GetFileContent', autospec=True).start()
 
   def tearDown(self):
     super().tearDown()
@@ -85,7 +95,10 @@ class VPGTargetsDataManager(unittest.TestCase):
         })
 
   def testGetVpgTargets_NoDataInMemcache_ShouldRefreshVpgTargets(self):
-    self._mock_get_file_content.return_value = _TEST_VPG_TARGETS_DATA
+    self._mock_get_file_content.side_effect = [
+        _TEST_VPG_TARGETS_DATA,
+        _TEST_GENERIC_PST_OVERRIDE_DATA,
+    ]
 
     res = self._manager.GetVpgTargets()
 
@@ -106,7 +119,10 @@ class VPGTargetsDataManager(unittest.TestCase):
     self.assertEqual(res, vpg_targets)
 
   def testRefreshVpgTargets(self):
-    self._mock_get_file_content.return_value = _TEST_VPG_TARGETS_DATA
+    self._mock_get_file_content.side_effect = [
+        _TEST_VPG_TARGETS_DATA,
+        _TEST_GENERIC_PST_OVERRIDE_DATA,
+    ]
 
     res = self._manager.RefreshVpgTargets()
 
@@ -126,7 +142,16 @@ class VPGTargetsDataManager(unittest.TestCase):
                         'waived_comp_categories': ['dram']
                     },
                     'MODEL7': {
+                        'generic_probe_statement_override_key': 'override_1',
+                        'generic_probe_statement_override': {
+                            'camera': {
+                                'foo': 'bar'
+                            }
+                        },
                         'encrypted': True
+                    },
+                    'MODEL8': {
+                        'generic_probe_statement_override_key': 'invalid_key',
                     }
                 },
                 'BOARD2': {

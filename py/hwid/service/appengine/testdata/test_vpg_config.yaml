@@ -12,6 +12,9 @@ models_force_vp_on:
     MODEL2: {}
     MODEL7:
       encrypted: true
+      generic_probe_statement_override_key: override_1
+    MODEL8:
+      generic_probe_statement_override_key: invalid_key
 
 models_force_vp_off:
   BOARD2:

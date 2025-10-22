@@ -55,6 +55,16 @@
                 }
               ]
             },
+            "generic_probe_statement_override_key": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
             "encrypted": {
               "type": "boolean"
             }

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import List, Mapping, NamedTuple, Optional
+from typing import Any, List, Mapping, NamedTuple, Optional
 
 
 class VerificationPayloadGeneratorConfig(NamedTuple):
@@ -18,33 +18,41 @@ class VerificationPayloadGeneratorConfig(NamedTuple):
         verification payload will not be generated.
     encoding_spec_waived_categories: The list of component categories that will
         only be waived in the encoding specs but not the verification payloads.
+    generic_probe_statement_override: The dictionary that maps categories to the
+        overridden generic probe statements.
     encrypted: The output payload should be encrypted.
   """
 
   ignore_error: List[str]
   waived_comp_categories: List[str]
   encoding_spec_waived_categories: List[str]
+  generic_probe_statement_override: Mapping[str, Any]
   encrypted: bool
 
   @classmethod
   def Create(
-      cls, ignore_error: Optional[List[str]] = None,
+      cls,
+      ignore_error: Optional[List[str]] = None,
       waived_comp_categories: Optional[List[str]] = None,
       encoding_spec_waived_categories: Optional[List[str]] = None,
-      encrypted: Optional[bool] = False) -> VerificationPayloadGeneratorConfig:
+      generic_probe_statement_override: Optional[Mapping[str, Any]] = None,
+      encrypted: bool = False,
+  ) -> VerificationPayloadGeneratorConfig:
     if ignore_error is None:
       ignore_error = []
     if waived_comp_categories is None:
       waived_comp_categories = []
     if encoding_spec_waived_categories is None:
       encoding_spec_waived_categories = []
+    if generic_probe_statement_override is None:
+      generic_probe_statement_override = {}
 
-    return cls(ignore_error=ignore_error,
-               waived_comp_categories=waived_comp_categories,
-               encoding_spec_waived_categories=encoding_spec_waived_categories,
-               # yapf: disable
-               encrypted=encrypted)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    return cls(
+        ignore_error=ignore_error,
+        waived_comp_categories=waived_comp_categories,
+        encoding_spec_waived_categories=encoding_spec_waived_categories,
+        generic_probe_statement_override=generic_probe_statement_override,
+        encrypted=encrypted)
 
   @classmethod
   def BatchCreate(
@@ -60,7 +68,16 @@ class VerificationPayloadGeneratorConfig(NamedTuple):
       payload generator config instances.
     """
     return {
-        model: cls.Create(**config)
+        model:
+            cls.Create(
+                ignore_error=config.get('ignore_error'),
+                waived_comp_categories=config.get('waived_comp_categories'),
+                encoding_spec_waived_categories=config.get(
+                    'encoding_spec_waived_categories'),
+                generic_probe_statement_override=config.get(
+                    'generic_probe_statement_override'),
+                encrypted=config.get('encrypted', False),
+            )
         for unused_boards, configs in models_vp_on.items()
         for model, config in configs.items()
     }

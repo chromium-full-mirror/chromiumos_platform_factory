@@ -1,0 +1,7 @@
+{
+  "override_1": {
+    "camera": {
+      "foo": "bar"
+    }
+  }
+}

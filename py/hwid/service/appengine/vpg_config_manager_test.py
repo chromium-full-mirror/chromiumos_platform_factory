@@ -189,7 +189,7 @@ class VPGConfigManagerTest(unittest.TestCase):
         'vpg_targets: Update the list of model to generate payloads', False,
         topic='vpg-targets-automated-sync', auto_submit=True, hashtags=None)
     self._mock_cl_upload_manager.SetLatestVPGTargetsHash.assert_called_with(
-        '36f5209b029355fec53071c7c5063297bdcc6e4c')
+        '2ce92a974904e01b568b9b7a75d4a2ce8096d7a2')
 
   def testUpdate_ShouldNotCreateCL_ShouldNotCreateCL(self):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA

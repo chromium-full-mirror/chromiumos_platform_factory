@@ -15,6 +15,9 @@ models_vp_on:
       - dram
     MODEL7:
       encrypted: true
+      generic_probe_statement_override_key: override_1
+    MODEL8:
+      generic_probe_statement_override_key: invalid_key
   BOARD2:
     MODEL5:
       encrypted: true
