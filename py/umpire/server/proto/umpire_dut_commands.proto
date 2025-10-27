@@ -54,6 +54,15 @@ message GetOtaPackageResponse {
   string messages = 2;
 }
 
+message SyncDeviceTimeRequest {
+string target = 1;
+}
+
+message SyncDeviceTimeResponse {
+  bool success = 1;
+  string messages = 2;
+}
+
 service UmpireDUTCommands {
   /* Update the factory app on target device with adb. */
   rpc UpdateFactoryApp(UpdateFactoryAppRequest)
@@ -78,4 +87,7 @@ service UmpireDUTCommands {
 
   /* Get the user image OTA package to the target device with adb. */
   rpc GetOtaPackage(GetOtaPackageRequest) returns (GetOtaPackageResponse) {}
+
+  /* Synchronizes the DUT's time zone to the Umpire server's time zone */
+  rpc SyncDeviceTime(SyncDeviceTimeRequest) returns (SyncDeviceTimeResponse) {}
 }

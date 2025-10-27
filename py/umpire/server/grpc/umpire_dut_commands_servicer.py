@@ -184,3 +184,43 @@ class UmpireDUTCommandsServicer(
       context.set_code(grpc.StatusCode.INTERNAL)
       context.set_details(f'An error occurred: {e}')
       return umpire_dut_commands_pb2.UploadReportResponse(success=False)
+
+  def SyncDeviceTime(
+      self,
+      request: umpire_dut_commands_pb2.SyncDeviceTimeRequest,
+      context: grpc.ServicerContext,
+  ) -> umpire_dut_commands_pb2.SyncDeviceTimeResponse:
+    """Synchronizes the DUT's time zone to the Umpire server's time zone."""
+    logging.info('SyncDeviceTime: peer: %s', context.peer())
+
+    try:
+      target = request.target or ParseIpFromPeer(context.peer())
+      epoch_time = int(time.time())
+
+      process_utils.CheckCall(['adb', 'connect', target], log=True,
+                              log_stderr_on_error=True)
+      process_utils.CheckCall(['adb', '-s', target, 'root'], log=True,
+                              log_stderr_on_error=True)
+
+      logging.info('Setting device time to host epoch: %d', epoch_time)
+      set_date_cmd = [
+          'adb', '-s', target, 'shell', f'date @{epoch_time}'
+      ]
+      process_utils.CheckCall(set_date_cmd, log=True, log_stderr_on_error=True)
+
+      set_hwclock_cmd = [
+          'adb', '-s', target, 'shell', 'hwclock -w --utc'
+      ]
+      logging.info('Executing: %s', ' '.join(set_hwclock_cmd))
+      process_utils.CheckCall(set_hwclock_cmd, log=True,
+                              log_stderr_on_error=True)
+
+    except Exception as err:
+      error_message = f'Failed to set time on {target}: {err}'
+      logging.error(error_message)
+      return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
+          success=False, messages=error_message)
+
+    return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
+        success=True,
+        messages=f'Successfully synced time on {target} to epoch {epoch_time}')
