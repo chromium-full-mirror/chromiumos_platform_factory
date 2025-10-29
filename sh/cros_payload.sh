@@ -1101,6 +1101,17 @@ install_payload() {
   fi
 
   if [ "${mode}" = "partition" ]; then
+    # TODO(b/448475951): Find the root cause and remove the polling logic.
+    # In case of UFS storage, it takes some time to register target block device.
+    # So, just add code to retry for 5 seconds.
+    # When we find root case, we can remove it.
+    for i in $(seq 1 5); do
+      if [ -b "${dest}" ]; then
+        break
+      fi
+      sleep 1
+      info "${i} seconds passed, checking partition..."
+    done
     # The destination must be a block device.
     [ -b "${dest}" ] || die "${dest} must be a block device."
     output="${dest}"
