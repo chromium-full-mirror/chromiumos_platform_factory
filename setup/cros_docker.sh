@@ -7,7 +7,7 @@ set -e
 
 # Utility functions
 DOCKER_VERSION="20.10.0"
-DOCKER_MAX_VERSION="28.1.1"
+DOCKER_MAX_VERSION="28.5.1"
 TEMP_OBJECTS=()
 DOCKER_INSTRUCTION_URL="https://chromium.googlesource.com/chromiumos/platform/factory/+/HEAD/setup/FACTORY_SERVER.md#docker"
 

@@ -107,8 +107,8 @@ officially supported.
    to find the right instruction for your server.
 
 2. Type `docker version` and make sure your Docker server is ready.
-   - In dome version `20250326164643`, known compatible docker versions:
-   version >= `20.10.0` and version <= `28.1.1`.
+   - In dome version `20251105113041`, known compatible docker versions:
+   version >= `20.10.0` and version <= `28.5.1`.
    - If you are using an older version of dome, it might be incompatible with
    the latest docker version.
    - Note: If you need, please contact the Google contact of your project to
