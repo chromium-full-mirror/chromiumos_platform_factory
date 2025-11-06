@@ -33,6 +33,7 @@ from cros.factory.gooftool import report_upload
 from cros.factory.gooftool.write_protect_target import CreateWriteProtectTarget
 from cros.factory.gooftool.write_protect_target import UnsupportedOperationError
 from cros.factory.gooftool.write_protect_target import WriteProtectTargetType
+from cros.factory.hwid.v3 import database as v3_database
 from cros.factory.hwid.v3 import feature_compliance
 from cros.factory.hwid.v3 import hwid_utils
 from cros.factory.probe.functions import chromeos_firmware
@@ -968,26 +969,46 @@ def VerifyFeatureManagementFlags(options):
 
   checker = feature_compliance.LoadChecker(hwid_dir,
                                            hwid_utils.ProbeProject().upper())
-  # yapf: disable
-  hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-  # yapf: enable
-      identity)
 
   # TODO(stevesu) We should refactor this function to a Verifier class to
   # have better flow control and cleaner code.
-  rma_mode = options.factory_process == FactoryProcessEnum.RMA
-  if (rma_mode and gsc_utils.GSCUtils().IsGSCFeatureManagementFlagsLocked()):
-    feature_flags = gsctool.GSCTool().GetFeatureManagementFlags()
-    # In RMA scene, when GSC feature flags already set, we let (False, 0)
-    # bypass compliance version verification for the checker part, as no
-    # matter it is actually (False, 0) or (False, n), we can always enable
-    # feature by soft-branding. Overwrite it with the one in GSC.
-    if feature_flags == gsctool.FeatureManagementFlags(False, 0):
-      # yapf: disable
-      hw_compliance_version_checker = feature_flags.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
 
-  if hw_compliance_version_device_data != hw_compliance_version_checker:
+  rma_mode = options.factory_process == FactoryProcessEnum.RMA
+  if rma_mode and identity.image_id == v3_database.ImageId.RMA_IMAGE_ID:
+    # HWID string with RMA image ID doesn't contain assembly component
+    # information. Therefore, the calculated compliance version could be
+    # meaningless.
+    hw_compliance_version_checker = None
+  else:
+    # yapf: disable
+    hw_compliance_version_checker = checker.CheckFeatureComplianceVersion(  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+        identity)
+
+  if rma_mode and gsc_utils.GSCUtils().IsGSCFeatureManagementFlagsLocked():
+    # When in RMA mode and GSC feature flags already set, the pytest
+    # `feature_compliance_version.py` reads the GSC values and set it to
+    # the device data. Therefore, here we check if the device data value
+    # is identical to the GSC value instead to make sure the pytest is run as
+    # expected. And in addition, we also want to make sure components are
+    # assembled correctly, so here we also check if the value from GSC matches
+    # the value calculated from HWID. However, a special case is that when
+    # the GSC value is (False, 0), the DUT might come from a legacy
+    # manufacturing process, where GSC was not set at all.
+    # Ref: b/282129744
+    # yapf: disable
+    feature_flags = gsctool.GSCTool().GetFeatureManagementFlags()
+    if (feature_flags != gsctool.FeatureManagementFlags(False, 0) and
+        hw_compliance_version_checker is not None and
+        feature_flags.hw_compliance_version != hw_compliance_version_checker):  # type: ignore[attr-defined] # pylint: disable=line-too-long
+      raise Error('HW compliance version from HWID data '
+                  f'({hw_compliance_version_checker}) differs from the one '
+                  f'in GSC ({feature_flags.hw_compliance_version}).')  # type: ignore[attr-defined] # pylint: disable=line-too-long
+    hw_compliance_version_checker = feature_flags.hw_compliance_version  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+  if (hw_compliance_version_checker is not None and
+      hw_compliance_version_device_data != hw_compliance_version_checker):
     raise Error(
         'HW compliance version set for device '
         f'({hw_compliance_version_device_data}) differs the one calculated '
@@ -995,11 +1016,11 @@ def VerifyFeatureManagementFlags(options):
         'from HWID data.')
 
   if chassis_branded_device_data:
-    if (hw_compliance_version_checker ==
+    if (hw_compliance_version_device_data ==
         feature_compliance.FEATURE_INCOMPLIANT_VERSION):
       raise Error(f'Chassis branded HW compliance version '
-                  f'({hw_compliance_version_checker}) incorrect, should not '
-                  'be incompliant version: '
+                  f'({hw_compliance_version_device_data}) incorrect, should '
+                  'not be incompliant version: '
                   f'({feature_compliance.FEATURE_INCOMPLIANT_VERSION}).')
 
   # TODO(stevesu) Refactor this to a Verifier class when feature factory
@@ -1018,7 +1039,7 @@ def VerifyFeatureManagementFlags(options):
                 'chassis used on this project again and contact Google.')
 
   logging.info('Feature enablement status (%s, %s) passed verification.',
-               chassis_branded_device_data, hw_compliance_version_checker)
+               chassis_branded_device_data, hw_compliance_version_device_data)
 
 
 @Command(
