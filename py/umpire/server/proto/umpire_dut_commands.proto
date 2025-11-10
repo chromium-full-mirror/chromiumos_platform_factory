@@ -4,7 +4,6 @@ package com.google.android.factory.factory.proto.umpire;
 
 message UpdateFactoryAppRequest {
   string target = 1;
-  bool dpc = 2;
 }
 
 message UpdateFactoryAppResponse {

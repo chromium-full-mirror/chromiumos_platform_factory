@@ -44,6 +44,15 @@ def ParseIpFromPeer(peer: str) -> str:
   return match.group(1)
 
 
+def AdbConnect(target: str, log: bool = True, log_stderr_on_error: bool = True,
+               root: bool = True) -> None:
+  process_utils.CheckCall(['adb', 'connect', target], log=log,
+                          log_stderr_on_error=log_stderr_on_error)
+  if root:
+    process_utils.CheckCall(['adb', '-s', target, 'root'], log=log,
+                            log_stderr_on_error=log_stderr_on_error)
+
+
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
 
@@ -64,13 +73,9 @@ class UmpireDUTCommandsServicer(
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
         self.CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.android_apk.name, f.name)
-        cmd = [
-            '/usr/local/factory/py/tools/install_as_priv_app.py', f.name,
-            '--target', target
-        ]
-        if request.dpc:
-          cmd.append('--dpc_enabled')
-        process_utils.CheckCall(cmd, log=True, log_stderr_on_error=True)
+        AdbConnect(target, root=True)
+        process_utils.CheckCall(['adb', 'install', '-d', '-g', '-t', f.name],
+                                log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
           success=False, messages=str(err))
@@ -105,10 +110,7 @@ class UmpireDUTCommandsServicer(
       with tempfile.NamedTemporaryFile('+ab', suffix='.otazip') as f:
         self.CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.ota_zip.name, f.name)
-        process_utils.CheckCall(['adb', 'connect', target], log=True,
-                                log_stderr_on_error=True)
-        process_utils.CheckCall(['adb', '-s', target, 'root'], log=True,
-                                log_stderr_on_error=True)
+        AdbConnect(target, root=True)
         process_utils.CheckCall(
             ['adb', '-s', target, 'push', f.name, remote_path], log=True,
             log_stderr_on_error=True)
@@ -197,10 +199,7 @@ class UmpireDUTCommandsServicer(
       target = request.target or ParseIpFromPeer(context.peer())
       epoch_time = int(time.time())
 
-      process_utils.CheckCall(['adb', 'connect', target], log=True,
-                              log_stderr_on_error=True)
-      process_utils.CheckCall(['adb', '-s', target, 'root'], log=True,
-                              log_stderr_on_error=True)
+      AdbConnect(target, root=True)
 
       logging.info('Setting device time to host epoch: %d', epoch_time)
       set_date_cmd = [
