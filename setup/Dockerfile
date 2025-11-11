@@ -72,7 +72,8 @@ RUN apk upgrade --no-cache && apk add --no-cache \
     unzip \
     util-linux \
     uwsgi-python3 \
-    xz
+    xz \
+    zip
 
 # The latest cffi (1.14.3) would always build from source, which requires the
 # follow packages.
