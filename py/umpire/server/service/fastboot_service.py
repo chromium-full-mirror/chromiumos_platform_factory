@@ -42,7 +42,7 @@ class FastbootService(umpire_service.UmpireService):
       except ValueError as e:
         raise UmpireError('Cannot set interval with invalid values.') from e
 
-    idle_timeout = 60
+    idle_timeout = 300
     if 'idle_timeout' in fastboot_service_config:
       try:
         idle_timeout = int(fastboot_service_config['idle_timeout'])
@@ -65,6 +65,7 @@ class FastbootService(umpire_service.UmpireService):
         'executable': script_path,
         'name': SERVICE_NAME,
         'args': [
+            '-v',
             '-i',
             ' '.join(ip_list),
             '-s',

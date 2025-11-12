@@ -6,11 +6,11 @@ import logging
 import os
 import re
 import shlex
-import tempfile
 from subprocess import CalledProcessError
 from subprocess import PIPE
 from subprocess import STDOUT
 from subprocess import TimeoutExpired
+import tempfile
 from typing import List
 
 from cros.factory.utils import net_utils
@@ -92,11 +92,11 @@ class FastbootUtil:
       # we have called it before.
       stdout, unused_stderr = process.communicate()
 
+      logging.debug('DUT [%s] fastboot cmd exited: %s\n--- OUTPUT ---\n%s',
+                    self.serial_device, shlex.join(cmd), stdout)
       retcode = process.poll()
       if retcode and retcode != 0:
         raise CalledProcessError(retcode, cmd)
-      logging.debug('DUT [%s] finished fastboot cmd: %s\n--- OUTPUT ---\n%s',
-                    self.serial_device, shlex.join(cmd), stdout)
 
       if stdout:
         return stdout
