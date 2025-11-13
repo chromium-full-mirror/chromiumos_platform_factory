@@ -7,7 +7,7 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import UpdateIcon from '@mui/icons-material/Update';
 import Button from '@mui/material/Button';
-import grey from '@mui/material/colors/grey';
+import {grey} from '@mui/material/colors';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
