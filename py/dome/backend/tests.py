@@ -18,6 +18,7 @@ import rest_framework.status  # type: ignore #TODO(b/338318729) Fixit! # pylint:
 # yapf: disable
 import rest_framework.test  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 
+
 # yapf: enable
 
 
@@ -141,7 +142,7 @@ class DomeAPITest(rest_framework.test.APITestCase):
     cls.PROJECT_WITHOUT_UMPIRE_NAME = 'project_without_umpire'
     cls.PROJECT_WITH_UMPIRE_NAME = 'project_with_umpire'
     cls.PROJECT_WITH_UMPIRE_PORT = 8080
-    cls.MOCK_UMPIRE_VERSION = 14
+    cls.MOCK_UMPIRE_VERSION = 15
 
     models.Project.objects.create(name=cls.PROJECT_WITHOUT_UMPIRE_NAME)
     models.Project.objects.create(name=cls.PROJECT_WITH_UMPIRE_NAME,
