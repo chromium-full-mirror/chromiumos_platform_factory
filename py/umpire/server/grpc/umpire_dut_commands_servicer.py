@@ -85,14 +85,26 @@ class UmpireDUTCommandsServicer(
         AdbConnect(target)
         connected = True
         AdbRoot(target)
+        process_utils.CheckCall([
+            'adb', '-s', target, 'shell', 'pm', 'disable-user', '--user', '10',
+            'com.google.android.factory.factory'
+        ], log=True, log_stderr_on_error=True)
         process_utils.CheckCall(
-            ['adb', '-s', target, 'install', '-d', '-g', '-t', f.name],
+            ['adb', '-s', target, 'install', '-g', '-t', '-r', f.name],
             log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
           success=False, messages=str(err))
     finally:
       if connected:
+        process_utils.CheckCall([
+            'adb', '-s', target, 'shell', 'pm', 'enable', '--user', '10',
+            'com.google.android.factory.factory'
+        ], log=True, log_stderr_on_error=True)
+        process_utils.CheckCall([
+            'adb', '-s', target, 'shell', 'am', 'start', '-a',
+            'android.intent.action.MAIN', '-c', 'android.intent.category.HOME'
+        ], log=True, log_stderr_on_error=True)
         AdbDisconnect(target)
     return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
         success=True, messages='')
@@ -230,9 +242,7 @@ class UmpireDUTCommandsServicer(
       ]
       process_utils.CheckCall(set_date_cmd, log=True, log_stderr_on_error=True)
 
-      set_hwclock_cmd = [
-          'adb', '-s', target, 'shell', 'hwclock -w --utc'
-      ]
+      set_hwclock_cmd = ['adb', '-s', target, 'shell', 'hwclock -w --utc']
       logging.info('Executing: %s', ' '.join(set_hwclock_cmd))
       process_utils.CheckCall(set_hwclock_cmd, log=True,
                               log_stderr_on_error=True)
