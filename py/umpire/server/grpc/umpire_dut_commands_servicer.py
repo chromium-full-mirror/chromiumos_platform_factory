@@ -44,14 +44,22 @@ def ParseIpFromPeer(peer: str) -> str:
   return match.group(1)
 
 
-def AdbConnect(target: str, log: bool = True, log_stderr_on_error: bool = True,
-               root: bool = True) -> None:
+def AdbConnect(target: str, log: bool = True,
+               log_stderr_on_error: bool = True) -> None:
   process_utils.CheckCall(['adb', 'connect', target], log=log,
                           log_stderr_on_error=log_stderr_on_error)
-  if root:
-    process_utils.CheckCall(['adb', '-s', target, 'root'], log=log,
-                            log_stderr_on_error=log_stderr_on_error)
 
+
+def AdbRoot(target: str, log: bool = True,
+            log_stderr_on_error: bool = True) -> None:
+  process_utils.CheckCall(['adb', '-s', target, 'root'], log=log,
+                          log_stderr_on_error=log_stderr_on_error)
+
+
+def AdbDisconnect(target: str, log: bool = True,
+                  log_stderr_on_error: bool = True) -> None:
+  process_utils.CheckCall(['adb', 'disconnect', target], log=log,
+                          log_stderr_on_error=log_stderr_on_error)
 
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
@@ -65,6 +73,7 @@ class UmpireDUTCommandsServicer(
                        request: umpire_dut_commands_pb2.UpdateFactoryAppRequest,
                        context: grpc.ServicerContext):
     logging.info('request.target: %s, peer: %s', request.target, context.peer())
+    connected = False
     try:
       target = request.target or ParseIpFromPeer(context.peer())
       logging.info('target: %s', target)
@@ -73,12 +82,18 @@ class UmpireDUTCommandsServicer(
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
         self.CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.android_apk.name, f.name)
-        AdbConnect(target, root=True)
-        process_utils.CheckCall(['adb', 'install', '-d', '-g', '-t', f.name],
-                                log=True, log_stderr_on_error=True)
+        AdbConnect(target)
+        connected = True
+        AdbRoot(target)
+        process_utils.CheckCall(
+            ['adb', '-s', target, 'install', '-d', '-g', '-t', f.name],
+            log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
           success=False, messages=str(err))
+    finally:
+      if connected:
+        AdbDisconnect(target)
     return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
         success=True, messages='')
 
@@ -101,6 +116,7 @@ class UmpireDUTCommandsServicer(
   def GetOtaPackage(self, request, context):
     logging.info('request.target: %s, path: %s, peer: %s', request.target,
                  request.path, context.peer())
+    connected = False
     try:
       target = request.target or ParseIpFromPeer(context.peer())
       logging.info('GetOtaPackage target: %s', target)
@@ -110,13 +126,18 @@ class UmpireDUTCommandsServicer(
       with tempfile.NamedTemporaryFile('+ab', suffix='.otazip') as f:
         self.CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.ota_zip.name, f.name)
-        AdbConnect(target, root=True)
+        AdbConnect(target)
+        connected = True
+        AdbRoot(target)
         process_utils.CheckCall(
             ['adb', '-s', target, 'push', f.name, remote_path], log=True,
             log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.GetOtaPackageResponse(
           success=False, messages=str(err))
+    finally:
+      if connected:
+        AdbDisconnect(target)
     return umpire_dut_commands_pb2.GetOtaPackageResponse(
         success=True, messages='')
 
@@ -194,12 +215,14 @@ class UmpireDUTCommandsServicer(
   ) -> umpire_dut_commands_pb2.SyncDeviceTimeResponse:
     """Synchronizes the DUT's time zone to the Umpire server's time zone."""
     logging.info('SyncDeviceTime: peer: %s', context.peer())
-
+    conneected = False
     try:
       target = request.target or ParseIpFromPeer(context.peer())
       epoch_time = int(time.time())
 
-      AdbConnect(target, root=True)
+      AdbConnect(target)
+      conneected = True
+      AdbRoot(target)
 
       logging.info('Setting device time to host epoch: %d', epoch_time)
       set_date_cmd = [
@@ -219,7 +242,9 @@ class UmpireDUTCommandsServicer(
       logging.error(error_message)
       return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
           success=False, messages=error_message)
-
+    finally:
+      if conneected:
+        AdbDisconnect(target)
     return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
         success=True,
         messages=f'Successfully synced time on {target} to epoch {epoch_time}')
