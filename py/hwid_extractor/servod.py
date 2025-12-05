@@ -1,11 +1,11 @@
-# Copyright 2020 The ChromiumOS Authors
+# Copyright 2025 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 import contextlib
-from distutils import sysconfig
 import os
 import re
+import sysconfig
 import time
 
 from cros.factory.utils import file_utils
@@ -20,7 +20,7 @@ SERVOD_KILL_TIMEOUT_SEC = 3
 # Directory where hdctools installs configuration files into.
 LIB_DIR = os.getenv(
     'PATH_SERVO_DATA',
-    os.path.join(sysconfig.get_python_lib(standard_lib=False), 'servo', 'data'))
+    os.path.join(sysconfig.get_path('purelib'), 'servo', 'data'))
 
 
 def GetSupportedBoards():

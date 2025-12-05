@@ -1,4 +1,4 @@
-# Copyright 2024 The ChromiumOS Authors
+# Copyright 2025 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -160,6 +160,6 @@ ADD py/hwid_extractor/www www
 
 ENV PYTHONPATH="${PYTHONPATH}:/hwid_extractor/py_pkg"
 ENV PATH_HWID_EXTRACTOR_WWW="/hwid_extractor/www"
-ENV PATH_SERVO_DATA="/usr/local/lib/python3.11/dist-packages/servo/data"
+ENV PATH_SERVO_DATA="/usr/local/lib/python3.13/dist-packages/servo/data"
 ENTRYPOINT [ "/usr/bin/python3", "/hwid_extractor/py_pkg/cros/factory/hwid_extractor/hwid_extractor.py" ]
 CMD [ "-p", "8000" ]
