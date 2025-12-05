@@ -17,7 +17,7 @@
 ################################################################################
 # Base builder with eseential build tools.
 
-FROM debian:bookworm as base_builder
+FROM debian:bookworm AS base_builder
 
 # Install clang 18 and common build tools.
 RUN apt-get update -y && \
