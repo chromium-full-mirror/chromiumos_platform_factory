@@ -12,6 +12,7 @@ import itertools
 import json
 import logging
 import re
+import typing
 from typing import Callable, DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.protobuf import text_format
@@ -692,36 +693,43 @@ def GetAllComponentVerificationPayloadPieces(
     1. The target battery's `model_name` and `manufacturer` are prefixes of the
         corresponding field values of a battery in `batteries` other than
         itself, and at least one of the field values is different between the
-        two batteries.
+        two batteries. The field value of the other battery can be a string or
+        a regex that performs a prefix match (e.g. FOO.*).
     2. The target battery's `model_name` or `manufacturer` is a regex value.
-    Otherwise, return True
+    Otherwise, return True.
     """
     target = batteries[target_comp_name].values
+    assert target is not None
+
     for field in ['model_name', 'manufacturer']:
-      # TODO(b/281479050): Also check regex in HWID database.
-      # yapf: disable
-      if not isinstance(target.get(field), str):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+      if not isinstance(target.get(field), str):
         return False
+    target = typing.cast(Mapping[str, str], target)
 
     for comp_name, comp_info in batteries.items():
       if comp_name == target_comp_name:
         continue
 
       comp_vals = comp_info.values
+      assert comp_vals is not None
+
       is_identical = True
       for field in ['model_name', 'manufacturer']:
-        # yapf: disable
-        target_val = target.get(field)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
-        # yapf: disable
-        comp_val = comp_vals.get(field)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
+        target_val = target[field]
+        comp_val = comp_vals.get(field)
+
         if comp_val != target_val:
           is_identical = False
-        # yapf: disable
-        if not (isinstance(comp_val, str) and comp_val.startswith(target_val)):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-          # yapf: enable
+
+        # If comp_val is a regex that performs a prefix match (e.g. FOO.*), also
+        # compare comp_val with target_val.
+        if (isinstance(comp_val, hwid_rule.Value) and
+            isinstance(comp_val.raw_value, str) and comp_val.is_re and
+            comp_val.raw_value.endswith(".*") and
+            comp_val.raw_value.startswith(target_val)):
+          continue
+
+        if not (isinstance(comp_val, str) and comp_val.startswith(target_val)):
           break
       else:
         if not is_identical:

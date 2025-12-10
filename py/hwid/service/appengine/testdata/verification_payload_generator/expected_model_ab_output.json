@@ -72,6 +72,16 @@
       },
       {
         "componentCategory": "battery",
+        "componentUuid": "model_b_battery_5_5",
+        "qualificationStatus": "QUALIFIED"
+      },
+      {
+        "componentCategory": "battery",
+        "componentUuid": "model_b_battery_5_5#13",
+        "qualificationStatus": "QUALIFIED"
+      },
+      {
+        "componentCategory": "battery",
         "componentUuid": "model_f_battery_0_1_supported",
         "qualificationStatus": "QUALIFIED"
       },
@@ -1963,6 +1973,50 @@
           ]
         },
         "position": "11"
+      },
+      "model_b_battery_5_5": {
+        "eval": {
+          "generic_battery": {}
+        },
+        "expect": {
+          "chemistry": [
+            false,
+            "str"
+          ],
+          "manufacturer": [
+            true,
+            "str",
+            "!eq FOO"
+          ],
+          "model_name": [
+            true,
+            "str",
+            "!eq BAR"
+          ]
+        },
+        "position": "12"
+      },
+      "model_b_battery_5_5#13": {
+        "eval": {
+          "generic_battery": {}
+        },
+        "expect": {
+          "chemistry": [
+            false,
+            "str"
+          ],
+          "manufacturer": [
+            true,
+            "str",
+            "!eq FOO"
+          ],
+          "model_name": [
+            true,
+            "str",
+            "!re BAR123.*"
+          ]
+        },
+        "position": "13"
       }
     },
     "camera": {

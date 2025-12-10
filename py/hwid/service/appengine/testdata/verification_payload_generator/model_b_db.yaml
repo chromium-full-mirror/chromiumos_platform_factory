@@ -25,6 +25,8 @@ encoded_fields:
     8: {battery: battery_3_3#9}
     9: {battery: battery_4_4}
     10: {battery: battery_4_4#11}
+    11: {battery: battery_5_5}
+    12: {battery: battery_5_5#13}
 
 components:
   battery:
@@ -98,6 +100,19 @@ components:
         values:
           manufacturer: JKL
           model_name: jkl
+          technology: LiP
+      # ===================================================================== #
+      battery_5_5:  # Apply an exact match
+        status: supported
+        values:
+          manufacturer: FOO
+          model_name: BAR
+          technology: Li-ion
+      battery_5_5#13:
+        status: supported
+        values:
+          manufacturer: FOO
+          model_name: !re 'BAR123.*'
           technology: LiP
 
 rules: []
