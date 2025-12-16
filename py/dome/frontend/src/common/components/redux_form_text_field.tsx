@@ -13,7 +13,7 @@ interface RenderTextFieldProps {
   ignoreTouch?: boolean;
   placeholder?: string;
   margin?: 'dense' | 'normal' | 'none';
-  InputLabelProps?: Partial<InputLabelProps>;
+  inputlabelprops?: Partial<InputLabelProps>;
   select?: boolean;
   disabled?: boolean;
 }

@@ -26,7 +26,7 @@ const renderTabsField = ({
     onChange={(event: any, value: number) => input.onChange(value)}
   >
     {tab_types.map((option: TabNameProps) => (
-        <Tab label={option.name} value={option.value}/>
+        <Tab key={option.name} label={option.name} value={option.value}/>
     ))}
   </Tabs>
 );

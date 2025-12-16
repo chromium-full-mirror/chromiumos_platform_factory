@@ -10,7 +10,7 @@ import React from 'react';
 const ReduxFormDateField = (props: ReduxFormTextFieldProps) => (
   <ReduxFormTextField
     type="date"
-    InputLabelProps={{
+    inputlabelprops={{
       shrink: true,
     }}
     {...props}
