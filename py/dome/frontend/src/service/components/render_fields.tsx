@@ -39,7 +39,7 @@ const renderSwitch =
       control={
         <Switch
           color="primary"
-          checked={input.value}
+          checked={!!input.value}
           onChange={input.onChange}
         />
       }
