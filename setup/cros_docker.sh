@@ -1124,6 +1124,34 @@ do_build_overlord() {
   ${DOCKER} rm "${builder_container_name}"
 }
 
+do_build_factory_ufs() {
+  check_docker
+
+  local builder_output_file builder_workdir rust_dir builder_dockerfile \
+    builder_container_name builder_image_name
+
+  builder_output_file="$1"
+  builder_workdir="/usr/src/factory_installer/target/release"
+  rust_dir="$(realpath "${FACTORY_DIR}/../factory_installer/rust")"
+  builder_dockerfile="${rust_dir}/Dockerfile.factory_ufs"
+  builder_container_name="factory_ufs_builder"
+  builder_image_name="cros/factory-ufs-builder"
+
+  # build the factory_ufs builder image
+  ${DOCKER} build \
+    --file "${builder_dockerfile}" \
+    --tag "${builder_image_name}" \
+    "${rust_dir}"
+
+  # copy the builder's output from container to host
+  mkdir -p "${BUILD_DIR}"
+  ${DOCKER} create --name "${builder_container_name}" "${builder_image_name}"
+  ${DOCKER} cp \
+    "${builder_container_name}:${builder_workdir}/factory_ufs" \
+    "${BUILD_DIR}/${builder_output_file}"
+  ${DOCKER} rm "${builder_container_name}"
+}
+
 do_build() {
   local release_mode="$1"
   local is_local=1
@@ -1136,9 +1164,11 @@ do_build() {
 
   local dome_builder_output_file="frontend.tar"
   local overlord_output_file="overlord.tar.gz"
+  local factory_ufs_output_file="factory_ufs"
 
   do_build_dome_deps "${dome_builder_output_file}"
   do_build_overlord "${overlord_output_file}"
+  do_build_factory_ufs "${factory_ufs_output_file}"
 
   local dockerfile="${SCRIPT_DIR}/Dockerfile"
 
@@ -1169,6 +1199,7 @@ do_build() {
     --build-arg umpire_dir_in_dome="${DOCKER_UMPIRE_DIR_IN_DOME}" \
     --build-arg dome_builder_output_file="${dome_builder_output_file}" \
     --build-arg overlord_output_file="${overlord_output_file}" \
+    --build-arg factory_ufs_output_file="${factory_ufs_output_file}" \
     --build-arg docker_image_githash="${NEW_DOCKER_IMAGE_GITHASH}" \
     --build-arg docker_image_islocal="${is_local}" \
     --build-arg docker_image_timestamp="${NEW_DOCKER_IMAGE_TIMESTAMP}" \

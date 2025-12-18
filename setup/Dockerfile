@@ -16,6 +16,7 @@ ARG umpire_dir="${server_dir}/py/umpire"
 ARG umpire_dir_in_dome
 
 ARG overlord_output_file="overlord.tar.gz"
+ARG factory_ufs_output_file="factory_ufs"
 ARG dome_builder_output_file="frontend.tar"
 
 # add docker client -- do not install docker via apk -- it will try to install
@@ -143,6 +144,7 @@ RUN ln -s "${instalog_dir}/cli.py" /usr/bin/instalog
 COPY py/dome/nginx.conf /etc/nginx/
 
 ADD "build/docker/${overlord_output_file}" "${server_dir}/bin/"
+ADD "build/docker/${factory_ufs_output_file}" "${server_dir}/bin/"
 
 # these files are likely to change often, put them at the end
 ADD "build/docker/${dome_builder_output_file}" "${dome_dir}/static/"
