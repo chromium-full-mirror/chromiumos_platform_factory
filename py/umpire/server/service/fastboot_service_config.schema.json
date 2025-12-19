@@ -29,5 +29,9 @@
   "idle_timeout": {
     "description": "The idle time limit for executing a fastboot command. Default = 300 seconds",
     "type": "string"
+  },
+  "ufs_provision": {
+    "description": "Provision UFS storage.",
+    "type": "boolean"
   }
 }

@@ -61,29 +61,29 @@ class FastbootService(umpire_service.UmpireService):
                                'fastboot_orchestrator.py')
 
     proc_list = []
+
+    args = [
+        '-v', '-i', ' '.join(ip_list), '-s', env.fastboot_img_dir, '-p',
+        fastboot_service_config['model_name'], '-b',
+        fastboot_service_config['board_name'], '-t',
+        str(scan_interval), '-l', log_path, '--idle_timeout',
+        str(idle_timeout)
+    ]
+
+    if 'ufs_provision' in fastboot_service_config:
+      args.extend([
+          '--enable_ufs_provision', '--factory_ufs_binary_path',
+          '/usr/local/factory/bin/factory_ufs'
+      ])
+
     proc_config = {
         'executable': script_path,
         'name': SERVICE_NAME,
-        'args': [
-            '-v',
-            '-i',
-            ' '.join(ip_list),
-            '-s',
-            env.fastboot_img_dir,
-            '-p',
-            fastboot_service_config['model_name'],
-            '-b',
-            fastboot_service_config['board_name'],
-            '-t',
-            str(scan_interval),  # otherwise the launch will fail.
-            '-l',
-            log_path,
-            '--idle_timeout',
-            str(idle_timeout)
-        ],
+        'args': args,
         'path': '/tmp',
         'env': os.environ
     }
+
     proc = umpire_service.ServiceProcess(self)
     proc.SetConfig(proc_config)
     proc_list.append(proc)

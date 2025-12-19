@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import filecmp
 import logging
 import os
 import re
@@ -162,6 +163,13 @@ class FastbootUtil:
     self._FastbootSpawn(['reboot', 'fastboot'],
                         terminate_token='Rebooting into fastboot')
 
+  def RebootToBootloader(self) -> None:
+    """Sends reboot fastboot command to reboot to bootloader."""
+
+    logging.debug('DUT [%s] Reboot to bootloader', self.serial_device)
+    self._FastbootSpawn(['reboot', 'bootloader'],
+                        terminate_token='Rebooting into bootloader')
+
   def Reboot(self) -> None:
     """Reboots the device with fastboot command."""
 
@@ -258,6 +266,72 @@ class FastbootUtil:
     partition.
     """
     self.FastbootCheckOutputExecutor(['flash', partition_name])
+
+  def ReadUFSDescriptor(self, config_id: int, lun: int = 0) -> None:
+    self.FastbootCheckOutputExecutor(
+        ['oem', f'read-ufs-descriptor:{config_id},{lun}'])
+
+  def WriteUFSDescriptor(self, config_id: int, lun: int = 0) -> None:
+    self.FastbootCheckOutputExecutor(
+        ['oem', f'write-ufs-descriptor:{config_id},{lun}'])
+
+  def GetStaged(self, file_name: str) -> None:
+    self.FastbootCheckOutputExecutor(['get_staged', file_name])
+
+  def Stage(self, file_name: str) -> None:
+    self.FastbootCheckOutputExecutor(['stage', file_name])
+
+  def UFSProvision(self, factory_ufs_path) -> bool:
+    """Provisions the UFS storage.
+
+    Retrieves UFS descriptors via fastboot and generates a target configuration
+    with factory_ufs binary. The device is provisioned only if the generated
+    configuration differs from the one on device.
+
+    Args:
+      factory_ufs_path: The path to factory_ufs binary.
+
+    Returns:
+      True if provision was done by this command.
+      False if provision was skipped since the config on device is same
+      as target.
+    """
+
+    logging.debug('DUT [%s] Start provisioning UFS', self.serial_device)
+    with tempfile.TemporaryDirectory() as temp_dir:
+      device_descriptor_path = os.path.join(temp_dir, "device_descriptor.bin")
+      geometry_descriptor_path = os.path.join(temp_dir,
+                                              "geometry_descriptor.bin")
+      config_descriptor_path = os.path.join(temp_dir, "config_descriptor.bin")
+      output_path = os.path.join(temp_dir, "provision_config_descriptor.bin")
+
+      self.ReadUFSDescriptor(0)
+      self.GetStaged(device_descriptor_path)
+
+      self.ReadUFSDescriptor(7)
+      self.GetStaged(geometry_descriptor_path)
+
+      self.ReadUFSDescriptor(1)
+      self.GetStaged(config_descriptor_path)
+
+      file_provision_cmd = [
+          factory_ufs_path, 'provision-file', '-d', device_descriptor_path,
+          '-g', geometry_descriptor_path, '-c', config_descriptor_path, '-o',
+          output_path
+      ]
+      process_utils.CheckOutput(file_provision_cmd, stderr=STDOUT)
+
+      if filecmp.cmp(config_descriptor_path, output_path, shallow=False):
+        logging.debug(
+            'DUT [%s] Provision skipped since the target configuration '
+            'is identical to the one currently on the device',
+            self.serial_device)
+        return False
+
+      self.Stage(output_path)
+      self.WriteUFSDescriptor(1)
+      logging.debug('DUT [%s] Finish provisioning UFS', self.serial_device)
+      return True
 
   def __init__(self, _img_src_dir, _idle_timeout):
     self.img_src_dir = _img_src_dir

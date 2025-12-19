@@ -126,7 +126,8 @@ class FastbootImagingOrchestrator:
   def __init__(self, board_name: str, project_name: str, src_image_dir: str,
                ip_list: List[str], usb_device_list: List[str],
                is_fixed_ip: bool = False, scan_interval: int = 5,
-               idle_timeout: int = 60):
+               idle_timeout: int = 60, enable_ufs_provision=False,
+               factory_ufs_path=""):
 
     self.project_name = project_name.lower()
     self.board_name = board_name.lower()
@@ -137,6 +138,8 @@ class FastbootImagingOrchestrator:
     self.usb_device_list = usb_device_list
     self.scan_interval = scan_interval
     self.idle_timeout = idle_timeout
+    self.enable_ufs_provision = enable_ufs_provision
+    self.factory_ufs_path = factory_ufs_path
 
     # TODO(stevesu) Wrap set with lock to have simpler coding pattern.
     self.dut_in_use: Set[str] = set()
@@ -212,9 +215,14 @@ class FastbootImagingOrchestrator:
           runner.EraseUserdata()
           runner.Reboot()
         else:
-          runner.FlashMbrAndGptTable()
-          runner.FlashBootPartitions()
-          runner.RebootToUserSpaceFastboot()
+          if self.enable_ufs_provision and runner.UFSProvision(
+              self.factory_ufs_path):
+            # Reboot is needed to apply the config.
+            runner.RebootToBootloader()
+          else:
+            runner.FlashMbrAndGptTable()
+            runner.FlashBootPartitions()
+            runner.RebootToUserSpaceFastboot()
     except TimeoutExpired as e:
       logging.error(('DUT [%s] task is terminated due to '
                      'exceeding the idle time limit (error: %r)'), dut_info, e)
@@ -277,14 +285,25 @@ if __name__ == '__main__':
       '--idle_timeout', type=int, default=60,
       help=('The idle time limit for executing a single fastboot command. '
             'Set to any non-positive number for unlimited timeout'))
+  parser.add_argument('--enable_ufs_provision', action='store_true',
+                      help='If set, provision UFS configuration')
+  parser.add_argument(
+      '--factory_ufs_binary_path',
+      help=('If --enable_ufs_provision is set, provide the path to factory_ufs'
+            'binary, which is used to generate UFS config.'))
 
   args = parser.parse_args()
   if args.ip_list is None and args.usb_device_name is None:
     parser.error('Either ip or usb device name has to be provided.')
 
+  if args.enable_ufs_provision and args.factory_ufs_binary_path is None:
+    parser.error(
+        'Must provide factory_ufs_binary_path when ufs_provision is true.')
+
   InitLogger(args.log_path, args.log_level)
   orchestartor = FastbootImagingOrchestrator(
       args.board, args.project, args.src_image_dir, args.ip_list,
       args.is_fixed_ip, args.usb_device_list, args.scan_interval,
-      args.idle_timeout)
+      args.idle_timeout, args.enable_ufs_provision,
+      args.factory_ufs_binary_path)
   orchestartor.RunTask()
