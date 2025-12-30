@@ -182,43 +182,37 @@ class UmpireDUTCommandsServicer(
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadReportRequest],
       context: grpc.ServicerContext,
   ) -> umpire_dut_commands_pb2.UploadReportResponse:
-    try:
-      first_request = next(request_iterator)
-      if first_request.WhichOneof('data') != 'metadata':
-        context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-        context.set_details('The first message must be metadata.')
-        return umpire_dut_commands_pb2.UploadReportResponse(success=False)
-    except StopIteration:
-      context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-      context.set_details('Received an empty request stream.')
-      return umpire_dut_commands_pb2.UploadReportResponse(success=False)
+    first_request = next(request_iterator, None)
+    if first_request is None:
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'Received an empty request stream.')
+
+    first_data_type = first_request.WhichOneof('data')
+    if first_data_type != 'metadata':
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'The first message must be metadata.')
 
     serial_number = first_request.metadata.serial_number
     if not serial_number:
-      context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-      context.set_details('Serial number must be provided.')
-      return umpire_dut_commands_pb2.UploadReportResponse(success=False)
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'Serial number must be provided.')
 
     save_path = self._GetReportSavePath(serial_number,
                                         first_request.metadata.stage)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-    try:
-      with open(save_path, 'wb') as f:
-        with zstandard.ZstdCompressor().stream_writer(f) as compressor:
-          for request in request_iterator:
-            if request.WhichOneof('data') != 'chunk':
-              context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-              context.set_details(
-                  'Expected a file chunk, but received another message type '
-                  'mid-stream.')
-              return umpire_dut_commands_pb2.UploadReportResponse(success=False)
-            compressor.write(request.chunk)
-      return umpire_dut_commands_pb2.UploadReportResponse(success=True)
-    except Exception as e:
-      context.set_code(grpc.StatusCode.INTERNAL)
-      context.set_details(f'An error occurred: {e}')
-      return umpire_dut_commands_pb2.UploadReportResponse(success=False)
+    with open(save_path, 'wb') as f:
+      with zstandard.ZstdCompressor().stream_writer(f) as compressor:
+        for request in request_iterator:
+          if request.WhichOneof('data') != 'chunk':
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                'Expected a file chunk, but received another message type '
+                'mid-stream.',
+            )
+          compressor.write(request.chunk)
+
+    return umpire_dut_commands_pb2.UploadReportResponse(success=True)
 
   def SyncDeviceTime(
       self,
