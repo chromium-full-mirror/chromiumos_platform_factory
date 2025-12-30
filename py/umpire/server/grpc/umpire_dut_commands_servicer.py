@@ -7,6 +7,7 @@ This is the gRPC implementation of
 cros.factory.umpire.server.rpc_dut.UmpireDUTCommands.
 """
 
+import io
 import json
 import logging
 import os
@@ -30,6 +31,7 @@ from cros.factory.utils import time_utils
 
 
 _PEER_PATTERN = re.compile(r'ipv4:(.*):\d+')
+_REPORT_INDEX_JSON_FILE = '/var/db/factory/umpire/properties/report_index.json'
 
 
 def ParseIpFromPeer(peer: str) -> str:
@@ -68,6 +70,8 @@ class UmpireDUTCommandsServicer(
     super().__init__()
     self.CLI_command = cast(rpc_cli.CLICommand,
                             xmlrpc.client.ServerProxy(umpire_cli_url))
+    self._report_index_manager = umpire_env.ReportIndexManager(
+        _REPORT_INDEX_JSON_FILE)
 
   def UpdateFactoryApp(self,
                        request: umpire_dut_commands_pb2.UpdateFactoryAppRequest,
@@ -182,37 +186,53 @@ class UmpireDUTCommandsServicer(
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadReportRequest],
       context: grpc.ServicerContext,
   ) -> umpire_dut_commands_pb2.UploadReportResponse:
-    first_request = next(request_iterator, None)
-    if first_request is None:
-      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                    'Received an empty request stream.')
+    with self._report_index_manager.AllocateNextIndex() as (
+        server_uuid,
+        report_index,
+    ):
+      first_request = next(request_iterator, None)
+      if first_request is None:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                      'Received an empty request stream.')
 
-    first_data_type = first_request.WhichOneof('data')
-    if first_data_type != 'metadata':
-      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                    'The first message must be metadata.')
+      first_data_type = first_request.WhichOneof('data')
+      if first_data_type != 'metadata':
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                      'The first message must be metadata.')
 
-    serial_number = first_request.metadata.serial_number
-    if not serial_number:
-      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                    'Serial number must be provided.')
+      serial_number = first_request.metadata.serial_number
+      if not serial_number:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                      'Serial number must be provided.')
 
-    save_path = self._GetReportSavePath(serial_number,
-                                        first_request.metadata.stage)
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+      save_path = self._GetReportSavePath(serial_number,
+                                          first_request.metadata.stage)
+      os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-    with open(save_path, 'wb') as f:
-      with zstandard.ZstdCompressor().stream_writer(f) as compressor:
-        for request in request_iterator:
-          if request.WhichOneof('data') != 'chunk':
-            context.abort(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                'Expected a file chunk, but received another message type '
-                'mid-stream.',
-            )
-          compressor.write(request.chunk)
+      with open(save_path, 'wb') as f:
+        with zstandard.ZstdCompressor().stream_writer(f) as compressor:
+          for request in request_iterator:
+            if request.WhichOneof('data') != 'chunk':
+              context.abort(
+                  grpc.StatusCode.INVALID_ARGUMENT,
+                  'Expected a file chunk, but received another message type '
+                  'mid-stream.',
+              )
+            compressor.write(request.chunk)
+          self._WriteReportIndex(compressor, server_uuid, report_index)
 
-    return umpire_dut_commands_pb2.UploadReportResponse(success=True)
+      return umpire_dut_commands_pb2.UploadReportResponse(success=True)
+
+  def _WriteReportIndex(self, writer: io.RawIOBase, server_uuid: str,
+                        report_index: str) -> None:
+    entry = {
+        'type': 'metadata',
+        'serverUuid': server_uuid,
+        'reportIndex': f'{report_index:010d}',
+        'domeVersion': os.environ.get('DOCKER_IMAGE_TIMESTAMP', ''),
+    }
+    entry_str = json_utils.DumpStr(entry, pretty=False, newline=True)
+    writer.write(entry_str.encode('utf8'))
 
   def SyncDeviceTime(
       self,
