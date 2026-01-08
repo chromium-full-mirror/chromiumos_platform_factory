@@ -1095,5 +1095,44 @@ class GetLastMergedChangeCommitTest(unittest.TestCase):
         body=b'')
 
 
+class ReviewCLTest(unittest.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    patcher = mock.patch.object(git_util.urllib3, 'PoolManager')
+    self._mocked_pool_manager_cls = patcher.start()
+    self.addCleanup(patcher.stop)
+    self._mock_urlopen = self._mocked_pool_manager_cls.return_value.urlopen
+
+  def testReviewCL_InvokeGerritAPIJSONError(self):
+    cl_number = 12345
+    self._mock_urlopen.side_effect = urllib3.exceptions.HTTPError('API Error')
+
+    with self.assertRaises(git_util.GitUtilException) as ec:
+      git_util.ReviewCL(review_host='host', auth_cookie='cookie',
+                        cl_number=cl_number, reasons=['reason'],
+                        approval_case=git_util.ApprovalCase.APPROVED,
+                        is_prod_env=True)
+
+    self.assertEqual(git_util.DEFAULT_RETRY_COUNT,
+                     self._mock_urlopen.call_count)
+    self.assertIsInstance(ec.exception.__cause__, git_util.GitUtilException)
+
+  def testReviewCL_RetrySuccess(self):
+    cl_number = 54321
+    self._mock_urlopen.side_effect = [
+        urllib3.exceptions.HTTPError('API Error'),
+        urllib3.exceptions.HTTPError('API Error'),
+        _BuildGerritSuccResponse({}),
+    ]
+
+    git_util.ReviewCL(
+        review_host='host', auth_cookie='cookie', cl_number=cl_number, reasons=[
+            'reason'
+        ], approval_case=git_util.ApprovalCase.APPROVED, is_prod_env=True)
+
+    self.assertEqual(3, self._mock_urlopen.call_count)
+
+
 if __name__ == '__main__':
   unittest.main()

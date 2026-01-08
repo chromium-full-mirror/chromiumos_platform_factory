@@ -1301,6 +1301,9 @@ def AddReviewer(
         f'Add hashtag failed for CL number: {cl_number}.') from ex
 
 
+@sync_utils.RetryDecorator(max_attempt_count=DEFAULT_RETRY_COUNT,
+                           interval_sec=DEFAULT_DELAY_SEC,
+                           exceptions_to_catch=[GitUtilException], reraise=True)
 def ReviewCL(
     review_host: str,
     auth_cookie: str,
@@ -1350,6 +1353,7 @@ def ReviewCL(
             } for cc in ccs],
         })
   except GitUtilException as ex:
+    logging.exception('Review failed for CL number: %s.', cl_number)
     raise GitUtilException(f'Review failed for CL number: {cl_number}.') from ex
 
 
