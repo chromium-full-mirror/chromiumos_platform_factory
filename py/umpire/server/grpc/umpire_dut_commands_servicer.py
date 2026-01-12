@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import tempfile
+import threading
 import time
 from typing import Iterator, Optional, cast
 import xmlrpc.client
@@ -68,10 +69,18 @@ class UmpireDUTCommandsServicer(
 
   def __init__(self, umpire_cli_url: str) -> None:
     super().__init__()
-    self.CLI_command = cast(rpc_cli.CLICommand,
-                            xmlrpc.client.ServerProxy(umpire_cli_url))
+    self._umpire_cli_url = umpire_cli_url
+    self._local = threading.local()
     self._report_index_manager = umpire_env.ReportIndexManager(
         _REPORT_INDEX_JSON_FILE)
+
+  @property
+  def CLI_command(self) -> rpc_cli.CLICommand:
+    """Provides a thread-safe XML-RPC proxy."""
+    if not hasattr(self._local, 'proxy'):
+      self._local.proxy = cast(rpc_cli.CLICommand,
+                               xmlrpc.client.ServerProxy(self._umpire_cli_url))
+    return self._local.proxy
 
   def UpdateFactoryApp(self,
                        request: umpire_dut_commands_pb2.UpdateFactoryAppRequest,
