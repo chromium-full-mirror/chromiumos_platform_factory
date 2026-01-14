@@ -12,7 +12,6 @@ import itertools
 import json
 import logging
 import re
-import typing
 from typing import Callable, DefaultDict, Dict, List, Mapping, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.protobuf import text_format
@@ -689,25 +688,29 @@ def GetAllComponentVerificationPayloadPieces(
       batteries: Mapping[str, database.ComponentInfo]) -> bool:
     """Check if we should apply a prefix match for the target battery.
 
-    Return False if any of the following is satisfied:
-    1. The target battery's `model_name` and `manufacturer` are prefixes of the
-        corresponding field values of a battery in `batteries` other than
-        itself, and at least one of the field values is different between the
-        two batteries. The field value of the other battery can be a string or
-        a regex that performs a prefix match (e.g. FOO.*).
-    2. The target battery's `model_name` or `manufacturer` is a regex value.
+    Return False if the target battery's `model_name` and `manufacturer` are
+    prefixes of the corresponding field values of a battery in `batteries` other
+    than itself, and at least one of the field values is different between the
+    two batteries. The field values can be string or regex. When the value is a
+    regex, this function simply uses the raw string of the regex pattern for
+    comparison.
     Otherwise, return True.
     """
     target = batteries[target_comp_name].values
     assert target is not None
 
+    def _GetRawString(val: str | hwid_rule.Value) -> str:
+      if isinstance(val, hwid_rule.Value):
+        return val.raw_value
+      return str(val)
+
     for field in ['model_name', 'manufacturer']:
-      if not isinstance(target.get(field), str):
+      if field not in target:
         return False
-    target = typing.cast(Mapping[str, str], target)
 
     for comp_name, comp_info in batteries.items():
-      if comp_name == target_comp_name:
+      if (comp_name == target_comp_name or
+          comp_info.status == hwid_common.ComponentStatus.duplicate):
         continue
 
       comp_vals = comp_info.values
@@ -717,19 +720,15 @@ def GetAllComponentVerificationPayloadPieces(
       for field in ['model_name', 'manufacturer']:
         target_val = target[field]
         comp_val = comp_vals.get(field)
+        if comp_val is None:
+          continue
 
         if comp_val != target_val:
           is_identical = False
 
-        # If comp_val is a regex that performs a prefix match (e.g. FOO.*), also
-        # compare comp_val with target_val.
-        if (isinstance(comp_val, hwid_rule.Value) and
-            isinstance(comp_val.raw_value, str) and comp_val.is_re and
-            comp_val.raw_value.endswith(".*") and
-            comp_val.raw_value.startswith(target_val)):
-          continue
-
-        if not (isinstance(comp_val, str) and comp_val.startswith(target_val)):
+        target_raw_str = _GetRawString(target_val)
+        comp_raw_str = _GetRawString(comp_val)
+        if not comp_raw_str.startswith(target_raw_str):
           break
       else:
         if not is_identical:
@@ -765,6 +764,8 @@ def GetAllComponentVerificationPayloadPieces(
           # yapf: disable
           val = comp_info.values[field]  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
           # yapf: enable
+          if isinstance(val, hwid_rule.Value):
+            continue
           # yapf: disable
           comp_info.values[field] = hwid_rule.Value(f'{re.escape(val)}.*',  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
           # yapf: enable

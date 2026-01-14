@@ -2008,7 +2008,7 @@
           "manufacturer": [
             true,
             "str",
-            "!eq FOO"
+            "!re FOO.*"
           ],
           "model_name": [
             true,

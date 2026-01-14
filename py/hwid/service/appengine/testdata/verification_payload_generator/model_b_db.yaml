@@ -108,7 +108,7 @@ components:
           manufacturer: FOO
           model_name: BAR
           technology: Li-ion
-      battery_5_5#13:
+      battery_5_5#13:  # Apply a prefix match.
         status: supported
         values:
           manufacturer: FOO
