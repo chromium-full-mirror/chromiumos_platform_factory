@@ -41,6 +41,18 @@ message DownloadPayloadResponse {
   string messages = 2;
 }
 
+message DownloadFactoryDrivesRequest {
+  string target = 1;
+  string dest_path = 2;
+  string source_namespace = 3;
+  string source_file = 4;
+}
+
+message DownloadFactoryDrivesResponse {
+  bool success = 1;
+  string messages = 2;
+}
+
 /* Metadata for uploading factory report. */
 message ReportMetadata {
   /* The serial number of the DUT. */
@@ -96,6 +108,10 @@ service UmpireDUTCommands {
   /* Get the factory app apk to the target device with adb. */
   rpc DownloadPayload(DownloadPayloadRequest)
       returns (DownloadPayloadResponse) {}
+
+  /* Get the FactoryDrives file to the target device with adb. */
+  rpc DownloadFactoryDrives(DownloadFactoryDrivesRequest)
+      returns (DownloadFactoryDrivesResponse) {}
 
   /* Uploads factory report to the factory server.
    *

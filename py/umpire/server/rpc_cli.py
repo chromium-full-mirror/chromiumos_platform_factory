@@ -4,7 +4,10 @@
 
 """Umpired RPC command class."""
 
+import tarfile
 import urllib.request
+
+from twisted.web import xmlrpc as twisted_xmlrpc
 
 from cros.factory.umpire import common
 from cros.factory.umpire.server.commands import delete_log
@@ -278,6 +281,35 @@ class CLICommand(umpire_rpc.UmpireRPC):
   @umpire_rpc.RPCCall
   def GetFactoryDriveInfo(self):
     return self.env.factory_drives.GetFactoryDriveInfo()
+
+  @umpire_rpc.RPCCall
+  def GetFactoryDrives(self, namespace=None, name=None):
+    """Gets factory drive components by querying namespace and component name.
+
+    Args:
+      namespace: relative directory path of queried component(s). None if
+                 they are in root directory.
+      name: component name of queried component. None if targeting all
+            components under namespace.
+
+    Returns:
+      Content of the factory drive. It is always wrapped in a shopfloor.Binary
+      object to provides best flexibility.
+
+    Raises:
+      ValueError if the factory drive does not exist.
+    """
+    abspaths = self.env.factory_drives.QueryFactoryDrives(namespace, name)
+
+    if not abspaths:
+      raise ValueError('File does not exist or it is not a file')
+
+    # Pack files to tar
+    with file_utils.UnopenedTemporaryFile() as tar_path:
+      with tarfile.open(tar_path, 'w') as tar:
+        for arcname, path in abspaths:
+          tar.add(path, arcname=arcname)
+      return twisted_xmlrpc.Binary(file_utils.ReadFile(tar_path, encoding=None))
 
   @umpire_rpc.RPCCall
   def UpdateFactoryDriveDirectory(self, dir_id, parent_id, name):

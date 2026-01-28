@@ -12,6 +12,8 @@ import json
 import logging
 import os
 import re
+import shutil
+import tarfile
 import tempfile
 import threading
 import time
@@ -201,6 +203,48 @@ class UmpireDUTCommandsServicer(
 
     return umpire_dut_commands_pb2.DownloadPayloadResponse(
         success=True, messages='')
+
+  def DownloadFactoryDrives(
+      self,
+      request: umpire_dut_commands_pb2.DownloadFactoryDrivesRequest,
+      context: grpc.ServicerContext,
+  ) -> umpire_dut_commands_pb2.DownloadFactoryDrivesResponse:
+    logging.info(
+        'request.target: %s, dest_path: %s, source_namespace: %s, '
+        'source_file: %s, peer: %s',
+        request.target,
+        request.dest_path,
+        request.source_namespace,
+        request.source_file,
+        context.peer(),
+    )
+    connected = False
+    extract_path = tempfile.mkdtemp()
+    try:
+      target = request.target or ParseIpFromPeer(context.peer())
+      logging.info('DownloadFactoryDrives target: %s', target)
+      remote_path = request.dest_path
+      content = self.CLI_command.GetFactoryDrives(request.source_namespace,
+                                                  request.source_file).data
+      tar_stream = io.BytesIO(content)
+      with tarfile.open(fileobj=tar_stream, mode='r') as tar:
+        tar.extractall(path=extract_path)
+        AdbConnect(target)
+        connected = True
+        AdbRoot(target)
+        process_utils.CheckCall(
+            ['adb', '-s', target, 'push', extract_path, remote_path], log=True,
+            log_stderr_on_error=True)
+    except Exception as err:
+      return umpire_dut_commands_pb2.DownloadFactoryDrivesResponse(
+          success=False, messages=str(err))
+    finally:
+      shutil.rmtree(extract_path)
+      if connected:
+        AdbDisconnect(target)
+    return umpire_dut_commands_pb2.DownloadFactoryDrivesResponse(
+        success=True,
+        messages=f'Successfully download from the factory drives on {target}')
 
   def GetOtaPackage(self, request, context):
     logging.info('request.target: %s, path: %s, peer: %s', request.target,
