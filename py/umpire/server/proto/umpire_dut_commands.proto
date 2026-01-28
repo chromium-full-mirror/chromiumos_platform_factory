@@ -24,6 +24,23 @@ message GetUpdateVersionResponse {
   string version = 1;
 }
 
+enum PayloadType {
+  PAYLOAD_TYPE_UNKNOWN = 0;
+  PAYLOAD_TYPE_APK = 1;
+  PAYLOAD_TYPE_OTA = 2;
+}
+
+message DownloadPayloadRequest {
+  string target = 1;
+  string path = 2;
+  PayloadType payload_type = 3;
+}
+
+message DownloadPayloadResponse {
+  bool success = 1;
+  string messages = 2;
+}
+
 /* Metadata for uploading factory report. */
 message ReportMetadata {
   /* The serial number of the DUT. */
@@ -54,7 +71,7 @@ message GetOtaPackageResponse {
 }
 
 message SyncDeviceTimeRequest {
-string target = 1;
+  string target = 1;
 }
 
 message SyncDeviceTimeResponse {
@@ -76,6 +93,10 @@ service UmpireDUTCommands {
   rpc GetUpdateVersion(GetUpdateVersionRequest)
       returns (GetUpdateVersionResponse) {}
 
+  /* Get the factory app apk to the target device with adb. */
+  rpc DownloadPayload(DownloadPayloadRequest)
+      returns (DownloadPayloadResponse) {}
+
   /* Uploads factory report to the factory server.
    *
    * Compared to the xmlrpc uploading report method, this method compresses the
@@ -87,6 +108,8 @@ service UmpireDUTCommands {
   /* Get the user image OTA package to the target device with adb. */
   rpc GetOtaPackage(GetOtaPackageRequest) returns (GetOtaPackageResponse) {}
 
-  /* Synchronizes the DUT's time zone to the Umpire server's time zone */
+  /* Synchronizes the target device's time zone to the Umpire server's time
+   * zone.
+   */
   rpc SyncDeviceTime(SyncDeviceTimeRequest) returns (SyncDeviceTimeResponse) {}
 }

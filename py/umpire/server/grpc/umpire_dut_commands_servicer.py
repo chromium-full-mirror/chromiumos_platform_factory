@@ -138,6 +138,70 @@ class UmpireDUTCommandsServicer(
     return umpire_dut_commands_pb2.GetUpdateVersionResponse(
         version=payloads.get(field_name, {}).get('version', ''))
 
+  def DownloadPayload(self,
+                      request: umpire_dut_commands_pb2.DownloadPayloadRequest,
+                      context: grpc.ServicerContext):
+    logging.info('request.target: %s, path: %s, peer: %s', request.target,
+                 request.path, context.peer())
+    target = request.target or ParseIpFromPeer(context.peer())
+    logging.info('DownloadPayload target: %s', target)
+
+    try:
+      config = json.loads(self.CLI_command.GetActiveConfig())
+      bundle_id = config['active_bundle_id']
+    except (ValueError, KeyError) as e:
+      return umpire_dut_commands_pb2.DownloadPayloadResponse(
+          success=False, messages=f'Config error: {str(e)}')
+
+    payload_map = {
+        umpire_dut_commands_pb2.PAYLOAD_TYPE_APK: {
+            'resource': resource.AndroidPayloadTypes.android_apk.name,
+            'ext': '.apk'
+        },
+        umpire_dut_commands_pb2.PAYLOAD_TYPE_OTA: {
+            'resource': resource.AndroidPayloadTypes.ota_zip.name,
+            'ext': '.zip'
+        }
+    }
+
+    if request.payload_type not in payload_map:
+      return umpire_dut_commands_pb2.DownloadPayloadResponse(
+          success=False, messages='Unsupported payload type.')
+
+    payload_info = payload_map[request.payload_type]
+
+    active_payloads = self.CLI_command.GetActivePayload()
+    if payload_info['resource'] not in active_payloads:
+      return umpire_dut_commands_pb2.DownloadPayloadResponse(
+          success=False,
+          messages=(f'Payload {payload_info["resource"]} not found in'
+                    ' the active bundle.'))
+
+    connected = False
+    try:
+      with tempfile.TemporaryDirectory() as temp_dir:
+        temp_file_path = os.path.join(temp_dir, f'payload{payload_info["ext"]}')
+        self.CLI_command.ExportPayload(bundle_id, payload_info['resource'],
+                                       temp_file_path)
+        AdbConnect(target)
+        connected = True
+        AdbRoot(target)
+
+        process_utils.CheckCall(
+            ['adb', '-s', target, 'push', temp_file_path, request.path],
+            log=True, log_stderr_on_error=True)
+
+    except Exception as err:
+      logging.error('DownloadPayload failed: %s', err)
+      return umpire_dut_commands_pb2.DownloadPayloadResponse(
+          success=False, messages=str(err))
+    finally:
+      if connected:
+        AdbDisconnect(target)
+
+    return umpire_dut_commands_pb2.DownloadPayloadResponse(
+        success=True, messages='')
+
   def GetOtaPackage(self, request, context):
     logging.info('request.target: %s, path: %s, peer: %s', request.target,
                  request.path, context.peer())
