@@ -39,6 +39,7 @@ class _Status(enum.Enum):
 
 
 def _InitLogging(log_file: str) -> None:
+  _TryMakeDirs(os.path.dirname(log_file))
   file_handler = logging.FileHandler(log_file)
   file_handler.setFormatter(logging.Formatter(_LOG_FORMAT))
   stream_handler = logging.StreamHandler()
@@ -325,17 +326,70 @@ class _SFTP(_IConnection):
     return p.returncode, outs, errs
 
 
-class _ArchiveUploader:
+class _BaseUploader(abc.ABC):
 
-  def __init__(self, connection: _IConnection, archive_dir: str,
-               finished_archive_dir: str):
+  def __init__(self, connection: _IConnection, log_dir: str, hash_check: bool):
     self._connection = connection
-    self._archive_dir = archive_dir
-    self._finished_archive_dir = finished_archive_dir
-    logging.info(f'Initialized {type(self).__name__}')
+    self._hash_check = hash_check
+    self._finished_report_dir = os.path.join(log_dir, 'finished', 'report')
 
-  def UploadArchive(self, target_dir: str, hash_check: bool) -> _Status:
-    """Uploads a Report Archive in the directory to the SFTP server.
+  def SetUp(self) -> None:
+    _TryMakeDirs(self._finished_report_dir)
+
+  @abc.abstractmethod
+  def Upload(self) -> _Status:
+    return NotImplemented
+
+  def _UploadFile(self, local_path: str, remote_path: str) -> bool:
+    """Uploads a file to the remote server and does hash check (if needed).
+
+    Returns:
+      `False` if failed to upload the file to the remote server, or if hash
+      check is needed but failed; otherwise `True`.
+    """
+    if not self._connection.SendFile(local_path, remote_path):
+      return False
+
+    if not self._hash_check:
+      return True
+
+    return self._connection.CheckIntegrity(local_path, remote_path)
+
+
+class _ArchiveUploader(_BaseUploader):
+  """Uploader implementation with factory report archiving.
+
+  This uploader compacts factory reports into archives before uploading.
+  """
+
+  def __init__(self, report_finder: _ReportFinder, connection: _IConnection,
+               target_dir: str, log_dir: str, hash_check: bool):
+    super().__init__(connection, log_dir, hash_check)
+    self._target_dir = target_dir
+    self._archive_dir = os.path.join(log_dir, 'archive')
+    self._finished_archive_dir = os.path.join(log_dir, 'finished', 'archive')
+    self._report_archiver = _ReportArchiver(report_finder, self._archive_dir,
+                                            self._finished_report_dir)
+
+  def SetUp(self) -> None:
+    super().SetUp()
+    _TryMakeDirs(self._archive_dir)
+    _TryMakeDirs(self._finished_archive_dir)
+
+  def Upload(self) -> _Status:
+    produce_status = self._report_archiver.ProduceArchives()
+    upload_status = self._UploadArchive()
+
+    if _Status.FAIL in (produce_status, upload_status):
+      return _Status.FAIL
+
+    if produce_status == upload_status == _Status.NO_FILE:
+      return _Status.NO_FILE
+
+    return _Status.SUCCESS
+
+  def _UploadArchive(self) -> _Status:
+    """Uploads a report archive in the directory to the SFTP server.
 
     Returns:
       A `_Status` enum.
@@ -347,13 +401,8 @@ class _ArchiveUploader:
       return _Status.NO_FILE
 
     local_path = os.path.join(self._archive_dir, file_name_to_upload)
-    target_path = os.path.join(target_dir, file_name_to_upload)
-    if not self._connection.SendFile(local_path, target_path):
-      return _Status.FAIL
-
-    # Checks the file integrity.
-    if hash_check and not self._connection.CheckIntegrity(
-        local_path, target_path):
+    target_path = os.path.join(self._target_dir, file_name_to_upload)
+    if not self._UploadFile(local_path, target_path):
       return _Status.FAIL
 
     self._CleanUp(local_path)
@@ -373,35 +422,25 @@ def _main() -> NoReturn:
                           f'{args.factory_report_dir}')
 
   log_path = os.path.join(args.log_dir, 'upload_reports_sftp.log')
-  archive_dir = os.path.join(args.log_dir, 'archive')
-  _TryMakeDirs(archive_dir)
-  finished_report_dir = os.path.join(args.log_dir, 'finished', 'report')
-  _TryMakeDirs(finished_report_dir)
-  finished_archive_dir = os.path.join(args.log_dir, 'finished', 'archive')
-  _TryMakeDirs(finished_archive_dir)
-
   _InitLogging(log_path)
 
   report_finder = _ReportFinder(args.factory_report_dir)
-  report_archiver = _ReportArchiver(report_finder, archive_dir,
-                                    finished_report_dir)
   sftp = _SFTP(args.hostname, args.port, args.account, args.key_path)
-  archive_uploader = _ArchiveUploader(sftp, archive_dir, finished_archive_dir)
+  uploader: _BaseUploader = _ArchiveUploader(
+      report_finder, sftp, args.target_dir, args.log_dir, args.hash_check)
+
+  uploader.SetUp()
   while True:
-    archive_result = _Status.SUCCESS
-    upload_result = _Status.SUCCESS
-    while archive_result == _Status.SUCCESS:
-      archive_result = report_archiver.ProduceArchives()
-    while upload_result == _Status.SUCCESS:
-      upload_result = archive_uploader.UploadArchive(args.target_dir,
-                                                     args.hash_check)
+    while (upload_result := uploader.Upload()) == _Status.SUCCESS:
+      pass
+
     # If there is no valid report directory and no archive, sleep for a while.
-    if archive_result == upload_result == _Status.NO_FILE:
+    if upload_result == _Status.NO_FILE:
       sleep_in_sec = 6 * 60 * 60  # 6 hours
       logging.info('There\'s no report/archive to process, sleep %s seconds',
                    sleep_in_sec)
       time.sleep(sleep_in_sec)
-    # If it failed to archive/upload, sleep for a minute.
+    # If it failed to upload, sleep for a minute.
     else:
       sleep_in_sec = 60
       logging.info('Process failed, sleep %s seconds', sleep_in_sec)
