@@ -5,8 +5,9 @@
 # found in the LICENSE file.
 
 """
-A template Python3 script to compress factory reports, upload report archives
-from Factory Server (Umpire) to Google's SFTP server, and check integrity.
+A template Python3 script to compress factory reports, upload factory reports or
+report archives from Factory Server (Umpire) to Google's SFTP server, and check
+integrity.
 """
 
 import abc
@@ -15,6 +16,7 @@ import base64
 from collections.abc import Sequence
 import datetime
 import enum
+import errno
 import hashlib
 import logging
 import os
@@ -68,9 +70,9 @@ def _ParseArgument():
       '/home/.ssh/sftp_key')
   parser.add_argument(
       '--target_dir',
-      help='The path for the uploaded archives on SFTP server. The path have '
-      'to be existed before using this script. Default is None and it '
-      'represents root path. Example: /<project name>', default='.')
+      help='The path for the uploaded reports or archives on the SFTP server. '
+      'The path must have existed before using this script. Default to the '
+      'project root path. Example: /<project name>', default='.')
   parser.add_argument(
       '--log_dir', '-l',
       help='The path to the log directory which will save archives, logs and '
@@ -79,11 +81,26 @@ def _ParseArgument():
       '--no_hash_check', dest='hash_check', action='store_false',
       help='To reduce network usage or speed up the process, do not download '
       'uploaded files and check the hash value')
+  parser.add_argument('--no-archive', dest='archive', action='store_false',
+                      help='Do not archive factory reports before upload.')
   return parser.parse_args()
 
 
 def _TryMakeDirs(path: str) -> None:
   os.makedirs(path, exist_ok=True)
+
+
+def _DeleteDirIfEmpty(dir_path: str) -> None:
+  """Deletes a directory if it is empty.
+
+  If the directory is not empty, this is a no-op. The given path is assumed to
+  be a directory without type-checking.
+  """
+  try:
+    os.rmdir(dir_path)
+  except OSError as e:
+    if e.errno != errno.ENOTEMPTY:
+      raise
 
 
 def _MD5InBase64(file_path: str) -> str:
@@ -115,6 +132,27 @@ class _ReportFinder:
     for daily_report_dir in dirs:
       if self._IsValidReportDir(daily_report_dir):
         return os.path.join(self._factory_report_dir, daily_report_dir)
+    return None
+
+  def FindFirstReport(self) -> Optional[str]:
+    """Finds the first factory report from the report directory.
+
+    Returns:
+      The path to the first factory report found; `None` if not found.
+    """
+    dirs = sorted(os.listdir(self._factory_report_dir))
+
+    for d in dirs:
+      if not self._IsValidReportDir(d):
+        continue
+
+      dir_abs_path = os.path.join(self._factory_report_dir, d)
+      files = sorted(os.listdir(dir_abs_path))
+
+      for f in files:
+        if not f.endswith('.tmp'):
+          return os.path.join(dir_abs_path, f)
+
     return None
 
   def _IsValidReportDir(self, daily_report_dir: str) -> bool:
@@ -400,6 +438,32 @@ class _ArchivingReportUploader(_BaseUploader):
     shutil.move(archive_to_clean, self._finished_archive_dir)
 
 
+class _NonArchivingReportUploader(_BaseUploader):
+  """Uploader implementation without factory report archiving."""
+
+  def __init__(self, report_finder: _ReportFinder, connection: _IConnection,
+               target_dir: str, log_dir: str, hash_check: bool):
+    super().__init__(connection, log_dir, hash_check)
+    self._report_finder = report_finder
+    self._target_dir = target_dir
+
+  def Upload(self) -> _Status:
+    local_path = self._report_finder.FindFirstReport()
+    if local_path is None:
+      return _Status.NO_FILE
+
+    remote_path = os.path.join(self._target_dir, os.path.basename(local_path))
+    if not self._UploadFile(local_path, remote_path):
+      return _Status.FAIL
+
+    self._CleanUpAfterUpload(local_path)
+    return _Status.SUCCESS
+
+  def _CleanUpAfterUpload(self, file_path: str) -> None:
+    shutil.move(file_path, self._finished_report_dir)
+    _DeleteDirIfEmpty(os.path.dirname(file_path))
+
+
 def _main() -> NoReturn:
   args = _ParseArgument()
 
@@ -414,8 +478,14 @@ def _main() -> NoReturn:
 
   report_finder = _ReportFinder(args.factory_report_dir)
   sftp = _SFTP(args.hostname, args.port, args.account, args.key_path)
-  uploader: _BaseUploader = _ArchivingReportUploader(
-      report_finder, sftp, args.target_dir, args.log_dir, args.hash_check)
+
+  uploader: _BaseUploader
+  if args.archive:
+    uploader = _ArchivingReportUploader(report_finder, sftp, args.target_dir,
+                                args.log_dir, args.hash_check)
+  else:
+    uploader = _NonArchivingReportUploader(report_finder, sftp, args.target_dir,
+                                  args.log_dir, args.hash_check)
 
   uploader.SetUp()
   while True:
