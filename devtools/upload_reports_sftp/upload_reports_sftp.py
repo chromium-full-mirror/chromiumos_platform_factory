@@ -375,7 +375,10 @@ class _ArchiveUploader(_BaseUploader):
       return None
 
   def _CleanUpAfterProduceArchive(self, dir_to_clean: str) -> None:
-    shutil.move(dir_to_clean, self._finished_report_dir)
+    dst_dir = os.path.join(self._finished_report_dir,
+                           os.path.basename(dir_to_clean))
+    shutil.copytree(dir_to_clean, dst_dir, dirs_exist_ok=True)
+    shutil.rmtree(dir_to_clean)
 
   def _UploadArchive(self) -> _Status:
     """Uploads a report archive in the directory to the SFTP server.
