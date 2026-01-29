@@ -33,9 +33,9 @@ _LOG_FORMAT = '%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
 
 
 class _Status(enum.Enum):
-  NO_FILE = None
-  SUCCESS = True
-  FAIL = False
+  NO_FILE = enum.auto()
+  SUCCESS = enum.auto()
+  FAIL = enum.auto()
 
 
 def _InitLogging(log_file: str) -> None:
@@ -85,6 +85,19 @@ def _TryMakeDirs(path: str) -> None:
   os.makedirs(path, exist_ok=True)
 
 
+def _MD5InBase64(file_path: str) -> str:
+  """Returns the MD5 hash value of the file in base64.
+
+  Command `gsutil ls -L` shows MD5 hash value in base64 encoding. To debug
+  easier, this function aligns with that format.
+  """
+  md5_hash = hashlib.md5()
+  with open(file_path, "rb") as f:
+    for chunk in iter(lambda: f.read(4096), b""):
+      md5_hash.update(chunk)
+  return base64.b64encode(md5_hash.digest()).decode()
+
+
 class _ReportFinder:
   _DATE_FORMAT = '%Y%m%d'
 
@@ -101,8 +114,7 @@ class _ReportFinder:
       The path to the valid directory with factory reports. If there's no valid
       path, return `None`.
     """
-    dirs = os.listdir(self._factory_report_dir)
-    dirs.sort()
+    dirs = sorted(os.listdir(self._factory_report_dir))
     for daily_report_dir in dirs:
       if self._IsValidReportDir(daily_report_dir):
         return os.path.join(self._factory_report_dir, daily_report_dir)
@@ -115,7 +127,7 @@ class _ReportFinder:
     'YYYYmmdd'. A report directory is ready if it is created at least 2 days
     prior to the current date.
     """
-    if not len(daily_report_dir) == 8:
+    if len(daily_report_dir) != 8:
       return False
     try:
       date = datetime.datetime.strptime(daily_report_dir,
@@ -292,8 +304,8 @@ class _SFTP(_IConnection):
           f'get {target_path} {temp_file}')
       if returncode != 0:
         return False
-      local_hash = self._MD5InBase64(local_path)
-      target_hash = self._MD5InBase64(temp_file)
+      local_hash = _MD5InBase64(local_path)
+      target_hash = _MD5InBase64(temp_file)
       logging.info('local hash = %s, target hash = %s', local_hash, target_hash)
       if local_hash != target_hash:
         logging.warning('Does not match!')
@@ -302,18 +314,6 @@ class _SFTP(_IConnection):
       if os.path.exists(temp_file):
         os.unlink(temp_file)
     return True
-
-  def _MD5InBase64(self, file_path: str) -> str:
-    """Returns the MD5 hash value of the file in base64.
-
-    `gsutil ls -L` shows md5 hash value which is base64-encoding.  To debug
-    eaiser, this function also returns md5 hash value in base64.
-    """
-    with open(file_path, 'rb') as f:
-      hash_value = base64.b64encode(hashlib.md5(f.read()).digest())
-    # yapf: disable
-    return hash_value  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
 
   def _SFTPCommand(self, command: str) -> tuple[int, str, str]:
     with subprocess.Popen([
@@ -340,14 +340,9 @@ class _ArchiveUploader:
     Returns:
       A `_Status` enum.
     """
-    files = os.listdir(self._archive_dir)
-    file_name_to_upload = None
-    files.sort()
-    for file_name in files:
-      if file_name.endswith('.tmp'):
-        continue
-      file_name_to_upload = file_name
-      break
+    files = sorted(os.listdir(self._archive_dir))
+    file_name_to_upload = next((f for f in files if not f.endswith('.tmp')),
+                               None)
     if not file_name_to_upload:
       return _Status.NO_FILE
 
@@ -357,11 +352,10 @@ class _ArchiveUploader:
       return _Status.FAIL
 
     # Checks the file integrity.
-    if not hash_check or not self._connection.CheckIntegrity(
+    if hash_check and not self._connection.CheckIntegrity(
         local_path, target_path):
-      # yapf: disable
-      return False  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-      # yapf: enable
+      return _Status.FAIL
+
     self._CleanUp(local_path)
     return _Status.SUCCESS
 
