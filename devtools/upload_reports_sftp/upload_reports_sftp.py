@@ -138,119 +138,6 @@ class _ReportFinder:
     return date <= datetime.date.today() - datetime.timedelta(days=2)
 
 
-class _ReportArchiver:
-  _ARCHIVE_SIZE_THRESHOLD = 2 * 1024 * 1024 * 1024  # 2GB
-
-  def __init__(self, report_finder: _ReportFinder, archive_dir: str,
-               finished_report_dir: str):
-    self._report_finder = report_finder
-    self._archive_dir = archive_dir
-    self._finished_report_dir = finished_report_dir
-    logging.info(f'Initialized {type(self).__name__}')
-
-  def ProduceArchives(self) -> _Status:
-    """Detects valid report directory and archives it.
-
-    This function creates a list of archives for just one day (one directory).
-    If an archive is larger than `_ARCHIVE_SIZE_THRESHOLD`, it will produce
-    another archive for the remaining files in the directory.
-
-    Returns:
-      A `_Status` enum.
-    """
-    report_dir_found = self._report_finder.FindOneReportDir()
-    if not report_dir_found:
-      return _Status.NO_FILE
-    logging.info('Found valid report directory %s', report_dir_found)
-    if self._ArchiveAll(report_dir_found):
-      self._CleanUp(report_dir_found)
-      return _Status.SUCCESS
-    return _Status.FAIL
-
-  def _ArchiveAll(self, dir_to_archive: str) -> bool:
-    """Archives a directory to archives and checks their file integrity.
-
-    If the directory is empty, it will not produce any archive. If the directory
-    has many reports, it may produce one or more archives.
-
-    Returns:
-      `True` if it archives a directory correctly; otherwise `False`.
-    """
-    archived_list: list[str] = []
-    index = 0
-    report_day = os.path.basename(dir_to_archive)
-
-    while True:
-      archive_path = os.path.join(self._archive_dir,
-                                  f'{report_day}-{index}.tar')
-      tmp_path = f'{archive_path}.tmp'
-      files_added = self._ArchiveOne(dir_to_archive, tmp_path, archived_list)
-      if files_added is None:
-        os.unlink(tmp_path)
-        logging.error('Failed to archive %s', dir_to_archive)
-        return False
-      if not files_added:
-        os.unlink(tmp_path)
-        logging.info('Produced %d archives successfully from %s', index,
-                     dir_to_archive)
-        return True
-      # Atomic function if the source and the destination file are on the same
-      # file system.
-      shutil.move(tmp_path, archive_path)
-      logging.info('Produced an archive %s with %d factory reports',
-                   archive_path, len(files_added))
-      archived_list += files_added
-      index += 1
-
-  def _ArchiveOne(self, dir_to_archive: str, archive_path: str,
-                  archived_list: Sequence[str]) -> Optional[list[str]]:
-    """Archives files to one archive and checks the integrity.
-
-    The archive only allows directories and regular files. If a file is already
-    archived previously or the archive already reaches the
-    `_ARCHIVE_SIZE_THRESHOLD`, it will skip the file.
-
-    Returns:
-      A list of files if they are archived correctly; otherwise `None`.
-    """
-    archive_size = 0
-    files_added: list[str] = []
-
-    def _Filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
-      nonlocal archive_size
-      if tarinfo.isdir():
-        return tarinfo
-      # Only allows directory and regular file.
-      if not tarinfo.isfile():
-        return None
-      if tarinfo.name in archived_list:
-        return None
-      if archive_size >= self._ARCHIVE_SIZE_THRESHOLD:
-        return None
-      archive_size += tarinfo.size
-      files_added.append(tarinfo.name)
-      return tarinfo
-
-    try:
-      with tarfile.open(archive_path, 'w') as tar:
-        tar.add(dir_to_archive, filter=_Filter)
-
-      # Check the tar file integrity. `tarfile.is_tarfile()` cannot detect
-      # corrupted content, so here we use `getmembers()` and discard the return
-      # value.
-      with tarfile.open(archive_path, 'r') as tar:
-        tar.getmembers()
-
-      return files_added
-    except Exception:
-      logging.exception('Failed to archive factory reports')
-      os.remove(archive_path)
-      return None
-
-  def _CleanUp(self, dir_to_clean: str) -> None:
-    shutil.move(dir_to_clean, self._finished_report_dir)
-
-
 class _IConnection(abc.ABC):
 
   @abc.abstractmethod
@@ -362,14 +249,15 @@ class _ArchiveUploader(_BaseUploader):
   This uploader compacts factory reports into archives before uploading.
   """
 
+  _ARCHIVE_SIZE_THRESHOLD = 2 * 1024 * 1024 * 1024  # 2 GiB
+
   def __init__(self, report_finder: _ReportFinder, connection: _IConnection,
                target_dir: str, log_dir: str, hash_check: bool):
     super().__init__(connection, log_dir, hash_check)
     self._target_dir = target_dir
     self._archive_dir = os.path.join(log_dir, 'archive')
     self._finished_archive_dir = os.path.join(log_dir, 'finished', 'archive')
-    self._report_archiver = _ReportArchiver(report_finder, self._archive_dir,
-                                            self._finished_report_dir)
+    self._report_finder = report_finder
 
   def SetUp(self) -> None:
     super().SetUp()
@@ -377,7 +265,7 @@ class _ArchiveUploader(_BaseUploader):
     _TryMakeDirs(self._finished_archive_dir)
 
   def Upload(self) -> _Status:
-    produce_status = self._report_archiver.ProduceArchives()
+    produce_status = self._ProduceArchives()
     upload_status = self._UploadArchive()
 
     if _Status.FAIL in (produce_status, upload_status):
@@ -387,6 +275,107 @@ class _ArchiveUploader(_BaseUploader):
       return _Status.NO_FILE
 
     return _Status.SUCCESS
+
+  def _ProduceArchives(self) -> _Status:
+    """Detects valid report directory and archives it.
+
+    This function creates a list of archives for just one day (one directory).
+    If an archive is larger than `_ARCHIVE_SIZE_THRESHOLD`, it will produce
+    another archive for the remaining files in the directory.
+
+    Returns:
+      A `_Status` enum.
+    """
+    report_dir_found = self._report_finder.FindOneReportDir()
+    if not report_dir_found:
+      return _Status.NO_FILE
+    logging.info('Found valid report directory %s', report_dir_found)
+    if self._ArchiveAll(report_dir_found):
+      self._CleanUpAfterProduceArchive(report_dir_found)
+      return _Status.SUCCESS
+    return _Status.FAIL
+
+  def _ArchiveAll(self, dir_to_archive: str) -> bool:
+    """Archives a directory to archives and checks their file integrity.
+
+    If the directory is empty, it will not produce any archive. If the directory
+    has many reports, it may produce one or more archives.
+
+    Returns:
+      `True` if it archives a directory correctly; otherwise `False`.
+    """
+    archived_list: list[str] = []
+    index = 0
+    report_day = os.path.basename(dir_to_archive)
+
+    while True:
+      archive_path = os.path.join(self._archive_dir,
+                                  f'{report_day}-{index}.tar')
+      tmp_path = f'{archive_path}.tmp'
+      files_added = self._ArchiveOne(dir_to_archive, tmp_path, archived_list)
+      if files_added is None:
+        os.unlink(tmp_path)
+        logging.error('Failed to archive %s', dir_to_archive)
+        return False
+      if not files_added:
+        os.unlink(tmp_path)
+        logging.info('Produced %d archives successfully from %s', index,
+                     dir_to_archive)
+        return True
+      # Atomic function if the source and the destination file are on the same
+      # file system.
+      shutil.move(tmp_path, archive_path)
+      logging.info('Produced an archive %s with %d factory reports',
+                   archive_path, len(files_added))
+      archived_list += files_added
+      index += 1
+
+  def _ArchiveOne(self, dir_to_archive: str, archive_path: str,
+                  archived_list: Sequence[str]) -> Optional[list[str]]:
+    """Archives files to one archive and checks the integrity.
+
+    The archive only allows directories and regular files. If a file is already
+    archived previously or the archive already reaches the
+    `_ARCHIVE_SIZE_THRESHOLD`, it will skip the file.
+
+    Returns:
+      A list of files if they are archived correctly; otherwise `None`.
+    """
+    archive_size = 0
+    files_added: list[str] = []
+
+    def _Filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
+      nonlocal archive_size
+      if tarinfo.isdir():
+        return tarinfo
+      # Only allows directory and regular file.
+      if not tarinfo.isfile():
+        return None
+      if tarinfo.name in archived_list:
+        return None
+      if archive_size >= self._ARCHIVE_SIZE_THRESHOLD:
+        return None
+      archive_size += tarinfo.size
+      files_added.append(tarinfo.name)
+      return tarinfo
+
+    try:
+      with tarfile.open(archive_path, 'w') as tar:
+        tar.add(dir_to_archive, filter=_Filter)
+
+      # Check the tar file integrity. `tarfile.is_tarfile()` cannot detect
+      # corrupted content, so here we use `getmembers()` and discard the return
+      # value.
+      with tarfile.open(archive_path, 'r') as tar:
+        tar.getmembers()
+
+      return files_added
+    except Exception:
+      logging.exception('Failed to archive factory reports')
+      return None
+
+  def _CleanUpAfterProduceArchive(self, dir_to_clean: str) -> None:
+    shutil.move(dir_to_clean, self._finished_report_dir)
 
   def _UploadArchive(self) -> _Status:
     """Uploads a report archive in the directory to the SFTP server.
@@ -405,10 +394,10 @@ class _ArchiveUploader(_BaseUploader):
     if not self._UploadFile(local_path, target_path):
       return _Status.FAIL
 
-    self._CleanUp(local_path)
+    self._CleanUpAfterUploadArchive(local_path)
     return _Status.SUCCESS
 
-  def _CleanUp(self, archive_to_clean: str) -> None:
+  def _CleanUpAfterUploadArchive(self, archive_to_clean: str) -> None:
     shutil.move(archive_to_clean, self._finished_archive_dir)
 
 
