@@ -1,6 +1,7 @@
 # Copyright 2024 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 """Umpire DUT remote procedures.
 
 This is the gRPC implementation of
@@ -20,8 +21,8 @@ import time
 from typing import Iterator, Optional, cast
 import xmlrpc.client
 
-import grpc
-import zstandard
+import grpc  # pylint: disable=import-error
+import zstandard  # pylint: disable=import-error
 
 from cros.factory.umpire.server.proto import umpire_dut_commands_pb2
 from cros.factory.umpire.server.proto import umpire_dut_commands_pb2_grpc
@@ -38,7 +39,7 @@ _PEER_PATTERN = re.compile(r'ipv4:(.*):\d+')
 _REPORT_INDEX_JSON_FILE = '/var/db/factory/umpire/properties/report_index.json'
 
 
-def ParseIpFromPeer(peer: str) -> str:
+def _ParseIpFromPeer(peer: str) -> str:
   """Parse ip from peer.
 
   Example input: "ipv4:192.168.71.139:42710"
@@ -50,22 +51,23 @@ def ParseIpFromPeer(peer: str) -> str:
   return match.group(1)
 
 
-def AdbConnect(target: str, log: bool = True,
-               log_stderr_on_error: bool = True) -> None:
+def _AdbConnect(target: str, log: bool = True,
+                log_stderr_on_error: bool = True) -> None:
   process_utils.CheckCall(['adb', 'connect', target], log=log,
                           log_stderr_on_error=log_stderr_on_error)
 
 
-def AdbRoot(target: str, log: bool = True,
-            log_stderr_on_error: bool = True) -> None:
+def _AdbRoot(target: str, log: bool = True,
+             log_stderr_on_error: bool = True) -> None:
   process_utils.CheckCall(['adb', '-s', target, 'root'], log=log,
                           log_stderr_on_error=log_stderr_on_error)
 
 
-def AdbDisconnect(target: str, log: bool = True,
-                  log_stderr_on_error: bool = True) -> None:
+def _AdbDisconnect(target: str, log: bool = True,
+                   log_stderr_on_error: bool = True) -> None:
   process_utils.CheckCall(['adb', 'disconnect', target], log=log,
                           log_stderr_on_error=log_stderr_on_error)
+
 
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
@@ -78,7 +80,7 @@ class UmpireDUTCommandsServicer(
         _REPORT_INDEX_JSON_FILE)
 
   @property
-  def CLI_command(self) -> rpc_cli.CLICommand:
+  def _CLI_command(self) -> rpc_cli.CLICommand:
     """Provides a thread-safe XML-RPC proxy."""
     if not hasattr(self._local, 'proxy'):
       self._local.proxy = cast(rpc_cli.CLICommand,
@@ -91,16 +93,16 @@ class UmpireDUTCommandsServicer(
     logging.info('request.target: %s, peer: %s', request.target, context.peer())
     connected = False
     try:
-      target = request.target or ParseIpFromPeer(context.peer())
+      target = request.target or _ParseIpFromPeer(context.peer())
       logging.info('target: %s', target)
-      config = json.loads(self.CLI_command.GetActiveConfig())
+      config = json.loads(self._CLI_command.GetActiveConfig())
       bundle_id = config['active_bundle_id']
       with tempfile.NamedTemporaryFile('+ab', suffix='.apk') as f:
-        self.CLI_command.ExportPayload(
+        self._CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.android_apk.name, f.name)
-        AdbConnect(target)
+        _AdbConnect(target)
         connected = True
-        AdbRoot(target)
+        _AdbRoot(target)
         process_utils.CheckCall([
             'adb', '-s', target, 'shell', 'pm', 'disable-user', '--user', '10',
             'com.google.android.factory.factory'
@@ -121,7 +123,7 @@ class UmpireDUTCommandsServicer(
             'adb', '-s', target, 'shell', 'am', 'start', '-a',
             'android.intent.action.MAIN', '-c', 'android.intent.category.HOME'
         ], log=True, log_stderr_on_error=True)
-        AdbDisconnect(target)
+        _AdbDisconnect(target)
     return umpire_dut_commands_pb2.UpdateFactoryAppResponse(
         success=True, messages='')
 
@@ -131,7 +133,7 @@ class UmpireDUTCommandsServicer(
       context: grpc.ServicerContext,
   ):
     logging.info('GetUpdateVersion: peer: %s', context.peer())
-    payloads = self.CLI_command.GetActivePayload()
+    payloads = self._CLI_command.GetActivePayload()
     if not payloads:
       return umpire_dut_commands_pb2.GetUpdateVersionResponse()
     # May add more components later.
@@ -146,11 +148,11 @@ class UmpireDUTCommandsServicer(
                       context: grpc.ServicerContext):
     logging.info('request.target: %s, path: %s, peer: %s', request.target,
                  request.path, context.peer())
-    target = request.target or ParseIpFromPeer(context.peer())
+    target = request.target or _ParseIpFromPeer(context.peer())
     logging.info('DownloadPayload target: %s', target)
 
     try:
-      config = json.loads(self.CLI_command.GetActiveConfig())
+      config = json.loads(self._CLI_command.GetActiveConfig())
       bundle_id = config['active_bundle_id']
     except (ValueError, KeyError) as e:
       return umpire_dut_commands_pb2.DownloadPayloadResponse(
@@ -173,7 +175,7 @@ class UmpireDUTCommandsServicer(
 
     payload_info = payload_map[request.payload_type]
 
-    active_payloads = self.CLI_command.GetActivePayload()
+    active_payloads = self._CLI_command.GetActivePayload()
     if payload_info['resource'] not in active_payloads:
       return umpire_dut_commands_pb2.DownloadPayloadResponse(
           success=False,
@@ -184,11 +186,11 @@ class UmpireDUTCommandsServicer(
     try:
       with tempfile.TemporaryDirectory() as temp_dir:
         temp_file_path = os.path.join(temp_dir, f'payload{payload_info["ext"]}')
-        self.CLI_command.ExportPayload(bundle_id, payload_info['resource'],
-                                       temp_file_path)
-        AdbConnect(target)
+        self._CLI_command.ExportPayload(bundle_id, payload_info['resource'],
+                                        temp_file_path)
+        _AdbConnect(target)
         connected = True
-        AdbRoot(target)
+        _AdbRoot(target)
 
         process_utils.CheckCall(
             ['adb', '-s', target, 'push', temp_file_path, request.path],
@@ -200,7 +202,7 @@ class UmpireDUTCommandsServicer(
           success=False, messages=str(err))
     finally:
       if connected:
-        AdbDisconnect(target)
+        _AdbDisconnect(target)
 
     return umpire_dut_commands_pb2.DownloadPayloadResponse(
         success=True, messages='')
@@ -222,17 +224,17 @@ class UmpireDUTCommandsServicer(
     connected = False
     extract_path = tempfile.mkdtemp()
     try:
-      target = request.target or ParseIpFromPeer(context.peer())
+      target = request.target or _ParseIpFromPeer(context.peer())
       logging.info('DownloadFactoryDrives target: %s', target)
       remote_path = request.dest_path
-      content = self.CLI_command.GetFactoryDrives(request.source_namespace,
+      content = self._CLI_command.GetFactoryDrives(request.source_namespace,
                                                   request.source_file).data
       tar_stream = io.BytesIO(content)
       with tarfile.open(fileobj=tar_stream, mode='r') as tar:
         tar.extractall(path=extract_path)
-        AdbConnect(target)
+        _AdbConnect(target)
         connected = True
-        AdbRoot(target)
+        _AdbRoot(target)
         process_utils.CheckCall([
             'adb', '-s', target, 'push',
             f'{extract_path}/{request.source_file}', remote_path
@@ -243,7 +245,7 @@ class UmpireDUTCommandsServicer(
     finally:
       shutil.rmtree(extract_path)
       if connected:
-        AdbDisconnect(target)
+        _AdbDisconnect(target)
     return umpire_dut_commands_pb2.DownloadFactoryDrivesResponse(
         success=True,
         messages=f'Successfully download from the factory drives on {target}')
@@ -253,17 +255,17 @@ class UmpireDUTCommandsServicer(
                  request.path, context.peer())
     connected = False
     try:
-      target = request.target or ParseIpFromPeer(context.peer())
+      target = request.target or _ParseIpFromPeer(context.peer())
       logging.info('GetOtaPackage target: %s', target)
       remote_path = request.path
-      config = json.loads(self.CLI_command.GetActiveConfig())
+      config = json.loads(self._CLI_command.GetActiveConfig())
       bundle_id = config['active_bundle_id']
       with tempfile.NamedTemporaryFile('+ab', suffix='.otazip') as f:
-        self.CLI_command.ExportPayload(
+        self._CLI_command.ExportPayload(
             bundle_id, resource.AndroidPayloadTypes.ota_zip.name, f.name)
-        AdbConnect(target)
+        _AdbConnect(target)
         connected = True
-        AdbRoot(target)
+        _AdbRoot(target)
         process_utils.CheckCall(
             ['adb', '-s', target, 'push', f.name, remote_path], log=True,
             log_stderr_on_error=True)
@@ -272,7 +274,7 @@ class UmpireDUTCommandsServicer(
           success=False, messages=str(err))
     finally:
       if connected:
-        AdbDisconnect(target)
+        _AdbDisconnect(target)
     return umpire_dut_commands_pb2.GetOtaPackageResponse(
         success=True, messages='')
 
@@ -284,7 +286,7 @@ class UmpireDUTCommandsServicer(
       timezone is unknown.
     """
     timezone = None
-    active_config_file = self.CLI_command.GetActiveConfig()
+    active_config_file = self._CLI_command.GetActiveConfig()
     self_active_config = json_utils.LoadStr(active_config_file)['services']
     if 'umpire_timezone' in self_active_config:
       if self_active_config['umpire_timezone']['active']:
@@ -329,7 +331,9 @@ class UmpireDUTCommandsServicer(
       os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
       with file_utils.AtomicWrite(save_path, binary=True) as f:
-        with zstandard.ZstdCompressor().stream_writer(f) as compressor:
+        with zstandard.ZstdCompressor().stream_writer(f) as _compressor:
+          # Zstd writer conforms to io.RawIOBase so cast type to let mypy work
+          compressor = cast(io.RawIOBase, _compressor)
           for request in request_iterator:
             if request.WhichOneof('data') != 'chunk':
               context.abort(
@@ -342,8 +346,9 @@ class UmpireDUTCommandsServicer(
 
       return umpire_dut_commands_pb2.UploadReportResponse(success=True)
 
-  def _WriteReportIndex(self, writer: io.RawIOBase, server_uuid: str,
-                        report_index: str) -> None:
+  @classmethod
+  def _WriteReportIndex(cls, writer: io.RawIOBase, server_uuid: str,
+                        report_index: int) -> None:
     entry = {
         'type': 'metadata',
         'serverUuid': server_uuid,
@@ -360,19 +365,17 @@ class UmpireDUTCommandsServicer(
   ) -> umpire_dut_commands_pb2.SyncDeviceTimeResponse:
     """Synchronizes the DUT's time zone to the Umpire server's time zone."""
     logging.info('SyncDeviceTime: peer: %s', context.peer())
-    conneected = False
+    connected = False
     try:
-      target = request.target or ParseIpFromPeer(context.peer())
+      target = request.target or _ParseIpFromPeer(context.peer())
       epoch_time = int(time.time())
 
-      AdbConnect(target)
-      conneected = True
-      AdbRoot(target)
+      _AdbConnect(target)
+      connected = True
+      _AdbRoot(target)
 
       logging.info('Setting device time to host epoch: %d', epoch_time)
-      set_date_cmd = [
-          'adb', '-s', target, 'shell', f'date @{epoch_time}'
-      ]
+      set_date_cmd = ['adb', '-s', target, 'shell', f'date @{epoch_time}']
       process_utils.CheckCall(set_date_cmd, log=True, log_stderr_on_error=True)
 
       set_hwclock_cmd = ['adb', '-s', target, 'shell', 'hwclock -w --utc']
@@ -386,8 +389,8 @@ class UmpireDUTCommandsServicer(
       return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
           success=False, messages=error_message)
     finally:
-      if conneected:
-        AdbDisconnect(target)
+      if connected:
+        _AdbDisconnect(target)
     return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
         success=True,
         messages=f'Successfully synced time on {target} to epoch {epoch_time}')

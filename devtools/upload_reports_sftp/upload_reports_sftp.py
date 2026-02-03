@@ -105,15 +105,11 @@ class _ReportFinder:
   def __init__(self, factory_report_dir: str):
     self._factory_report_dir = factory_report_dir
 
-  def FindOneReportDir(self) -> Optional[str]:
-    """Detects valid and readied daily reports from the report directory.
-
-    When there are multiple valid daily report directories, only the first one
-    is returned.
+  def FindFirstReportDir(self) -> Optional[str]:
+    """Finds the first directory that contains factory reports.
 
     Returns:
-      The path to the valid directory with factory reports. If there's no valid
-      path, return `None`.
+      The path to the found factory report directory; `None` if not found.
     """
     dirs = sorted(os.listdir(self._factory_report_dir))
     for daily_report_dir in dirs:
@@ -243,7 +239,7 @@ class _BaseUploader(abc.ABC):
     return self._connection.CheckIntegrity(local_path, remote_path)
 
 
-class _ArchiveUploader(_BaseUploader):
+class _ArchivingReportUploader(_BaseUploader):
   """Uploader implementation with factory report archiving.
 
   This uploader compacts factory reports into archives before uploading.
@@ -286,7 +282,7 @@ class _ArchiveUploader(_BaseUploader):
     Returns:
       A `_Status` enum.
     """
-    report_dir_found = self._report_finder.FindOneReportDir()
+    report_dir_found = self._report_finder.FindFirstReportDir()
     if not report_dir_found:
       return _Status.NO_FILE
     logging.info('Found valid report directory %s', report_dir_found)
@@ -418,7 +414,7 @@ def _main() -> NoReturn:
 
   report_finder = _ReportFinder(args.factory_report_dir)
   sftp = _SFTP(args.hostname, args.port, args.account, args.key_path)
-  uploader: _BaseUploader = _ArchiveUploader(
+  uploader: _BaseUploader = _ArchivingReportUploader(
       report_finder, sftp, args.target_dir, args.log_dir, args.hash_check)
 
   uploader.SetUp()
