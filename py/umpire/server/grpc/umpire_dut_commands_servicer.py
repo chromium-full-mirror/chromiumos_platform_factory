@@ -28,6 +28,7 @@ from cros.factory.umpire.server.proto import umpire_dut_commands_pb2_grpc
 from cros.factory.umpire.server import resource
 from cros.factory.umpire.server import rpc_cli
 from cros.factory.umpire.server import umpire_env
+from cros.factory.utils import file_utils
 from cros.factory.utils import json_utils
 from cros.factory.utils import process_utils
 from cros.factory.utils import time_utils
@@ -327,7 +328,7 @@ class UmpireDUTCommandsServicer(
                                           first_request.metadata.stage)
       os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-      with open(save_path, 'wb') as f:
+      with file_utils.AtomicWrite(save_path, binary=True) as f:
         with zstandard.ZstdCompressor().stream_writer(f) as compressor:
           for request in request_iterator:
             if request.WhichOneof('data') != 'chunk':
