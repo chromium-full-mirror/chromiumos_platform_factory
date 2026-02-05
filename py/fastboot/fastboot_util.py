@@ -97,7 +97,7 @@ class FastbootUtil:
                     self.serial_device, shlex.join(cmd), stdout)
       retcode = process.poll()
       if retcode and retcode != 0:
-        raise CalledProcessError(retcode, cmd)
+        raise CalledProcessError(retcode, cmd, output=stdout)
 
       if stdout:
         return stdout
@@ -161,20 +161,19 @@ class FastbootUtil:
 
     logging.debug('DUT [%s] Reboot to fastboot', self.serial_device)
     self._FastbootSpawn(['reboot', 'fastboot'],
-                        terminate_token='Rebooting into fastboot')
+                        terminate_token='OKAY')
 
   def RebootToBootloader(self) -> None:
     """Sends reboot fastboot command to reboot to bootloader."""
 
     logging.debug('DUT [%s] Reboot to bootloader', self.serial_device)
-    self._FastbootSpawn(['reboot', 'bootloader'],
-                        terminate_token='Rebooting into bootloader')
+    self._FastbootCheckOutputWithTimeout(['reboot', 'bootloader'])
 
   def Reboot(self) -> None:
     """Reboots the device with fastboot command."""
 
     logging.debug('DUT [%s] Reboot', self.serial_device)
-    self._FastbootSpawn(['reboot'])
+    self._FastbootCheckOutputWithTimeout(['reboot'])
 
   def GetAllVar(self) -> str:
     """Gets all variables via fastboot.

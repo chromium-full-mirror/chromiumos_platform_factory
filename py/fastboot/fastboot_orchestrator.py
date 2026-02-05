@@ -217,8 +217,9 @@ class FastbootImagingOrchestrator:
         else:
           if self.enable_ufs_provision and runner.UFSProvision(
               self.factory_ufs_path):
-            # Reboot is needed to apply the config.
-            runner.RebootToBootloader()
+            # Reboot is needed to apply the config. FW will turn the device
+            # back to fastboot mode since GPT is not flashed yet.
+            runner.Reboot()
           else:
             runner.FlashMbrAndGptTable()
             runner.FlashBootPartitions()
