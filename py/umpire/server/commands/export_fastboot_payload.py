@@ -51,9 +51,9 @@ class FastbootImagePayloadExporter:
     file_utils.WriteFile(os.path.join(img_src_dir, 'android-info.txt'), '')
 
     # Add fastboot-info.txt for `flashall`
-    # TODO(stevesu) Consider allowing user to upload fastboot-info here,
-    # instead of hard generating one, even though this file & flow does
-    # not seem to be changing a lot.
+    # TODO(pohengchen) Allowing user to upload fastboot images zip, which
+    # include separated partition images and fastboot-info.txt, instead of
+    # hardcoding the partitions needed to be flashed.
     file_utils.WriteFile(
         os.path.join(img_src_dir, 'fastboot-info.txt'),
         textwrap.dedent('''\
@@ -66,6 +66,7 @@ class FastbootImagePayloadExporter:
         flash --apply-vbmeta vbmeta
         flash super
         erase metadata
+        erase userdata
         '''))
 
     files = self._env.GetFastbootImagePayloads(bundle['payloads'])

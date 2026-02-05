@@ -209,10 +209,8 @@ class FastbootImagingOrchestrator:
         is_userspace = runner.GetIsUserSpace()
         if is_userspace:
           # Flash with userspace fastboot. We decided to flash everything again
-          # during userspace fastboot, just to be safe. After flashing, erase
-          # userdata by zero out the beginning of the userdata partition.
+          # during userspace fastboot, just to be safe.
           runner.FlashAll(reboot=False)
-          runner.EraseUserdata()
           runner.Reboot()
         else:
           if self.enable_ufs_provision and runner.UFSProvision(

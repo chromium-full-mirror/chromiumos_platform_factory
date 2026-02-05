@@ -148,6 +148,8 @@ class FastbootUtil:
     self.Flash('pvmfw')
     self.Flash('vendor_boot')
     self.Flash('vbmeta')
+    if self.flash_dtbo:
+      self.Flash('dtbo')
 
   def FlashOtherPartitions(self) -> None:
     """Flashes non-boot essential partitions."""
@@ -249,7 +251,7 @@ class FastbootUtil:
     be flashed sequentially according to the definition in fastboot-info.txt.
 
     Args:
-      img_src_dir: The image source folder.
+      reboot: Whether to reboot after `flashall`.
 
     """
     logging.debug('DUT [%s] Flashing all partitions', self.serial_device)
@@ -336,6 +338,12 @@ class FastbootUtil:
     self.img_src_dir = _img_src_dir
     self.idle_timeout = _idle_timeout
     os.environ['ANDROID_PRODUCT_OUT'] = self.img_src_dir
+
+    dtbo_img_path = os.path.join(self.img_src_dir, "dtbo.img")
+    if os.path.isfile(dtbo_img_path):
+      self.flash_dtbo = True
+    else:
+      self.flash_dtbo = False
 
     if self.idle_timeout > 0:
       self.FastbootCheckOutputExecutor = self._FastbootCheckOutputWithTimeout
