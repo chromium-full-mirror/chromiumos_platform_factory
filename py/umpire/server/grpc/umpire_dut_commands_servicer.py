@@ -232,9 +232,10 @@ class UmpireDUTCommandsServicer(
         AdbConnect(target)
         connected = True
         AdbRoot(target)
-        process_utils.CheckCall(
-            ['adb', '-s', target, 'push', extract_path, remote_path], log=True,
-            log_stderr_on_error=True)
+        process_utils.CheckCall([
+            'adb', '-s', target, 'push',
+            f'{extract_path}/{request.source_file}', remote_path
+        ], log=True, log_stderr_on_error=True)
     except Exception as err:
       return umpire_dut_commands_pb2.DownloadFactoryDrivesResponse(
           success=False, messages=str(err))
