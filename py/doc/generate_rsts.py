@@ -458,14 +458,15 @@ def GenerateProbeDoc(output_dir):
   file_utils.TryMakeDirs(functions_path)
 
   # Parse all functions.
-  probe_function.LoadFunctions()
-  for func_name in sorted(probe_function.GetRegisteredFunctions()):
-    func_cls = probe_function.GetFunctionClass(func_name)
+  # TODO: This was broken after python uprev to 3.12. This need to be fixed.
+  # probe_function.LoadFunctions()
+  # for func_name in sorted(probe_function.GetRegisteredFunctions()):
+  #   func_cls = probe_function.GetFunctionClass(func_name)
 
-    short_desc, doc_path = GenerateProbeFunctionDoc(
-        functions_path, func_name, func_cls)
-    _AppendToFunctionTable(
-        func_cls, (LinkToDoc(func_name, doc_path), short_desc))
+  #   short_desc, doc_path = GenerateProbeFunctionDoc(
+  #       functions_path, func_name, func_cls)
+  #   _AppendToFunctionTable(
+  #       func_cls, (LinkToDoc(func_name, doc_path), short_desc))
 
   # Generate list tables of all functions, category by the function type.
   functions_section_rst = RSTWriter(StringIO())

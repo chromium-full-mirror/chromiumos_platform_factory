@@ -75,17 +75,6 @@ check the "Unconfirmed regions" section below.
 
 .. regionslist::
 
-Unconfirmed regions
--------------------
-Following is a table of unconfirmed regions  (not ready for use in shipping
-products). If you need to use one of these please see http://goto/vpdsettings
-and src/platform2/regions/README for how to proceed.
-
-For more information on how to choose field values, see
-:ref:`regions-values`.
-
-.. unconfirmed_regionslist::
-
 How VPD values affect the CrOS user experience
 ----------------------------------------------
 See http://goto/vpdsettings.

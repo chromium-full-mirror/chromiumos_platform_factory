@@ -447,6 +447,8 @@ $(DOC_TEMP_DIR): .phony
 	rsync -am --files-from=<(git ls-tree -r HEAD --name-only |\
 	  grep "\.\(md\|png\)$$") . \
 	  $(DOC_TEMP_DIR)/$(DOC_MD_DIR)
+	# Excludes doc_md
+	rm -rf $(DOC_TEMP_DIR)/$(DOC_MD_DIR)/doc_md
 
 # Creates build/doc and build/doc.zip, containing the factory SDK docs.
 doc: $(DOC_TEMP_DIR)
@@ -457,6 +459,12 @@ doc: $(DOC_TEMP_DIR)
 	cp -r $(DOC_TEMP_DIR)/_build/html $(DOC_OUTPUT_DIR)
 	(cd $(DOC_OUTPUT_DIR)/..; zip -qr9 - $(notdir $(DOC_OUTPUT_DIR))) \
 	  >$(DOC_ARCHIVE_PATH)
+
+doc-md: $(DOC_TEMP_DIR)
+	CROS_FACTORY_PY_ROOT=$(realpath py_pkg) $(MK_DIR)/sphinx.sh $(MAKE) -C \
+	                     $(DOC_TEMP_DIR) markdown
+	rm -rf doc_md
+	cp -r $(DOC_TEMP_DIR)/_build/md doc_md
 
 linkcheck: $(DOC_TEMP_DIR)
 	CROS_FACTORY_PY_ROOT=$(realpath py_pkg) $(MK_DIR)/sphinx.sh $(MAKE) -C \

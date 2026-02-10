@@ -1,0 +1,83 @@
+# Introduction to working with the Factory SDK
+
+## Layout
+
+The factory repository contains the following important
+files and directories:
+
+* `bin`: Symlinks to variables tools and utilities within the
+  factory source.
+* `build`: A temporary directory used when building the factory
+  SDK.
+* `Makefile`: Used to build the factory code and documentation.
+* `py`: Python source.  The “root” of this source tree is the
+  `cros.factory` module, so for instance the module
+  `cros.factory.system.board` would be found in the
+  `py/system/board` directory.
+* `py_pkg`: A directory that is used as the `PYTHONPATH` entry to
+  include the factory source.  `py_pkg/cros/factory` is simply a
+  symlink to the `py` directory, so when Python searches for (e.g.)
+  the `cros.factory.system.board` module, it will find it in
+  `py_pkg/cros/factory/system/board.py` (which points to
+  `py/system/board.py`).
+* `sh`: Shell scripts.
+* `test_lists`: Old-style test lists.  (New test lists are simply
+  code in the `cros.factory.test.test_lists` module.  See
+  [Declaring test lists](test_list_api.md#declaring-test-lists).)
+
+## Makefile
+
+Make targets include:
+
+* `default`: Builds the factory test harness.
+* `par`: Builds a par file (“Python archive”) that contains the
+  entire source and dependent libraries, and can be used to run
+  various tools and utilities.
+* `lint`: Checks the source for style violations.
+* `test`: Runs unit tests.
+* `overlay-*board*`: Creates a directory called overlay-{board}
+  containing the contents of the factory source, overlayed with contents
+  from the board overlay (e.g., in
+  `third_party/private-overlays/overlay-*board*-private/chromeos-board/factory-board/files`).
+  This is useful to pull in board-specific files such as test lists.
+* `overlay-*board*-lint`: Runs the `overlay-*board*-lint`
+  target, and further runs `make lint` within the overlay directory.
+* `overlay-*board*-test`: Runs the `overlay-*board*-test`
+  target, and further runs `make test` within the overlay directory.
+
+In general, it is advisable to run `make lint` and `make test` before submitting
+code. There are presubmit checks to enforce this.
+
+If you are working on board overlays, it is also a good idea to run
+`make overlay-*board*-lint`, and possibly `make
+overlay-*board*-test`, to verify that any files you have changed in
+the board overlay are syntatically correct and have no style violations.
+
+## Coding style
+
+Make sure to follow the [Chromium Python Style Guide](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/python.md).
+
+In the factory repository, we also try to follow the [Google Python
+Style Guide](https://google.github.io/styleguide/pyguide.html) as
+much as possible. If there is a conflict between the two, the Chromium
+Python Style Guide wins.
+
+## Unit testing
+
+Source files with filenames ending in `_unittest.py` are considered
+to be unit tests.  All such tests are run by the `test` Makefile
+target (`make test`).
+
+You can put unit tests in the board overlay as well; these tests can
+be run by `make overlay-*board*-test`.
+
+`make test` invokes a test runner to run all test it found in the repository
+except some [excluded directories and tests](https://chromium.googlesource.com/chromiumos/platform/factory/+/refs/heads/main/py/tools/run_unittests.py#45),
+and runs tests with our mocking system.
+
+A decorator [Informational](https://chromium.googlesource.com/chromiumos/platform/factory/+/refs/heads/main/py/unittest_utils/label_utils.py#15)
+should be applied to tests which are not able, not suitable or unstable to run
+in CQ.
+
+The runner can also be trigger by calling `bin/run_unittests` with a list of
+unit test file path as arguments to run user specified tests only.

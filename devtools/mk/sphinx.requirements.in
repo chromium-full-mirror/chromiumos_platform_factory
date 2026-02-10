@@ -1,4 +1,9 @@
-Sphinx==5.0.2
+Sphinx==9.0.4
 recommonmark==0.7.1
 sphinx-markdown-tables==0.0.17
 sphinx-copybutton==0.5.2
+Twisted==25.5.0
+jsonrpclib==0.2.1
+jsonschema==4.26.0
+standard-imghdr==3.13.0
+sphinx-markdown-builder==0.6.9

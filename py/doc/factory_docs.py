@@ -88,10 +88,8 @@ class RegionsList(Directive):
         # 'notes' column is very special.
         notes = r.notes or ''
         if notes:
-          short_notes = notes if len(notes) < 20 else (notes[:20] + '...')
           row += nodes.entry(
-              '', nodes.paragraph('', short_notes, classes=['note']),
-              nodes.paragraph('', notes, classes=['spnTooltip']))
+              '', nodes.paragraph('', notes, classes=['spnTooltip']))
         else:
           row += nodes.entry('')
         tbody += row
