@@ -33,5 +33,30 @@
   "ufs_provision": {
     "description": "Provision UFS storage.",
     "type": "boolean"
+  },
+  "broadcast_ping": {
+    "description": "Weather to use broadcast ping to search for devices under fastboot mode. When enable, the `dut_ip_addrs` will be ignored.",
+    "type": ["object", "null"],
+    "properties": {
+      "network_interfaces": {
+        "description": "The network interfaces that the broadcast ping is sent to search for devices under fastboot mode.",
+        "type": "array",
+        "items": {
+          "description": "Network interface list",
+          "type": "object",
+          "properties": {
+            "interface_name": {
+              "description": "The name of the network interface. Example: eth0",
+              "type": "string"
+            },
+            "broadcast_address": {
+              "description": "The broadcast address of the network interface. Example: 192.168.1.255",
+              "type": "string"
+            }
+          },
+          "required": ["interface_name", "broadcast_address"]
+        }
+      }
+    }
   }
 }

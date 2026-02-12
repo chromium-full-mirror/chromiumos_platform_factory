@@ -8,13 +8,19 @@ import argparse
 import ipaddress
 import logging
 import queue
+import random
+import string
 from subprocess import CalledProcessError
 from subprocess import TimeoutExpired
 import threading
 import time
-from typing import List, Set
+from typing import List, Set, Tuple
+
+import grpc
 
 from cros.factory.fastboot import fastboot_util
+from cros.factory.fastboot.proto import broadcast_ping_pb2  # type: ignore[attr-defined] # pylint: disable=no-name-in-module
+from cros.factory.fastboot.proto import broadcast_ping_pb2_grpc  # type: ignore[attr-defined] # pylint: disable=no-name-in-module
 from cros.factory.utils import process_utils
 
 
@@ -47,26 +53,16 @@ class UsbDeviceScanner(DeviceScanner):
     return available_devices
 
 
-class NmapIpScanner(DeviceScanner):
-  """Device scanner over TCP transportation layer using nmap."""
-
+class TcpDeviceScanner(DeviceScanner):
+  """Device scanner over TCP transportation layer."""
   resolved_ip_set = set()
 
-  def __init__(self, dut_info_list: List[str]):
-    self.ip_to_scan = dut_info_list
+  def __init__(self, dut_info_list: List[str] | None):
+    if dut_info_list:
+      self.ip_to_scan = dut_info_list
+    else:
+      self.ip_to_scan = []
     self.ConstructRawIpSet()
-
-  # TODO(stevesu) Currently we did not rule out host ip & DHCP server IP.
-  # Try adding this in the future to further reduce the network load.
-  def Scan(self) -> set:
-    """Scans alived TCP IP via nmap.
-
-    Returns:
-      A set of IP that is now being probed by nmap.
-    """
-
-    output = process_utils.CheckOutput(['nmap', '-sn', '-vv'] + self.ip_to_scan)
-    return self.ParseNmapResult(output)
 
   def _GetAllIpInCidrRange(self, cidr_range: str) -> None:
     """Parses All IP from CIDR range.
@@ -97,6 +93,22 @@ class NmapIpScanner(DeviceScanner):
         self.resolved_ip_set.add(ip_str)
     logging.debug('Resolved Raw IP set is: %s', self.resolved_ip_set)
 
+
+class NmapIpScanner(TcpDeviceScanner):
+  """Device scanner over TCP transportation layer using nmap."""
+
+  # TODO(stevesu) Currently we did not rule out host ip & DHCP server IP.
+  # Try adding this in the future to further reduce the network load.
+  def Scan(self) -> set:
+    """Scans alived TCP IP via nmap.
+
+    Returns:
+      A set of IP that is now being probed by nmap.
+    """
+
+    output = process_utils.CheckOutput(['nmap', '-sn', '-vv'] + self.ip_to_scan)
+    return self.ParseNmapResult(output)
+
   def ParseNmapResult(self, output: str) -> set:
     """Parses nmap command result of current available IP."""
 
@@ -120,11 +132,72 @@ class NmapIpScanner(DeviceScanner):
     return found_ip_set
 
 
+class BroadcastPingScanner(TcpDeviceScanner):
+  """Device scanner over TCP transportation layer using broadcast ping."""
+
+  def __init__(self, dut_info_list: List[str] | None,
+               interface_pair: List[Tuple[str, str]],
+               broadcast_ping_service_url: str):
+    super().__init__(dut_info_list)
+    self.interface_pair = interface_pair
+    self.broadcast_ping_server_url = broadcast_ping_service_url
+
+  def Scan(self, icmp_timeout: int = 5, num_probes: int = 1, ttl: int = 64,
+           data_length: int = 4, req_timeout=10) -> Set[str]:
+    """Scans alived TCP IP via broadcast ping.
+
+    Returns:
+      A set of IP that is now being probed by broadcast ping.
+    """
+    found_ip_set: Set[str] = set()
+    for interface, ip in self.interface_pair:
+      found_ip_set |= self.broadcast_ping_request(
+          interface=interface, bcast_ip=ip, icmp_timeout=icmp_timeout,
+          num_probes=num_probes, ttl=ttl, data_length=data_length,
+          req_timeout=req_timeout)
+
+    target_ip_set = found_ip_set
+    if self.resolved_ip_set:  # ip_list is passed to restrict the ip range
+      target_ip_set = found_ip_set.intersection(self.resolved_ip_set)
+    return target_ip_set
+
+  def generate_payload(self, length: int) -> str:
+    """Generates a random alphanumeric payload."""
+    if length <= 0:
+      return ''
+    return ''.join(
+        random.choices(string.ascii_letters + string.digits, k=length))
+
+  def broadcast_ping_request(self, interface: str, bcast_ip: str,
+                             icmp_timeout: int, num_probes: int, ttl: int,
+                             data_length: int, req_timeout: float) -> Set[str]:
+    with grpc.insecure_channel(self.broadcast_ping_server_url) as channel:
+      stub = broadcast_ping_pb2_grpc.BroadcastPingStub(channel)
+
+      request = broadcast_ping_pb2.ScanRequest(
+          iface=interface, bcast_ip=bcast_ip, ttl=ttl, num_probes=num_probes,
+          timeout=icmp_timeout, payload=self.generate_payload(data_length))
+
+      try:
+        response = stub.PerformScan(request, timeout=req_timeout)
+        devices_list = list(response.devices)
+        logging.info('Scanner: DUTs response to broadcast ping: %s',
+                     devices_list)
+        return set(devices_list)
+
+      except grpc.RpcError as e:
+        logging.error(
+            'Scanner: Exception occurs when performing broadcast ping '
+            '(error: %r).', e)
+        return set()
+
+
 class FastbootImagingOrchestrator:
   """A multi-threaded orchestrator that can flash devices simultaneously."""
 
   def __init__(self, board_name: str, project_name: str, src_image_dir: str,
-               ip_list: List[str], usb_device_list: List[str],
+               ip_list: List[str] | None, interface_pair: List[Tuple[str, str]],
+               broadcast_ping_service_url: str, usb_device_list: List[str],
                is_fixed_ip: bool = False, scan_interval: int = 5,
                idle_timeout: int = 60, enable_ufs_provision=False,
                factory_ufs_path=""):
@@ -135,6 +208,8 @@ class FastbootImagingOrchestrator:
 
     self.ip_list = ip_list
     self.is_fixed_ip = is_fixed_ip
+    self.interface_pair = interface_pair
+    self.broadcast_ping_service_url = broadcast_ping_service_url
     self.usb_device_list = usb_device_list
     self.scan_interval = scan_interval
     self.idle_timeout = idle_timeout
@@ -152,11 +227,17 @@ class FastbootImagingOrchestrator:
   def ConnectionIpScannerFunc(self) -> None:
     """Scanning function for nmap IP scanner."""
 
-    ip_scanner = NmapIpScanner(self.ip_list)
+    ip_scanner: TcpDeviceScanner
+    if self.interface_pair:
+      logging.info('Orchestrator: Using broadcast ping for DUTs scanning.')
+      ip_scanner = BroadcastPingScanner(self.ip_list, self.interface_pair,
+                                        self.broadcast_ping_service_url)
+    else:
+      logging.info('Orchestrator: Using native nmap for DUTs scanning.')
+      ip_scanner = NmapIpScanner(self.ip_list)
 
     logging.info('Orchestrator scanner thread is up.')
-    logging.info('Scanning every %d seconds for ip list: %s',
-                 self.scan_interval, self.ip_list)
+    logging.info('Scanning every %d seconds', self.scan_interval)
 
     while True:
       active_ip = ip_scanner.Scan()
@@ -268,6 +349,15 @@ if __name__ == '__main__':
                       help='Directory for source image to be flashed.')
   parser.add_argument('--ip_list', '-i', nargs='+',
                       help='A list of ip and CIDR range to monitor')
+  parser.add_argument(
+      '--broadcast_interface_pair', '-bi', action='append', nargs=2,
+      metavar=('INTERFACE', 'BROADCAST_IP'),
+      help=('Specify an interface and its broadcast IP that the broadcast '
+            'ping is sent to search for devices under fastboot mode '
+            '(e.g. -bi eth0 192.168.1.255). When any interface is passed '
+            'with this arg, the `ip_list` will be ignored.'))
+  parser.add_argument('--broadcast_ping_service_url', '-bu',
+                      help='The url of the broadcast ping service.')
   parser.add_argument('--board', '-b', help='Board name of the target device',
                       required=True)
   parser.add_argument('--project', '-p',
@@ -292,8 +382,14 @@ if __name__ == '__main__':
             'binary, which is used to generate UFS config.'))
 
   args = parser.parse_args()
-  if args.ip_list is None and args.usb_device_name is None:
-    parser.error('Either ip or usb device name has to be provided.')
+  if args.ip_list is None and args.broadcast_interface_pair is None:
+    parser.error(
+        'Either ip or network interface for broadcasting has to be provided.')
+
+  if args.broadcast_interface_pair and args.broadcast_ping_service_url is None:
+    parser.error(
+        'Broadcast ping service url has to be provided when using broadcast '
+        'ping to find DUT.')
 
   if args.enable_ufs_provision and args.factory_ufs_binary_path is None:
     parser.error(
@@ -302,7 +398,8 @@ if __name__ == '__main__':
   InitLogger(args.log_path, args.log_level)
   orchestartor = FastbootImagingOrchestrator(
       args.board, args.project, args.src_image_dir, args.ip_list,
-      args.is_fixed_ip, args.usb_device_list, args.scan_interval,
+      args.broadcast_interface_pair, args.broadcast_ping_service_url,
+      args.usb_device_list, args.is_fixed_ip, args.scan_interval,
       args.idle_timeout, args.enable_ufs_provision,
       args.factory_ufs_binary_path)
   orchestartor.RunTask()

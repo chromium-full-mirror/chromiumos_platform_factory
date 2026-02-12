@@ -30,7 +30,16 @@ class FastbootService(umpire_service.UmpireService):
       for addr in fastboot_service_config['dut_ip_addrs']:
         ip_list.append(addr['dut_ip'])
 
-    if not ip_list:
+    interfaces = {}
+    if 'broadcast_ping' in fastboot_service_config and fastboot_service_config[
+        'broadcast_ping'] is not None:
+      if len(fastboot_service_config['broadcast_ping']) == 0:
+        raise UmpireError(
+            'Network interface cannot be blank when broadcast ping is enabled.')
+      for interface in fastboot_service_config['broadcast_ping'][
+          'network_interfaces']:
+        interfaces[interface['interface_name']] = interface['broadcast_address']
+    elif len(ip_list) == 0:
       raise UmpireError('IP cannot be blank to start fastboot service.')
 
     scan_interval = 10
@@ -63,12 +72,22 @@ class FastbootService(umpire_service.UmpireService):
     proc_list = []
 
     args = [
-        '-v', '-i', ' '.join(ip_list), '-s', env.fastboot_img_dir, '-p',
+        '-v', '-s', env.fastboot_img_dir, '-p',
         fastboot_service_config['model_name'], '-b',
         fastboot_service_config['board_name'], '-t',
         str(scan_interval), '-l', log_path, '--idle_timeout',
         str(idle_timeout)
     ]
+
+    if ip_list:
+      args.extend(['-i', ' '.join(ip_list)])
+
+    for interface_name, broadcast_addr in interfaces.items():
+      args.extend(['-bi', interface_name, broadcast_addr])
+      broadcast_ping_url = os.getenv('BROADCAST_PING_SERVICE_URL', '')
+      if not broadcast_ping_url:
+        raise UmpireError('Please provide the broadcast ping service url.')
+      args.extend(['-bu', broadcast_ping_url])
 
     if 'ufs_provision' in fastboot_service_config and fastboot_service_config[
         'ufs_provision']:
