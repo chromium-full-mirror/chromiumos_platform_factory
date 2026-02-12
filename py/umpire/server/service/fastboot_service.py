@@ -70,7 +70,8 @@ class FastbootService(umpire_service.UmpireService):
         str(idle_timeout)
     ]
 
-    if 'ufs_provision' in fastboot_service_config:
+    if 'ufs_provision' in fastboot_service_config and fastboot_service_config[
+        'ufs_provision']:
       args.extend([
           '--enable_ufs_provision', '--factory_ufs_binary_path',
           '/usr/local/factory/bin/factory_ufs'
