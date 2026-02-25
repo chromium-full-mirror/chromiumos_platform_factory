@@ -129,7 +129,7 @@ check_disk_usage() {
   toybox sed -e "/DISK_USAGE_INFO/r ${df_output}" "${template_file}" \
     >"${out_file}"
   # This should be the port specified by chrome_dev.conf.
-  exec busybox httpd -f -p 4012 -h "${out_dir}"
+  python3 -m http.server 4012 -d "${out_dir}"
 }
 
 # Initialize system TTY.
