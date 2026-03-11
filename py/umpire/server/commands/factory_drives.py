@@ -152,11 +152,12 @@ class _FactoryDriveObject:
     """Retrieve directory by given namespace."""
     if namespace is None:
       return None
-    namespace = namespace.strip('/')
-    namespace = re.sub('/[/]+', '/', namespace)
-    namespace = namespace.split('/')
+    normalized_namespace = os.path.normpath(namespace)
+    if normalized_namespace == '.' or normalized_namespace == '/':
+      return None
+    parts = normalized_namespace.strip('/').split('/')
     current_id = None
-    for name in namespace:
+    for name in parts:
       next_dir = self._FindChildDirByName(current_id, name)
       if next_dir is None:
         raise common.UmpireError('Directory namespace not exists.')
