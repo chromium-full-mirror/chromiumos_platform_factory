@@ -21,6 +21,7 @@ import time
 from typing import Iterator, Optional, cast
 import xmlrpc.client
 
+from google.protobuf import empty_pb2
 import grpc  # pylint: disable=import-error
 import zstandard  # pylint: disable=import-error
 
@@ -71,6 +72,14 @@ def _AdbDisconnect(target: str, log: bool = True,
 
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
+
+  _TEST_PHASE_TO_NAME_MAPPING = {
+      umpire_dut_commands_pb2.TEST_PHASE_PROTO: "PROTO",
+      umpire_dut_commands_pb2.TEST_PHASE_EVT: "EVT",
+      umpire_dut_commands_pb2.TEST_PHASE_DVT: "DVT",
+      umpire_dut_commands_pb2.TEST_PHASE_PVT: "PVT",
+      umpire_dut_commands_pb2.TEST_PHASE_MP: "MP"
+  }
 
   def __init__(self, umpire_cli_url: str) -> None:
     super().__init__()
@@ -293,20 +302,19 @@ class UmpireDUTCommandsServicer(
         timezone = self_active_config['umpire_timezone']['timezone']
     return timezone
 
-  def _GetReportSavePath(self, serial_number: str, stage: Optional[str]) -> str:
+  def _GetReportSavePath(self, serial_number: str, test_phase: str) -> str:
     date_str = time.strftime('%Y%m%d',
                              time_utils.GetNowWithTimezone(self._GetTimezone()))
-    stage = stage or 'Unknown'
     timestamp = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime(time.time()))
-    file_name = f'{serial_number}-{stage}-{timestamp}.rpt.zst'
+    file_name = f'{serial_number}-{test_phase}-{timestamp}.rpt.zst'
     return os.path.join('/', umpire_env.DEFAULT_BASE_DIR, 'umpire_data',
                         'report', date_str, file_name)
 
   def UploadReport(
       self,
-      request_iterator: Iterator[umpire_dut_commands_pb2.UploadReportRequest],
+      request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
       context: grpc.ServicerContext,
-  ) -> umpire_dut_commands_pb2.UploadReportResponse:
+  ) -> empty_pb2.Empty:
     with self._report_index_manager.AllocateNextIndex() as (
         server_uuid,
         report_index,
@@ -317,17 +325,24 @@ class UmpireDUTCommandsServicer(
                       'Received an empty request stream.')
 
       first_data_type = first_request.WhichOneof('data')
-      if first_data_type != 'metadata':
+      if first_data_type != 'device_metadata':
         context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                      'The first message must be metadata.')
+                      'The first message must be device metadata.')
 
-      serial_number = first_request.metadata.serial_number
+      serial_number = first_request.device_metadata.serial_number
       if not serial_number:
         context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                       'Serial number must be provided.')
 
-      save_path = self._GetReportSavePath(serial_number,
-                                          first_request.metadata.stage)
+      try:
+        test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
+            first_request.device_metadata.test_phase]
+      except KeyError:
+        context.abort(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            f'Invalid test phase: {first_request.device_metadata.test_phase}')
+
+      save_path = self._GetReportSavePath(serial_number, test_phase)
       os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
       with file_utils.AtomicWrite(save_path, binary=True) as f:
@@ -344,7 +359,7 @@ class UmpireDUTCommandsServicer(
             compressor.write(request.chunk)
           self._WriteReportIndex(compressor, server_uuid, report_index)
 
-      return umpire_dut_commands_pb2.UploadReportResponse(success=True)
+      return empty_pb2.Empty()
 
   @classmethod
   def _WriteReportIndex(cls, writer: io.RawIOBase, server_uuid: str,
