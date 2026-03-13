@@ -670,27 +670,6 @@ pack_src_under_stateful() {
   fi
 }
 
-# Process the OTA package. We need to compress the key into otacerts.zip
-# beforehand since the device may not have `zip` command
-process_ota_zip() {
-  local file="$1"
-  local temp_dir
-  local output
-  temp_dir="$(mktemp -d)"
-  output="$(mktemp)"
-  register_tmp_object "${output}"
-
-  unzip -q "${file}" -d "${temp_dir}"
-  mv "${temp_dir}/META-INF/com/android/otacert" \
-    "${temp_dir}/packagekey.x509.pem"
-  zip -jq "${temp_dir}/otacerts.zip" "${temp_dir}/packagekey.x509.pem"
-  zip -jq - "${temp_dir}/payload.bin" \
-    "${temp_dir}/payload_properties.txt" \
-    "${temp_dir}/otacerts.zip" >"${output}"
-  rm -rf "${temp_dir}"
-  echo "${output}"
-}
-
 # Adds an image partition type payload.
 # Usage: add_image_part JSON_PATH COMPONENT FILE PART_NO START COUNT
 #  FILE is the disk image file.
@@ -1018,11 +997,7 @@ cmd_add() {
       file="$(get_uncompressed_file "${file}")"
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
-    project_config | android_apk | gpt_bin)
-      add_file_component "${json_path}" "${component}" "${file}"
-      ;;
-    ota_zip)
-      file="$(process_ota_zip "${file}")"
+    project_config | android_apk | gpt_bin | ota_zip)
       add_file_component "${json_path}" "${component}" "${file}"
       ;;
     *)
