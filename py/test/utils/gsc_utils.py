@@ -392,6 +392,7 @@ class GSCUtils:
   def Ti50ProvisionSPIData(self, no_write_protect):
     self.Ti50SetAddressingMode()
     self.Ti50SetSWWPRegister(no_write_protect)
+    self._gsctool.SetSpiDrive()
 
   def Ti50SetAddressingMode(self):
     """Sets addressing mode for ap ro verification on Ti50."""

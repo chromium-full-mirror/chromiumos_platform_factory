@@ -30,7 +30,7 @@ class GSCToolTest(unittest.TestCase):
     self.assertEqual(fw_ver.ro_version, '1.2.34')
     self.assertEqual(fw_ver.rw_version, '5.6.78')
 
-    self._SetGSCToolUtilityResult(stdout=('invalid output\n'))
+    self._SetGSCToolUtilityResult(('invalid output\n'))
     self.assertRaises(gsctool.GSCToolError, self.gsctool.GetGSCFirmwareVersion)
 
     self._SetGSCToolUtilityResult(status=1)
@@ -89,11 +89,11 @@ class GSCToolTest(unittest.TestCase):
     self.assertRaises(gsctool.GSCToolError, self.gsctool.SetFactoryMode, True)
 
   def testIsFactoryMode(self):
-    self._SetGSCToolUtilityResult(stdout=('...\nCCD_FLAG_FACTORY_MODE=N\n'))
+    self._SetGSCToolUtilityResult(('...\nCCD_FLAG_FACTORY_MODE=N\n'))
     self.assertFalse(self.gsctool.IsFactoryMode())
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-I', '-M'])
 
-    self._SetGSCToolUtilityResult(stdout=('...\nCCD_FLAG_FACTORY_MODE=Y\n'))
+    self._SetGSCToolUtilityResult(('...\nCCD_FLAG_FACTORY_MODE=Y\n'))
     self.assertTrue(self.gsctool.IsFactoryMode())
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-I', '-M'])
 
@@ -308,12 +308,11 @@ class GSCToolTest(unittest.TestCase):
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-E'])
 
   def testIsWpsrProvisioned(self):
-    self._SetGSCToolUtilityResult(stdout=('expected values: not provisioned'))
+    self._SetGSCToolUtilityResult(('expected values: not provisioned'))
     self.assertFalse(self.gsctool.IsWpsrProvisioned())
-    self._SetGSCToolUtilityResult(
-        stdout=('expected values: 1: 94 & fc, 2: 00 & 41'))
+    self._SetGSCToolUtilityResult(('expected values: 1: 94 & fc, 2: 00 & 41'))
     self.assertTrue(self.gsctool.IsWpsrProvisioned())
-    self._SetGSCToolUtilityResult(stdout=('expected values: corrupted'))
+    self._SetGSCToolUtilityResult(('expected values: corrupted'))
     self.assertTrue(self.gsctool.IsWpsrProvisioned())
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-E'])
 
@@ -340,6 +339,28 @@ class GSCToolTest(unittest.TestCase):
     device = self.gsctool.GetDeviceType()
     self.assertEqual(device, 'NT')
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-f'])
+
+  def testSetSpiDrive_NT_Set3(self):
+    fwver = textwrap.dedent("""
+      device: NT
+      keyids: RO 0xd15221fd, RW 0xd50dafd7
+      offsets: backup RO at 0x80000, backup RW at 0x90000
+      Current versions:
+      RO 4.0.4
+      RW 0.36.3""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+
+    self.gsctool.SetSpiDrive()
+
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '--spi_drive', '3'])
+
+  def testSetSpiDrive_Other_Set0(self):
+    fwver = textwrap.dedent("""device: DT""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+
+    self.gsctool.SetSpiDrive()
+
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '--spi_drive', '0'])
 
 if __name__ == '__main__':
   unittest.main()
