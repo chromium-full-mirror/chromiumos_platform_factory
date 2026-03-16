@@ -21,9 +21,11 @@ import {
   disableMcast,
   disableTftp,
   disableVersionCheck,
+  disableBroadcastPing,
   enableMcast,
   enableTftp,
   enableVersionCheck,
+  enableBroadcastPing,
   fetchConfig,
 } from '../actions';
 import {
@@ -31,6 +33,7 @@ import {
   isMcastEnabled,
   isTftpEnabled,
   isVersionCheckEnabled,
+  isBroadcastPingEnabled,
 } from '../selectors';
 
 type ConfigAppProps =
@@ -45,13 +48,16 @@ class ConfigApp extends React.Component<ConfigAppProps> {
     const {
       isMcastEnabled,
       isTftpEnabled,
+      isBroadcastPingEnabled,
       isVersionCheckEnabled,
       isConfigUpdating,
       disableMcast,
       disableTftp,
+      disableBroadcastPing,
       disableVersionCheck,
       enableMcast,
       enableTftp,
+      enableBroadcastPing,
       enableVersionCheck,
       logout,
     } = this.props;
@@ -86,6 +92,17 @@ class ConfigApp extends React.Component<ConfigAppProps> {
             control={
               <Switch
                 color="primary"
+                checked={isBroadcastPingEnabled}
+                onChange={isBroadcastPingEnabled ? disableBroadcastPing : enableBroadcastPing}
+                disabled={isConfigUpdating}
+              />
+            }
+            label="Broadcast Ping for DUT discovery"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                color="primary"
                 checked={isVersionCheckEnabled}
                 onChange={isVersionCheckEnabled ? disableVersionCheck :
                           enableVersionCheck}
@@ -108,6 +125,7 @@ class ConfigApp extends React.Component<ConfigAppProps> {
 const mapStateToProps = (state: RootState) => ({
   isTftpEnabled: isTftpEnabled(state),
   isMcastEnabled: isMcastEnabled(state),
+  isBroadcastPingEnabled: isBroadcastPingEnabled(state),
   isVersionCheckEnabled: isVersionCheckEnabled(state),
   isConfigUpdating: isConfigUpdating(state),
 });
@@ -115,9 +133,11 @@ const mapStateToProps = (state: RootState) => ({
 const mapDispatchToProps = {
   disableMcast,
   disableTftp,
+  disableBroadcastPing,
   disableVersionCheck,
   enableMcast,
   enableTftp,
+  enableBroadcastPing,
   enableVersionCheck,
   fetchConfig,
   logout: auth.actions.logout,

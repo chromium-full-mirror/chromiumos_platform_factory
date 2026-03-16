@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package cros.factory.fastboot.proto;
+
+message ScanRequest {
+  string iface = 1;
+  string bcast_ip = 2;
+  int32 ttl = 3;
+  int32 num_probes = 4;
+  int32 timeout = 5;
+  string payload = 6;
+}
+
+message ScanResponse {
+  repeated string devices = 1;
+}
+
+service BroadcastPing {
+  rpc PerformScan (ScanRequest) returns (ScanResponse) {}
+}

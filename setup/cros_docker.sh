@@ -227,6 +227,8 @@ set_docker_image_info
 : "${UMPIRE_PORT:="8080"}"  # base port for Umpire
 : "${DOME_PORT:="8000"}"  # port to access Dome
 : "${DOME_HTTPS_PORT:="8001"}"  # port to access Dome via HTTPS
+: "${BROADCAST_PING_SERVICE_PORT:="8002"}" # port to run the broadcast ping
+                                           # service
 : "${DOME_DEV_PORT:="18000"}"  # port to access Dome dev server
 : "${GOOFY_PORT:="4012"}"  # port to access Goofy
 : "${OVERLORD_HTTP_PORT:="9000"}"  # port to access Overlord
@@ -1038,6 +1040,7 @@ do_run() {
     --env HOST_TFTP_DIR="${HOST_TFTP_DIR}" \
     --env HOST_LOCALTIME_PATH="${HOST_LOCALTIME_PATH}" \
     --env RESOURCE_CROS_DOCKER_URL="" \
+    --env BROADCAST_PING_SERVICE_PORT="${BROADCAST_PING_SERVICE_PORT}"\
     --volume /run \
     --volume "${HOST_DOME_DIR}/${db_filename}:${docker_db_dir}/${db_filename}" \
     --volume "${HOST_DOME_DIR}/${ssl_config}:${docker_db_dir}/${ssl_config}" \

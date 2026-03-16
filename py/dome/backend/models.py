@@ -86,6 +86,13 @@ MCAST_SHARED_DIR = os.getenv('HOST_MCAST_DIR',
                              os.path.join(DOCKER_SHARED_DIR, 'multicast'))
 MCAST_SERVER_FILEPATH = '/usr/local/factory/py/multicast/server.py'
 
+BROADCAST_PING_CONTAINER_NAME = 'dome_broadcast_ping'
+BROADCAST_PING_LOG_DIR_IN_CONTAINER = '/var/log/broadcast_ping'
+BROADCAST_PING_SHARED_DIR = os.path.join(DOCKER_SHARED_DIR, 'broadcast_ping')
+BROADCAST_PING_SERVER_FILEPATH = ('/usr/local/factory/py/fastboot/'
+                                  'broadcast_ping_grpc.py')
+BROADCAST_PING_SERVICE_PORT = os.getenv('BROADCAST_PING_SERVICE_PORT', '8002')
+
 TFTP_DOCKER_DIR = os.getenv(
     'HOST_TFTP_DIR', os.path.join(DOCKER_SHARED_DIR, 'tftp'))
 TFTP_BASE_DIR_IN_TFTP_CONTAINER = '/var/tftp'
@@ -323,6 +330,15 @@ def GetDockerImageLatestVersion(resource_cros_docker_url):
     process_utils.SpawnOutput(['rm', '-r', temp_dir])
 
 
+def GetDockerBridgeNetworkGateway():
+  get_docker_gateway_cmd = [
+      'docker', 'network', 'inspect', 'bridge', '-f'
+      '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
+  ]
+  gateway_ip = process_utils.CheckOutput(get_docker_gateway_cmd)
+  return gateway_ip.strip()
+
+
 class DomeConfig(django.db.models.Model):
 
   id = django.db.models.IntegerField(
@@ -330,6 +346,7 @@ class DomeConfig(django.db.models.Model):
   mcast_enabled = django.db.models.BooleanField(default=False)
   tftp_enabled = django.db.models.BooleanField(default=False)
   version_check_enabled = django.db.models.BooleanField(default=True)
+  broadcast_ping_enabled = django.db.models.BooleanField(default=False)
 
   def CreateTFTPContainer(self):
     if DoesContainerExist(TFTP_CONTAINER_NAME):
@@ -401,6 +418,42 @@ class DomeConfig(django.db.models.Model):
     self.save()
     return self
 
+  def CreateBroadcastPingContainer(self):
+    if DoesContainerExist(BROADCAST_PING_CONTAINER_NAME):
+      logger.info('Broadcast ping container already exists')
+      return self
+
+    try:
+      gateway_ip = GetDockerBridgeNetworkGateway()
+
+      docker_run_cmd = [
+          'docker', 'run', '--detach', '--restart', 'unless-stopped', '--name',
+          BROADCAST_PING_CONTAINER_NAME, '--net', 'host', '--volume',
+          f'{BROADCAST_PING_SHARED_DIR}:{BROADCAST_PING_LOG_DIR_IN_CONTAINER}',
+          FACTORY_SERVER_IMAGE_NAME, BROADCAST_PING_SERVER_FILEPATH, '-l',
+          BROADCAST_PING_LOG_DIR_IN_CONTAINER, '-i', gateway_ip, '-p',
+          BROADCAST_PING_SERVICE_PORT
+      ]
+      logger.info('Running command %r', docker_run_cmd)
+      subprocess.check_call(docker_run_cmd)
+    except Exception:
+      logger.error('Failed to create broadcast ping container')
+      logger.exception(traceback.format_exc())
+      self.DeleteBroadcastPingContainer()
+      raise
+
+    self.broadcast_ping_enabled = True
+    self.save()
+
+    return self
+
+  def DeleteBroadcastPingContainer(self):
+    logger.info('Deleting broadcast ping container')
+    subprocess.call(['docker', 'rm', '-f', BROADCAST_PING_CONTAINER_NAME])
+    self.broadcast_ping_enabled = False
+    self.save()
+    return self
+
   def UpdateConfig(self, **kwargs):
     # enable or disable TFTP if necessary
     self.tftp_enabled = DoesContainerExist(TFTP_CONTAINER_NAME)
@@ -418,6 +471,15 @@ class DomeConfig(django.db.models.Model):
         self.CreateMcastContainer()
       else:
         self.DeleteMcastContainer()
+
+    self.broadcast_ping_enabled = DoesContainerExist(
+        BROADCAST_PING_CONTAINER_NAME)
+    if ('broadcast_ping_enabled' in kwargs and
+        self.broadcast_ping_enabled != kwargs['broadcast_ping_enabled']):
+      if kwargs['broadcast_ping_enabled']:
+        self.CreateBroadcastPingContainer()
+      else:
+        self.DeleteBroadcastPingContainer()
 
     if ('version_check_enabled' in kwargs and
         self.version_check_enabled != kwargs['version_check_enabled']):
@@ -683,6 +745,10 @@ class Project(django.db.models.Model):
         cmd += ['--volume', f'{LOCALTIME_DOCKER_PATH}:/etc/localtime:ro']
       if common.IsDomeDevServer():
         cmd += ['--env', 'DOME_DEV_SERVER=1']
+      if self.is_android:
+        gateway_ip = GetDockerBridgeNetworkGateway()
+        broadcast_ping_url = f'{gateway_ip}:{BROADCAST_PING_SERVICE_PORT}'
+        cmd += ['--env', f'BROADCAST_PING_SERVICE_URL={broadcast_ping_url}']
       cmd += [FACTORY_SERVER_IMAGE_NAME, UMPIRED_FILEPATH]
       logger.info('Running command %r', cmd)
       subprocess.check_call(cmd)

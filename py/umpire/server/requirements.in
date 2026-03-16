@@ -12,3 +12,4 @@ txJSON-RPC==0.5
 pyOpenSSL===23.3.0
 requests==2.24.0
 zstandard==0.24.0
+scapy==2.6.1

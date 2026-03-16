@@ -18,6 +18,7 @@ type ConfigAction = ActionType<typeof actions>;
 const DefaultConfigState = {
   tftpEnabled: false,
   mcastEnabled: false,
+  broadcastPingEnabled: false,
   versionCheckEnabled: true,
 };
 

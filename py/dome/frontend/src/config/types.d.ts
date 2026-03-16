@@ -6,4 +6,5 @@ export interface Config {
   mcastEnabled: boolean;
   tftpEnabled: boolean;
   versionCheckEnabled: boolean;
+  broadcastPingEnabled: boolean;
 }

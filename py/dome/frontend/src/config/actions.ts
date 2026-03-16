@@ -47,6 +47,10 @@ export const enableMcast = () => updateConfig({mcastEnabled: true});
 
 export const disableMcast = () => updateConfig({mcastEnabled: false});
 
+export const enableBroadcastPing = () => updateConfig({broadcastPingEnabled: true});
+
+export const disableBroadcastPing = () => updateConfig({broadcastPingEnabled: false});
+
 export const enableVersionCheck = () => updateConfig(
   {versionCheckEnabled: true});
 
