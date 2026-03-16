@@ -8,6 +8,7 @@ import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
+import Collapse from '@mui/material/Collapse';
 import Tooltip from '@mui/material/Tooltip';
 import {
   createStyles,
@@ -100,6 +101,45 @@ const styles = createStyles({
   },
 });
 
+interface RenderNullableObjectSwitchProps {
+  label: string;
+  schema: Schema;
+  fieldName: string;
+}
+
+const RenderNullableObjectSwitch =
+  ({input, label, schema, fieldName}: RenderNullableObjectSwitchProps & WrappedFieldProps) => {
+    const checked = !!input.value;
+
+    return (
+      <div>
+        <FormControlLabel
+          control={
+            <Switch
+              color="primary"
+              checked={checked}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  input.onChange({});
+                } else {
+                  input.onChange(null);
+                }
+              }}
+            />
+          }
+          label={label}
+        />
+        <Collapse in={checked}>
+          {checked &&
+            <FormSection name={fieldName}>
+              <RenderFields schema={schema} />
+            </FormSection>
+          }
+        </Collapse>
+      </div>
+    );
+  };
+
 interface RenderFieldsProps {
   schema: Schema;
 }
@@ -109,6 +149,21 @@ const RenderFields = withStyles(styles)(
     const properties = schema.properties as {[k: string]: Schema};
 
     const renderField = (k: string, value: Schema): React.ReactNode => {
+      if (Array.isArray(value.type)) {
+        if (value.type.includes('object') && value.type.includes('null')) {
+          return (
+            <Field
+              key={k}
+              name={k}
+              component={RenderNullableObjectSwitch}
+              label={k}
+              schema={value}
+              fieldName={k}
+            />
+          );
+        }
+      }
+
       switch (value.type) {
         case 'string':
           return (
