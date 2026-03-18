@@ -77,6 +77,7 @@ class UmpireDUTCommandsServicer(
   _REPORT_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'report')
   _REPORT_INDEX_JSON_PATH = os.path.join(_UMPIRE_DIR, 'properties',
                                          'report_index.json')
+  _CSR_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'csr')
 
   _TEST_PHASE_TO_NAME_MAPPING = {
       umpire_dut_commands_pb2.TEST_PHASE_PROTO: "PROTO",
@@ -320,16 +321,16 @@ class UmpireDUTCommandsServicer(
         timezone = self_active_config['umpire_timezone']['timezone']
     return timezone
 
-  def _GetFileSavePath(self, save_dir: str, serial_number: str,
-                       test_phase: str) -> str:
+  def _GetFileSavePath(self, save_dir: str, serial_number: str, test_phase: str,
+                       data_type: str) -> str:
     date_str = time.strftime('%Y%m%d',
                              time_utils.GetNowWithTimezone(self._GetTimezone()))
     timestamp = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime(time.time()))
-    file_name = f'{serial_number}-{test_phase}-{timestamp}.rpt.zst'
+    file_name = f'{serial_number}-{test_phase}-{timestamp}.{data_type}.zst'
     return os.path.join(save_dir, date_str, file_name)
 
   def _SaveFileAsZst(
-      self, save_dir: str,
+      self, save_dir: str, data_type: str,
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
       context: grpc.ServicerContext,
       callback: Optional[Callable[[io.RawIOBase], None]] = None) -> None:
@@ -360,7 +361,8 @@ class UmpireDUTCommandsServicer(
           f'Invalid test phase: {first_request.device_metadata.test_phase}')
       return
 
-    save_path = self._GetFileSavePath(save_dir, serial_number, test_phase)
+    save_path = self._GetFileSavePath(save_dir, serial_number, test_phase,
+                                      data_type)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     with file_utils.AtomicWrite(save_path, binary=True) as f:
@@ -404,8 +406,8 @@ class UmpireDUTCommandsServicer(
         entry_str = json_utils.DumpStr(entry, pretty=False, newline=True)
         writer.write(entry_str.encode('utf8'))
 
-      self._SaveFileAsZst(self._REPORT_DATA_DIR, request_iterator, context,
-                          _WriteReportIndexCallback)
+      self._SaveFileAsZst(self._REPORT_DATA_DIR, 'rpt', request_iterator,
+                          context, _WriteReportIndexCallback)
       return empty_pb2.Empty()
 
   def SyncDeviceTime(
@@ -444,3 +446,9 @@ class UmpireDUTCommandsServicer(
     return umpire_dut_commands_pb2.SyncDeviceTimeResponse(
         success=True,
         messages=f'Successfully synced time on {target} to epoch {epoch_time}')
+
+  def UploadCSR(self, request_iterator: Iterator[
+      umpire_dut_commands_pb2.UploadFileRequest],
+                context: grpc.ServicerContext) -> empty_pb2.Empty:
+    self._SaveFileAsZst(self._CSR_DATA_DIR, 'jsonl', request_iterator, context)
+    return empty_pb2.Empty()

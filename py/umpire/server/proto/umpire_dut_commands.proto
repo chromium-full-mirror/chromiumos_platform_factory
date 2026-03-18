@@ -147,4 +147,7 @@ service UmpireDUTCommands {
    * zone.
    */
   rpc SyncDeviceTime(SyncDeviceTimeRequest) returns (SyncDeviceTimeResponse) {}
+
+  /** Uploads CSR to the factory server. */
+  rpc UploadCSR(stream UploadFileRequest) returns (.google.protobuf.Empty) {}
 }
