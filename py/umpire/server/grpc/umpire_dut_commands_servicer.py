@@ -228,7 +228,7 @@ class UmpireDUTCommandsServicer(
       logging.info('DownloadFactoryDrives target: %s', target)
       remote_path = request.dest_path
       content = self._CLI_command.GetFactoryDrives(request.source_namespace,
-                                                  request.source_file).data
+                                                   request.source_file).data
       tar_stream = io.BytesIO(content)
       with tarfile.open(fileobj=tar_stream, mode='r') as tar:
         tar.extractall(path=extract_path)
