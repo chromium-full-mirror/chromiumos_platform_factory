@@ -18,7 +18,7 @@ import tarfile
 import tempfile
 import threading
 import time
-from typing import Iterator, Optional, cast
+from typing import Callable, Iterator, Optional, cast
 import xmlrpc.client
 
 from google.protobuf import empty_pb2
@@ -37,7 +37,6 @@ from cros.factory.utils import time_utils
 
 
 _PEER_PATTERN = re.compile(r'ipv4:(.*):\d+')
-_REPORT_INDEX_JSON_FILE = '/var/db/factory/umpire/properties/report_index.json'
 
 
 def _ParseIpFromPeer(peer: str) -> str:
@@ -73,6 +72,12 @@ def _AdbDisconnect(target: str, log: bool = True,
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
 
+  _UMPIRE_DIR = os.path.join('/', umpire_env.DEFAULT_BASE_DIR)
+  _UMPIRE_DATA_DIR = os.path.join(_UMPIRE_DIR, 'umpire_data')
+  _REPORT_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'report')
+  _REPORT_INDEX_JSON_PATH = os.path.join(_UMPIRE_DIR, 'properties',
+                                         'report_index.json')
+
   _TEST_PHASE_TO_NAME_MAPPING = {
       umpire_dut_commands_pb2.TEST_PHASE_PROTO: "PROTO",
       umpire_dut_commands_pb2.TEST_PHASE_EVT: "EVT",
@@ -86,7 +91,7 @@ class UmpireDUTCommandsServicer(
     self._umpire_cli_url = umpire_cli_url
     self._local = threading.local()
     self._report_index_manager = umpire_env.ReportIndexManager(
-        _REPORT_INDEX_JSON_FILE)
+        self._REPORT_INDEX_JSON_PATH)
 
   @property
   def _CLI_command(self) -> rpc_cli.CLICommand:
@@ -302,13 +307,63 @@ class UmpireDUTCommandsServicer(
         timezone = self_active_config['umpire_timezone']['timezone']
     return timezone
 
-  def _GetReportSavePath(self, serial_number: str, test_phase: str) -> str:
+  def _GetFileSavePath(self, save_dir: str, serial_number: str,
+                       test_phase: str) -> str:
     date_str = time.strftime('%Y%m%d',
                              time_utils.GetNowWithTimezone(self._GetTimezone()))
     timestamp = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime(time.time()))
     file_name = f'{serial_number}-{test_phase}-{timestamp}.rpt.zst'
-    return os.path.join('/', umpire_env.DEFAULT_BASE_DIR, 'umpire_data',
-                        'report', date_str, file_name)
+    return os.path.join(save_dir, date_str, file_name)
+
+  def _SaveFileAsZst(
+      self, save_dir: str,
+      request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
+      context: grpc.ServicerContext,
+      callback: Optional[Callable[[io.RawIOBase], None]] = None) -> None:
+    first_request = next(request_iterator, None)
+    if first_request is None:
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'Received an empty request stream.')
+
+    if first_request.WhichOneof('data') != 'device_metadata':
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'The first message must be device metadata.')
+
+    serial_number = first_request.device_metadata.serial_number
+    if not serial_number:
+      context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                    'Serial number must be provided.')
+
+    try:
+      test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
+          first_request.device_metadata.test_phase]
+    except KeyError:
+      context.abort(
+          grpc.StatusCode.INVALID_ARGUMENT,
+          f'Invalid test phase: {first_request.device_metadata.test_phase}')
+
+    save_path = self._GetFileSavePath(save_dir, serial_number, test_phase)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    with file_utils.AtomicWrite(save_path, binary=True) as f:
+      with zstandard.ZstdCompressor().stream_writer(
+          f,
+          # Don't auto close fd on ZstdCompressor; AtomicWrite will close it.
+          closefd=False) as _compressor:
+        # Zstd writer conforms to io.RawIOBase so cast type to let mypy work
+        compressor = cast(io.RawIOBase, _compressor)
+
+        for request in request_iterator:
+          if request.WhichOneof('data') != 'chunk':
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                'Expected a file chunk, but received another message type '
+                'mid-stream.',
+            )
+          compressor.write(request.chunk)
+
+        if callback:
+          callback(compressor)
 
   def UploadReport(
       self,
@@ -319,59 +374,20 @@ class UmpireDUTCommandsServicer(
         server_uuid,
         report_index,
     ):
-      first_request = next(request_iterator, None)
-      if first_request is None:
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                      'Received an empty request stream.')
 
-      first_data_type = first_request.WhichOneof('data')
-      if first_data_type != 'device_metadata':
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                      'The first message must be device metadata.')
+      def _WriteReportIndexCallback(writer: io.RawIOBase) -> None:
+        entry = {
+            'type': 'metadata',
+            'serverUuid': server_uuid,
+            'reportIndex': f'{report_index:010d}',
+            'domeVersion': os.environ.get('DOCKER_IMAGE_TIMESTAMP', ''),
+        }
+        entry_str = json_utils.DumpStr(entry, pretty=False, newline=True)
+        writer.write(entry_str.encode('utf8'))
 
-      serial_number = first_request.device_metadata.serial_number
-      if not serial_number:
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                      'Serial number must be provided.')
-
-      try:
-        test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
-            first_request.device_metadata.test_phase]
-      except KeyError:
-        context.abort(
-            grpc.StatusCode.INVALID_ARGUMENT,
-            f'Invalid test phase: {first_request.device_metadata.test_phase}')
-
-      save_path = self._GetReportSavePath(serial_number, test_phase)
-      os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-      with file_utils.AtomicWrite(save_path, binary=True) as f:
-        with zstandard.ZstdCompressor().stream_writer(f) as _compressor:
-          # Zstd writer conforms to io.RawIOBase so cast type to let mypy work
-          compressor = cast(io.RawIOBase, _compressor)
-          for request in request_iterator:
-            if request.WhichOneof('data') != 'chunk':
-              context.abort(
-                  grpc.StatusCode.INVALID_ARGUMENT,
-                  'Expected a file chunk, but received another message type '
-                  'mid-stream.',
-              )
-            compressor.write(request.chunk)
-          self._WriteReportIndex(compressor, server_uuid, report_index)
-
+      self._SaveFileAsZst(self._REPORT_DATA_DIR, request_iterator, context,
+                          _WriteReportIndexCallback)
       return empty_pb2.Empty()
-
-  @classmethod
-  def _WriteReportIndex(cls, writer: io.RawIOBase, server_uuid: str,
-                        report_index: int) -> None:
-    entry = {
-        'type': 'metadata',
-        'serverUuid': server_uuid,
-        'reportIndex': f'{report_index:010d}',
-        'domeVersion': os.environ.get('DOCKER_IMAGE_TIMESTAMP', ''),
-    }
-    entry_str = json_utils.DumpStr(entry, pretty=False, newline=True)
-    writer.write(entry_str.encode('utf8'))
 
   def SyncDeviceTime(
       self,
