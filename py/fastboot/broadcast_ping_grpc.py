@@ -75,7 +75,7 @@ class BroadcastPingServicer(broadcast_ping_pb2_grpc.BroadcastPingServicer):
 
     packet = (
         Ether(src=src_mac, dst='ff:ff:ff:ff:ff:ff') /
-        IP(src=src_ip, dst='255.255.255.255', ttl=req.ttl) / ICMP() /
+        IP(src=src_ip, dst=req.bcast_ip, ttl=req.ttl) / ICMP() /
         Raw(load=req.payload.encode('utf-8')))
 
     responders: Set[str] = set()
