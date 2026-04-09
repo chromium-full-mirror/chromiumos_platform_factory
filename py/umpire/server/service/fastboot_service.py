@@ -96,6 +96,10 @@ class FastbootService(umpire_service.UmpireService):
           '/usr/local/factory/bin/factory_ufs'
       ])
 
+    if ('fw_fastboot_only' in fastboot_service_config and
+        fastboot_service_config['fw_fastboot_only']):
+      args.extend(['--fw_fastboot_only'])
+
     proc_config = {
         'executable': script_path,
         'name': SERVICE_NAME,
