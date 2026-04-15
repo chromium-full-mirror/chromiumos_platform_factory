@@ -45,6 +45,7 @@ let Config;
  * @typedef {{
  *  projects: (!Object|undefined),
  *  supportedBoards: (!Array<string>|undefined),
+ *  availableLocations: (string | undefined)
  *  scanData: (!ScanData|undefined),
  *  extractData: (!ExtractData|undefined),
  *  extractDataCopiedToClipboard: (string|undefined),
@@ -62,6 +63,7 @@ let Config;
  *  input_config_projectCode: (string|undefined),
  *  input_config_GPN: (string|undefined),
  *  input_config_assetTag: (string|undefined),
+ *  selected_location:(string |undefined),
  * }}
  */
 let State;
@@ -87,7 +89,19 @@ const defaultConfig /** Config */ = {
   GPN: '',
   assetTag: '',
 };
-const state /** State */ = {};
+const state /** State */ = {
+  available_locations: [
+   'US-SJC-DISK5093-1-1X0',
+   'PL-KRK-ZAB43-1-1B5D',
+   'UK-LON-6PS-3-3D7',
+   'TW-TPE-101-75-7505',
+   'SG-SIN-MBC2-7-7B7065',
+   'US-SJC-TM2-2-2G0',
+   'US-BLD-PEARL2930-1-1C21',
+   'AU-SYD-ODI-3-34C',
+   'US-MTV-1600-1-Chromestop'
+   ] // Warehouse Fully qualified code
+};
 
 
 /**
@@ -509,6 +523,9 @@ const handleUpload = async () => {
     if (state.input_config_GPN) {
       parameters += `&GPN=${state.input_config_GPN}`
     }
+    if(state.selected_location) {
+      parameters += `&location=${state.selected_location}`;
+    }
     window.open(state.input_config_hartURL + parameters, 'hart');
   }
   if (state.input_config_lockAfterUploaded) {
@@ -630,6 +647,9 @@ const renderUpdateConfig = (ele) => {
   const pvalues = [''].concat(state.projects.pvalues || []);
   renderSelect(ele, 'config_projectCode', 'Project Code', pkeys, pvalues,
       handleUpdateConfig);
+  const locationKeys = ['Please, select your location'].concat(state.available_locations);
+  const locationsValues = [''].concat(state.available_locations)
+  renderSelect(ele, 'location', 'Location', locationKeys, locationsValues);
 };
 
 /**
