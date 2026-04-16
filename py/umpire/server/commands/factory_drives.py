@@ -8,6 +8,7 @@ See FactoryDrives for detail.
 
 import logging
 import os
+from typing import Any
 
 from cros.factory.umpire import common
 from cros.factory.umpire.server import utils
@@ -25,39 +26,38 @@ class _FactoryDriveObject:
   """
 
   def __init__(self, data):
-    self.data = data
-
-  @property
-  def files(self):
-    return self.data['files']
-
-  @property
-  def dirs(self):
-    return self.data['dirs']
+    self.dirs: dict[int, Any] = {
+        d['id']: d
+        for d in data['dirs']
+    }
+    self.files: dict[int, Any] = {
+        f['id']: f
+        for f in data['files']
+    }
 
   def _FindComponentsByName(self, dir_id, name):
     """Return List of component(s) in given directory and component name.
 
     If name is None, return all components in this directory.
     """
-    fs = [f for f in self.files if f['dir_id'] == dir_id]
+    fs = [f for f in self.files.values() if f['dir_id'] == dir_id]
     if name is not None:
       fs = [f for f in fs if f['name'] == name]
     return fs
 
   def _FindChildDirByName(self, parent_id, dir_name):
     """Return directory in given parent directory and directory name."""
-    return next((d for d in self.dirs
+    return next((d for d in self.dirs.values()
                  if d['name'] == dir_name and d['parent_id'] == parent_id),
                 None)
 
   def _FindComponentById(self, comp_id):
     """Return component with given id."""
-    return next((c for c in self.files if c['id'] == comp_id), None)
+    return self.files.get(comp_id)
 
   def _FindDirectoryById(self, dir_id):
     """Return directory with given id."""
-    return next((d for d in self.dirs if d['id'] == dir_id), None)
+    return self.dirs.get(dir_id)
 
   def _UpdateExistingComponent(self, component, rename, using_ver, dst_path):
     """Update existing component: revision, update new version, and rename."""
@@ -98,14 +98,10 @@ class _FactoryDriveObject:
           raise common.UmpireError(f'An error occurred during deletion: {e}')
       else:
         raise common.UmpireError(f'NOT FOUND: {file_path}')
-    self.data['files'] = [c for c in self.data['files'] if c['id'] != comp_id]
+    del self.files[comp_id]
 
   def GetNewCompId(self):
-    ids = [c.get('id') for c in self.files if c.get('id') is not None]
-    if not ids:
-      return 0
-    max_id = max(ids)
-    return max_id + 1
+    return max(self.files.keys(), default=-1) + 1
 
   def _CreateComponent(self, dir_id, comp_name, dst_path):
     """Create new component."""
@@ -117,7 +113,7 @@ class _FactoryDriveObject:
         'using_ver': 0,
         'revisions': [dst_path]
     }
-    self.files.append(component)
+    self.files[new_comp_id] = component
     return component
 
   def UpdateComponent(self, comp_id, dir_id, comp_name, using_ver, dst_path):
@@ -161,7 +157,7 @@ class _FactoryDriveObject:
         'parent_id': parent_id,
         'name': dir_name
     }
-    self.dirs.append(new_dir)
+    self.dirs[dir_id] = new_dir
     return new_dir
 
   def UpdateDirectory(self, dir_id, parent_id, dir_name):
@@ -222,7 +218,11 @@ class FactoryDrives:
 
   def _DumpFactoryDrive(self):
     """Dump factory drive to json file."""
-    json_utils.DumpFile(self._factory_drive_json_file, self._factory_drive.data)
+    data = {
+        "dirs": list(self._factory_drive.dirs.values()),
+        "files": list(self._factory_drive.files.values())
+    }
+    json_utils.DumpFile(self._factory_drive_json_file, data)
 
   def GetFactoryDriveDstPath(self, comp_id, src_path):
     """Prepend file MD5 sum to file path"""
@@ -298,7 +298,11 @@ class FactoryDrives:
         "name": string, // directory name
       }
     """
-    return self._factory_drive.data
+    data = {
+        "dirs": list(self._factory_drive.dirs.values()),
+        "files": list(self._factory_drive.files.values())
+    }
+    return data
 
   def UpdateFactoryDriveDirectory(self, dir_id, parent_id, name):
     """Update a factory drive directory.
