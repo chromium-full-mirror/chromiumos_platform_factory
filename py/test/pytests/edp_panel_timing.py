@@ -76,8 +76,15 @@ class EDPPanelTimingTest(test_case.TestCase):
     """Check the content in debugfs and fail if the debug value is 'UNKNOWN'"""
     debug_detected_panels = self._dut.Glob(
         '/sys/kernel/debug/dri/*/eDP*/panel/detected_panel')
-    if len(debug_detected_panels) != 1:
-      self.fail(f'Should only be 1 debug file, found {debug_detected_panels}')
+
+    real_paths = set()
+    for p in debug_detected_panels:
+      # Execute 'realpath' on the DUT to resolve symbolic links
+      real_path = self._dut.CheckOutput(['realpath', p]).strip()
+      real_paths.add(real_path)
+
+    if len(real_paths) != 1:
+      self.fail(f'Should only be 1 debug file, found {real_paths}')
 
     debug_content = self._dut.ReadFile(debug_detected_panels[0]).strip()
     self.assertNotEqual(
