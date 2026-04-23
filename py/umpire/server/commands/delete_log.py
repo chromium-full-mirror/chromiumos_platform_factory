@@ -49,7 +49,8 @@ class LogDeleter:
     sub_dir = {
         'csv': 'csv',
         'report': 'report',
-        'log': 'aux_log'
+        'log': 'aux_log',
+        'csr': 'csr',
     }[log_type]
     messages = []
 
@@ -65,7 +66,7 @@ class LogDeleter:
             'messages': messages,
         }
 
-      if log_type in ('report', 'log'):
+      if log_type in ('report', 'log', 'csr'):
         start_date = datetime.datetime.strptime(start_date_str, '%Y%m%d').date()
         end_date = datetime.datetime.strptime(end_date_str, '%Y%m%d').date()
         no_logs = True

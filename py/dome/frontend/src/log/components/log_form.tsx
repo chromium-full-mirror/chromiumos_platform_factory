@@ -48,6 +48,7 @@ const logTypes = [
   {name: 'log', value: 'log'},
   {name: 'report', value: 'report'},
   {name: 'csv (echo code inside)', value: 'csv'},
+  {name: 'csr', value: 'csr'},
 ];
 
 interface LogFormOwnProps {

@@ -117,7 +117,8 @@ class LogExporter:
     sub_dir = {
         'csv': 'csv',
         'report': 'report',
-        'log': 'aux_log'
+        'log': 'aux_log',
+        'csr': 'csr',
     }[log_type]
     split_bytes = self.GetBytes(split_size['size'], split_size['unit'])
     messages: List[str] = []
@@ -143,7 +144,7 @@ class LogExporter:
             'log_paths': [],
         }
 
-      if log_type in ('report', 'log'):
+      if log_type in ('report', 'log', 'csr'):
         start_date = datetime.datetime.strptime(start_date_str, '%Y%m%d').date()
         end_date = datetime.datetime.strptime(end_date_str, '%Y%m%d').date()
         root_dir = os.path.join(umpire_data_dir, sub_dir)
