@@ -145,7 +145,7 @@ download_remote_toolkit() {
   mkdir -p "${CACHED_REMOTE_TOOLKIT_DIR}"
   if [ ! -f "${CACHED_REMOTE_TOOLKIT_PATH}" ]; then
     info "Download the toolkit from \`${REMOTE_TOOLKIT_PATH}\`."
-    gsutil cp "${REMOTE_TOOLKIT_PATH}" "${CACHED_REMOTE_TOOLKIT_PATH}"
+    gcloud storage cp "${REMOTE_TOOLKIT_PATH}" "${CACHED_REMOTE_TOOLKIT_PATH}"
   else
     info "Use the cached toolkit file \`${CACHED_REMOTE_TOOLKIT_PATH}\`."
   fi

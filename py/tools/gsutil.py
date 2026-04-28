@@ -302,14 +302,23 @@ def BuildResourceBaseURL(channel, board, version):
   assert isinstance(board, str)
   assert isinstance(version, str)
 
-  # Temporarily use nissa images for nirva in older versions. See b/441809628.
-  # `16332.0.0` is the first version where nirva has its own builds.
   # TODO(b/441842121): Remove this workaround.
+  # Two nissa-related boards that require using nissa images for older versions:
+  #   - Nirva (b/441809628): `16332.0.0` is the first version where nirva has
+  #     its own builds.
+  #   - Nissa2 (b/504509369): `16572.0.0` is the first version where nissa2 has
+  #     its own builds.
   # yapf: disable
   if board == 'nirva' and version_utils.StrictVersion(version) < version_utils.StrictVersion('16332.0.0'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
     # yapf: disable
     return f'gs://chromeos-image-archive/factory-nissa-16077.B-nirva/R132-{version}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
+  if board == 'nissa2' and version_utils.StrictVersion(version) < version_utils.StrictVersion('16572.0.0'):  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    return f'gs://chromeos-image-archive/factory-nissa-16077.B-nissa2/R132-{version}'  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
   return BASE_URL_FORMAT.format(channel=channel,

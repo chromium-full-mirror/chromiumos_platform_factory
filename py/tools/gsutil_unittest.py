@@ -211,6 +211,15 @@ class GsutilUnittest(unittest.TestCase):
         'gs://chromeos-releases/canary-channel/nirva/16332.0.0',
         gsutil.BuildResourceBaseURL('canary', 'nirva', '16332.0.0'))
 
+    # Test cases for nissa2 board workaround. See b/504509369.
+    self.assertEqual(
+        'gs://chromeos-image-archive/factory-nissa-16077.B-nissa2/R132-16077.234.0',
+        gsutil.BuildResourceBaseURL('canary', 'nissa2', '16077.234.0'))
+
+    self.assertEqual(
+        'gs://chromeos-releases/canary-channel/nissa2/16572.0.0',
+        gsutil.BuildResourceBaseURL('canary', 'nissa2', '16572.0.0'))
+
 if __name__ == '__main__':
   logging.basicConfig(level=logging.DEBUG)
   unittest.main()
