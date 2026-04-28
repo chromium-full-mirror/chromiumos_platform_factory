@@ -316,6 +316,15 @@ class CLICommand(umpire_rpc.UmpireRPC):
       return twisted_xmlrpc.Binary(file_utils.ReadFile(tar_path, encoding=None))
 
   @umpire_rpc.RPCCall
+  def GetFactoryDriveManifest(self):
+    """Gets the manifest of factory drive.
+
+    Returns:
+      A list of dictionary containing the path and md5sum of each file.
+    """
+    return self.env.factory_drives.GetFactoryDriveManifest()
+
+  @umpire_rpc.RPCCall
   def UpdateFactoryDriveDirectory(self, dir_id, parent_id, name):
     return self.env.factory_drives.UpdateFactoryDriveDirectory(
         dir_id, parent_id, name)

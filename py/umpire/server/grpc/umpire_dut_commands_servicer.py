@@ -264,6 +264,19 @@ class UmpireDUTCommandsServicer(
         success=True,
         messages=f'Successfully download from the factory drives on {target}')
 
+  # pylint: disable=unused-argument
+  def GetFactoryDriveManifest(
+      self,
+      request: umpire_dut_commands_pb2.GetFactoryDriveManifestRequest,
+      context: grpc.ServicerContext,
+  ) -> umpire_dut_commands_pb2.GetFactoryDriveManifestResponse:
+    logging.info('GetFactoryDriveManifest from peer %s started', context.peer())
+    manifest = self._CLI_command.GetFactoryDriveManifest()
+    response = umpire_dut_commands_pb2.GetFactoryDriveManifestResponse(files=[
+        umpire_dut_commands_pb2.FileMetadata(**item) for item in manifest
+    ])
+    return response
+
   def GetOtaPackage(self, request, context):
     logging.info('request.target: %s, path: %s, peer: %s', request.target,
                  request.path, context.peer())

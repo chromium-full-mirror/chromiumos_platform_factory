@@ -55,6 +55,17 @@ message DownloadFactoryDrivesResponse {
   string messages = 2;
 }
 
+message GetFactoryDriveManifestRequest {}
+
+message GetFactoryDriveManifestResponse {
+  repeated FileMetadata files = 1;
+}
+
+message FileMetadata {
+  string file_path = 1;
+  string hash = 2;
+}
+
 enum TestPhase {
   TEST_PHASE_UNKNOWN = 0;
   TEST_PHASE_PROTO = 1;
@@ -116,6 +127,10 @@ service UmpireDUTCommands {
   /* Get the FactoryDrives file to the target device with adb. */
   rpc DownloadFactoryDrives(DownloadFactoryDrivesRequest)
       returns (DownloadFactoryDrivesResponse) {}
+
+  /* Get the manifest of the FactoryDrives. */
+  rpc GetFactoryDriveManifest(GetFactoryDriveManifestRequest)
+      returns (GetFactoryDriveManifestResponse) {}
 
   /* Uploads factory report to the factory server.
    *

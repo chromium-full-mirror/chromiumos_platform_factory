@@ -201,6 +201,31 @@ class _FactoryDriveObject:
     fs = self._FindComponentsByName(dir_id, name)
     return [(f['name'], f['revisions'][f['using_ver']]) for f in fs]
 
+  def GetComponentAbsPathById(self, comp_id):
+    """Get the disk path of the component's current revision."""
+    comp = self._FindComponentById(comp_id)
+    if comp is None:
+      raise common.UmpireError(f'Compnent with id {comp_id} does not exist.')
+    return comp['revisions'][comp['using_ver']]
+
+  def _GetNameaspace(self, dir_id):
+    """Recursively resolve the namespace of dir in factory drive."""
+    if dir_id is None:
+      return '/'
+
+    directory = self._FindDirectoryById(dir_id)
+    if directory is None:
+      raise common.UmpireError(f'Dir with id {dir_id} not found.')
+    return self._GetNameaspace(directory['parent_id']) + directory['name'] + '/'
+
+  def GetPathInFactoryDrive(self, comp_id):
+    """Get the file path of component in factory drive."""
+    comp = self._FindComponentById(comp_id)
+    if comp:
+      return self._GetNameaspace(comp['dir_id']) + comp['name']
+    logging.error('Compnent with id %s does not exist.', comp_id)
+    return None
+
 
 class FactoryDrives:
   """Wraps FactoryDriveObject and synchronize the data to
@@ -236,6 +261,19 @@ class FactoryDrives:
     dst_path = self.GetFactoryDriveDstPath(comp_id, src_path)
     utils.CheckAndMoveFile(src_path, dst_path, False)
     return dst_path
+
+  def GetFactoryDriveManifest(self):
+    """Get the factory drive manifest."""
+    manifest = []
+    for comp_id in self._factory_drive.files.keys():
+      virtual_path = self._factory_drive.GetPathInFactoryDrive(comp_id)
+      disk_path = self._factory_drive.GetComponentAbsPathById(comp_id)
+      file_md5sum = disk_path.split('.')[-1]
+      manifest.append({
+          'file_path': virtual_path,
+          'hash': file_md5sum
+      })
+    return manifest
 
   def UpdateFactoryDriveComponent(self, comp_id, dir_id, comp_name, using_ver,
                                   src_path):
