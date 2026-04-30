@@ -18,22 +18,22 @@ import {RootState} from '@app/types';
 import {DispatchProps} from '@common/types';
 
 import {
+  disableBroadcastPing,
   disableMcast,
   disableTftp,
   disableVersionCheck,
-  disableBroadcastPing,
+  enableBroadcastPing,
   enableMcast,
   enableTftp,
   enableVersionCheck,
-  enableBroadcastPing,
   fetchConfig,
 } from '../actions';
 import {
+  isBroadcastPingEnabled,
   isConfigUpdating,
   isMcastEnabled,
   isTftpEnabled,
   isVersionCheckEnabled,
-  isBroadcastPingEnabled,
 } from '../selectors';
 
 type ConfigAppProps =
@@ -93,7 +93,8 @@ class ConfigApp extends React.Component<ConfigAppProps> {
               <Switch
                 color="primary"
                 checked={isBroadcastPingEnabled}
-                onChange={isBroadcastPingEnabled ? disableBroadcastPing : enableBroadcastPing}
+                onChange={isBroadcastPingEnabled ?
+                  disableBroadcastPing : enableBroadcastPing}
                 disabled={isConfigUpdating}
               />
             }

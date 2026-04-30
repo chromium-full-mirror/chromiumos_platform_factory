@@ -4,11 +4,11 @@
 
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
+import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
-import Collapse from '@mui/material/Collapse';
 import Tooltip from '@mui/material/Tooltip';
 import {
   createStyles,
@@ -107,8 +107,12 @@ interface RenderNullableObjectSwitchProps {
   fieldName: string;
 }
 
-const RenderNullableObjectSwitch =
-  ({input, label, schema, fieldName}: RenderNullableObjectSwitchProps & WrappedFieldProps) => {
+const RenderNullableObjectSwitch = ({
+  input,
+  label,
+  schema,
+  fieldName,
+}: RenderNullableObjectSwitchProps & WrappedFieldProps) => {
     const checked = !!input.value;
 
     return (
