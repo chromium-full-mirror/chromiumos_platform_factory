@@ -29,6 +29,7 @@ from backend.models import UpdateDuplicateResource
 # yapf: disable
 from backend.serializers import BundleSerializer  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
 from backend.serializers import ConfigSerializer
+from backend.serializers import FactoryDriveComponentDeleteSerializer
 from backend.serializers import FactoryDriveComponentSerializer
 from backend.serializers import FactoryDriveDirectorySerializer
 from backend.serializers import LogDeleteSerializer
@@ -290,6 +291,15 @@ class FactoryDriveComponentsView(generics.ListCreateAPIView):
 
   def perform_create(self, serializer):
     serializer.save(project_name=self.kwargs['project_name'])
+
+  def delete(self, request, *args, **kwargs):
+    del args
+    serializer = FactoryDriveComponentDeleteSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    delete_params = serializer.data
+    response = FactoryDriveComponent.DeleteOne(kwargs['project_name'],
+                                               **delete_params)
+    return Response(response)
 
 
 class FactoryDriveDirectoriesView(generics.ListCreateAPIView):

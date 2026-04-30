@@ -8,3 +8,4 @@ export const UPDATE_FACTORY_DRIVE_FORM = 'UpdateFactoryDriveForm';
 export const CREATE_DIRECTORY_FORM = 'CreateDirectoryForm';
 export const RENAME_FACTORY_DRIVE_FORM = 'RenameFactoryDriveForm';
 export const RENAME_DIRECTORY_FORM = 'RenameDirectoryForm';
+export const DELETE_FACTORY_DRIVE_FORM = 'DeleteFactoryDriveForm';

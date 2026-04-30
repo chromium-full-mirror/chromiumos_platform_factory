@@ -9,6 +9,7 @@ import factoryDrive from '@app/factory_drives';
 import {
   UpdateFactoryDriveFormPayload,
   RenameRequest,
+  DeleteRequest,
 } from '@app/factory_drives/types';
 
 import {Unionize} from '@common/types';
@@ -21,6 +22,7 @@ export interface FormPayloadTypeMap {
   [factoryDrive.constants.CREATE_DIRECTORY_FORM]: {};
   [factoryDrive.constants.RENAME_DIRECTORY_FORM]: RenameRequest;
   [factoryDrive.constants.RENAME_FACTORY_DRIVE_FORM]: RenameRequest;
+  [factoryDrive.constants.DELETE_FACTORY_DRIVE_FORM]: DeleteRequest;
 }
 
 export type FormNames = keyof FormPayloadTypeMap;

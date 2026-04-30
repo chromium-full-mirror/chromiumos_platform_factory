@@ -1260,6 +1260,15 @@ class FactoryDriveComponent:
     return None
 
   @classmethod
+  def DeleteOne(cls, project_name, id):
+    # pylint: disable=redefined-builtin
+    umpire_server = GetUmpireServer(project_name)
+    try:
+      umpire_server.RemoveFactoryDriveComponent(id)
+    except xmlrpc.client.Fault as e:
+      raise DomeServerException(detail=e.faultString) from None
+
+  @classmethod
   def ListAll(cls, project_name):
     umpire_server = GetUmpireServer(project_name)
     try:

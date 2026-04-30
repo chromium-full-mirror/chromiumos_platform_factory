@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import '@testing-library/jest-dom';
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import React from 'react';
 import {Provider} from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -23,6 +23,10 @@ import FactoryDriveList from './factory_drive_list';
 
 // Mock MUI icons to prevent rendering issues in tests
 jest.mock('@mui/icons-material/ArrowBack', () => () => 'ArrowBackIcon');
+jest.mock('@mui/icons-material/BorderColor', () => () => 'BorderColorIcon');
+jest.mock('@mui/icons-material/CloudUpload', () => () => 'CloudUploadIcon');
+jest.mock('@mui/icons-material/DeleteForever', () => () => 'DeleteForeverIcon');
+jest.mock('@mui/icons-material/Update', () => () => 'UpdateIcon');
 
 // Mock dependencies
 jest.mock('@app/factory_drives/actions');
@@ -54,6 +58,8 @@ describe('FactoryDriveList', () => {
   const mockOpenForm = formDialog.actions.openForm as jest.Mock;
   const mockGetFactoryDrives = selectors.getFactoryDrives as jest.Mock;
   const mockGetFactoryDriveDirs = selectors.getFactoryDriveDirs as jest.Mock;
+  const mockGetFactoryDrivesById =
+    selectors.getFactoryDrivesById as unknown as jest.Mock;
   const mockIsFormVisibleFactory =
     formDialog.selectors.isFormVisibleFactory as jest.Mock;
   const mockGetFormPayloadFactory =
@@ -76,6 +82,15 @@ describe('FactoryDriveList', () => {
     },
   ];
 
+  // Helper to create the map for mockGetFactoryDrivesById
+  const createDrivesMap = (drives: FactoryDrive[]) => {
+    const map = new Map<number, FactoryDrive>();
+    drives.forEach((drive) => {
+      map.set(drive.id, drive);
+    });
+    return map;
+  };
+
   beforeEach(() => {
     // Reset mock return values and calls for each test
     mockFetchFactoryDrives.mockReturnValue({type: 'MOCK_FETCH'});
@@ -85,6 +100,7 @@ describe('FactoryDriveList', () => {
     mockOpenForm.mockClear();
     mockGetFactoryDrives.mockReturnValue(mockDrives);
     mockGetFactoryDriveDirs.mockReturnValue(mockDirs);
+    mockGetFactoryDrivesById.mockReturnValue(createDrivesMap(mockDrives));
 
     // Reset all mock functions in the formDialog mock
     mockIsFormVisibleFactory.mockImplementation(() => () => false);
@@ -154,8 +170,8 @@ describe('FactoryDriveList', () => {
 
   test('opens rename directory form when rename is clicked', () => {
     renderComponent();
-    const renameButton = screen.getAllByRole('button', {name: 'Rename'});
-    fireEvent.click(renameButton[0]);
+    const renameButtons = screen.getAllByRole('button', {name: 'Rename'});
+    fireEvent.click(renameButtons[0]);
     expect(mockOpenForm).toHaveBeenCalledWith(RENAME_DIRECTORY_FORM, {
       id: 1,
       name: 'Dir2',
@@ -177,13 +193,18 @@ describe('FactoryDriveList', () => {
   describe('Revision Dialog', () => {
     test('opens when version icon is clicked', async () => {
       mockGetFactoryDrives.mockReturnValue([mockDrives[1]]);
+      mockGetFactoryDrivesById.mockReturnValue(
+        createDrivesMap([mockDrives[1]]),
+      );
       renderComponent({...defaultProps, currentDirId: 1});
 
       const versionButton = screen.getByRole('button', {name: 'Versions'});
       fireEvent.click(versionButton);
 
-      const dialog = screen.getByRole('dialog');
-      expect(dialog).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Revisions of file File2')).toBeInTheDocument();
     });
   });
 });

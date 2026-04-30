@@ -14,13 +14,19 @@ import {authorizedAxios, isAxiosError} from '@common/utils';
 
 import {
   CREATE_DIRECTORY_FORM,
+  DELETE_FACTORY_DRIVE_FORM,
   RENAME_DIRECTORY_FORM,
   RENAME_FACTORY_DRIVE_FORM,
   UPDATE_FACTORY_DRIVE_FORM,
 } from './constants';
-import {getFactoryDriveDirs, getFactoryDrives} from './selector';
+import {
+  getFactoryDriveDirs,
+  getFactoryDrives,
+  getFactoryDrivesById,
+} from './selector';
 import {
   CreateDirectoryRequest,
+  DeleteRequest,
   FactoryDrive,
   FactoryDriveDirectory,
   RenameRequest,
@@ -46,11 +52,15 @@ const updateFactoryDriveDir =
   createAction('UPDATE_FACTORY_DRIVE_DIR', (resolve) =>
   (factoryDriveDir: FactoryDriveDirectory) => resolve({factoryDriveDir}));
 
+const deleteFactoryDriveImpl = createAction('DELETE_FACTORY_DRIVE', (resolve) =>
+  (factoryDriveId: number) => resolve({factoryDriveId}));
+
 export const basicActions = {
   receiveFactoryDrives,
   updateFactoryDrive,
   receiveFactoryDriveDirs,
   updateFactoryDriveDir,
+  deleteFactoryDriveImpl,
 };
 
 export const startCreateDirectory = (data: CreateDirectoryRequest) =>
@@ -85,14 +95,21 @@ export const startUpdateFactoryDrive = (data: UpdateFactoryDriveRequest) =>
     dispatch(formDialog.actions.closeForm(UPDATE_FACTORY_DRIVE_FORM));
 
     const factoryDrives = getFactoryDrives(getState());
+    const factoryDrivesMap: Map<number, FactoryDrive> =
+      getFactoryDrivesById(getState());
     const optimisticUpdate = () => {
       let newFactoryDrive = null;
       if (data.id == null) {
         newFactoryDrive = factoryDrives.find((p) => (
           p.name === data.name && p.dirId === data.dirId));
         if (!newFactoryDrive) {
+          let newId = 0;
+          if (factoryDrives.length !== 0) {
+            const ids = factoryDrives.map((file) => file.id);
+            newId = Math.max(...ids) + 1;
+          }
           newFactoryDrive = {
-            id: factoryDrives.length,
+            id: newId,
             dirId: data.dirId,
             name: data.name,
             usingVer: 0,
@@ -100,7 +117,7 @@ export const startUpdateFactoryDrive = (data: UpdateFactoryDriveRequest) =>
           };
         }
       } else {
-        newFactoryDrive = factoryDrives[data.id];
+        newFactoryDrive = factoryDrivesMap.get(data.id)!;
       }
       dispatch(updateFactoryDrive(newFactoryDrive));
     };
@@ -123,9 +140,10 @@ export const startUpdateComponentVersion =
         task.actions.runTask<FactoryDrive>(
         description, 'POST', `${baseURL(getState)}/factory_drives/files/`, data,
         () => {
+          const factoryDrivesMap: Map<number, FactoryDrive> =
+            getFactoryDrivesById(getState());
           dispatch(updateFactoryDrive({
-            ...getFactoryDrives(
-              getState())[data.id],
+            ...factoryDrivesMap.get(data.id)!,
               usingVer: data.usingVer,
           }));
         }));
@@ -141,9 +159,10 @@ export const startRenameFactoryDrive = (data: RenameRequest) =>
       task.actions.runTask<FactoryDrive>(
       description, 'POST', `${baseURL(getState)}/factory_drives/files/`, data,
       () => {
+        const factoryDrivesMap: Map<number, FactoryDrive> =
+          getFactoryDrivesById(getState());
         dispatch(updateFactoryDrive({
-          ...getFactoryDrives(
-            getState())[data.id],
+          ...factoryDrivesMap.get(data.id)!,
             name: data.name,
           }));
       }));
@@ -163,6 +182,19 @@ export const startRenameDirectory = (data: RenameRequest) =>
             ...getFactoryDriveDirs(getState())[data.id], name: data.name}));
         }));
     dispatch(updateFactoryDriveDir(directoryComponent));
+  };
+
+export const deleteFactoryDrive = (data: DeleteRequest) =>
+  (dispatch: Dispatch, getState: () => RootState) => {
+    dispatch(formDialog.actions.closeForm(DELETE_FACTORY_DRIVE_FORM));
+    dispatch(task.actions.runTask(
+      `Delete factory drive "${data.name}"`,
+      'DELETE',
+      `${baseURL(getState)}/factory_drives/files/`,
+      data,
+      () => {
+        dispatch(deleteFactoryDriveImpl(data.id));
+      }));
   };
 
 export const fetchFactoryDrives = () =>

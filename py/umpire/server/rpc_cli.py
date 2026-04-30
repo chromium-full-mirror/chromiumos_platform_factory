@@ -279,6 +279,10 @@ class CLICommand(umpire_rpc.UmpireRPC):
         comp_id, dir_id, comp_name, using_ver, file_path)
 
   @umpire_rpc.RPCCall
+  def RemoveFactoryDriveComponent(self, comp_id):
+    self.env.factory_drives.RemoveFactoryDriveComponent(comp_id)
+
+  @umpire_rpc.RPCCall
   def GetFactoryDriveInfo(self):
     return self.env.factory_drives.GetFactoryDriveInfo()
 

@@ -172,6 +172,10 @@ class FactoryDriveComponentSerializer(serializers.Serializer):
             'file_id': validated_data.pop('file_id', None)}
     return FactoryDriveComponent.CreateOne(project_name, **data)
 
+class FactoryDriveComponentDeleteSerializer(serializers.Serializer):
+
+  id = serializers.IntegerField(allow_null=True)
+
 
 class FactoryDriveDirectorySerializer(serializers.Serializer):
 

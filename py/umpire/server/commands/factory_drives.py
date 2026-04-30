@@ -8,7 +8,6 @@ See FactoryDrives for detail.
 
 import logging
 import os
-import re
 
 from cros.factory.umpire import common
 from cros.factory.umpire.server import utils
@@ -82,11 +81,37 @@ class _FactoryDriveObject:
       component['name'] = rename
     return component
 
+  def _RemoveExistingComponent(self, component):
+    comp_id = component['id']
+    revisions_to_delete = component.get('revisions', [])
+    if not revisions_to_delete:
+      raise common.UmpireError(f'No revisions listed for id {comp_id}')
+
+    for file_path in revisions_to_delete:
+      if os.path.exists(file_path):
+        try:
+          os.remove(file_path)
+        except PermissionError as e:
+          raise common.UmpireError(
+              f'Error: Permission denied to delete {file_path}: {e}')
+        except Exception as e:
+          raise common.UmpireError(f'An error occurred during deletion: {e}')
+      else:
+        raise common.UmpireError(f'NOT FOUND: {file_path}')
+    self.data['files'] = [c for c in self.data['files'] if c['id'] != comp_id]
+
+  def GetNewCompId(self):
+    ids = [c.get('id') for c in self.files if c.get('id') is not None]
+    if not ids:
+      return 0
+    max_id = max(ids)
+    return max_id + 1
+
   def _CreateComponent(self, dir_id, comp_name, dst_path):
     """Create new component."""
-    comp_id = len(self.files)
+    new_comp_id = self.GetNewCompId()
     component = {
-        'id': comp_id,
+        'id': new_comp_id,
         'dir_id': dir_id,
         'name': comp_name,
         'using_ver': 0,
@@ -115,6 +140,12 @@ class _FactoryDriveObject:
       raise common.UmpireError(
           'Intend to create component but assigned using_ver.')
     return self._CreateComponent(dir_id, comp_name, dst_path)
+
+  def RemoveComponent(self, comp_id):
+    component = self._FindComponentById(comp_id)
+    if not component:
+      raise common.UmpireError(f'Component with id {comp_id} not found.')
+    self._RemoveExistingComponent(component)
 
   def _UpdateExistingDirectory(self, directory, rename):
     """Update existing directory: rename."""
@@ -153,7 +184,7 @@ class _FactoryDriveObject:
     if namespace is None:
       return None
     normalized_namespace = os.path.normpath(namespace)
-    if normalized_namespace == '.' or normalized_namespace == '/':
+    if normalized_namespace in ('.', '/'):
       return None
     parts = normalized_namespace.strip('/').split('/')
     current_id = None
@@ -193,15 +224,16 @@ class FactoryDrives:
     """Dump factory drive to json file."""
     json_utils.DumpFile(self._factory_drive_json_file, self._factory_drive.data)
 
-  def GetFactoryDriveDstPath(self, src_path):
+  def GetFactoryDriveDstPath(self, comp_id, src_path):
     """Prepend file MD5 sum to file path"""
     original_filename = os.path.basename(src_path)
     md5sum = file_utils.MD5InHex(src_path)
-    new_filemame = '.'.join([original_filename, md5sum])
+    comp_id = comp_id if comp_id else self._factory_drive.GetNewCompId()
+    new_filemame = '.'.join([original_filename, str(comp_id), md5sum])
     return os.path.join(self._factory_drives_dir, new_filemame)
 
-  def _AddFactoryDrive(self, src_path):
-    dst_path = self.GetFactoryDriveDstPath(src_path)
+  def _AddFactoryDrive(self, comp_id, src_path):
+    dst_path = self.GetFactoryDriveDstPath(comp_id, src_path)
     utils.CheckAndMoveFile(src_path, dst_path, False)
     return dst_path
 
@@ -226,11 +258,23 @@ class FactoryDrives:
     Returns:
       Updated component dictionary.
     """
-    dst_path = self._AddFactoryDrive(src_path) if src_path else None
+    dst_path = self._AddFactoryDrive(comp_id, src_path) if src_path else None
     component = self._factory_drive.UpdateComponent(comp_id, dir_id, comp_name,
                                                     using_ver, dst_path)
     self._DumpFactoryDrive()
     return component
+
+  def RemoveFactoryDriveComponent(self, comp_id):
+    """Remove a factory drive component file.
+
+    Args:
+      comp_id: component id. None if intend to create a new component.
+    """
+    try:
+      self._factory_drive.RemoveComponent(comp_id)
+    except Exception as e:
+      raise common.UmpireError(f'An error occurred during deletion: {e}')
+    self._DumpFactoryDrive()
 
   def GetFactoryDriveInfo(self):
     """Dump factory drive info.

@@ -12,6 +12,7 @@ from cros.factory.umpire.server.commands import factory_drives
 from cros.factory.umpire.server import umpire_env
 from cros.factory.utils import file_utils
 
+
 TESTDATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), 'testdata')
 TEST_FACTORY_DRIVE = os.path.join(TESTDATA_DIR, 'test_factory_drive.json')
@@ -56,7 +57,7 @@ class FactoryDrivesTest(unittest.TestCase):
             'dir_id': 0,
             'name': 'test.txt',
             'revisions':
-                [self.factory_drives.GetFactoryDriveDstPath(test_file_path)],
+                [self.factory_drives.GetFactoryDriveDstPath(3, test_file_path)],
             'using_ver': 0
         })
 
@@ -70,7 +71,7 @@ class FactoryDrivesTest(unittest.TestCase):
             'name': 'w.sh',
             'revisions': [
                 'some/path/w0.sh',
-                self.factory_drives.GetFactoryDriveDstPath(test_file_path)
+                self.factory_drives.GetFactoryDriveDstPath(0, test_file_path)
             ],
             'using_ver': 1
         })

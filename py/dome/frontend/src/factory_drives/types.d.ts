@@ -28,6 +28,11 @@ export interface RenameRequest {
   name: string;
 }
 
+export interface DeleteRequest {
+  id: number;
+  name: string;
+}
+
 export interface FactoryDrive {
   id: number;
   dirId: number | null;

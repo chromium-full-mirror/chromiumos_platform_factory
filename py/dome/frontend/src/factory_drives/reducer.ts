@@ -31,7 +31,12 @@ export default produce(
 
     case getType(actions.updateFactoryDrive): {
       const {factoryDrive} = action.payload;
-      draft.files[factoryDrive.id] = factoryDrive;
+      const drivesMap = new Map<number, FactoryDrive>();
+      for (const drive of draft.files) {
+        drivesMap.set(drive.id, drive);
+      }
+      drivesMap.set(factoryDrive.id, factoryDrive);
+      draft.files = Array.from(drivesMap.values());
       return;
     }
 
@@ -44,6 +49,17 @@ export default produce(
     case getType(actions.updateFactoryDriveDir): {
       const {factoryDriveDir} = action.payload;
       draft.dirs[factoryDriveDir.id] = factoryDriveDir;
+      return;
+    }
+
+    case getType(actions.deleteFactoryDriveImpl): {
+      const {factoryDriveId} = action.payload;
+      const drivesMap = new Map<number, FactoryDrive>();
+      for (const drive of draft.files) {
+        drivesMap.set(drive.id, drive);
+      }
+      drivesMap.delete(factoryDriveId);
+      draft.files = Array.from(drivesMap.values());
       return;
     }
 

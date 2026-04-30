@@ -5,6 +5,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import UpdateIcon from '@mui/icons-material/Update';
 import Button from '@mui/material/Button';
 import {grey} from '@mui/material/colors';
@@ -37,13 +38,19 @@ import {DispatchProps} from '@common/types';
 
 import {fetchFactoryDrives, startUpdateComponentVersion} from '../actions';
 import {
+  DELETE_FACTORY_DRIVE_FORM,
   RENAME_DIRECTORY_FORM,
   RENAME_FACTORY_DRIVE_FORM,
   UPDATE_FACTORY_DRIVE_FORM,
 } from '../constants';
-import {getFactoryDriveDirs, getFactoryDrives} from '../selector';
+import {
+  getFactoryDriveDirs,
+  getFactoryDrives,
+  getFactoryDrivesById,
+} from '../selector';
 import {FactoryDrive} from '../types';
 
+import DeleteFactoryDriveForm from './delete_factory_drive_form';
 import RenameDirectoryForm from './rename_directory_form';
 import RenameFactoryDriveForm from './rename_factory_drive_form';
 
@@ -78,7 +85,7 @@ const styles = (theme: Theme) => createStyles({
   },
   actionColumn: {
     justifyContent: 'center',
-    gridColumn: 'span 3',
+    gridColumn: '2 / 6',
   },
   directoryLabel: {
     justifyContent: 'left',
@@ -138,7 +145,7 @@ class FactoryDriveList extends
   handleRenameFactoryDrive = (compId: number) => {
     this.props.renameFactoryDrive(
       compId,
-      this.props.factoryDrives[compId].name,
+      this.props.factoryDrivesMap.get(compId)!.name,
     );
   }
 
@@ -146,15 +153,29 @@ class FactoryDriveList extends
     this.props.renameDirectory(dirId, this.props.factoryDriveDirs[dirId].name);
   }
 
+  handleDeleteFactoryDrive = (compId: number) => {
+    this.props.deleteFactoryDrive(
+      compId,
+      this.props.factoryDrivesMap.get(compId)!.name,
+    );
+  }
+
   componentDidMount() {
     this.props.fetchFactoryDrives();
   }
 
   render() {
-    const {currentDirId, classes, factoryDrives, factoryDriveDirs} = this.props;
+    const {
+      currentDirId,
+      classes,
+      factoryDrives,
+      factoryDrivesMap,
+      factoryDriveDirs,
+    } = this.props;
     const {openedComponentId} = this.state;
     const openedComponent =
-      openedComponentId == null ? null : factoryDrives[openedComponentId];
+      openedComponentId == null ?
+        null : factoryDrivesMap.get(openedComponentId)!;
 
     const getPath = (dirId: number | null): string => {
       if (dirId == null) {
@@ -205,6 +226,7 @@ class FactoryDriveList extends
     const componentTable = (
       <div className={classes.componentTable}>
         <RenameFactoryDriveForm />
+        <DeleteFactoryDriveForm />
         <div className={classNames(classes.cell, classes.padLeft)}>
           <Typography variant="caption">name</Typography>
         </div>
@@ -252,6 +274,17 @@ class FactoryDriveList extends
                   </IconButton>
                 </Tooltip>
               </div>
+              <div className={classes.cell}>
+                <Tooltip title="Delete">
+                  <IconButton
+                    onClick={
+                      () => this.handleDeleteFactoryDrive(factoryDrive.id)
+                    }
+                  >
+                    <DeleteForeverIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
             </React.Fragment>
           ))}
       </div>);
@@ -277,7 +310,10 @@ class FactoryDriveList extends
           const baseName = filePath.split('/').pop();
           const parts = baseName ? baseName.split('.') : undefined;
           const hash = parts ? parts.pop() : undefined;
-          const fileName = parts ? parts.join('.') : undefined;
+          const fileNameWithId = parts ? parts.join('.') : '';
+          const fileName: string = fileNameWithId.includes('.')
+            ? fileNameWithId.substring(0, fileNameWithId.lastIndexOf('.'))
+            : fileNameWithId;
           const isUsing = component.usingVer === versionId;
           const rowClass = classNames(classes.cell, isUsing && classes.bold);
           return (
@@ -352,6 +388,7 @@ class FactoryDriveList extends
 
 const mapStateToProps = (state: RootState) => ({
   factoryDrives: getFactoryDrives(state),
+  factoryDrivesMap: getFactoryDrivesById(state),
   factoryDriveDirs: getFactoryDriveDirs(state),
 });
 
@@ -367,6 +404,8 @@ const mapDispatchToProps = {
     formDialog.actions.openForm(RENAME_FACTORY_DRIVE_FORM, {id, name}),
   renameDirectory: (id: number, name: string) =>
     formDialog.actions.openForm(RENAME_DIRECTORY_FORM, {id, name}),
+  deleteFactoryDrive:  (id: number, name: string) =>
+    formDialog.actions.openForm(DELETE_FACTORY_DRIVE_FORM, {id, name}),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(
