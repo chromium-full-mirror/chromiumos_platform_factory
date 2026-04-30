@@ -324,15 +324,19 @@ class UmpireDUTCommandsServicer(
     if first_request is None:
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'Received an empty request stream.')
+      return
 
-    if first_request.WhichOneof('data') != 'device_metadata':
+    data_type = first_request.WhichOneof('data')
+    if data_type != 'device_metadata':
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'The first message must be device metadata.')
+      return
 
     serial_number = first_request.device_metadata.serial_number
     if not serial_number:
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'Serial number must be provided.')
+      return
 
     try:
       test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
@@ -341,6 +345,7 @@ class UmpireDUTCommandsServicer(
       context.abort(
           grpc.StatusCode.INVALID_ARGUMENT,
           f'Invalid test phase: {first_request.device_metadata.test_phase}')
+      return
 
     save_path = self._GetFileSavePath(save_dir, serial_number, test_phase)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -360,6 +365,7 @@ class UmpireDUTCommandsServicer(
                 'Expected a file chunk, but received another message type '
                 'mid-stream.',
             )
+            return
           compressor.write(request.chunk)
 
         if callback:
