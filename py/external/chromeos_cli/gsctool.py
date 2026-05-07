@@ -532,6 +532,12 @@ class GSCTool:
       return match.group('device_type')
     raise GSCToolError(f'Failed to get device from {result.stdout}')
 
+  def SetSpiDrive(self):
+    if self.GetDeviceType() == 'NT':
+      self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive', '3'],
+                          'Failed to set GSC spi drive.')
+
+
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):
     cmd_result_checker = cmd_result_checker or (lambda result: result.success)
     result = self._shell(cmd)
