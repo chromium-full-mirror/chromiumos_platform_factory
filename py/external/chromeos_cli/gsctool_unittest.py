@@ -341,5 +341,53 @@ class GSCToolTest(unittest.TestCase):
     self.assertEqual(device, 'NT')
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '-f'])
 
+  def testSetSpiDrive_NT_Set3(self):
+    fwver = textwrap.dedent("""
+      device: NT
+      keyids: RO 0xd15221fd, RW 0xd50dafd7
+      offsets: backup RO at 0x80000, backup RW at 0x90000
+      Current versions:
+      RO 4.0.4
+      RW 0.36.3""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+
+    self.gsctool.SetSpiDrive()
+
+    self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '--spi_drive', '3'])
+
+  def testSetSpiDrive_DT_NotProvision(self):
+    fwver = textwrap.dedent("""
+      device: DT
+      keyids: RO 0xd15221fd, RW 0xd50dafd7
+      offsets: backup RO at 0x80000, backup RW at 0x90000
+      Current versions:
+      RO 4.0.4
+      RW 0.36.3""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+
+    self.gsctool.SetSpiDrive()
+    device = self.gsctool.GetDeviceType()
+
+    self.assertEqual(device, 'DT')
+    self.assertEqual(self.shell.call_args,
+                     mock.call(['/usr/sbin/gsctool', '-a', '-f']))
+
+  def testSetSpiDrive_H1_NotProvision(self):
+    fwver = textwrap.dedent("""
+      device: H1
+      keyids: RO 0xd15221fd, RW 0xd50dafd7
+      offsets: backup RO at 0x80000, backup RW at 0x90000
+      Current versions:
+      RO 4.0.4
+      RW 0.36.3""")
+    self._SetGSCToolUtilityResult(stdout=fwver)
+
+    self.gsctool.SetSpiDrive()
+    device = self.gsctool.GetDeviceType()
+
+    self.assertEqual(device, 'H1')
+    self.assertEqual(self.shell.call_args,
+                     mock.call(['/usr/sbin/gsctool', '-a', '-f']))
+
 if __name__ == '__main__':
   unittest.main()
