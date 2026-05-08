@@ -99,9 +99,14 @@ Please follow this instruction to install Docker: ${DOCKER_INSTRUCTION_URL}"
   done
 }
 
-check_gsutil() {
-  if ! type gsutil >/dev/null 2>&1; then
-    die "Cannot find gsutil, please install gsutil first"
+check_gcloud_storage() {
+  if ! type gcloud >/dev/null 2>&1; then
+    die "Cannot find gcloud. Please install the Google Cloud CLI."
+  fi
+
+  if ! gcloud storage --help >/dev/null 2>&1; then
+    die "The 'gcloud storage' command group is not available or not working. \
+Please ensure your Google Cloud CLI installation is complete and up-to-date."
   fi
 }
 
@@ -119,8 +124,8 @@ upload_to_localmirror() {
   local remote_file_url="$2"
 
   echo "Uploading to chromeos-localmirror"
-  gsutil cp "${local_file_path}" "${remote_file_url}"
-  gsutil acl ch -u AllUsers:R "${remote_file_url}"
+  gcloud storage cp "${local_file_path}" "${remote_file_url}"
+  gcloud storage acl ch -u AllUsers:R "${remote_file_url}"
 }
 
 run_in_factory() {
@@ -166,7 +171,7 @@ HOST_SHARED_TMP_VOLUME="cros-docker-shared-tmp-vol"
 # Publish tools
 PREBUILT_IMAGE_SITE="https://storage.googleapis.com"
 PREBUILT_IMAGE_DIR_URL="${PREBUILT_IMAGE_SITE}/chromeos-localmirror/distfiles"
-GSUTIL_BUCKET="gs://chromeos-localmirror/distfiles"
+GCLOUD_STORAGE_BUCKET="gs://chromeos-localmirror/distfiles"
 COMMIT_SUBJECT="setup: Publish cros_docker image version"
 
 # Remote resources
@@ -1322,7 +1327,7 @@ do_update_umpire_version() {
 }
 
 do_publish() {
-  check_gsutil
+  check_gcloud_storage
 
   local changes_file="$(mktemp)"
   TEMP_OBJECTS=("${changes_file}" "${TEMP_OBJECTS[@]}")
@@ -1340,8 +1345,9 @@ do_publish() {
 
   do_reload_docker_image_info "${script_file}"
 
-  local factory_server_image_url="${GSUTIL_BUCKET}/${DOCKER_IMAGE_FILENAME}"
-  if gsutil stat "${factory_server_image_url}" >/dev/null 2>&1; then
+  local factory_server_image_url
+  factory_server_image_url="${GCLOUD_STORAGE_BUCKET}/${DOCKER_IMAGE_FILENAME}"
+  if gcloud storage stat "${factory_server_image_url}" >/dev/null 2>&1; then
     die "${DOCKER_IMAGE_FILENAME} is already on chromeos-localmirror"
   fi
 
