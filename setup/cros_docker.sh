@@ -125,7 +125,8 @@ upload_to_localmirror() {
 
   echo "Uploading to chromeos-localmirror"
   gcloud storage cp "${local_file_path}" "${remote_file_url}"
-  gcloud storage acl ch -u AllUsers:R "${remote_file_url}"
+  gcloud storage objects update "${remote_file_url}" \
+    --add-acl-grant=entity=allUsers,role=READER
 }
 
 run_in_factory() {
@@ -1347,7 +1348,8 @@ do_publish() {
 
   local factory_server_image_url
   factory_server_image_url="${GCLOUD_STORAGE_BUCKET}/${DOCKER_IMAGE_FILENAME}"
-  if gcloud storage stat "${factory_server_image_url}" >/dev/null 2>&1; then
+  if gcloud storage objects describe \
+    "${factory_server_image_url}" >/dev/null 2>&1; then
     die "${DOCKER_IMAGE_FILENAME} is already on chromeos-localmirror"
   fi
 
