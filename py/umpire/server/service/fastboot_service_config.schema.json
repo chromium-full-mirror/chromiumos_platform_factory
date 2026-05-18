@@ -58,9 +58,5 @@
         }
       }
     }
-  },
-  "fw_fastboot_only": {
-    "description": "Use firmware fastboot only for entire flashing process.",
-    "type": "boolean"
   }
 }
