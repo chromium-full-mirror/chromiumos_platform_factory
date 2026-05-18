@@ -389,7 +389,7 @@ class UmpireEnv:
     # We don't need to copy partition b but we still keep them for now.
     REQUIRED_IMG_PART = ('super', 'boot_a', 'init_boot_a', 'vbmeta_a',
                          'pvmfw_a', 'userdata', 'vendor_boot_a', 'misc',
-                         'dtbo_a')
+                         'dtbo_a', 'bluetooth_a', 'dsp_a', 'modem_a')
     files = set()
     payloads = self.GetPayloadsDict(payloads_name)
     for type_name, payload_dict in payloads.items():

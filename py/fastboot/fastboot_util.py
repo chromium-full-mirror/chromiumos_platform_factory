@@ -148,8 +148,8 @@ class FastbootUtil:
     self.Flash('pvmfw')
     self.Flash('vendor_boot')
     self.Flash('vbmeta')
-    if self.flash_dtbo:
-      self.Flash('dtbo')
+    for partition_name, img_path in self.other_partitions_to_flash.items():
+      self.Flash(partition_name, img_path)
 
   def FlashOtherPartitions(self) -> None:
     """Flashes non-boot essential partitions."""
@@ -260,13 +260,17 @@ class FastbootUtil:
     else:
       self.FastbootCheckOutputExecutor(['flashall', '--skip-reboot'])
 
-  def Flash(self, partition_name: str) -> None:
+  def Flash(self, partition_name: str, img_path: str = '') -> None:
     """Flashes a single partition.
 
-    This command will flash `partition_name.img` onto the `partition_name`
+    When `img_path` is provided, flash `image_path` onto the `partition_name`
+    partition. Otherwise, flash `partition_name.img` onto the `partition_name`
     partition.
     """
-    self.FastbootCheckOutputExecutor(['flash', partition_name])
+    if img_path:
+      self.FastbootCheckOutputExecutor(['flash', partition_name, img_path])
+    else:
+      self.FastbootCheckOutputExecutor(['flash', partition_name])
 
   def ReadUFSDescriptor(self, config_id: int, lun: int = 0) -> None:
     self.FastbootCheckOutputExecutor(
@@ -339,11 +343,12 @@ class FastbootUtil:
     self.idle_timeout = _idle_timeout
     os.environ['ANDROID_PRODUCT_OUT'] = self.img_src_dir
 
-    dtbo_img_path = os.path.join(self.img_src_dir, "dtbo.img")
-    if os.path.isfile(dtbo_img_path):
-      self.flash_dtbo = True
-    else:
-      self.flash_dtbo = False
+    self.other_partitions_to_flash = {}
+    other_partitions_name = ['dtbo', 'bluetooth', 'dsp', 'modem']
+    for name in other_partitions_name:
+      img_path = os.path.join(self.img_src_dir, f'{name}.img')
+      if os.path.isfile(img_path):
+        self.other_partitions_to_flash[name] = img_path
 
     if self.idle_timeout > 0:
       self.FastbootCheckOutputExecutor = self._FastbootCheckOutputWithTimeout
