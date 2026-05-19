@@ -64,7 +64,7 @@ def SetupConnection(grpc_server: grpc._server._Server, args: RunGrpcArgs):
 
 def StartGrpcServer(args: RunGrpcArgs):
   log_format = '%(asctime)s %(levelname)s %(message)s'
-  logging.basicConfig(level=logging.INFO, format=log_format,
+  logging.basicConfig(level=logging.DEBUG, format=log_format,
                       filename=args.log_file)
 
   grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
