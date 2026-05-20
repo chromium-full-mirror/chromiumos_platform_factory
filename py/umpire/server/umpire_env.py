@@ -14,7 +14,7 @@ import os
 import re
 import shutil
 import tempfile
-from typing import Any, Dict, Generator, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Generator, Optional, Tuple, Union
 import urllib.parse
 
 from cros.factory.umpire import common
@@ -485,14 +485,19 @@ class ReportIndexManager:
     self.json_file = json_file
 
   @contextlib.contextmanager
-  def AllocateNextIndex(self) -> Generator[Tuple[str, int], None, None]:
+  def AllocateNextIndex(
+      self, retry_callback: Optional[Callable[[int, int], None]] = None
+  ) -> Generator[Tuple[str, int], None, None]:
     """Enter a context of next index.
 
     Return a tuple of `server_uuid, next_report_index`. If the context is exited
     normally, next_report_index will be increased by one. Otherwise the value
     won't be changed.
     """
-    with file_utils.FileLock(self.json_file, timeout_secs=float('inf')):
+
+    with file_utils.FileLock(self.json_file, retry_secs=2,
+                             timeout_secs=float("inf"),
+                             retry_callback=retry_callback):
       properties = json_utils.LoadFile(self.json_file)
       report_index: int = properties['next_report_index']
       server_uuid: str = properties['server_uuid']

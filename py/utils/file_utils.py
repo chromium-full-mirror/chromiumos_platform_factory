@@ -19,6 +19,7 @@ import stat
 import subprocess
 import tempfile
 import threading
+from typing import Callable, Optional
 import zipfile
 import zipimport
 
@@ -626,13 +627,15 @@ class FileLock:
     retry_secs: seconds to wait between retries when timeout_secs is not None.
   """
 
-  def __init__(self, lockfile, timeout_secs=None, retry_secs=0.1):
+  def __init__(self, lockfile, timeout_secs=None, retry_secs=0.1,
+               retry_callback: Optional[Callable[[int, int], None]] = None):
     self._lockfile = lockfile
     self._timeout_secs = timeout_secs
     self._retry_secs = retry_secs
     self._fd = None
     self._locked = False
     self._sys_lock = platform_utils.GetProvider('FileLock')
+    self._retry_callback = retry_callback
 
   def Acquire(self):
     self._fd = os.open(self._lockfile, os.O_RDWR | os.O_CREAT)
@@ -654,6 +657,8 @@ class FileLock:
       retry_wrapper = sync_utils.RetryDecorator(
           timeout_sec=_timeout_secs, interval_sec=self._retry_secs,
           exceptions_to_catch=[IOError],
+          enable_logging=False,
+          retry_callback=self._retry_callback,
           # yapf: disable
           timeout_exception_to_raise=file_lock_timeout_error)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
       # yapf: enable

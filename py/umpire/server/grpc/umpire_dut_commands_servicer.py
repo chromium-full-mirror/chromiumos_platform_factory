@@ -12,8 +12,10 @@ import io
 import json
 import logging
 import os
+import random
 import re
 import shutil
+import string
 import tarfile
 import tempfile
 import threading
@@ -334,6 +336,9 @@ class UmpireDUTCommandsServicer(
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
       context: grpc.ServicerContext,
       callback: Optional[Callable[[io.RawIOBase], None]] = None) -> None:
+    # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
+    request_id = context.request_id  # type: ignore
+
     first_request = next(request_iterator, None)
     if first_request is None:
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
@@ -351,6 +356,7 @@ class UmpireDUTCommandsServicer(
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'Serial number must be provided.')
       return
+    logging.debug("[%s] Serial number is %s.", request_id, serial_number)
 
     try:
       test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
@@ -364,6 +370,7 @@ class UmpireDUTCommandsServicer(
     save_path = self._GetFileSavePath(save_dir, serial_number, test_phase,
                                       data_type)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    logging.debug("[%s] Saving file to %s.", request_id, save_path)
 
     with file_utils.AtomicWrite(save_path, binary=True) as f:
       with zstandard.ZstdCompressor().stream_writer(
@@ -381,20 +388,42 @@ class UmpireDUTCommandsServicer(
                 'mid-stream.',
             )
             return
+          chunk_size = len(request.chunk)
           compressor.write(request.chunk)
+          logging.debug("[%s] Wrote %d bytes.", request_id, chunk_size)
 
         if callback:
           callback(compressor)
+
+    logging.debug("[%s] File saved.", request_id)
 
   def UploadReport(
       self,
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
       context: grpc.ServicerContext,
   ) -> empty_pb2.Empty:
-    with self._report_index_manager.AllocateNextIndex() as (
-        server_uuid,
-        report_index,
-    ):
+
+    # Generate a random ID for each request and log messages with it for
+    # debugging purpose.
+    # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
+    request_id = ''.join(random.choices(string.digits, k=6))
+    context.request_id = request_id  # type: ignore
+
+    logging.debug(
+        "[%s] Received a request to upload a report; acquiring "
+        "report index lock.", request_id)
+
+    def _ReportIndexAllocationRetryCallback(current_try_count: int,
+                                            _unused_max_try_count: int):
+      logging.debug("[%s] (%d) Waiting for the report index file lock.",
+                    request_id, current_try_count)
+
+    with self._report_index_manager.AllocateNextIndex(
+        retry_callback=_ReportIndexAllocationRetryCallback) as (
+            server_uuid,
+            report_index,
+        ):
+      logging.debug("[%s] Acquired report index file lock.", request_id)
 
       def _WriteReportIndexCallback(writer: io.RawIOBase) -> None:
         entry = {
