@@ -344,7 +344,7 @@ class FastbootUtil:
     os.environ['ANDROID_PRODUCT_OUT'] = self.img_src_dir
 
     self.other_partitions_to_flash = {}
-    other_partitions_name = ['dtbo', 'bluetooth', 'dsp', 'modem']
+    other_partitions_name = ['dtbo', 'bluetooth', 'dsp', 'modem', 'persist']
     for name in other_partitions_name:
       img_path = os.path.join(self.img_src_dir, f'{name}.img')
       if os.path.isfile(img_path):
