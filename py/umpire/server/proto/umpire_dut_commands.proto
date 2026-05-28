@@ -66,25 +66,40 @@ message FileMetadata {
   string hash = 2;
 }
 
-enum TestPhase {
-  TEST_PHASE_UNKNOWN = 0;
-  TEST_PHASE_PROTO = 1;
-  TEST_PHASE_EVT = 2;
-  TEST_PHASE_DVT = 3;
-  TEST_PHASE_PVT = 4;
-  TEST_PHASE_MP = 5;
-}
-
-message DeviceMetadata {
-  string serial_number = 1;
-  TestPhase test_phase = 2;
-}
-
 message UploadFileRequest {
+  enum TestPhase {
+    TEST_PHASE_UNKNOWN = 0;
+    TEST_PHASE_PROTO = 1;
+    TEST_PHASE_EVT = 2;
+    TEST_PHASE_DVT = 3;
+    TEST_PHASE_PVT = 4;
+    TEST_PHASE_MP = 5;
+  }
+  enum FileType {
+    FILE_TYPE_UNKNOWN = 0;
+    FILE_TYPE_REPORT = 1;
+    FILE_TYPE_CSR = 2;
+  }
+  message Metadata {
+    string device_serial_number = 1;
+    TestPhase device_test_phase = 2;
+    FileType file_type = 3;
+    int64 file_length = 4;
+    string file_checksum = 5;
+  }
   oneof data {
-    DeviceMetadata device_metadata = 1;
+    Metadata metadata = 1;
     bytes chunk = 2;
   }
+}
+
+message UploadFileResponse {
+  enum Status {
+    STATUS_UNKNOWN = 0;
+    STATUS_READY = 1;
+    STATUS_DONE = 2;
+  }
+  Status status = 1;
 }
 
 message GetOtaPackageRequest {
@@ -138,7 +153,11 @@ service UmpireDUTCommands {
    * (hint: a report is a single file) to zst at the factory server side, and
    * supports streaming upload.
    */
-  rpc UploadReport(stream UploadFileRequest) returns (.google.protobuf.Empty) {}
+  rpc UploadReport(stream UploadFileRequest) returns (.google.protobuf.Empty) {
+    // TODO: b/514279711 - Remove this once all clients are migrated to use
+    // UploadFile.
+    option deprecated = true;
+  }
 
   /* Get the user image OTA package to the target device with adb. */
   rpc GetOtaPackage(GetOtaPackageRequest) returns (GetOtaPackageResponse) {}
@@ -148,6 +167,23 @@ service UmpireDUTCommands {
    */
   rpc SyncDeviceTime(SyncDeviceTimeRequest) returns (SyncDeviceTimeResponse) {}
 
-  /** Uploads CSR to the factory server. */
-  rpc UploadCSR(stream UploadFileRequest) returns (.google.protobuf.Empty) {}
+  /** Uploads CSR data to the factory server. */
+  rpc UploadCSR(stream UploadFileRequest) returns (.google.protobuf.Empty) {
+    // TODO: b/514279711 - Remove this once all clients are migrated to use
+    // UploadFile.
+    option deprecated = true;
+  }
+
+  /** Uploads a file to the factory server.
+   *
+   * The upload process involves bi-directional streamings:
+   *
+   * 1. The client established a gRPC connection with the server.
+   * 2. The server sends a ready message to the client.
+   * 3. The client sends the file metadata, followed by the file content chunks.
+   * 4. The server responses a OK message. The file is completed uploaded and
+   *    saved.
+   * 5. End the gRPC connection.
+   */
+  rpc UploadFile(stream UploadFileRequest) returns (stream UploadFileResponse);
 }

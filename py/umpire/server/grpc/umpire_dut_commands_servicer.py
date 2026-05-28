@@ -21,8 +21,9 @@ import tarfile
 import tempfile
 import threading
 import time
-from typing import Generator, Iterator, Optional, cast
+from typing import Generator, Iterator, Literal, Mapping, Optional, Tuple, TypeAlias, Union, cast
 import xmlrpc.client
+import zipfile
 
 from google.protobuf import empty_pb2
 import grpc  # pylint: disable=import-error
@@ -73,6 +74,12 @@ def _AdbDisconnect(target: str, log: bool = True,
                           log_stderr_on_error=log_stderr_on_error)
 
 
+_LegacyFileType: TypeAlias = Union[Literal["_LEGACY_UPLOAD_REPORT"],
+                                   Literal["_LEGACY_UPLOAD_CSR"]]
+_FileType: TypeAlias = Union[
+    _LegacyFileType, "umpire_dut_commands_pb2.UploadFileRequest.FileType"]
+
+
 class UmpireDUTCommandsServicer(
     umpire_dut_commands_pb2_grpc.UmpireDUTCommandsServicer):
 
@@ -82,12 +89,22 @@ class UmpireDUTCommandsServicer(
   _CSR_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'csr')
 
   _TEST_PHASE_TO_NAME_MAPPING = {
-      umpire_dut_commands_pb2.TEST_PHASE_PROTO: "PROTO",
-      umpire_dut_commands_pb2.TEST_PHASE_EVT: "EVT",
-      umpire_dut_commands_pb2.TEST_PHASE_DVT: "DVT",
-      umpire_dut_commands_pb2.TEST_PHASE_PVT: "PVT",
-      umpire_dut_commands_pb2.TEST_PHASE_MP: "MP"
+      umpire_dut_commands_pb2.UploadFileRequest.TEST_PHASE_PROTO: "PROTO",
+      umpire_dut_commands_pb2.UploadFileRequest.TEST_PHASE_EVT: "EVT",
+      umpire_dut_commands_pb2.UploadFileRequest.TEST_PHASE_DVT: "DVT",
+      umpire_dut_commands_pb2.UploadFileRequest.TEST_PHASE_PVT: "PVT",
+      umpire_dut_commands_pb2.UploadFileRequest.TEST_PHASE_MP: "MP"
   }
+
+  _FILE_TYPE_TO_SAVE_DIR_AND_SUFFIX_MAPPING: Mapping[_FileType, Tuple[
+      str, str]] = {
+          "_LEGACY_UPLOAD_REPORT": (_REPORT_DATA_DIR, '.zip.zst'),
+          "_LEGACY_UPLOAD_CSR": (_CSR_DATA_DIR, '.jsonl.zst'),
+          umpire_dut_commands_pb2.UploadFileRequest.FileType.FILE_TYPE_REPORT: (
+              _REPORT_DATA_DIR, '.zip'),
+          umpire_dut_commands_pb2.UploadFileRequest.FileType.FILE_TYPE_CSR: (
+              _CSR_DATA_DIR, '.jsonl'),
+      }
 
   def __init__(self, umpire_cli_url: str) -> None:
     super().__init__()
@@ -322,19 +339,19 @@ class UmpireDUTCommandsServicer(
         timezone = self_active_config['umpire_timezone']['timezone']
     return timezone
 
-  def _GetFileSavePath(self, save_dir: str, serial_number: str, test_phase: str,
-                       data_type: str) -> str:
-    date_str = time.strftime('%Y%m%d',
-                             time_utils.GetNowWithTimezone(self._GetTimezone()))
-    timestamp = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime(time.time()))
-    file_name = f'{serial_number}-{test_phase}-{timestamp}.{data_type}.zst'
-    return os.path.join(save_dir, date_str, file_name)
-
-  @contextlib.contextmanager
-  def _SaveFileAsZst(
-      self, save_dir: str, data_type: str,
+  # TODO: wdzeng - Remove the legacy_file_type argument after we clean up legacy
+  #   upload methods.
+  def _ParseUploadFileMetadata(
+      self,
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
-      context: grpc.ServicerContext) -> Generator[io.RawIOBase, None, None]:
+      context: grpc.ServicerContext,
+      legacy_file_type: Optional[_LegacyFileType] = None
+  ) -> Tuple[str, _FileType]:
+    """Receives the first upload file request and parses metadata.
+
+    Returns:
+      A tuple of file saving path and file type.
+    """
     # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
     request_id = cast(str, getattr(context, 'request_id', 'unspecified'))
 
@@ -342,35 +359,61 @@ class UmpireDUTCommandsServicer(
     if first_request is None:
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'Received an empty request stream.')
-      return
 
     data_type = first_request.WhichOneof('data')
-    if data_type != 'device_metadata':
+    if data_type != 'metadata':
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
-                    'The first message must be device metadata.')
-      return
+                    'The first message must be metadata.')
 
-    serial_number = first_request.device_metadata.serial_number
+    serial_number = first_request.metadata.device_serial_number
     if not serial_number:
       context.abort(grpc.StatusCode.INVALID_ARGUMENT,
                     'Serial number must be provided.')
-      return
     logging.debug("[%s] Serial number is %s.", request_id, serial_number)
 
     try:
       test_phase = self._TEST_PHASE_TO_NAME_MAPPING[
-          first_request.device_metadata.test_phase]
+          first_request.metadata.device_test_phase]
     except KeyError:
       context.abort(
           grpc.StatusCode.INVALID_ARGUMENT,
-          f'Invalid test phase: {first_request.device_metadata.test_phase}')
-      return
+          f'Invalid test phase: {first_request.metadata.device_test_phase}')
 
-    save_path = self._GetFileSavePath(save_dir, serial_number, test_phase,
-                                      data_type)
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    logging.debug("[%s] Saving file to %s.", request_id, save_path)
+    file_type: _FileType = first_request.metadata.file_type
+    logging.debug(
+        "[%s] File type: %s", request_id,
+        umpire_dut_commands_pb2.UploadFileRequest.FileType.Name(
+            first_request.metadata.file_type))
 
+    if file_type == \
+      umpire_dut_commands_pb2.UploadFileRequest.FileType.FILE_TYPE_UNKNOWN:
+      if legacy_file_type is None:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT,
+                      'File type must be provided.')
+
+      logging.debug("[%s] Fallback to select file type: %s", request_id,
+                    legacy_file_type)
+      file_type = legacy_file_type
+
+    save_dir, suffix = self._FILE_TYPE_TO_SAVE_DIR_AND_SUFFIX_MAPPING[file_type]
+
+    date_str = time.strftime('%Y%m%d',
+                             time_utils.GetNowWithTimezone(self._GetTimezone()))
+    timestamp = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime(time.time()))
+    file_name = f'{serial_number}-{test_phase}-{timestamp}{suffix}'
+    save_path = os.path.join(save_dir, date_str, file_name)
+    return save_path, file_type
+
+  @contextlib.contextmanager
+  def _SaveFileAsZst(
+      self, file_type: _LegacyFileType,
+      request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
+      context: grpc.ServicerContext) -> Generator[io.RawIOBase, None, None]:
+    # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
+    request_id = cast(str, getattr(context, 'request_id', 'unspecified'))
+
+    save_path, _ = self._ParseUploadFileMetadata(request_iterator, context,
+                                                 file_type)
     with file_utils.AtomicWrite(save_path, binary=True) as f:
       with zstandard.ZstdCompressor().stream_writer(
           f,
@@ -395,6 +438,44 @@ class UmpireDUTCommandsServicer(
 
     logging.debug("[%s] File saved.", request_id)
 
+  @contextlib.contextmanager
+  def _SaveFile(self, save_path: str, request_iterator: Iterator[
+      umpire_dut_commands_pb2.UploadFileRequest],
+                context: grpc.ServicerContext) -> Generator[str, None, None]:
+    # TODO: b/514279711 - Implement verifying file checksum.
+
+    # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
+    request_id = cast(str, getattr(context, 'request_id', 'unspecified'))
+
+    save_dir = os.path.dirname(save_path)
+    os.makedirs(save_dir, exist_ok=True)
+    logging.debug("[%s] Saving file to %s.", request_id, save_path)
+
+    with file_utils.UnopenedTemporaryFile(
+        dir=save_dir,
+        suffix=".tmp",
+        mode='wb',
+    ) as tmp_path:
+      with open(tmp_path, 'wb') as f:
+        for request in request_iterator:
+          if request.WhichOneof('data') != 'chunk':
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                'Expected a file chunk, but received another message type '
+                'mid-stream.',
+            )
+
+          chunk_size = len(request.chunk)
+          f.write(request.chunk)
+          logging.debug("[%s] Wrote %d bytes.", request_id, chunk_size)
+
+      yield tmp_path
+      os.rename(tmp_path, save_path)
+      file_utils.SyncDirectory(save_dir)
+
+    logging.debug("[%s] File saved.", request_id)
+
+  # TODO: b/514279711 - Remove this deprecated method.
   def UploadReport(
       self,
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
@@ -408,7 +489,7 @@ class UmpireDUTCommandsServicer(
     context.request_id = request_id  # type: ignore
 
     with self._report_index_manager.AllocateNextIndex() as report_index_entry:
-      with self._SaveFileAsZst(self._REPORT_DATA_DIR, 'rpt', request_iterator,
+      with self._SaveFileAsZst("_LEGACY_UPLOAD_REPORT", request_iterator,
                                context) as writer:
         report_index_entry_str = json_utils.DumpStr(report_index_entry,
                                                     pretty=False, newline=True)
@@ -452,10 +533,54 @@ class UmpireDUTCommandsServicer(
         success=True,
         messages=f'Successfully synced time on {target} to epoch {epoch_time}')
 
+  # TODO: b/514279711 - Remove this deprecated method.
   def UploadCSR(self, request_iterator: Iterator[
       umpire_dut_commands_pb2.UploadFileRequest],
                 context: grpc.ServicerContext) -> empty_pb2.Empty:
-    with self._SaveFileAsZst(self._CSR_DATA_DIR, 'jsonl', request_iterator,
+    with self._SaveFileAsZst("_LEGACY_UPLOAD_CSR", request_iterator,
                              context) as _:
       pass
     return empty_pb2.Empty()
+
+  def _SaveReport(
+      self, save_path: str,
+      request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
+      context: grpc.ServicerContext
+  ) -> Generator[umpire_dut_commands_pb2.UploadFileResponse, None, None]:
+    with self._report_index_manager.AllocateNextIndex() as report_index_entry:
+      with self._SaveFile(save_path, request_iterator, context) as path:
+        with zipfile.ZipFile(path, mode='a') as writer:
+          entry_str = json_utils.DumpStr(report_index_entry, pretty=False,
+                                         newline=True)
+          writer.writestr("metadata.json", entry_str)
+
+      yield umpire_dut_commands_pb2.UploadFileResponse(
+          status=umpire_dut_commands_pb2.UploadFileResponse.Status.STATUS_DONE)
+
+  def UploadFile(
+      self,
+      request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
+      context: grpc.ServicerContext
+  ) -> Generator[umpire_dut_commands_pb2.UploadFileResponse, None, None]:
+    # Generate a random ID for each request and log messages with it for
+    # debugging purpose.
+    # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
+    request_id = ''.join(random.choices(string.digits, k=6))
+    context.request_id = request_id  # type: ignore
+
+    # TODO: b/514279711 - Implement resuming interrupted uploads.
+
+    yield umpire_dut_commands_pb2.UploadFileResponse(
+        status=umpire_dut_commands_pb2.UploadFileResponse.Status.STATUS_READY)
+
+    save_path, file_type = self._ParseUploadFileMetadata(
+        request_iterator, context)
+
+    if file_type == umpire_dut_commands_pb2.UploadFileRequest.FILE_TYPE_REPORT:
+      yield from self._SaveReport(save_path, request_iterator, context)
+      return
+
+    with self._SaveFile(save_path, request_iterator, context) as _:
+      pass
+    yield umpire_dut_commands_pb2.UploadFileResponse(
+        status=umpire_dut_commands_pb2.UploadFileResponse.Status.STATUS_DONE)
