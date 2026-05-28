@@ -337,7 +337,7 @@ class UmpireDUTCommandsServicer(
       context: grpc.ServicerContext,
       callback: Optional[Callable[[io.RawIOBase], None]] = None) -> None:
     # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
-    request_id = context.request_id  # type: ignore
+    request_id = cast(str, getattr(context, 'request_id', 'unspecified'))
 
     first_request = next(request_iterator, None)
     if first_request is None:
