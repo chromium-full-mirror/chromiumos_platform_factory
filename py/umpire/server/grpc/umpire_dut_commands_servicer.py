@@ -8,6 +8,7 @@ This is the gRPC implementation of
 cros.factory.umpire.server.rpc_dut.UmpireDUTCommands.
 """
 
+import contextlib
 import io
 import json
 import logging
@@ -20,13 +21,14 @@ import tarfile
 import tempfile
 import threading
 import time
-from typing import Callable, Iterator, Optional, cast
+from typing import Generator, Iterator, Optional, cast
 import xmlrpc.client
 
 from google.protobuf import empty_pb2
 import grpc  # pylint: disable=import-error
 import zstandard  # pylint: disable=import-error
 
+from cros.factory.umpire.server.grpc import report_index
 from cros.factory.umpire.server.proto import umpire_dut_commands_pb2
 from cros.factory.umpire.server.proto import umpire_dut_commands_pb2_grpc
 from cros.factory.umpire.server import resource
@@ -77,8 +79,6 @@ class UmpireDUTCommandsServicer(
   _UMPIRE_DIR = os.path.join('/', umpire_env.DEFAULT_BASE_DIR)
   _UMPIRE_DATA_DIR = os.path.join(_UMPIRE_DIR, 'umpire_data')
   _REPORT_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'report')
-  _REPORT_INDEX_JSON_PATH = os.path.join(_UMPIRE_DIR, 'properties',
-                                         'report_index.json')
   _CSR_DATA_DIR = os.path.join(_UMPIRE_DATA_DIR, 'csr')
 
   _TEST_PHASE_TO_NAME_MAPPING = {
@@ -93,8 +93,7 @@ class UmpireDUTCommandsServicer(
     super().__init__()
     self._umpire_cli_url = umpire_cli_url
     self._local = threading.local()
-    self._report_index_manager = umpire_env.ReportIndexManager(
-        self._REPORT_INDEX_JSON_PATH)
+    self._report_index_manager = report_index.ReportIndexManager()
 
   @property
   def _CLI_command(self) -> rpc_cli.CLICommand:
@@ -331,11 +330,11 @@ class UmpireDUTCommandsServicer(
     file_name = f'{serial_number}-{test_phase}-{timestamp}.{data_type}.zst'
     return os.path.join(save_dir, date_str, file_name)
 
+  @contextlib.contextmanager
   def _SaveFileAsZst(
       self, save_dir: str, data_type: str,
       request_iterator: Iterator[umpire_dut_commands_pb2.UploadFileRequest],
-      context: grpc.ServicerContext,
-      callback: Optional[Callable[[io.RawIOBase], None]] = None) -> None:
+      context: grpc.ServicerContext) -> Generator[io.RawIOBase, None, None]:
     # TODO: b/514279711 - Remove trivial debugging logs after the bug is fixed.
     request_id = cast(str, getattr(context, 'request_id', 'unspecified'))
 
@@ -392,8 +391,7 @@ class UmpireDUTCommandsServicer(
           compressor.write(request.chunk)
           logging.debug("[%s] Wrote %d bytes.", request_id, chunk_size)
 
-        if callback:
-          callback(compressor)
+        yield compressor
 
     logging.debug("[%s] File saved.", request_id)
 
@@ -409,34 +407,12 @@ class UmpireDUTCommandsServicer(
     request_id = ''.join(random.choices(string.digits, k=6))
     context.request_id = request_id  # type: ignore
 
-    logging.debug(
-        "[%s] Received a request to upload a report; acquiring "
-        "report index lock.", request_id)
-
-    def _ReportIndexAllocationRetryCallback(current_try_count: int,
-                                            _unused_max_try_count: int):
-      logging.debug("[%s] (%d) Waiting for the report index file lock.",
-                    request_id, current_try_count)
-
-    with self._report_index_manager.AllocateNextIndex(
-        retry_callback=_ReportIndexAllocationRetryCallback) as (
-            server_uuid,
-            report_index,
-        ):
-      logging.debug("[%s] Acquired report index file lock.", request_id)
-
-      def _WriteReportIndexCallback(writer: io.RawIOBase) -> None:
-        entry = {
-            'type': 'metadata',
-            'serverUuid': server_uuid,
-            'reportIndex': f'{report_index:010d}',
-            'domeVersion': os.environ.get('DOCKER_IMAGE_TIMESTAMP', ''),
-        }
-        entry_str = json_utils.DumpStr(entry, pretty=False, newline=True)
-        writer.write(entry_str.encode('utf8'))
-
-      self._SaveFileAsZst(self._REPORT_DATA_DIR, 'rpt', request_iterator,
-                          context, _WriteReportIndexCallback)
+    with self._report_index_manager.AllocateNextIndex() as report_index_entry:
+      with self._SaveFileAsZst(self._REPORT_DATA_DIR, 'rpt', request_iterator,
+                               context) as writer:
+        report_index_entry_str = json_utils.DumpStr(report_index_entry,
+                                                    pretty=False, newline=True)
+        writer.write(report_index_entry_str.encode('utf8'))
       return empty_pb2.Empty()
 
   def SyncDeviceTime(
@@ -479,5 +455,7 @@ class UmpireDUTCommandsServicer(
   def UploadCSR(self, request_iterator: Iterator[
       umpire_dut_commands_pb2.UploadFileRequest],
                 context: grpc.ServicerContext) -> empty_pb2.Empty:
-    self._SaveFileAsZst(self._CSR_DATA_DIR, 'jsonl', request_iterator, context)
+    with self._SaveFileAsZst(self._CSR_DATA_DIR, 'jsonl', request_iterator,
+                             context) as _:
+      pass
     return empty_pb2.Empty()
