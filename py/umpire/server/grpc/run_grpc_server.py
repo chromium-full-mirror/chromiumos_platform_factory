@@ -40,6 +40,7 @@ class RunGrpcArgs:
   log_file: Optional[str] = None
   shopfloor_service_url: str = ''
   umpire_cli_url: str = ''
+  max_workers: int = 2
 
 
 def SetupConnection(grpc_server: grpc._server._Server, args: RunGrpcArgs):
@@ -67,7 +68,7 @@ def StartGrpcServer(args: RunGrpcArgs):
   logging.basicConfig(level=logging.DEBUG, format=log_format,
                       filename=args.log_file)
 
-  grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
+  grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=args.max_workers))
   shop_floor_pb2_grpc.add_ShopFloorServicer_to_server(
       shop_floor_servicer.ShopFloorServicer(args.shopfloor_service_url),
       grpc_server)
@@ -99,6 +100,8 @@ def main():
                       help='The shopfloor service url.')
   parser.add_argument('--umpire-cli-url', type=str, default='',
                       help='The umpire cli url.')
+  parser.add_argument('--max-workers', type=int, default=2,
+                      help='The maximum workers. The default is 2.')
   args = parser.parse_args()
   StartGrpcServer(typing.cast(RunGrpcArgs, args))
 

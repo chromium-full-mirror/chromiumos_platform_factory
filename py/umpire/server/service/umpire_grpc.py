@@ -39,6 +39,7 @@ class UmpireGrpc(umpire_service.UmpireService):
 
     keyfile = umpire_grpc_config.get('key_file')
     certfile = umpire_grpc_config.get('cert_file')
+    max_workers = umpire_grpc_config.get('max_workers')
 
     # 0.0.0.0 allows clients out of docker to call the rpc.
     # 127.0.0.1 only allows clients inside docker to call the rpc.
@@ -52,6 +53,11 @@ class UmpireGrpc(umpire_service.UmpireService):
         '--umpire-cli-url',
         f'http://127.0.0.1:{env.umpire_cli_port}',
     ]
+    if max_workers is not None:
+      args.extend([
+          '--max-workers',
+          str(max_workers),
+      ])
     if keyfile and certfile:
       args.extend([
           '--keyfile',

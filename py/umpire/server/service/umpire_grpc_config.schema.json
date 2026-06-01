@@ -7,5 +7,10 @@
   "cert_file": {
     "description": "Path to server.crt",
     "type": "string"
+  },
+  "max_workers": {
+    "description": "Number of workers. Defaults to 2, with a minimum value of 1.",
+    "type": "integer",
+    "minimum": 1
   }
 }
