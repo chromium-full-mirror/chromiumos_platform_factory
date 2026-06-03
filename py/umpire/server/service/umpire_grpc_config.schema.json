@@ -10,7 +10,7 @@
   },
   "max_workers": {
     "description": "Number of workers. Defaults to 2, with a minimum value of 1.",
-    "type": "integer",
+    "type": ["integer", "null"],
     "minimum": 1
   }
 }

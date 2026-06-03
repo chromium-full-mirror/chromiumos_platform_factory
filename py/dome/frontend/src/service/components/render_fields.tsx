@@ -153,8 +153,9 @@ const RenderFields = withStyles(styles)(
     const properties = schema.properties as {[k: string]: Schema};
 
     const renderField = (k: string, value: Schema): React.ReactNode => {
-      if (Array.isArray(value.type)) {
-        if (value.type.includes('object') && value.type.includes('null')) {
+      let type = value.type;
+      if (Array.isArray(type)) {
+        if (type.includes('object') && type.includes('null')) {
           return (
             <Field
               key={k}
@@ -166,9 +167,13 @@ const RenderFields = withStyles(styles)(
             />
           );
         }
+        const nonNullTypes = type.filter((t) => t !== 'null');
+        if (nonNullTypes.length === 1) {
+          type = nonNullTypes[0];
+        }
       }
 
-      switch (value.type) {
+      switch (type) {
         case 'string':
           return (
             <ReduxFormTextField
