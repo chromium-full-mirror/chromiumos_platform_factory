@@ -1158,7 +1158,7 @@ class FinalizeBundle:
     Returns:
       A tuple of (ro_version, firmware_bios_name).
     """
-    pattern = re.compile(r'bios-(\S+)\.ro-(\d+)-(\d+)-(\d+)\..*\.bin')
+    pattern = re.compile(r'(ap|bios)-(\S+)\.ro-(\d+)-(\d+)-(\d+)\..*\.bin')
     match = pattern.search(name)
     if not match:
       logging.info('%r does not match %r.', name, pattern.pattern)
