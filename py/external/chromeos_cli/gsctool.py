@@ -5,6 +5,7 @@
 import collections
 import dataclasses
 import enum
+import logging
 import re
 
 from cros.factory.utils import type_utils
@@ -532,10 +533,30 @@ class GSCTool:
       return match.group('device_type')
     raise GSCToolError(f'Failed to get device from {result.stdout}')
 
+  def GetSpiDrive(self) -> str:
+    """Gets GSC spi drive.
+
+    Returns:
+      The SPI drive strength as a string.
+
+    Raises:
+      `GSCToolError` if fails.
+    """
+    result = self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive'],
+                                 'Failed to get GSC spi drive.')
+    match = re.search(r'SPI_DRIVE=(\w+)', result.stdout)
+    if match:
+      return match.group(1)
+    raise GSCToolError(f'Failed to parse spi_drive from: {result.stdout}')
+
   def SetSpiDrive(self):
     if self.GetDeviceType() == 'NT':
-      self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive', '3'],
-                          'Failed to set GSC spi drive.')
+      if self.GetSpiDrive() != '3':
+        self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive', '3'],
+                            'Failed to set GSC spi drive.')
+      else:
+        logging.info('GSC SPI drive is already set to 3. Skipping.')
+
 
 
   def _InvokeCommand(self, cmd, failure_msg, cmd_result_checker=None):
