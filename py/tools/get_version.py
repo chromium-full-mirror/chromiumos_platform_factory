@@ -60,6 +60,10 @@ def GetFirmwareVersions(updater):
 
     versions = []
     for label in FIRMWARE_LABELS:
+      # BIOS is now labeled as "AP" (e.g., "AP version: ..."). See crrev/c/7877775.
+      # We match both "AP" and "BIOS" for backward compatibility.
+      if label == 'BIOS':
+        label = r'(AP|BIOS)'
       match = re.search('^' + label + r' version:\s*(.+)$', stdout,
                         re.MULTILINE)
       versions.append(match.group(1) if match else None)
