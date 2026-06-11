@@ -55,6 +55,7 @@ export const filterOptimisticUpdateAction = <
   action: A,
 ) => {
   if (state !== undefined &&
+    action.meta &&
     action.meta.isOptimistic !== null &&
     action.meta.isOptimistic !== display) {
     return state;
