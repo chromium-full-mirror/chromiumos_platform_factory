@@ -198,9 +198,9 @@ class FastbootImagingOrchestrator:
   def __init__(self, board_name: str, project_name: str, src_image_dir: str,
                ip_list: List[str] | None, interface_pair: List[Tuple[str, str]],
                broadcast_ping_service_url: str, usb_device_list: List[str],
-               is_fixed_ip: bool = False, scan_interval: int = 5,
-               idle_timeout: int = 60, enable_ufs_provision=False,
-               factory_ufs_path=""):
+               is_fixed_ip: bool = False, clear_secure_storage: bool = False,
+               scan_interval: int = 5, idle_timeout: int = 60,
+               enable_ufs_provision=False, factory_ufs_path=""):
 
     self.project_name = project_name.lower()
     self.board_name = board_name.lower()
@@ -208,6 +208,7 @@ class FastbootImagingOrchestrator:
 
     self.ip_list = ip_list
     self.is_fixed_ip = is_fixed_ip
+    self.clear_secure_storage = clear_secure_storage
     self.interface_pair = interface_pair
     self.broadcast_ping_service_url = broadcast_ping_service_url
     self.usb_device_list = usb_device_list
@@ -302,6 +303,9 @@ class FastbootImagingOrchestrator:
           else:
             runner.FlashMbrAndGptTable()
             runner.FlashBootPartitions()
+            if self.clear_secure_storage:
+              runner.ErasePartition('desktop_security_storage')
+              runner.ErasePartition('desktop_security_persist')
             runner.RebootToUserSpaceFastboot()
     except TimeoutExpired as e:
       logging.error(('DUT [%s] task is terminated due to '
@@ -365,6 +369,9 @@ if __name__ == '__main__':
   parser.add_argument(
       '--is_fixed_ip', type=bool, default=False,
       help='If set, the ip in the ip list will be regarded as fixed ip.')
+  parser.add_argument(
+      '--clear_secure_storage', action='store_true',
+      help='If set, clear secure storage and TPM in the flashing process.')
   parser.add_argument('--scan_interval', '-t', type=int, default=5,
                       help='Default scan interval for the orchestrator')
   parser.add_argument('--usb_device_list', '-u',
@@ -399,7 +406,7 @@ if __name__ == '__main__':
   orchestartor = FastbootImagingOrchestrator(
       args.board, args.project, args.src_image_dir, args.ip_list,
       args.broadcast_interface_pair, args.broadcast_ping_service_url,
-      args.usb_device_list, args.is_fixed_ip, args.scan_interval,
-      args.idle_timeout, args.enable_ufs_provision,
+      args.usb_device_list, args.is_fixed_ip, args.clear_secure_storage,
+      args.scan_interval, args.idle_timeout, args.enable_ufs_provision,
       args.factory_ufs_binary_path)
   orchestartor.RunTask()

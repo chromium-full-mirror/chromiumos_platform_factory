@@ -224,6 +224,10 @@ class FastbootUtil:
 
     return self.GetVarWithKey('product')
 
+  def ErasePartition(self, partition_name: str) -> None:
+    """Erase the specified partition"""
+    self.FastbootCheckOutputExecutor(['erase', partition_name])
+
   def EraseUserdata(self) -> None:
     """Erase the userdata partition.
 
