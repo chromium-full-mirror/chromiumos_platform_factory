@@ -80,7 +80,7 @@ const DomeAppMenu: React.SFC<DomeAppMenuProps> = ({
               className={classes.nested}
               disabled={!project.umpireReady}
             >
-              Factory Drives {project.umpireEnabled &&
+              Factory Drive {project.umpireEnabled &&
                 !project.umpireReady && '(activating...)'}
             </DomeAppMenuItem>,
             <DomeAppMenuItem

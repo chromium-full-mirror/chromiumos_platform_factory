@@ -103,7 +103,7 @@ describe('DomeAppMenu', () => {
       expect(screen.getByText('Test Project Alpha')).toBeInTheDocument();
       expect(screen.getByText('Dashboard')).toBeInTheDocument();
       expect(screen.getByText(/Bundles/)).toBeInTheDocument();
-      expect(screen.getByText(/Factory Drives/)).toBeInTheDocument();
+      expect(screen.getByText(/Factory Drive/)).toBeInTheDocument();
       expect(screen.getByText(/Logs/)).toBeInTheDocument();
       expect(screen.getByText(/Sync Status/)).toBeInTheDocument();
       expect(screen.getByText('Select project')).toBeInTheDocument();
@@ -147,7 +147,7 @@ describe('DomeAppMenu', () => {
 
       expect(screen.getByText('Bundles (activating...)')).toBeInTheDocument();
       expect(
-        screen.getByText('Factory Drives (activating...)'),
+        screen.getByText('Factory Drive (activating...)'),
       ).toBeInTheDocument();
       expect(screen.getByText('Logs (activating...)')).toBeInTheDocument();
       expect(
