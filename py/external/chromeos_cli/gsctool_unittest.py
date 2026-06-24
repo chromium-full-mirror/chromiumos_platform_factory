@@ -354,10 +354,11 @@ class GSCToolTest(unittest.TestCase):
     self.assertRaises(gsctool.GSCToolError, self.gsctool.GetSpiDrive)
 
   @mock.patch.object(gsctool.GSCTool, 'GetDeviceType')
-  @mock.patch.object(gsctool.GSCTool, 'GetSpiDrive')
-  def testSetSpiDrive_NT_NeedSet(self, mock_get_spi_drive, mock_get_device_type):
+  @mock.patch.object(gsctool.GSCTool, 'IsTi50InitialFactoryMode')
+  def testSetSpiDrive_NT_NeedSet(self, mock_is_initial_factory_mode,
+                                mock_get_device_type):
     mock_get_device_type.return_value = 'NT'
-    mock_get_spi_drive.return_value = '1'
+    mock_is_initial_factory_mode.return_value = True
     self._SetGSCToolUtilityResult()
 
     self.gsctool.SetSpiDrive()
@@ -365,20 +366,24 @@ class GSCToolTest(unittest.TestCase):
     self._CheckCalledCommand(['/usr/sbin/gsctool', '-a', '--spi_drive', '3'])
 
   @mock.patch.object(gsctool.GSCTool, 'GetDeviceType')
-  @mock.patch.object(gsctool.GSCTool, 'GetSpiDrive')
-  def testSetSpiDrive_NT_NoNeedSet(self, mock_get_spi_drive, mock_get_device_type):
+  @mock.patch.object(gsctool.GSCTool, 'IsTi50InitialFactoryMode')
+  def testSetSpiDrive_NT_NoNeedSet(self, mock_is_initial_factory_mode,
+                                  mock_get_device_type):
     mock_get_device_type.return_value = 'NT'
-    mock_get_spi_drive.return_value = '3'
+    mock_is_initial_factory_mode.return_value = False
 
     with self.assertLogs(level='INFO') as log:
       self.gsctool.SetSpiDrive()
 
     self.shell.assert_not_called()
     self.assertEqual(len(log.output), 1)
-    self.assertIn('GSC SPI drive is already set to 3. Skipping.', log.output[0])
+    self.assertIn('GSC is not in initial factory mode. Skipping setting SPI drive.',
+                  log.output[0])
 
   @mock.patch.object(gsctool.GSCTool, 'GetDeviceType')
-  def testSetSpiDrive_NotNT(self, mock_get_device_type):
+  @mock.patch.object(gsctool.GSCTool, 'IsTi50InitialFactoryMode')
+  def testSetSpiDrive_NotNT(self, mock_is_initial_factory_mode, mock_get_device_type):
+    mock_is_initial_factory_mode.return_value = True
     mock_get_device_type.return_value = 'DT'
 
     self.gsctool.SetSpiDrive()

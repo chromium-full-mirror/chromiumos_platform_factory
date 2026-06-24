@@ -550,12 +550,14 @@ class GSCTool:
     raise GSCToolError(f'Failed to parse spi_drive from: {result.stdout}')
 
   def SetSpiDrive(self):
+    # SPI drive cannot be set once locked (i.e. not in initial factory mode),
+    # even setting the same value will result in an error.
+    if not self.IsTi50InitialFactoryMode():
+      logging.info('GSC is not in initial factory mode. Skipping setting SPI drive.')
+      return
     if self.GetDeviceType() == 'NT':
-      if self.GetSpiDrive() != '3':
-        self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive', '3'],
-                            'Failed to set GSC spi drive.')
-      else:
-        logging.info('GSC SPI drive is already set to 3. Skipping.')
+      self._InvokeCommand([GSCTOOL_PATH, '-a', '--spi_drive', '3'],
+                          'Failed to set GSC spi drive.')
 
 
 
