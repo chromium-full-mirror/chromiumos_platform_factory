@@ -2,6 +2,7 @@
 # Copyright 2020 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 """A tool to quickly extract HWID and serial no. from DUT."""
 
 import argparse
@@ -12,7 +13,7 @@ import sys
 from cros.factory.hwid_extractor import request_handler
 
 
-def ParseArguments(raw_args):
+def _ParseArguments(raw_args: list[str]):
   """Parse command line arguments."""
   parser = argparse.ArgumentParser()
   parser.add_argument('-p', '--port', type=int, default=8000,
@@ -23,8 +24,8 @@ def ParseArguments(raw_args):
   return args
 
 
-def Main(raw_args):
-  args = ParseArguments(raw_args)
+def _Main(raw_args: list[str]):
+  args = _ParseArguments(raw_args)
   logging.basicConfig(level=logging.WARNING - args.verbosity * 10)
   server_address = ('0.0.0.0', args.port)
   server = http_server.HTTPServer(server_address,
@@ -40,4 +41,4 @@ def Main(raw_args):
 
 
 if __name__ == '__main__':
-  sys.exit(Main(sys.argv[1:]))
+  sys.exit(_Main(sys.argv[1:]))

@@ -5,45 +5,46 @@
 import logging
 import re
 import subprocess
+from typing import Optional, cast
 
 from cros.factory.utils import file_utils
 
 
-FUTILITY_BIN = '/usr/bin/futility'
-VPD_BIN = '/usr/sbin/vpd'
-CMD_TIMEOUT_SECOND = 20
+_FUTILITY_BIN = '/usr/bin/futility'
+_VPD_BIN = '/usr/sbin/vpd'
+_CMD_TIMEOUT_SEC = 20
 
-HWID_RE = re.compile(r'hardware_id: ([A-Z0-9- ]+)')
-SERIAL_NUMBER_RE = re.compile(r'"serial_number"="([A-Za-z0-9-]+)"')
+_HWID_RE = re.compile(r'hardware_id: ([A-Z0-9- ]+)')
+_SERIAL_NUMBER_RE = re.compile(r'"serial_number"="([A-Za-z0-9-]+)"')
 
 
-def _GetHWID(firmware_binary_file):
+def _GetHWID(firmware_binary_file: str) -> Optional[str]:
   """Get HWID from ap firmware binary."""
-  futility_cmd = [FUTILITY_BIN, 'gbb', firmware_binary_file]
+  futility_cmd = [_FUTILITY_BIN, 'gbb', firmware_binary_file]
   output = subprocess.check_output(futility_cmd, encoding='utf-8',
                                    stderr=subprocess.PIPE,
-                                   timeout=CMD_TIMEOUT_SECOND)
+                                   timeout=_CMD_TIMEOUT_SEC)
   logging.debug('futility output:\n%s', output)
   output.split(':')
-  m = HWID_RE.fullmatch(output.strip())
-  return m and m.group(1)
+  m = _HWID_RE.fullmatch(output.strip())
+  return m and cast(str, m.group(1))
 
 
-def _GetSerialNumber(firmware_binary_file):
+def _GetSerialNumber(firmware_binary_file: str) -> Optional[str]:
   """Get serial number from ap firmware binary."""
-  vpd_cmd = [VPD_BIN, '-l', '-f', firmware_binary_file]
+  vpd_cmd = [_VPD_BIN, '-l', '-f', firmware_binary_file]
   output = subprocess.check_output(vpd_cmd, encoding='utf-8',
                                    stderr=subprocess.PIPE,
-                                   timeout=CMD_TIMEOUT_SECOND)
+                                   timeout=_CMD_TIMEOUT_SEC)
   logging.debug('vpd output:\n%s', output)
   for line in output.splitlines():
-    m = SERIAL_NUMBER_RE.fullmatch(line.strip())
+    m = _SERIAL_NUMBER_RE.fullmatch(line.strip())
     if m:
       return m.group(1)
   return None
 
 
-def ExtractHWIDAndSerialNumber():
+def ExtractHWIDAndSerialNumber() -> tuple[Optional[str], Optional[str]]:
   """Extract HWID and serial no. from DUT.
 
   Read the ap firmware binary from DUT and extract the info from it. Only the
@@ -54,11 +55,11 @@ def ExtractHWIDAndSerialNumber():
   """
   with file_utils.UnopenedTemporaryFile() as tmp_file:
     futility_cmd = [
-        FUTILITY_BIN, 'read', '--servo', '-r', 'FMAP,RO_VPD,GBB', tmp_file
+        _FUTILITY_BIN, 'read', '--servo', '-r', 'FMAP,RO_VPD,GBB', tmp_file
     ]
     output = subprocess.check_output(futility_cmd, encoding='utf-8',
                                      stderr=subprocess.PIPE,
-                                     timeout=CMD_TIMEOUT_SECOND)
+                                     timeout=_CMD_TIMEOUT_SEC)
     logging.debug('futility read output:\n%s', output)
     hwid = _GetHWID(tmp_file)
     serial_number = _GetSerialNumber(tmp_file)

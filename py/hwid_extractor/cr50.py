@@ -7,34 +7,32 @@ import enum
 import logging
 import re
 import time
+from typing import Optional
 
-# yapf: disable
-import serial  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-
-# yapf: enable
+import serial
 
 
 # The classes here supporting Cr50 also support Ti50.
 # TODO(b/242588198): Consider updating Cr50 names to GSC.
 
-# Timeout for the unresponding serial console.
-SERIAL_CONSOLE_TIMEOUT = 1
+# Timeout for the un-responding serial console.
+_SERIAL_CONSOLE_TIMEOUT_SEC = 1
 # Buffer size for each read of cr50 uart console.
-CR50_CONSOLE_BUFFER_SIZE_BYTES = 4096
+_CR50_CONSOLE_BUFFER_SIZE_BYTES = 4096
 # The maximum number of retries of dropping the console output and the interval
 # between retries.
-CR50_DROP_OUTPUT_MAX_RETRY = 20
-CR50_DROP_OUTPUT_INTERVAL = 0.05
+_CR50_DROP_OUTPUT_MAX_RETRY = 20
+_CR50_DROP_OUTPUT_INTERVAL_SEC = 0.05
 # The maximum number of retries of the failed commands and the interval between
 # retries.
-CR50_COMMAND_MAX_RETRY = 3
-CR50_COMMAND_RETRY_INTERVAL = 1
+_CR50_COMMAND_MAX_RETRY = 3
+_CR50_COMMAND_RETRY_INTERVAL_SEC = 1
 # The maximum number of retries of the failed `rma_auth` commands and the
 # interval between retries.
-CR50_RMA_AUTH_MAX_RETRY = 3
-CR50_RMA_AUTH_RETRY_INTERVAL = 1
+_CR50_RMA_AUTH_MAX_RETRY = 3
+_CR50_RMA_AUTH_RETRY_INTERVAL_SEC = 1
 # Timeout of testlab enable / disable physical presence check.
-CR50_TESTLAB_PP_TIMEOUT = 10
+_CR50_TESTLAB_PP_TIMEOUT_SEC = 10
 
 
 class TestlabState(enum.Enum):
@@ -42,18 +40,18 @@ class TestlabState(enum.Enum):
   DISABLED = 'disabled'
 
 
-class Cr50Console:
+class _Cr50Console:
   """An interface of Cr50 console to send commands and receive the outputs.
 
   Args:
     cr50_uart_pty: The pty device of cr50 uart console.
   """
 
-  def __init__(self, cr50_uart_pty):
+  def __init__(self, cr50_uart_pty: str):
     self._cr50_uart_pty = cr50_uart_pty
 
   @classmethod
-  def _DropUnusedCr50ConsoleOutput(cls, ser):
+  def _DropUnusedCr50ConsoleOutput(cls, ser: serial.Serial):
     """Drop the unused output from cr50 console.
 
     Sometime console prints debug messages before sending commands. Drop
@@ -66,15 +64,15 @@ class Cr50Console:
     Returns:
       True if all the outputs has been dropped.
     """
-    for unused_i in range(CR50_DROP_OUTPUT_MAX_RETRY):
-      time.sleep(CR50_DROP_OUTPUT_INTERVAL)
+    for unused_i in range(_CR50_DROP_OUTPUT_MAX_RETRY):
+      time.sleep(_CR50_DROP_OUTPUT_INTERVAL_SEC)
       if ser.in_waiting == 0:
         return True
       ser.reset_input_buffer()
     return False
 
   @classmethod
-  def _Cr50CommandInner(cls, ser, cmd):
+  def _Cr50CommandInner(cls, ser: serial.Serial, cmd: str) -> str:
     """Execute the command on the cr50 console."""
     if not cls._DropUnusedCr50ConsoleOutput(ser):
       return ''
@@ -92,10 +90,10 @@ class Cr50Console:
     # First '\n' forces the console to print a new line (b'>').
     ser.write(f'\n{cmd}\n'.encode())
 
-    output = ser.read_until(start_token, CR50_CONSOLE_BUFFER_SIZE_BYTES)
+    output = ser.read_until(start_token, _CR50_CONSOLE_BUFFER_SIZE_BYTES)
     if not output.endswith(start_token):
       return ''
-    output = ser.read_until(start_token_end, CR50_CONSOLE_BUFFER_SIZE_BYTES)
+    output = ser.read_until(start_token_end, _CR50_CONSOLE_BUFFER_SIZE_BYTES)
     if not output.endswith(start_token_end):
       return ''
 
@@ -107,7 +105,7 @@ class Cr50Console:
     # once Ti50 stops outputting "Console busy!" messages.
     time.sleep(0.2)
     ser.write(f'{end_of_cmd}\n'.encode())
-    output = ser.read_until(end_token, CR50_CONSOLE_BUFFER_SIZE_BYTES)
+    output = ser.read_until(end_token, _CR50_CONSOLE_BUFFER_SIZE_BYTES)
     if not output.endswith(end_token):
       return ''
     try:
@@ -115,8 +113,8 @@ class Cr50Console:
     except UnicodeDecodeError:
       return ''
 
-  def Command(self, cmd, max_retry=CR50_COMMAND_MAX_RETRY,
-              retry_interval=CR50_COMMAND_RETRY_INTERVAL):
+  def Command(self, cmd: str, max_retry=_CR50_COMMAND_MAX_RETRY,
+              retry_interval=_CR50_COMMAND_RETRY_INTERVAL_SEC):
     """Execute the command on the cr50 console.
 
     The console may not be ready to communicate with. Retry if the output is
@@ -128,7 +126,7 @@ class Cr50Console:
     logging.info('Execute command: "%s" on console: %s', cmd,
                  self._cr50_uart_pty)
     with serial.Serial(self._cr50_uart_pty,
-                       timeout=SERIAL_CONSOLE_TIMEOUT) as ser:
+                       timeout=_SERIAL_CONSOLE_TIMEOUT_SEC) as ser:
       logging.debug('Serial init.')
       for unused_i in range(max_retry):
         output = self._Cr50CommandInner(ser, cmd)
@@ -141,7 +139,7 @@ class Cr50Console:
       logging.debug('Cr50 command: "%s":\n%s', cmd, output)
     return output
 
-  def ChangeTestlabState(self, state):
+  def ChangeTestlabState(self, state: TestlabState) -> bool:
     """Set testlab state to `state`.
 
     Changing the testlab state requires physical presence check (PP).
@@ -154,19 +152,19 @@ class Cr50Console:
       RuntimeError if PP tokens cannot be found in the outputs.
     """
     with serial.Serial(self._cr50_uart_pty,
-                       timeout=SERIAL_CONSOLE_TIMEOUT) as ser:
+                       timeout=_SERIAL_CONSOLE_TIMEOUT_SEC) as ser:
       logging.debug('Serial init.')
       self._Cr50CommandInner(ser, f'ccd testlab {state.value}')
-      end_time = time.time() + CR50_TESTLAB_PP_TIMEOUT
+      end_time = time.time() + _CR50_TESTLAB_PP_TIMEOUT_SEC
       line = ''
       while time.time() < end_time:
-        line += ser.read_until(b'\n', CR50_CONSOLE_BUFFER_SIZE_BYTES).decode()
+        line += ser.read_until(b'\n', _CR50_CONSOLE_BUFFER_SIZE_BYTES).decode()
         if not line.endswith('\n'):
           continue
 
         logging.debug(line)
         if 'Press the physical button now!' in line:
-          end_time = time.time() + CR50_TESTLAB_PP_TIMEOUT
+          end_time = time.time() + _CR50_TESTLAB_PP_TIMEOUT_SEC
         elif 'Physical presence check timeout' in line:
           return False
         elif f'CCD test lab mode {state.value}' in line:
@@ -185,10 +183,10 @@ class Cr50:
     cr50_uart_pty: The device of cr50 console.
   """
 
-  def __init__(self, cr50_uart_pty):
-    self._cr50_console = Cr50Console(cr50_uart_pty)
+  def __init__(self, cr50_uart_pty: str):
+    self._cr50_console = _Cr50Console(cr50_uart_pty)
 
-  def GetRLZ(self):
+  def GetRLZ(self) -> Optional[str]:
     """Get RLZ code from Cr50.
 
     Examples of the output of bid command:
@@ -208,7 +206,7 @@ class Cr50:
     except UnicodeDecodeError:
       return None
 
-  def GetChallenge(self):
+  def GetChallenge(self) -> str:
     """Get the rma_auth challenge
 
     There are two challenge formats
@@ -232,18 +230,18 @@ class Cr50:
     Returns:
       The RMA challenge with all whitespace removed.
     """
-    for unused_i in range(CR50_RMA_AUTH_MAX_RETRY):
+    for unused_i in range(_CR50_RMA_AUTH_MAX_RETRY):
       output = self._cr50_console.Command('rma_auth').strip()
       if 'RMA Auth error' not in output:
         break
-      time.sleep(CR50_RMA_AUTH_RETRY_INTERVAL)
+      time.sleep(_CR50_RMA_AUTH_RETRY_INTERVAL_SEC)
     if 'generated challenge:' in output:
       return output.split('generated challenge:')[-1].strip()
     challenge = ''.join(re.findall(r' \S{5}' * 4, output))
     # Remove all whitespace
     return ''.join(challenge.split())
 
-  def GetTestlabState(self):
+  def GetTestlabState(self) -> Optional[TestlabState]:
     """Get the state of testlab.
 
     Example output:
@@ -261,7 +259,7 @@ class Cr50:
     except ValueError:
       return None
 
-  def ForceOpen(self):
+  def ForceOpen(self) -> bool:
     """Force CCD to be opened.
 
     To simplify the process, if the testlab is enabled, call this function to
@@ -276,7 +274,7 @@ class Cr50:
     time.sleep(1)
     return self.IsRestricted()
 
-  def IsRestricted(self):
+  def IsRestricted(self) -> bool:
     """The restricted status of the device.
 
     Check the output of `ccd` command. If it contains 'IfOpened' or
@@ -301,7 +299,7 @@ class Cr50:
     logging.info('Restricted status: %s', is_restricted)
     return is_restricted
 
-  def Unlock(self, authcode):
+  def Unlock(self, authcode: str) -> bool:
     """Unlock the device with `authcode`.
 
     If unlock successfully, Cr50 will reboot and may be unresponsive for several
@@ -320,7 +318,7 @@ class Cr50:
     # To support both, check for a case-insensitive 'success!'
     return 'success!' in output.lower()
 
-  def Lock(self):
+  def Lock(self) -> bool:
     """Lock the device.
 
     Assume that the device is not restricted.
@@ -339,7 +337,7 @@ class Cr50:
     time.sleep(1)
     return self.IsRestricted()
 
-  def _SetTestlabState(self, state):
+  def _SetTestlabState(self, state: TestlabState) -> bool:
     current_state = self.GetTestlabState()
     if current_state is None:
       raise RuntimeError('Testlab may not be supported on this devices.')
@@ -349,7 +347,7 @@ class Cr50:
     self._cr50_console.Command('ccd open')
     return self._cr50_console.ChangeTestlabState(state)
 
-  def EnableTestlab(self):
+  def EnableTestlab(self) -> bool:
     """Enable testlab.
 
     Assume that the device is not restricted.
@@ -359,7 +357,7 @@ class Cr50:
     """
     return self._SetTestlabState(TestlabState.ENABLED)
 
-  def DisableTestlab(self):
+  def DisableTestlab(self) -> bool:
     """Disable testlab.
 
     Assume that the device is not restricted.

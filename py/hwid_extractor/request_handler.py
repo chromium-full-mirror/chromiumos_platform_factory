@@ -1,6 +1,7 @@
 # Copyright 2021 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 """A tool to quickly extract HWID and serial no. from DUT."""
 
 import http
@@ -10,6 +11,7 @@ import logging
 import os
 import subprocess
 import traceback
+from typing import Any, Mapping, cast
 from urllib import parse as urlparse
 
 from cros.factory.hwid_extractor import device
@@ -17,12 +19,12 @@ from cros.factory.hwid_extractor import servod
 from cros.factory.utils import json_utils
 
 
-WWW_ROOT_DIR = os.getenv('PATH_HWID_EXTRACTOR_WWW',
-                         os.path.join(os.path.dirname(__file__), 'www'))
-CONFIG_JSON = os.path.join(WWW_ROOT_DIR, 'config.json')
+_WWW_ROOT_DIR = os.getenv('PATH_HWID_EXTRACTOR_WWW',
+                          os.path.join(os.path.dirname(__file__), 'www'))
+_CONFIG_JSON = os.path.join(_WWW_ROOT_DIR, 'config.json')
 
 
-class APIError(Exception):
+class _APIError(Exception):
 
   def __init__(self, message, status_code):
     super().__init__()
@@ -33,44 +35,42 @@ class APIError(Exception):
 class RequestHandler(http_server.SimpleHTTPRequestHandler):
   """Implementation of the request handler."""
 
-  def __init__(self, *args, **kargs):
+  def __init__(self, *args, **kwargs):
     #TODO(chungsheng): Use argument `directory` after python3.7
-    os.chdir(WWW_ROOT_DIR)
-    super().__init__(*args, **kargs)
-    self._params = {}
+    os.chdir(_WWW_ROOT_DIR)
+    super().__init__(*args, **kwargs)
+    self._params: Mapping[str, Any] = {}
 
-  def _SendJSON(self, data, status=http.HTTPStatus.OK):
+  def _SendJSON(self, data: Any, status=http.HTTPStatus.OK):
     """Send JSON result to client."""
     logging.info('server response: %s', data)
     body = json.dumps(data).encode()
     self.send_response(status)
     self.send_header('Content-Type', 'application/json')
-    # yapf: disable
-    self.send_header('Content-Length', len(body))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+    self.send_header('Content-Length', str(len(body)))
     self.send_header('Access-Control-Allow-Origin', '*')
     self.end_headers()
     self.wfile.write(body)
 
   def _SendActionResult(self, result):
     """Send a boolean value 'success' for the result of the action."""
-    self._SendJSON({'success': bool(result)})
+    self._SendJSON({
+        'success': bool(result)
+    })
 
-  def _ParseJSONPayload(self):
+  def _ParseJSONPayload(self) -> Mapping[str, Any]:
     if self.headers.get('Content-Type') != 'application/json':
-      raise APIError('Only accept json as post payload.',
-                     http.HTTPStatus.BAD_REQUEST)
-    # yapf: disable
-    length = int(self.headers.get('Content-Length'))  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
+      raise _APIError('Only accept json as post payload.',
+                      http.HTTPStatus.BAD_REQUEST)
+    length = int(cast(str, self.headers.get('Content-Length')))
     return json.loads(self.rfile.read(length))
 
   def _GetArgument(self, arg_name):
     """Get argument and send error when argument is missing."""
     arg = self._params.get(arg_name)
     if not arg:
-      raise APIError(f'Argument {arg_name!r} is required.',
-                     http.HTTPStatus.BAD_REQUEST)
+      raise _APIError(f'Argument {arg_name!r} is required.',
+                      http.HTTPStatus.BAD_REQUEST)
     return arg
 
   def _Scan(self):
@@ -105,7 +105,7 @@ class RequestHandler(http_server.SimpleHTTPRequestHandler):
   def _UpdateConfig(self):
     """Save the extractor config file to config.json."""
     config = self._params
-    json_utils.DumpFile(CONFIG_JSON, config, pretty=False)
+    json_utils.DumpFile(_CONFIG_JSON, config, pretty=False)
     self._SendActionResult(True)
 
   def _EnableTestlab(self):
@@ -117,7 +117,9 @@ class RequestHandler(http_server.SimpleHTTPRequestHandler):
     self._SendActionResult(device.DisableTestlab(cr50_serial_name))
 
   def _GetSupportedBoards(self):
-    self._SendJSON({'supportedBoards': servod.GetSupportedBoards()})
+    self._SendJSON({
+        'supportedBoards': servod.GetSupportedBoards()
+    })
 
   def do_POST(self):
     """Overwrite the parent's do_POST method."""
@@ -147,7 +149,7 @@ class RequestHandler(http_server.SimpleHTTPRequestHandler):
         self._SendJSON({
             'error': 'Not found',
         }, http.HTTPStatus.NOT_FOUND)
-    except APIError as e:
+    except _APIError as e:
       self._SendJSON({
           'error': e.message,
       }, e.status_code)

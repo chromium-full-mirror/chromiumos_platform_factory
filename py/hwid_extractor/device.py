@@ -6,6 +6,7 @@ import contextlib
 import logging
 import re
 import subprocess
+from typing import Any, Generator, Optional
 
 from cros.factory.hwid_extractor import ap_firmware
 from cros.factory.hwid_extractor import cr50
@@ -14,16 +15,16 @@ from cros.factory.hwid_extractor import servod
 
 
 # SuzyQ usb device ids.
-H1_USB = '18d1:5014'
-DT_USB = '18d1:504a'
-NT_USB = '18d1:5066'
-GSC_LSUSB_CMD = ['lsusb', '-vd']
-GSC_LSUSB_SERIAL_RE = r'iSerial +\d+ (\S+)\s'
+_H1_USB = '18d1:5014'
+_DT_USB = '18d1:504a'
+_NT_USB = '18d1:5066'
+_GSC_LSUSB_CMD = ['lsusb', '-vd']
+_GSC_LSUSB_SERIAL_RE = r'iSerial +\d+ (\S+)\s'
 
 RLZ_DATA = rlz.RLZData()
 
 
-def _ScanCCDDevices():
+def _ScanCCDDevices() -> Optional[str]:
   """Use `lsusb` to get iSerial attribute of CCD devices.
 
   Returns:
@@ -31,16 +32,16 @@ def _ScanCCDDevices():
   """
   logging.info('Scan serial names of CCD devices')
   output = ''
-  for usb_device_id in [H1_USB, DT_USB, NT_USB]:
+  for usb_device_id in [_H1_USB, _DT_USB, _NT_USB]:
     try:
-      output += subprocess.check_output(GSC_LSUSB_CMD + [usb_device_id],
+      output += subprocess.check_output(_GSC_LSUSB_CMD + [usb_device_id],
                                         encoding='utf-8')
     except subprocess.CalledProcessError:
       pass
 
   if not output:
     return None
-  serials = re.findall(GSC_LSUSB_SERIAL_RE, output)
+  serials = re.findall(_GSC_LSUSB_SERIAL_RE, output)
   if not serials:
     # iSerial should be listed in the output. If not, the user may not have
     # permission to get iSerial.
@@ -53,24 +54,24 @@ def _ScanCCDDevices():
 
 
 @contextlib.contextmanager
-def _GetCr50FromServod(*args, **kargs):
+def _GetCr50FromServod(*args, **kwargs) -> Generator[cr50.Cr50, None, None]:
   """Start Servod and return a Cr50 interface.
 
   Each time Servod stops, the ccd devices `/dev/ttyUSB*` won't show up unless
-  users replug the SuzyQ cable. Run Servod and get the uart device through
+  users re-plug the SuzyQ cable. Run Servod and get the uart device through
   dut-control make things simpler.
 
   Returns:
     A Cr50 interface.
   """
-  with servod.Servod(*args, **kargs) as dut_control:
+  with servod.Servod(*args, **kwargs) as dut_control:
     cr50_pty = dut_control.GetValue('cr50_uart_pty')
     # Disable the timestamp to make output of the console cleaner.
     dut_control.Run(['cr50_uart_timestamp:off'])
     yield cr50.Cr50(cr50_pty)
 
 
-def Scan():
+def Scan() -> Any:
   """Scan and read the status of a device.
 
   Returns:
@@ -101,7 +102,9 @@ def Scan():
     }
 
 
-def ExtractDeviceInfo(cr50_serial_name, board):
+def ExtractDeviceInfo(
+    cr50_serial_name: str,
+    board: Optional[str]) -> tuple[str, Optional[str], Optional[str]]:
   """Extract info from device.
 
   Args:
@@ -120,7 +123,7 @@ def ExtractDeviceInfo(cr50_serial_name, board):
     return gsc_dev_id, serial_number, hwid
 
 
-def Unlock(cr50_serial_name, authcode):
+def Unlock(cr50_serial_name: str, authcode: str) -> bool:
   """Unlock the device.
 
   Args:
@@ -133,7 +136,7 @@ def Unlock(cr50_serial_name, authcode):
     return dut_cr50.Unlock(authcode)
 
 
-def Lock(cr50_serial_name):
+def Lock(cr50_serial_name: str) -> bool:
   """Lock the device.
 
   Args:
@@ -145,7 +148,7 @@ def Lock(cr50_serial_name):
     return dut_cr50.Lock()
 
 
-def EnableTestlab(cr50_serial_name):
+def EnableTestlab(cr50_serial_name: str) -> bool:
   """Enable testlab.
 
   Args:
@@ -157,7 +160,7 @@ def EnableTestlab(cr50_serial_name):
     return dut_cr50.EnableTestlab()
 
 
-def DisableTestlab(cr50_serial_name):
+def DisableTestlab(cr50_serial_name: str) -> bool:
   """Disable testlab.
 
   Args:

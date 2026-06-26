@@ -7,27 +7,29 @@ import os
 import re
 import sysconfig
 import time
+from types import TracebackType
+from typing import Callable, Optional, Type
 
 from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 
 
-SERVOD_BIN = 'servod'
-DUT_CONTROL_TIMEOUT = 10
-SERVOD_INIT_TIMEOUT_SEC = 10
-SERVOD_KILL_TIMEOUT_SEC = 3
+_SERVOD_BIN = 'servod'
+_DUT_CONTROL_TIMEOUT_SEC = 10
+_SERVOD_INIT_TIMEOUT_SEC = 10
+_SERVOD_KILL_TIMEOUT_SEC = 3
 
 # Directory where hdctools installs configuration files into.
-LIB_DIR = os.getenv(
+_LIB_DIR = os.getenv(
     'PATH_SERVO_DATA',
     os.path.join(sysconfig.get_path('purelib'), 'servo', 'data'))
 
 
-def GetSupportedBoards():
+def GetSupportedBoards() -> list[str]:
   """The supported boards for the web UI."""
-  all_boards = []
+  all_boards: list[str] = []
   regex = r'servo_([a-zA-Z0-9\-]+)_overlay.xml'
-  for unused_root, unused_dirs, files in os.walk(LIB_DIR):
+  for unused_root, unused_dirs, files in os.walk(_LIB_DIR):
     for filename in files:
       res = re.fullmatch(regex, filename)
       if res:
@@ -35,38 +37,28 @@ def GetSupportedBoards():
   return sorted(all_boards)
 
 
-class _DutControl:
-  """An interface for dut-control."""
+class DutControl:
 
-  def __init__(self, port, check_servod_callback):
+  def __init__(self, port: int, check_servod_callback: Callable[[], None]):
     self._base_cmd = ['dut-control', f'--port={port}']
     self._check_servod_callback = check_servod_callback
 
-  def _Execute(self, args):
+  def _Execute(self, args: list[str]) -> str:
     self._check_servod_callback()
     return process_utils.CheckOutput(self._base_cmd + args, read_stderr=True,
-                                     timeout=DUT_CONTROL_TIMEOUT)
+                                     timeout=_DUT_CONTROL_TIMEOUT_SEC)
 
-  def GetValue(self, arg):
-    """Get the value of |arg| from dut_control."""
+  def GetValue(self, arg: str) -> str:
+    """Gets the value of `arg` from dut_control."""
     return self._Execute(['--value_only', arg]).strip()
 
-  def Run(self, cmd_fragment):
-    """Run a dut_control command.
+  def Run(self, args: list[str]) -> None:
+    """Runs a dut_control command.
 
     Args:
-      cmd_fragment (list[str]): The dut_control command to run.
+      args: The dut_control command to run.
     """
-    self._Execute(cmd_fragment)
-
-  def RunAll(self, cmd_fragments):
-    """Run multiple dut_control commands in the order given.
-
-    Args:
-      cmd_fragments (list[list[str]]): The dut_control commands to run.
-    """
-    for cmd in cmd_fragments:
-      self.Run(cmd)
+    self._Execute(args)
 
 
 class Servod:
@@ -80,9 +72,10 @@ class Servod:
     are multiple servo connections.
   """
 
-  def __init__(self, port=9999, board=None, serial_name=None):
+  def __init__(self, port=9999, board: Optional[str] = None,
+               serial_name: Optional[str] = None):
     self._port = port
-    self._servod_cmd = [SERVOD_BIN, '-p', str(port)]
+    self._servod_cmd = [_SERVOD_BIN, '-p', str(port)]
     self._servod_cmd += ['-b', board or 'none']
     if serial_name:
       self._servod_cmd += ['-s', serial_name]
@@ -90,32 +83,30 @@ class Servod:
     self._exit_stack = contextlib.ExitStack()
 
   @classmethod
-  def _CheckServodHasInitialized(cls, dut_control, stdout_file, stderr_file):
+  def _CheckServodHasInitialized(cls, dut_control: DutControl, stdout_file: str,
+                                 stderr_file: str):
     """Wait until servod has initialized.
 
     If servod has stopped, RuntimeError should be raised.  If servod is
     initializing, dut_control should fail and CalledProcessError should be
     raised.
     """
-    last_error = None
+    last_error: Optional[Exception] = None
     start = time.time()
-    while time.time() - start < SERVOD_INIT_TIMEOUT_SEC:
+    while time.time() - start < _SERVOD_INIT_TIMEOUT_SEC:
       try:
         dut_control.GetValue('servo_type')
         return
-      except process_utils.CalledProcessError as e:
+      except (process_utils.CalledProcessError,
+              process_utils.TimeoutExpired) as e:
         last_error = e
-      except process_utils.TimeoutExpired as e:
-        # yapf: disable
-        last_error = e  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-        # yapf: enable
     servod_logs = file_utils.ReadFile(stdout_file), file_utils.ReadFile(
         stderr_file)
     raise RuntimeError(
-        f'Cannot initialize servod in {SERVOD_INIT_TIMEOUT_SEC} seconds. '
+        f'Cannot initialize servod in {_SERVOD_INIT_TIMEOUT_SEC} seconds. '
         f'Last error: {last_error!r}. Servod logs: {servod_logs}')
 
-  def _GetDutControl(self):
+  def _GetDutControl(self) -> DutControl:
     stdout_file = self._exit_stack.enter_context(
         file_utils.UnopenedTemporaryFile())
     stderr_file = self._exit_stack.enter_context(
@@ -129,7 +120,7 @@ class Servod:
           self._servod_cmd, stdout=stdout, stderr=stderr, env=dict(
               os.environ, I_NEED_SERVOD='1'))
     self._exit_stack.callback(process_utils.TerminateOrKillProcess,
-                              servod_process, SERVOD_KILL_TIMEOUT_SEC)
+                              servod_process, _SERVOD_KILL_TIMEOUT_SEC)
 
     def CheckServodAlive():
       if servod_process.poll() is None:
@@ -139,11 +130,11 @@ class Servod:
       raise RuntimeError(
           f'Servod unexpectedly stopped. Servod logs: {servod_logs}')
 
-    dut_control = _DutControl(self._port, CheckServodAlive)
+    dut_control = DutControl(self._port, CheckServodAlive)
     self._CheckServodHasInitialized(dut_control, stdout_file, stderr_file)
     return dut_control
 
-  def __enter__(self):
+  def __enter__(self) -> DutControl:
     self._exit_stack.__enter__()
     try:
       return self._GetDutControl()
@@ -151,5 +142,7 @@ class Servod:
       self._exit_stack.close()
       raise
 
-  def __exit__(self, *args, **kargs):
-    self._exit_stack.__exit__(*args, **kargs)
+  def __exit__(self, exc_type: Optional[Type[BaseException]],
+               exc_val: Optional[BaseException],
+               exc_tb: Optional[TracebackType]):
+    self._exit_stack.__exit__(exc_type, exc_val, exc_tb)
