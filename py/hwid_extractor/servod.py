@@ -5,7 +5,7 @@
 import contextlib
 import os
 import re
-import sysconfig
+import subprocess
 import time
 from types import TracebackType
 from typing import Callable, Optional, Type
@@ -14,22 +14,22 @@ from cros.factory.utils import file_utils
 from cros.factory.utils import process_utils
 
 
-_SERVOD_BIN = 'servod'
 _DUT_CONTROL_TIMEOUT_SEC = 10
 _SERVOD_INIT_TIMEOUT_SEC = 10
-_SERVOD_KILL_TIMEOUT_SEC = 3
+_PROCESS_KILL_TIMEOUT_SEC = 3
 
 # Directory where hdctools installs configuration files into.
-_LIB_DIR = os.getenv(
-    'PATH_SERVO_DATA',
-    os.path.join(sysconfig.get_path('purelib'), 'servo', 'data'))
+_SERVO_DATA_DIR = os.path.realpath(os.environ['PATH_SERVO_DATA'])
+_SERVOD_BIN = 'servod'
+_GRPC_SERVER_SETUP_SCRIPT = os.path.join(_SERVO_DATA_DIR, 'grpc_server',
+                                         'grpc_server_setup.py')
 
 
 def GetSupportedBoards() -> list[str]:
   """The supported boards for the web UI."""
   all_boards: list[str] = []
   regex = r'servo_([a-zA-Z0-9\-]+)_overlay.xml'
-  for unused_root, unused_dirs, files in os.walk(_LIB_DIR):
+  for unused_root, unused_dirs, files in os.walk(_SERVO_DATA_DIR):
     for filename in files:
       res = re.fullmatch(regex, filename)
       if res:
@@ -72,72 +72,88 @@ class Servod:
     are multiple servo connections.
   """
 
+  _servod_process: subprocess.Popen
+  _servod_stdout_file: str
+  _servod_stderr_file: str
+
   def __init__(self, port=9999, board: Optional[str] = None,
                serial_name: Optional[str] = None):
     self._port = port
-    self._servod_cmd = [_SERVOD_BIN, '-p', str(port)]
+    self._servod_cmd = [
+        _SERVOD_BIN, '-p',
+        str(port), "--grpc-core-port", "50052", "--grpc-data-host", "localhost",
+        "--grpc-data-port", "50051"
+    ]
     self._servod_cmd += ['-b', board or 'none']
     if serial_name:
       self._servod_cmd += ['-s', serial_name]
 
     self._exit_stack = contextlib.ExitStack()
 
-  @classmethod
-  def _CheckServodHasInitialized(cls, dut_control: DutControl, stdout_file: str,
-                                 stderr_file: str):
-    """Wait until servod has initialized.
+  def _GenerateTempFile(self) -> str:
+    return self._exit_stack.enter_context(file_utils.UnopenedTemporaryFile())
+
+  def _RunServod(self) -> None:
+    self._servod_stdout_file = self._GenerateTempFile()
+    self._servod_stderr_file = self._GenerateTempFile()
+
+    with open(self._servod_stdout_file, 'w', encoding='utf8') as stdout, open(
+        self._servod_stderr_file, 'w', encoding='utf8') as stderr:
+      self._servod_process = process_utils.Spawn(self._servod_cmd,
+                                                 stdout=stdout, stderr=stderr)
+    self._exit_stack.callback(process_utils.TerminateOrKillProcess,
+                              self._servod_process, _PROCESS_KILL_TIMEOUT_SEC)
+
+  def _WaitUntilServodReady(self, dut_control: DutControl):
+    """Wait until servod is ready.
 
     If servod has stopped, RuntimeError should be raised.  If servod is
     initializing, dut_control should fail and CalledProcessError should be
     raised.
     """
     last_error: Optional[Exception] = None
-    start = time.time()
-    while time.time() - start < _SERVOD_INIT_TIMEOUT_SEC:
+    deadline = time.time() + _SERVOD_INIT_TIMEOUT_SEC
+    while time.time() < deadline:
       try:
         dut_control.GetValue('servo_type')
         return
       except (process_utils.CalledProcessError,
               process_utils.TimeoutExpired) as e:
         last_error = e
-    servod_logs = file_utils.ReadFile(stdout_file), file_utils.ReadFile(
-        stderr_file)
+    servod_logs = self._GetServodLogs()
     raise RuntimeError(
-        f'Cannot initialize servod in {_SERVOD_INIT_TIMEOUT_SEC} seconds. '
-        f'Last error: {last_error!r}. Servod logs: {servod_logs}')
+        f'Cannot initialize servod in {_SERVOD_INIT_TIMEOUT_SEC} seconds.\n' +
+        servod_logs) from last_error
 
-  def _GetDutControl(self) -> DutControl:
-    stdout_file = self._exit_stack.enter_context(
-        file_utils.UnopenedTemporaryFile())
-    stderr_file = self._exit_stack.enter_context(
-        file_utils.UnopenedTemporaryFile())
+  def _CheckServodAlive(self) -> None:
+    if self._servod_process.poll() is None:
+      return
+    servod_logs = self._GetServodLogs()
+    raise RuntimeError(f'Servod unexpectedly stopped.\n{servod_logs}')
 
-    with open(stdout_file, 'w', encoding='utf8') as stdout, open(
-        stderr_file, 'w', encoding='utf8') as stderr:
-      # TODO(b/343624632): remove `I_NEED_SERVOD` when we drop support for the
-      # HWID extractor in the chroot environment.
-      servod_process = process_utils.Spawn(
-          self._servod_cmd, stdout=stdout, stderr=stderr, env=dict(
-              os.environ, I_NEED_SERVOD='1'))
-    self._exit_stack.callback(process_utils.TerminateOrKillProcess,
-                              servod_process, _SERVOD_KILL_TIMEOUT_SEC)
+  def _GetServodLogs(self) -> str:
+    stdout = file_utils.ReadFile(self._servod_stdout_file)
+    stderr = file_utils.ReadFile(self._servod_stderr_file)
+    return f"${stdout}\n{stderr}"
 
-    def CheckServodAlive():
-      if servod_process.poll() is None:
-        return
-      servod_logs = file_utils.ReadFile(stdout_file), file_utils.ReadFile(
-          stderr_file)
-      raise RuntimeError(
-          f'Servod unexpectedly stopped. Servod logs: {servod_logs}')
-
-    dut_control = DutControl(self._port, CheckServodAlive)
-    self._CheckServodHasInitialized(dut_control, stdout_file, stderr_file)
-    return dut_control
+  def _RunServoGrpcService(self) -> None:
+    cmd = [
+        'python3', _GRPC_SERVER_SETUP_SCRIPT, "--grpc-core-host", "localhost",
+        "--grpc-core-port", "50052", "--grpc-data-port", "50051", "--logs",
+        f"/var/log/servod_${self._port}"
+    ]
+    process = process_utils.Spawn(cmd, stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL)
+    self._exit_stack.callback(process_utils.TerminateOrKillProcess, process,
+                              _PROCESS_KILL_TIMEOUT_SEC)
 
   def __enter__(self) -> DutControl:
-    self._exit_stack.__enter__()
     try:
-      return self._GetDutControl()
+      self._RunServoGrpcService()
+      self._RunServod()
+      dut_control = DutControl(self._port, self._CheckServodAlive)
+      self._WaitUntilServodReady(dut_control)
+      return dut_control
     except Exception:
       self._exit_stack.close()
       raise
