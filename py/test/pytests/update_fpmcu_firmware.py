@@ -131,7 +131,7 @@ class UpdateFpmcuFirmwareTest(test_case.TestCase):
       with sys_utils.MountPartition(
           self._dut.partitions.RELEASE_ROOTFS.path, dut=self._dut) as root:
         pattern = self._dut.path.join(root, FPMCU_FW_DIR_UNDER_ROOTFS,
-                                      f'{fpmcu_board}_v*.bin')
+                                      f'{fpmcu_board}[_-]v*.bin')
         fpmcu_fw_files = self._dut.Glob(pattern)
         self.assertEqual(len(fpmcu_fw_files), 1,
                          'No uniquely matched FPMCU firmware blob found')

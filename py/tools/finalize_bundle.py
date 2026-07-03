@@ -845,7 +845,7 @@ class FinalizeBundle:
 
       if fp_board not in cached_fp_firmware_hash:
         fp_firmware_files = glob.glob(
-            f'{fp_firmware_dir}/{fp_board}_*.bin')
+            f'{fp_firmware_dir}/{fp_board}[_-]*.bin')
         if len(fp_firmware_files) != 1:
           raise FinalizeBundleException(
               f'Multiple or no firmware found for fingerprint model {model}: '
