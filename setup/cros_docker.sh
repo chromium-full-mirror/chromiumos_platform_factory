@@ -1136,13 +1136,20 @@ do_build_overlord() {
 do_build_factory_ufs() {
   check_docker
 
-  local builder_output_file builder_workdir rust_dir builder_dockerfile \
+  local tmp_repo
+  tmp_repo="$(mktemp -d)"
+  TEMP_OBJECTS=("${tmp_repo}" "${TEMP_OBJECTS[@]}")
+  git clone \
+    https://chromium.googlesource.com/chromiumos/platform/factory_installer \
+    "${tmp_repo}"
+
+  local builder_output_file builder_workdir builder_dockerfile \
     builder_container_name builder_image_name
 
   builder_output_file="$1"
   builder_workdir="/usr/src/factory_installer/target/release"
-  rust_dir="$(realpath "${FACTORY_DIR}/../factory_installer/rust")"
-  builder_dockerfile="${rust_dir}/Dockerfile.factory_ufs"
+
+  builder_dockerfile="${tmp_repo}/rust/Dockerfile.factory_ufs"
   builder_container_name="factory_ufs_builder"
   builder_image_name="cros/factory-ufs-builder"
 
@@ -1150,7 +1157,7 @@ do_build_factory_ufs() {
   ${DOCKER} build \
     --file "${builder_dockerfile}" \
     --tag "${builder_image_name}" \
-    "${rust_dir}"
+    "${tmp_repo}/rust"
 
   # copy the builder's output from container to host
   mkdir -p "${BUILD_DIR}"
