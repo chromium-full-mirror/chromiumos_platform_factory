@@ -80,7 +80,8 @@ class FastbootService(umpire_service.UmpireService):
     ]
 
     if ip_list:
-      args.extend(['-i', ' '.join(ip_list)])
+      args.append('-i')
+      args.extend(ip_list)
 
     for interface_name, broadcast_addr in interfaces.items():
       args.extend(['-bi', interface_name, broadcast_addr])
