@@ -366,6 +366,7 @@ class FastbootTcpUtil(FastbootUtil):
   def __init__(self, ip, img_src, idle_timeout):
     super().__init__(img_src, idle_timeout)
     self.serial_device = f'tcp:{ip}:5554'
+    logging.info('DUT [%s] Start the task.', self.serial_device)
 
 
 class FastbootUsbUtil(FastbootUtil):

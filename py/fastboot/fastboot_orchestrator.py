@@ -181,8 +181,6 @@ class BroadcastPingScanner(TcpDeviceScanner):
       try:
         response = stub.PerformScan(request, timeout=req_timeout)
         devices_list = list(response.devices)
-        logging.info('Scanner: DUTs response to broadcast ping: %s',
-                     devices_list)
         return set(devices_list)
 
       except grpc.RpcError as e:
@@ -200,7 +198,8 @@ class FastbootImagingOrchestrator:
                broadcast_ping_service_url: str, usb_device_list: List[str],
                is_fixed_ip: bool = False, clear_secure_storage: bool = False,
                scan_interval: int = 5, idle_timeout: int = 60,
-               enable_ufs_provision=False, factory_ufs_path=""):
+               enable_ufs_provision=False, factory_ufs_path='',
+               max_concurrent_tasks: int | None = None):
 
     self.project_name = project_name.lower()
     self.board_name = board_name.lower()
@@ -216,9 +215,11 @@ class FastbootImagingOrchestrator:
     self.idle_timeout = idle_timeout
     self.enable_ufs_provision = enable_ufs_provision
     self.factory_ufs_path = factory_ufs_path
+    self.max_concurrent_tasks = max_concurrent_tasks
 
     # TODO(stevesu) Wrap set with lock to have simpler coding pattern.
     self.dut_in_use: Set[str] = set()
+    self.dut_in_queue: Set[str] = set()
     self.dut_in_use_lock: threading.Lock = threading.Lock()
 
     self.dut_queue: queue.Queue = queue.Queue()
@@ -237,15 +238,17 @@ class FastbootImagingOrchestrator:
       logging.info('Orchestrator: Using native nmap for DUTs scanning.')
       ip_scanner = NmapIpScanner(self.ip_list)
 
-    logging.info('Orchestrator scanner thread is up.')
-    logging.info('Scanning every %d seconds', self.scan_interval)
+    logging.info('Scanner: scanner thread is up.')
+    logging.info('Scanner: Scanning every %d seconds', self.scan_interval)
 
     while True:
       active_ip = ip_scanner.Scan()
+      logging.info('Scanner: found ip: %s', active_ip)
       with self.dut_in_use_lock:
         for ip in active_ip:
-          if ip not in self.dut_in_use:
+          if ip not in self.dut_in_use and ip not in self.dut_in_queue:
             self.dut_queue.put(ip)
+            self.dut_in_queue.add(ip)
       time.sleep(self.scan_interval)
 
   def RunTask(self) -> None:
@@ -257,17 +260,28 @@ class FastbootImagingOrchestrator:
 
     try:
       while not self.stop_event.is_set():
+        with self.dut_in_use_lock:
+          at_capacity = (
+              self.max_concurrent_tasks is not None and
+              len(self.dut_in_use) >= self.max_concurrent_tasks)
+        if at_capacity:
+          time.sleep(0.01)
+          continue
+
         try:
           next_dut = self.dut_queue.get(False)
+          with self.dut_in_use_lock:
+            self.dut_in_queue.discard(next_dut)
+            self.dut_in_use.add(next_dut)
           task_thread = threading.Thread(target=self.ProcessTask,
                                          args=(next_dut, ),
-                                         name=f"FBThread-{next_dut}")
+                                         name=f'FBThread-{next_dut}')
           task_thread.daemon = True
           task_thread.start()
           self.active_threads.append(task_thread)
-          with self.dut_in_use_lock:
-            self.dut_in_use.add(next_dut)
         except queue.Empty:
+          # No DUT in the queue, sleep for a short time to avoid busy-waiting.
+          time.sleep(0.005)
           continue
     except KeyboardInterrupt:
       logging.info('Orchestrator: KeyboardInterrupt received. Shutting down')
@@ -347,7 +361,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--verbose', '-v',
                       help='Verbose log with detailed device information',
-                      action="store_const", dest="log_level",
+                      action='store_const', dest='log_level',
                       const=logging.DEBUG, default=logging.INFO)
   parser.add_argument('--src_image_dir', '-s', required=True,
                       help='Directory for source image to be flashed.')
@@ -387,6 +401,10 @@ if __name__ == '__main__':
       '--factory_ufs_binary_path',
       help=('If --enable_ufs_provision is set, provide the path to factory_ufs'
             'binary, which is used to generate UFS config.'))
+  parser.add_argument(
+      '--max_concurrent_tasks', type=int, default=None,
+      help=('The maximum number of concurrent DUTs to flash simultaneously. '
+            'If unset, there is no limit on concurrency.'))
 
   args = parser.parse_args()
   if args.ip_list is None and args.broadcast_interface_pair is None:
@@ -403,10 +421,11 @@ if __name__ == '__main__':
         'Must provide factory_ufs_binary_path when ufs_provision is true.')
 
   InitLogger(args.log_path, args.log_level)
+  logging.info('Orchestrator: Starting with args: %s', args)
   orchestartor = FastbootImagingOrchestrator(
       args.board, args.project, args.src_image_dir, args.ip_list,
       args.broadcast_interface_pair, args.broadcast_ping_service_url,
       args.usb_device_list, args.is_fixed_ip, args.clear_secure_storage,
       args.scan_interval, args.idle_timeout, args.enable_ufs_provision,
-      args.factory_ufs_binary_path)
+      args.factory_ufs_binary_path, args.max_concurrent_tasks)
   orchestartor.RunTask()

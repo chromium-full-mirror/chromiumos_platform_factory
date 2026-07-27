@@ -59,6 +59,17 @@
       }
     }
   },
+  "limit_concurrency": {
+    "description": "Whether to limit the maximum concurrent worker for flashing",
+    "type": ["object", "null"],
+    "properties": {
+      "max_workers": {
+        "description": "The maximum workers for fastboot flashing. If unset, there is no limit on concurrency.",
+        "type": "integer",
+        "minimum": 1
+      }
+    }
+  },
   "clear_secure_storage": {
     "description": "Clear secure storage and TPM in flashing process.",
     "type": "boolean"

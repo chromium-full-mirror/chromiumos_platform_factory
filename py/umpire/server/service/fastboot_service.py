@@ -97,6 +97,11 @@ class FastbootService(umpire_service.UmpireService):
           '/usr/local/factory/bin/factory_ufs'
       ])
 
+    if ('limit_concurrency' in fastboot_service_config and
+        fastboot_service_config['limit_concurrency']):
+      max_workers = fastboot_service_config['limit_concurrency']['max_workers']
+      args.extend(['--max_concurrent_tasks', str(max_workers)])
+
     if ('clear_secure_storage' in fastboot_service_config and
         fastboot_service_config['clear_secure_storage']):
       args.extend(['--clear_secure_storage'])
