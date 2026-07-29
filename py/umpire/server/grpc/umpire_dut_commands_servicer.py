@@ -473,6 +473,9 @@ class UmpireDUTCommandsServicer(
       os.rename(tmp_path, save_path)
       file_utils.SyncDirectory(save_dir)
 
+    # temp_path (created by UnopenedTemporaryFile) will always be mode 0600 for
+    # security reason, so we do want to change its permission to u+rw,go+r.
+    os.chmod(save_path, 0o644)
     logging.debug("[%s] File saved.", request_id)
 
   # TODO: b/514279711 - Remove this deprecated method.
