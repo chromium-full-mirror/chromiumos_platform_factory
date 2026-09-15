@@ -5,6 +5,7 @@
   dryrun_upload: True
   project_region: "prod-project-region"
   queue_name: "prod-queue-name"
+  dedicated_queue_name: {}
   hwid_repo_branch: null  # Use the branch HEAD tracks.
   hwid_api_endpoint: "https://prod-endpoint"
 
@@ -15,5 +16,6 @@
   dryrun_upload: True
   project_region: "staging-project-region"
   queue_name: "staging-queue-name"
+  dedicated_queue_name: {}
   hwid_repo_branch: null  # Use the branch HEAD tracks.
   hwid_api_endpoint: "https://staging-endpoint"

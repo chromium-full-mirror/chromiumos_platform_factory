@@ -22,6 +22,7 @@ DEFAULT_CONFIGURATION = {
     'hwid_repo_branch': 'stabilize-15251.B',
     'project_region': '',
     'queue_name': '',
+    'dedicated_queue_name': {},
     'hwid_api_endpoint': ''
 }
 
@@ -177,6 +178,7 @@ class Config:
     self.dryrun_upload = conf.get('dryrun_upload', True)
     self.project_region = conf['project_region']
     self.queue_name = conf['queue_name']
+    self.dedicated_queue_name = conf.get('dedicated_queue_name', {})
     # Setting this config empty means the branch HEAD tracks.
     self.hwid_repo_branch = conf['hwid_repo_branch']
     self.unverified_cl_ccs = conf.get('unverified_cl_ccs', [])

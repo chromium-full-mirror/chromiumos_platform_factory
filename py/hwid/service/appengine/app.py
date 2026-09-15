@@ -29,12 +29,14 @@ _CONFIG_DATA = config_data.CONFIG
 
 @auth.HttpCheck
 def _CronJobHandler(service, method):
-  del service, method  # Unused since we only rewrite the request path.
+  del service  # Unused since we only rewrite the request path.
   client = tasks.CloudTasksClient()
   parent = client.queue_path(
       _CONFIG_DATA.cloud_project,
       _CONFIG_DATA.project_region,
-      _CONFIG_DATA.queue_name,
+      _CONFIG_DATA.dedicated_queue_name.get(
+          method, _CONFIG_DATA.queue_name
+      ),
   )
   path = flask.request.path
   client.create_task(
