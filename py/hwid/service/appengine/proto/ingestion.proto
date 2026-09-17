@@ -6,6 +6,7 @@ message IngestHwidDbRequest {
   bool force_push = 2;
   repeated string limit_boards = 3;
   bool skip_model_check = 4;
+  bool is_board_batch_task = 5;
 }
 
 message IngestHwidDbResponse {

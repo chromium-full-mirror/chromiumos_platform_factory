@@ -208,9 +208,10 @@ class HWIDDBDataManager:
         self._fs_adapter.WriteFile(file_path, file_contents)
 
   def UpdateProjectsByRepo(
-      self, live_hwid_repo: hwid_repo.HWIDRepo,
+      self,
+      live_hwid_repo: hwid_repo.HWIDRepo,
       hwid_db_metadata_list: Sequence[hwid_repo.HWIDDBMetadata],
-      delete_missing=True):
+  ):
     """Updates project contents with a live repo.
 
     Updates the set of supported projects to be exactly the list provided with
@@ -221,8 +222,6 @@ class HWIDDBDataManager:
           repo.
       hwid_db_metadata_list: A list of hwid_repo.HWIDDBMetadata containing path,
           version and name.
-      delete_missing: bool to indicate whether missing metadata should be
-          deleted.
     """
     hwid_db_metadata_of_name = {m.name: m
                                 for m in hwid_db_metadata_list}
@@ -236,18 +235,10 @@ class HWIDDBDataManager:
       old_files = set(m.project for m in existing_metadata)
       new_files = set(hwid_db_metadata_of_name)
 
-      files_to_delete = old_files - new_files
       files_to_create = new_files - old_files
 
       for hwid_metadata in existing_metadata:
-        if hwid_metadata.project in files_to_delete:
-          if delete_missing:
-            hwid_metadata.key.delete()
-            self._fs_adapter.DeleteFile(self._LivePath(hwid_metadata.path))
-            if hwid_metadata.has_internal_format():
-              self._fs_adapter.DeleteFile(
-                  self._LivePath(hwid_metadata.path, internal=True))
-        else:
+        if hwid_metadata.project in new_files:
           new_data = hwid_db_metadata_of_name[hwid_metadata.project]
           hwid_metadata.version = str(new_data.version)
           hwid_metadata.board = new_data.board_name
@@ -261,6 +252,20 @@ class HWIDDBDataManager:
         metadata_to_update.append(metadata)
 
     self._ActivateProjectFiles(live_hwid_repo, metadata_to_update)
+
+  def DeleteMissingProjects(
+      self, all_repo_metadata: Sequence[hwid_repo.HWIDDBMetadata]):
+    """Deletes projects from datastore/storage that are no longer in repo."""
+    valid_projects = {m.name
+                      for m in all_repo_metadata}
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      for hwid_metadata in HWIDDBMetadata.query():
+        if hwid_metadata.project not in valid_projects:
+          hwid_metadata.key.delete()
+          self._fs_adapter.DeleteFile(self._LivePath(hwid_metadata.path))
+          if hwid_metadata.has_internal_format():
+            self._fs_adapter.DeleteFile(
+                self._LivePath(hwid_metadata.path, internal=True))
 
   def RegisterProjectForTest(self, board: str, project: str, version: str,
                              hwid_db: Optional[HWIDDBData],

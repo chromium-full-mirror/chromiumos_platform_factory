@@ -93,7 +93,7 @@ class VPGConfigManagerTest(unittest.TestCase):
       '.hwid_db_metadata_of_name', new_callable=mock.PropertyMock)
   def testUpdate(self, mock_hwid_db_metadata_of_name):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
-    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
+    self._mock_cl_upload_manager.cl_upload_config.disabled = False
     self._mock_cl_upload_manager.ShouldCreateCL.return_value = True
     hwid_db_metadata_of_name = {
         'MODEL3': hwid_repo.HWIDDBMetadata('MODEL3', 'BOARD1', 3, 'MODEL3'),
@@ -193,7 +193,7 @@ class VPGConfigManagerTest(unittest.TestCase):
 
   def testUpdate_ShouldNotCreateCL_ShouldNotCreateCL(self):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
-    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = True
+    self._mock_cl_upload_manager.cl_upload_config.disabled = False
     self._mock_cl_upload_manager.ShouldCreateCL.return_value = False
 
     self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
@@ -203,7 +203,7 @@ class VPGConfigManagerTest(unittest.TestCase):
 
   def testUpdate_ShouldNotGenerateContent_ShouldNotCreateCL(self):
     self._mock_get_file_content.return_value = _TEST_VPG_CONFIG_DATA
-    self._mock_cl_upload_manager.ShouldGenerateContent.return_value = False
+    self._mock_cl_upload_manager.cl_upload_config.disabled = True
 
     self._vpg_config_manager.Update(True, self._fake_live_hwid_repo)
 

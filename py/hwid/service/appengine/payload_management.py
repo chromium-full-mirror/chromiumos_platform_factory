@@ -141,7 +141,7 @@ class PayloadManager(abc.ABC):
   @abc.abstractmethod
   def _GetCLMessage(self, board: str, models: Collection[str],
                     payload: _Payload, hwid_commit: str,
-                    hwid_prev_commit: str) -> str:
+                    hwid_prev_commit: Optional[str]) -> str:
     """Returns the CL message."""
 
   @abc.abstractmethod
@@ -206,11 +206,12 @@ class PayloadManager(abc.ABC):
     self._logger.info('Start syncing')
 
     hwid_live_commit = live_hwid_repo.hwid_db_commit_id
-    if not self._cl_upload_manager.ShouldGenerateContent(
-        hwid_live_commit, force_update):
+    if self._cl_upload_manager.cl_upload_config.disabled and not force_update:
+      self._logger.info(
+          'The generation for %s is disabled, skip generating the content.',
+          self._cl_upload_manager.cl_type)
       return {}
     self._logger.info('Sync with HWID commit %s', hwid_live_commit)
-    hwid_prev_commit = self._cl_upload_manager.GetLatestHWIDMainCommit()
 
     self._RefreshCredential()
     assert self._auth_cookie is not None
@@ -223,6 +224,11 @@ class PayloadManager(abc.ABC):
     result = {}
     author = self._author
     for board, models in board_models.items():
+      if not self._cl_upload_manager.ShouldGenerateContent(
+          hwid_live_commit, board=board, force_generate=force_update):
+        continue
+      hwid_prev_commit = self._cl_upload_manager.GetLatestHWIDMainCommit(
+          board=board)
       payloads = self._GeneratePayloads(board, models, skip_model_check)
       if payloads is not None and self._cl_upload_manager.ShouldCreateCL(
           payloads.hash_value, board=board, force_create=force_update):
@@ -264,7 +270,9 @@ class PayloadManager(abc.ABC):
           self._logger.error('CL is not created: %r', str(ex))
           raise PayloadGenerationException('CL is not created') from ex
 
-    self._cl_upload_manager.SetLatestHWIDMainCommit(hwid_live_commit)
+      if not skip_model_check:
+        self._cl_upload_manager.SetLatestHWIDMainCommit(hwid_live_commit,
+                                                        board=board)
     self._logger.info('Sync successfully to %s.', hwid_live_commit)
     return result
 
@@ -539,7 +547,7 @@ class VerificationPayloadManager(PayloadManager):
 
   def _GetCLMessage(self, board: str, models: Collection[str],
                     payload: _Payload, hwid_commit: str,
-                    hwid_prev_commit: str) -> str:
+                    hwid_prev_commit: Optional[str]) -> str:
     """See base class."""
     return textwrap.dedent(f"""\
         verification payload: update payload from hwid
@@ -561,5 +569,10 @@ class VerificationPayloadManager(PayloadManager):
              skip_model_check: bool = False) -> Mapping[str, UpdatedResult]:
     """See base class."""
     self._vpg_targets = self._vpg_targets_data_manager.GetVpgTargets()
-    return super().Update(dryrun, limit_models, force_update, live_hwid_repo,
-                          skip_model_check)
+    return super().Update(
+        dryrun,
+        limit_models,
+        force_update,
+        live_hwid_repo,
+        skip_model_check,
+    )

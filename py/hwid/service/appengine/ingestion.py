@@ -8,6 +8,8 @@ import json
 import logging
 from typing import Collection, Mapping
 
+from google.cloud import tasks
+
 from cros.factory.hwid.service.appengine import api_connector
 from cros.factory.hwid.service.appengine import auth
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
@@ -22,6 +24,35 @@ from cros.factory.probe_info_service.app_engine import protorpc_utils
 
 
 GOLDENEYE_MEMCACHE_NAMESPACE = 'SourceGoldenEye'
+BOARD_BATCH_SIZE = 5
+
+
+def EnqueueAppEngineTask(
+    cloud_project: str,
+    project_region: str,
+    queue_name: str,
+    relative_uri: str,
+    body: bytes,
+) -> None:
+  """Enqueues a task to Cloud Tasks targeting App Engine."""
+  client = tasks.CloudTasksClient()
+  parent = client.queue_path(
+      cloud_project,
+      project_region,
+      queue_name,
+  )
+  task = {
+      'app_engine_http_request': {
+          'http_method': 'POST',
+          'relative_uri': relative_uri,
+          'body': body,
+          'headers': {
+              'Content-Type': 'application/octet-stream',
+          },
+      },
+  }
+  client.create_task(parent=parent, task=task)
+
 
 _HWIDIngestionProtoRPCShardBase = protorpc_utils.CreateProtoRPCServiceShardBase(
     'HwidIngestionProtoRPCShardBase',
@@ -117,14 +148,15 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
   # yapf: enable
 
   @classmethod
-  def CreateInstance(cls, config, config_data):
+  def CreateInstance(cls, config, config_data, task_enqueuer=None):
     """Creates RPC service instance."""
-    return cls(config, config_data)
+    return cls(config, config_data, task_enqueuer)
 
-  def __init__(self, config, config_data, *args, **kwargs):
+  def __init__(self, config, config_data, task_enqueuer, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self._config = config
     self._config_data = config_data
+    self._task_enqueuer = task_enqueuer or EnqueueAppEngineTask
     self.hwid_action_manager = config.hwid_action_manager
     self.hwid_db_data_manager = config.hwid_db_data_manager
     self.decoder_data_manager = config.decoder_data_manager
@@ -148,12 +180,41 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
                       dryrun: bool, limit_models: Collection[str],
                       force_update: bool, live_hwid_repo: hwid_repo.HWIDRepo,
                       skip_model_check: bool = False) -> Mapping[str, str]:
-    board_result = payload_manager.Update(dryrun, limit_models, force_update,
-                                          live_hwid_repo, skip_model_check)
+    board_result = payload_manager.Update(
+        dryrun,
+        limit_models,
+        force_update,
+        live_hwid_repo,
+        skip_model_check,
+    )
     return {
         board: result.payload_hash
         for board, result in board_result.items()
     }
+
+  def _DispatchBoardBatchTasks(
+      self,
+      all_metadata: Collection[hwid_repo.HWIDDBMetadata],
+      force_push: bool,
+  ) -> None:
+    boards = sorted({m.board_name
+                     for m in all_metadata})
+    queue_name = self._config_data.dedicated_queue_name.get(
+        'IngestHwidDb', self._config_data.queue_name)
+    for i in range(0, len(boards), BOARD_BATCH_SIZE):
+      batch = boards[i:i + BOARD_BATCH_SIZE]
+      task_request = ingestion_pb2.IngestHwidDbRequest(
+          limit_boards=batch,
+          force_push=force_push,
+          is_board_batch_task=True,
+      )
+      self._task_enqueuer(
+          cloud_project=self._config_data.cloud_project,
+          project_region=self._config_data.project_region,
+          queue_name=queue_name,
+          relative_uri='/_ah/stubby/HwidIngestion.IngestHwidDb',
+          body=task_request.SerializeToString(),
+      )
 
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
@@ -178,33 +239,43 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
           protorpc_utils.RPCCanonicalErrorCode.INVALID_ARGUMENT,
           detail='skip_model_check can not be True in production.')
 
-    # Limit projects for ingestion (e2e test only).
+    # Limit projects for ingestion (e2e test only or cron fan-out).
     limit_models = set(request.limit_models)
     limit_boards = set(request.limit_boards)
-    do_limit = bool(limit_models) or bool(limit_boards)
+    # The following three flags are mutually exclusive.
+    is_board_batch_task = request.is_board_batch_task
+    is_main_cron_task = not (is_board_batch_task or limit_models or limit_boards)
+    is_e2e = not is_main_cron_task and not is_board_batch_task
+
     force_push = request.force_push
     dryrun_upload = self._config_data.dryrun_upload and not force_push
 
     live_hwid_repo = self.hwid_repo_manager.GetLiveHWIDRepo()
     try:
-      hwid_db_metadata_list = live_hwid_repo.ListHWIDDBMetadata()
+      all_hwid_db_metadata_list = live_hwid_repo.ListHWIDDBMetadata()
+      if is_main_cron_task:
+        self.hwid_db_data_manager.DeleteMissingProjects(
+            all_hwid_db_metadata_list)
+        self.vpg_targets_data_manager.RefreshVpgTargets()
+        self._DispatchBoardBatchTasks(all_hwid_db_metadata_list, force_push)
+        return ingestion_pb2.IngestHwidDbResponse(
+            msg='Board ingestion tasks dispatched.')
 
-      if do_limit:
-        hwid_db_metadata_list = [
-            x for x in hwid_db_metadata_list
-            if (not limit_models or x.name in limit_models) and
-            (not limit_boards or x.board_name in limit_boards)
-        ]
-        limit_models = set(x.name for x in hwid_db_metadata_list)
+      hwid_db_metadata_list = [
+          x for x in all_hwid_db_metadata_list
+          if (not limit_models or x.name in limit_models) and
+          (not limit_boards or x.board_name in limit_boards)
+      ]
+      limit_models = set(x.name for x in hwid_db_metadata_list)
 
-        if not hwid_db_metadata_list:
-          logging.error('No model meets the limit.')
-          raise protorpc_utils.ProtoRPCException(
-              protorpc_utils.RPCCanonicalErrorCode.INTERNAL,
-              detail='No model meets the limit.') from None
+      if not hwid_db_metadata_list:
+        logging.error('No model meets the limit.')
+        raise protorpc_utils.ProtoRPCException(
+            protorpc_utils.RPCCanonicalErrorCode.INTERNAL,
+            detail='No model meets the limit.') from None
 
-      self.hwid_db_data_manager.UpdateProjectsByRepo(
-          live_hwid_repo, hwid_db_metadata_list, delete_missing=not do_limit)
+      self.hwid_db_data_manager.UpdateProjectsByRepo(live_hwid_repo,
+                                                     hwid_db_metadata_list)
 
     except hwid_repo.HWIDRepoError as ex:
       logging.error('Got exception from HWID repo: %r.', ex)
@@ -214,26 +285,38 @@ class IngestionRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: ignore #TO
 
     self.hwid_action_manager.ReloadMemcacheCacheFromFiles(
         limit_models=list(limit_models) if limit_models else None)
-    if not do_limit:
-      # Don't refresh VPG targets in e2e tests.
-      self.vpg_targets_data_manager.RefreshVpgTargets()
 
     # Skip if env is local (dev)
     if self._config_data.env == 'dev':
       return ingestion_pb2.IngestHwidDbResponse(msg='Skip for local env')
 
     response = ingestion_pb2.IngestHwidDbResponse()
-    force_update = do_limit
-    vp_payload_hash = self._UpdatePayloads(self.vp_manager, dryrun_upload,
-                                           limit_models, force_update,
-                                           live_hwid_repo, skip_model_check)
-    hsp_payload_hash = self._UpdatePayloads(self.hsp_manager, dryrun_upload,
-                                            limit_models, force_update,
-                                            live_hwid_repo, skip_model_check)
+    force_update = is_e2e
+    vp_payload_hash = self._UpdatePayloads(
+        self.vp_manager,
+        dryrun_upload,
+        limit_models,
+        force_update,
+        live_hwid_repo,
+        skip_model_check,
+    )
+    hsp_payload_hash = self._UpdatePayloads(
+        self.hsp_manager,
+        dryrun_upload,
+        limit_models,
+        force_update,
+        live_hwid_repo,
+        skip_model_check,
+    )
     rmad_payload_hash = self._UpdatePayloads(
-        self.rmad_payload_manager, dryrun_upload, limit_models, force_update,
-        live_hwid_repo, skip_model_check)
-    if force_update:
+        self.rmad_payload_manager,
+        dryrun_upload,
+        limit_models,
+        force_update,
+        live_hwid_repo,
+        skip_model_check,
+    )
+    if is_e2e:
       # Reply payload hash (e2e test only).
       response.payload_hash.update(vp_payload_hash)
       response.hwid_selection_payload_hash.update(hsp_payload_hash)

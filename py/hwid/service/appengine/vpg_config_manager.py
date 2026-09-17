@@ -250,7 +250,10 @@ class VPGConfigManager:
     """
     self._logger.info('Start syncing')
 
-    if not self._cl_upload_manager.ShouldGenerateContent(force_generate=False):
+    if self._cl_upload_manager.cl_upload_config.disabled:
+      self._logger.info(
+          'The generation for %s is disabled, skip generating the content.',
+          self._cl_upload_manager.cl_type)
       return
     self._RefreshCredential()
 

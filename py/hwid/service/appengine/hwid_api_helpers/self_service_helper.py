@@ -808,8 +808,7 @@ class SelfServiceShard(common_helper.HWIDServiceShardBase):
     if (curr_preproc_data and
         getattr(curr_preproc_data, 'raw_database', None) == live_raw_db):
       return
-    self._hwid_db_data_manager.UpdateProjectsByRepo(live_hwid_repo, [metadata],
-                                                    delete_missing=False)
+    self._hwid_db_data_manager.UpdateProjectsByRepo(live_hwid_repo, [metadata])
     self._hwid_action_manager.ReloadMemcacheCacheFromFiles(
         limit_models=[project])
 

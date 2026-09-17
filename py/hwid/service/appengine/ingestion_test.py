@@ -7,9 +7,10 @@
 import unittest
 from unittest import mock
 
+from cros.factory.hwid.service.appengine import app
 from cros.factory.hwid.service.appengine import config as config_module
 from cros.factory.hwid.service.appengine.data import cl_upload_config
-from cros.factory.hwid.service.appengine.data import config_data as config_data_module
+from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine.data import hwid_db_data
 from cros.factory.hwid.service.appengine.data import vpg_targets_data
 from cros.factory.hwid.service.appengine import hwid_action
@@ -56,8 +57,10 @@ class IngestionRPCProviderTest(unittest.TestCase):
     super().setUp()
     self._modules = test_utils.FakeModuleCollection()
     self._config = _CreateMockConfig(self._modules)
+    self._mock_task_enqueuer = mock.Mock()
     self.service = ingestion.IngestionRPCProvider.CreateInstance(
-        self._config, config_data_module.CONFIG)
+        self._config, config_data.CONFIG,
+        task_enqueuer=self._mock_task_enqueuer)
 
   def tearDown(self):
     super().tearDown()
@@ -78,17 +81,19 @@ class IngestionRPCProviderTest(unittest.TestCase):
     response = self.service.IngestHwidDb(request)
 
     self.assertEqual(
-        response, ingestion_pb2.IngestHwidDbResponse(msg='Skip for local env'))
-    self._config.hwid_db_data_manager.UpdateProjectsByRepo.assert_has_calls([
-        mock.call(self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value, [
-            hwid_repo.HWIDDBMetadata('KBOARD', 'KBOARD', 2, 'KBOARD'),
-            hwid_repo.HWIDDBMetadata('KBOARD.old', 'KBOARD', 2, 'KBOARD.old'),
-            hwid_repo.HWIDDBMetadata('SBOARD', 'SBOARD', 3, 'SBOARD'),
-            hwid_repo.HWIDDBMetadata('BETTERCBOARD', 'BETTERCBOARD', 3,
-                                     'BETTERCBOARD'),
-        ], delete_missing=True)
-    ])
+        response,
+        ingestion_pb2.IngestHwidDbResponse(
+            msg='Board ingestion tasks dispatched.'))
+    data_manager = self._config.hwid_db_data_manager
+    data_manager.DeleteMissingProjects.assert_called_once_with(
+        hwid_db_metadata_list)
     self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_called_once()
+    self._mock_task_enqueuer.assert_called_once()
+    enqueued_req = ingestion_pb2.IngestHwidDbRequest.FromString(
+        self._mock_task_enqueuer.call_args.kwargs['body'])
+    self.assertEqual(
+        list(enqueued_req.limit_boards), ['BETTERCBOARD', 'KBOARD', 'SBOARD'])
+    self.assertTrue(enqueued_req.is_board_batch_task)
 
   def testRefreshWithLimitedModels(self):
     hwid_db_metadata_list = [
@@ -111,7 +116,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
         mock.call(self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value, [
             hwid_repo.HWIDDBMetadata('KBOARD', 'KBOARD', 2, 'KBOARD'),
             hwid_repo.HWIDDBMetadata('SBOARD', 'SBOARD', 3, 'SBOARD'),
-        ], delete_missing=False)
+        ])
     ])
     self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
@@ -135,7 +140,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
             hwid_repo.HWIDDBMetadata('KPROJ1', 'KBOARD', 3, 'KPROJ1'),
             hwid_repo.HWIDDBMetadata('KPROJ2', 'KBOARD', 3, 'KPROJ2'),
             hwid_repo.HWIDDBMetadata('KPROJ3', 'KBOARD', 3, 'KPROJ3'),
-        ], delete_missing=False)
+        ])
     ])
     self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
@@ -174,7 +179,7 @@ class IngestionRPCProviderTest(unittest.TestCase):
     self._config.hwid_db_data_manager.UpdateProjectsByRepo.assert_has_calls([
         mock.call(self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value, [
             hwid_repo.HWIDDBMetadata('KPROJ1', 'KBOARD', 3, 'KPROJ1'),
-        ], delete_missing=False)
+        ])
     ])
     self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
 
@@ -204,6 +209,124 @@ class IngestionRPCProviderTest(unittest.TestCase):
       self.service.IngestHwidDb(request)
     self.assertEqual(ex.exception.detail, 'Got exception from HWID repo.')
     self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
+
+  def testIngestHwidDb_BoardBatchTask(self):
+    mock_config_data = mock.create_autospec(config_data.Config(), instance=True)
+    mock_config_data.env = 'prod'
+    mock_config_data.is_prod_env.return_value = True
+    mock_config_data.dryrun_upload = False
+    service = ingestion.IngestionRPCProvider.CreateInstance(
+        self._config, mock_config_data)
+
+    all_metadata = [
+        hwid_repo.HWIDDBMetadata('KPROJ1', 'KBOARD', 3, 'KPROJ1'),
+        hwid_repo.HWIDDBMetadata('SPROJ1', 'SBOARD', 3, 'SPROJ1'),
+    ]
+    live_hwid_repo = self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value
+    live_hwid_repo.ListHWIDDBMetadata.return_value = all_metadata
+
+    with mock.patch.object(service, '_UpdatePayloads',
+                           return_value={}) as mock_update:
+      request = ingestion_pb2.IngestHwidDbRequest(
+          limit_boards=['KBOARD'],
+          is_board_batch_task=True,
+      )
+      response = service.IngestHwidDb(request)
+
+    self.assertEqual(response, ingestion_pb2.IngestHwidDbResponse())
+    data_manager = self._config.hwid_db_data_manager
+    data_manager.DeleteMissingProjects.assert_not_called()
+    data_manager.UpdateProjectsByRepo.assert_called_once_with(
+        live_hwid_repo,
+        [hwid_repo.HWIDDBMetadata('KPROJ1', 'KBOARD', 3, 'KPROJ1')],
+    )
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_not_called()
+    self.assertEqual(mock_update.call_count, 3)
+    for call in mock_update.call_args_list:
+      self.assertFalse(call.args[3])  # force_update is False
+
+  def testCronJobHandler_RoutesToDedicatedQueue(self):
+    queue_path = 'projects/p/locations/l/queues/hwid-payload-ingestion'
+    mock_client = mock.MagicMock()
+    mock_client.queue_path.return_value = queue_path
+
+    with (
+        mock.patch.object(app.tasks, 'CloudTasksClient',
+                          return_value=mock_client),
+        mock.patch.multiple(
+            config_data.CONFIG,
+            cloud_project='p',
+            project_region='l',
+            queue_name='ingestion',
+            dedicated_queue_name={
+                'IngestHwidDb': 'hwid-payload-ingestion'
+            },
+        ),
+    ):
+      client = app.hwid_service.test_client()
+      resp = client.get(
+          '/cron/HwidIngestion.IngestHwidDb',
+          headers={
+              'X-AppEngine-Cron': 'true'
+          },
+      )
+
+    self.assertEqual(resp.status_code, 200)
+    mock_client.queue_path.assert_called_once_with('p', 'l',
+                                                   'hwid-payload-ingestion')
+    mock_client.create_task.assert_called_once_with(
+        parent=queue_path,
+        task={
+            'app_engine_http_request': {
+                'http_method': 'POST',
+                'relative_uri': '/_ah/stubby/HwidIngestion.IngestHwidDb',
+            }
+        },
+    )
+
+  def testIngestHwidDb_DispatchesBatchedBoardTasks(self):
+    mock_config_data = mock.create_autospec(config_data.Config(), instance=True)
+    mock_config_data.cloud_project = 'p'
+    mock_config_data.project_region = 'l'
+    mock_config_data.queue_name = 'ingestion'
+    mock_config_data.dedicated_queue_name = {
+        'IngestHwidDb': 'hwid-payload-ingestion'
+    }
+    mock_enqueuer = mock.Mock()
+    service = ingestion.IngestionRPCProvider.CreateInstance(
+        self._config, mock_config_data, task_enqueuer=mock_enqueuer)
+
+    live_hwid_repo = self._config.hwid_repo_manager.GetLiveHWIDRepo.return_value
+    all_metadata = [
+        hwid_repo.HWIDDBMetadata(f'PROJ_{i}', f'BOARD_{i:02d}', 3, f'PROJ_{i}')
+        for i in range(7)
+    ]
+    live_hwid_repo.ListHWIDDBMetadata.return_value = all_metadata
+
+    resp = service.IngestHwidDb(ingestion_pb2.IngestHwidDbRequest())
+    self.assertEqual(
+        resp,
+        ingestion_pb2.IngestHwidDbResponse(
+            msg='Board ingestion tasks dispatched.'))
+    data_manager = self._config.hwid_db_data_manager
+    data_manager.DeleteMissingProjects.assert_called_once_with(all_metadata)
+    self._config.vpg_targets_data_manager.RefreshVpgTargets.assert_called_once()
+    self.assertEqual(mock_enqueuer.call_count, 2)
+
+    call_0 = mock_enqueuer.call_args_list[0]
+    self.assertEqual(call_0.kwargs['queue_name'], 'hwid-payload-ingestion')
+    req_0 = ingestion_pb2.IngestHwidDbRequest.FromString(call_0.kwargs['body'])
+    self.assertEqual(
+        list(req_0.limit_boards),
+        ['BOARD_00', 'BOARD_01', 'BOARD_02', 'BOARD_03', 'BOARD_04'],
+    )
+    self.assertTrue(req_0.is_board_batch_task)
+
+    call_1 = mock_enqueuer.call_args_list[1]
+    self.assertEqual(call_1.kwargs['queue_name'], 'hwid-payload-ingestion')
+    req_1 = ingestion_pb2.IngestHwidDbRequest.FromString(call_1.kwargs['body'])
+    self.assertEqual(list(req_1.limit_boards), ['BOARD_05', 'BOARD_06'])
+    self.assertTrue(req_1.is_board_batch_task)
 
 
 class SyncNameMappingRPCProviderTest(unittest.TestCase):

@@ -49,11 +49,12 @@ class CLUploadManagerTestCase(unittest.TestCase):
       self,
       manager: cl_upload_config.PayloadCLUploadManager,
       commit: str,
+      board: str,
   ) -> cl_upload_config.LatestHWIDMainCommit:
     cl_type = manager.cl_type
     with self._ndb_connector.CreateClientContext():
       entity = cl_upload_config.LatestHWIDMainCommit(payload_type=cl_type,
-                                                     commit=commit)
+                                                     commit=commit, board=board)
       entity.put()
 
     return entity
@@ -97,30 +98,6 @@ class VPGTargetsCLUploadManagerTest(CLUploadManagerTestCase):
     self.assertCountEqual(config.reviewers, ['reviewer@example.com'])
     self.assertEqual(config.bot_reviewer, 'bot-reviewer@example.com')
     self.assertCountEqual(config.ccs, ['cc@example.com'])
-
-  def testShouldGenerateContent(self):
-    manager = cl_upload_config.VPGTargetsCLUploadManager(self._ndb_connector)
-    self._SetConfig(manager, disabled=False)
-
-    res = manager.ShouldGenerateContent()
-
-    self.assertTrue(res)
-
-  def testShouldGenerateContent_WithDisabledConfig_ShouldReturnFalse(self):
-    manager = cl_upload_config.VPGTargetsCLUploadManager(self._ndb_connector)
-    self._SetConfig(manager, disabled=True)
-
-    res = manager.ShouldGenerateContent()
-
-    self.assertFalse(res)
-
-  def testShouldGenerateContent_WithForceGenerate_ShouldReturnTrue(self):
-    manager = cl_upload_config.VPGTargetsCLUploadManager(self._ndb_connector)
-    self._SetConfig(manager, disabled=True)
-
-    res = manager.ShouldGenerateContent(force_generate=True)
-
-    self.assertTrue(res)
 
   def testGetLatestVPGTargetsHash(self):
     manager = cl_upload_config.VPGTargetsCLUploadManager(self._ndb_connector)
@@ -292,33 +269,46 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
         self._ndb_connector)
     selection_manager = cl_upload_config.HWIDSelectionPayloadCLUploadManager(
         self._ndb_connector)
-    self._SetLatestHWIDMainCommit(vp_manager, commit='fake-commit')
-    self._SetLatestHWIDMainCommit(selection_manager, commit='fake-commit2')
+    self._SetLatestHWIDMainCommit(
+        vp_manager, commit='fake-commit1', board='fake-board1')
+    self._SetLatestHWIDMainCommit(
+        vp_manager, commit='fake-commit2', board='fake-board2')
+    self._SetLatestHWIDMainCommit(
+        selection_manager, commit='fake-commit3', board='fake-board1')
 
-    vp_commit = vp_manager.GetLatestHWIDMainCommit()
-    selection_commit = selection_manager.GetLatestHWIDMainCommit()
+    vp_commit1 = vp_manager.GetLatestHWIDMainCommit(board='fake-board1')
+    vp_commit2 = vp_manager.GetLatestHWIDMainCommit(board='fake-board2')
+    selection_commit1 = selection_manager.GetLatestHWIDMainCommit(
+        board='fake-board1')
 
-    self.assertEqual(vp_commit, 'fake-commit')
-    self.assertEqual(selection_commit, 'fake-commit2')
+    self.assertEqual(vp_commit1, 'fake-commit1')
+    self.assertEqual(vp_commit2, 'fake-commit2')
+    self.assertEqual(selection_commit1, 'fake-commit3')
 
   def testSetLatestHWIDMainCommit(self):
     vp_manager = cl_upload_config.VerificationPayloadCLUploadManager(
         self._ndb_connector)
     selection_manager = cl_upload_config.HWIDSelectionPayloadCLUploadManager(
         self._ndb_connector)
-    vp_commit = self._SetLatestHWIDMainCommit(vp_manager, commit='fake-commit')
-    selection_commit = self._SetLatestHWIDMainCommit(selection_manager,
-                                                     commit='fake-commit2')
+    vp_commit1 = self._SetLatestHWIDMainCommit(
+        vp_manager, commit='fake-commit1', board='fake-board1')
+    vp_commit2 = self._SetLatestHWIDMainCommit(
+        vp_manager, commit='fake-commit2', board='fake-board2')
+    selection_commit = self._SetLatestHWIDMainCommit(
+        selection_manager, commit='fake-commit3', board='fake-board1')
 
-    vp_manager.SetLatestHWIDMainCommit('new-commit')
-    selection_manager.SetLatestHWIDMainCommit('new-commit2')
+    vp_manager.SetLatestHWIDMainCommit('new-commit1', board='fake-board1')
+    selection_manager.SetLatestHWIDMainCommit(
+        'new-commit3', board='fake-board1')
 
     with self._ndb_connector.CreateClientContext():
-      vp_commit = vp_commit.key.get()
+      vp_commit1 = vp_commit1.key.get()
+      vp_commit2 = vp_commit2.key.get()
       selection_commit = selection_commit.key.get()
 
-    self.assertEqual(vp_commit.commit, 'new-commit')
-    self.assertEqual(selection_commit.commit, 'new-commit2')
+    self.assertEqual(vp_commit1.commit, 'new-commit1')
+    self.assertEqual(vp_commit2.commit, 'fake-commit2')
+    self.assertEqual(selection_commit.commit, 'new-commit3')
 
   def testGetLatestPayloadHash(self):
     vp_manager = cl_upload_config.VerificationPayloadCLUploadManager(
@@ -396,9 +386,11 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     # yapf: disable
     self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
-    self._SetLatestHWIDMainCommit(manager, commit='fake-commit')
+    self._SetLatestHWIDMainCommit(manager, commit='fake-commit',
+                                  board='fake-board1')
 
-    res = manager.ShouldGenerateContent("fake-commit2", False)
+    res = manager.ShouldGenerateContent("fake-commit2", board="fake-board1",
+                                        force_generate=False)
 
     self.assertTrue(res)
 
@@ -409,7 +401,8 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
-    res = manager.ShouldGenerateContent("fake-commit", False)
+    res = manager.ShouldGenerateContent("fake-commit", board="fake-board1",
+                                        force_generate=False)
 
     self.assertFalse(res)
 
@@ -419,9 +412,11 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     # yapf: disable
     self._SetConfig(manager, disabled=False)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
-    self._SetLatestHWIDMainCommit(manager, commit='fake-commit')
+    self._SetLatestHWIDMainCommit(manager, commit='fake-commit',
+                                  board='fake-board1')
 
-    res = manager.ShouldGenerateContent("fake-commit", False)
+    res = manager.ShouldGenerateContent("fake-commit", board="fake-board1",
+                                        force_generate=False)
 
     self.assertFalse(res)
 
@@ -432,16 +427,10 @@ class PayloadCLUploadManagerTest(CLUploadManagerTestCase):
     self._SetConfig(manager, disabled=True)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
-    res = manager.ShouldGenerateContent("fake-commit", True)
+    res = manager.ShouldGenerateContent("fake-commit", board="fake-board1",
+                                        force_generate=True)
 
     self.assertTrue(res)
-
-  def testShouldGenerateContent_MissingMandatoryArg_ShouldRaiseError(self):
-    manager = cl_upload_config.VerificationPayloadCLUploadManager(
-        self._ndb_connector)
-
-    self.assertRaisesRegex(ValueError, 'hwid_live_commit must be specified',
-                           manager.ShouldGenerateContent)
 
   def testShouldCreateCL_HashChanged_ShouldReturnTrue(self):
     manager = cl_upload_config.VerificationPayloadCLUploadManager(

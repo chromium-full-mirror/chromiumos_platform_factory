@@ -272,22 +272,6 @@ class AbstractCLUploadManager(abc.ABC):
       entity.put()
 
   @abc.abstractmethod
-  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
-                            force_generate: bool = False) -> bool:
-    """Checks if the content should be generated.
-
-    This function is called before the generation of contents begins to avoid
-    unnecessary generation as the process may take a long time.
-
-    Args:
-      hwid_live_commit: The latest commit of the HWID repo.
-      force_generate: Set to True when force to generate the content.
-
-    Raises:
-      ValueError: If any mandatory parameters are not specified.
-    """
-
-  @abc.abstractmethod
   def ShouldCreateCL(self, content_hash: str, board: Optional[str] = None,
                      force_create: bool = False) -> bool:
     """Checks if the CL should be created.
@@ -308,22 +292,6 @@ class AbstractCLUploadManager(abc.ABC):
 class VPGTargetsCLUploadManager(AbstractCLUploadManager):
   """CL upload manager for VPG targets."""
   _cl_type = CLType.VPG_TARGETS
-
-  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
-                            force_generate: bool = False) -> bool:
-    """See base class."""
-    del hwid_live_commit  # unused.
-
-    config = self.cl_upload_config
-    if force_generate:
-      self._logger.info('Force to generate content for %s.', config.cl_type)
-      return True
-    if config.disabled:
-      self._logger.info(
-          'The generation for %s is disabled, skip generating '
-          'the content.', config.cl_type)
-      return False
-    return True
 
   def ShouldCreateCL(self, content_hash: str, board: Optional[str] = None,
                      force_create: bool = False) -> bool:
@@ -366,10 +334,12 @@ class LatestHWIDMainCommit(ndb.Model):
   Attributes:
     payload_type: The type of CL content. See also CLType.
     commit: The latest processed commit of the HWID repo.
+    board: The board that the commit corresponds to.
   """
 
   payload_type = ndb.StringProperty()
   commit = ndb.StringProperty()
+  board = ndb.StringProperty()
 
 
 class PayloadCLUploadManager(AbstractCLUploadManager):
@@ -385,12 +355,18 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
           f'Invalid CL type for PayloadCLUploadManager, got: {self._cl_type}')
     super().__init__(ndb_connector)
 
-  def ShouldGenerateContent(self, hwid_live_commit: Optional[str] = None,
+  def ShouldGenerateContent(self, hwid_live_commit: str, board: str,
                             force_generate: bool = False) -> bool:
-    """See base class."""
-    if hwid_live_commit is None:
-      raise ValueError('hwid_live_commit must be specified')
+    """Checks if the content should be generated.
 
+    This function is called before the generation of contents begins to avoid
+    unnecessary generation as the process may take a long time.
+
+    Args:
+      hwid_live_commit: The latest commit of the HWID repo.
+      board: See LatestHWIDMainCommit.board.
+      force_generate: Set to True when force to generate the content.
+    """
     config = self.cl_upload_config
     if force_generate:
       self._logger.info('Force to generate content for %s.', config.cl_type)
@@ -400,10 +376,11 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
           'The generation for %s is disabled, skip generating '
           'the content.', config.cl_type)
       return False
-    hwid_prev_commit = self.GetLatestHWIDMainCommit()
+    hwid_prev_commit = self.GetLatestHWIDMainCommit(board)
     if hwid_live_commit == hwid_prev_commit:
-      self._logger.info('The HWID live commit %s is already processed, skipped',
-                        hwid_live_commit)
+      self._logger.info(
+          'The HWID live commit %s for board %s is already processed, skipped',
+          hwid_live_commit, board)
       return False
     return True
 
@@ -424,8 +401,11 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
       return False
     return True
 
-  def GetLatestHWIDMainCommit(self) -> Optional[str]:
+  def GetLatestHWIDMainCommit(self, board: str) -> Optional[str]:
     """Gets the latest processed commit of HWID repo.
+
+    Args:
+      board: See LatestHWIDMainCommit.board.
 
     Returns:
       None if the entity does not exist. Otherwise, the latest processed commit
@@ -433,20 +413,23 @@ class PayloadCLUploadManager(AbstractCLUploadManager):
     """
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       entity = LatestHWIDMainCommit.query(
-          LatestHWIDMainCommit.payload_type == self._cl_type).get()
+          LatestHWIDMainCommit.payload_type == self._cl_type,
+          LatestHWIDMainCommit.board == board).get()
       return entity.commit if entity is not None else None
 
-  def SetLatestHWIDMainCommit(self, commit: str):
+  def SetLatestHWIDMainCommit(self, commit: str, board: str):
     """Sets the latest processed commit of HWID repo.
 
     Args:
       commit: See LatestHWIDMainCommit.commit.
+      board: See LatestHWIDMainCommit.board.
     """
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       entity = LatestHWIDMainCommit.query(
-          LatestHWIDMainCommit.payload_type == self._cl_type).get()
+          LatestHWIDMainCommit.payload_type == self._cl_type,
+          LatestHWIDMainCommit.board == board).get()
       if entity is None:
-        entity = LatestHWIDMainCommit(payload_type=self._cl_type)
+        entity = LatestHWIDMainCommit(payload_type=self._cl_type, board=board)
       entity.commit = commit
       entity.put()
 

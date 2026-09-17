@@ -229,7 +229,7 @@ class HWIDDBDataManagerTest(unittest.TestCase):
     self.hwid_db_data_manager.RegisterProjectForTest('BOARDA', 'PROJECTA', '3',
                                                      'will be updated')
     self.hwid_db_data_manager.RegisterProjectForTest('BOARDB', 'PROJECTB', '3',
-                                                     'will be deleted')
+                                                     'will be untouched')
     repo = git_util.MemoryRepo('')
     tree = repo.add_files([
         ('projects.yaml', 0o100644,
@@ -265,13 +265,16 @@ class HWIDDBDataManagerTest(unittest.TestCase):
     projects = [
         m.project for m in self.hwid_db_data_manager.ListHWIDDBMetadata()
     ]
-    self.assertCountEqual(projects, ['PROJECTA', 'PROJECTC'])
+    self.assertCountEqual(projects, ['PROJECTA', 'PROJECTB', 'PROJECTC'])
     metadata_a = self.hwid_db_data_manager.GetHWIDDBMetadataOfProject(
         'PROJECTA')
+    metadata_b = self.hwid_db_data_manager.GetHWIDDBMetadataOfProject(
+        'PROJECTB')
     metadata_c = self.hwid_db_data_manager.GetHWIDDBMetadataOfProject(
         'PROJECTC')
 
     self.assertEqual(metadata_a.commit, expected_commit_id)
+    self.assertEqual(metadata_b.commit, 'TEST-COMMIT-ID')
     self.assertEqual(metadata_c.commit, expected_commit_id)
 
     self.assertEqual(
@@ -285,14 +288,34 @@ class HWIDDBDataManagerTest(unittest.TestCase):
         self.hwid_db_data_manager.LoadBundleMetadataSource(metadata_a),
         'the bundle metadata')
     self.assertEqual(
+        self.hwid_db_data_manager.LoadHWIDDB(metadata_b), 'will be untouched')
+    self.assertEqual(
         self.hwid_db_data_manager.LoadHWIDDB(metadata_c), 'newly added data')
     self.assertEqual(
         self.hwid_db_data_manager.LoadHWIDDB(metadata_c, internal=True),
         'newly added data (internal)')
     self.assertEqual(
         self.hwid_db_data_manager.LoadFeatureMatcherData(metadata_c),
-         'the feature matcher source')
+        'the feature matcher source')
 
+  def testDeleteMissingProjects(self):
+    self.hwid_db_data_manager.RegisterProjectForTest('BOARDA', 'PROJECTA', '3',
+                                                     'kept data')
+    self.hwid_db_data_manager.RegisterProjectForTest('BOARDB', 'PROJECTB', '3',
+                                                     'will be deleted')
+    repo_metadata_list = [
+        # yapf: disable
+        hwid_repo.HWIDDBMetadata(name='PROJECTA', board_name='BOARDA',
+                                 version=3, path='v3/PROJECTA')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+        # yapf: enable
+    ]
+
+    self.hwid_db_data_manager.DeleteMissingProjects(repo_metadata_list)
+
+    projects = [
+        m.project for m in self.hwid_db_data_manager.ListHWIDDBMetadata()
+    ]
+    self.assertCountEqual(projects, ['PROJECTA'])
     with self.assertRaises(hwid_db_data.HWIDDBNotFoundError):
       self.hwid_db_data_manager.GetHWIDDBMetadataOfProject('PROJECTB')
 
