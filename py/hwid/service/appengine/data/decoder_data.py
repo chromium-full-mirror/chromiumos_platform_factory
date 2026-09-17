@@ -4,7 +4,7 @@
 """Holds data models and their management utils regarding decoding HWIDs."""
 
 import logging
-from typing import Collection
+from typing import Collection, Mapping
 
 from google.cloud import ndb
 
@@ -41,42 +41,88 @@ class DecoderDataManager:
     self._ndb_connector = ndb_connector
     self._get_cid_acceptor = name_pattern_adapter.GetCIDAcceptor()
 
-  def SyncAVLNameMapping(self, mapping) -> Collection[int]:
+  def SyncAVLNameMapping(
+      self,
+      mapping: Mapping[int, str],
+      comp_ids: Collection[int] | None = None,
+  ) -> Collection[int]:
     """Sync the set of AVL name mapping to be exactly the mapping provided.
 
     Args:
       mapping: The {cid: avl_name} dictionary for updating datastore.
+      comp_ids: Optional collection of component IDs that were queried. If
+          provided, only datastore entries for these component IDs will be
+          checked for updates or deletion.
 
     Returns:
       A collection of CIDs as integers having AVL name mapping
       created, changed, or deleted.
     """
+    if comp_ids is not None and not comp_ids:
+      return set()
 
     touched_cids = set()
     with self._ndb_connector.CreateClientContextWithGlobalCache():
       cids_to_create = set(mapping)
+      entries_to_put = []
+      keys_to_delete = []
 
-      q = AVLNameMapping.query()
-      for entry in list(q):
+      if comp_ids is None:
+        existing_entries = list(AVLNameMapping.query())
+      else:
+        existing_entries = []
+        comp_id_list = list(comp_ids)
+        for i in range(0, len(comp_id_list), 30):
+          chunk = comp_id_list[i:i + 30]
+          existing_entries.extend(
+              AVLNameMapping.query(AVLNameMapping.component_id.IN(chunk)))
+
+      for entry in existing_entries:
         # Discard the entries indexed by cid.
         if entry.component_id not in mapping:
-          entry.key.delete()
+          keys_to_delete.append(entry.key)
           touched_cids.add(entry.component_id)
         else:
           new_name = mapping[entry.component_id]
           if entry.name != new_name:
             touched_cids.add(entry.component_id)
             entry.name = new_name
-            entry.put()
+            entries_to_put.append(entry)
           cids_to_create.discard(entry.component_id)
 
       for cid in cids_to_create:
         touched_cids.add(cid)
         name = mapping[cid]
-        entry = AVLNameMapping(component_id=cid, name=name)
-        entry.put()
+        entries_to_put.append(AVLNameMapping(component_id=cid, name=name))
+
+      if keys_to_delete:
+        ndb.delete_multi(keys_to_delete)
+      if entries_to_put:
+        ndb.put_multi(entries_to_put)
     logging.info('AVL name mapping is synced.')
     return touched_cids
+
+  def DeleteMissingAVLNameMappings(
+      self, active_cids: Collection[int]) -> Collection[int]:
+    """Deletes AVLNameMapping entries whose component_id is not in active_cids.
+
+    Args:
+      active_cids: Collection of all active component IDs across all projects.
+
+    Returns:
+      Set of deleted component IDs.
+    """
+    active_cids_set = set(active_cids)
+    deleted_cids = set()
+    with self._ndb_connector.CreateClientContextWithGlobalCache():
+      keys_to_delete = []
+      for entry in AVLNameMapping.query():
+        if entry.component_id not in active_cids_set:
+          keys_to_delete.append(entry.key)
+          deleted_cids.add(entry.component_id)
+      if keys_to_delete:
+        ndb.delete_multi(keys_to_delete)
+    return deleted_cids
 
   def GetAVLName(self, category, comp_name, fallback=True):
     """Get AVL Name from hourly updated mapping data.

@@ -343,24 +343,70 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
     super().setUp()
     self.fixtures = test_utils.FakeModuleCollection()
     self._config = _CreateMockConfig(self.fixtures)
+    self._mock_task_enqueuer = mock.Mock()
     self.service = ingestion.SyncNameMappingRPCProvider.CreateInstance(
-        self._config)
+        self._config,
+        config_data.CONFIG,
+        task_enqueuer=self._mock_task_enqueuer,
+    )
     self._hwid_data_cacher = self._config.hwid_data_cachers[0]
 
     self.init_mapping_data = {
-        2: "name1",
-        4: "name2",
-        6: "name3",
+        2: 'name1',
+        4: 'name2',
+        6: 'name3',
     }
     self.update_mapping_data = {
-        2: "name4",
-        3: "name5",
-        4: "name6",
+        2: 'name4',
+        3: 'name5',
+        4: 'name6',
     }
 
   def tearDown(self):
     super().tearDown()
     self.fixtures.ClearAll()
+
+  def testSyncNameMapping_DispatchesBatchedCidTasks(self):
+    mock_config_data = mock.create_autospec(config_data.Config(), instance=True)
+    mock_config_data.cloud_project = 'p'
+    mock_config_data.project_region = 'l'
+    mock_config_data.queue_name = 'ingestion'
+    mock_config_data.dedicated_queue_name = {
+        'SyncNameMapping': 'hwid-sync-name-mapping'
+    }
+    mock_enqueuer = mock.Mock()
+    service = ingestion.SyncNameMappingRPCProvider.CreateInstance(
+        self._config, mock_config_data, task_enqueuer=mock_enqueuer)
+
+    comps_1 = {
+        'cls1': [f'cls1_{i}' for i in range(1, 251)]
+    }
+    comps_2 = {
+        'cls1': ['cls1_1']
+    }
+    self.fixtures.ConfigHWID('PROJ_1', 3, 'unused_raw_db',
+                             hwid_action=self._FakeHWIDAction(comps_1))
+    self.fixtures.ConfigHWID('PROJ_2', 3, 'unused_raw_db',
+                             hwid_action=self._FakeHWIDAction(comps_2))
+
+    resp = service.SyncNameMapping(ingestion_pb2.SyncNameMappingRequest())
+    self.assertEqual(
+        resp,
+        ingestion_pb2.SyncNameMappingResponse(msg='CID sync tasks dispatched.'))
+    self.assertEqual(mock_enqueuer.call_count, 2)
+
+    call_0 = mock_enqueuer.call_args_list[0]
+    self.assertEqual(call_0.kwargs['queue_name'], 'hwid-sync-name-mapping')
+    req_0 = ingestion_pb2.SyncNameMappingRequest.FromString(
+        call_0.kwargs['body'])
+    self.assertEqual(len(req_0.cid_projects), 200)
+    self.assertEqual(list(req_0.cid_projects[1].projects), ['PROJ_1', 'PROJ_2'])
+
+    call_1 = mock_enqueuer.call_args_list[1]
+    self.assertEqual(call_1.kwargs['queue_name'], 'hwid-sync-name-mapping')
+    req_1 = ingestion_pb2.SyncNameMappingRequest.FromString(
+        call_1.kwargs['body'])
+    self.assertEqual(len(req_1.cid_projects), 50)
 
   @mock.patch(
       'cros.factory.hwid.service.appengine.api_connector.HWIDAPIConnector'
@@ -374,6 +420,11 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
     fake_hwid_action = self._FakeHWIDAction(all_comps)
     self.fixtures.ConfigHWID('PROJ1', 3, 'unused_raw_db',
                              hwid_action=fake_hwid_action)
+    proj_list = ingestion_pb2.ProjectList(projects=['PROJ1'])
+    request = ingestion_pb2.SyncNameMappingRequest(cid_projects={
+        cid: proj_list
+        for cid in (1, 2, 3, 4, 6)
+    })
 
     # Initialize mapping
     get_avl_name_mapping.return_value = self.init_mapping_data
@@ -386,7 +437,6 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
         'cls2_6': 'name3'
     }
 
-    request = ingestion_pb2.SyncNameMappingRequest()
     response = self.service.SyncNameMapping(request)
     self.assertEqual(response, ingestion_pb2.SyncNameMappingResponse())
 
@@ -407,7 +457,6 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
         'cls2_6': 'cls2_6'
     }
 
-    request = ingestion_pb2.SyncNameMappingRequest()
     response = self.service.SyncNameMapping(request)
     self.assertEqual(response, ingestion_pb2.SyncNameMappingResponse())
 
@@ -434,11 +483,17 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
                              hwid_action=fake_hwid_action1)
     self.fixtures.ConfigHWID('PROJ2', 3, 'unused_raw_db',
                              hwid_action=fake_hwid_action2)
+    req = ingestion_pb2.SyncNameMappingRequest(
+        cid_projects={
+            1: ingestion_pb2.ProjectList(projects=['PROJ1']),
+            2: ingestion_pb2.ProjectList(projects=['PROJ2']),
+            3: ingestion_pb2.ProjectList(projects=['PROJ1', 'PROJ2']),
+        })
     get_avl_name_mapping.return_value = {
         1: 'name1',
         2: 'name2',
     }
-    self.service.SyncNameMapping(ingestion_pb2.SyncNameMappingRequest())
+    self.service.SyncNameMapping(req)
     self._hwid_data_cacher.ClearCache.reset_mock()
 
     # Act: Change AVL name of CID:2.
@@ -446,7 +501,7 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
         1: 'name1',
         2: 'name2-changed',
     }
-    self.service.SyncNameMapping(ingestion_pb2.SyncNameMappingRequest())
+    self.service.SyncNameMapping(req)
 
     # Assert: HWID DB cacher of PROJ2 should trigger a cache invalidation.
     actual_calls = self._hwid_data_cacher.ClearCache.call_args_list
@@ -460,7 +515,7 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
     get_avl_name_mapping.return_value = {
         2: 'name2-changed',
     }
-    self.service.SyncNameMapping(ingestion_pb2.SyncNameMappingRequest())
+    self.service.SyncNameMapping(req)
 
     # Assert: HWID DB cacher of PROJ1 should trigger a cache invalidation.
     actual_calls = self._hwid_data_cacher.ClearCache.call_args_list
@@ -475,7 +530,7 @@ class SyncNameMappingRPCProviderTest(unittest.TestCase):
         2: 'name2-changed',
         3: 'name3',
     }
-    self.service.SyncNameMapping(ingestion_pb2.SyncNameMappingRequest())
+    self.service.SyncNameMapping(req)
 
     # Assert: HWID DB cacher of both PROJ1 and PROJ2 should trigger cache
     # invalidations.

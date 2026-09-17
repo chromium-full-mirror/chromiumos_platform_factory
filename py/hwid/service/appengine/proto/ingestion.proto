@@ -22,10 +22,16 @@ message IngestDevicesVariantsRequest {
 message IngestDevicesVariantsResponse {
 }
 
+message ProjectList {
+  repeated string projects = 1;
+}
+
 message SyncNameMappingRequest {
+  map<int64, ProjectList> cid_projects = 1;
 }
 
 message SyncNameMappingResponse {
+  string msg = 1;
 }
 
 message IngestVpgTargetsRequest {

@@ -66,7 +66,8 @@ def _CreateApp():
           _CONFIG, _CONFIG_DATA))
   protorpc_utils.RegisterProtoRPCServiceShardsToFlaskApp(
       app, '/_ah/stubby', [
-          ingestion.SyncNameMappingRPCProvider.CreateInstance(_CONFIG),
+          ingestion.SyncNameMappingRPCProvider.CreateInstance(
+              _CONFIG, _CONFIG_DATA),
           ingestion.IngestionRPCProvider.CreateInstance(_CONFIG, _CONFIG_DATA),
       ])
 

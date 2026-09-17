@@ -12,6 +12,7 @@ from google.cloud import tasks
 
 from cros.factory.hwid.service.appengine import api_connector
 from cros.factory.hwid.service.appengine import auth
+from cros.factory.hwid.service.appengine.data import config_data as config_data_module
 from cros.factory.hwid.service.appengine.hwid_api_helpers import common_helper
 from cros.factory.hwid.service.appengine import hwid_repo
 from cros.factory.hwid.service.appengine import memcache_adapter
@@ -25,6 +26,7 @@ from cros.factory.probe_info_service.app_engine import protorpc_utils
 
 GOLDENEYE_MEMCACHE_NAMESPACE = 'SourceGoldenEye'
 BOARD_BATCH_SIZE = 5
+CID_BATCH_SIZE = 200
 
 
 def EnqueueAppEngineTask(
@@ -64,13 +66,25 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
   # yapf: enable
 
   @classmethod
-  def CreateInstance(cls, config):
+  def CreateInstance(cls, config, config_data=config_data_module.CONFIG,
+                     task_enqueuer=None):
     """Creates RPC service instance."""
-    return cls(api_connector.HWIDAPIConnector(), config)
+    return cls(api_connector.HWIDAPIConnector(), config, config_data,
+               task_enqueuer)
 
-  def __init__(self, hwid_api_connector, config, *args, **kwargs):
+  def __init__(
+      self,
+      hwid_api_connector,
+      config,
+      config_data,
+      task_enqueuer,
+      *args,
+      **kwargs,
+  ):
     super().__init__(*args, **kwargs)
     self._config = config
+    self._config_data = config_data
+    self._task_enqueuer = task_enqueuer or EnqueueAppEngineTask
     self.hwid_action_manager = config.hwid_action_manager
     self.decoder_data_manager = config.decoder_data_manager
     self.hwid_api_connector = hwid_api_connector
@@ -105,6 +119,26 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
 
     return cid_proj_mapping
 
+  def _DispatchCidBatchTasks(
+      self, cid_proj_mapping: Mapping[int, Collection[str]]) -> None:
+    items = sorted(cid_proj_mapping.items())
+    queue_name = self._config_data.dedicated_queue_name.get(
+        'SyncNameMapping', self._config_data.queue_name)
+    for i in range(0, len(items), CID_BATCH_SIZE):
+      batch = items[i:i + CID_BATCH_SIZE]
+      task_request = ingestion_pb2.SyncNameMappingRequest(
+          cid_projects={
+              cid: ingestion_pb2.ProjectList(projects=sorted(projs))
+              for cid, projs in batch
+          })
+      self._task_enqueuer(
+          cloud_project=self._config_data.cloud_project,
+          project_region=self._config_data.project_region,
+          queue_name=queue_name,
+          relative_uri='/_ah/stubby/HwidIngestion.SyncNameMapping',
+          body=task_request.SerializeToString(),
+      )
+
   @protorpc_utils.ProtoRPCServiceMethod
   @auth.RpcCheck
   def SyncNameMapping(self, request):
@@ -119,19 +153,23 @@ class SyncNameMappingRPCProvider(_HWIDIngestionProtoRPCShardBase):  # type: igno
     This handler will scan all component IDs in HWID DB and query HWID API to
     get AVL name mapping, then store them to datastore.
     """
+    if not request.cid_projects:
+      cid_proj_mapping = self._ListComponentIDs()
+      self.decoder_data_manager.DeleteMissingAVLNameMappings(
+          set(cid_proj_mapping))
+      self._DispatchCidBatchTasks(cid_proj_mapping)
+      return ingestion_pb2.SyncNameMappingResponse(
+          msg='CID sync tasks dispatched.')
 
-    del request  # unused
-
-    cid_proj_mapping = self._ListComponentIDs()
-    comp_ids = list(cid_proj_mapping)
+    comp_ids = list(request.cid_projects)
     avl_name_mapping = self.hwid_api_connector.GetAVLNameMapping(comp_ids)
 
     logging.info('Got %d AVL names from HWID API.', len(avl_name_mapping))
     touched_cids = self.decoder_data_manager.SyncAVLNameMapping(
-        avl_name_mapping)
+        avl_name_mapping, comp_ids)
     affected_projs: set[str] = set()
     for touched_cid in touched_cids:
-      affected_projs.update(cid_proj_mapping[touched_cid])
+      affected_projs.update(request.cid_projects[touched_cid].projects)
 
     for affected_proj in affected_projs:
       logging.info(
