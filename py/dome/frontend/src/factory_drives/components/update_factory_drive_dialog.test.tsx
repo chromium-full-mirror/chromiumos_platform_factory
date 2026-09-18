@@ -57,11 +57,15 @@ jest.mock('./update_factory_drive_form', () => () => (
 
 import {startUpdateFactoryDrive} from '@app/factory_drives/actions';
 import {UPDATE_FACTORY_DRIVE_FORM} from '@app/factory_drives/constants';
+import {getFactoryDrives} from '@app/factory_drives/selector';
 import formDialog from '@app/form_dialog';
 import project from '@app/project';
 
 jest.mock('../actions', () => ({
   startUpdateFactoryDrive: jest.fn(),
+}));
+jest.mock('../selector', () => ({
+  getFactoryDrives: jest.fn(() => []),
 }));
 jest.mock('redux-form', () => ({
   submit: jest.fn(),
@@ -96,11 +100,13 @@ const mockStore = configureMockStore(middlewares);
 describe('UpdateFactoryDriveDialog', () => {
   let store: any;
   const mockStartUpdate = startUpdateFactoryDrive as jest.Mock;
+  const mockGetFactoryDrives = getFactoryDrives as jest.Mock;
   const mockSubmit = submit as jest.Mock;
   const mockCloseForm = formDialog.actions.closeForm as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetFactoryDrives.mockReturnValue([]);
 
     mockIsFormVisible.mockReturnValue(true);
     mockGetFormPayload.mockReturnValue({
@@ -184,6 +190,20 @@ describe('UpdateFactoryDriveDialog', () => {
         name: 'existing.bin',
         file: expect.any(File),
       });
+    });
+
+    test('shows warning dialog when uploading existing file with no id', () => {
+      mockGetFactoryDrives.mockReturnValue([
+        {id: 1, name: 'test.bin', dirId: 'dir123', usingVer: 0, revisions: []},
+      ]);
+      renderComponent();
+      fireEvent.click(screen.getByTestId('simulate-single-submit'));
+
+      expect(mockStartUpdate).not.toHaveBeenCalled();
+      expect(mockCloseForm).toHaveBeenCalledWith(UPDATE_FACTORY_DRIVE_FORM);
+      expect(
+        screen.getByText(/Please use the "Update" button/i),
+      ).toBeInTheDocument();
     });
   });
 

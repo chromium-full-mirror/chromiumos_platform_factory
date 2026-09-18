@@ -104,6 +104,24 @@ class FactoryDrivesTest(unittest.TestCase):
         'parent_id': 0
     })
 
+  def testRemoveFactoryDriveComponent(self):
+    test_file_path = os.path.join(self.env.base_dir, 'test.txt')
+    file_utils.TouchFile(test_file_path)
+
+    # Create new component
+    component = self.factory_drives.UpdateFactoryDriveComponent(
+        None, 0, 'test.txt', None, test_file_path)
+    comp_id = component['id']
+
+    # Upload the same file again to create a duplicate revision path
+    self.factory_drives.UpdateFactoryDriveComponent(comp_id, 0, 'test.txt',
+                                                    None, test_file_path)
+
+    # Removing component with duplicate revisions should succeed
+    self.factory_drives.RemoveFactoryDriveComponent(comp_id)
+    self.assertEqual(
+        self.factory_drives.QueryFactoryDrives('dir0', 'test.txt'), [])
+
 
 if __name__ == '__main__':
   unittest.main()

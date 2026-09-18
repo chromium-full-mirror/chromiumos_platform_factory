@@ -87,7 +87,7 @@ class _FactoryDriveObject:
     if not revisions_to_delete:
       raise common.UmpireError(f'No revisions listed for id {comp_id}')
 
-    for file_path in revisions_to_delete:
+    for file_path in set(revisions_to_delete):
       if os.path.exists(file_path):
         try:
           os.remove(file_path)
