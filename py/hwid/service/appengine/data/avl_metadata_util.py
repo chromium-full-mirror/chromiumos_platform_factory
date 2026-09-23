@@ -13,6 +13,7 @@ from google.cloud import ndb
 from cros.factory.hwid.service.appengine.data import config_data
 from cros.factory.hwid.service.appengine import ndb_connector as ndbc_module
 from cros.factory.hwid.v3 import database
+from cros.factory.hwid.v3 import rule as v3_rule
 
 
 class AVLMetadataError(Exception):
@@ -50,14 +51,14 @@ class _AudioChecker(_SkipAVLChecker):
   def ShouldSkip(self, comp_info: database.ComponentInfo) -> bool:
     """See base class."""
 
-    if comp_info.values is None:
-      return False
+    match comp_info.values:
+      case {'name': str(name)}:
+        kernel_name = name
+      case {'name': v3_rule.Value(is_re=True, raw_value=str(raw_val))}:
+        kernel_name = raw_val
+      case _:
+        return False
 
-    # yapf: disable
-    kernel_name = comp_info.values.get('name')  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
-    # yapf: enable
-    if kernel_name is None or not isinstance(kernel_name, str):
-      return False
     try:
       with self._ndb_connector.CreateClientContextWithGlobalCache():
         return bool(

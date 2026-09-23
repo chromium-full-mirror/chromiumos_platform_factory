@@ -84,14 +84,25 @@ class AVLMetadataManagerTest(unittest.TestCase):
     self.assertTrue(self._manager.SkipAVLCheck('audio_codec', comp2))
     self.assertFalse(self._manager.SkipAVLCheck('audio_codec', comp3))
 
-  def testSkipAVLCheck_SkipNonStr(self):
+  def testSkipAVLCheck_CompNameIsReValue(self):
     self._manager.UpdateAudioCodecBlocklist([
-        'kernel_name1',
-        'kernel_name2',
+        r'^kernel_name1$',
+        r'^kernel_name2$',
     ])
-    comp_with_re = database.ComponentInfo(
-        {'name': v3_rule.Value(r'^kernel_name\d$', is_re=True)}, 'supported')
-    self.assertFalse(self._manager.SkipAVLCheck('audio_codec', comp_with_re))
+
+    comp1 = database.ComponentInfo(
+        {'name': v3_rule.Value(r'^kernel_name1$', is_re=True)}, 'supported')
+    comp2 = database.ComponentInfo(
+        {'name': v3_rule.Value(r'^kernel_name2$', is_re=True)}, 'supported')
+    comp3 = database.ComponentInfo(
+        {'name': v3_rule.Value(r'^kernel_name3$', is_re=True)}, 'supported')
+    comp_not_re = database.ComponentInfo(
+        {'name': v3_rule.Value(r'^kernel_name1$', is_re=False)}, 'supported')
+
+    self.assertTrue(self._manager.SkipAVLCheck('audio_codec', comp1))
+    self.assertTrue(self._manager.SkipAVLCheck('audio_codec', comp2))
+    self.assertFalse(self._manager.SkipAVLCheck('audio_codec', comp3))
+    self.assertFalse(self._manager.SkipAVLCheck('audio_codec', comp_not_re))
 
 
 if __name__ == '__main__':
