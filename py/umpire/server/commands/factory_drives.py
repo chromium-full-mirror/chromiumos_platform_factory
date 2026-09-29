@@ -253,7 +253,8 @@ class FactoryDrives:
     """Prepend file MD5 sum to file path"""
     original_filename = os.path.basename(src_path)
     md5sum = file_utils.MD5InHex(src_path)
-    comp_id = comp_id if comp_id else self._factory_drive.GetNewCompId()
+    comp_id = (
+        comp_id if comp_id is not None else self._factory_drive.GetNewCompId())
     new_filemame = '.'.join([original_filename, str(comp_id), md5sum])
     return os.path.join(self._factory_drives_dir, new_filemame)
 
