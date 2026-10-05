@@ -144,11 +144,10 @@ def GetCbiData(dut, data_name):
     raise CbiException(f'{data_name} is not a valid CBI data name.')
   data_attr = CbiDataDict[data_name]
 
-  get_flag = 1  # Invalidate cache
+  get_flag = 'reload'  # Invalidate cache
   cbi_output = dut.CallOutput(
       ['ectool', 'cbi', 'get',
-       str(data_attr.tag),
-       str(get_flag)])
+       str(data_attr.tag), get_flag])
   if cbi_output:
     # If the CBI field to be probed is set, the output from
     # 'ectool cbi get' is 'As uint: %u (0x%x)\n' % (val, val)
@@ -245,8 +244,7 @@ def VerifyCbiEepromWpStatus(dut, cbi_eeprom_wp_status):
       SetCbiData(dut, CbiDataName.SKU_ID, value)
     except CbiException as e:
       return False, str(e)
-    else:
-      return True, None
+    return True, None
 
   sku_id = _GetSKUId()
   # The allowed range of sku id is [0, 0x7FFFFFFF].
