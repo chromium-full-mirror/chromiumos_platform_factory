@@ -35,16 +35,18 @@ interface RenderSwitchProps {
 
 const renderSwitch =
   ({input, label}: RenderSwitchProps & WrappedFieldProps) => (
-    <FormControlLabel
-      control={
-        <Switch
-          color="primary"
-          checked={!!input.value}
-          onChange={input.onChange}
-        />
-      }
-      label={label}
-    />
+    <div>
+      <FormControlLabel
+        control={
+          <Switch
+            color="primary"
+            checked={!!input.value}
+            onChange={input.onChange}
+          />
+        }
+        label={label}
+      />
+    </div>
   );
 
 interface RenderArrayProps {

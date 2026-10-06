@@ -198,8 +198,8 @@ class FastbootImagingOrchestrator:
                broadcast_ping_service_url: str, usb_device_list: List[str],
                is_fixed_ip: bool = False, clear_secure_storage: bool = False,
                scan_interval: int = 5, idle_timeout: int = 60,
-               enable_ufs_provision=False, factory_ufs_path='',
-               max_concurrent_tasks: int | None = None):
+               fw_fastboot_only: bool = False, enable_ufs_provision=False,
+               factory_ufs_path='', max_concurrent_tasks: int | None = None):
 
     self.project_name = project_name.lower()
     self.board_name = board_name.lower()
@@ -208,6 +208,7 @@ class FastbootImagingOrchestrator:
     self.ip_list = ip_list
     self.is_fixed_ip = is_fixed_ip
     self.clear_secure_storage = clear_secure_storage
+    self.fw_fastboot_only = fw_fastboot_only
     self.interface_pair = interface_pair
     self.broadcast_ping_service_url = broadcast_ping_service_url
     self.usb_device_list = usb_device_list
@@ -320,7 +321,13 @@ class FastbootImagingOrchestrator:
             if self.clear_secure_storage:
               runner.ErasePartition('desktop_security_storage')
               runner.ErasePartition('desktop_security_persist')
-            runner.RebootToUserSpaceFastboot()
+            if self.fw_fastboot_only:
+              runner.FlashOtherPartitions()
+              runner.ErasePartition('metadata')
+              runner.ErasePartition('userdata')
+              runner.Reboot()
+            else:
+              runner.RebootToUserSpaceFastboot()
     except TimeoutExpired as e:
       logging.error(('DUT [%s] task is terminated due to '
                      'exceeding the idle time limit (error: %r)'), dut_info, e)
@@ -386,6 +393,9 @@ if __name__ == '__main__':
   parser.add_argument(
       '--clear_secure_storage', action='store_true',
       help='If set, clear secure storage and TPM in the flashing process.')
+  parser.add_argument(
+      '--fw_fastboot_only', action='store_true',
+      help='Only use firmware fastboot for entire flashing process.')
   parser.add_argument('--scan_interval', '-t', type=int, default=5,
                       help='Default scan interval for the orchestrator')
   parser.add_argument('--usb_device_list', '-u',
@@ -426,6 +436,7 @@ if __name__ == '__main__':
       args.board, args.project, args.src_image_dir, args.ip_list,
       args.broadcast_interface_pair, args.broadcast_ping_service_url,
       args.usb_device_list, args.is_fixed_ip, args.clear_secure_storage,
-      args.scan_interval, args.idle_timeout, args.enable_ufs_provision,
-      args.factory_ufs_binary_path, args.max_concurrent_tasks)
+      args.scan_interval, args.idle_timeout, args.fw_fastboot_only,
+      args.enable_ufs_provision, args.factory_ufs_binary_path,
+      args.max_concurrent_tasks)
   orchestartor.RunTask()

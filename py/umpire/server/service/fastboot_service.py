@@ -105,6 +105,9 @@ class FastbootService(umpire_service.UmpireService):
     if ('clear_secure_storage' in fastboot_service_config and
         fastboot_service_config['clear_secure_storage']):
       args.extend(['--clear_secure_storage'])
+    if ('fw_fastboot_only' in fastboot_service_config and
+        fastboot_service_config['fw_fastboot_only']):
+      args.extend(['--fw_fastboot_only'])
 
     proc_config = {
         'executable': script_path,

@@ -73,5 +73,9 @@
   "clear_secure_storage": {
     "description": "Clear secure storage and TPM in flashing process.",
     "type": "boolean"
+  },
+  "fw_fastboot_only": {
+    "description": "Use firmware fastboot only for entire flashing process.",
+    "type": "boolean"
   }
 }
