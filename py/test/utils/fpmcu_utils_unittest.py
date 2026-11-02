@@ -81,6 +81,20 @@ class FpmcuDeviceTest(unittest.TestCase):
     self.assertIsNone(self.device.ValidateFpinfoNoErrorFlags())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable
 
+  def testRequireFpinfoNoErrorFlagsOnNoneErrorFlagsSet(self):
+    output = ('Fingerprint sensor: vendor 0x4f3 product 0x903 model 0x4f4f '
+              'version 0x100b\n'
+              'Error flags: NONE\n'
+              'Dead pixels: UNKNOWN\n'
+              'Image [0]: size 80x80 bpp 8\n'
+              'Templates: version 1 size 17876 count 0/5 dirty bitmap 0\n')
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    # yapf: disable
+    self.assertIsNone(self.device.ValidateFpinfoNoErrorFlags())  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+
   def testRequireFpinfoNoErrorFlagsOnErrorFlagsSet(self):
     output = (
         'Fingerprint sensor: vendor 20435046 product 9 model 0 version 1\n'
@@ -110,6 +124,20 @@ class FpmcuDeviceTest(unittest.TestCase):
     self.assertEqual(self.device.GetFpSensorInfo(),
                      (expected_vendor, expected_sensor))
 
+  def testGetFpSensorInfoOnHexPrefixedAndNoneErrorFlags(self):
+    output = ('Fingerprint sensor: vendor 0x4f3 product 0x903 model 0x4F4F '
+              'version 0x100b\n'
+              'Error flags: NONE\n'
+              'Dead pixels: UNKNOWN\n'
+              'Image [0]: size 80x80 bpp 8\n'
+              'Templates: version 1 size 17876 count 0/5 dirty bitmap 0\n')
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    expected_vendor, expected_sensor = '4f3', '4f4f'
+    self.assertEqual(self.device.GetFpSensorInfo(),
+                     (expected_vendor, expected_sensor))
+
   def testGetFpSensorInfoOnErrorFlagsSet(self):
     output = (
         'Fingerprint sensor: vendor 20435046 product 9 model 0 version 1\n'
@@ -131,6 +159,18 @@ class FpmcuDeviceTest(unittest.TestCase):
               'Error flags: BAD_HWID INIT_FAIL \n'
               'Dead pixels: UNKNOWN\n'
               'Templates: version 4 size 5156 count 0/5 dirty bitmap 0\n')
+    # yapf: disable
+    self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
+    # yapf: enable
+    self.assertRaises(fpmcu_utils.FpmcuError, self.device.GetFpSensorInfo)
+
+  def testGetFpSensorInfoOnInvalidHexIds(self):
+    output = (
+        'Fingerprint sensor: vendor 0x product 0x9 model 0xzz version 0x1\n'
+        'Error flags: NONE\n'
+        'Dead pixels: UNKNOWN\n'
+        'Image [0]: size 80x80 bpp 8\n'
+        'Templates: version 1 size 17876 count 0/5 dirty bitmap 0\n')
     # yapf: disable
     self.device.FpmcuCommand = mock.MagicMock(return_value=output)  # type: ignore #TODO(b/338318729) Fixit! # pylint: disable=line-too-long
     # yapf: enable

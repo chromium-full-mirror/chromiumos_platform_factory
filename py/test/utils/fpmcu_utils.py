@@ -140,8 +140,12 @@ _RE_CHIPINFO_NAME = r'name:[^\S\r\n]*(\S+)'
 _RE_RO_VERSION = r'^RO version:[^\S\r\n]*(\S+)'
 _RE_RW_VERSION = r'^RW version:[^\S\r\n]*(\S+)'
 _RE_FPINFO_ERROR_FLAGS = r'^Error flags:(.*)$'
-_RE_VENDOR_ID = r'^Fingerprint sensor:[^\S\r\n]*vendor\s+(\S+)\s+product'
-_RE_SENSOR_ID = r'^Fingerprint sensor:[^\S\r\n]*vendor.+model\s+(\S+)\s+version'
+_RE_VENDOR_ID = (
+    r'^Fingerprint sensor:[^\S\r\n]*vendor\s+(?:0[xX])?([0-9a-fA-F]+)\s+'
+    r'product')
+_RE_SENSOR_ID = (
+    r'^Fingerprint sensor:[^\S\r\n]*vendor.+model\s+(?:0[xX])?([0-9a-fA-F]+)\s+'
+    r'version')
 _RE_FLASH_PROTECT_FLAGS = r'^Flash protect flags:[^\S\r\n]*(\S+)'
 _RE_SYSINFO_IMAGE_NAME = r'^Flags:[^\S\r\n]*(\S+)'
 _RE_VERSION_FW_COPY_NAME = r'^Firmware copy:[^\S\r\n]*(\S+)$'
@@ -252,7 +256,7 @@ class FpmcuDevice:
 
     error_flags = _ExtractTokenFromFpmcuStdout(_RE_FPINFO_ERROR_FLAGS,
                                                fpinfo).strip()
-    if error_flags:
+    if error_flags and error_flags != 'NONE':
       raise FpmcuError(f'Sensor failure: {error_flags}')
 
   def GetFpSensorInfo(self) -> Tuple[str, str]:
@@ -261,7 +265,8 @@ class FpmcuDevice:
     This method also checks that no error flags set.
 
     Returns:
-      A tuple (vendor_id, sensor_id) for vendor ID and sensor ID.
+      A tuple (vendor_id, sensor_id) for vendor ID and sensor ID as lowercase
+      hexadecimal strings without '0x' prefix.
 
     Raises:
       FpmcuCommandError:
@@ -274,8 +279,10 @@ class FpmcuDevice:
     # `FpmcuDeviceTest.testGetFpSensorInfoOnErrorFlagsSet` for example output.
     fpmcu_output = self.FpmcuCommand('fpinfo')
 
-    vendor_id = _ExtractTokenFromFpmcuStdout(_RE_VENDOR_ID, fpmcu_output)
-    sensor_id = _ExtractTokenFromFpmcuStdout(_RE_SENSOR_ID, fpmcu_output)
+    vendor_id = _ExtractTokenFromFpmcuStdout(_RE_VENDOR_ID,
+                                             fpmcu_output).lower()
+    sensor_id = _ExtractTokenFromFpmcuStdout(_RE_SENSOR_ID,
+                                             fpmcu_output).lower()
     self.ValidateFpinfoNoErrorFlags(fpmcu_output)
     return vendor_id, sensor_id
 
