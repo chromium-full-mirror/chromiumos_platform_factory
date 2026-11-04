@@ -67,9 +67,39 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })();
     return true;
   } else {
-    window.console.log('Unknown RPC call', request);
+    console.log('Unknown RPC call', request);
   }
 });
+
+// Redirect the initial data:text/html startup tab (from chrome_dev.conf) to
+// main.html from the extension context, as Manifest V3 blocks renderer-initiated
+// redirects from opaque data: origins to chrome-extension:// URLs.
+const redirectedTabs = new Set();
+const redirectDataUrlTab = (tab) => {
+  const url = tab.url || tab.pendingUrl || '';
+  if (url.startsWith('data:text/html') && !redirectedTabs.has(tab.id)) {
+    redirectedTabs.add(tab.id);
+    chrome.tabs.update(
+        tab.id, {url: chrome.runtime.getURL('main.html')}, () => {
+          if (chrome.runtime.lastError) {
+            redirectedTabs.delete(tab.id);
+          }
+        });
+  }
+};
+
+const checkExistingTabsForRedirect = () => {
+  chrome.tabs.query({}, (tabs) => {
+    for (const tab of tabs) {
+      redirectDataUrlTab(tab);
+    }
+  });
+};
+
+checkExistingTabsForRedirect();
+chrome.runtime.onInstalled.addListener(checkExistingTabsForRedirect);
+chrome.runtime.onStartup.addListener(checkExistingTabsForRedirect);
+chrome.tabs.onCreated.addListener(redirectDataUrlTab);
 
 // Watch for created factory UI tabs, and reload them if:
 // 1. The page is factory UI page (http://localhost:4012/...).
@@ -88,6 +118,7 @@ const MAX_RELOAD_TIME_MSEC = 10 * 1000;
 const STATIC_RESOURCES = ['/js/', '/css/', '/images/'];
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  redirectDataUrlTab(tab);
   if (changeInfo.status === 'loading') {
     tabLastLoadedTime[tabId] = Date.now();
   }
