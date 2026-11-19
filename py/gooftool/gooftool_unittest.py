@@ -28,6 +28,7 @@ from cros.factory.gooftool.management_engine import SKU
 from cros.factory.gooftool import vpd_utils
 from cros.factory.test.utils import model_sku_utils
 from cros.factory.unittest_utils import label_utils
+from cros.factory.utils import file_utils
 from cros.factory.utils import pygpt
 from cros.factory.utils import sys_utils
 from cros.factory.utils.type_utils import Error
@@ -282,6 +283,47 @@ class GooftoolTest(unittest.TestCase):
 
     # Assure loading DB multiple times is prevented.
     self.assertIs(self._gooftool.db, db)
+
+  def _SetUpVerifyDLCImages(self, variant, version):
+    self._gooftool._cros_config.GetModemFirmwareVariant.return_value = variant
+    self._gooftool._util.GetReleaseImageVersion.return_value = version
+    # No DLC is found for the modem firmware variant.
+    self._gooftool._util.shell.return_value = mock.Mock(
+        success=True, stdout='[]', stderr='')
+
+  @mock.patch.object(file_utils, 'CheckPath', side_effect=IOError)
+  @mock.patch.object(sys_utils, 'MountPartition')
+  def testVerifyDLCImagesSkipModemDLCCheck(self, mock_mount, unused_check):
+    for version in ('16720.0.0', '16750.3.0', '16700.22.0', '16700.100.0',
+                    '16699.2.0'):
+      with self.subTest(version=version):
+        self._SetUpVerifyDLCImages('domika_fm101', version)
+
+        self._gooftool.VerifyDLCImages()
+
+        mock_mount.assert_not_called()
+
+  @mock.patch.object(file_utils, 'CheckPath', side_effect=IOError)
+  @mock.patch.object(sys_utils, 'MountPartition')
+  def testVerifyDLCImagesNotSkipModemDLCCheckBeforeRemoval(
+      self, mock_mount, unused_check):
+    mock_mount.return_value.__enter__.return_value = '/mnt/release'
+    for version in ('16700.21.0', '16710.0.0', '16719.0.0', '16699.1.0'):
+      with self.subTest(version=version):
+        self._SetUpVerifyDLCImages('domika_fm101', version)
+
+        self.assertRaisesRegex(Error, 'DLC list should not be empty',
+                               self._gooftool.VerifyDLCImages)
+
+  @mock.patch.object(file_utils, 'CheckPath', side_effect=IOError)
+  @mock.patch.object(sys_utils, 'MountPartition')
+  def testVerifyDLCImagesNotSkipModemDLCCheckForOtherModules(
+      self, mock_mount, unused_check):
+    mock_mount.return_value.__enter__.return_value = '/mnt/release'
+    self._SetUpVerifyDLCImages('rynax_rw101', '16750.0.0')
+
+    self.assertRaisesRegex(Error, 'DLC list should not be empty',
+                           self._gooftool.VerifyDLCImages)
 
   @mock.patch.object(sys_utils, 'MountPartition', autospec=True)
   @mock.patch.object(pygpt, 'GPT', autospec=True)

@@ -65,6 +65,24 @@ _DLC_ERROR_TEMPLATE = (
     'site document: (Google partners only) https://chromeos.google.com/partner/'
     'dlm/docs/factory/factory-dlc-support.html.')
 
+# Maps modem module to the ChromeOS release image versions
+# (<build>.<branch>.<patch>) starting from which its firmware DLC is removed
+# (modem firmware is still present in rootfs):
+#   tot_build: The first ToT CHROMEOS_BUILD where the DLC is removed.
+#   branches: {CHROMEOS_BUILD: the first CHROMEOS_BRANCH where the DLC is
+#     removed on that branch}.
+_MODEM_FW_DLC_REMOVED_VERSIONS = {
+    # b/584562671: FM101 DLCs are removed in 16720.0.0 (crrev/i/9410360) and
+    # cherry-picked to R150 (crrev/i/9423054).
+    'fm101': {
+        'tot_build': 16720,  # removed in 16720.0.0
+        'branches': {
+            16700: 22,  # removed in 16700.22.0 (release-R150-16700.B)
+            16699: 2,  # removed in 16699.2.0 (stabilize-starline-16699.B)
+        },
+    },
+}
+
 
 class FinalizeMode(str, enum.Enum):
   """The process that a device/MLB is needed before leaving the factory.
@@ -241,11 +259,48 @@ class Gooftool:
 
       return sub_dir_names
 
+    def _IsReleaseVersionAtLeast(tot_build, branches):
+      """Checks if the release image version reaches the given versions.
+
+      ChromeOS release image version format is `<build>.<branch>.<patch>`
+      (CHROMEOS_BUILD.CHROMEOS_BRANCH.CHROMEOS_PATCH).
+
+      Args:
+        tot_build: The first ToT build number.
+        branches: A dict mapping a branch's build number to the first branch
+          number on that branch.
+      """
+      version = self._util.GetReleaseImageVersion()
+      build, branch = (int(x) for x in version.split('.')[:2])
+
+      if build >= tot_build:
+        return True
+      if build in branches and branch >= branches[build]:
+        return True
+      return False
+
+    def _ShouldSkipModemDLCCheck(variant):
+      """Checks if the modem firmware DLC check should be skipped.
+
+      Args:
+        variant: The modem firmware variant, e.g. "domika_fm101".
+      """
+      module = variant.split('_')[-1]
+      return (module in _MODEM_FW_DLC_REMOVED_VERSIONS and
+              _IsReleaseVersionAtLeast(
+                  **_MODEM_FW_DLC_REMOVED_VERSIONS[module]))
+
     def _GetDLCToBeVerified():
       dlc_items = set()
       variant = self._cros_config.GetModemFirmwareVariant()
       if not variant:
         logging.info('There is no LTE on this device.')
+        return set()
+      if _ShouldSkipModemDLCCheck(variant):
+        logging.info(
+            'Modem firmware DLC of %s is removed in release image %s. '
+            'Skip the modem DLC check.', variant,
+            self._util.GetReleaseImageVersion())
         return set()
       try:
         # Usually, <model> matches `cros_config / name``. However, exceptions
